@@ -1,0 +1,8 @@
+[
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/m2_stream.py",
+  "old_string": "    total = sum(v[0] for v in hit.values()) / sum(v[1] for v in hit.values())\n    return {\"total\": total,\n            \"b77\": hit[\"b77\"][0] / hit[\"b77\"][1],\n            \"wili\": hit[\"wili\"][0] / hit[\"wili\"][1]}",
+  "new_string": "    total = sum(v[0] for v in hit.values()) / sum(v[1] for v in hit.values())\n    return {\"total\": total,\n            \"b77\": hit[\"b77\"][0] / hit[\"b77\"][1] if hit[\"b77\"][1] else float(\"nan\"),\n            \"wili\": hit[\"wili\"][0] / hit[\"wili\"][1] if hit[\"wili\"][1] else float(\"nan\")}"
+ }
+]

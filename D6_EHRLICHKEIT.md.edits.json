@@ -1,0 +1,122 @@
+[
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "| Default-Fusion λe=λp=1 ist aufgabenoptimal | WIDERLEGT auf WiLI (Prototypen-only +4,2 pp) | D4 §3 Ablation — λ-Fit ist nötig, wie D2 §9 vorsieht |",
+  "new_string": "| Default-Fusion λe=λp=1 ist aufgabenoptimal | WIDERLEGT auf WiLI (Prototypen-only +4,2 pp) | D4 §3 Ablation — λ-Fit ist nötig, wie D2 §9 vorsieht |\n| Episodenschicht erhöht die M1-Genauigkeit | WIDERLEGT auf WiLI: senkt sie (79,30 % mit vs. 82,64 % ohne) — Rechtfertigung nur via M2/M3 | D4 §3; B2 (D8 §2) |"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "| W4 | Modus-S-Generalisierung ungewiss | **5 konsistente Datenpunkte (79,3 % ± 0,7 %)** auf trigramm-freundlichem Terrain; entschieden erst nach M3/M5b |",
+  "new_string": "| W4 | Modus-S-Generalisierung ungewiss | **eine Aufgabe, fünffach gemessen** (79,3 % ± 0,7 %; Seed-Robustheit ≠ Generalisierungsevidenz). W4-Evidenzstand: 2 Aufgabenfamilien (synthetisch, WiLI), beide trigrammfreundlich; entschieden erst nach M3/M5b |"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "| W13 | Zwei Benchmark-Familien ≠ Repräsentativität | offen — jeder M5-Sieg wird als „Sieg auf diesen Aufgaben\" formuliert |",
+  "new_string": "| W13 | Zwei Benchmark-Familien ≠ Repräsentativität | offen — jeder M5-Sieg wird als „Sieg auf diesen Aufgaben\" formuliert |\n| W14 | Bei sehr kleinen, geraden Shot-Zahlen korreliert der geteilte Tie-Vektor die Prototypen (praktisch beobachtet 2026-07-05: 2 Shots/Klasse → Kollaps auf eine Klasse). Empfehlung: ungerade Shots oder Tie-Vektor pro Klasse; ab ~10 Shots irrelevant. | offen |"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "Version 1.0 · Dieses Dokument ist der Anti-Hype-Vertrag des Projekts.",
+  "new_string": "Version 1.1 · Dieses Dokument ist der Anti-Hype-Vertrag des Projekts."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "| W14 | Bei sehr kleinen, geraden Shot-Zahlen korreliert der geteilte Tie-Vektor die Prototypen (praktisch beobachtet 2026-07-05: 2 Shots/Klasse → Kollaps auf eine Klasse). Empfehlung: ungerade Shots oder Tie-Vektor pro Klasse; ab ~10 Shots irrelevant. | offen |",
+  "new_string": "| W14 | Bei sehr kleinen, geraden Shot-Zahlen korreliert der geteilte Tie-Vektor die Prototypen (praktisch beobachtet 2026-07-05: 2 Shots/Klasse → Kollaps auf eine Klasse). Empfehlung: ungerade Shots oder Tie-Vektor pro Klasse; ab ~10 Shots irrelevant. | offen |\n| W15 | End-to-End-Reproduktion nur plattform-/versions-intern bitgenau; Kreuzplattform-Drift durch Integer-Distanz-Ties an der Top-k-Grenze (argpartition-Auswahl implementierungsabhängig), von T2 rückgekoppelt. Beleg 2026-07-05: Apple M4 vs. x86, 10k/2k: 1/2000 Diff., T2-Fehler Ep. 1 8,97 % vs. 8,89 %. Fix-Kandidat: deterministischer Tie-Break (Sortierung nach (d_H, Episoden-ID)) — Meilenstein M4, erfordert Re-Baseline aller Anker. | offen |"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "Fix-Kandidat: deterministischer Tie-Break (Sortierung nach (d_H, Episoden-ID)) — Meilenstein M4, erfordert Re-Baseline aller Anker. | offen |",
+  "new_string": "Fix-Kandidat: deterministischer Tie-Break (Sortierung nach (d_H, Episoden-ID)) — Meilenstein M4, erfordert Re-Baseline aller Anker. | offen |\n| W16 | Zeitmessungen umgebungssensitiv: identischer T1-Pfad 547,4 s (Schlaf-/Hintergrundlauf) vs. 261,9 s (wacher Lauf), Faktor 2,1 — Throttling/QoS-Scheduling (macOS), Mechanismus nicht final isoliert. Politik: kriteriumsrelevante Zeitmessungen gelten nur unter kontrollierten Bedingungen (caffeinate, Netzteil, Deckel offen, alleiniger Lauf). | Politik aktiv, Mechanismus offen |"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "| Episodenschicht erhöht die M1-Genauigkeit | WIDERLEGT auf WiLI: senkt sie (79,30 % mit vs. 82,64 % ohne) — Rechtfertigung nur via M2/M3 | D4 §3; B2 (D8 §2) |",
+  "new_string": "| Episodenschicht erhöht die M1-Genauigkeit | **AUFGABENABHÄNGIG [GEMESSEN]:** WiLI −4,2 pp (senkt: 79,30 % mit vs. 82,64 % ohne), MNIST +8,1 pp (hebt) — B2 als Universalaussage widerlegt; Rolle entscheidet M3 (Prognose P5: −2 bis +3 pp) | D4 §3; B2 (D8 §2); P5 (D8 §3) |"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "| HNSW-Recall ≥95 % auf realen Hamming-Keys | PLAUSIBEL | M0 (W12) |",
+  "new_string": "| HNSW-Recall ≥95 % auf realen Hamming-Keys | **GEMESSEN (M0): 95,57 % @ ef=128 auf 10⁶ realen WiLI-Keys → GO** | D5 §1; D4 §3 (W12) |"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "| W12 | HNSW-Recall auf Hamming unbewiesen | offen bis M0; Brute-Force-Fallback steht |",
+  "new_string": "| W12 | HNSW-Recall auf Hamming unbewiesen | **BEANTWORTET (M0, 2026-07-06): Recall@32 = 95,57 % ab ef=128 auf 10⁶ realen WiLI-Keys → GO; Brute-Force-Fallback ungenutzt** |"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "| W16 | Zeitmessungen umgebungssensitiv: identischer T1-Pfad 547,4 s (Schlaf-/Hintergrundlauf) vs. 261,9 s (wacher Lauf), Faktor 2,1 — Throttling/QoS-Scheduling (macOS), Mechanismus nicht final isoliert. Politik: kriteriumsrelevante Zeitmessungen gelten nur unter kontrollierten Bedingungen (caffeinate, Netzteil, Deckel offen, alleiniger Lauf). | Politik aktiv, Mechanismus offen |",
+  "new_string": "| W16 | Zeitmessungen umgebungssensitiv: identischer T1-Pfad 547,4 s (Schlaf-/Hintergrundlauf) vs. 261,9 s (wacher Lauf), Faktor 2,1 — Throttling/QoS-Scheduling (macOS), Mechanismus nicht final isoliert. Politik: kriteriumsrelevante Zeitmessungen gelten nur unter kontrollierten Bedingungen (caffeinate, Netzteil, Deckel offen, alleiniger Lauf). | Politik aktiv, Mechanismus offen |\n| W17 | Audit-Kette T3-Absorption: Ur-Code (Entfernen ohne A-Update) war de facto korrekt; das D8-Audit übersah die Spec-Code-Wechselwirkung; der wörtliche Spec-Fix (v1.1/B1: „A_c += (2x−1)\") erzeugte eine Doppelzählung; die M2-Messung entlarvte sie. Lehre: wörtliche Spec-Fixes an lebendem Code messtechnisch gegenprüfen, nicht nur lesen. | geschlossen durch D2 v1.3 |\n| W18 | Ähnlichkeits-Absorption erzeugt Survivor-Bias: die verbleibenden **atypischen** Episoden stimmen aktiv falsch ab (die typischen, prototypnahen werden absorbiert). Beleg (Container-Sweep 14k): θ=0,12 → Komp 86×, Banking77 stirbt (0,84→0,22); θ=0,35 → Komp 2,8×, WiLI fällt auf 0,558. Konsequenz siehe M2a-Urteil / D5-§3-No-Go-Pfad. | offen bis M2b |"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "| W18 | Ähnlichkeits-Absorption erzeugt Survivor-Bias: die verbleibenden **atypischen** Episoden stimmen aktiv falsch ab (die typischen, prototypnahen werden absorbiert). Beleg (Container-Sweep 14k): θ=0,12 → Komp 86×, Banking77 stirbt (0,84→0,22); θ=0,35 → Komp 2,8×, WiLI fällt auf 0,558. Konsequenz siehe M2a-Urteil / D5-§3-No-Go-Pfad. | offen bis M2b |",
+  "new_string": "| W18 | Ähnlichkeits-Absorption erzeugt Survivor-Bias: die verbleibenden **atypischen** Episoden stimmen aktiv falsch ab (die typischen, prototypnahen werden absorbiert). Beleg (Container-Sweep 14k): θ=0,12 → Komp 86×, Banking77 stirbt (0,84→0,22); θ=0,35 → Komp 2,8×, WiLI fällt auf 0,558. **M2b-Auflösung [GEMESSEN]: Mechanismus vollständig verstanden — capacity-bound, kein Redundanzüberschuss (Reife-Verdrängung nach Nützlichkeit kostet ebenso −6,85/−17,48/−43,15 pp @ 80/50/20 %); der Survivor-Bias war das Symptom, nicht die Ursache.** Konsequenz: T3-Kompression verworfen, Skalierung via SSD-Zone (M4, D2 §4-T3 v1.4). (ε-Ablation bleibt verschoben — util-Verfall τ=7 d greift in Kurzläufen nicht, Protokoll-Mapping erforderlich; deklariert, nicht gestrichen.) | **geschlossen (M2b)** |"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "*Konsequenz:* Nische ehrlich verengen auf strukturierte/symbolische Domänen; kein Umdeklarieren.",
+  "new_string": "*Konsequenz:* Nische ehrlich verengen auf strukturierte/symbolische Domänen; kein Umdeklarieren. **→ AUSGELÖST (M3, 2026-07-06): Top-1 5,94 % @ K=1000 < 20 %. Konsequenz aktiv — Nischen-Verengung, siehe §7 Krisenbericht.**"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "*Konsequenz:* Zieldimension muss neu verhandelt werden = deklarierte Projektkrise, offener Bericht.",
+  "new_string": "*Konsequenz:* Zieldimension muss neu verhandelt werden = deklarierte Projektkrise, offener Bericht. **→ AUSGELÖST (M3, 2026-07-06): acc(K) monoton fallend trotz T1-only-Ablation (Voll +10,00 vs. T1-only +8,00 pp „Vergessen\" ⇒ nur ~2 pp echte Interferenz, ~8 pp Verdrängung). Konsequenz aktiv — deklarierte Projektkrise, offener Bericht §7, Neuverhandlung der Zieldimension (ENTWURF_ZIELDIMENSION_V2.md).**"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": " | **geschlossen (M2b)** |\n## §3 Top-5-Risiken mit Frühwarnsignal",
+  "new_string": " | **geschlossen (M2b)** |\n| W19 | Auslese-Determinismus reihenfolge-sensitiv: **gleiche Wurzel wie W15** (Integer-Distanz-Ties an der Top-k-Grenze), aber **neuer Scope** — `argpartition` über die Episoden ist bereits **intra-plattform** reihenfolge-sensitiv. Beleg M3-orderinv @1000: Zustand bit-identisch (A bitgleich ∧ Episoden-Multimenge gleich), Klassifikation dennoch 577 vs. 580 Treffer (3/10.000 = 0,03 pp, konsistent mit W15-Toleranzgröße). Fix (für W15 **und** W19): deterministischer Tie-Break, Sortierung nach (d_H, Episoden-ID) — M4-Arbeitspaket; danach beides bitgenau. | offen (Fix M4) |\n## §3 Top-5-Risiken mit Frühwarnsignal"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "deklariert, nicht gestrichen.) | **geschlossen (M2b)** |",
+  "new_string": "deklariert, nicht gestrichen.) | **geschlossen (M2b)** |\n| W19 | Auslese-Determinismus reihenfolge-sensitiv: **gleiche Wurzel wie W15** (Integer-Distanz-Ties an der Top-k-Grenze), aber **neuer Scope** — `argpartition` über die Episoden ist bereits **intra-plattform** reihenfolge-sensitiv. Beleg M3-orderinv @1000: Zustand bit-identisch (A bitgleich ∧ Episoden-Multimenge gleich), Klassifikation dennoch 577 vs. 580 Treffer (3/10.000 = 0,03 pp, konsistent mit W15-Toleranzgröße). Fix (für W15 **und** W19): deterministischer Tie-Break, Sortierung nach (d_H, Episoden-ID) — M4-Arbeitspaket; danach beides bitgenau. | offen (Fix M4) |"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "2. M3-Vergessen >1 pp auch mit T1-only → Zieldimension unhaltbar.",
+  "new_string": "2. M3-Vergessen >1 pp auch mit T1-only → Zieldimension unhaltbar. **→ GETROFFEN (M3, 2026-07-06): T1-only +8,00 pp. Präzisierung §7: unhaltbar ist die *Operationalisierung* (misst Verdrängung statt Interferenz), nicht zwingend die Dimension selbst → Neuverhandlung (ENTWURF_ZIELDIMENSION_V2.md), kein stiller Abbruch.**"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "Tritt einer dieser Punkte ein, wird er publiziert — Negativergebnisse sind Ergebnisse (R5).",
+  "new_string": "Tritt einer dieser Punkte ein, wird er publiziert — Negativergebnisse sind Ergebnisse (R5).\n\n## §7 Krisenbericht M3 (offen) — R-1 + R-2 ausgelöst, Falsifikation §6.2 getroffen (2026-07-06)\n\nDer Kern-Claim M3 (1.000 Klassen sequenziell ohne Vergessen) ist **NICHT ERFÜLLT**; die vorregistrierten Frühwarnsignale **R-1** und **R-2** sind ausgelöst und die Falsifikations-Bedingung **§6.2** ist getroffen. Dieser Abschnitt führt die R-2-Konsequenz wörtlich aus: **deklarierte Projektkrise, offener Bericht, Neuverhandlung der Zieldimension** — kein Weiterwursteln, kein Umdeklarieren.\n\n**Was die registrierte Metrik tatsächlich misst.** Die Vergessens-Metrik (acc-Abfall Tranche-1-Block: +10,00 pp) misst überwiegend **Verwechslungs-Verdrängung**, nicht Informationsverlust. T1 ist append-only und kann mechanisch nicht vergessen, doch die T1-only-Ablation zeigt bereits **+8,00 pp**. Zerlegung: ~8 pp Verdrängung (Score-Raum-Verdichtung bei wachsendem K) + nur ~2 pp echte T2-Interferenz (Voll − T1-only). Bei mehr Klassen konkurrieren mehr Prototypen um denselben Score-Raum; die absolute Trennschärfe sinkt, ohne dass Alt-Wissen zerstört wird.\n\n**Warum die Operationalisierung fehlspezifiziert war.** „Vergessen\" wurde als acc-Differenz über Tranchen operationalisiert und vermengt damit (i) echtes Interferenz-Vergessen (T2 überschreibt Alt-Prototypen) mit (ii) Verdrängung (Verdichtung). Nur (i) ist gemeint. Korrekt wäre die Isolierung von (i) via *Voll − T1-only auf einem Altblock* gewesen. Die §6.2-Falsifikation ist deshalb präzise gelesen eine Falsifikation der **Metrik**, nicht der Architektur.\n\n**Was bewiesen ist (R5, trotz Scheitern).**\n- **Zustands-Invarianz @1000 [BEWIESEN]:** sequenzieller und gemischter Aufbau erzeugen bit-identische Prototypen (A) UND identische Episoden-Multimenge — reihenfolge-unabhängiger Speicher, den ein Gradientensystem strukturell nicht bietet. Das ist die eigentliche Kernaussage der Zieldimension.\n- **Exakte L2-Rekonstruktion:** Replay reproduziert den Endzustand exakt (594 = 594 Treffer).\n- **Geringe echte Interferenz:** ~2 pp — T2 ist kaum destruktiv.\n\n**Was gescheitert ist.**\n- **Absolut-Nutzschwelle (R-1):** Top-1 5,94 % / Top-5 13,10 % @ 1.000 Autoren — 1000er-Stilometrie mit Trigramm-HDC ist zu hart (Sprach-ID war der günstige Fall). Konsequenz: Nische ehrlich auf strukturierte/symbolische Domänen verengen.\n- **Auslese-Determinismus (W19):** unter Episoden-Umordnung 0,03 pp Abweichung (W15-Wurzel, Tie-Break); Fix = deterministischer Tie-Break (M4).\n\n**M5-Implikation (Handlungsbedarf VOR M5).** Das M5-UND-Kriterium Nr. 4 (D5 §6) stützt sich auf dieselbe fehlspezifizierte Vergessens-Metrik. Es muss **vor** M5 neu verhandelt werden, sonst trägt M5 den Fehler weiter. Vorschlag in `ENTWURF_ZIELDIMENSION_V2.md` — Entscheidung liegt bei Projektleitung + Missionskontrolle; **keine stille Einarbeitung in D1/D5.**\n\n**Status: OFFEN.** Neuverhandlung ausstehend; bis dahin bleibt M3 als NICHT ERFÜLLT mit vollständiger Dekomposition dokumentiert. Vorregistrierte Kriterien werden nicht rückwirkend geändert."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "## §7 Krisenbericht M3 (offen) — R-1 + R-2 ausgelöst, Falsifikation §6.2 getroffen (2026-07-06)",
+  "new_string": "## §7 Krisenbericht M3 (geschlossen durch V2-Ratifizierung) — R-1 + R-2 ausgelöst, Falsifikation §6.2 getroffen (2026-07-06)"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "**Status: OFFEN.** Neuverhandlung ausstehend; bis dahin bleibt M3 als NICHT ERFÜLLT mit vollständiger Dekomposition dokumentiert. Vorregistrierte Kriterien werden nicht rückwirkend geändert.",
+  "new_string": "**Status: GESCHLOSSEN durch V2-Ratifizierung (2026-07-06, Freigabe JA-V2).** Messbeleg: t2-local-Bestätigungslauf @1000 (`logs/m3_t2local.log`) → **Interferenz-Vergessen = +0,20 pp** (T1-only-Block 0,0660 − t2-local-Block 0,0640) **≤ 1 pp** — die MK-Bedingung ist erfüllt (volle Pipeline hatte +1,30 pp; der t2-local-Fallback isoliert echte Interferenz). Die Zieldimension ist damit V2-operationalisiert (D1 §5, D5 §6-Kriterium-4 v1.3, `RATIFIZIERT_ZIELDIMENSION_V2.md`). M3 bleibt als NICHT ERFÜLLT (alte Metrik) vollständig dokumentiert; **keine rückwirkende Kriterienänderung.**"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D6_EHRLICHKEIT.md",
+  "old_string": "3. M5-Ausgang (3) → Nischenhypothese gegen den fairsten Gegner gescheitert.",
+  "new_string": "3. M5-Ausgang (3) → Nischenhypothese gegen den fairsten Gegner gescheitert. **→ GETROFFEN (M5, 2026-07-07): (3) NIEDERLAGE auf beiden Aufgaben (Banking77 −20,4 pp, CLINC150 −22,0 pp). Die Kernhypothese ist auf den getesteten semantischen Intent-Aufgaben gescheitert — trotz 38–76× Energie- und 561–705× Lernzeit-Dominanz und praktisch keinem Vergessen (+0,20 vs. +27,5/+55,6 pp) zählt Effizienz ohne Genauigkeit nicht als Sieg (D1 §5). Kein Umdeklarieren (W13): das Urteil gilt für die getesteten Aufgabenfamilien, nicht „für KI\"; ENGRAMMs belegte Nische bleibt strukturarm-erreichbare Genauigkeit (Sprach-ID/M1). Details D5 §6, D4 §3-M5.**"
+ }
+]

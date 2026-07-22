@@ -1,0 +1,38 @@
+[
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/CLAUDE.md",
+  "old_string": "  Extern reproduziert: bitidentisch auf Linux-Container UND macOS (Python 3.13). Details: D8_AUDIT.md.",
+  "new_string": "  Reproduktion: Linux-Container bitidentisch (NumPy 2.4.4). **Kreuzplattform NICHT bitidentisch** — Apple M4 / NumPy 2.4.1: WiLI Seed 42 = 0,7847 (3688/4700) statt 0,7845 (3687/4700), MNIST 10k/2k = 0,9080 statt 0,9075 (je 1 Sample, ≤0,05 pp; Top-k-Tie-Drift, D6 W15). Details: D8_AUDIT.md §1 + Erratum."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/CLAUDE.md",
+  "old_string": "4. **Determinismus ist heilig:** Seeds fixiert; gleiche Eingabe ⇒ bitgleiche Ausgabe.",
+  "new_string": "4. **Determinismus ist heilig:** Seeds fixiert; gleiche Eingabe ⇒ bitgleiche Ausgabe **innerhalb gleicher Plattform + NumPy-Version**. Kreuzplattform-Gegenchecks bestehen bei |Δacc| ≤ 0,3 pp (Drift durch Top-k-Distanz-Ties, argpartition-implementierungsabhängig; D6 W15). Offizielle Messplattform: **Apple M4** (in Doku stets „Apple M4\", nie nur „M4\" — Kollision mit Meilenstein M4)."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/CLAUDE.md",
+  "old_string": "Bei Änderungen am Kern zusätzlich: `python3 engramm.py wili --seed 42` MUSS exakt `Top-1 = 0.7845`\nliefern — jede Abweichung ist entweder ein Bug oder eine dokumentationspflichtige Verhaltensänderung.",
+  "new_string": "Bei Änderungen am Kern zusätzlich: `python3 engramm.py wili --seed 42` — Referenz **Apple M4 / NumPy 2.4.1: `Top-1 = 0.7847`** (Linux-Container / NumPy 2.4.4: 0.7845). Innerhalb gleicher Plattform + Version bitexakt;\njede darüber hinausgehende Abweichung ist entweder ein Bug oder eine dokumentationspflichtige Verhaltensänderung."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/CLAUDE.md",
+  "old_string": "  entsprechend einordnen; Genauigkeitswerte sind plattformunabhängig (bewiesen, siehe D8 §1).",
+  "new_string": "  entsprechend einordnen; Genauigkeitswerte sind plattformunabhängig **bis auf Top-k-Tie-Drift ≤0,3 pp kreuzplattform** (siehe D6 W15 / D8 §1-Erratum)."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/CLAUDE.md",
+  "old_string": "- Messwerte gehören in die D-Dokumente, nicht nur ins Terminal.\n- **Missionskontrolle:**",
+  "new_string": "- Messwerte gehören in die D-Dokumente, nicht nur ins Terminal.\n- **Hintergrund-Läufe: IMMER session-fest** via `nohup <cmd> > logs/<name>.log 2>&1 & echo $! > logs/<name>.pid; disown`\n  — überlebt Session-Ende. Status-Check in jeder Session: `ps -p $(cat logs/<name>.pid)` + `tail logs/<name>.log`.\n  Python immer mit `-u` (ungepufferte Ausgabe → Live-Log, kein Blindflug). Kriteriumsrelevante Zeitmessungen\n  nur unter W16-Bedingungen (D6: caffeinate, Netzteil, Deckel offen, alleiniger Lauf). `logs/` ist gitignored.\n- **Missionskontrolle:**"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/CLAUDE.md",
+  "old_string": "- Messwerte gehören in die D-Dokumente, nicht nur ins Terminal.\n- **Hintergrund-Läufe: IMMER session-fest**",
+  "new_string": "- Messwerte gehören in die D-Dokumente, nicht nur ins Terminal.\n- **Externe Lieferungen tragen ein Verifikations-Manifest:** welche Subkommandos im Container\n  tatsächlich liefen (und welche nicht). Konsequenz aus `72a0714` — ein „extern verifizierter\"\n  Harness crashte auf einem ungetesteten Codepfad (`t2ablation`). Ungetestete Pfade vor dem\n  offiziellen Lauf selbst anfahren.\n- **Hintergrund-Läufe: IMMER session-fest**"
+ }
+]

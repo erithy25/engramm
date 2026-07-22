@@ -1,0 +1,92 @@
+[
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D2_SPEC.md",
+  "old_string": "Version 1.0 · normativ für D4-Implementierungen · Labels: [GESICHERT]/[PLAUSIBEL]/[SPEKULATION]",
+  "new_string": "Version 1.1 · normativ für D4-Implementierungen · Labels: [GESICHERT]/[PLAUSIBEL]/[SPEKULATION]\n\n**Änderungshistorie v1.1 (D8 §2):**\n- **B1:** §4 (T1) und §5 (Pseudocode) an das tatsächliche Kernverhalten (`engramm.py`, `learn()`) angeglichen: T1 akkumuliert **jeden** Shot additiv in A_c (A_c += (2x−1) bei jedem `learn`) statt A_c nur bei einer neuen Klasse einmalig zu setzen. Das Code-Verhalten ist das bessere Design [PLAUSIBEL]: Prototypen sind nach T1 bereits vollständige additive Zentroiden aller Shots einer Klasse (nicht nur Abbild des ersten Shots) — das erklärt die starke Prototypen-only-Ablation (D4 §3) mechanisch. Keine Code- oder Kriterienänderung; vorregistrierte D5-Kriterien unberührt."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D2_SPEC.md",
+  "old_string": "**T1 — Sofort.** (x, c): INSERT in L1; c neu ⇒ A_c := (2x − 1) (One-Shot; Klasse existiert ab sofort).",
+  "new_string": "**T1 — Sofort.** (x, c): INSERT in L1; **A_c += (2x − 1) bei jedem `learn`** — eine neue Klasse startet mit A_c = 0, der erste Shot ergibt also A_c = (2x − 1), jeder weitere Shot akkumuliert additiv. Überlaufschutz max|A_c| > 2¹⁴ ⇒ A_c ≫ 1, anschließend Rebinarisierung. Die Klasse existiert ab dem ersten Shot; der Prototyp ist nach T1 bereits der vollständige additive Zentroid seiner Shots, nicht nur der erste Shot. [GESICHERT: Kernverhalten `engramm.py`]"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D2_SPEC.md",
+  "old_string": "if c neu: A[c] := 2x−1; K += 1",
+  "new_string": "A[c] += 2x−1  # T1: JEDER Shot (c neu ⇒ A[c] war 0, K+=1)"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D2_SPEC.md",
+  "old_string": "λ_e, λ_p, T (und θ_merge) sind die **einzigen vier aufgabenspezifischen Fit-Parameter**, gefittet auf deklariertem Validierungssplit; alle übrigen Konstanten sind global fixiert (§9). Antwort enthält Provenienz: (Top-k-IDs, w_i, src).",
+  "new_string": "λ_e, λ_p, T (und θ_merge) sind die **einzigen vier aufgabenspezifischen Fit-Parameter**, gefittet auf deklariertem Validierungssplit; alle übrigen Konstanten sind global fixiert (§9). Antwort enthält Provenienz: (Top-k-IDs, w_i, src).\n\n**Kostenpräzision (B4, D8 §2; R2).** Die Score-Fusion ist der einzige Multiplikationspfad des Kerns: pro Antwort **O(10²) Float-Multiplikationen** (util-Faktor û_i, λ_e-/λ_p-Gewichtung, softmax) gegen **O(10⁹)** MACs eines vergleichbaren Netzes. Die VSA-Kernoperationen (Binden = XOR, Bündeln = Integer-Addition, ρ = Rotation, Ähnlichkeit = XOR + Popcount) bleiben multiplikationsfrei."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D2_SPEC.md",
+  "old_string": " das erklärt die starke Prototypen-only-Ablation (D4 §3) mechanisch. Keine Code- oder Kriterienänderung; vorregistrierte D5-Kriterien unberührt.",
+  "new_string": " das erklärt die starke Prototypen-only-Ablation (D4 §3) mechanisch. Keine Code- oder Kriterienänderung; vorregistrierte D5-Kriterien unberührt.\n- **B4:** §3 präzisiert — die Score-Fusion ist der einzige Multiplikationspfad (O(10²) Float-Multiplikationen pro Antwort statt O(10⁹) MACs); R2-Präzision, keine Verhaltensänderung."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D2_SPEC.md",
+  "old_string": "Version 1.1 · normativ für D4-Implementierungen · Labels: [GESICHERT]/[PLAUSIBEL]/[SPEKULATION]\n\n**Änderungshistorie v1.1 (D8 §2):**",
+  "new_string": "Version 1.2 · normativ für D4-Implementierungen · Labels: [GESICHERT]/[PLAUSIBEL]/[SPEKULATION]\n\n**Änderungshistorie v1.2 (M0, 2026-07-06):**\n- **§7-Kalibrierung:** §7 erhält die M0-Fußnote ². Die Python/NumPy-Referenz verfehlt zwei Budgetzeilen um >3×: d_H heiß 190,8 ns (Faktor 3,2×) und ENCODE_S(100) 781,7 µs (Faktor 15,6×) [GEMESSEN, M0]. **Budgetzahlen bleiben unverändert** — sie beschreiben den kompilierten Kern (M4-Arbeitspaket); Phase-4-Rückkehr für diese Komponenten = M4-Kern (Rust/C). Keine Kriterienänderung; vorregistrierte D5-Kriterien unberührt. Übrige §7-Zeilen im Budget, M0-Go/No-Go erfüllt (Recall 95,57 %; D5 §1, D4 §3).\n\n**Änderungshistorie v1.1 (D8 §2):**"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D2_SPEC.md",
+  "old_string": "| d_H heiß (Cache) | ~250 SIMD | 30–60 ns | — |",
+  "new_string": "| d_H heiß (Cache) ² | ~250 SIMD | 30–60 ns | — |"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D2_SPEC.md",
+  "old_string": "| ENCODE_S (L=100) | ~6·10⁴ | 20–50 µs | ~2·10⁵/s |",
+  "new_string": "| ENCODE_S (L=100) ² | ~6·10⁴ | 20–50 µs | ~2·10⁵/s |"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D2_SPEC.md",
+  "old_string": "¹ Fußnote „Single-Writer\" (Phase-4-Angriff 3): Durchsatzangaben gelten für serialisierten Schreibpfad; lock-freie Reader via Epochen-Snapshots sind M4-Arbeitspaket.",
+  "new_string": "¹ Fußnote „Single-Writer\" (Phase-4-Angriff 3): Durchsatzangaben gelten für serialisierten Schreibpfad; lock-freie Reader via Epochen-Snapshots sind M4-Arbeitspaket.\n\n² **M0-Kalibrierung (v1.2) [GEMESSEN, 2026-07-06, Apple M4, Harness `m0_bench.py`].** Die Budgets beschreiben den kompilierten Kern (M4-Arbeitspaket); die Python/NumPy-Referenz verfehlt d_H heiß und ENCODE_S um Faktor 3,2× (190,8 ns) bzw. 15,6× (781,7 µs). Phase-4-Rückkehr für diese Komponenten = M4-Kern (Rust/C); Budgetzahlen bleiben unverändert. Übrige §7-Zeilen (d_H kalt 355,9 ns · QUERY p50 1,69 ms @ ef=128 · Brute 39,9 ms · INSERT 0,36 ms) im Budget; M0-Recall-Go/No-Go erfüllt (95,57 %). Details D5 §1, D4 §3."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D2_SPEC.md",
+  "old_string": "Version 1.2 · normativ für D4-Implementierungen · Labels: [GESICHERT]/[PLAUSIBEL]/[SPEKULATION]\n\n**Änderungshistorie v1.2 (M0, 2026-07-06):**",
+  "new_string": "Version 1.3 · normativ für D4-Implementierungen · Labels: [GESICHERT]/[PLAUSIBEL]/[SPEKULATION]\n\n**Änderungshistorie v1.3 (M2, 2026-07-06):**\n- **§4-T3 (W17):** Absorptionsregel korrigiert. Alt (v1.1/B1, wörtlich): T3-Absorption führt „A_c += (2x−1)\" aus. Das ist unter T1-**Vollakkumulation** (jeder Shot steckt bereits additiv in A_c) eine **Doppelzählung** — die Episodenstatistik ist schon in A_c enthalten. Korrekt (und Kernverhalten seit jeher): **Absorption = Entfernen des Episodeneintrags nach L2, ohne A_c-Update.** Der Ur-Code war de facto richtig; der wörtliche Spec-Fix in v1.1/B1 erzeugte die Doppelzählung, die die M2-Messung entlarvte (D6 W17). §4-T3-Text und §5-Pseudocode bereinigt; `consolidate()` funktional unverändert (nur vektorisiert, O(N)). Keine Kriterienänderung; vorregistrierte D5-Kriterien unberührt.\n\n**Änderungshistorie v1.2 (M0, 2026-07-06):**"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D2_SPEC.md",
+  "old_string": "(2) Absorption falls sim > θ_merge = 0,12 ∧ util < 2: A_c += (2x−1), n_merged++, Episode → L2;",
+  "new_string": "(2) **Absorption** falls sim > θ_merge = 0,12 ∧ util < 2: **Entfernen des Episodeneintrags** (n_merged++, Episode → L2), **kein A_c-Update** — die Episodenstatistik ist unter T1-Vollakkumulation bereits in A_c; ein Update wäre Doppelzählung [GEMESSEN, M2-Befund 2026-07-06; v1.3/W17];"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D2_SPEC.md",
+  "old_string": "**Invariante:** kein Eintrag wird überschrieben — nur absorbiert (Statistik bleibt in A_c) oder nach L2 verschoben (rekonsolidierbar).",
+  "new_string": "**Invariante:** kein Eintrag wird überschrieben — nur absorbiert (Statistik bereits in A_c aus T1) oder nach L2 verschoben (rekonsolidierbar)."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D2_SPEC.md",
+  "old_string": "          A[p] += 2e.key−1; e → L2",
+  "new_string": "          e → L2   # kein A[p]-Update: Doppelzaehlung (v1.3)"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D2_SPEC.md",
+  "old_string": "Version 1.3 · normativ für D4-Implementierungen · Labels: [GESICHERT]/[PLAUSIBEL]/[SPEKULATION]",
+  "new_string": "Version 1.4 · normativ für D4-Implementierungen · Labels: [GESICHERT]/[PLAUSIBEL]/[SPEKULATION]\n\n**Änderungshistorie v1.4 (M2b, 2026-07-06):** §4-T3 erhält den RAM-Horizont-Satz: der Episodenbestand ist vor Sättigung der acc(N)-Kurve **nicht verlustfrei reduzierbar** [GEMESSEN M2a/M2b] — Skalierung übernimmt die SSD-Zone (M4/L1-SSD), nicht Kompression. Kein Kriterium, Präzisierung des Skalierungsmodells (M2a-No-Go-Endpunkt)."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D2_SPEC.md",
+  "old_string": "Restphänomen „Verwechslungs-Vergessen\" bei wachsendem K wird nicht wegdefiniert, sondern in M3 gemessen.",
+  "new_string": "Restphänomen „Verwechslungs-Vergessen\" bei wachsendem K wird nicht wegdefiniert, sondern in M3 gemessen. **RAM-Horizont (v1.4):** Der Episodenbestand ist vor Erreichen der acc(N)-Sättigung **nicht verlustfrei reduzierbar** [GEMESSEN M2a/M2b: Ähnlichkeits- wie Nützlichkeits-Verdrängung kosten bereits bei 80 % Bestand −6,85 pp]; Skalierung über 10⁶ übernimmt die **SSD-Zone** (M4/L1-SSD), nicht Kompression."
+ }
+]

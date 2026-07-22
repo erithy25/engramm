@@ -1,0 +1,32 @@
+[
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/README.md",
+  "old_string": "Reine CPU, reine Bit-Operationen, kein Gradient, kein Fremdmodell.",
+  "new_string": "Reine CPU, reine Bit-Operationen (Score-Fusion: O(10²) Multiplikationen pro Antwort statt O(10⁹)), kein Gradient, kein Fremdmodell."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/README.md",
+  "old_string": "Reine CPU, reine Bit-Operationen, kein Gradient, kein Fremdmodell.",
+  "new_string": "Reine CPU, reine Bit-Operationen (Score-Fusion: O(10²) Multiplikationen pro Antwort statt O(10⁹)), kein Gradient, kein Fremdmodell."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/README.md",
+  "old_string": "Gedächtniszentrierte KI-Funktionsweise: **Lernen = Schreiben.**",
+  "new_string": "Gedächtniszentrierte KI, **Lernen = Schreiben.** Der Beitrag ist keine neuartige KI-Funktionsweise, sondern eine **neuartige Synthese** publizierter Bausteine (Kanerva-VSA-Algebra; Trigramm-Sprach-ID, Joshi et al. 2016; OnlineHD-Updates; HNSW/DiskANN-Retrieval), integriert zu append-only-Gedächtnis mit Provenienz."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/README.md",
+  "old_string": "| `engramm.py` | Lauffähiger Kern (~470 Zeilen, nur NumPy) |",
+  "new_string": "| `engramm.py` | Lauffähiger Kern (469 Zeilen, nur NumPy) |"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/README.md",
+  "old_string": "# Projekt AXIOM / ENGRAMM — Übersicht\n\nGedächtniszentrierte KI, **Lernen = Schreiben.**",
+  "new_string": "# Projekt AXIOM / ENGRAMM — Übersicht\n\nVersion 1.1 · Übersicht & Schnellstart · Details in D1–D8\n\nGedächtniszentrierte KI, **Lernen = Schreiben.**"
+ }
+]

@@ -1,0 +1,20 @@
+[
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/RATIFIZIERT_ZIELDIMENSION_V2.md",
+  "old_string": "# ENTWURF — Zieldimension V2 (Neuverhandlung nach M3-Krise)\n\n**Status: ENTWURF.** Entscheidung liegt bei Projektleitung + Missionskontrolle.\n**Keine stille Einarbeitung in D1/D5** — dieser Vorschlag wird erst nach expliziter\nFreigabe kanonisch. Auslöser: M3-Krise (D6 §7; R-1 + R-2 ausgelöst, Falsifikation\n§6.2 getroffen). Datum: 2026-07-06.",
+  "new_string": "# RATIFIZIERT — Zieldimension V2 (nach M3-Krise, Freigabe JA-V2)\n\n**Status: RATIFIZIERT (2026-07-06, Freigabe „JA-V2\", Projektleitung + Missionskontrolle).**\nMK-Bedingung erfüllt und gemessen: der vorregistrierte D2-§4-Fallback `t2_local`\ndrückt das Interferenz-Vergessen @1000 auf **+0,20 pp ≤ 1 pp** (T1-only-Block 0,0660\n− t2-local-Block 0,0640; Messbeleg `logs/m3_t2local.log`, D6 §7). **Eingearbeitet**\nin D1 §5 (v1.2) und D5 §6-Kriterium-4 (v1.3); ENGRAMM-M5-Konfiguration `t2_local=True`\nregistriert. Auslöser: M3-Krise (D6 §7; R-1 + R-2 ausgelöst, Falsifikation §6.2\ngetroffen). Datum: 2026-07-06."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/RATIFIZIERT_ZIELDIMENSION_V2.md",
+  "old_string": "# ENTWURF — Zieldimension V2 (Neuverhandlung nach M3-Krise)\n\n**Status: ENTWURF.** Entscheidung liegt bei Projektleitung + Missionskontrolle.\n**Keine stille Einarbeitung in D1/D5** — dieser Vorschlag wird erst nach expliziter\nFreigabe kanonisch. Auslöser: M3-Krise (D6 §7; R-1 + R-2 ausgelöst, Falsifikation\n§6.2 getroffen). Datum: 2026-07-06.",
+  "new_string": "# RATIFIZIERT — Zieldimension V2 (nach M3-Krise, Freigabe JA-V2)\n\n**Status: RATIFIZIERT (2026-07-06, Freigabe „JA-V2\", Projektleitung + Missionskontrolle).**\nMK-Bedingung erfüllt und gemessen: der vorregistrierte D2-§4-Fallback `t2_local`\ndrückt das Interferenz-Vergessen @1000 auf **+0,20 pp ≤ 1 pp** (T1-only-Block 0,0660\n− t2-local-Block 0,0640; Messbeleg `logs/m3_t2local.log`, D6 §7). **Eingearbeitet**\nin D1 §5 (v1.2) und D5 §6-Kriterium-4 (v1.3); ENGRAMM-M5-Konfiguration `t2_local=True`\nregistriert. Auslöser: M3-Krise (D6 §7; R-1 + R-2 ausgelöst, Falsifikation §6.2\ngetroffen). Datum: 2026-07-06."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/RATIFIZIERT_ZIELDIMENSION_V2.md",
+  "old_string": "- Diese Datei ändert nichts an D1/D5, bis Projektleitung + Missionskontrolle\n  zustimmen.",
+  "new_string": "- **Ratifiziert und eingearbeitet** in D1 §5 (v1.2) und D5 §6-Kriterium-4 (v1.3)\n  nach Freigabe JA-V2 und Messbeleg (+0,20 pp ≤ 1 pp). Diese Datei ist ab 2026-07-06\n  die kanonische Herleitung der V2-Operationalisierung."
+ }
+]

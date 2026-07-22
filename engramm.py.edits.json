@@ -1,0 +1,20 @@
+[
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/engramm.py",
+  "old_string": "    def consolidate(self, theta_merge: float = 0.12, util_max: int = 2) -> int:\n        \"\"\"Absorbiert episodennahe, wenig genutzte Eintraege in Prototypen.\n        Gibt Anzahl absorbierter Episoden zurueck. (M2-Messgegenstand.)\"\"\"\n        if self.keys.shape[0] == 0:\n            return 0\n        keep = np.ones(self.keys.shape[0], dtype=bool)\n        for i in range(self.keys.shape[0]):\n            c = self.vals[i]\n            s = sim_from_dh(hamming(self.keys[i], self.P[c:c + 1]))[0]\n            if s > theta_merge and self.util[i] < util_max:\n                keep[i] = False                        # absorbieren\n        removed = int((~keep).sum())\n        self.keys, self.vals, self.util = (\n            self.keys[keep], self.vals[keep], self.util[keep]\n        )\n        return removed",
+  "new_string": "    def consolidate(self, theta_merge: float = 0.12, util_max: int = 2) -> int:\n        \"\"\"T3: Entfernt episodennahe, wenig genutzte Eintraege aus dem\n        Episodenspeicher. KEIN A_c-Update: unter T1-Vollakkumulation\n        (D2 v1.1/B1) ist die Episodenstatistik bereits in A_c enthalten —\n        ein Update hier waere Doppelzaehlung (M2-Befund; D2 §4 -> v1.3).\n        Vektorisiert (O(N) statt O(N*K)). Gibt Anzahl Absorptionen zurueck.\"\"\"\n        n = self.keys.shape[0]\n        if n == 0:\n            return 0\n        dh = popcount_rows(np.bitwise_xor(self.keys, self.P[self.vals]))\n        absorb = (sim_from_dh(dh) > theta_merge) & (self.util < util_max)\n        removed = int(absorb.sum())\n        if removed:\n            keep = ~absorb\n            self.keys, self.vals, self.util = (\n                self.keys[keep], self.vals[keep], self.util[keep]\n            )\n        return removed"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/engramm.py",
+  "old_string": "    def __init__(self, item_memory: ItemMemory,\n                 lam_e: float = 1.0, lam_p: float = 1.0,\n                 use_episodes: bool = True):\n        self.im = item_memory\n        self.lam_e = lam_e\n        self.lam_p = lam_p\n        self.use_episodes = use_episodes",
+  "new_string": "    def __init__(self, item_memory: ItemMemory,\n                 lam_e: float = 1.0, lam_p: float = 1.0,\n                 use_episodes: bool = True, t2_local: bool = False):\n        self.im = item_memory\n        self.lam_e = lam_e\n        self.lam_p = lam_p\n        self.use_episodes = use_episodes\n        self.t2_local = t2_local               # D2-§4-Fallback: T2 klassenlokal"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/engramm.py",
+  "old_string": "        if c_pred != c_true:                           # Perceptron-Stil\n            self.A[c_true] += signed\n            self.A[c_pred] -= signed\n            self._rebinarize(c_true)\n            self._rebinarize(c_pred)\n            return False\n        return True",
+  "new_string": "        if c_pred != c_true:                           # Perceptron-Stil\n            self.A[c_true] += signed\n            self._rebinarize(c_true)\n            if not self.t2_local:                      # Fremdklassen-Malus nur\n                self.A[c_pred] -= signed               # im Standardmodus\n                self._rebinarize(c_pred)\n            return False\n        return True"
+ }
+]

@@ -1,0 +1,140 @@
+[
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Volltest 500/Klasse, 8-Kern-Zahlen — M0.",
+  "new_string": "Volltest 500/Klasse, 8-Kern-Zahlen — M0.\n\n**Erratum (Missionskontrolle, 2026-07-05):** 'bitidentisch auf macOS' beruhte auf spielwiese-Stichprobe; Vollnachweis stand aus. Kreuzplattform-Politik siehe D6 W15."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Volltest 500/Klasse, 8-Kern-Zahlen — M0.\n\n## §2 Befunde → Pflichtliste für Version 1.1",
+  "new_string": "Volltest 500/Klasse, 8-Kern-Zahlen — M0.\n\n**Erratum (Missionskontrolle, 2026-07-05):** 'bitidentisch auf macOS' beruhte auf spielwiese-Stichprobe; Vollnachweis stand aus. Kreuzplattform-Politik siehe D6 W15.\n\n## §2 Befunde → Pflichtliste für Version 1.1"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Diese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2.",
+  "new_string": "*P4–P7 wurden in der Missionskontroll-Konversation vor den jeweiligen Messungen registriert; Übertrag ins Register 2026-07-06. Bereits gemessene Fälle sind mit Ergebnis + Kalibrierungsrichtung annotiert (keine nachträgliche Torpfosten-Verschiebung: die Bänder standen vor der Messung).*\n\nP4 (vor M1b-Volllauf) — acc 92,5–94,5 %, Konfidenz Münzwurf. → **Ergebnis 94,62 %: 0,12 pp über Band (zu pessimistisch), Richtung korrekt.**\nP5 (vor M3) — Netto-Genauigkeitsbeitrag der Episodenschicht bei M3: **−2 bis +3 pp**. → offen.\nP6 (vor 5-Seed-M1b) — acc 94,3–94,9 %, SD ≤ 0,5, Seed 42 exakt 94,62 %; Zeit-Mittel 17–24 min. → **acc ✓ (94,59 % ± 0,04), Seed 42 ✓; Zeit ✗ (28,1 min, zu optimistisch).**\nP7 (nach Container-60k, vor M4-10⁶) — Recall ≥95 % ab ef=64 (p≈70 %), bis ef=256 (p≈90 %); Energie 5–40 mJ (unter Band); ENCODE_S 250–450 µs (RISS); d_H heiß 120–250 ns; Brute@10⁶ 20–60 ms. → offen.\n\nDiese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Brute@10⁶ 20–60 ms. → offen.",
+  "new_string": "Brute@10⁶ 20–60 ms. → **kalibriert 2026-07-06 [GEMESSEN, M0]:** ef64 verfehlt (92,06 %; Prognose nur p≈70 % — Fehlschlag im erwarteten Rahmen); ef128/256 ✓ (95,57 % / 97,31 %); Energie ✓ (27,4 mJ, unter Band); d_H heiß ✓ (190,8 ns); Brute ✓ (39,9 ms); ENCODE_S Richtung ✓ (RISS), **Betrag unterschätzt** (781,7 statt 250–450 µs — M4-Encode langsamer als x86-Container, Flaschenhals ist der interpretierte Pfad, plattformspezifisch). **Bilanz: 4 Treffer, 1 Richtungstreffer, 1 Fehlschlag bei niedriger Konfidenz.**"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Diese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2.",
+  "new_string": "P8 (in der Missionskontroll-Konversation vor dem 50k-M2a-Lauf registriert; Übertrag 2026-07-06) — Kompression@θ=0,12 ≥5× (p≈95 %); Δacc-Kriterium reißt (p≈90 %, erwartet −15 bis −30 pp); kein θ erfüllt beide (p≈85 %); T3-Anteil <2 % (p≈95 %); T2-Ablation +1 bis +6 pp, ≥+3 pp Münzwurf. → **kalibriert 2026-07-06 [GEMESSEN, M2a]:** Kompression ✓ (12,8×); Δacc reißt ✓, aber **Betrag deutlich unterschätzt** (−53,00 statt −15 bis −30 pp); kein θ erfüllt beide ✓ (Sweep 0,12–0,35, mildester −19,3 pp @ Komp 2,1×); T3-Anteil ✓ (0,01 %); T2-Ablation ✗ (**−0,23 pp**, außerhalb +1..+6 — Richtung falsch; ≥+3 nicht erfüllt). **Bilanz: 4 Treffer (Kompression, Δacc-reißt, kein-θ, T3-Anteil), 1 Betragsfehler (Schaden unterschätzt), 1 Fehlschlag (T2-Beitrag negativ statt positiv).**\n\nDiese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Diese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2.",
+  "new_string": "P9 (in der Missionskontroll-Konversation vor den M2b-Messungen registriert; Übertrag 2026-07-06) — 50k/M4 Reife-Verdrängungs-Kurve: 80 % → −1,5…−4 pp; 50 % → −10…−18 pp; 20 % → −25…−40 pp; Persistenz (Voll- und Crash-Replay) beide EXAKT (p≈90 %). → offen.\n\nDiese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Persistenz (Voll- und Crash-Replay) beide EXAKT (p≈90 %). → offen.",
+  "new_string": "Persistenz (Voll- und Crash-Replay) beide EXAKT (p≈90 %). → **kalibriert 2026-07-06 [GEMESSEN, M2b]:** 80 % −6,85 pp (Prognose −1,5…−4 → **verfehlt, schlechter**); 50 % −17,48 pp (−10…−18 → **Treffer** ✓); 20 % −43,15 pp (−25…−40 → knapp schlechter); Persistenz Voll- **und** Crash-Replay EXAKT ✓ (Treffer). **Bilanz: 2 Treffer (50-%-Kurve, Persistenz), 2 Betragsfehler an den Rändern (Schaden unterschätzt); Richtung durchweg korrekt.**"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Diese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2.",
+  "new_string": "P10 (in der Missionskontroll-Konversation vor der offiziellen M3-Messung registriert; Übertrag 2026-07-06) — Vergessens-Metrik @1000: +8…+20 pp → NICHT ERFÜLLT (p≈95 %); echter T2-Interferenz-Anteil (Voll − T1-only auf Tranche-1-Block): ≤3 pp (p≈70 %); Absolut Top-1 @1000: 4–9 % (p≈95 % unter Schwelle), Top-5 10–20 %; Lernzeit ✓; Rekonstruktion EXAKT (p≈90 %); Reihenfolge-Invarianz auch @1000 BEWIESEN (p≈90 %). → offen.\n\nDiese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Reihenfolge-Invarianz auch @1000 BEWIESEN (p≈90 %). → offen.",
+  "new_string": "Reihenfolge-Invarianz auch @1000 BEWIESEN (p≈90 %). → **kalibriert 2026-07-06 [GEMESSEN, M3]:** Vergessens-Metrik +10,00 pp → NICHT ERFÜLLT ✓; echte T2-Interferenz ~2,00 pp (≤3) ✓; Absolut Top-1 5,94 % (4–9) ✓, Top-5 13,10 % (10–20) ✓; Lernzeit 84 ms ✓; Rekonstruktion EXAKT ✓; **Reihenfolge-Invarianz @1000 = FEHLSCHLAG** (Test verlangte alle drei Checks): Zustands-Invarianz BEWIESEN (A + Episoden-Multimenge identisch), aber Auslese-Determinismus VERLETZT (577 vs 580, 0,03 pp, W19). **Bilanz: 5 Treffer, 1 Fehlschlag (Invarianz — differenziert: Zustand bewiesen, Auslese W19).**"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Diese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2.",
+  "new_string": "P11 (in der Missionskontroll-Konversation vor der t2-local-Bestätigungsmessung registriert; Übertrag 2026-07-06) — @1000, Konfiguration t2-local: Vergessens-Metrik (alte Definition) +7…+10 pp; **Interferenz-Vergessen** = (T1-only-Tranche-1-Block-final @1000 = **0,0660**, aus M3-Lauf `logs/m3_t1only.log`) − (t2local-Tranche-1-Block-final @1000) ∈ **−1,0…+1,0 pp → V2-Bedingung ERFÜLLT (p≈80 %)**; Top-1 absolut 5,0–6,3 %; Lernzeit ✓. → offen.\n\nDiese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Top-1 absolut 5,0–6,3 %; Lernzeit ✓. → offen.",
+  "new_string": "Top-1 absolut 5,0–6,3 %; Lernzeit ✓. → **kalibriert 2026-07-06 [GEMESSEN, M3 t2-local @1000]:** Vergessens-Metrik (alt) +8,20 pp ∈ 7–10 ✓; **Interferenz-Vergessen +0,20 pp** ∈ −1…+1 → **V2-Bedingung ERFÜLLT** ✓; Top-1 5,75 % ∈ 5,0–6,3 ✓; Lernzeit 84 ms ✓. **Bilanz: 4/4 Treffer** — der t2-local-Fallback wirkt wie prognostiziert (senkt Interferenz von +1,30 auf +0,20 pp)."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Diese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2.",
+  "new_string": "P12 (in der Missionskontroll-Konversation vor den M5-Baselines registriert; Übertrag 2026-07-06) — B1 (3B-Instruct-Q4 [Qwen2.5-3B] + bge-small + FAISS): acc Banking77 **78–86 %** / CLINC150 **88–94 %** → Genauigkeitslücke zu ENGRAMM **15–28 pp** (P7-Muster: gelernte Embeddings schlagen Zufallsprojektion auf semantischem Terrain); B1-Energie/Antwort **2–20 J = 100–1000× ENGRAMM** → Kriterium 2 ✓; B3-LoRA-Lernzeit **Sekunden/Klasse** → Kriterium 3 ✓ (10⁴–10⁵×); erwarteter Ausgang **(2) Teilerfolg** auf beiden Aufgaben (Effizienz-Dominanz, Lücke >5 pp; mit Pessimismus-Korrektur eher am oberen Rand). → offen.\n\nDiese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "mit Pessimismus-Korrektur eher am oberen Rand). → offen.",
+  "new_string": "mit Pessimismus-Korrektur eher am oberen Rand). → **kalibriert 2026-07-07 [GEMESSEN, M5]:** B1-acc Banking77 82,95 % (78–86) ✓, CLINC150 91,02 % (88–94) ✓; Lücken 20,4 / 22,0 pp (15–28) ✓✓; B3-LoRA-Lernzeit 3,6–4,0 s/Klasse → Kriterium 3 ✓; **Energie-Verhältnis 38–76×** (Prognose 100–1000× — **überschätzt**, B1 auf Metal effizienter als erwartet), Kriterium 2 dennoch klar ✓; **Ausgang (3) NIEDERLAGE statt (2)** — die >15-pp-Lücke kippte es über die Teilerfolg-Grenze; die Pessimismus-Korrektur („oberer Rand\") war richtungsrichtig. **Bilanz: 5 Treffer (acc-Bänder, Lücken, Lernzeit-Muster), 1 Betragsfehler (Energie-Ratio überschätzt), 1 Ausgang verfehlt ((2)→(3), Pessimismus-Note traf).**"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Diese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2.",
+  "new_string": "P13a (VOX, in der Missionskontroll-Konversation vor der V0-bench-Messung registriert; Übertrag 2026-07-07) — V0-Abruf-Latenz **p50 auf Apple M4 < 50 ms** (p ≈ 90 %). Offene Wette: Container-Referenz 70 ms ist **bandbreitengebunden** (reines `hamming` über 75k × 160 uint64); M4 hat mehr Speicherbandbreite → könnte knapp reißen. Falls M4 p50 ≥ 50 ms: **kein V0-Fehlschlag**, sondern Auslöser für den HNSW-Abrufpfad (M4-Baustein existiert, ~2 ms). Ehrlichkeitsnote: Latenz ist das **einzige harte V0-Kriterium**; Qualität wird erst in V1 mit vorab registrierten Schwellen gemessen. → offen.\n\nDiese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Qualität wird erst in V1 mit vorab registrierten Schwellen gemessen. → offen.",
+  "new_string": "Qualität wird erst in V1 mit vorab registrierten Schwellen gemessen. → **kalibriert 2026-07-07 [GEMESSEN, V0-bench M4]:** p50 = **15,2 ms** (p99 19,0) ≪ 50 ms → **ERFÜLLT** ✓. Die „könnte knapp reißen\"-Sorge war zu pessimistisch — M4 ist ~3,3× unter Schwelle (Container 70 ms → M4 15,2 ms; höhere M4-Bandbreite half deutlich), HNSW-Pfad für V0 nicht nötig. Wort-F1 0,388 (informell, = Container). **Treffer (Schwelle klar erfüllt; Betrag optimistischer als das Pessimismus-Szenario).**"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Diese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2.",
+  "new_string": "P14 (VOX-Fusion 3b, in der Missionskontroll-Konversation vor dem echten Qwen-Lauf registriert; Übertrag 2026-07-07) — echter Qwen-Mund + ENGRAMM-Gedächtnis: **(a)** Fakt-Abruf-Treffer bei direkter Frage nach zuvor genanntem Fakt **≥ 80 %** (Skripttest) — p≈75 %; **(b)** Qwen nutzt den erinnerten Fakt **sichtbar** in der Antwort (nicht ignoriert) **≥ 70 %** — p≈70 %; **(c)** Antwortlatenz **LLM-dominiert** (Gedächtnis-Abruf <2 ms, vernachlässigbar) — p≈95 %; **(d)** deutschsprachige Fakten funktionieren (Qwen kann Deutsch, ENGRAMM-Abruf sprachneutral) — p≈65 %. → offen.\n\nDiese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "deutschsprachige Fakten funktionieren (Qwen kann Deutsch, ENGRAMM-Abruf sprachneutral) — p≈65 %. → offen.",
+  "new_string": "deutschsprachige Fakten funktionieren (Qwen kann Deutsch, ENGRAMM-Abruf sprachneutral) — p≈65 %. → **kalibriert 2026-07-07 [GEMESSEN, Qwen-Mund M4]:** (a) Fakt-Abruf **3/4 = 75 %** → knapp NICHT erfüllt (≥80 %); (b) Qwen nutzt Fakt **4/4 = 100 %** → ✓; (c) Abruf **0,7–1,7 ms ≪ 2 ms**, LLM-dominiert → ✓; (d) deutsche Fakten **teilweise** (deutsche Frage korrekt beantwortet, deutscher Fakt nicht extrahiert). **Ursache von (a)+(d): dieselbe fixbare Regex-Lücke („ich wohne zwischen\" ≠ „in\"), kein Sprach-/Mechanik-Problem — englische Fakten 3/3 mit Provenienz <2 ms; System-Ebene 4/4 Fragen korrekt.** Bilanz: **2 Treffer (b, c), 1 knapper Miss (a), 1 Miss (d) — beide Misses eine Ursache.**"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Diese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2.",
+  "new_string": "P15 (VOX-Polish, in der Missionskontroll-Konversation vor dem Neustart-Test registriert; Übertrag 2026-07-07) — **(a) Persistenz:** ein in Session 1 gelernter Fakt wird in Session 2 (nach Programm-Neustart) korrekt beantwortet — p≈90 %; **(b)** mit der Präfilter-Architektur nutzt Qwen den richtigen Fakt bei „Wie heißt mein Hund?\" (Kandidat „Hund Loui\" ist dabei, Qwen wählt ihn) — p≈80 %; **(c)** deutsche Fakten (Hund/wohne) treffen jetzt — p≈75 %. → offen.\n\nDiese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "deutsche Fakten (Hund/wohne) treffen jetzt — p≈75 %. → offen.",
+  "new_string": "deutsche Fakten (Hund/wohne) treffen jetzt — p≈75 %. → **kalibriert 2026-07-07 [GEMESSEN, Neustart-Test M4]:** (a) Persistenz **✓** (Session-1-Fakten „Loui\" + „Dortmund und Marbella\" in Session 2 nach Programm-Neustart aus dem Log korrekt beantwortet); (b) Qwen wählt richtigen Kandidaten **✓** („Dein Hund heißt Loui.\"); (c) deutsche Fakten (Hund/wohne) treffen **✓** (inkl. „ich wohne zwischen\"). **3/3 Treffer.** (Nebenbefund: Qwen paraphrasiert „zwischen\"→„in\"; Fakt korrekt, Formulierung Qwen-Sache.)"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Diese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2.",
+  "new_string": "P16 (VOX LLM-Extraktion, in der Missionskontroll-Konversation vor dem echten Qwen-Extraktor-Lauf registriert; Übertrag 2026-07-07) — mit echtem QwenExtractor: **(a)** „Ich bin 15 Jahre alt\" wird als eigener Fakt gelernt und auf „Wie alt bin ich?\" beantwortet — p≈80 %; **(b)** „wohne in X und Y und bin Z\" wird sauber in getrennte Fakten zerlegt (Ort ohne „und bin\"-Müll) — p≈75 %; **(c)** Fakten überleben Neustart — p≈90 %; **(d)** Latenz: Extraktion = zweiter Qwen-Aufruf pro Turn (~0,5–2 s extra), bewusst für Robustheit akzeptiert — p≈95 %. → offen.\n\nDiese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "bewusst für Robustheit akzeptiert — p≈95 %. → offen.",
+  "new_string": "bewusst für Robustheit akzeptiert — p≈95 %. → **kalibriert 2026-07-07 [GEMESSEN, Qwen-Extraktor M4]:** (a) Alter „15\" gelernt + auf „Wie alt bin ich?\" beantwortet + überlebt Neustart **✓**; (c) Persistenz **✓**; (d) zweiter Qwen-Aufruf/Turn **✓** (akzeptiert); **(b) Wohnort-Zerlegung ✗** — der 3B-Q4-Extraktor übersah den Ort (nur „alter: 15\" extrahiert, temp=0, deterministisch), obwohl der selftest-Pfad beide Bugs löst. **Bilanz: 3/4 — Bug 1 (Alter) gelöst; Bug 2 (Ort) mit echtem Extraktor nicht demonstriert (Qwen-Zuverlässigkeit; Mechanik korrekt). Positiv: VOX halluziniert nicht (ehrliches „weiß nicht\").**"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "Diese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2.",
+  "new_string": "P17 (VOX-Harden, in der Missionskontroll-Konversation vor dem Retest registriert; Übertrag 2026-07-07) — gehärteter Extraktor + Hybrid, Eriks Live-Satz „Ich wohne in Marbella und Dortmund und bin 15 Jahre alt\": **(a)** BEIDE Fakten (Ort + Alter) werden gelernt — p≈90 % (Hybrid fängt den Ort auch bei Qwen-Ausfall); **(b)** beide überleben Neustart und werden korrekt beantwortet — p≈85 %; **(c)** kein „und bin\"-Müll im Ort — p≈90 %. → offen.\n\nDiese Prognosen sind falsifizierbar und werden nach M3/M5 gegen die Messung gehalten — auch der Prüfer spielt nach R2."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D8_AUDIT.md",
+  "old_string": "kein „und bin\"-Müll im Ort — p≈90 %. → offen.",
+  "new_string": "kein „und bin\"-Müll im Ort — p≈90 %. → **kalibriert 2026-07-07 [GEMESSEN, Hybrid-Retest M4]:** (a) beide Fakten (Ort + Alter) aus EINEM Satz gelernt **✓** (Session 1: `wohnort: Marbella und Dortmund` + `alter: 15`); (b) beide überleben Neustart + korrekt beantwortet **✓** (Session 2: „Du wohnst in Marbella und Dortmund.\" + „Du bist 15 Jahre alt.\"); (c) kein „und bin\"-Müll **✓** (Ort sauber). **3/3 Treffer — Bug 2 robust gelöst.** (Qwen zog diesmal beide selbst; der Regex-Hybrid sichert es zusätzlich ab — auch bei Qwen-Ausfall wäre der Ort da.)"
+ }
+]

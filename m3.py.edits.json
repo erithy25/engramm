@@ -1,0 +1,32 @@
+[
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/m3.py",
+  "old_string": "def cmd_run(n_authors: int, n_tranches: int, seed: int,\n            no_t2: bool, log_l2: bool) -> None:\n    recs = load_corpus(n_authors, seed)\n    per = n_authors // n_tranches\n    mode = \"T1-only (No-Go-Ablation)\" if no_t2 else \"volle Pipeline (T1+T2)\"",
+  "new_string": "def cmd_run(n_authors: int, n_tranches: int, seed: int,\n            no_t2: bool, log_l2: bool, t2_local: bool = False) -> None:\n    recs = load_corpus(n_authors, seed)\n    per = n_authors // n_tranches\n    mode = (\"T1-only (No-Go-Ablation)\" if no_t2\n            else \"T2-klassenlokal (D2-§4-Fallback)\" if t2_local\n            else \"volle Pipeline (T1+T2)\")"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/m3.py",
+  "old_string": "    eng = Engramm(ItemMemory(seed))\n    log = None",
+  "new_string": "    eng = Engramm(ItemMemory(seed), t2_local=t2_local)\n    log = None"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/m3.py",
+  "old_string": "        eng2 = Engramm(ItemMemory(seed))",
+  "new_string": "        eng2 = Engramm(ItemMemory(seed), t2_local=t2_local)"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/m3.py",
+  "old_string": "    p.add_argument(\"--no-t2\", action=\"store_true\")\n    p.add_argument(\"--log-l2\", action=\"store_true\", default=True)",
+  "new_string": "    p.add_argument(\"--no-t2\", action=\"store_true\")\n    p.add_argument(\"--t2-local\", action=\"store_true\")\n    p.add_argument(\"--log-l2\", action=\"store_true\", default=True)"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/m3.py",
+  "old_string": "        cmd_run(a.authors, a.tranches, a.seed, a.no_t2, a.log_l2)",
+  "new_string": "        cmd_run(a.authors, a.tranches, a.seed, a.no_t2, a.log_l2, a.t2_local)"
+ }
+]

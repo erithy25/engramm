@@ -1,0 +1,50 @@
+[
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D1_MANIFEST.md",
+  "old_string": "GPUs existieren, weil neuronale Netze aus Multiplikationen bestehen. ENGRAMMs Kern enthält **keine einzige Multiplikation**:",
+  "new_string": "GPUs existieren, weil neuronale Netze aus Multiplikationen bestehen. ENGRAMMs Kern braucht **O(10²) Multiplikationen pro Antwort (nur in der Score-Fusion) statt O(10⁹)** MACs eines vergleichbaren Netzes — die Denkoperationen selbst (Binden, Bündeln, Ähnlichkeit) sind reine Bit-Operationen:"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D1_MANIFEST.md",
+  "old_string": "ENGRAMM ist kein kleineres ChatGPT. Es ist eine andere Maschine für eine andere Aufgabe.",
+  "new_string": "ENGRAMM ist kein kleineres ChatGPT. Es ist eine andere Maschine für eine andere Aufgabe.\n\n**Der Beitrag ist die Synthese, nicht die Bausteine (B5, R5).** Alle Komponenten sind publiziert: die Kanerva-VSA-Algebra (Binden/Bündeln/Permutation), die Trigramm-basierte Sprach-Identifikation (Joshi et al. 2016), fehlergetriebene HDC-Updates (OnlineHD) sowie approximatives Nachbarschafts-Retrieval (HNSW/DiskANN) und Zentroid-Klassifikation. ENGRAMM ist deshalb keine „neuartige KI-Funktionsweise\", sondern eine **neuartige Synthese**: append-only-Gedächtnismodell + Provenienz als Ausgabebestandteil + vorregistrierte Nischenwette + additive, merge-fähige Prototypen (SWARM-Eignung)."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D1_MANIFEST.md",
+  "old_string": "Version 1.0 · Projekt AXIOM · Status: M1-Vorabmessung bestanden (78,5 % auf 235-Sprachen-10-shot, gemessen)",
+  "new_string": "Version 1.0 · Projekt AXIOM · Status: M1 bestanden (79,30 % ± 0,68 %, 5 Seeds, 235-Sprachen-10-shot, gemessen)"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D1_MANIFEST.md",
+  "old_string": "Der M1-Prototyp (reines Python/NumPy, ~450 Zeilen, keine Fremdmodelle) existiert und wurde ausgeführt:",
+  "new_string": "Der M1-Prototyp (reines Python/NumPy, 469 Zeilen, keine Fremdmodelle) existiert und wurde ausgeführt:"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D1_MANIFEST.md",
+  "old_string": "10 Beispiele pro Sprache: 78,5 % Top-1** (vorregistrierte Erfolgsschwelle: 60 %; Zufall: 0,4 %).",
+  "new_string": "10 Beispiele pro Sprache: 78,5 % Top-1** — bestätigt durch den offiziellen 5-Seed-Kern: 79,30 % ± 0,68 % (vorregistrierte Erfolgsschwelle: 60 %; Zufall: 0,4 %)."
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D1_MANIFEST.md",
+  "old_string": "Version 1.0 · Projekt AXIOM · Status: M1 bestanden",
+  "new_string": "Version 1.1 · Projekt AXIOM · Status: M1 bestanden"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D1_MANIFEST.md",
+  "old_string": "Version 1.1 · Projekt AXIOM · Status: M1 bestanden (79,30 % ± 0,68 %, 5 Seeds, 235-Sprachen-10-shot, gemessen)",
+  "new_string": "Version 1.2 · Projekt AXIOM · Status: M1 bestanden (79,30 % ± 0,68 %, 5 Seeds, 235-Sprachen-10-shot, gemessen); Zieldimension V2-operationalisiert (§5, 2026-07-06)"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/D1_MANIFEST.md",
+  "old_string": "Genau gegen diesen Gegner ist der finale Benchmark (M5) vorregistriert, mit einem UND-Kriterium: Genauigkeit mindestens auf 5 Punkte heran **und** ≥10× weniger Energie **und** ≥100× schnelleres Lernen **und** Vergessen ≤1 Punkt. Effizienz ohne Genauigkeit zählt nicht als Sieg.",
+  "new_string": "Genau gegen diesen Gegner ist der finale Benchmark (M5) vorregistriert, mit einem UND-Kriterium: Genauigkeit mindestens auf 5 Punkte heran **und** ≥10× weniger Energie **und** ≥100× schnelleres Lernen **und** Vergessen ≤1 Punkt. Effizienz ohne Genauigkeit zählt nicht als Sieg.\n\n**Operationalisierung V2 (ratifiziert 2026-07-06, Freigabe JA-V2; ersetzt die vage „<1 pp Vergessen\"-Formel durch messbare Teilkriterien, nachdem M3 zeigte, dass die alte Metrik überwiegend Verwechslungs-Verdrängung statt Informationsverlust maß):**\n- **(i) Zustands-Invarianz:** sequenzielles Lernen erzeugt einen bit-identischen Speicherzustand wie jede andere Reihenfolge [BEWIESEN, M3 @1000].\n- **(i-b) Auslese-Determinismus unter Umordnung:** offen bis zum M4-Tie-Break (W19; aktuell 0,03 pp Abweichung).\n- **(ii) Interferenz-Vergessen ≤ 1 pp** in t2-local-Konfiguration [GEMESSEN, M3 @1000: **+0,20 pp** = T1-only-Block 0,0660 − t2-local-Block 0,0640].\n- **(iii) Nischen-Verengung nach R-1:** flache Trigramme tragen 1000er-Stilometrie nicht (Top-1 5,94 % [GEMESSEN]) — Zieldomänen sind strukturierte/dichte Aufgaben (Sprach-ID, Bilder, Intents mit Episodendichte).\n\nHerleitung + Freigabe-Beleg: `RATIFIZIERT_ZIELDIMENSION_V2.md`."
+ }
+]

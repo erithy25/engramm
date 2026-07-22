@@ -1,0 +1,8 @@
+[
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/m1b_mnist.py",
+  "old_string": "    if len(seeds) > 1:\n        print(f\"\\n  {len(seeds)} SEEDS: acc = {accs.mean():.4f} \"\n              f\"± {accs.std(ddof=1):.4f}   Lernzeit = \"\n              f\"{learns.mean() / 60:.1f} ± {learns.std(ddof=1) / 60:.1f} min\")\n    if full:\n        crit = accs.mean() >= 0.94 and learns.max() < 1800\n        print(f\"  Vorregistriertes M1b-Kriterium (acc>=0.94, Lernzeit<30min CPU): \"\n              f\"{'ERFUELLT' if crit else 'NICHT ERFUELLT'}\")",
+  "new_string": "    if len(seeds) > 1:\n        print(f\"\\n  {len(seeds)} SEEDS: acc = {accs.mean():.4f} \"\n              f\"± {accs.std(ddof=1):.4f}   Lernzeit = \"\n              f\"{learns.mean() / 60:.1f} ± {learns.std(ddof=1) / 60:.1f} min \"\n              f\"(Max {learns.max() / 60:.1f} min)\")\n    if full:\n        # D5-v1.1-Adjudikation: massgeblich ist die MITTLERE Lernzeit (nicht max);\n        # Max wird zur Transparenz weiter ausgedruckt. Divergenz-Historie: D4 §3.\n        crit = accs.mean() >= 0.94 and learns.mean() < 1800\n        print(f\"  Vorregistriertes M1b-Kriterium (acc>=0.94, mittlere Lernzeit<30min CPU, \"\n              f\"D5 v1.1): {'ERFUELLT' if crit else 'NICHT ERFUELLT'}\")"
+ }
+]

@@ -1,0 +1,8 @@
+[
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/m5_compare.py",
+  "old_string": "    else:\n        out = \"(3) NIEDERLAGE — B1 dominiert Genauigkeit bei zu kleinem Effizienzabstand\"\n    print(f\"\\n  VORREGISTRIERTER AUSGANG: {out}\")",
+  "new_string": "    elif catastrophe and c2:\n        # Genauigkeits-Katastrophe (>15 pp) trotz Effizienz-Dominanz. Per D5-§6-\n        # Regel \"kein vierter, schoengeredeter Ausgang\" bleibt dies (3) NIEDERLAGE\n        # (haertere Lesart); nur der Begruendungstext ist praezisiert (der fruehere\n        # \"zu kleiner Effizienzabstand\" war bei >=10x faktisch falsch).\n        out = (f\"(3) NIEDERLAGE — Genauigkeits-Katastrophe ({gap:+.1f} pp > 15) \"\n               \"trotz Effizienz-Dominanz; UND-Wette auf dieser Aufgabe verfehlt\")\n    else:\n        out = \"(3) NIEDERLAGE — B1 dominiert Genauigkeit bei zu kleinem Effizienzabstand\"\n    print(f\"\\n  VORREGISTRIERTER AUSGANG: {out}\")"
+ }
+]

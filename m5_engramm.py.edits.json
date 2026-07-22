@@ -1,0 +1,14 @@
+[
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/m5_engramm.py",
+  "old_string": "            \"energy_note\": \"27.4 mJ/query (M0-Referenz Apple M4)\",\n            \"config\": \"t2_local=True\"}",
+  "new_string": "            \"energy_note\": \"27.4 mJ/query (M0-Referenz Apple M4)\",\n            \"energy_mj_per_query\": 27.4,     # M0-Referenz [GEMESSEN]; Schema fuer m5_compare\n            \"config\": \"t2_local=True\"}"
+ },
+ {
+  "replace_all": false,
+  "file_path": "/Users/erikthye/engramm/m5_engramm.py",
+  "old_string": "            \"energy_note\": \"27.4 mJ/query (M0-Referenz Apple M4)\",\n            \"config\": \"t2_local=True\"}",
+  "new_string": "            \"energy_note\": \"27.4 mJ/query (M0-Referenz Apple M4)\",\n            \"energy_mj_per_query\": 27.4,     # M0-Referenz [GEMESSEN]; Schema fuer m5_compare\n            \"config\": \"t2_local=True\"}"
+ }
+]
