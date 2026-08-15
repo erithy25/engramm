@@ -9,19 +9,20 @@ Every benchmark run writes exactly one JSON file here, named
 These files are **committed to git** — they are the project's measurement
 record. `data/` and `logs/` are gitignored; `results/` never is.
 
-## Record schema (`schema_version: 2`)
+## Record schema (`schema_version: 3`)
 
 Produced by `engramm.repro.write_result()`. All fields are mandatory.
 
 ```json
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "task": "mnist",
   "seed": 42,
   "timestamp_utc": "2026-08-15T14:22:33+00:00",
   "git": {
     "commit": "81af2c4…",
-    "dirty": false
+    "dirty": false,
+    "untracked": 0
   },
   "result": {
     "accuracy": 0.0,
@@ -60,6 +61,11 @@ Conventions:
   macro-F1 but their **timing and memory figures are never official**.
 * **`git.dirty: true` disqualifies a record** from being cited as an
   official number — official runs happen on a clean, committed tree.
+  `dirty` covers **tracked files only**. Untracked files are counted in
+  `untracked` and do not disqualify, because they do not change which code
+  ran. Folding them in was a defect: a run's own result files are untracked
+  while later seeds execute, so every seed after the first was marked
+  dirty. Fixed in schema 3.
 * `result` carries metrics only; everything that *influenced* the metrics
   belongs in `hyperparams`.
 
@@ -67,5 +73,6 @@ Conventions:
 
 | Version | Change |
 |---|---|
+| 3 | `git.dirty` now counts tracked modifications only; added `git.untracked`. Before this, a multi-seed run marked every seed after the first as dirty because of its own result files. |
 | 2 | Added `environment.canonical` and `environment.pythonhashseed`. |
 | 1 | Initial schema. |

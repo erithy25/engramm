@@ -31,7 +31,7 @@ from typing import Any
 
 import numpy as np
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -182,24 +182,41 @@ def digest_hash(digest: dict[str, Any]) -> str:
 
 
 def git_revision() -> dict[str, Any]:
-    """Return the current commit hash and whether the working tree is dirty.
+    """Return the commit hash, whether tracked files are modified, and untracked count.
 
-    Returns ``{"commit": None, "dirty": None}`` when git is unavailable or
-    the project is not inside a git checkout — a run record must never fail
-    because of missing version-control metadata.
+    ``dirty`` counts **modifications to tracked files only**. Untracked
+    files are reported separately as a count rather than folded in, because
+    they do not change which code ran — and because folding them in made a
+    multi-seed run poison its own metadata: the first seed's result file is
+    untracked while the second seed runs, so every seed after the first was
+    marked dirty and therefore disqualified by the convention in
+    ``results/README.md``. Observed on the first real MNIST run
+    (2026-08-15); guarded by ``tests/test_repro.py``.
+
+    Returns ``{"commit": None, "dirty": None, "untracked": None}`` when git
+    is unavailable or the project is not inside a checkout — a run record
+    must never fail because of missing version-control metadata.
     """
     try:
         commit = subprocess.run(
             ["git", "rev-parse", "HEAD"],
             cwd=_REPO_ROOT, capture_output=True, text=True, check=True,
         ).stdout.strip()
-        dirty = bool(subprocess.run(
-            ["git", "status", "--porcelain"],
+        tracked_changes = subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=no"],
             cwd=_REPO_ROOT, capture_output=True, text=True, check=True,
-        ).stdout.strip())
+        ).stdout.strip()
+        all_changes = subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=all"],
+            cwd=_REPO_ROOT, capture_output=True, text=True, check=True,
+        ).stdout.strip()
     except (OSError, subprocess.CalledProcessError):
-        return {"commit": None, "dirty": None}
-    return {"commit": commit, "dirty": dirty}
+        return {"commit": None, "dirty": None, "untracked": None}
+
+    untracked = sum(1 for line in all_changes.splitlines()
+                    if line.startswith("??"))
+    return {"commit": commit, "dirty": bool(tracked_changes),
+            "untracked": untracked}
 
 
 def collect_environment() -> dict[str, Any]:
@@ -291,7 +308,19 @@ def write_result(
     }
     out_dir = Path(results_dir) if results_dir is not None else _REPO_ROOT / "results"
     out_dir.mkdir(parents=True, exist_ok=True)
-    path = out_dir / f"{task}_{seed}_{ts.strftime('%Y%m%dT%H%M%SZ')}.json"
+
+    # Append-only, enforced rather than assumed. The timestamp has
+    # one-second resolution, so two records of the same task and seed
+    # written inside one second would otherwise collide and the earlier one
+    # would be silently overwritten — which is exactly the failure the
+    # append-only rule exists to prevent.
+    stamp = ts.strftime("%Y%m%dT%H%M%SZ")
+    path = out_dir / f"{task}_{seed}_{stamp}.json"
+    suffix = 2
+    while path.exists():
+        path = out_dir / f"{task}_{seed}_{stamp}-{suffix}.json"
+        suffix += 1
+
     path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + "\n",
                     encoding="utf-8")
     return path
