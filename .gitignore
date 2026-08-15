@@ -1,5 +1,17 @@
+# Daten und Laufzeit-Artefakte — nie committen
 data/
 logs/
+
+# Python
 __pycache__/
+*.pyc
+
+# virtuelle Umgebungen
 venv/
+.venv*/
+
+# macOS
 .DS_Store
+
+# results/ wird BEWUSST NICHT ignoriert: Benchmark-Ergebnis-JSONs
+# (Zeitstempel, Seed, Commit-Hash, Umgebung) gehoeren ins Repo.
