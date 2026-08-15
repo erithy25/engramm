@@ -9,13 +9,13 @@ Every benchmark run writes exactly one JSON file here, named
 These files are **committed to git** — they are the project's measurement
 record. `data/` and `logs/` are gitignored; `results/` never is.
 
-## Record schema (`schema_version: 1`)
+## Record schema (`schema_version: 2`)
 
 Produced by `engramm.repro.write_result()`. All fields are mandatory.
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "task": "mnist",
   "seed": 42,
   "timestamp_utc": "2026-08-15T14:22:33+00:00",
@@ -38,11 +38,13 @@ Produced by `engramm.repro.write_result()`. All fields are mandatory.
     "peak_rss_mb": 0.0
   },
   "environment": {
+    "canonical": true,
     "python": "3.13.7",
     "numpy": "2.4.1",
     "platform": "macOS-…",
     "machine": "arm64",
-    "cpu_count": 10
+    "cpu_count": 10,
+    "pythonhashseed": null
   }
 }
 ```
@@ -51,7 +53,19 @@ Conventions:
 
 * **Append-only.** A new run writes a new file; existing records are never
   overwritten or edited.
+* **`environment.canonical` decides what may be cited.** It is set
+  automatically (macOS + arm64 + Python 3.13, the reference machine from
+  [`docs/PROTOCOL.md`](../docs/PROTOCOL.md)) and cannot be set by the
+  caller. `canonical: false` records are valid candidates for accuracy and
+  macro-F1 but their **timing and memory figures are never official**.
 * **`git.dirty: true` disqualifies a record** from being cited as an
   official number — official runs happen on a clean, committed tree.
 * `result` carries metrics only; everything that *influenced* the metrics
   belongs in `hyperparams`.
+
+### Schema history
+
+| Version | Change |
+|---|---|
+| 2 | Added `environment.canonical` and `environment.pythonhashseed`. |
+| 1 | Initial schema. |

@@ -21,9 +21,13 @@ Modules
 from engramm.repro import (
     SCHEMA_VERSION,
     collect_environment,
+    determinism_digest,
+    digest_hash,
     git_revision,
+    is_canonical_environment,
     peak_rss_mb,
     set_all_seeds,
+    stable_label_order,
     write_result,
 )
 
@@ -32,9 +36,13 @@ __version__ = "2.0.0.dev0"
 __all__ = [
     "SCHEMA_VERSION",
     "collect_environment",
+    "determinism_digest",
+    "digest_hash",
     "git_revision",
+    "is_canonical_environment",
     "peak_rss_mb",
     "set_all_seeds",
+    "stable_label_order",
     "write_result",
     "__version__",
 ]

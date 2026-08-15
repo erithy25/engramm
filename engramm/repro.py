@@ -16,6 +16,7 @@ The record layout is documented in ``results/README.md`` and versioned via
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import platform
@@ -23,15 +24,34 @@ import random
 import resource
 import subprocess
 import sys
+from collections.abc import Iterable
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
+
+
+def is_canonical_environment() -> bool:
+    """Whether this process runs on the project's reference environment.
+
+    The reference environment (``docs/PROTOCOL.md``) is the project's
+    MacBook Air M4: macOS on arm64 with Python 3.13. Only records produced
+    there carry ``canonical: true`` and may be cited as official numbers;
+    container/CI runs always produce ``canonical: false`` records.
+
+    The check is deliberately automatic and cannot be overridden by
+    callers — a run cannot declare itself canonical.
+    """
+    return (
+        sys.platform == "darwin"
+        and platform.machine() == "arm64"
+        and platform.python_version_tuple()[:2] == ("3", "13")
+    )
 
 
 def set_all_seeds(seed: int) -> np.random.Generator:
@@ -66,6 +86,56 @@ def set_all_seeds(seed: int) -> np.random.Generator:
     return np.random.default_rng(seed)
 
 
+def stable_label_order(labels: Iterable[str]) -> list[str]:
+    """Return the unique labels in a hash-order-independent, sorted order.
+
+    The canonical way to derive a class ordering in this project. Iterating
+    a ``set`` of strings yields an order that depends on ``PYTHONHASHSEED``,
+    which would make class indices — and therefore results — vary between
+    processes. Sorting removes that dependency.
+
+    Project code must never derive a class ordering any other way; the rule
+    is enforced by ``tests/test_determinism.py``, which runs the pipeline
+    under two different hash seeds and compares the results.
+    """
+    return sorted(set(labels))
+
+
+def determinism_digest(seed: int) -> dict[str, Any]:
+    """Compute deterministic probe values for cross-platform comparison.
+
+    Every entry is a value that must be identical on every platform for a
+    given seed. Comparing digests between the Linux container and the
+    reference machine turns "we assume this is deterministic" into a
+    checked fact (``docs/PROTOCOL.md``, rule 4).
+
+    Currently probed: the canonical RNG's integer and float streams, the
+    hash-order-sensitive label ordering, and NumPy's float formatting and
+    byte order. As the model is implemented, its outputs are added here so
+    the digest covers the full pipeline rather than only its primitives.
+    """
+    rng = set_all_seeds(seed)
+    ints = rng.integers(0, 2**31 - 1, size=16, dtype=np.int64)
+    floats = rng.standard_normal(8)
+    packed = np.packbits(rng.integers(0, 2, size=1024, dtype=np.uint8))
+    messy = ["zulu", "alpha", "Mike", "alpha", "écho", "1one", "bravo"]
+    return {
+        "rng_integers": ints.tolist(),
+        "rng_floats_repr": [repr(float(x)) for x in floats],
+        "rng_packbits_sum": int(packed.sum()),
+        "stable_label_order": stable_label_order(messy),
+        "float_formatting": [repr(float(np.float64(1) / 3)), f"{np.float32(0.1):.20f}"],
+        "byteorder": sys.byteorder,
+        "int64_itemsize": int(np.dtype(np.int64).itemsize),
+    }
+
+
+def digest_hash(digest: dict[str, Any]) -> str:
+    """Hash a determinism digest into a single comparable hex string."""
+    payload = json.dumps(digest, sort_keys=True, ensure_ascii=True).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
 def git_revision() -> dict[str, Any]:
     """Return the current commit hash and whether the working tree is dirty.
 
@@ -88,13 +158,20 @@ def git_revision() -> dict[str, Any]:
 
 
 def collect_environment() -> dict[str, Any]:
-    """Capture the software and hardware environment of this run."""
+    """Capture the software and hardware environment of this run.
+
+    ``canonical`` marks whether this is the reference environment defined in
+    ``docs/PROTOCOL.md`` (see :func:`is_canonical_environment`). Timing and
+    memory figures from a non-canonical environment are never official.
+    """
     return {
+        "canonical": is_canonical_environment(),
         "python": platform.python_version(),
         "numpy": np.__version__,
         "platform": platform.platform(),
         "machine": platform.machine(),
         "cpu_count": os.cpu_count(),
+        "pythonhashseed": os.environ.get("PYTHONHASHSEED"),
     }
 
 
@@ -126,6 +203,13 @@ def write_result(
     (plus dirty flag), the result metrics, all hyperparameters, wall time,
     peak RAM, and the software environment. Records are append-only: a new
     run writes a new file and never overwrites an old one.
+
+    The record's ``environment.canonical`` flag is set automatically from
+    the host (:func:`is_canonical_environment`) and decides whether the
+    record may be cited as an official number. Per ``docs/PROTOCOL.md``,
+    non-canonical runs are valid for accuracy and macro-F1 as long as the
+    figure is later confirmed bit-identically on the reference machine, but
+    their timing and memory figures are never official.
 
     Parameters
     ----------
