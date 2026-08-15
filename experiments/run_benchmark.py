@@ -46,6 +46,10 @@ DEFAULT_SEEDS = (42, 7, 1337, 2026, 99, 3, 123, 512, 8191, 31337)
 #: caller can tell it apart from a genuine failure.
 EXIT_TIE_UNRESOLVED = 2
 
+#: Test samples encoded and classified per batch. Bounds the peak
+#: accumulator at ``batch × D`` int32 instead of the whole split.
+DEFAULT_TEST_BATCH = 2_000
+
 
 class TieUnresolved(RuntimeError):
     """Raised when a run reaches a component the tie rule must decide."""
@@ -119,9 +123,39 @@ def encode_or_report_tie(encoder: Encoder, samples: Any, stage: str) -> np.ndarr
         ) from exc
 
 
+def predict_streaming(model: PrototypeClassifier, encoder: Encoder,
+                      samples: Any, batch_size: int) -> np.ndarray:
+    """Encode, classify and discard the test split one batch at a time.
+
+    Encoding materialises an ``N × D`` ``int32`` accumulator, which for the
+    full WiLI test split at D = 10,000 is 4.7 GB — held alongside the
+    training side, that exceeds the reference machine's memory. Only the
+    predictions are needed, so each batch is encoded, classified and
+    released, bounding the peak at one batch instead of one split.
+
+    The result is bit-identical to encoding the split in one call:
+    accumulation is per-sample, and scoring compares each sample against
+    prototypes that no longer change. ``tests/test_runner.py`` verifies that
+    equality rather than asserting it.
+    """
+    if batch_size <= 0:
+        raise ValueError("test_batch_size must be positive")
+
+    total = len(samples)
+    predictions = np.empty(total, dtype=np.int64)
+    for start in range(0, total, batch_size):
+        stop = min(start + batch_size, total)
+        batch = (samples[start:stop] if isinstance(samples, np.ndarray)
+                 else list(samples[start:stop]))
+        packed = encode_or_report_tie(encoder, batch, "test")
+        predictions[start:stop] = model.predict(packed)
+    return predictions
+
+
 def run_seed(task: str, seed: int, dimension: int, shots: int | None,
              limit_train: int | None, limit_test: int | None,
-             allow_download: bool) -> tuple[dict[str, Any], dict[str, Any]]:
+             allow_download: bool,
+             test_batch_size: int = DEFAULT_TEST_BATCH) -> tuple[dict[str, Any], dict[str, Any]]:
     """Run one seed end to end; returns ``(result, hyperparameters)``."""
     rng = set_all_seeds(seed)
     dataset = subset(load_task(task, shots, rng, allow_download),
@@ -131,17 +165,17 @@ def run_seed(task: str, seed: int, dimension: int, shots: int | None,
     item_memory = ItemMemory(seed, dimension)
     encoder = build_encoder(task, item_memory)
 
-    train_packed = encode_or_report_tie(encoder, dataset.x_train, "training")
     from engramm.core import unpack_bits
+
+    train_packed = encode_or_report_tie(encoder, dataset.x_train, "training")
     train_signed = (unpack_bits(train_packed, dimension).astype(np.int8) * 2) - 1
+    del train_packed
 
     model = PrototypeClassifier(dimension, seed=seed)
     model.learn(train_signed, [dataset.labels[i] for i in dataset.y_train])
+    del train_signed
 
-    test_packed = encode_or_report_tie(encoder, dataset.x_test, "test")
-    predicted_labels = model.predict_labels(test_packed)
-    label_index = {label: i for i, label in enumerate(dataset.labels)}
-    predicted = np.array([label_index[label] for label in predicted_labels])
+    predicted = predict_streaming(model, encoder, dataset.x_test, test_batch_size)
 
     result = {
         "accuracy": accuracy(dataset.y_test, predicted),
@@ -160,6 +194,7 @@ def run_seed(task: str, seed: int, dimension: int, shots: int | None,
         "official_split": dataset.metadata.get("official_split"),
         "limit_train": limit_train,
         "limit_test": limit_test,
+        "test_batch_size": test_batch_size,
         "episodes": False,
         "t2_epochs": 0,
     }
@@ -234,6 +269,9 @@ def main(argv: list[str] | None = None) -> int:
                         help="verify the pipeline up to the first tie, write nothing")
     parser.add_argument("--limit-train", type=int, default=None)
     parser.add_argument("--limit-test", type=int, default=None)
+    parser.add_argument("--test-batch", type=int, default=DEFAULT_TEST_BATCH,
+                        help=f"test samples per encode/classify batch "
+                             f"(default {DEFAULT_TEST_BATCH})")
     parser.add_argument("--allow-download", action="store_true",
                         help="permit fetching sources that are not cached")
     args = parser.parse_args(argv)
@@ -265,7 +303,8 @@ def main(argv: list[str] | None = None) -> int:
         try:
             result, hyperparameters = run_seed(
                 args.task, seed, args.dimension, args.shots,
-                args.limit_train, args.limit_test, args.allow_download)
+                args.limit_train, args.limit_test, args.allow_download,
+                args.test_batch)
         except TieUnresolved as exc:
             print(f"\nseed {seed}: {exc}", file=sys.stderr)
             if results:

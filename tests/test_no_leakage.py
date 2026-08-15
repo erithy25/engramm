@@ -466,11 +466,23 @@ def test_matches_cross_platform_reference() -> None:
     if not REFERENCE_PATH.exists():
         pytest.skip(
             f"no cross-platform reference at {REFERENCE_PATH.relative_to(REPO_ROOT)} "
-            "— generate it on the reference machine with "
+            "— generate it with "
             "'python -m tests.leakage_probe --seed 42 --write-reference' and commit it"
         )
 
     record = json.loads(REFERENCE_PATH.read_text(encoding="utf-8"))
+
+    # Comparing a platform against a reference it produced itself proves
+    # nothing — it would pass even if the pipeline were wildly
+    # platform-dependent. Skipping here keeps that non-result visible
+    # instead of banking a green tick for it.
+    if record["platform_tag"] == platform_tag():
+        pytest.skip(
+            f"reference was recorded on this same platform "
+            f"({record['platform_tag']}), so this comparison is vacuous — "
+            f"run the suite on a different platform to make it meaningful"
+        )
+
     reference_probe = record["probe"]
     current = probe(int(reference_probe["seed"]))
     differences = _compare_probe_to_reference(reference_probe, current)

@@ -25,10 +25,11 @@ from experiments.run_benchmark import (
     main,
     subset,
 )
-from engramm.core import ItemMemory
+from engramm.core import ItemMemory, PrototypeClassifier
 from engramm.encoders import PixelThermometerEncoder
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+SEED = 42
 
 _CACHE_READY = (CACHE_DIR / "wili-2018.zip").exists() and \
                (CACHE_DIR / "train-images-idx3-ubyte.gz").exists()
@@ -124,6 +125,116 @@ def test_tie_is_reported_with_context_not_as_a_stacktrace() -> None:
     assert "--dry-run" in message
     assert "of 512" in message, "should quantify how many components tie"
     assert isinstance(caught.value.__cause__, NotImplementedError)
+
+
+# ---------------------------------------------------------------------------
+# Streaming the test split
+# ---------------------------------------------------------------------------
+
+def _tie_free_setup(per_class: int = 13, n_classes: int = 3):
+    """A trained model and tie-free samples, so encoding actually completes.
+
+    Two odd numbers are needed while the tie rule is open, and they guard
+    different steps:
+
+    * **63 pixel positions** — an odd bundle gives every encoded component a
+      strict majority, so ``encode`` never ties.
+    * **an odd count per class** — the prototype accumulator sums that many
+      ``±1`` values, so binarising it never ties either.
+
+    Getting either wrong makes the fixture raise from ``learn`` or
+    ``encode`` rather than testing anything, so both are asserted here.
+    """
+    assert per_class % 2 == 1, "per-class count must be odd or the prototype ties"
+    dimension = 512
+    encoder = PixelThermometerEncoder(ItemMemory(SEED, dimension),
+                                      n_positions=63, n_levels=16)
+    rng = np.random.default_rng(SEED)
+    images, labels = [], []
+    for class_index in range(n_classes):
+        for _ in range(per_class):
+            centre = rng.integers(0, 256, size=63, dtype=np.uint8)
+            noise = rng.integers(-20, 21, size=63)
+            images.append(
+                np.clip(centre.astype(np.int16) + noise, 0, 255).astype(np.uint8))
+            labels.append(f"class{class_index}")
+    images = np.stack(images)
+
+    totals = encoder.accumulate(images)
+    assert int((totals == 0).sum()) == 0, "fixture must be tie-free"
+
+    packed = encoder.binarise(totals)
+    signed = (np.unpackbits(packed, axis=-1, count=dimension).astype(np.int8) * 2) - 1
+    model = PrototypeClassifier(dimension, seed=SEED)
+    model.learn(signed, labels)
+    return model, encoder, images
+
+
+@pytest.mark.parametrize("batch_size", [1, 2, 7, 38, 39, 1000])
+def test_streaming_predictions_match_whole_split(batch_size: int) -> None:
+    """Batched encode-and-classify must equal encoding the split at once.
+
+    This is the property the memory optimisation rests on: bounding the
+    accumulator changes peak memory and nothing else.
+    """
+    from experiments.run_benchmark import predict_streaming
+
+    model, encoder, images = _tie_free_setup()
+    at_once = model.predict(encoder.encode(images))
+    streamed = predict_streaming(model, encoder, images, batch_size)
+    assert np.array_equal(streamed, at_once)
+    assert streamed.dtype == at_once.dtype
+
+
+def test_streaming_encodes_identically_to_whole_split() -> None:
+    """The encoder itself is batch-invariant, bit for bit."""
+    _, encoder, images = _tie_free_setup()
+    at_once = encoder.accumulate(images)
+    streamed = np.concatenate([encoder.accumulate(images[i:i + 5])
+                               for i in range(0, len(images), 5)])
+    assert np.array_equal(streamed, at_once)
+
+
+def test_streaming_handles_text_samples() -> None:
+    """Sequences, not just arrays: the text split is a tuple of strings."""
+    from experiments.run_benchmark import predict_streaming
+    from engramm.encoders import TrigramEncoder
+
+    dimension = 512
+    encoder = TrigramEncoder(ItemMemory(SEED, dimension))
+    texts = tuple(f"sample number {i} with enough text to form trigrams"
+                  for i in range(10))   # 2 classes x 5 -> odd per class
+    totals = encoder.accumulate(texts)
+    if int((totals == 0).sum()):
+        pytest.skip("fixture produced ties; the tie rule is still open")
+
+    model = PrototypeClassifier(dimension, seed=SEED)
+    packed = encoder.binarise(totals)
+    signed = (np.unpackbits(packed, axis=-1, count=dimension).astype(np.int8) * 2) - 1
+    model.learn(signed, [f"c{i % 2}" for i in range(len(texts))])
+
+    assert np.array_equal(predict_streaming(model, encoder, texts, 4),
+                          model.predict(packed))
+
+
+def test_streaming_rejects_a_nonpositive_batch() -> None:
+    from experiments.run_benchmark import predict_streaming
+
+    model, encoder, images = _tie_free_setup(per_class=3)
+    with pytest.raises(ValueError, match="must be positive"):
+        predict_streaming(model, encoder, images, 0)
+
+
+def test_streaming_reports_ties_from_a_batch() -> None:
+    """A tie inside any batch still surfaces as the legible failure."""
+    from experiments.run_benchmark import predict_streaming
+
+    model, _, _ = _tie_free_setup(per_class=3)
+    even = PixelThermometerEncoder(ItemMemory(SEED, 512), n_positions=64,
+                                   n_levels=16)
+    images = np.random.default_rng(1).integers(0, 256, size=(8, 64), dtype=np.uint8)
+    with pytest.raises(TieUnresolved, match="test split"):
+        predict_streaming(model, even, images, 4)
 
 
 # ---------------------------------------------------------------------------

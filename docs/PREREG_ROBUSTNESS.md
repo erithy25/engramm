@@ -5,8 +5,8 @@ corruption code was written, and before the underlying benchmarks (B5/B6)
 produced a single number. The commit timestamp of this file is its point:
 everything below was fixed in advance.
 
-**Version 1.1** · Project ENGRAMM · Registered 2026-08-15 ·
-Amended 2026-08-15 (§3.2 added, before any measurement — see §12)
+**Version 1.2** · Project ENGRAMM · Registered 2026-08-15 ·
+Amended 2026-08-15 (§3.2 corrected, before any measurement — see §12)
 
 ---
 
@@ -87,33 +87,48 @@ condition than to win by a favourable choice of accounting.
 ambiguity is outcome-relevant, so it is resolved here rather than left to the
 implementation.
 
-WiLI-2018 is balanced by **paragraph count** — 500 training paragraphs per
-language — but not by **character count**: characters per paragraph vary with
-script and morphology, and Latin-script trigrams accumulate across roughly
-half of the 235 languages while a unique-script language contributes its
-trigrams alone.
+**A correction to v1.1, stated plainly rather than quietly replaced.** The
+first version of this section justified the choice partly on "unequal amounts
+of text per language". That was **factually wrong**: WiLI-2018 is balanced by
+paragraph count, at exactly 500 training paragraphs per language, and the
+dataset's own design intends that balance.
+
+Two things do remain true, and one of them was tested:
+
+* Characters per paragraph vary with script and morphology, so the *character
+  mass* per language is not balanced — measured, a 9.0× spread between the
+  languages with the fewest and most training characters.
+* Latin-script trigrams accumulate across roughly half of the 235 languages,
+  while a language with a unique script contributes its trigrams alone.
+
+The v1.1 text also predicted a concrete harm — that pooled selection could
+leave a language with **no** vocabulary entries, making it unclassifiable
+before any corruption. That prediction was **measured and refuted**: under
+Variant A, zero of the 235 languages receive zero entries. The worst-served
+language (`lzh`, Literary Chinese) still has 399 usable trigrams, and Variant
+A actually yields a *higher* median usable count than Variant B (4,119 vs
+2,018), because frequent trigrams are shared across many languages. The
+argument is withdrawn.
 
 * **Variant A — pooled.** Count trigram occurrences over the entire training
   split, take the top 10,000. Standard practice, and it reflects natural
-  corpus statistics. But selection is then weighted by character mass and by
-  script sharing: low-character-mass and unique-script languages can receive
-  very few vocabulary entries, or none, leaving their feature rows all-zero
-  and those classes structurally unclassifiable **before any corruption is
-  applied**.
+  corpus statistics. Selection is weighted by character mass and by script
+  sharing, but as measured above, not to the point of starving any language.
 * **Variant B — per-language balanced.** Rank trigrams within each language
   separately, then fill the vocabulary round-robin across languages. Every
-  language is guaranteed representation; the cost is that some slots go to
-  trigrams that are globally rare.
+  language is guaranteed representation by construction; the cost is that
+  some slots go to trigrams that are globally rare.
 
-**Registered choice: Variant B.** The decisive reason is symmetry with the
-system under test. ENGRAMM assigns a hypervector to every trigram it
-encounters and applies no frequency cutoff at all, so no language is
-structurally disadvantaged in it. Variant A would impose a handicap that the
-baselines bear and ENGRAMM does not — in a study whose entire purpose is
-comparing the two. It would also depress baseline acc(0) for reasons
-unrelated to the hypothesis, confounding the normalized retention metric in a
-direction we cannot predict in advance. Per §3.1 we would rather be
-disadvantaged by a choice than win by one.
+**Registered choice: Variant B, on one load-bearing argument.** The reason
+that survives measurement is symmetry with the system under test: ENGRAMM
+assigns a hypervector to every trigram it encounters and applies no frequency
+cutoff at all, so no language is structurally disadvantaged in it. A pooled
+vocabulary would impose a selection handicap that the baselines bear and
+ENGRAMM does not — in a study whose entire purpose is comparing the two.
+Per §3.1 we would rather be disadvantaged by a choice than win by one.
+
+That is now the *only* reason. It stands on its own, but it is one argument
+rather than three, and this section says so.
 
 Exact procedure, deterministic by construction:
 
@@ -129,9 +144,9 @@ TF-IDF document frequencies are computed on the training split only, as
 already registered in §3.
 
 **Diagnostic reported with the results:** the per-language vocabulary
-contribution under Variant B, and the number of languages that *would* have
-received zero entries under Variant A. This makes the cost of the rejected
-variant a measured quantity rather than an assertion.
+contribution under both variants. This is what turned the v1.1 justification
+from an assertion into a measurement, and refuted part of it — so it stays,
+and it is reported whatever it shows.
 
 ### 3.3 Secondary condition: equal bit budget
 
@@ -293,6 +308,7 @@ commit hash, `canonical` flag, and full hyperparameters.
 
 | Version | Date | Change | Measurements existed? |
 |---|---|---|---|
+| 1.2 | 2026-08-15 | §3.2 corrected: the v1.1 justification claimed unequal amounts of text per language, which is wrong — WiLI-2018 is balanced at 500 training paragraphs per language. The predicted harm (languages left with zero vocabulary entries under Variant A) was measured and refuted: 0 of 235. Both are stated in the section rather than replaced silently. The registered choice stays Variant B, now resting on the single surviving argument (symmetry with a system that has no frequency cutoff). | **No** — `results/` contained no benchmark record; verified before the commit. |
 | 1.1 | 2026-08-15 | §3.2 added: WiLI vocabulary selection resolved to per-language balanced (Variant B), with exact procedure and a reported diagnostic. Former §3.2 renumbered to §3.3. | **No** — `results/` contained no benchmark record; verified before the commit. |
 | 1.0 | 2026-08-15 | Initial registration. | No |
 

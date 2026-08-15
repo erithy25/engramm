@@ -1,0 +1,84 @@
+{
+  "platform_tag": "linux-x86_64-py3.11",
+  "git": {
+    "commit": "14388fb511f47086e941821ceed4345e22de48da",
+    "dirty": true
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.5-fc-v20-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "probe": {
+    "seed": 42,
+    "mnist": {
+      "labels": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "n_train": 4000,
+      "n_test": 10000,
+      "x_train_digest": "ad23aa69ce72ccffe06b02b3892596c9d27dd0cd544769d720be8cc6140a624d",
+      "y_test_digest": "5a902dc7d32803f751e82a2ad4028be7f53b4d7b496a24d72d6bee1260eed4fb",
+      "artifacts_digest": "785c842ea18d30638a4e559169345337bc847004d6ca98a58eee399e8dadac6f",
+      "pixel_mean_repr": [
+        "0.0",
+        "0.0",
+        "0.0",
+        "0.0",
+        "0.0",
+        "0.0",
+        "0.0",
+        "0.0"
+      ]
+    },
+    "wili": {
+      "labels_head": [
+        "ace",
+        "afr",
+        "als",
+        "amh",
+        "ang",
+        "ara",
+        "arg",
+        "arz",
+        "asm",
+        "ast"
+      ],
+      "n_classes": 235,
+      "n_train": 2350,
+      "n_test": 117500,
+      "shots": 10,
+      "y_train_digest": "8ec6dc7988bbd6232b561bd37acca9d5b7970068b6a3ef828a827a04fe778ee0",
+      "selected_text_digest": "c8ffe6c988214d98342a10da9e6cab8c365e3978ed1925be33ff8e966eb308f5",
+      "artifacts_digest": "bb912af63f873412d5eed3e6ec4701c710a0cbc8ad70b98df4e621a6c67b197c",
+      "vocabulary_head": [
+        "ng ",
+        "ie ",
+        "sch",
+        " እን",
+        "and",
+        " ال",
+        " de",
+        " আৰ",
+        "ул ",
+        " su",
+        " او",
+        "lar"
+      ]
+    }
+  },
+  "probe_sha256": "2b8ff8c6acaf907f3ecc25f27d803b9f3d8236c808b0a392577f801b10b1ac1d"
+}
