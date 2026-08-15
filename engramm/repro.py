@@ -109,10 +109,11 @@ def determinism_digest(seed: int) -> dict[str, Any]:
     reference machine turns "we assume this is deterministic" into a
     checked fact (``docs/PROTOCOL.md``, rule 4).
 
-    Currently probed: the canonical RNG's integer and float streams, the
-    hash-order-sensitive label ordering, and NumPy's float formatting and
-    byte order. As the model is implemented, its outputs are added here so
-    the digest covers the full pipeline rather than only its primitives.
+    Probed: the canonical RNG's integer and float streams, the
+    hash-order-sensitive label ordering, NumPy's float formatting and byte
+    order, and — via :func:`_model_probe` — the VSA algebra and the trained
+    prototype classifier, so the digest covers the pipeline rather than only
+    its primitives.
     """
     rng = set_all_seeds(seed)
     ints = rng.integers(0, 2**31 - 1, size=16, dtype=np.int64)
@@ -127,6 +128,51 @@ def determinism_digest(seed: int) -> dict[str, Any]:
         "float_formatting": [repr(float(np.float64(1) / 3)), f"{np.float32(0.1):.20f}"],
         "byteorder": sys.byteorder,
         "int64_itemsize": int(np.dtype(np.int64).itemsize),
+        "model": _model_probe(seed),
+    }
+
+
+def _model_probe(seed: int) -> dict[str, Any]:
+    """Deterministic probe over the VSA algebra and the trained classifier.
+
+    Imported lazily because :mod:`engramm.core` depends on this module —
+    a top-level import would be circular.
+
+    Uses a reduced dimension and small odd class sizes: odd, because an even
+    number of bundled vectors can produce an exact majority tie, whose
+    resolution is still an open decision (``docs/UNDERSTANDING.md`` B2.2).
+    Once that rule exists, a tie-producing case belongs in this probe too —
+    it is precisely the kind of platform-sensitive branch worth pinning.
+    """
+    from engramm.core import (
+        ItemMemory, PrototypeClassifier, bind, bundle, permute, to_signed,
+    )
+    from engramm.metrics import hamming
+
+    dimension = 1024
+    memory = ItemMemory(seed, dimension)
+    symbols = [f"probe{i}" for i in range(7)]
+    stack = memory.vectors(symbols)
+
+    bound = bind(stack[0], stack[1])
+    rotated = permute(stack[2], 3, dimension)
+    bundled = bundle(stack, dimension)
+
+    model = PrototypeClassifier(dimension, seed=seed)
+    labels = [f"class{i % 3}" for i in range(9)]
+    model.learn(to_signed(stack[:3].repeat(3, axis=0), dimension).astype(np.int8),
+                labels)
+    scores = model.score(stack)
+
+    return {
+        "vector_checksums": [int(v.sum()) for v in stack],
+        "bind_distance": int(hamming(bound, stack[0])),
+        "permute_distance": int(hamming(rotated, stack[2])),
+        "bundle_distances": [int(hamming(bundled, v)) for v in stack],
+        "prototype_checksums": [int(p.sum()) for p in model.P],
+        "accumulator_checksums": [int(a.sum()) for a in model.A],
+        "scores_repr": [repr(round(float(s), 12)) for s in scores.ravel()],
+        "labels": list(model.labels),
     }
 
 
