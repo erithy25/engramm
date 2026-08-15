@@ -25,8 +25,8 @@ survives as a 17-line fragment; the harness that produced the WiLI result was
 not recovered at all. The recovered code — fragments plus a few complete but
 non-runnable files — is preserved in [`legacy/`](legacy/), the edit logs in
 [`docs/archive/edit-logs/`](docs/archive/edit-logs/), and a full forensic
-account of what survives is in the repository's audit
-(branch `claude/engramm-reproducibility-audit-y94aa7`).
+account of what survives is in the repository's audit:
+[`docs/AUDIT_2026-08.md`](docs/AUDIT_2026-08.md).
 
 The project is being reimplemented from scratch in this repository, starting
 from the preserved design documents (in particular
@@ -56,6 +56,9 @@ are not evidence; they are targets to test against.**
 | M2b | Utility-based eviction with L2 persistence gate | Crash-replay test passed in original runs |
 | M3 | 1,000-author sequential learning | State-level order invariance observed (see caveat below) |
 | M5 | Intent classification vs. local LLM baselines | **Hypothesis failed:** ENGRAMM 62.6 % Banking77 / 69.0 % CLINC150 — 20.4 and 22.0 pp behind the LLM+RAG baseline — preregistered outcome (3) on this task family |
+
+> These figures must not be cited. They are recorded claims pending
+> re-measurement.
 
 Three qualifications that earlier versions of this README stated too
 loosely, corrected here:
@@ -124,6 +127,14 @@ Unchanged, and the reason this README looks the way it does:
 1. Register the success criterion before running the experiment.
 2. Run across multiple seeds on fixed hardware.
 3. Reproduce independently before a result counts.
+
+   > Independent reproduction, as used in this project: a separate agent
+   > session re-derives the harness from the specification and re-runs the
+   > benchmark without access to the original implementation, on the same
+   > hardware. This verifies determinism and specification completeness. It
+   > does not constitute independent replication by a third party on
+   > different hardware, and is not claimed as such.
+
 4. Document failures with the same rigor as successes.
 
 ## Repository layout
@@ -138,6 +149,10 @@ legacy/                  recovered code — fragments plus complete but non-runn
                          files; reference only
 results/                 machine-readable benchmark results (committed, append-only)
 ```
+
+## License
+
+[Apache License 2.0](LICENSE) — Copyright 2026 Erik Thye.
 
 ## About
 
