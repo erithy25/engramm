@@ -5,7 +5,8 @@ corruption code was written, and before the underlying benchmarks (B5/B6)
 produced a single number. The commit timestamp of this file is its point:
 everything below was fixed in advance.
 
-**Version 1.0** · Project ENGRAMM · Registered 2026-08-15
+**Version 1.1** · Project ENGRAMM · Registered 2026-08-15 ·
+Amended 2026-08-15 (§3.2 added, before any measurement — see §12)
 
 ---
 
@@ -80,7 +81,59 @@ parameter count gives the int8 baselines 8× ENGRAMM's storage in bits, and
 the float32 baselines 32×. We prefer to be disadvantaged by the primary
 condition than to win by a favourable choice of accounting.
 
-### 3.2 Secondary condition: equal bit budget
+### 3.2 WiLI vocabulary selection: pooled or per-language balanced
+
+"The V = 10,000 most frequent character trigrams" is ambiguous, and the
+ambiguity is outcome-relevant, so it is resolved here rather than left to the
+implementation.
+
+WiLI-2018 is balanced by **paragraph count** — 500 training paragraphs per
+language — but not by **character count**: characters per paragraph vary with
+script and morphology, and Latin-script trigrams accumulate across roughly
+half of the 235 languages while a unique-script language contributes its
+trigrams alone.
+
+* **Variant A — pooled.** Count trigram occurrences over the entire training
+  split, take the top 10,000. Standard practice, and it reflects natural
+  corpus statistics. But selection is then weighted by character mass and by
+  script sharing: low-character-mass and unique-script languages can receive
+  very few vocabulary entries, or none, leaving their feature rows all-zero
+  and those classes structurally unclassifiable **before any corruption is
+  applied**.
+* **Variant B — per-language balanced.** Rank trigrams within each language
+  separately, then fill the vocabulary round-robin across languages. Every
+  language is guaranteed representation; the cost is that some slots go to
+  trigrams that are globally rare.
+
+**Registered choice: Variant B.** The decisive reason is symmetry with the
+system under test. ENGRAMM assigns a hypervector to every trigram it
+encounters and applies no frequency cutoff at all, so no language is
+structurally disadvantaged in it. Variant A would impose a handicap that the
+baselines bear and ENGRAMM does not — in a study whose entire purpose is
+comparing the two. It would also depress baseline acc(0) for reasons
+unrelated to the hypothesis, confounding the normalized retention metric in a
+direction we cannot predict in advance. Per §3.1 we would rather be
+disadvantaged by a choice than win by one.
+
+Exact procedure, deterministic by construction:
+
+1. Language order is the sorted list of language codes; within a language,
+   trigrams are ranked by `(−count, trigram)`, counts taken from that
+   language's **training** paragraphs only.
+2. For rank r = 1, 2, 3, …, iterate the languages in order and add each
+   language's r-th ranked trigram if it is not already in the vocabulary.
+   A language whose distinct trigrams are exhausted is skipped thereafter.
+3. Stop at exactly 10,000 entries, preserving the parameter match of §3.1.
+
+TF-IDF document frequencies are computed on the training split only, as
+already registered in §3.
+
+**Diagnostic reported with the results:** the per-language vocabulary
+contribution under Variant B, and the number of languages that *would* have
+received zero entries under Variant A. This makes the cost of the rejected
+variant a measured quantity rather than an assertion.
+
+### 3.3 Secondary condition: equal bit budget
 
 Reported alongside, not instead: baselines shrunk to ENGRAMM's *bit* budget
 (int8 weights, so one eighth the parameters) — MNIST MLP h = 16, WiLI MLP
@@ -235,3 +288,16 @@ produced in the Linux container but must be confirmed bit-identically on the
 reference M4 before they count; wall time and peak memory are reference-
 machine-only. Every run writes a record to `results/` carrying its seed,
 commit hash, `canonical` flag, and full hyperparameters.
+
+## 12. Amendment log
+
+| Version | Date | Change | Measurements existed? |
+|---|---|---|---|
+| 1.1 | 2026-08-15 | §3.2 added: WiLI vocabulary selection resolved to per-language balanced (Variant B), with exact procedure and a reported diagnostic. Former §3.2 renumbered to §3.3. | **No** — `results/` contained no benchmark record; verified before the commit. |
+| 1.0 | 2026-08-15 | Initial registration. | No |
+
+Amendments are permitted in place **only** while no measurement of this study
+exists. Once the first number is produced, §10 takes effect and any change
+requires a new file with its own commit timestamp. This table exists so that
+the distinction is auditable from the document itself rather than from
+memory; the git history of this file is the primary evidence.
