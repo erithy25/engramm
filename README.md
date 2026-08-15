@@ -19,10 +19,11 @@ below are currently reproducible.**
 
 What happened: the source code was developed locally but never fully committed
 to version control. When the working tree was lost, the only surviving artifact
-was a set of editor edit logs, from which fragments were reconstructed (commit
-`a1af719`). The core module — documented at 469 lines — survives as a 17-line
-fragment; the harness that produced the WiLI result was not recovered at all.
-The fragments are preserved in [`legacy/`](legacy/), the edit logs in
+was a set of Claude Code edit-tool logs, from which the code was partially
+reconstructed (commit `a1af719`). The core module — documented at 469 lines —
+survives as a 17-line fragment; the harness that produced the WiLI result was
+not recovered at all. The recovered code — fragments plus a few complete but
+non-runnable files — is preserved in [`legacy/`](legacy/), the edit logs in
 [`docs/archive/edit-logs/`](docs/archive/edit-logs/), and a full forensic
 account of what survives is in the repository's audit
 (branch `claude/engramm-reproducibility-audit-y94aa7`).
@@ -39,8 +40,9 @@ of experimental results.
 
 ## Historical results (currently unverifiable)
 
-All figures below were recorded on a MacBook Air (M4, 16 GB, CPU only) in
-July 2026. The measurement protocols, per-seed values, and negative results
+All figures below were recorded on a MacBook Air (M4, 16 GB) in July 2026.
+ENGRAMM's own figures are CPU-only; the M5 baseline side ran the LLM with
+Metal GPU acceleration (llama-cpp-python). The measurement protocols, per-seed values, and negative results
 were logged in detail in the design documents — but the code, data, and run
 logs did not survive. **Until reimplemented and re-measured, these numbers
 are not evidence; they are targets to test against.**
@@ -53,7 +55,7 @@ are not evidence; they are targets to test against.**
 | M2a | Consolidation via similarity absorption | **Failed:** −53 pp accuracy (documented negative result) |
 | M2b | Utility-based eviction with L2 persistence gate | Crash-replay test passed in original runs |
 | M3 | 1,000-author sequential learning | State-level order invariance observed (see caveat below) |
-| M5 | Intent classification vs. local LLM baselines | **Lost:** ENGRAMM 62.6 % Banking77 / 69.0 % CLINC150, ~20 pp behind the LLM+RAG baseline — preregistered outcome (3), core hypothesis failed on this task family |
+| M5 | Intent classification vs. local LLM baselines | **Hypothesis failed:** ENGRAMM 62.6 % Banking77 / 69.0 % CLINC150 — 20.4 and 22.0 pp behind the LLM+RAG baseline — preregistered outcome (3) on this task family |
 
 Three qualifications that earlier versions of this README stated too
 loosely, corrected here:
@@ -75,8 +77,9 @@ loosely, corrected here:
   accuracy claim is unaffected, the "< 30 min" claim holds only under the
   revised rule.
 - **The M3 order-invariance claim applies to the learned state, not to
-  outputs.** Sequential and batch construction produced bit-identical
-  prototypes and episode multisets in the original runs. Classification
+  outputs.** Sequential construction in different presentation orders
+  produced bit-identical prototypes and episode multisets in the original
+  runs. Classification
   output still differed by 0.03 pp under episode reordering, due to an
   order-dependent tie-break that was never fixed (issue W19). Stronger
   wording used previously ("proven", "independently reproduced
@@ -102,9 +105,10 @@ Phases, in order:
    with checksums (WiLI-2018, MNIST), seeds for every randomness source, one
    command per benchmark, machine-readable results in `results/` (timestamp,
    seed, commit hash, environment) — committed, not gitignored.
-2. **Reimplement the core** from `docs/D2_SPEC.md`: item memory, trigram and
-   thermometer encoders, T1 accumulation, T2 error-driven updates. No silent
-   design changes; deviations from the spec get documented.
+2. **Reimplement the core** from `docs/D2_SPEC.md` (item memory, trigram
+   encoder, T1 accumulation, T2 error-driven updates), plus the pixel/
+   thermometer image encoder recorded in `docs/D4_PROTOTYP.md`. No silent
+   design changes; deviations from the record get documented.
 3. **Re-run the two historical benchmarks** (WiLI 10-shot, MNIST) across 5
    seeds and publish mean ± SD. Whatever comes out is the new official
    number. If it deviates from the historical claims, the deviation is
@@ -125,11 +129,14 @@ Unchanged, and the reason this README looks the way it does:
 ## Repository layout
 
 ```
-docs/                    design documents (D1 manifest, D2 spec, D5 experiments, D6 honesty
-                         contract, D8 audit — partially fragmentary, see docs/archive/)
-docs/archive/edit-logs/  the edit logs the recovery was reconstructed from
-legacy/                  recovered code fragments — non-functional, reference only
-results/                 (to be created) machine-readable benchmark results
+docs/                    design documents: D1 manifest, D2 spec, D4 prototype record,
+                         D5 experiments, D6 honesty contract, D8 audit, the V2
+                         target-dimension documents, project notes — partially
+                         fragmentary, see docs/archive/
+docs/archive/edit-logs/  the Claude Code edit logs the recovery was reconstructed from
+legacy/                  recovered code — fragments plus complete but non-runnable
+                         files; reference only
+results/                 machine-readable benchmark results (committed, append-only)
 ```
 
 ## About

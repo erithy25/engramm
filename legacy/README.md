@@ -13,7 +13,7 @@ log only contains the text passages that were touched by an edit operation —
 so the recovery could restore exactly those passages, and nothing else. That
 is why most files here begin mid-function and cannot be parsed.
 
-## Fragments (not parseable, not runnable)
+## Fragments (incomplete — none runnable)
 
 | File | Recovered | Original (per docs) | What the fragment contains |
 |---|---|---|---|
@@ -35,6 +35,11 @@ not recovered at all — no fragment of them exists.
 | `spielwiese.py` | complete | interactive demo; imports the missing `Engramm`/`ItemMemory` |
 | `vox_fusion-2.py` … `vox_fusion-5.py` | 2–4 complete, 5 is a fragment | four successive saved versions of `vox_fusion.py` (VOX side project: local Qwen as "mouth", ENGRAMM as fact memory). No file is marked canonical; `-5` is 13 lines of regex patterns only. |
 
-These files were written in single `Write` operations in the original
-session, so their full text survived in the edit log — unlike the core, which
-grew through many small edits.
+Why these files survived in full while the core did not is not fully
+documented: no `.edits.json` exists for any of them in
+`docs/archive/edit-logs/` (those logs only record `Edit` operations, and only
+for the fragment files). The plausible explanation — they were created in
+single `Write` operations whose payloads the recovery session still had —
+cannot be verified from what is in this repository. What *is* verifiable:
+they arrived complete in the recovery commit `a1af719` and are preserved here
+byte-identically.
