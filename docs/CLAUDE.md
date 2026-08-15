@@ -4,6 +4,11 @@
 - Messwerte gehören in die D-Dokumente, nicht nur ins Terminal.
 - **Hintergrund-Läufe: IMMER session-fest** via `nohup <cmd> > logs/<name>.log 2>&1 & echo $! > logs/<name>.pid; disown`
   — überlebt Session-Ende. Status-Check in jeder Session: `ps -p $(cat logs/<name>.pid)` + `tail logs/<name>.log`.
+  **Auf das Ende warten immer über die PID, nie über den Prozessnamen:**
+  `tail --pid=$(cat logs/<name>.pid) -f /dev/null` (blockiert ohne Polling), ersatzweise
+  `while kill -0 $(cat logs/<name>.pid) 2>/dev/null; do sleep 30; done`.
+  Eine PID ist eindeutig, ein Name nie — ein `pgrep -f run_benchmark` trifft auch die
+  Warteschleife selbst und meldet dann dauerhaft „läuft noch" (beobachtet 2026-08-15).
   Python immer mit `-u` (ungepufferte Ausgabe → Live-Log, kein Blindflug). Kriteriumsrelevante Zeitmessungen
   nur unter W16-Bedingungen (D6: caffeinate, Netzteil, Deckel offen, alleiniger Lauf). `logs/` ist gitignored.
 - **Missionskontrolle:** Ein separater Claude-Chat (Rolle: Kritiker + Chronist) schreibt die Auftrags-Prompts
