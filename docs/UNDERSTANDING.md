@@ -49,7 +49,7 @@ den Fehler sichtbar macht, ist lehrreicher als eine fertige Korrektur.
 
 ## Baustein B2 — Kern: Item-Memory, Binding, Bundling, Permutation
 
-*Status: Fragen gestellt, Antworten ausstehend.*
+*Status: B2.2 beantwortet (2026-08-15), drei Rückfragen offen. B2.1, B2.3–B2.5 ausstehend.*
 
 ### B2.1 Bundling per Mehrheitsentscheid
 
@@ -86,6 +86,38 @@ Nachfragen eines Prüfers:
 *Belegstelle in den Projektunterlagen: `D6_EHRLICHKEIT.md`, Punkt W14 —
 dort ist ein beobachteter Kollaps dokumentiert. Die mechanische Erklärung
 dafür ist Teil der Antwort.*
+
+**Beantwortet 2026-08-15.** Entscheidung: inhaltsabhängiger Hash. Umgesetzt
+in `engramm.core.resolve_tie`, dokumentiert in `docs/DEVIATIONS.md` GAP-4.
+Die Rechnung wurde nachgeprüft und trägt — insbesondere die Aussage, dass
+ein fester Tie-Vektor die Klassenähnlichkeit genauso aufbläht wie „immer
++1"; gemessen 62,53 % gegen 62,49 % Übereinstimmung, beide gegen 50 % beim
+Hash.
+
+#### Rückfragen zur Antwort (offen)
+
+Drei Stellen, an denen ein Prüfer nachhaken würde. Die Antworten gehören in
+den Text oben, nicht hierher.
+
+1. **Welche Größe ist mit „75 % Ähnlichkeit" gemeint?** Der Text nennt 7.500
+   Treffer von 10.000. Dieses Projekt misst Ähnlichkeit aber als
+   `sim_from_dh = 1 − 2·d_H/D`. Rechne aus, welchen Wert diese Formel für
+   7.500 Treffer liefert, und entscheide, welche der beiden Größen im Text
+   stehen soll — oder ob beide gebraucht werden und benannt werden müssen.
+
+2. **Zeigt der Vergleich in Schritt 4 wirklich, was er zeigen soll?**
+   Variante A wird über die *Klassenähnlichkeit* kritisiert, Variante B über
+   die *Ähnlichkeit zum Ursprungsvektor* gelobt. Rechne nach, wie viele
+   Treffer mit A das Bündel unter *Variante A* hat. Wenn dieselbe Zahl
+   herauskommt: An welcher Größe hängt der Vorteil von B dann tatsächlich,
+   und wie muss der Absatz umgestellt werden, damit er das belegt?
+
+3. **Woher kommen die 2,7 %?** Der Text nennt die Zahl für ~800 Summanden
+   ohne Herleitung. Es gibt eine geschlossene Form: Wie groß ist die
+   Wahrscheinlichkeit, dass eine Summe aus *n* unabhängigen ±1-Werten exakt
+   0 ergibt? Stelle sie auf (Stichwort: Binomialkoeffizient), gib die
+   Näherung für großes *n* an, und prüfe sie gegen die gemessenen 2,72 % bei
+   n = 784. Damit ist die Skalierungsaussage nachrechenbar statt zugesagt.
 
 ### B2.3 Permutation für Sequenzen
 

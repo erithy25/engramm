@@ -10,12 +10,9 @@ hyperparameter, wall time, peak memory, and the environment — including the
 ``canonical`` flag, which is derived from the host and cannot be set by
 hand (``docs/PROTOCOL.md``).
 
-**Tie resolution is still open.** Majority bundling has no defined answer
-for an exactly balanced component, so a full run stops at the first tie.
-That is expected, not a crash: the run reports where it stopped and why, and
-exits with status 2. ``--dry-run`` executes everything up to that point —
-loaders, feature fitting, item memory, encoding, tie statistics — so the
-whole pipeline can be verified before the decision is made.
+``--dry-run`` executes everything except the final thresholding — loaders,
+feature fitting, item memory, accumulation — and reports the tie rate per
+split, without writing a record.
 """
 
 from __future__ import annotations
@@ -42,17 +39,9 @@ from engramm.repro import (
 
 DEFAULT_SEEDS = (42, 7, 1337, 2026, 99, 3, 123, 512, 8191, 31337)
 
-#: Exit status used when a run stops on the unresolved tie rule, so a
-#: caller can tell it apart from a genuine failure.
-EXIT_TIE_UNRESOLVED = 2
-
 #: Test samples encoded and classified per batch. Bounds the peak
 #: accumulator at ``batch × D`` int32 instead of the whole split.
 DEFAULT_TEST_BATCH = 2_000
-
-
-class TieUnresolved(RuntimeError):
-    """Raised when a run reaches a component the tie rule must decide."""
 
 
 @dataclass
@@ -102,27 +91,6 @@ def subset(dataset: Dataset, limit_train: int | None,
     return replace(dataset, **changes) if changes else dataset
 
 
-def encode_or_report_tie(encoder: Encoder, samples: Any, stage: str) -> np.ndarray:
-    """Encode, converting the open tie decision into a legible failure."""
-    try:
-        return encoder.encode(samples)
-    except NotImplementedError as exc:
-        report = encoder.tie_report(samples)
-        raise TieUnresolved(
-            f"stopped while encoding the {stage} split: majority bundling "
-            f"produced exactly balanced components, and the tie-resolution "
-            f"rule is not decided yet.\n"
-            f"  affected samples : {report.n_with_ties} of {report.n_samples} "
-            f"({report.fraction_of_samples:.1%})\n"
-            f"  tied components  : {report.mean_tied_components:.1f} on average "
-            f"of {report.dimension}, at most {report.max_tied_in_one_sample}\n"
-            f"  the decision     : docs/UNDERSTANDING.md section B2.2, "
-            f"implemented in engramm.core.resolve_tie\n"
-            f"  to verify the rest of the pipeline meanwhile: re-run with "
-            f"--dry-run"
-        ) from exc
-
-
 def predict_streaming(model: PrototypeClassifier, encoder: Encoder,
                       samples: Any, batch_size: int) -> np.ndarray:
     """Encode, classify and discard the test split one batch at a time.
@@ -147,7 +115,7 @@ def predict_streaming(model: PrototypeClassifier, encoder: Encoder,
         stop = min(start + batch_size, total)
         batch = (samples[start:stop] if isinstance(samples, np.ndarray)
                  else list(samples[start:stop]))
-        packed = encode_or_report_tie(encoder, batch, "test")
+        packed = encoder.encode(batch)
         predictions[start:stop] = model.predict(packed)
     return predictions
 
@@ -167,7 +135,7 @@ def run_seed(task: str, seed: int, dimension: int, shots: int | None,
 
     from engramm.core import unpack_bits
 
-    train_packed = encode_or_report_tie(encoder, dataset.x_train, "training")
+    train_packed = encoder.encode(dataset.x_train)
     train_signed = (unpack_bits(train_packed, dimension).astype(np.int8) * 2) - 1
     del train_packed
 
@@ -240,9 +208,8 @@ def run_dry(task: str, seed: int, dimension: int, shots: int | None,
     print(f"\n  pipeline verified up to thresholding. "
           f"peak RSS {peak_rss_mb():.0f} MiB, "
           f"total {time.perf_counter() - started:.1f}s")
-    print("  the remaining step — turning accumulated sums into hypervectors —"
-          "\n  needs the tie rule from docs/UNDERSTANDING.md B2.2. No result "
-          "written.")
+    print("  the remaining step is thresholding, which resolves the ties "
+          "above\n  via engramm.core.resolve_tie. No result written.")
     return 0
 
 
@@ -269,6 +236,10 @@ def main(argv: list[str] | None = None) -> int:
                         help="verify the pipeline up to the first tie, write nothing")
     parser.add_argument("--limit-train", type=int, default=None)
     parser.add_argument("--limit-test", type=int, default=None)
+    parser.add_argument("--results-dir", type=str, default=None,
+                        help="where to write records (default: results/). Use a "
+                             "scratch directory for exploratory runs so the "
+                             "official record set stays clean")
     parser.add_argument("--test-batch", type=int, default=DEFAULT_TEST_BATCH,
                         help=f"test samples per encode/classify batch "
                              f"(default {DEFAULT_TEST_BATCH})")
@@ -300,21 +271,14 @@ def main(argv: list[str] | None = None) -> int:
     results: list[SeedResult] = []
     for seed in seeds:
         started = time.perf_counter()
-        try:
-            result, hyperparameters = run_seed(
-                args.task, seed, args.dimension, args.shots,
-                args.limit_train, args.limit_test, args.allow_download,
-                args.test_batch)
-        except TieUnresolved as exc:
-            print(f"\nseed {seed}: {exc}", file=sys.stderr)
-            if results:
-                print(f"\n{len(results)} seed(s) completed before this point; "
-                      f"their records are in results/.", file=sys.stderr)
-            return EXIT_TIE_UNRESOLVED
-
+        result, hyperparameters = run_seed(
+            args.task, seed, args.dimension, args.shots,
+            args.limit_train, args.limit_test, args.allow_download,
+            args.test_batch)
         elapsed = time.perf_counter() - started
         path = write_result(task=args.task, seed=seed, result=result,
-                            hyperparams=hyperparameters, wall_seconds=elapsed)
+                            hyperparams=hyperparameters, wall_seconds=elapsed,
+                            results_dir=args.results_dir)
         results.append(SeedResult(
             seed=seed, accuracy=result["accuracy"], macro_f1=result["macro_f1"],
             wall_seconds=elapsed, peak_rss_mb=peak_rss_mb(), record_path=str(path),

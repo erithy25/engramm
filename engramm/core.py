@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import hashlib
 from collections.abc import Iterable, Sequence
+from functools import lru_cache
 from dataclasses import dataclass
 
 import numpy as np
@@ -84,34 +85,101 @@ def from_signed(signed: np.ndarray) -> np.ndarray:
 
 
 # ---------------------------------------------------------------------------
-# Tie resolution — deliberately open
+# Tie resolution
 # ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class TieContext:
-    """Information available to a tie-resolution rule.
+    """Who is being binarised, so that a tie can be resolved distinctly.
 
-    Carries everything a rule could draw on. Which of these fields an
-    actual rule uses depends on the rule, and that decision has not been
-    made yet.
+    The tie rule keys on **object identity**: two different objects must
+    resolve the same tied component differently, or they are pushed
+    artificially together. What counts as "the object" differs by site, so
+    each site has its own constructor rather than a grab-bag of optional
+    fields:
+
+    * :meth:`for_prototype` — the object is a class, identified by its
+      label.
+    * :meth:`for_encoding` — the object is a sample, which has no label
+      (and must not: the test split has none at encoding time, and using
+      one would leak). It is identified by its own content instead.
 
     Attributes
     ----------
     dimension:
-        Hypervector dimension.
-    n_terms:
-        How many vectors were combined, when known.
-    class_index:
-        The prototype being binarised, when the tie arises there rather
-        than in a standalone bundling operation.
+        Hypervector dimension. Part of the hash payload, so runs at
+        different D never share a resolution.
+    identity:
+        The bytes distinguishing this object from every other one.
     seed:
-        The run's seed, when one is in scope.
+        The run's seed. Included so tie resolution varies across seeds like
+        every other random choice in the project, which makes its
+        contribution visible in the seed-to-seed spread.
+    origin:
+        Which site this came from — used in error messages only.
+    n_terms:
+        How many vectors were combined, when known. Informational.
     """
 
     dimension: int
+    identity: bytes
+    seed: int
+    origin: str
     n_terms: int | None = None
-    class_index: int | None = None
-    seed: int | None = None
+
+    @classmethod
+    def for_prototype(cls, dimension: int, label: str, seed: int) -> TieContext:
+        """Identity of a class prototype: its label.
+
+        The label rather than the class index, because an index depends on
+        which classes happen to be present while a label does not.
+        """
+        return cls(dimension=dimension,
+                   identity=b"prototype\x00" + label.encode("utf-8"),
+                   seed=seed, origin=f"prototype {label!r}")
+
+    @classmethod
+    def for_encoding(cls, dimension: int, totals: np.ndarray,
+                     seed: int, n_terms: int | None = None) -> TieContext:
+        """Identity of an encoded sample: the content thresholding sees.
+
+        Specifically the sign pattern together with the tie mask — exactly
+        the information the thresholding step depends on, and nothing more.
+        Two samples agreeing on both must produce the same hypervector, so
+        keying on precisely that is consistent rather than a limitation.
+
+        It is a function of the sample alone, so it does not depend on
+        which other samples are present, on their order, or on how the
+        batch was split.
+        """
+        return cls(dimension=dimension,
+                   identity=(b"encoding\x00"
+                             + np.packbits(totals > 0).tobytes()
+                             + np.packbits(totals == 0).tobytes()),
+                   seed=seed, origin="encoding", n_terms=n_terms)
+
+
+@lru_cache(maxsize=512)
+def _tie_bit_stream(seed: int, dimension: int, identity: bytes) -> np.ndarray:
+    """Deterministic pseudo-random bit per component, keyed on the object.
+
+    SHAKE-256 is an extendable-output function, so one call yields exactly
+    the ``D`` bits needed. It is fixed by its standard, unlike a NumPy bit
+    generator whose stream is only guaranteed within a version — which
+    matters because these bits end up in committed results.
+
+    Cached because a prototype is re-binarised many times under the same
+    identity. The bound keeps encoding, where every sample has a distinct
+    identity, from growing the cache without limit.
+    """
+    payload = (seed.to_bytes(8, "big")
+               + dimension.to_bytes(8, "big")
+               + len(identity).to_bytes(8, "big")
+               + identity)
+    raw = hashlib.shake_256(payload).digest(dimension // 8)
+    bits = np.unpackbits(np.frombuffer(raw, dtype=np.uint8), count=dimension)
+    bits.flags.writeable = False
+    return bits
 
 
 def resolve_tie(
@@ -121,30 +189,33 @@ def resolve_tie(
 ) -> np.ndarray:
     """Assign bit values to components where the majority vote is exactly tied.
 
-    **Contract.** Called with the signed component sums (``totals``) and a
-    boolean mask marking the components where that sum is exactly zero.
-    Must return a ``uint8`` array of 0/1 values, one per tied component, in
-    the order the mask selects them. Must be deterministic: the same inputs
-    and the same context must always give the same answer, or the project's
-    determinism tests fail.
+    Returns one 0/1 value per tied component, in the order the mask selects
+    them, derived from ``(seed, dimension, object identity, component
+    index)`` by a keyed hash.
 
-    **Not implemented — open by design.** How a tie should be resolved is an
-    unsettled question in this project, and the answer follows from the
-    mathematics of majority bundling rather than from convenience. It stays
-    open until that mathematics has been worked through in
-    ``docs/UNDERSTANDING.md``, section B2.2. Implementing a rule here before
-    then would settle the question by accident.
+    **Why the identity has to be in the key.** The obvious alternatives
+    resolve every object's tie the same way, and that inflates similarity
+    between objects rather than leaving it alone. Resolving to a constant
+    biases every bundle toward that constant; a shared random tie vector
+    carries no bias but still forces agreement wherever two objects tie at
+    the same component. Measured on two-vector bundles, both raise expected
+    agreement between unrelated classes from 50.0 % to 62.5 % — a
+    similarity of +0.25 where it should be 0. Keying on identity leaves it
+    at 50.0 %. See ``docs/UNDERSTANDING.md`` B2.2 and ``docs/DEVIATIONS.md``
+    GAP-4.
 
-    Until it is implemented, bundling and prototype binarisation work
-    whenever no exact tie occurs, and raise here when one does.
+    **Determinism.** The key contains no counter, no position in the data
+    stream, and no batch boundary, so the same object resolves identically
+    however the run is ordered or chunked. That is what keeps the learned
+    state order-invariant.
     """
-    raise NotImplementedError(
-        "Tie-resolution rule is an open design decision — see "
-        "docs/UNDERSTANDING.md B2.2. Until it is settled, bundling and "
-        "rebinarisation require inputs that produce no exact ties "
-        f"(got {int(np.count_nonzero(tie_mask))} tied of {context.dimension} "
-        "components)."
-    )
+    if tie_mask.shape[-1] != context.dimension:
+        raise ValueError(
+            f"tie mask covers {tie_mask.shape[-1]} components but the context "
+            f"declares dimension {context.dimension}"
+        )
+    return _tie_bit_stream(context.seed, context.dimension,
+                           context.identity)[tie_mask]
 
 
 # ---------------------------------------------------------------------------
@@ -180,6 +251,7 @@ def permute(packed: np.ndarray, shift: int, dimension: int) -> np.ndarray:
 def bundle(
     packed_stack: np.ndarray,
     dimension: int,
+    seed: int = 0,
     context: TieContext | None = None,
 ) -> np.ndarray:
     """Combine several packed hypervectors by componentwise majority vote.
@@ -190,7 +262,7 @@ def bundle(
 
     With an odd ``N`` every component has a strict majority. With an even
     ``N`` a component can be exactly balanced, and :func:`resolve_tie`
-    decides it — which is currently unimplemented, so such inputs raise.
+    decides it from the bundle's own content.
     """
     _check_dimension(dimension)
     if packed_stack.ndim != 2:
@@ -200,8 +272,10 @@ def bundle(
 
     signed = to_signed(packed_stack, dimension).astype(np.int32)
     totals = signed.sum(axis=0)
-    return _binarise(totals, context or TieContext(dimension=dimension,
-                                                   n_terms=int(packed_stack.shape[0])))
+    if context is None:
+        context = TieContext.for_encoding(dimension, totals, seed,
+                                          n_terms=int(packed_stack.shape[0]))
+    return _binarise(totals, context)
 
 
 def _halve_signed(values: np.ndarray) -> np.ndarray:
@@ -317,10 +391,12 @@ class PrototypeClassifier:
     it is never updated independently.
     """
 
-    def __init__(self, dimension: int = DEFAULT_DIMENSION, seed: int | None = None) -> None:
+    def __init__(self, dimension: int = DEFAULT_DIMENSION, seed: int = 0) -> None:
         _check_dimension(dimension)
         self.dimension = int(dimension)
-        self.seed = seed
+        #: Participates in tie resolution, so it must be the run's seed for
+        #: a result to be reproducible from its record.
+        self.seed = int(seed)
         self.labels: list[str] = []
         self._index: dict[str, int] = {}
         self.A = np.zeros((0, self.dimension), dtype=np.int16)
@@ -491,8 +567,8 @@ class PrototypeClassifier:
 
     def _binarise_row(self, index: int, row: np.ndarray) -> np.ndarray:
         """Binarise one accumulator row into its packed prototype."""
-        context = TieContext(dimension=self.dimension, class_index=index,
-                             seed=self.seed)
+        context = TieContext.for_prototype(self.dimension, self.labels[index],
+                                           self.seed)
         return _binarise(row.astype(np.int32), context)
 
     def _rebinarise(self, indices: Sequence[int]) -> None:

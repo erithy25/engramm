@@ -233,13 +233,61 @@ def test_accumulate_never_raises_on_ties(memory: ItemMemory) -> None:
     assert totals.shape == (1, D)
 
 
-def test_encode_raises_while_the_tie_rule_is_open(memory: ItemMemory) -> None:
+def test_encode_resolves_ties_and_is_deterministic(memory: ItemMemory) -> None:
     encoder = PixelThermometerEncoder(memory, n_positions=64, n_levels=16)
     images = np.random.default_rng(SEED).integers(0, 256, size=(4, 64), dtype=np.uint8)
-    report = encoder.tie_report(images)
-    assert report.total_tied_components > 0, "expected ties from an even bundle"
-    with pytest.raises(NotImplementedError, match="UNDERSTANDING"):
-        encoder.encode(images)
+    assert encoder.tie_report(images).total_tied_components > 0, \
+        "expected ties from an even bundle"
+    first = encoder.encode(images)
+    assert first.shape == (4, D // 8)
+    assert np.array_equal(first, encoder.encode(images))
+
+
+def test_encoding_ties_are_keyed_on_sample_content(memory: ItemMemory) -> None:
+    """Two samples must not be pushed together by a shared tie resolution.
+
+    A shared tie vector would force agreement wherever both tie. Keying on
+    each sample's own content leaves co-tied components independent.
+    """
+    encoder = PixelThermometerEncoder(memory, n_positions=64, n_levels=16)
+    rng = np.random.default_rng(SEED)
+    images = rng.integers(0, 256, size=(60, 64), dtype=np.uint8)
+    totals = encoder.accumulate(images)
+    packed = encoder.encode(images)
+    bits = unpack_bits(packed, D)
+
+    both_tie = (totals[:, None, :] == 0) & (totals[None, :, :] == 0)
+    same = bits[:, None, :] == bits[None, :, :]
+    off_diagonal = ~np.eye(len(images), dtype=bool)
+    agreement = float(same[off_diagonal & both_tie.any(axis=2)][
+        both_tie[off_diagonal & both_tie.any(axis=2)]].mean())
+    assert abs(agreement - 0.5) < 0.1, (
+        f"co-tied components agree {agreement:.3f} of the time; a shared tie "
+        f"resolution would show 1.0"
+    )
+
+
+def test_encoding_ties_depend_on_the_seed() -> None:
+    images = np.random.default_rng(SEED).integers(0, 256, size=(4, 64), dtype=np.uint8)
+    first = PixelThermometerEncoder(ItemMemory(1, D), n_positions=64,
+                                    n_levels=16).encode(images)
+    second = PixelThermometerEncoder(ItemMemory(2, D), n_positions=64,
+                                     n_levels=16).encode(images)
+    assert not np.array_equal(first, second)
+
+
+def test_encoding_is_batch_invariant(memory: ItemMemory) -> None:
+    """Splitting a batch may not change any encoded vector.
+
+    The streaming runner relies on this; a tie rule keyed on batch position
+    would break it silently.
+    """
+    encoder = PixelThermometerEncoder(memory, n_positions=64, n_levels=16)
+    images = np.random.default_rng(SEED).integers(0, 256, size=(9, 64), dtype=np.uint8)
+    at_once = encoder.encode(images)
+    split = np.concatenate([encoder.encode(images[:2]), encoder.encode(images[2:7]),
+                            encoder.encode(images[7:])])
+    assert np.array_equal(at_once, split)
 
 
 def test_tie_report_counts_match_the_accumulator(memory: ItemMemory) -> None:
@@ -253,12 +301,8 @@ def test_tie_report_counts_match_the_accumulator(memory: ItemMemory) -> None:
     assert 0.0 <= report.fraction_of_samples <= 1.0
 
 
-def test_encode_succeeds_when_no_component_ties(memory: ItemMemory) -> None:
-    """An odd bundle has a strict majority everywhere, so encoding works.
-
-    Proves the encoder is complete apart from the open rule: the moment a
-    sample produces no tie, it encodes without any special handling.
-    """
+def test_encode_without_ties_is_a_plain_sign(memory: ItemMemory) -> None:
+    """With no tie, the result is exactly the sign of the accumulator."""
     encoder = PixelThermometerEncoder(memory, n_positions=63, n_levels=16)
     rng = np.random.default_rng(SEED)
     for _ in range(20):

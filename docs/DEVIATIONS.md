@@ -119,17 +119,61 @@ no information at all. Producing some vector for it would fabricate content.
 WiLI paragraphs are far longer than three bytes, so this is an edge case,
 not a data-loss path.
 
-## GAP-4 — tie resolution (open, not chosen)
+## GAP-4 — tie resolution
 
 **What the record says.** The fragment ends `return [acc > 0] tiebreak
-V_tie`, and `docs/D6_EHRLICHKEIT.md` records observation W14 about even shot
-counts.
+V_tie`, i.e. a single shared tie vector, and `docs/D6_EHRLICHKEIT.md`
+records observation W14: at two shots per class the system collapsed onto
+one class.
 
-**Status.** Deliberately unresolved. `resolve_tie()` raises, and the
-question is being worked through from the mathematics in
-`docs/UNDERSTANDING.md` §B2.2 before an implementation is chosen. Both
-encoders reach it — a text has an arbitrary number of trigrams, and an image
-has 784 pixels, which is even.
+**Choice made: a keyed hash of the object's identity**, not a shared vector.
+Decided from the analysis in `docs/UNDERSTANDING.md` §B2.2 (Erik Thye,
+2026-08-15) before any benchmark was run. A tie at component *i* resolves to
+one bit of SHAKE-256 over `(seed, dimension, object identity, i)`.
+
+**Why not the recorded `V_tie`.** A shared tie vector carries no bias, so it
+looks harmless — but it forces two objects to agree wherever both tie, which
+inflates their similarity exactly as much as resolving every tie to a
+constant does. Measured on two-vector bundles at D = 10,000:
+
+| rule | agreement between unrelated bundles | similarity |
+|---|---|---|
+| always +1 | 62.49 % | +0.250 |
+| shared tie vector (the recorded `V_tie`) | 62.53 % | +0.251 |
+| **keyed hash of identity** | **50.04 %** | **+0.001** |
+
+That is a plausible mechanism for the W14 collapse, and it is why this
+deviates from the fragment rather than following it.
+
+**The identity differs by site, because the sites differ.** Ties arise in
+two places, and only one of them has a class:
+
+| site | bundled | P(tie) | identity | inflation avoided |
+|---|---|---|---|---|
+| encoding, MNIST | 784 pixels | 2.85 % | the sample's own sign pattern + tie mask | +0.0016 |
+| encoding, WiLI | ~600 trigrams | ~3.3 % | same | +0.0022 |
+| **prototype, WiLI 10-shot** | 10 examples | **24.6 %** | the class label | **+0.121** |
+| prototype, MNIST full | 60,000 examples | 1.03 % | the class label | +0.0002 |
+
+Encoding has no label available and must not have one — the test split
+carries none at encoding time, and using one would be the leak
+`tests/test_no_leakage.py` exists to prevent. The sample's own content
+serves as its identity instead: specifically the sign pattern and tie mask,
+which is exactly what thresholding depends on and nothing more.
+
+The effect is concentrated almost entirely at one site — the prototype with
+few shots, which is the M1 replication setting. The rule is nevertheless
+applied uniformly, because it costs 0.2 % of encoding time (measured:
+14.8 µs per sample, ~1 s for MNIST) and a per-site exception would need its
+own justification.
+
+**Determinism.** The key contains no counter, no position in the data
+stream and no batch boundary, so the resolution is invariant to sample
+order and to how a run is chunked. SHAKE-256 rather than a NumPy bit
+generator, because its output is fixed by standard rather than by a library
+version, and these bits reach committed results. The seed participates, so
+tie resolution varies across seeds like every other random choice and its
+contribution shows up in the seed-to-seed spread.
 
 ---
 

@@ -18,9 +18,6 @@ import pytest
 from data.loaders import CACHE_DIR, Dataset
 from experiments.run_benchmark import (
     DEFAULT_SEEDS,
-    EXIT_TIE_UNRESOLVED,
-    TieUnresolved,
-    encode_or_report_tie,
     load_task,
     main,
     subset,
@@ -105,26 +102,6 @@ def test_seed_count_is_validated() -> None:
 def test_registered_seeds_match_the_preregistration() -> None:
     """docs/PREREG_ROBUSTNESS.md §5 fixes these ten seeds by name."""
     assert DEFAULT_SEEDS == (42, 7, 1337, 2026, 99, 3, 123, 512, 8191, 31337)
-
-
-# ---------------------------------------------------------------------------
-# The open tie decision, made legible
-# ---------------------------------------------------------------------------
-
-def test_tie_is_reported_with_context_not_as_a_stacktrace() -> None:
-    encoder = PixelThermometerEncoder(ItemMemory(42, 512), n_positions=64,
-                                      n_levels=16)
-    images = np.random.default_rng(42).integers(0, 256, size=(4, 64), dtype=np.uint8)
-
-    with pytest.raises(TieUnresolved) as caught:
-        encode_or_report_tie(encoder, images, "training")
-
-    message = str(caught.value)
-    assert "training split" in message
-    assert "UNDERSTANDING.md" in message
-    assert "--dry-run" in message
-    assert "of 512" in message, "should quantify how many components tie"
-    assert isinstance(caught.value.__cause__, NotImplementedError)
 
 
 # ---------------------------------------------------------------------------
@@ -225,16 +202,17 @@ def test_streaming_rejects_a_nonpositive_batch() -> None:
         predict_streaming(model, encoder, images, 0)
 
 
-def test_streaming_reports_ties_from_a_batch() -> None:
-    """A tie inside any batch still surfaces as the legible failure."""
+def test_streaming_works_when_batches_contain_ties() -> None:
+    """An even bundle ties in every sample; streaming must still match."""
     from experiments.run_benchmark import predict_streaming
 
     model, _, _ = _tie_free_setup(per_class=3)
     even = PixelThermometerEncoder(ItemMemory(SEED, 512), n_positions=64,
                                    n_levels=16)
     images = np.random.default_rng(1).integers(0, 256, size=(8, 64), dtype=np.uint8)
-    with pytest.raises(TieUnresolved, match="test split"):
-        predict_streaming(model, even, images, 4)
+    assert even.tie_report(images).total_tied_components > 0
+    assert np.array_equal(predict_streaming(model, even, images, 3),
+                          model.predict(even.encode(images)))
 
 
 # ---------------------------------------------------------------------------
@@ -269,11 +247,22 @@ def test_dry_run_covers_the_text_pipeline_too() -> None:
 
 
 @integration
-def test_real_run_stops_cleanly_on_the_tie_and_records_nothing() -> None:
-    before = set((REPO_ROOT / "results").glob("*.json"))
-    proc = _run_cli("--task", "mnist", "--seeds", "2", "--D", "512",
-                    "--limit-train", "20", "--limit-test", "20")
-    assert proc.returncode == EXIT_TIE_UNRESOLVED
-    assert "tie-resolution rule is not decided" in proc.stderr
-    assert "Traceback" not in proc.stderr, "must not surface as a stacktrace"
-    assert set((REPO_ROOT / "results").glob("*.json")) == before
+def test_real_run_completes_and_writes_one_record_per_seed(tmp_path: Path) -> None:
+    """A full run now goes through, and records what it did."""
+    import json
+
+    proc = subprocess.run(
+        [sys.executable, "-m", "experiments.run_benchmark", "--task", "mnist",
+         "--seeds", "2", "--D", "512", "--limit-train", "60", "--limit-test", "40",
+         "--results-dir", str(tmp_path)],
+        capture_output=True, text=True, cwd=REPO_ROOT,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert "accuracy" in proc.stdout and "macro_f1" in proc.stdout
+
+    written = sorted(tmp_path.glob("mnist_*.json"))
+    assert len(written) == 2, f"expected one record per seed, got {written}"
+    record = json.loads(written[0].read_text())
+    assert record["environment"]["canonical"] is False
+    assert record["hyperparams"]["dimension"] == 512
+    assert 0.0 <= record["result"]["accuracy"] <= 1.0

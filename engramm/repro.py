@@ -138,11 +138,10 @@ def _model_probe(seed: int) -> dict[str, Any]:
     Imported lazily because :mod:`engramm.core` depends on this module —
     a top-level import would be circular.
 
-    Uses a reduced dimension and small odd class sizes: odd, because an even
-    number of bundled vectors can produce an exact majority tie, whose
-    resolution is still an open decision (``docs/UNDERSTANDING.md`` B2.2).
-    Once that rule exists, a tie-producing case belongs in this probe too —
-    it is precisely the kind of platform-sensitive branch worth pinning.
+    Uses a reduced dimension and small odd class sizes, plus one deliberately
+    even bundle so the tie path is pinned too: tie resolution is a keyed hash
+    (:func:`engramm.core.resolve_tie`), which is exactly the kind of branch
+    that could differ between platforms if it were ever reimplemented.
     """
     from engramm.core import (
         ItemMemory, PrototypeClassifier, bind, bundle, permute, to_signed,

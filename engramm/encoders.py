@@ -16,13 +16,12 @@ Both expose the same two-stage interface, and the split matters:
     Returns the signed component sums *before* thresholding. Always
     defined, never ambiguous.
 ``encode``
-    Thresholds those sums into a hypervector. A component whose sum is
-    exactly zero is a tie, and tie resolution is an open decision
-    (:func:`engramm.core.resolve_tie`), so this raises where ``accumulate``
-    does not.
+    Thresholds those sums into a hypervector, resolving any exactly
+    balanced component through :func:`engramm.core.resolve_tie`.
 
-Keeping them apart is what lets the whole pipeline be verified before that
-decision is made — see ``--dry-run`` in ``experiments/run_benchmark.py``.
+Keeping them apart lets ``--dry-run`` in ``experiments/run_benchmark.py``
+verify the pipeline without committing to a threshold, and it is where the
+tie statistics come from.
 """
 
 from __future__ import annotations
@@ -56,10 +55,10 @@ _CHUNK_BYTES = 64 * 1024 * 1024
 
 @dataclass(frozen=True)
 class TieReport:
-    """How many components would need tie resolution, and where.
+    """How many components needed tie resolution, and where.
 
-    Produced by :meth:`Encoder.tie_report`. A measurement of the open
-    question, not a step toward answering it.
+    Produced by :meth:`Encoder.tie_report`. Reported by ``--dry-run`` so the
+    tie rate is visible per task rather than inferred.
     """
 
     n_samples: int
@@ -89,17 +88,34 @@ class Encoder(ABC):
         """Return the signed component sums, shape ``(N, D)`` as ``int32``."""
 
     def encode(self, samples: Any) -> np.ndarray:
-        """Threshold accumulated sums into packed hypervectors ``(N, D // 8)``.
-
-        Raises :class:`NotImplementedError` if any component ties, because
-        the resolution rule is still open.
-        """
+        """Threshold accumulated sums into packed hypervectors ``(N, D // 8)``."""
         return self.binarise(self.accumulate(samples))
 
     def binarise(self, totals: np.ndarray) -> np.ndarray:
-        """Threshold pre-computed sums, one sample per row."""
-        context = TieContext(dimension=self.dimension)
-        return np.stack([_binarise(row, context) for row in totals])
+        """Threshold pre-computed sums, one sample per row.
+
+        Thresholding itself is vectorised over the whole batch; only the
+        per-sample tie key is not, because it is keyed on each sample's own
+        content by construction (:meth:`TieContext.for_encoding`). Rows
+        without a tie skip that step entirely — on MNIST that is a few
+        percent of components but every sample, on WiLI about half the
+        samples have none at all.
+        """
+        if totals.ndim != 2:
+            raise ValueError(f"expected sums of shape (N, D), got {totals.shape}")
+        seed = self.item_memory.seed
+        signs = np.packbits(totals > 0, axis=-1)
+        ties = np.packbits(totals == 0, axis=-1)
+
+        packed = signs.copy()
+        for row in np.flatnonzero(ties.any(axis=1)):
+            context = TieContext(
+                dimension=self.dimension,
+                identity=b"encoding\x00" + signs[row].tobytes() + ties[row].tobytes(),
+                seed=seed, origin="encoding",
+            )
+            packed[row] = _binarise(totals[row], context)
+        return packed
 
     def encode_signed(self, samples: Any) -> tuple[np.ndarray, np.ndarray]:
         """Return ``(packed, signed)`` for the classifier's two inputs.
@@ -113,7 +129,7 @@ class Encoder(ABC):
         return packed, signed
 
     def tie_report(self, samples: Any) -> TieReport:
-        """Count components that would require tie resolution."""
+        """Count components that needed tie resolution."""
         totals = self.accumulate(samples)
         tied_per_sample = (totals == 0).sum(axis=1)
         return TieReport(

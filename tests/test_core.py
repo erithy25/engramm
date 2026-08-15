@@ -343,38 +343,77 @@ def test_bundle_rejects_empty_and_wrong_shape(memory: ItemMemory) -> None:
 # Tie resolution — open decision
 # ---------------------------------------------------------------------------
 
-def test_resolve_tie_is_not_implemented() -> None:
-    """The rule is deliberately open; see docs/UNDERSTANDING.md B2.2."""
-    totals = np.zeros(8, dtype=np.int32)
-    with pytest.raises(NotImplementedError, match="UNDERSTANDING"):
-        resolve_tie(totals, totals == 0, TieContext(dimension=D))
+def test_resolve_tie_returns_one_bit_per_tied_component() -> None:
+    totals = np.array([3, 0, -2, 0, 0, 1, -1, 4], dtype=np.int32)
+    context = TieContext.for_prototype(8, "a", seed=SEED)
+    resolved = resolve_tie(totals, totals == 0, context)
+    assert resolved.shape == (3,)
+    assert set(np.unique(resolved).tolist()) <= {0, 1}
 
 
-def test_even_bundle_raises_until_the_rule_is_settled(memory: ItemMemory) -> None:
-    """An even bundle produces exact ties, which currently cannot be resolved.
-
-    Two independent vectors disagree on ~D/2 components, and every
-    disagreeing component of a two-vector bundle is an exact tie, so this
-    reliably reaches the unimplemented path.
-    """
-    vectors = memory.vectors(["a", "b"])
-    with pytest.raises(NotImplementedError):
-        bundle(vectors, D)
+def test_resolve_tie_is_deterministic() -> None:
+    totals = np.zeros(D, dtype=np.int32)
+    context = TieContext.for_prototype(D, "a", seed=SEED)
+    assert np.array_equal(resolve_tie(totals, totals == 0, context),
+                          resolve_tie(totals, totals == 0, context))
 
 
-@pytest.mark.skip(reason="tie-break rule not yet decided — docs/UNDERSTANDING.md B2.2")
-def test_even_bundle_is_similar_to_its_constituents() -> None:
-    """Enable once the tie rule is implemented.
+def test_resolve_tie_depends_on_seed_and_identity() -> None:
+    """Different seeds, and different objects, must resolve differently."""
+    totals = np.zeros(D, dtype=np.int32)
+    mask = totals == 0
+    base = resolve_tie(totals, mask, TieContext.for_prototype(D, "a", seed=1))
+    other_seed = resolve_tie(totals, mask, TieContext.for_prototype(D, "a", seed=2))
+    other_label = resolve_tie(totals, mask, TieContext.for_prototype(D, "b", seed=1))
+    assert not np.array_equal(base, other_seed)
+    assert not np.array_equal(base, other_label)
+    # Roughly independent, not merely different.
+    assert abs(float((base == other_label).mean()) - 0.5) < 0.05
 
-    An even bundle must satisfy the same property as an odd one: every
-    constituent stays closer to the bundle than chance. Whatever rule is
-    chosen has to preserve that.
+
+def test_resolve_tie_rejects_a_mismatched_dimension() -> None:
+    totals = np.zeros(16, dtype=np.int32)
+    with pytest.raises(ValueError, match="dimension"):
+        resolve_tie(totals, totals == 0, TieContext.for_prototype(D, "a", seed=SEED))
+
+
+def test_tie_resolution_does_not_pull_classes_together() -> None:
+    """The property the whole rule exists for.
+
+    Resolving every tie the same way — to a constant, or through one shared
+    random vector — raises expected agreement between unrelated two-vector
+    bundles from 50 % to 62.5 %. Keying on identity has to leave it at 50 %.
     """
     memory = ItemMemory(SEED, D)
+    agreements = []
+    for pair in range(40):
+        first = bundle(memory.vectors([f"p{pair}a", f"p{pair}b"]), D, seed=SEED)
+        second = bundle(memory.vectors([f"q{pair}a", f"q{pair}b"]), D, seed=SEED)
+        agreements.append(1.0 - float(hamming(first, second)) / D)
+    mean_agreement = float(np.mean(agreements))
+    assert abs(mean_agreement - 0.5) < 0.02, (
+        f"unrelated bundles agree {mean_agreement:.3f} of the time; a shared "
+        f"tie resolution would show ~0.625"
+    )
+
+
+def test_even_bundle_is_similar_to_its_constituents() -> None:
+    """An even bundle must keep the property an odd one has."""
+    memory = ItemMemory(SEED, D)
     vectors = memory.vectors([f"member{i}" for i in range(4)])
-    bundled = bundle(vectors, D)
+    bundled = bundle(vectors, D, seed=SEED)
     for i in range(4):
         assert int(hamming(bundled, vectors[i])) < D / 2 - 5 * math.sqrt(D) / 2
+
+
+def test_two_vector_bundle_keeps_the_predicted_similarity() -> None:
+    """Half the components tie; the rest agree exactly. Expect ~75 % agreement."""
+    memory = ItemMemory(SEED, D)
+    vectors = memory.vectors(["x", "y"])
+    bundled = bundle(vectors, D, seed=SEED)
+    for i in range(2):
+        agreement = 1.0 - float(hamming(bundled, vectors[i])) / D
+        assert abs(agreement - 0.75) < 0.03
 
 
 # ---------------------------------------------------------------------------
@@ -513,41 +552,13 @@ def test_learn_online_reports_correct_without_changing_state(memory: ItemMemory)
     assert np.array_equal(model.A, before)
 
 
-def test_learn_online_on_a_miss_is_blocked_and_atomic(memory: ItemMemory) -> None:
-    """The refinement step needs the tie rule, and must not half-apply itself.
+def test_learn_online_moves_prototypes_on_a_miss(memory: ItemMemory) -> None:
+    """A forced mislabel pulls the named class toward the example.
 
-    A single-vector update flips the parity of every accumulator component:
-    after an odd-sized batch each component is odd, and adding one more
-    ``±1`` makes it even, so exact zeros become possible. The error-driven
-    step therefore always depends on the tie rule, not only for even input
-    sizes. Until that rule exists the step must raise **and leave the model
-    exactly as it was** — a committed accumulator with a stale prototype
-    would be a silently corrupted state.
+    A single-vector update flips the parity of every accumulator component,
+    so this step always goes through tie resolution — after an odd-sized
+    batch every component is odd, and one more ``±1`` makes it even.
     """
-    packed, signed, labels = _training_set(memory, 3, 9, 0.15)
-    model = PrototypeClassifier(D)
-    model.learn(signed, labels)
-
-    wrong_label = "class2" if labels[0] == "class0" else "class0"
-    accumulator_before = model.A.copy()
-    prototypes_before = model.P.copy()
-
-    with pytest.raises(NotImplementedError):
-        model.learn_online(packed[0], signed[0], wrong_label)
-
-    assert np.array_equal(model.A, accumulator_before)
-    assert np.array_equal(model.P, prototypes_before)
-
-
-@pytest.mark.skip(reason="tie-break rule not yet decided — docs/UNDERSTANDING.md B2.2")
-def test_learn_online_moves_prototypes_on_a_miss() -> None:
-    """Enable once the tie rule is implemented.
-
-    A forced mislabel must pull the named class toward the example by
-    exactly the example's signed vector, and push the predicted class away
-    by the same amount.
-    """
-    memory = ItemMemory(SEED, D)
     packed, signed, labels = _training_set(memory, 3, 9, 0.15)
     model = PrototypeClassifier(D)
     model.learn(signed, labels)
@@ -560,14 +571,32 @@ def test_learn_online_moves_prototypes_on_a_miss() -> None:
     assert np.array_equal(model.A[wrong_index], before + signed[0])
 
 
-def test_learn_batch_is_atomic_on_a_tie(memory: ItemMemory) -> None:
-    """An even-sized batch raises without leaving a partially updated state."""
-    _, signed, labels = _training_set(memory, 2, 4, 0.2)
-    model = PrototypeClassifier(D)
-    with pytest.raises(NotImplementedError):
-        model.learn(signed, labels)
-    assert not model.A.any()
-    assert not model.P.any()
+def test_even_sized_batch_learns(memory: ItemMemory) -> None:
+    """An even count per class ties in the accumulator and resolves cleanly."""
+    packed, signed, labels = _training_set(memory, 2, 4, 0.2)
+    model = PrototypeClassifier(D, seed=SEED)
+    model.learn(signed, labels)
+    assert int((model.A == 0).sum()) > 0, "expected ties to exercise the rule"
+    assert accuracy(np.array(labels), np.array(model.predict_labels(packed))) == 1.0
+
+
+def test_prototypes_are_order_invariant_even_with_ties(memory: ItemMemory) -> None:
+    """Bit-identical state under shuffling, including at tied components.
+
+    A tie rule keyed on anything order-dependent — an insertion counter, a
+    position in the stream — would pass every other test and fail here.
+    """
+    _, signed, labels = _training_set(memory, 3, 4, 0.2)     # even: ties guaranteed
+    forward = PrototypeClassifier(D, seed=SEED)
+    forward.learn(signed, labels)
+    assert int((forward.A == 0).sum()) > 0
+
+    order = np.random.default_rng(11).permutation(len(labels))
+    shuffled = PrototypeClassifier(D, seed=SEED)
+    shuffled.learn(signed[order], [labels[i] for i in order])
+
+    assert np.array_equal(forward.A, shuffled.A)
+    assert np.array_equal(forward.P, shuffled.P)
 
 
 def test_learn_online_rejects_scoring_without_classes() -> None:
