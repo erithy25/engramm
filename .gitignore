@@ -1,5 +1,6 @@
-# Daten und Laufzeit-Artefakte — nie committen
-data/
+# Daten-Cache und Laufzeit-Artefakte — nie committen
+# (data/loaders.py ist Code und wird versioniert; nur der Download-Cache nicht)
+data/cache/
 logs/
 
 # Python
