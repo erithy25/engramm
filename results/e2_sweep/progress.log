@@ -45,3 +45,4 @@
 [30/48] 2026-08-16T23:32:19+00:00 random_levels        Q=8   seed=1337  acc=0.7709 macro_f1=0.7673 171s peak_rss=833MB
 [31/48] 2026-08-16T23:35:19+00:00 random_levels        Q=16  seed=42    acc=0.7925 macro_f1=0.7890 179s peak_rss=833MB
 [32/48] 2026-08-16T23:38:15+00:00 random_levels        Q=16  seed=7     acc=0.7818 macro_f1=0.7783 175s peak_rss=833MB
+[33/48] 2026-08-16T23:41:03+00:00 random_levels        Q=16  seed=1337  acc=0.7736 macro_f1=0.7705 166s peak_rss=833MB
