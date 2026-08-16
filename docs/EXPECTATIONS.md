@@ -148,7 +148,36 @@ Testsplit.
 | `progressive` | aktuell implementiert: Stufe 0 zufällig, je Schritt `D/(2(Q−1))` weitere Bits einer festen Permutation gekippt; Stufen 0 und Q−1 annähernd orthogonal |
 | `linear_thermometer` | wörtliches Thermometer: Stufe q setzt die ersten `q·D/Q` Komponenten einer festen Permutation auf 1, den Rest auf 0 |
 | `random_levels` | jede Stufe ein unabhängiger Zufallsvektor — **Kontrolle**, zerstört die Ordnung absichtlich |
-| `single_flip_block` | wie `progressive`, aber je Schritt `D/(2Q)` statt `D/(2(Q−1))` Bits — halbe Schrittweite, Stufen 0 und Q−1 bei ~D/4 statt ~D/2 |
+| `single_flip_block` | wie `progressive`, aber je Schritt `D/(2Q)` statt `D/(2(Q−1))` Bits — ~~halbe Schrittweite, Stufen 0 und Q−1 bei ~D/4 statt ~D/2~~ *(Beschreibung falsch, siehe Erratum)* |
+
+> **Erratum 2026-08-16, vor dem Sweep — Rechenfehler in der Beschreibung
+> oben, nicht in der Formel.**
+>
+> Beim Implementieren gemessen: `single_flip_block` ist **keine** halbe
+> Schrittweite und landet **nicht** bei D/4.
+>
+> | | Schrittweite | Abstand L0–L15 |
+> |---|---|---|
+> | `progressive` = `D/(2(Q−1))` | 133 (D = 4.000) | 1.995 = 0,499·D |
+> | `single_flip_block` = `D/(2Q)` | 125 | 1.875 = **0,469·D** |
+>
+> Das Verhältnis der Schrittweiten ist `(Q−1)/Q` = **0,94**, nicht 0,5. Die
+> Extremwerte liegen bei 0,469·D statt bei 0,25·D. Meine Prosa hat aus
+> „Nenner um eins kleiner" fälschlich „Schrittweite halbiert" gemacht.
+>
+> **Die Formel bleibt wie registriert.** Geändert wird nur die falsche
+> Beschreibung ihrer Wirkung — die Registrierung fixiert `D/(2Q)`, und was
+> ich mir davon versprochen habe, war schlicht falsch gerechnet. Eine andere
+> Formel einzusetzen wäre das Auswechseln einer Zelle und damit genau das,
+> was Regel 2 verbietet.
+>
+> **Konsequenz, offen benannt:** Die Zelle ist damit nahezu redundant zu
+> `progressive` (6 % Unterschied in der Spannweite). Das Gitter enthält
+> effektiv **drei** unterschiedliche Konstruktionen plus eine Variante, die
+> kaum variiert. Eine Kompression auf ~D/4 wäre der informativere Test
+> gewesen; sie gehört jetzt in ein etwaiges E3, nicht in dieses Gitter.
+> Ein Test (`test_single_flip_block_is_nearly_redundant`) hält die korrigierte
+> Arithmetik fest, damit sie nicht zurückdriftet.
 
 **Achse 2 — Stufenzahl Q: 4, 8, 16, 32.** Q = 16 ist der überlieferte Wert
 und in jeder Variante enthalten.

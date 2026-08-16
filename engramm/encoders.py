@@ -48,6 +48,12 @@ from engramm.core import (
 #: corpora; the encoder checks rather than assumes.
 _SEPARATOR = 0
 
+#: Level-vector constructions available to :class:`PixelThermometerEncoder`.
+#: ``progressive`` is the shipped configuration; the rest exist to test
+#: ``docs/DEVIATIONS.md`` GAP-1 and are registered as axis 1 of the E2 sweep.
+LEVEL_CONSTRUCTIONS = ("progressive", "linear_thermometer",
+                       "random_levels", "single_flip_block")
+
 #: Rough ceiling on the temporary unpacked array inside one chunk, in bytes.
 #: Encoding materialises ``rows × D`` bytes at a time; this bounds that.
 _CHUNK_BYTES = 64 * 1024 * 1024
@@ -360,8 +366,18 @@ class PixelThermometerEncoder(Encoder):
     """
 
     def __init__(self, item_memory: ItemMemory, n_positions: int = 784,
-                 n_levels: int = 16, chunk_bytes: int = _CHUNK_BYTES) -> None:
+                 n_levels: int = 16, chunk_bytes: int = _CHUNK_BYTES,
+                 construction: str = "progressive") -> None:
         super().__init__(item_memory, chunk_bytes)
+        if construction not in LEVEL_CONSTRUCTIONS:
+            raise ValueError(
+                f"unknown thermometer construction {construction!r}; "
+                f"expected one of {sorted(LEVEL_CONSTRUCTIONS)}"
+            )
+        #: Which level construction is in use. The shipped configuration is
+        #: ``progressive``; changing it is a registered experiment, not a
+        #: tuning knob (``docs/EXPECTATIONS.md`` E2, rule 1).
+        self.construction = construction
         if n_levels < 2:
             raise ValueError("n_levels must be at least 2")
         if n_positions < 1:
@@ -378,29 +394,105 @@ class PixelThermometerEncoder(Encoder):
 
     def __repr__(self) -> str:
         return (f"PixelThermometerEncoder(dimension={self.dimension}, "
-                f"n_positions={self.n_positions}, n_levels={self.n_levels})")
+                f"n_positions={self.n_positions}, n_levels={self.n_levels}, "
+                f"construction={self.construction!r})")
 
-    def _build_levels(self) -> np.ndarray:
-        """Order-preserving level hypervectors, deterministic from the seed."""
-        base_bits = unpack_bits(self.item_memory.vector(b"thermometer:base"),
-                                self.dimension).copy()
-        # One fixed permutation, derived from the item memory's seed so the
-        # levels are reproducible and independent of call order.
+    def _permutation(self) -> np.ndarray:
+        """One fixed component ordering, derived from the item memory's seed.
+
+        Shared by every construction that needs an ordering, so the variants
+        differ only in *how* they use it and not in which components they
+        touch — which is what makes the sweep a comparison of constructions
+        rather than of orderings.
+        """
         digest = hashlib.shake_256(
             self.item_memory.seed.to_bytes(8, "big") + b"thermometer:order"
         ).digest(8)
-        order = np.random.default_rng(
+        return np.random.default_rng(
             int.from_bytes(digest, "big")).permutation(self.dimension)
 
-        per_step = self.dimension // (2 * (self.n_levels - 1))
+    def _build_levels(self) -> np.ndarray:
+        """Level hypervectors for the configured construction.
+
+        Four variants, registered as axis 1 of the E2 sweep
+        (``docs/EXPECTATIONS.md``). Only ``progressive`` is the shipped
+        configuration; the others exist so that ``docs/DEVIATIONS.md`` GAP-1
+        — the construction was never recorded — can be tested rather than
+        argued.
+        """
+        builder = {
+            "progressive": self._levels_progressive,
+            "linear_thermometer": self._levels_linear_thermometer,
+            "random_levels": self._levels_random,
+            "single_flip_block": self._levels_single_flip_block,
+        }.get(self.construction)
+        if builder is None:
+            raise ValueError(
+                f"unknown thermometer construction {self.construction!r}; "
+                f"expected one of {sorted(LEVEL_CONSTRUCTIONS)}"
+            )
+        return builder()
+
+    def _flip_progressively(self, per_step: int) -> np.ndarray:
+        """Level 0 random, each further level flipping ``per_step`` more bits."""
+        bits = unpack_bits(self.item_memory.vector(b"thermometer:base"),
+                           self.dimension).copy()
+        order = self._permutation()
         levels = np.empty((self.n_levels, self.dimension // 8), dtype=np.uint8)
-        bits = base_bits
         levels[0] = np.packbits(bits)
         for level in range(1, self.n_levels):
             flip = order[(level - 1) * per_step:level * per_step]
             bits = bits.copy()
             bits[flip] ^= 1
             levels[level] = np.packbits(bits)
+        return levels
+
+    def _levels_progressive(self) -> np.ndarray:
+        """The shipped construction: levels 0 and Q−1 approximately orthogonal.
+
+        ``D / (2·(Q−1))`` components flipped per step, so after Q−1 steps
+        half the components differ — the maximum useful separation.
+        """
+        return self._flip_progressively(self.dimension // (2 * (self.n_levels - 1)))
+
+    def _levels_single_flip_block(self) -> np.ndarray:
+        """Half the step size: levels 0 and Q−1 differ in ~D/4, not ~D/2.
+
+        Ordering is preserved as in ``progressive``, but the whole range is
+        compressed. Separates "order matters" from "how much separation the
+        extremes need".
+        """
+        return self._flip_progressively(self.dimension // (2 * self.n_levels))
+
+    def _levels_linear_thermometer(self) -> np.ndarray:
+        """A literal thermometer code: level q sets its first ``q·D/Q`` bits.
+
+        The reading of "thermometer encoding" that takes the name at face
+        value. Order-preserving like the others, but the levels are not
+        random vectors at all — level 0 is all zeros and level Q−1 is mostly
+        ones, so the code carries a magnitude as well as an identity.
+        """
+        order = self._permutation()
+        per_level = self.dimension // self.n_levels
+        levels = np.empty((self.n_levels, self.dimension // 8), dtype=np.uint8)
+        for level in range(self.n_levels):
+            bits = np.zeros(self.dimension, dtype=np.uint8)
+            bits[order[:level * per_level]] = 1
+            levels[level] = np.packbits(bits)
+        return levels
+
+    def _levels_random(self) -> np.ndarray:
+        """Independent random vectors — the negative control.
+
+        Discards ordering entirely: level 3 is as unrelated to level 4 as to
+        level 15. Registered in ``docs/EXPECTATIONS.md`` as the check that
+        the sweep measures what it claims — if this is *not* worse than
+        ``progressive``, then ordering does not matter for MNIST and the
+        whole axis is uninformative.
+        """
+        levels = np.empty((self.n_levels, self.dimension // 8), dtype=np.uint8)
+        for level in range(self.n_levels):
+            levels[level] = self.item_memory.vector(f"thermometer:random:{level}".encode())
         return levels
 
     def quantise(self, images: np.ndarray) -> np.ndarray:

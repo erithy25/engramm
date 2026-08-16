@@ -368,6 +368,96 @@ def test_adjacent_levels_are_equidistant(memory: ItemMemory) -> None:
     assert len(steps) == 1
 
 
+@pytest.mark.parametrize("construction", ["progressive", "linear_thermometer",
+                                          "single_flip_block"])
+def test_ordered_constructions_preserve_order(memory: ItemMemory,
+                                              construction: str) -> None:
+    """Three of the four variants must keep intensity ordered.
+
+    Distance from level 0 grows monotonically and in constant steps. That is
+    what separates them from the negative control below.
+    """
+    encoder = PixelThermometerEncoder(memory, n_positions=16, n_levels=16,
+                                      construction=construction)
+    levels = encoder._build_levels()
+    distances = [int(hamming(levels[0], levels[q])) for q in range(16)]
+    assert distances == sorted(distances)
+    assert distances[1] > 0
+    steps = {int(hamming(levels[q], levels[q + 1])) for q in range(15)}
+    assert len(steps) == 1, f"{construction} has uneven steps: {sorted(steps)}"
+
+
+def test_random_levels_destroys_order(memory: ItemMemory) -> None:
+    """The negative control must genuinely discard ordering.
+
+    Every pair sits at ~D/2 regardless of how far apart the levels are — if
+    this ever became order-preserving, the control would stop controlling
+    for anything (``docs/EXPECTATIONS.md`` E2).
+    """
+    encoder = PixelThermometerEncoder(memory, n_positions=16, n_levels=16,
+                                      construction="random_levels")
+    levels = encoder._build_levels()
+    neighbour = float(np.mean([hamming(levels[q], levels[q + 1]) for q in range(15)]))
+    far = float(hamming(levels[0], levels[15]))
+    assert abs(neighbour - D / 2) < 5 * math.sqrt(D) / 2
+    assert abs(far - D / 2) < 5 * math.sqrt(D) / 2
+
+
+def test_constructions_differ_from_each_other(memory: ItemMemory) -> None:
+    """Four cells of the sweep must not silently be fewer than four."""
+    built = {}
+    for construction in ("progressive", "linear_thermometer",
+                         "random_levels", "single_flip_block"):
+        encoder = PixelThermometerEncoder(memory, n_positions=16, n_levels=16,
+                                          construction=construction)
+        built[construction] = encoder._build_levels().tobytes()
+    assert len(set(built.values())) == 4
+
+
+def test_single_flip_block_is_nearly_redundant(memory: ItemMemory) -> None:
+    """Pins the erratum: this variant is *not* a half-scale progressive.
+
+    The registered grid described ``D/(2Q)`` as "half the step size, extremes
+    at ~D/4". Both are wrong: the ratio to ``progressive`` is ``(Q−1)/Q`` =
+    0.94, and the extremes land at ~0.47·D rather than 0.25·D. The formula
+    stands as registered; the description was corrected as an erratum
+    (``docs/EXPECTATIONS.md``), and this test keeps the corrected arithmetic
+    from drifting back.
+    """
+    kwargs = dict(n_positions=16, n_levels=16)
+    progressive = PixelThermometerEncoder(memory, construction="progressive",
+                                          **kwargs)._build_levels()
+    compressed = PixelThermometerEncoder(memory, construction="single_flip_block",
+                                         **kwargs)._build_levels()
+    span_progressive = int(hamming(progressive[0], progressive[15]))
+    span_compressed = int(hamming(compressed[0], compressed[15]))
+
+    assert span_compressed < span_progressive
+    ratio = span_compressed / span_progressive
+    assert 0.90 < ratio < 0.98, f"expected ~0.94, got {ratio:.3f}"
+    assert span_compressed > D / 3, "extremes are nowhere near D/4"
+
+
+def test_unknown_construction_is_rejected(memory: ItemMemory) -> None:
+    with pytest.raises(ValueError, match="unknown thermometer construction"):
+        PixelThermometerEncoder(memory, n_positions=16, n_levels=16,
+                                construction="thermometer")
+
+
+@pytest.mark.parametrize("n_levels", [4, 8, 16, 32])
+def test_all_constructions_work_at_every_registered_q(memory: ItemMemory,
+                                                      n_levels: int) -> None:
+    """Axis 2 of the sweep: Q ∈ {4, 8, 16, 32} must build and encode."""
+    images = np.random.default_rng(SEED).integers(0, 256, size=(3, 16), dtype=np.uint8)
+    for construction in ("progressive", "linear_thermometer",
+                         "random_levels", "single_flip_block"):
+        encoder = PixelThermometerEncoder(memory, n_positions=16,
+                                          n_levels=n_levels,
+                                          construction=construction)
+        assert encoder._build_levels().shape == (n_levels, D // 8)
+        assert encoder.accumulate(images).shape == (3, D)
+
+
 def test_quantisation_is_fixed_arithmetic(memory: ItemMemory) -> None:
     """Level comes from the value alone — no statistic, so no leak (GAP-2)."""
     encoder = PixelThermometerEncoder(memory, n_positions=4, n_levels=16)
