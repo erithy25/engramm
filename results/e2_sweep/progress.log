@@ -15,3 +15,4 @@
 # failed cell aborts the sweep, it is never skipped silently.
 [ 1/48] 2026-08-16T20:42:19+00:00 progressive          Q=4   seed=42    acc=0.7849 macro_f1=0.7820 110s peak_rss=809MB
 [ 2/48] 2026-08-16T20:44:03+00:00 progressive          Q=4   seed=7     acc=0.7830 macro_f1=0.7795 105s peak_rss=817MB
+[ 3/48] 2026-08-16T21:35:57+00:00 progressive          Q=4   seed=1337  acc=0.7718 macro_f1=0.7679 169s peak_rss=809MB
