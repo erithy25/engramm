@@ -26,3 +26,4 @@
 [11/48] 2026-08-16T22:37:07+00:00 progressive          Q=32  seed=7     acc=0.7852 macro_f1=0.7816 167s peak_rss=833MB
 [12/48] 2026-08-16T22:40:00+00:00 progressive          Q=32  seed=1337  acc=0.7701 macro_f1=0.7658 172s peak_rss=833MB
 [13/48] 2026-08-16T22:43:00+00:00 linear_thermometer   Q=4   seed=42    acc=0.7997 macro_f1=0.7971 178s peak_rss=833MB
+[14/48] 2026-08-16T22:45:58+00:00 linear_thermometer   Q=4   seed=7     acc=0.7942 macro_f1=0.7910 176s peak_rss=833MB
