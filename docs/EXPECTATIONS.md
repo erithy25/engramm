@@ -124,14 +124,97 @@ Trigramm-Encoders. Ergebnisrelevanz: keine. Relevanz für den M4-Lauf: hoch.
 
 ## E2 — MNIST-Thermometer-Sweep
 
-**Status: in der Warteschlange, noch nicht registriert.**
+**Registriert 2026-08-16, vor dem ersten Lauf. Noch nicht gemessen.**
 
-Der Sweep untersucht `docs/DEVIATIONS.md` GAP-1 — die
-Thermometer-Konstruktion, die in keinem überlieferten Dokument festgehalten
-war und dort vorab als wahrscheinlichste Ursache einer MNIST-Abweichung
-benannt ist.
+### Die Frage
 
-**Bedingung: das Gitter wird registriert, bevor der erste Lauf startet** —
-welche Konstruktionen, welche Stufenzahlen, welche Seeds, und was als
-Erklärung des Abstands gilt. Ohne das ist hinterher jedes Ergebnis
-irgendwie erklärbar.
+Der aktuelle Neubau erreicht auf MNIST **80,07 % ± 0,42 %**. Die
+Prototypen-only-Ablation der Aktenlage steht bei **86,49 %** — ein Abstand
+von **6,42 pp** ohne Erklärung. `docs/DEVIATIONS.md` GAP-1 benennt die
+Thermometer-Konstruktion vorab als wahrscheinlichste Einzelursache: In
+keinem überlieferten Dokument stand, wie die Stufenvektoren gebaut werden;
+überliefert ist nur der Name „Q=16-Stufen-Thermometer-Encoding".
+
+Der Sweep prüft, **ob und wieviel** diese eine Wahl erklärt. Er prüft nicht,
+welche Konstruktion die beste ist — das wäre Hyperparametersuche auf dem
+Testsplit.
+
+### Gitter
+
+**Achse 1 — Konstruktion der Stufenvektoren (4 Varianten).**
+
+| Kennung | Konstruktion |
+|---|---|
+| `progressive` | aktuell implementiert: Stufe 0 zufällig, je Schritt `D/(2(Q−1))` weitere Bits einer festen Permutation gekippt; Stufen 0 und Q−1 annähernd orthogonal |
+| `linear_thermometer` | wörtliches Thermometer: Stufe q setzt die ersten `q·D/Q` Komponenten einer festen Permutation auf 1, den Rest auf 0 |
+| `random_levels` | jede Stufe ein unabhängiger Zufallsvektor — **Kontrolle**, zerstört die Ordnung absichtlich |
+| `single_flip_block` | wie `progressive`, aber je Schritt `D/(2Q)` statt `D/(2(Q−1))` Bits — halbe Schrittweite, Stufen 0 und Q−1 bei ~D/4 statt ~D/2 |
+
+**Achse 2 — Stufenzahl Q: 4, 8, 16, 32.** Q = 16 ist der überlieferte Wert
+und in jeder Variante enthalten.
+
+**Achse 3 — Seeds: 42, 7, 1337** (die ersten drei der registrierten Menge).
+
+**Umfang:** 4 × 4 × 3 = **48 Läufe**. Bei ~7,5 min je MNIST-Seed und
+D = 10.000 sind das rund 6 Stunden. Falls das zu teuer ist, wird **vor dem
+Start** auf D = 4.000 reduziert — für alle 48 Läufe gleichermaßen, nie für
+einzelne Zellen, und der Referenzlauf `progressive/Q=16` wird zusätzlich bei
+D = 10.000 gefahren, um den Effekt der Reduktion selbst zu beziffern.
+
+**Alles andere bleibt fixiert:** offizieller 60k/10k-Split, Intensitäts-
+Mapping `v·Q // 256` (GAP-2), Tie-Regel, keine Episodenschicht, `t2_epochs=0`.
+
+### Was als Erklärung des Abstands gilt
+
+Ausgewertet wird der Mittelwert über die drei Seeds je Zelle, gegen die
+6,42 pp Abstand des Referenzpunkts.
+
+| Befund | Bedingung | Lesart |
+|---|---|---|
+| **Erklärt** | eine Zelle erreicht ≥ 85,5 % (also ≤ 1 pp unter 86,49 %) | Die Konstruktion war die Ursache. Der Wert wird als solcher berichtet, **nicht** als neue offizielle Zahl — die stammt aus der registrierten Konfiguration, siehe unten. |
+| **Teilweise erklärt** | beste Zelle liegt 2–6 pp über 80,07 %, aber unter 85,5 % | Die Konstruktion trägt bei, reicht aber nicht. Restabstand wird beziffert und bleibt offen. |
+| **Nicht erklärt** | keine Zelle liegt mehr als 2 pp über 80,07 % | Die Thermometer-Konstruktion ist **nicht** die Ursache. GAP-1 wird als widerlegte Hypothese markiert, die Suche geht anderswo weiter. |
+
+**Negativkontrolle:** `random_levels` muss **schlechter** abschneiden als
+`progressive` bei gleichem Q. Tut es das nicht, misst der Sweep nicht, was er
+zu messen vorgibt — dann ist die Ordnungserhaltung für MNIST irrelevant und
+das Ergebnis der ganzen Achse ist wertlos. Dieser Fall wird berichtet, nicht
+weginterpretiert.
+
+### Regeln, die vorab gelten
+
+1. **Der Sweep ändert die offizielle Zahl nicht.** Die registrierte
+   Konfiguration bleibt `progressive`, Q = 16 — das ist der überlieferte
+   Wert. Findet der Sweep eine bessere Zelle, ist das ein *Befund über die
+   Ursache des Abstands*, keine neue Bestkonfiguration. Ein Wechsel der
+   Konfiguration wäre eine eigene Entscheidung mit eigener Registrierung.
+2. **Kein Nachschieben von Zellen.** Das Gitter steht. Wenn eine Idee
+   nachträglich reizvoll erscheint, gehört sie in E3, nicht in E2.
+3. **Alle 48 Zellen werden berichtet**, auch die uninteressanten. Eine
+   Tabelle mit Lücken lädt zur Rosinenpickerei ein.
+4. **Der Testsplit wird nur zur Auswertung benutzt**, nie zur Auswahl. Das
+   ist bereits der Fall — es steht hier, weil ein Sweep genau die Situation
+   ist, in der es kippt.
+
+### Ergebnis
+
+*(wird nach dem Sweep eingetragen; das Gitter oben bleibt unverändert)*
+
+---
+
+## Offene Fragen, nicht terminiert
+
+**O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**
+84,79 % gegen 82,64 % sind +2,15 pp. Formal innerhalb des E1-Bandes, also
+bestanden — aber eine Replikation, die *besser* ausfällt, ist genauso
+erklärungsbedürftig wie eine, die schlechter ausfällt. Meist steckt ein
+Unterschied im Versuchsaufbau dahinter und nicht ein besseres Verfahren.
+
+Kandidaten, keiner davon untersucht: die geänderte Tie-Regel (registrierte
+Erwartung war „nach oben", siehe E1); der unbekannte T2-Status der
+historischen Zahl; eine andere Shot-Ziehung; und die Möglichkeit, dass die
+82,64 % eine Einzelmessung ohne Seed-Mittelung waren.
+
+**Nicht als Erfolg verbuchen.** Die direkte Ablation wäre ein Lauf mit
+gemeinsamem Tie-Vektor gegen denselben Seedsatz — er würde den Anteil der
+Tie-Regel isolieren. Nicht terminiert.
