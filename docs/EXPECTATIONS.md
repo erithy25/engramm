@@ -196,6 +196,56 @@ D = 10.000 gefahren, um den Effekt der Reduktion selbst zu beziffern.
 >
 > Die vier Regeln unten gelten unverändert.
 
+> **Nachtrag 2, 2026-08-16, Schritt 1 abgeschlossen — Kriterium umformuliert.**
+>
+> Referenzlauf gemessen, aktuelle Konfiguration (`progressive`, Q = 16),
+> Seeds 42/7/1337, beide Dimensionen frisch:
+>
+> | Seed | D = 10.000 | D = 4.000 | Δ |
+> |---|---|---|---|
+> | 42 | 0,8054 | 0,7857 | −1,97 pp |
+> | 7 | 0,8015 | 0,7831 | −1,84 pp |
+> | 1337 | 0,7943 | 0,7666 | −2,77 pp |
+> | **Mittel** | **0,8004** | **0,7785** | **−2,19 pp** |
+>
+> **Dimensionseffekt −2,19 pp**, also weit über der 0,5-pp-Grenze. Das
+> absolute Kriterium ist damit nachweislich unbrauchbar: Die Schwelle von
+> 85,5 % liegt 7,65 pp über der D-4.000-Baseline und wäre auch von einer
+> perfekten Konstruktion kaum erreichbar gewesen. Der befürchtete falsche
+> „GAP-1 widerlegt"-Befund war real und nicht bloß denkbar.
+>
+> **Neues Kriterium — Abstand zur D-4.000-Baseline.** Die Bänder werden als
+> *Gewinn über die Baseline* ausgedrückt, was sie im Original implizit schon
+> waren: „≥ 85,5 %" entsprach einem Gewinn von 5,43 pp über die
+> D-10.000-Baseline von 80,07 %.
+>
+> | Band | bei D = 4.000, Baseline 77,85 % | Gewinn |
+> |---|---|---|
+> | **Erklärt** | ≥ **83,28 %** | ≥ 5,43 pp |
+> | **Teilweise erklärt** | 79,85 % – 83,28 % | 2,00 – 5,43 pp |
+> | **Nicht erklärt** | < **79,85 %** | < 2,00 pp |
+>
+> **Die Annahme dahinter, offen benannt:** Übertragen wird der *absolute*
+> Gewinn. Ob eine bessere Konstruktion bei D = 4.000 dieselbe Punktzahl
+> bringt wie bei D = 10.000, ist unbekannt — bei kleinerem D könnte eine
+> bessere Kodierung mehr helfen (die Kapazität ist knapper) oder weniger
+> (weniger Raum, den man besser nutzen kann). Gemessen wurde das nicht.
+>
+> Diese Annahme ist tragbar, weil der Sweep bei D = 4.000 **screent, nicht
+> entscheidet**: Seine Aufgabe ist es, die 16 Zellen zu ordnen und eine
+> Gewinnerin für Schritt 4 zu bestimmen. Über GAP-1 urteilt die Bestätigung
+> bei D = 10.000 mit 5 Seeds. Eine unvollkommene Übertragung verschiebt also
+> höchstens, *welche* Zelle in die Bestätigung geht — nicht den Ausgang.
+>
+> **Regressionsprüfung, als Nebenprodukt:** Die D-10.000-Werte reproduzieren
+> die B5-Zahlen (alter Code, vor KNOWN-1 und KNOWN-2) auf allen drei Seeds
+> **exakt**. Beide Speicherfixes haben MNIST nachweislich nicht berührt —
+> was zu erwarten war, aber jetzt gemessen ist statt angenommen.
+>
+> Der Referenzlauf selbst ist zugleich Zelle `progressive`/Q = 16 des Gitters.
+> Der Sweep fährt sie erneut; reproduziert sie nicht exakt, ist das ein
+> Befund mit Vorrang.
+
 **Alles andere bleibt fixiert:** offizieller 60k/10k-Split, Intensitäts-
 Mapping `v·Q // 256` (GAP-2), Tie-Regel, keine Episodenschicht, `t2_epochs=0`.
 
