@@ -161,6 +161,41 @@ Start** auf D = 4.000 reduziert — für alle 48 Läufe gleichermaßen, nie für
 einzelne Zellen, und der Referenzlauf `progressive/Q=16` wird zusätzlich bei
 D = 10.000 gefahren, um den Effekt der Reduktion selbst zu beziffern.
 
+> **Nachtrag 2026-08-16, vor dem ersten Sweep-Lauf — Fehler im Kriterium.**
+>
+> Die Reduktion auf D = 4.000 wird gezogen (Entscheidung der Projektleitung:
+> sie steht im Gitter, also wird sie gefahren; sie im Nachhinein zu
+> verwerfen, weil sechs Stunden machbar erscheinen, wäre genau die
+> Anpassung, die eine Vorab-Registrierung verhindern soll).
+>
+> Damit fällt ein Fehler auf, den ich beim Schreiben des Gitters gemacht
+> habe: **Das Akzeptanzkriterium ist eine absolute Zahl (≥ 85,5 %), die
+> Baseline von 86,49 % stammt aber aus einer Messung bei D = 10.000.**
+> Absolute Schwellen übertragen sich nicht über verschiedene Dimensionen.
+> Drückt D = 4.000 alle Genauigkeiten um zwei bis drei Punkte, wäre das
+> Kriterium mechanisch unerreichbar — GAP-1 würde als widerlegt erscheinen,
+> obwohl nur die Dimension verkleinert wurde. Ein falscher Befund, und einer,
+> der schwer zu bemerken wäre.
+>
+> **Reihenfolge deshalb geändert, vor dem Sweep:**
+>
+> 1. **Referenzlauf zuerst**, nicht danach: aktuelle Thermometer-Konfiguration,
+>    Seeds 42/7/1337, je einmal bei D = 10.000 und D = 4.000. Das beziffert
+>    den reinen Dimensionseffekt, unabhängig von der Konstruktion. Beide
+>    Dimensionen werden frisch gemessen, damit der Effekt nicht mit den
+>    Codeänderungen seit B5 (KNOWN-1, KNOWN-2) vermischt wird.
+> 2. **Kriterium anpassen, falls nötig.** Dimensionseffekt > 0,5 pp → das
+>    Kriterium wird als *Abstand zur D-4.000-Baseline* formuliert statt als
+>    absolute Zahl. Effekt ≤ 0,5 pp → das absolute Kriterium bleibt. Die
+>    Entscheidung wird hier mit Zeitstempel nachgetragen, **bevor** der Sweep
+>    startet.
+> 3. Dann erst die 48 Läufe.
+> 4. **Gewinnerzelle abschließend bei D = 10.000 mit 5 Seeds bestätigen.** Ein
+>    Ergebnis bei D = 4.000 ist ein Hinweis, kein Nachweis; erst die
+>    Bestätigung bei voller Dimension entscheidet über GAP-1.
+>
+> Die vier Regeln unten gelten unverändert.
+
 **Alles andere bleibt fixiert:** offizieller 60k/10k-Split, Intensitäts-
 Mapping `v·Q // 256` (GAP-2), Tie-Regel, keine Episodenschicht, `t2_epochs=0`.
 
