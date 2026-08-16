@@ -401,6 +401,14 @@ class PrototypeClassifier:
         self._index: dict[str, int] = {}
         self.A = np.zeros((0, self.dimension), dtype=np.int16)
         self.P = np.zeros((0, self.dimension // 8), dtype=np.uint8)
+        #: How often the accumulator has been halved. Zero means learning is
+        #: purely additive, and therefore identical however the data was
+        #: batched. A nonzero count means it is **not**: halving is applied
+        #: when a running total crosses the threshold, so where that happens
+        #: depends on batch boundaries. Callers that split learning across
+        #: batches must check this rather than assume it (see
+        #: ``experiments/run_benchmark.py``).
+        self.halvings = 0
 
     def __repr__(self) -> str:
         return (f"PrototypeClassifier(dimension={self.dimension}, "
@@ -549,6 +557,16 @@ class PrototypeClassifier:
         """Halve every accumulator row if any entry grew past the threshold.
 
         Guards the ``int16`` accumulator against overflow on long runs.
+
+        This is the one step that makes learning non-additive, and therefore
+        the one step that makes it depend on how the data was batched: a
+        running total crosses the threshold at a different point when the
+        input arrives in pieces. :attr:`halvings` records whether it ever
+        fired, so callers can verify rather than hope. For the project's
+        datasets it does not — ``|A|`` is bounded by the number of examples
+        per class (500 for full WiLI, 6,000 for full MNIST), both well under
+        the 16,384 threshold.
+
         Halving is applied to all classes at once so their relative
         magnitudes stay comparable, and is **sign-preserving**: a component
         of magnitude 1 stays at magnitude 1 rather than being rounded to
@@ -562,6 +580,7 @@ class PrototypeClassifier:
                    default=0)
         if peak <= HALVE_THRESHOLD:
             return updated
+        self.halvings += 1
         self.A = _halve_signed(self.A)
         return {index: _halve_signed(row) for index, row in updated.items()}
 

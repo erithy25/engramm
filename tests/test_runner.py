@@ -22,7 +22,7 @@ from experiments.run_benchmark import (
     main,
     subset,
 )
-from engramm.core import ItemMemory, PrototypeClassifier
+from engramm.core import HALVE_THRESHOLD, ItemMemory, PrototypeClassifier
 from engramm.encoders import PixelThermometerEncoder
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -213,6 +213,172 @@ def test_streaming_works_when_batches_contain_ties() -> None:
     assert even.tie_report(images).total_tied_components > 0
     assert np.array_equal(predict_streaming(model, even, images, 3),
                           model.predict(even.encode(images)))
+
+
+# ---------------------------------------------------------------------------
+# Streaming the training split
+# ---------------------------------------------------------------------------
+
+def _learnable_setup(per_class: int = 13, n_classes: int = 4):
+    """Tie-free encoder, samples and labels for training-side experiments."""
+    assert per_class % 2 == 1, "odd per class, or the prototype ties"
+    dimension = 512
+    encoder = PixelThermometerEncoder(ItemMemory(SEED, dimension),
+                                      n_positions=63, n_levels=16)
+    rng = np.random.default_rng(SEED)
+    images, labels = [], []
+    for class_index in range(n_classes):
+        centre = rng.integers(0, 256, size=63, dtype=np.uint8)
+        for _ in range(per_class):
+            noise = rng.integers(-25, 26, size=63)
+            images.append(
+                np.clip(centre.astype(np.int16) + noise, 0, 255).astype(np.uint8))
+            labels.append(f"class{class_index}")
+    images = np.stack(images)
+    assert int((encoder.accumulate(images) == 0).sum()) == 0, "fixture must be tie-free"
+    return encoder, images, labels
+
+
+def _learn_at_once(encoder, images, labels, dimension=512):
+    from engramm.core import unpack_bits
+
+    model = PrototypeClassifier(dimension, seed=SEED)
+    packed = encoder.encode(images)
+    signed = (unpack_bits(packed, dimension).astype(np.int8) * 2) - 1
+    model.learn(signed, labels)
+    return model
+
+
+@pytest.mark.parametrize("batch_size", [1, 2, 7, 13, 26, 51, 52, 1000])
+def test_streamed_training_is_bit_identical(batch_size: int) -> None:
+    """Batched learning must reproduce the unbatched state exactly.
+
+    Sizes span both sides of the boundary: divisors of the 52-sample set,
+    non-divisors, the exact size, and larger than the whole split.
+    """
+    from experiments.run_benchmark import learn_streaming
+
+    encoder, images, labels = _learnable_setup()
+    reference = _learn_at_once(encoder, images, labels)
+
+    streamed = PrototypeClassifier(512, seed=SEED)
+    learn_streaming(streamed, encoder, images, labels, batch_size)
+
+    assert streamed.labels == reference.labels
+    assert np.array_equal(streamed.A, reference.A)
+    assert np.array_equal(streamed.P, reference.P)
+    assert streamed.halvings == reference.halvings == 0
+
+
+def test_streamed_training_actually_batches(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Fails if learning happens in one call — which equality cannot catch.
+
+    Batched and unbatched produce the same state, so every comparison above
+    passes whether or not batching occurs. Only memory differs, which is the
+    point of the change, so the batching itself is asserted.
+    """
+    from experiments.run_benchmark import learn_streaming
+
+    encoder, images, labels = _learnable_setup()
+    model = PrototypeClassifier(512, seed=SEED)
+    sizes: list[int] = []
+    original = model.learn
+
+    def spy(signed, batch_labels):
+        sizes.append(len(batch_labels))
+        return original(signed, batch_labels)
+
+    monkeypatch.setattr(model, "learn", spy)
+    learn_streaming(model, encoder, images, labels, batch_size=10)
+
+    assert len(sizes) == 6, f"52 samples in batches of 10 should be 6 calls, got {sizes}"
+    assert max(sizes) <= 10
+    assert sum(sizes) == len(labels)
+
+
+def test_classes_are_registered_before_batching() -> None:
+    """Class indices must not depend on which batch first shows a class.
+
+    With per-batch registration, a class appearing only late takes a later
+    index, permuting the rows of A — same predictions, different state, no
+    longer comparable bit for bit.
+
+    The fixture must present classes in an order that differs from sorted
+    order, or the defect is invisible: data grouped by ascending class name
+    registers in sorted order either way. Here the classes arrive in
+    *descending* order, so first-seen registration would give
+    ``[class3, class2, class1, class0]``.
+
+    Found by mutation testing — an earlier version of this test used
+    ascending data and passed with the registration removed.
+    """
+    from experiments.run_benchmark import learn_streaming
+
+    encoder, images, labels = _learnable_setup(per_class=13, n_classes=4)
+    reversed_images = images[::-1].copy()
+    reversed_labels = labels[::-1]
+    assert reversed_labels[0] == "class3", "fixture must not start at the first class"
+
+    model = PrototypeClassifier(512, seed=SEED)
+    learn_streaming(model, encoder, reversed_images, reversed_labels, batch_size=5)
+
+    assert model.labels == sorted(set(labels)), (
+        f"expected sorted registration, got {model.labels}"
+    )
+
+    # And the state must match learning the same data unbatched.
+    reference = _learn_at_once(encoder, reversed_images, reversed_labels)
+    assert np.array_equal(model.A, reference.A)
+    assert np.array_equal(model.P, reference.P)
+
+
+def test_halving_makes_batching_inequivalent() -> None:
+    """Documents the one case where the equivalence genuinely fails.
+
+    Halving is applied when a running total crosses the threshold, so where
+    it fires depends on batch boundaries. This is not a defect to fix here —
+    it is the reason ``run_seed`` refuses to report a run in which halving
+    occurred.
+    """
+    dimension = 256
+    rng = np.random.default_rng(0)
+    base = (rng.integers(0, 2, dimension) * 2 - 1).astype(np.int8)
+    data = np.tile(base, (HALVE_THRESHOLD * 2 + 1, 1))   # correlated: |A| grows linearly
+
+    def learn_in(batch: int) -> PrototypeClassifier:
+        model = PrototypeClassifier(dimension, seed=SEED)
+        model.register_classes(["a"])
+        for start in range(0, len(data), batch):
+            chunk = data[start:start + batch]
+            model.learn(chunk, ["a"] * len(chunk))
+        return model
+
+    single, batched = learn_in(len(data)), learn_in(1000)
+    assert single.halvings > 0 and batched.halvings > 0
+    assert not np.array_equal(single.A, batched.A), (
+        "if these ever agree, the guard in run_seed may be unnecessary — "
+        "but do not remove it on the strength of one fixture"
+    )
+
+
+def test_our_datasets_stay_below_the_halving_threshold() -> None:
+    """The bound that makes batched training safe here, checked not assumed.
+
+    ``|A|`` cannot exceed the number of examples per class, since each
+    contributes ±1 per component.
+    """
+    for name, per_class in (("wili full", 500), ("wili 10-shot", 10),
+                            ("mnist full", 6_000)):
+        assert per_class < HALVE_THRESHOLD, f"{name} would trigger halving"
+
+
+def test_streamed_training_rejects_a_nonpositive_batch() -> None:
+    from experiments.run_benchmark import learn_streaming
+
+    encoder, images, labels = _learnable_setup()
+    model = PrototypeClassifier(512, seed=SEED)
+    with pytest.raises(ValueError, match="must be positive"):
+        learn_streaming(model, encoder, images, labels, 0)
 
 
 # ---------------------------------------------------------------------------

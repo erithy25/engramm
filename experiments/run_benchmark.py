@@ -22,12 +22,13 @@ import statistics
 import sys
 import time
 from dataclasses import dataclass
+from collections.abc import Sequence
 from typing import Any
 
 import numpy as np
 
 from data.loaders import Dataset, fit_train_artifacts, load_mnist, load_wili
-from engramm.core import ItemMemory, PrototypeClassifier
+from engramm.core import ItemMemory, PrototypeClassifier, unpack_bits
 from engramm.encoders import Encoder, build_encoder
 from engramm.metrics import accuracy, macro_f1
 from engramm.repro import (
@@ -42,6 +43,9 @@ DEFAULT_SEEDS = (42, 7, 1337, 2026, 99, 3, 123, 512, 8191, 31337)
 #: Test samples encoded and classified per batch. Bounds the peak
 #: accumulator at ``batch × D`` int32 instead of the whole split.
 DEFAULT_TEST_BATCH = 2_000
+
+#: Training samples encoded and learned per batch, for the same reason.
+DEFAULT_TRAIN_BATCH = 5_000
 
 
 @dataclass
@@ -120,10 +124,50 @@ def predict_streaming(model: PrototypeClassifier, encoder: Encoder,
     return predictions
 
 
+def learn_streaming(model: PrototypeClassifier, encoder: Encoder,
+                    samples: Any, labels: Sequence[str],
+                    batch_size: int) -> None:
+    """Encode and learn the training split one batch at a time.
+
+    The full WiLI training split is 117,500 texts, whose ``int32``
+    accumulator alone is 4.7 GB at D = 10,000 — measured as a 6.26 GB peak
+    for the whole run, over the 6 GB the reference machine can spare.
+    Learning is additive, so the batches can be folded in one at a time and
+    only one batch is ever resident.
+
+    **Two things make this equivalent rather than merely similar:**
+
+    * All classes are registered up front, in sorted label order. Otherwise
+      a class first seen in batch 7 would take an index that depends on how
+      the data was split, permuting the rows of ``A``.
+    * Accumulation is pure addition — with one exception. Halving the
+      accumulator (:data:`engramm.core.HALVE_THRESHOLD`) is applied when a
+      running total crosses the threshold, and *where* that happens depends
+      on batch boundaries. The caller must therefore check
+      ``model.halvings``; :func:`run_seed` records it, and for this
+      project's datasets it stays zero because ``|A|`` is bounded by the
+      number of examples per class (500 for full WiLI, 6,000 for full
+      MNIST) against a threshold of 16,384.
+    """
+    if batch_size <= 0:
+        raise ValueError("train_batch_size must be positive")
+
+    model.register_classes(labels)
+    total = len(labels)
+    for start in range(0, total, batch_size):
+        stop = min(start + batch_size, total)
+        batch = (samples[start:stop] if isinstance(samples, np.ndarray)
+                 else list(samples[start:stop]))
+        packed = encoder.encode(batch)
+        signed = (unpack_bits(packed, model.dimension).astype(np.int8) * 2) - 1
+        model.learn(signed, list(labels[start:stop]))
+
+
 def run_seed(task: str, seed: int, dimension: int, shots: int | None,
              limit_train: int | None, limit_test: int | None,
              allow_download: bool,
-             test_batch_size: int = DEFAULT_TEST_BATCH) -> tuple[dict[str, Any], dict[str, Any]]:
+             test_batch_size: int = DEFAULT_TEST_BATCH,
+             train_batch_size: int = DEFAULT_TRAIN_BATCH) -> tuple[dict[str, Any], dict[str, Any]]:
     """Run one seed end to end; returns ``(result, hyperparameters)``."""
     rng = set_all_seeds(seed)
     dataset = subset(load_task(task, shots, rng, allow_download),
@@ -133,15 +177,17 @@ def run_seed(task: str, seed: int, dimension: int, shots: int | None,
     item_memory = ItemMemory(seed, dimension)
     encoder = build_encoder(task, item_memory)
 
-    from engramm.core import unpack_bits
-
-    train_packed = encoder.encode(dataset.x_train)
-    train_signed = (unpack_bits(train_packed, dimension).astype(np.int8) * 2) - 1
-    del train_packed
-
     model = PrototypeClassifier(dimension, seed=seed)
-    model.learn(train_signed, [dataset.labels[i] for i in dataset.y_train])
-    del train_signed
+    learn_streaming(model, encoder, dataset.x_train,
+                    [dataset.labels[i] for i in dataset.y_train],
+                    train_batch_size)
+    if model.halvings:
+        raise RuntimeError(
+            f"the accumulator was halved {model.halvings} time(s), so this "
+            f"batched run is not equivalent to an unbatched one — where "
+            f"halving fires depends on batch boundaries. Re-run unbatched, "
+            f"or raise HALVE_THRESHOLD, before citing this number."
+        )
 
     predicted = predict_streaming(model, encoder, dataset.x_test, test_batch_size)
 
@@ -163,6 +209,8 @@ def run_seed(task: str, seed: int, dimension: int, shots: int | None,
         "limit_train": limit_train,
         "limit_test": limit_test,
         "test_batch_size": test_batch_size,
+        "train_batch_size": train_batch_size,
+        "accumulator_halvings": model.halvings,
         "episodes": False,
         "t2_epochs": 0,
     }
@@ -240,6 +288,9 @@ def main(argv: list[str] | None = None) -> int:
                         help="where to write records (default: results/). Use a "
                              "scratch directory for exploratory runs so the "
                              "official record set stays clean")
+    parser.add_argument("--train-batch", type=int, default=DEFAULT_TRAIN_BATCH,
+                        help=f"training samples per encode/learn batch "
+                             f"(default {DEFAULT_TRAIN_BATCH})")
     parser.add_argument("--test-batch", type=int, default=DEFAULT_TEST_BATCH,
                         help=f"test samples per encode/classify batch "
                              f"(default {DEFAULT_TEST_BATCH})")
