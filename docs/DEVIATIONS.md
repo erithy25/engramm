@@ -270,3 +270,24 @@ is broken into several sub-chunks rather than one.
 `chunk_bytes` is now a constructor argument rather than a module constant,
 so tests can shrink it to reach the path cheaply. It bounds memory and never
 changes a value.
+
+**Measured on real data, seed 42, WiLI 10-shot, D = 10,000:**
+
+| | before | after |
+|---|---|---|
+| accuracy | 0.8489 | **0.8489** |
+| macro-F1 | 0.8518 | **0.8518** |
+| peak RSS | 12,244 MiB | **629 MiB** (19.5x smaller) |
+| wall time | 1141.4 s | **699.3 s** (−38.7 %) |
+
+The metrics are identical to four decimal places on the real corpus, not
+only on synthetic fixtures. The speedup was not a goal: allocating and
+zeroing 5.79 GB twice per oversized document simply cost more than encoding
+it.
+
+**What this measurement does not cover.** `run_seed` encodes the *training*
+split in one call — only the test split is batched. At 10 shots that is
+2,350 texts (0.09 GB); on the full split it would be 117,500 texts, whose
+`int32` accumulator alone is **4.70 GB**. The 629 MiB figure therefore says
+nothing about a full-split run, whose peak is expected near **4.9 GB** and
+is currently unmeasured.
