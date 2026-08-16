@@ -11,6 +11,10 @@
   Warteschleife selbst und meldet dann dauerhaft „läuft noch" (beobachtet 2026-08-15).
   Python immer mit `-u` (ungepufferte Ausgabe → Live-Log, kein Blindflug). Kriteriumsrelevante Zeitmessungen
   nur unter W16-Bedingungen (D6: caffeinate, Netzteil, Deckel offen, alleiniger Lauf). `logs/` ist gitignored.
+- **Langläufe schreiben nach `--results-dir <scratch>`, nicht direkt nach `results/`.**
+  Records werden erst nach dem Lauf übernommen. Sonst zwingt jeder Zwischencommit zur
+  Datensicherung die restlichen Seeds auf einen anderen `git.commit` (zweimal passiert:
+  B6 und M1-voll), obwohl sich am Code nichts ändert.
 - **Speicherschätzungen sind untere Schranken, keine Erwartungswerte.** Wer die im Code
   sichtbaren Arrays addiert, bekommt einen Boden, nie eine Decke — transiente Kopien,
   Interpreter-Overhead und Ausreißer im Datensatz fehlen darin. Zweimal gemessen: 4,8 GB

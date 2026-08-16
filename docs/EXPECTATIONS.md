@@ -240,10 +240,41 @@ falsche Richtung.
 Dieselbe Sperre gilt für die 84,79 % (bereits in E1 vermerkt) und für alles,
 was aus beiden abgeleitet wird.
 
-### Ergebnis
+### Ergebnis — gemessen 2026-08-16, Container, `canonical=false`
 
-*(5-Seed-Lauf ausstehend; der Diagnoselauf ergab Seed 42: accuracy 0,8982,
-macro_f1 0,9019)*
+| Seed | Accuracy | Macro-F1 | Peak | Halbierungen |
+|---|---|---|---|---|
+| 42 | 0,8982 | 0,9019 | 906 MiB | 0 |
+| 7 | 0,8976 | 0,9012 | 906 MiB | 0 |
+| 1337 | 0,8975 | 0,9013 | 915 MiB | 0 |
+| 2026 | 0,8980 | 0,9017 | 915 MiB | 0 |
+| 99 | 0,8980 | 0,9017 | 915 MiB | 0 |
+| **Mittel ± SD** | **0,8979 ± 0,0003** | **0,9016 ± 0,0003** | 912 MiB | 0 |
+
+**Kein Kriterium erfüllt oder verfehlt** — es gab keines, siehe oben. Die
+Zahl steht für sich.
+
+**Determinismus.** Seed 42 ergibt 0,8982 / 0,9019, exakt wie der Diagnoselauf
+*vor* dem Streaming-Umbau. Damit ist die Äquivalenz von gebatchtem und
+ungebatchtem Training nicht nur an synthetischen Fixtures belegt, sondern am
+vollen Korpus über einen Codewechsel hinweg.
+
+**Halbierungen: 0 in allen fünf Seeds.** Die Bedingung, unter der gebatchtes
+Lernen exakt ist (`docs/DEVIATIONS.md` KNOWN-2), ist damit für diesen Lauf
+nachgewiesen und nicht nur erwartet.
+
+**Speicher: 912 MiB ± 5** gegen die vorab gesetzte Schwelle von 6,00 GB.
+
+**Streuung.** Die SD von 0,0003 ist rund zwölfmal kleiner als im
+10-shot-Setting (0,0037). Das ist erwartbar — bei 500 statt 10 Beispielen je
+Klasse wirkt sich die Ziehung kaum noch aus, und die verbleibende Varianz
+stammt fast nur noch aus Item-Memory und Tie-Auflösung. Als Beobachtung
+notiert, nicht als Befund: eine Erklärung dafür wurde nicht gemessen.
+
+**Provenienz-Vermerk.** Seed 99 trägt Commit `e323a05a`, die übrigen vier
+`721808ad`. Ursache ist ein Zwischencommit zur Datensicherung während des
+Laufs; der Diff zwischen beiden Hashes enthält ausschließlich `results/`,
+keinen Code.
 
 ---
 
