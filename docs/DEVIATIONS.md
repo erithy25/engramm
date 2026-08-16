@@ -248,7 +248,25 @@ semantic one, and the encoder's output is unchanged. But the peak is
 independent of `--test-batch`, so that knob cannot control it, and 12.25 GB
 on a 16 GB reference machine leaves little headroom.
 
-**Fix, not yet applied:** split one text's trigrams into sub-chunks when the
-text alone exceeds the budget, accumulating across them. Semantically
-neutral — addition is associative — and therefore verifiable by requiring
-bit-identical output before and after.
+**Fixed 2026-08-16.** A text whose trigrams alone exceed the budget is
+pulled out of grouping and accumulated across sub-chunks of its own
+trigrams. Semantically neutral — bundling is a sum and addition is
+associative — so the guarantee is *verified by comparison*, not argued:
+
+* Ten cases encoded on the pre-fix and post-fix code, **all bit-identical**,
+  six of them exceeding the budget, including the exact boundary
+  (32,768 vs. 32,769 trigrams at D = 2048; 6,710 vs. 6,711 at D = 10,000).
+* Permanent tests in `tests/test_encoders.py` compare the split path against
+  an effectively unlimited budget, and `_assert_exceeds` fails the fixture
+  if it does not actually reach the split.
+
+**A test that could not have caught this.** Both paths compute the same
+values, so every equality test passes whether or not the split happens —
+disabling it left the whole suite green under mutation. Only the routing
+differs, so two tests now assert the routing itself: that oversized texts
+take the split path, that texts within budget do not, and that a large text
+is broken into several sub-chunks rather than one.
+
+`chunk_bytes` is now a constructor argument rather than a module constant,
+so tests can shrink it to reach the path cheaply. It bounds memory and never
+changes a value.

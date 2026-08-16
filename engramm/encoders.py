@@ -79,9 +79,17 @@ class TieReport:
 class Encoder(ABC):
     """Common interface: accumulate signed sums, then optionally threshold."""
 
-    def __init__(self, item_memory: ItemMemory) -> None:
+    def __init__(self, item_memory: ItemMemory,
+                 chunk_bytes: int = _CHUNK_BYTES) -> None:
         self.item_memory = item_memory
         self.dimension = item_memory.dimension
+        if chunk_bytes <= 0:
+            raise ValueError("chunk_bytes must be positive")
+        #: Memory budget for one intermediate array. A knob, not a
+        #: hyperparameter: it bounds peak memory and never changes a value,
+        #: which is what lets tests shrink it to exercise the split path
+        #: cheaply.
+        self.chunk_bytes = int(chunk_bytes)
 
     @abstractmethod
     def accumulate(self, samples: Any) -> np.ndarray:
@@ -163,8 +171,9 @@ class TrigramEncoder(Encoder):
     no semantic effect.
     """
 
-    def __init__(self, item_memory: ItemMemory) -> None:
-        super().__init__(item_memory)
+    def __init__(self, item_memory: ItemMemory,
+                 chunk_bytes: int = _CHUNK_BYTES) -> None:
+        super().__init__(item_memory, chunk_bytes)
         base = np.stack([item_memory.vector(bytes([b])) for b in range(256)])
         self._tables = (
             permute(base, 2, self.dimension),   # applied to the first byte
@@ -191,19 +200,66 @@ class TrigramEncoder(Encoder):
         # near zero. Results are written back to their original rows, so the
         # grouping is invisible to the caller and changes no value.
         order = np.argsort(counts, kind="stable")
+
+        # A text whose trigrams alone exceed the budget cannot share a group
+        # with anything, and grouping it by itself would still allocate the
+        # whole thing at once — the budget would simply not apply. Those
+        # texts are split across their own trigrams instead. Sorting puts
+        # them last, so this partition costs nothing.
+        oversized = counts[order] * self.dimension > self.chunk_bytes
+        for row in order[oversized]:
+            self._accumulate_oversized(blob, spans[row], int(counts[row]),
+                                       int(row), totals)
+
+        remaining = order[~oversized]
         start = 0
-        while start < order.size:
-            stop = self._group_end(counts, order, start)
-            self._accumulate_group(blob, spans, counts, order[start:stop], totals)
+        while start < remaining.size:
+            stop = self._group_end(counts, remaining, start)
+            self._accumulate_group(blob, spans, counts, remaining[start:stop],
+                                   totals)
             start = stop
         return totals
 
+    def _accumulate_oversized(self, blob: np.ndarray, span: np.ndarray,
+                              count: int, row: int, totals: np.ndarray) -> None:
+        """Accumulate one text by splitting its own trigrams into sub-chunks.
+
+        WiLI-2018 contains a single test paragraph of 579,350 bytes against a
+        median of 370. Encoding it in one piece materialises 5.79 GB twice at
+        D = 10,000 — which is where the 12.25 GB peak of the first WiLI run
+        came from (``docs/DEVIATIONS.md`` KNOWN-1).
+
+        Splitting is exact rather than approximate: the bundle is a sum over
+        trigrams, addition is associative, and the ``±1`` conversion is
+        applied once at the end to the total count. Partial sums therefore
+        combine to the same value the single-pass path produces, which
+        ``tests/test_encoders.py`` checks by comparison rather than by
+        argument.
+        """
+        per_chunk = max(1, self.chunk_bytes // self.dimension)
+        start = int(span[0])
+        bit_sum = np.zeros(self.dimension, dtype=np.int32)
+        for offset in range(0, count, per_chunk):
+            size = min(per_chunk, count - offset)
+            positions = start + offset + np.arange(size, dtype=np.int64)
+            bound = (self._tables[0][blob[positions]]
+                     ^ self._tables[1][blob[positions + 1]]
+                     ^ self._tables[2][blob[positions + 2]])
+            bit_sum += np.unpackbits(bound, axis=-1, count=self.dimension).sum(
+                axis=0, dtype=np.int32)
+        totals[row] = 2 * bit_sum - np.int32(count)
+
     def _group_end(self, counts: np.ndarray, order: np.ndarray, start: int) -> int:
-        """Largest group from ``start`` whose padded array fits the budget."""
+        """Largest group from ``start`` whose padded array fits the budget.
+
+        Always returns at least one row. That is safe here only because
+        oversized texts have been removed beforehand — otherwise this is
+        exactly where the budget silently stopped applying.
+        """
         stop = start + 1
         while stop < order.size:
             longest = int(counts[order[stop]])
-            if (stop - start + 1) * longest * self.dimension > _CHUNK_BYTES:
+            if (stop - start + 1) * longest * self.dimension > self.chunk_bytes:
                 break
             stop += 1
         return stop
@@ -304,8 +360,8 @@ class PixelThermometerEncoder(Encoder):
     """
 
     def __init__(self, item_memory: ItemMemory, n_positions: int = 784,
-                 n_levels: int = 16) -> None:
-        super().__init__(item_memory)
+                 n_levels: int = 16, chunk_bytes: int = _CHUNK_BYTES) -> None:
+        super().__init__(item_memory, chunk_bytes)
         if n_levels < 2:
             raise ValueError("n_levels must be at least 2")
         if n_positions < 1:
@@ -367,7 +423,7 @@ class PixelThermometerEncoder(Encoder):
 
         # Chunked over images for the same reason as the text encoder: the
         # unpacked intermediate is rows × positions × D bytes.
-        per_chunk = max(1, _CHUNK_BYTES // (self.n_positions * self.dimension))
+        per_chunk = max(1, self.chunk_bytes // (self.n_positions * self.dimension))
         for start in range(0, images.shape[0], per_chunk):
             chunk = levels[start:start + per_chunk]
             bound = self._bound[column[None, :], chunk]

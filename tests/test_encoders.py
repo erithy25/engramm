@@ -157,6 +157,183 @@ def test_trigram_empty_batch(memory: ItemMemory) -> None:
 
 
 # ---------------------------------------------------------------------------
+# KNOWN-1: a single text larger than the chunk budget
+# ---------------------------------------------------------------------------
+
+def _text_with_trigrams(n: int, seed: int) -> str:
+    """A deterministic text of exactly ``n`` trigrams.
+
+    Printable ASCII only. A character above 127 encodes to two UTF-8 bytes,
+    and the encoder counts bytes rather than characters
+    (``docs/DEVIATIONS.md`` INFERRED-1) — a latin-1 fixture would produce
+    roughly 1.5x the requested trigram count and quietly invalidate every
+    size assumption below.
+    """
+    rng = np.random.default_rng(seed)
+    return bytes(rng.integers(32, 127, size=n + 2, dtype=np.uint8)).decode("ascii")
+
+
+def _assert_exceeds(encoder: TrigramEncoder, text: str) -> int:
+    """Fail loudly if a fixture does not actually reach the split path.
+
+    Without this the tests below would still pass while never entering the
+    code they exist to cover — the split would simply never trigger and the
+    comparison would compare the single-pass path against itself.
+    """
+    count = len(text.encode("utf-8")) - 2
+    assert count * encoder.dimension > encoder.chunk_bytes, (
+        f"fixture has {count} trigrams at D={encoder.dimension}, which fits "
+        f"the {encoder.chunk_bytes} byte budget — the split path is not reached"
+    )
+    return count
+
+
+def test_oversized_text_matches_single_pass_encoding(memory: ItemMemory) -> None:
+    """The split path must reproduce the unsplit result exactly.
+
+    Bundling is a sum over trigrams and addition is associative, so this
+    holds by construction — but by construction is what the original memory
+    bound also claimed, so it is checked rather than argued.
+    """
+    small_budget = TrigramEncoder(memory, chunk_bytes=64 * 1024)
+    text = _text_with_trigrams(2_000, seed=1)
+    _assert_exceeds(small_budget, text)
+
+    unlimited = TrigramEncoder(memory, chunk_bytes=1 << 40)
+    assert np.array_equal(small_budget.accumulate([text]),
+                          unlimited.accumulate([text]))
+
+
+@pytest.mark.parametrize("n_trigrams", [1_000, 4_001, 12_000])
+def test_split_is_exact_at_several_sizes(memory: ItemMemory, n_trigrams: int) -> None:
+    """Includes a size that is not a whole multiple of the sub-chunk."""
+    small_budget = TrigramEncoder(memory, chunk_bytes=64 * 1024)
+    unlimited = TrigramEncoder(memory, chunk_bytes=1 << 40)
+    text = _text_with_trigrams(n_trigrams, seed=n_trigrams)
+    _assert_exceeds(small_budget, text)
+    assert np.array_equal(small_budget.accumulate([text]),
+                          unlimited.accumulate([text]))
+
+
+def test_mixed_batch_of_normal_and_oversized_texts(memory: ItemMemory) -> None:
+    """Oversized texts are pulled out of grouping; the rest must be unaffected."""
+    small_budget = TrigramEncoder(memory, chunk_bytes=64 * 1024)
+    unlimited = TrigramEncoder(memory, chunk_bytes=1 << 40)
+    texts = [_text_with_trigrams(300, 10),
+             _text_with_trigrams(5_000, 11),
+             _text_with_trigrams(50, 12),
+             _text_with_trigrams(9_000, 13)]
+    _assert_exceeds(small_budget, texts[1])
+    _assert_exceeds(small_budget, texts[3])
+
+    assert np.array_equal(small_budget.accumulate(texts), unlimited.accumulate(texts))
+    # Row order must survive the partition into oversized and normal.
+    for i, text in enumerate(texts):
+        assert np.array_equal(small_budget.accumulate(texts)[i],
+                              unlimited.accumulate([text])[0])
+
+
+def test_oversized_text_at_the_real_default_budget() -> None:
+    """The same property at the shipped budget, not only a shrunken one.
+
+    Uses a text large enough to exceed the real `_CHUNK_BYTES`, so the
+    guarantee is demonstrated for the configuration that actually runs.
+    """
+    from engramm.encoders import _CHUNK_BYTES
+
+    dimension = 1024
+    encoder = TrigramEncoder(ItemMemory(SEED, dimension))
+    assert encoder.chunk_bytes == _CHUNK_BYTES
+    text = _text_with_trigrams(_CHUNK_BYTES // dimension + 5_000, seed=99)
+    _assert_exceeds(encoder, text)
+
+    unlimited = TrigramEncoder(ItemMemory(SEED, dimension), chunk_bytes=1 << 40)
+    assert np.array_equal(encoder.accumulate([text]), unlimited.accumulate([text]))
+
+
+def test_budget_bounds_the_intermediate_allocation(memory: ItemMemory) -> None:
+    """The split must actually happen in more than one piece.
+
+    Guards the point of the fix: an implementation that "splits" into a
+    single piece would satisfy every equality test above while allocating
+    exactly as much as before.
+    """
+    budget = 64 * 1024
+    encoder = TrigramEncoder(memory, chunk_bytes=budget)
+    text = _text_with_trigrams(8_000, seed=7)
+    count = _assert_exceeds(encoder, text)
+    per_chunk = max(1, budget // encoder.dimension)
+    assert count // per_chunk >= 2, "fixture must require at least two sub-chunks"
+    assert per_chunk * encoder.dimension <= budget
+
+
+def test_oversized_texts_actually_take_the_split_path(
+        memory: ItemMemory, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Fails if the split is never triggered — which equality tests cannot catch.
+
+    Both paths compute the same values, so every comparison above passes
+    whether or not the split happens. Only the memory behaviour differs, and
+    that is the entire point of the fix. So this asserts the routing itself:
+    oversized texts go through the splitting path, normal texts do not.
+
+    Found by mutation testing — disabling the split left the whole suite
+    green.
+    """
+    # 1 MiB budget at D=1024 puts the threshold at 1024 trigrams, so the
+    # "normal" fixtures below sit clearly under it and the large ones over.
+    encoder = TrigramEncoder(memory, chunk_bytes=1024 * 1024)
+    calls: list[int] = []
+    original = encoder._accumulate_oversized
+
+    def spy(blob, span, count, row, totals):
+        calls.append(count)
+        return original(blob, span, count, row, totals)
+
+    monkeypatch.setattr(encoder, "_accumulate_oversized", spy)
+
+    normal = [_text_with_trigrams(100, 20), _text_with_trigrams(200, 21)]
+    encoder.accumulate(normal)
+    assert calls == [], "a text within budget must not be split"
+
+    big_a, big_b = _text_with_trigrams(5_000, 22), _text_with_trigrams(7_000, 23)
+    _assert_exceeds(encoder, big_a)
+    _assert_exceeds(encoder, big_b)
+    encoder.accumulate([normal[0], big_a, normal[1], big_b])
+    assert sorted(calls) == [5_000, 7_000], (
+        f"expected both oversized texts to be split, got {calls}"
+    )
+
+
+def test_sub_chunk_count_grows_with_text_size(memory: ItemMemory,
+                                              monkeypatch: pytest.MonkeyPatch) -> None:
+    """A larger text must be split into more pieces, not one bigger piece."""
+    budget = 1024 * 1024
+    encoder = TrigramEncoder(memory, chunk_bytes=budget)
+    per_chunk = max(1, budget // encoder.dimension)
+
+    sizes: list[int] = []
+    real_unpack = np.unpackbits
+
+    def counting_unpack(array, *args, **kwargs):
+        sizes.append(array.shape[0] if array.ndim > 1 else 1)
+        return real_unpack(array, *args, **kwargs)
+
+    monkeypatch.setattr(np, "unpackbits", counting_unpack)
+    encoder.accumulate([_text_with_trigrams(10_000, 30)])
+
+    assert len(sizes) >= 2, "a 10,000-trigram text must need several sub-chunks"
+    assert max(sizes) <= per_chunk, (
+        f"a sub-chunk of {max(sizes)} rows exceeds the {per_chunk}-row budget"
+    )
+    assert sum(sizes) == 10_000, "every trigram must be covered exactly once"
+
+
+def test_chunk_bytes_is_validated(memory: ItemMemory) -> None:
+    with pytest.raises(ValueError, match="chunk_bytes"):
+        TrigramEncoder(memory, chunk_bytes=0)
+
+
+# ---------------------------------------------------------------------------
 # Pixel / thermometer encoder
 # ---------------------------------------------------------------------------
 
