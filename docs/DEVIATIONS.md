@@ -291,3 +291,20 @@ split in one call — only the test split is batched. At 10 shots that is
 `int32` accumulator alone is **4.70 GB**. The 629 MiB figure therefore says
 nothing about a full-split run, whose peak is expected near **4.9 GB** and
 is currently unmeasured.
+
+### Wall times before and after this fix are not comparable
+
+The fix cut seed 42's WiLI 10-shot run from 1141.4 s to 699.3 s — **−38.7 %**
+— because allocating and zeroing 5.79 GB twice per oversized document cost
+more than encoding it. Two consequences for reading the record:
+
+* **Every `wall_seconds` recorded before commit `1a4d0a1` belongs to a
+  different cost regime.** That covers all five MNIST records of B5 and all
+  five WiLI records of B6. Comparing them against later runs measures this
+  fix, not whatever the later change was.
+* **It is not an optimisation and not measurement noise.** Nobody tuned for
+  speed; the speedup is a side effect of removing an allocation that should
+  never have happened. Filing it under either heading would misattribute it.
+
+Accuracy and macro-F1 are unaffected — identical to four decimal places on
+the real corpus, which is what makes those records still citable.
