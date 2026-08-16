@@ -34,3 +34,4 @@
 [19/48] 2026-08-16T23:00:42+00:00 linear_thermometer   Q=16  seed=42    acc=0.7974 macro_f1=0.7949 183s peak_rss=833MB
 [20/48] 2026-08-16T23:03:29+00:00 linear_thermometer   Q=16  seed=7     acc=0.8007 macro_f1=0.7978 165s peak_rss=833MB
 [21/48] 2026-08-16T23:06:14+00:00 linear_thermometer   Q=16  seed=1337  acc=0.7890 macro_f1=0.7860 163s peak_rss=833MB
+[22/48] 2026-08-16T23:09:08+00:00 linear_thermometer   Q=32  seed=42    acc=0.8006 macro_f1=0.7983 172s peak_rss=833MB
