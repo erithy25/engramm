@@ -292,22 +292,51 @@ split in one call — only the test split is batched. At 10 shots that is
 nothing about a full-split run, whose peak is expected near **4.9 GB** and
 is currently unmeasured.
 
-### Wall times before and after this fix are not comparable
+### Wall times: three regimes, not one series
 
-The fix cut seed 42's WiLI 10-shot run from 1141.4 s to 699.3 s — **−38.7 %**
-— because allocating and zeroing 5.79 GB twice per oversized document cost
-more than encoding it. Two consequences for reading the record:
+Two memory fixes changed run cost without changing any result. Wall times
+from different regimes are **not comparable**, and the record now spans all
+three:
 
-* **Every `wall_seconds` recorded before commit `1a4d0a1` belongs to a
-  different cost regime.** That covers all five MNIST records of B5 and all
-  five WiLI records of B6. Comparing them against later runs measures this
-  fix, not whatever the later change was.
-* **It is not an optimisation and not measurement noise.** Nobody tuned for
-  speed; the speedup is a side effect of removing an allocation that should
-  never have happened. Filing it under either heading would misattribute it.
+| regime | change | effect on wall time |
+|---|---|---|
+| **A** — before KNOWN-1 | — | baseline |
+| **B** — KNOWN-1 fixed | oversized documents split | **−38.7 %** (WiLI 10-shot, seed 42: 1141.4 s → 699.3 s) |
+| **C** — KNOWN-2 added | training split batched | **−5.7 %** on top (WiLI full, seed 42: 1209.7 s → 1140.7 s) |
 
-Accuracy and macro-F1 are unaffected — identical to four decimal places on
-the real corpus, which is what makes those records still citable.
+**Which records belong to regime A:** all five MNIST records of B5 and all
+five WiLI 10-shot records of B6. Comparing their `wall_seconds` against any
+later run measures these fixes, not whatever the later change was.
+
+**Neither is an optimisation, and neither is measurement noise.** Nobody
+tuned for speed. Regime B removed an allocation that should never have
+happened; regime C is a side effect of not materialising a 4.7 GB array.
+Filing either under "optimisation" would claim credit for fixing a defect,
+and filing them under "noise" would hide a 38.7 % step.
+
+Accuracy and macro-F1 are unaffected across all three regimes — identical to
+four decimal places on the real corpus at every step, which is what makes
+the older records still citable for their metrics.
+
+### Memory estimates in this project are lower bounds, not expectations
+
+Twice now a predicted peak has come in low:
+
+| case | predicted | measured | error |
+|---|---|---|---|
+| WiLI 10-shot, before KNOWN-1 | ~4.8 GB | 12.25 GB | **2.6x** |
+| WiLI full, before KNOWN-2 | ~4.9 GB | 6.26 GB | **1.3x** |
+
+Both predictions accounted for the arrays that appear in the code and missed
+what surrounds them — a single outlier document in the first case, transient
+copies and interpreter overhead in the second. The pattern is one-directional:
+counting named allocations gives a floor, never a ceiling.
+
+**Therefore: a predicted peak is a lower bound.** State it as such, never as
+an expected value, and do not let a run depend on one where a measurement is
+affordable. The threshold that caught the second case (6 GB, set before the
+measurement) was exceeded by only 4 % — close enough that treating the
+estimate as an expectation would have looked defensible and been wrong.
 
 ---
 

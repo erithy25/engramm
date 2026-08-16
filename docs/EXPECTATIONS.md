@@ -202,6 +202,51 @@ weginterpretiert.
 
 ---
 
+## M1 — WiLI-2018, voller Trainingssplit (keine Vorregistrierung)
+
+**Kein E-Eintrag, und das mit Absicht.** Eine Erwartung wird gegen einen
+Referenzpunkt registriert; für diesen Lauf gibt es keinen. Die überlieferte
+M1-Zahl (79,30 %, bzw. 82,64 % ohne Episodenschicht) wurde im
+**10-shot**-Setting gemessen. Ein Volldaten-Ergebnis existiert in den Akten
+nicht, also gibt es nichts zu replizieren und nichts vorherzusagen.
+
+Der Lauf beantwortet eine andere Frage: *Was leistet dieser Kern, wenn er
+alle 500 Absätze je Sprache sieht statt zehn?*
+
+### Drei Zahlen, die nicht vermischt werden dürfen
+
+| Zahl | Setting | Referenzpunkt | Status |
+|---|---|---|---|
+| **84,79 % ± 0,37** | WiLI 10-shot | 82,64 % (Prototypen-only, Akten) | E1, Replikation bestätigt |
+| **89,82 %** (Seed 42) | WiLI voll | **keiner** | Diagnoselauf, 5-Seed-Lauf ausstehend |
+| 80,07 % ± 0,42 | MNIST voll | 86,49 % (Prototypen-only, Akten) | **6,42 pp offen**, siehe E2 |
+
+Die 89,82 % sind **nicht** ein besseres Ergebnis als die 84,79 % — sie
+stammen aus einem Setting mit fünfzigmal so vielen Trainingsdaten. Sie sind
+auch **nicht** die Antwort auf O1: die dortige Frage betrifft ausschließlich
+die 10-shot-Zahl und ihren Referenzpunkt. Und sie erklären nichts am
+MNIST-Abstand — anderer Datensatz, anderer Encoder.
+
+### Veröffentlichungssperre
+
+**Diese Zahl geht in keine Unterlage, solange der MNIST-Abstand von 6,42 pp
+ungeklärt ist.** Der Grund ist nicht die Zahl selbst, sondern was ihre
+Veröffentlichung suggerieren würde: dass der Neubau vermessen und verstanden
+ist. Er ist vermessen, aber auf einem der beiden Datensätze weicht er um 6,42
+Punkte ab, ohne dass jemand sagen kann warum. Eine gute Zahl neben einer
+ungeklärten zu veröffentlichen, verschiebt die Aufmerksamkeit genau in die
+falsche Richtung.
+
+Dieselbe Sperre gilt für die 84,79 % (bereits in E1 vermerkt) und für alles,
+was aus beiden abgeleitet wird.
+
+### Ergebnis
+
+*(5-Seed-Lauf ausstehend; der Diagnoselauf ergab Seed 42: accuracy 0,8982,
+macro_f1 0,9019)*
+
+---
+
 ## Offene Fragen, nicht terminiert
 
 **O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**
