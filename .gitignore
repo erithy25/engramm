@@ -16,3 +16,10 @@ venv/
 
 # results/ wird BEWUSST NICHT ignoriert: Benchmark-Ergebnis-JSONs
 # (Zeitstempel, Seed, Commit-Hash, Umgebung) gehoeren ins Repo.
+
+# Ausnahme: der rohe nohup-Stdout eines laufenden Sweeps. Er wird waehrend
+# des Laufs staendig fortgeschrieben; getrackt wuerde er jeden Record mit
+# git.dirty=true stempeln, ungetrackt jeden mit untracked>0. Der
+# verbindliche Fortschritt steht in results/e2_sweep/progress.log, und der
+# wird committet.
+results/*/sweep.out

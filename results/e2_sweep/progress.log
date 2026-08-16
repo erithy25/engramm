@@ -1,0 +1,17 @@
+# E2 sweep, D=4000, 4 constructions x Q in {4,8,16,32} x seeds {42,7,1337} = 48 cells.
+# Grid registered in docs/EXPECTATIONS.md E2. One line per finished cell,
+# appended by experiments/run_sweep.py. The JSON records next to this file
+# are authoritative; this log exists so the state after a crash is readable
+# without parsing 48 files.
+#
+# Cells 1 and 2 (progressive/Q=4, seeds 42 and 7) were produced by the first
+# attempt at commit c7e0c61 and were rescued from the scratch directory after
+# a container restart killed that run. They therefore carry a different
+# commit hash than the rest. The change between c7e0c61 and the resumed
+# sweep is bookkeeping only — resume, per-cell commit, progress log;
+# run_cell() and every encoder, loader and model path is untouched.
+#
+# Missing line numbers are cells still to run, not cells that failed: a
+# failed cell aborts the sweep, it is never skipped silently.
+[ 1/48] 2026-08-16T20:42:19+00:00 progressive          Q=4   seed=42    acc=0.7849 macro_f1=0.7820 110s peak_rss=809MB
+[ 2/48] 2026-08-16T20:44:03+00:00 progressive          Q=4   seed=7     acc=0.7830 macro_f1=0.7795 105s peak_rss=817MB
