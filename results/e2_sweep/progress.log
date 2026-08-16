@@ -50,3 +50,4 @@
 [35/48] 2026-08-16T23:46:57+00:00 random_levels        Q=32  seed=7     acc=0.7809 macro_f1=0.7777 173s peak_rss=833MB
 [36/48] 2026-08-16T23:49:46+00:00 random_levels        Q=32  seed=1337  acc=0.7733 macro_f1=0.7708 168s peak_rss=833MB
 [37/48] 2026-08-16T23:52:39+00:00 single_flip_block    Q=4   seed=42    acc=0.7711 macro_f1=0.7679 172s peak_rss=833MB
+[38/48] 2026-08-16T23:55:36+00:00 single_flip_block    Q=4   seed=7     acc=0.7627 macro_f1=0.7586 175s peak_rss=833MB
