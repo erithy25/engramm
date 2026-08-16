@@ -219,3 +219,36 @@ notably MNIST 94.62 %, which the record attributes +8.13 pp to it — are
 therefore **not directly comparable** to what this core will produce. The
 WiLI figure is less affected: the record has prototypes-only *ahead* by
 4.2 pp there (82.64 % vs 79.30 %).
+
+---
+
+## KNOWN-1 — a single outlier document defeats the encoder's memory bound
+
+**Not a deviation from the specification — a defect in this rebuild's
+chunking, recorded here because it shapes what can be run where.**
+
+`TrigramEncoder.accumulate` groups texts by trigram count and bounds each
+group's padded array to 64 MB. The bound has a hole: a group always contains
+at least one text, so a single text larger than the budget bypasses it
+entirely.
+
+WiLI-2018 contains one test paragraph of **579,350 bytes** (579,348
+trigrams) against a median of 370. Encoding it alone materialises the
+unpacked bits (5.79 GB) and the padded array (5.79 GB) at the same time —
+which is exactly the 12.25 GB ± 3 MB peak measured across all five seeds of
+the 10-shot run.
+
+| split | longest text | peak from that one text |
+|---|---|---|
+| WiLI test | 579,350 B | ~11.6 GB |
+| WiLI train | 120,424 B | ~2.4 GB |
+
+**Consequences.** Results are unaffected — this is a memory bound, not a
+semantic one, and the encoder's output is unchanged. But the peak is
+independent of `--test-batch`, so that knob cannot control it, and 12.25 GB
+on a 16 GB reference machine leaves little headroom.
+
+**Fix, not yet applied:** split one text's trigrams into sub-chunks when the
+text alone exceeds the budget, accumulating across them. Semantically
+neutral — addition is associative — and therefore verifiable by requiring
+bit-identical output before and after.

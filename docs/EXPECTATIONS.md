@@ -76,9 +76,49 @@ anderes Tie-Regime. Nichts an diesem Lauf erklärt jenen Abstand, und kein
 Ergebnis von hier darf zu seiner Erklärung herangezogen werden. Die beiden
 Fäden bleiben getrennt.
 
-### Ergebnis
+### Ergebnis — gemessen 2026-08-16, Container, `canonical=false`
 
-*(wird nach dem Lauf eingetragen; die Erwartung oben bleibt unverändert)*
+Harness wie registriert, Code-Stand `d24effb`, Records in `results/`.
+
+| Seed | Accuracy | Macro-F1 | Wandzeit |
+|---|---|---|---|
+| 42 | 0,8489 | 0,8518 | 1141,4 s |
+| 7 | 0,8476 | 0,8514 | 1099,3 s |
+| 1337 | 0,8485 | 0,8503 | 1151,7 s |
+| 2026 | 0,8525 | 0,8554 | 1126,8 s |
+| 99 | 0,8422 | 0,8453 | 1114,1 s |
+| **Mittel ± SD** | **0,8479 ± 0,0037** | **0,8508 ± 0,0036** | 1126,6 ± 20,9 s |
+
+**Primärkriterium Determinismus: erfüllt.** Zwei unabhängige Läufe der Seeds
+42 und 7 (Testsplit auf 3.000 begrenzt, Scratch-Verzeichnis) ergaben
+0,8617 / 0,8590 in beiden Durchläufen — Accuracy und Macro-F1 auf vier
+Nachkommastellen identisch. Die WiLI-Pipeline ist damit ebenso
+reproduzierbar wie die MNIST-Pipeline.
+
+**Sekundärkriterium Genauigkeit: Replikation bestätigt.**
+Abweichung vom Referenzpunkt 82,64 %: **+2,15 pp**, innerhalb des
+3-pp-Bandes. Seed-SD **0,37 pp**, innerhalb der 1,5-pp-Grenze. Beide
+Bedingungen des Bandes „Replikation bestätigt" sind erfüllt.
+
+**Zur gerichteten Vorhersage.** Das Ergebnis liegt über dem Referenzpunkt,
+was mit der registrierten Erwartung vereinbar ist, dass die gehashte
+Tie-Regel gegenüber einem gemeinsamen `V_tie` nach oben wirkt. *Vereinbar
+heißt nicht belegt:* die +2,15 pp sind nicht auf die Tie-Regel
+zurückgeführt, und mindestens eine weitere Unbekannte aus der Tabelle oben
+(T2-Status der historischen Zahl) könnte beitragen. Wer den Anteil der
+Tie-Regel wissen will, muss ihn messen — ein Lauf mit gemeinsamem Tie-Vektor
+gegen denselben Seedsatz wäre die direkte Ablation. Nicht durchgeführt.
+
+**Einordnung gegen die historische Volldaten-Pipeline:** 84,79 % gegen
+79,30 % sind +5,49 pp. Das ist *nicht* der registrierte Vergleich (§
+Referenzpunkt) und wird hier nur genannt, damit die Zahl nicht anderswo als
+Erfolg gegen 79,30 % auftaucht — die beiden Systeme unterscheiden sich um
+eine ganze Architekturschicht.
+
+**Nebenbefund (nicht Teil des Kriteriums): Spitzenspeicher 12,25 GB ± 3 MB.**
+Ursache identifiziert, siehe `docs/DEVIATIONS.md` — ein einzelner
+WiLI-Testabsatz von 579.350 Byte umgeht die Chunk-Begrenzung des
+Trigramm-Encoders. Ergebnisrelevanz: keine. Relevanz für den M4-Lauf: hoch.
 
 ---
 
