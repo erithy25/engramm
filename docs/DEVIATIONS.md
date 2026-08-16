@@ -308,3 +308,46 @@ more than encoding it. Two consequences for reading the record:
 
 Accuracy and macro-F1 are unaffected — identical to four decimal places on
 the real corpus, which is what makes those records still citable.
+
+---
+
+## KNOWN-2 — batched learning is exact only while the accumulator is not halved
+
+**A property of the runner's memory strategy, recorded because it is a real
+limit and an easy one to forget.**
+
+`experiments/run_benchmark.py` encodes and learns the training split in
+batches (`--train-batch`), so only one batch is resident. That is exact
+because accumulation is addition — with one exception.
+
+Halving (`HALVE_THRESHOLD`, 16,384) is applied when a *running* total
+crosses the threshold, so **where it fires depends on batch boundaries**.
+Demonstrated on correlated data, where `|A|` grows linearly: learning
+32,769 identical vectors in one call and in batches of 1,000 produces
+different accumulators.
+
+Two guards, because the property cannot be argued away:
+
+* `PrototypeClassifier.halvings` counts occurrences, and `run_seed` refuses
+  to report a run in which it is nonzero.
+* The count is written into every record's `hyperparams`, so an old result
+  can be checked without re-running it.
+
+For this project's datasets it stays zero: `|A|` is bounded by the number of
+examples per class — 500 for full WiLI, 6,000 for full MNIST — against a
+threshold of 16,384. That bound is asserted in `tests/test_runner.py` rather
+than assumed.
+
+**Measured, full WiLI split, seed 42, D = 10,000:**
+
+| | training unbatched | training batched |
+|---|---|---|
+| accuracy | 0.8982 | **0.8982** |
+| macro-F1 | 0.9019 | **0.9019** |
+| peak RSS | 6,409 MiB | **905 MiB** (7.1x smaller) |
+| wall time | 1209.7 s | 1140.7 s (−5.7 %) |
+| halvings | — | **0** |
+
+The 6,409 MiB figure exceeded the 6 GB a 16 GB reference machine can spare
+once macOS and other processes are accounted for, which is why this change
+was made before the five-seed run rather than after it.
