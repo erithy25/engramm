@@ -23,3 +23,4 @@
 [ 8/48] 2026-08-16T22:28:24+00:00 progressive          Q=16  seed=7     acc=0.7831 macro_f1=0.7798 186s peak_rss=809MB
 [ 9/48] 2026-08-16T22:31:22+00:00 progressive          Q=16  seed=1337  acc=0.7666 macro_f1=0.7626 176s peak_rss=816MB
 [10/48] 2026-08-16T22:34:18+00:00 progressive          Q=32  seed=42    acc=0.7848 macro_f1=0.7820 175s peak_rss=827MB
+[11/48] 2026-08-16T22:37:07+00:00 progressive          Q=32  seed=7     acc=0.7852 macro_f1=0.7816 167s peak_rss=833MB
