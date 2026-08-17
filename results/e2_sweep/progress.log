@@ -59,3 +59,4 @@
 [44/48] 2026-08-17T00:12:50+00:00 single_flip_block    Q=16  seed=7     acc=0.7786 macro_f1=0.7751 167s peak_rss=833MB
 [45/48] 2026-08-17T00:15:50+00:00 single_flip_block    Q=16  seed=1337  acc=0.7656 macro_f1=0.7612 178s peak_rss=833MB
 [46/48] 2026-08-17T00:18:47+00:00 single_flip_block    Q=32  seed=42    acc=0.7811 macro_f1=0.7783 175s peak_rss=833MB
+[47/48] 2026-08-17T00:21:42+00:00 single_flip_block    Q=32  seed=7     acc=0.7827 macro_f1=0.7791 173s peak_rss=833MB
