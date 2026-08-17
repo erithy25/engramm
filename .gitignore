@@ -1,5 +1,25 @@
-data/
+# Daten-Cache und Laufzeit-Artefakte — nie committen
+# (data/loaders.py ist Code und wird versioniert; nur der Download-Cache nicht)
+data/cache/
 logs/
+
+# Python
 __pycache__/
+*.pyc
+
+# virtuelle Umgebungen
 venv/
+.venv*/
+
+# macOS
 .DS_Store
+
+# results/ wird BEWUSST NICHT ignoriert: Benchmark-Ergebnis-JSONs
+# (Zeitstempel, Seed, Commit-Hash, Umgebung) gehoeren ins Repo.
+
+# Ausnahme: der rohe nohup-Stdout eines laufenden Sweeps. Er wird waehrend
+# des Laufs staendig fortgeschrieben; getrackt wuerde er jeden Record mit
+# git.dirty=true stempeln, ungetrackt jeden mit untracked>0. Der
+# verbindliche Fortschritt steht in results/e2_sweep/progress.log, und der
+# wird committet.
+results/*/sweep.out

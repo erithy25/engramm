@@ -1,0 +1,45 @@
+{
+  "schema_version": 3,
+  "task": "mnist",
+  "seed": 99,
+  "timestamp_utc": "2026-08-15T18:59:54+00:00",
+  "git": {
+    "commit": "26f847cf7710302a6ef3a5ec79eca48b5717d465",
+    "dirty": false,
+    "untracked": 4
+  },
+  "result": {
+    "accuracy": 0.8029,
+    "macro_f1": 0.8002992101762902,
+    "n_train": 60000,
+    "n_test": 10000,
+    "n_classes": 10,
+    "chance_level": 0.1
+  },
+  "hyperparams": {
+    "task": "mnist",
+    "dimension": 10000,
+    "shots": null,
+    "encoder": "PixelThermometerEncoder(dimension=10000, n_positions=784, n_levels=16)",
+    "artifacts_digest": "02f74716b5f86df2196f328476e5dea0561de1843d955e94ec7de2fcbc5147f0",
+    "official_split": true,
+    "limit_train": null,
+    "limit_test": null,
+    "test_batch_size": 2000,
+    "episodes": false,
+    "t2_epochs": 0
+  },
+  "runtime": {
+    "wall_seconds": 444.927,
+    "peak_rss_mb": 3136.3
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.5-fc-v20-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}

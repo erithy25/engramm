@@ -1,0 +1,48 @@
+{
+  "schema_version": 3,
+  "task": "e2_single_flip_block_q8",
+  "seed": 1337,
+  "timestamp_utc": "2026-08-17T00:07:12+00:00",
+  "git": {
+    "commit": "296ce52ce6890f87262aecb7fdfc2d2fd5c8b842",
+    "dirty": false,
+    "untracked": 0
+  },
+  "result": {
+    "accuracy": 0.764,
+    "macro_f1": 0.7600688718634657,
+    "n_train": 60000,
+    "n_test": 10000,
+    "n_classes": 10,
+    "chance_level": 0.1
+  },
+  "hyperparams": {
+    "task": "mnist",
+    "sweep": "E2",
+    "dimension": 4000,
+    "construction": "single_flip_block",
+    "n_levels": 8,
+    "shots": null,
+    "encoder": "PixelThermometerEncoder(dimension=4000, n_positions=784, n_levels=8, construction='single_flip_block')",
+    "artifacts_digest": "02f74716b5f86df2196f328476e5dea0561de1843d955e94ec7de2fcbc5147f0",
+    "official_split": true,
+    "train_batch_size": 5000,
+    "test_batch_size": 2000,
+    "accumulator_halvings": 0,
+    "episodes": false,
+    "t2_epochs": 0
+  },
+  "runtime": {
+    "wall_seconds": 164.498,
+    "peak_rss_mb": 833.4
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.5-fc-v20-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}

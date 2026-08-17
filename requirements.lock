@@ -1,0 +1,23 @@
+# AUTOGENERIERT — nicht von Hand bearbeiten.
+# Vollstaendiger Abzug inkl. transitiver Abhaengigkeiten (pip freeze).
+# Neu erzeugen:
+#   python3.13 -m venv .venv && . .venv/bin/activate
+#   pip install -r requirements.txt && pip freeze > requirements.lock
+#
+# Erzeugt auf: Linux x86_64 Python 3.11.15 (Entwicklungscontainer).
+# ACHTUNG: Die Referenzumgebung ist macOS/arm64 Python 3.13 (docs/PROTOCOL.md).
+# Diese Datei ist deshalb noch NICHT der kanonische Lock. Sie ist auf dem M4
+# einmal neu zu erzeugen und zu committen; Abweichungen in den transitiven
+# Versionen sind dabei zu erwarten (plattformabhaengige Wheels) und gehoeren
+# in die Commit-Message.
+iniconfig==2.3.0
+joblib==1.5.3
+narwhals==2.24.0
+numpy==2.4.1
+packaging==26.3
+pluggy==1.6.0
+Pygments==2.20.0
+pytest==9.1.1
+scikit-learn==1.9.0
+scipy==1.17.1
+threadpoolctl==3.6.0

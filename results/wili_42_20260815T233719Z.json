@@ -1,0 +1,45 @@
+{
+  "schema_version": 3,
+  "task": "wili",
+  "seed": 42,
+  "timestamp_utc": "2026-08-15T23:37:19+00:00",
+  "git": {
+    "commit": "d24effb7c8249c60fc633ce88158a7cd2efeef8f",
+    "dirty": false,
+    "untracked": 0
+  },
+  "result": {
+    "accuracy": 0.8488510638297873,
+    "macro_f1": 0.8517737694590454,
+    "n_train": 2350,
+    "n_test": 117500,
+    "n_classes": 235,
+    "chance_level": 0.00425531914893617
+  },
+  "hyperparams": {
+    "task": "wili",
+    "dimension": 10000,
+    "shots": 10,
+    "encoder": "TrigramEncoder(dimension=10000)",
+    "artifacts_digest": "52807d86418c39fbe1d51547034d0394fe1fab10eabd78533c8e23e76ce93fe6",
+    "official_split": true,
+    "limit_train": null,
+    "limit_test": null,
+    "test_batch_size": 5000,
+    "episodes": false,
+    "t2_epochs": 0
+  },
+  "runtime": {
+    "wall_seconds": 1141.421,
+    "peak_rss_mb": 12244.0
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.5-fc-v20-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}

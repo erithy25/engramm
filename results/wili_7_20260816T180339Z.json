@@ -1,0 +1,47 @@
+{
+  "schema_version": 3,
+  "task": "wili",
+  "seed": 7,
+  "timestamp_utc": "2026-08-16T18:03:39+00:00",
+  "git": {
+    "commit": "721808ad1850eb050b8701a97150791cc84b2956",
+    "dirty": false,
+    "untracked": 1
+  },
+  "result": {
+    "accuracy": 0.8975914893617021,
+    "macro_f1": 0.9012212415489166,
+    "n_train": 117500,
+    "n_test": 117500,
+    "n_classes": 235,
+    "chance_level": 0.00425531914893617
+  },
+  "hyperparams": {
+    "task": "wili",
+    "dimension": 10000,
+    "shots": null,
+    "encoder": "TrigramEncoder(dimension=10000)",
+    "artifacts_digest": "4fded865d55e5aae94e8b19c2b070edf73328bc97268712fd61246b8b0728033",
+    "official_split": true,
+    "limit_train": null,
+    "limit_test": null,
+    "test_batch_size": 5000,
+    "train_batch_size": 5000,
+    "accumulator_halvings": 0,
+    "episodes": false,
+    "t2_epochs": 0
+  },
+  "runtime": {
+    "wall_seconds": 1151.679,
+    "peak_rss_mb": 906.4
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.5-fc-v20-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}
