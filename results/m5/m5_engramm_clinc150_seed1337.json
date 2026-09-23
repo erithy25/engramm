@@ -1,0 +1,58 @@
+{
+  "task": "clinc150",
+  "system": "engramm",
+  "seed": 1337,
+  "shots": 10,
+  "timestamp_utc": "2026-09-23T22:45:16+00:00",
+  "git": {
+    "commit": "d13167ac18cc167e38bd8cbbb883bb761191e842",
+    "dirty": false,
+    "untracked": 0,
+    "captured": "before_run"
+  },
+  "n_classes": 150,
+  "n_test": 4500,
+  "acc": 0.7248888888888889,
+  "predictions_sha256": "ef5b63ebcaf03742ebcb9fc217e70123e29e144fa57c458ab3a97db5ba700351",
+  "learn_ms_per_class_wall": 5.796280513325958,
+  "learn_ms_per_class_cpu": 5.729561646666666,
+  "query_ms_mean": 10.522672398004943,
+  "query_ms_p99": 19.436710860281885,
+  "cpu_seconds_per_query_proxy": 0.016195539750000026,
+  "energy_mj_per_query": null,
+  "energy_note": "not measured: no power interface in this container",
+  "forgetting": {
+    "tranches": 10,
+    "first_block_classes": 15,
+    "t1_only_block_after_first": 0.86,
+    "t1_only_block_final": 0.7155555555555555,
+    "t2_local_block_after_first": 0.86,
+    "t2_local_block_final": 0.7155555555555555,
+    "t2_epochs": 0,
+    "interference_v2_pp": 0.0,
+    "classical_v1_pp": 14.444444444444448,
+    "stress_t2_epochs": 2,
+    "stress_interference_v2_pp": 3.777777777777769,
+    "stress_classical_v1_pp": 16.666666666666664
+  },
+  "config": {
+    "k": 32,
+    "theta0": 0.25,
+    "lambda_e": 1.0,
+    "lambda_p": 1.0,
+    "util_clip": 8,
+    "t2_local": true,
+    "t2_epochs": 0,
+    "encoder": "TrigramEncoder(dimension=10000, frame=True)",
+    "config_source": "results/tuning/clinc150_seed42_10shot.json"
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}

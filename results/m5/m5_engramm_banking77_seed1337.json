@@ -1,0 +1,58 @@
+{
+  "task": "banking77",
+  "system": "engramm",
+  "seed": 1337,
+  "shots": 10,
+  "timestamp_utc": "2026-09-23T22:43:40+00:00",
+  "git": {
+    "commit": "901cf1f1eccbf74e36d92e3b824230ae91b57823",
+    "dirty": false,
+    "untracked": 0,
+    "captured": "before_run"
+  },
+  "n_classes": 77,
+  "n_test": 3080,
+  "acc": 0.6672077922077922,
+  "predictions_sha256": "329f9ce0ab17d454ceabe2b5f2a340aa76445be42bd6b136839ea3f79646b06a",
+  "learn_ms_per_class_wall": 9.630329064937353,
+  "learn_ms_per_class_cpu": 9.543281662337662,
+  "query_ms_mean": 8.255505360008101,
+  "query_ms_p99": 15.977971209085808,
+  "cpu_seconds_per_query_proxy": 0.016239593640000025,
+  "energy_mj_per_query": null,
+  "energy_note": "not measured: no power interface in this container",
+  "forgetting": {
+    "tranches": 7,
+    "first_block_classes": 11,
+    "t1_only_block_after_first": 0.9022727272727272,
+    "t1_only_block_final": 0.7318181818181818,
+    "t2_local_block_after_first": 0.9022727272727272,
+    "t2_local_block_final": 0.7318181818181818,
+    "t2_epochs": 0,
+    "interference_v2_pp": 0.0,
+    "classical_v1_pp": 17.04545454545454,
+    "stress_t2_epochs": 2,
+    "stress_interference_v2_pp": 5.454545454545457,
+    "stress_classical_v1_pp": 22.272727272727277
+  },
+  "config": {
+    "k": 32,
+    "theta0": 0.2,
+    "lambda_e": 0.25,
+    "lambda_p": 1.0,
+    "util_clip": 8,
+    "t2_local": true,
+    "t2_epochs": 0,
+    "encoder": "TrigramEncoder(dimension=10000, frame=True)",
+    "config_source": "results/tuning/banking77_seed42_10shot.json"
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}
