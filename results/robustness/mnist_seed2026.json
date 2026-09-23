@@ -1,0 +1,318 @@
+{
+  "study": "docs/PREREG_ROBUSTNESS.md v1.3",
+  "record_schema": 1,
+  "task": "mnist",
+  "seed": 2026,
+  "timestamp_utc": "2026-09-23T23:04:59+00:00",
+  "git": {
+    "commit": "3d790226c47d5545c06d7837374b3602f0b14bdd",
+    "dirty": false,
+    "untracked": 0,
+    "captured": "before_run",
+    "code_changed_during_run": false,
+    "changed_python_files": []
+  },
+  "canonical": false,
+  "official": true,
+  "data": {
+    "n_train": 60000,
+    "n_test": 10000,
+    "n_classes": 10,
+    "limit_train": null,
+    "limit_test": null
+  },
+  "chance": 0.1,
+  "levels_percent": [
+    0,
+    1,
+    5,
+    10,
+    25,
+    50
+  ],
+  "engramm": {
+    "dimension": 10000,
+    "t2_epochs": 2,
+    "lambda_e": 0.0,
+    "encoder": "PixelThermometerEncoder(dimension=10000, n_positions=784, n_levels=16, construction='progressive')",
+    "t2_error_per_epoch": [
+      0.18625,
+      0.155683
+    ],
+    "accumulator_halvings": 0,
+    "acc_engramm_predict_p0": 0.8548,
+    "prototype_predict_matches_engramm_predict": true,
+    "train_seconds": 291.8859608879993,
+    "test_encode_seconds": 45.796195209999496
+  },
+  "baselines": {
+    "lr": {
+      "n_iter": 252,
+      "max_iter": 1000,
+      "converged": true,
+      "fit_seconds": 1800.281126578,
+      "from_cache": true,
+      "cache_tag": "af0830c114de2f9f5f7a2aab",
+      "trained_once_per_task": true
+    },
+    "mlp": {
+      "hidden": 126,
+      "epochs": 30,
+      "final_training_loss": 0.004992292821654926
+    },
+    "mlp_bits": {
+      "hidden": 16,
+      "epochs": 30,
+      "final_training_loss": 0.13518738803634767
+    }
+  },
+  "features": {
+    "inputs": "pixels / 255"
+  },
+  "systems": {
+    "engramm": {
+      "binary": {
+        "n_params": 100000,
+        "n_bits": 100000,
+        "acc": {
+          "0": 0.8548,
+          "1": 0.8496,
+          "5": 0.7903,
+          "10": 0.7541,
+          "25": 0.3781,
+          "50": 0.0928
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.9931107578166402,
+          "5": 0.9145468998410174,
+          "10": 0.8665871754107048,
+          "25": 0.3684419713831479,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "9d2c2caba021abc5a84f4b47efba979b515fca7f6aa945eccca35464c6ac9e1e"
+      },
+      "binary+item_memory": {
+        "n_params": 8100000,
+        "n_bits": 8100000,
+        "acc": {
+          "0": 0.8548,
+          "1": 0.8331,
+          "5": 0.7385,
+          "10": 0.5734,
+          "25": 0.1499,
+          "50": 0.1081
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.971250662427133,
+          "5": 0.8459194488606254,
+          "10": 0.6271860095389508,
+          "25": 0.06611022787493376,
+          "50": 0.010731319554848961
+        },
+        "predictions_sha256_p0": "9d2c2caba021abc5a84f4b47efba979b515fca7f6aa945eccca35464c6ac9e1e"
+      }
+    },
+    "engramm_t1": {
+      "binary": {
+        "n_params": 100000,
+        "n_bits": 100000,
+        "acc": {
+          "0": 0.7995,
+          "1": 0.7988,
+          "5": 0.7702,
+          "10": 0.7414,
+          "25": 0.3949,
+          "50": 0.0829
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.998999285203717,
+          "5": 0.9581129378127233,
+          "10": 0.916940671908506,
+          "25": 0.4215868477483916,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "c7e2f9f4c5c05ddf2960e14b2dcaef1fd16c9338a936dce3002ac7b9f4287a85"
+      }
+    },
+    "lr": {
+      "int8": {
+        "n_params": 7850,
+        "n_bits": 62800,
+        "acc": {
+          "0": 0.9262,
+          "1": 0.8014,
+          "5": 0.3617,
+          "10": 0.2586,
+          "25": 0.0974,
+          "50": 0.1401
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.8489469862018881,
+          "5": 0.3167513919147906,
+          "10": 0.19196320503510045,
+          "25": 0.0,
+          "50": 0.0485354635681433
+        },
+        "predictions_sha256_p0": "4a1d8cf1d2ff4dca9bb65b013ecc68493d42adda0359ed3397cf7c425bb29fb8"
+      },
+      "float32": {
+        "n_params": 7850,
+        "n_bits": 251200,
+        "acc": {
+          "0": 0.9264,
+          "1": 0.1032,
+          "5": 0.098,
+          "10": 0.098,
+          "25": 0.098,
+          "50": 0.098
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.003872216844143265,
+          "5": 0.0,
+          "10": 0.0,
+          "25": 0.0,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "f2264ceb5585cc0b9412b862b15ca7ad472a8c870fd292633d6e7ad4346c90e8"
+      },
+      "sign": {
+        "n_params": 7850,
+        "n_bits": 7840,
+        "acc": {
+          "0": 0.6992,
+          "1": 0.6998,
+          "5": 0.6144,
+          "10": 0.5775,
+          "25": 0.3743,
+          "50": 0.105
+        },
+        "R": {
+          "0": 1.0,
+          "1": 1.0,
+          "5": 0.8584779706275032,
+          "10": 0.7968958611481975,
+          "25": 0.457777036048064,
+          "50": 0.008344459279038702
+        },
+        "predictions_sha256_p0": "b1d8ab5bbd9801a523f5f461f7cb7d01a5fd9c80aaf700cad45d85d3a48f01ba",
+        "n_exact_scales_and_biases": 20
+      }
+    },
+    "mlp": {
+      "int8": {
+        "n_params": 100180,
+        "n_bits": 801440,
+        "acc": {
+          "0": 0.9784,
+          "1": 0.8546,
+          "5": 0.393,
+          "10": 0.1931,
+          "25": 0.1487,
+          "50": 0.0977
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.8590619307832422,
+          "5": 0.3335610200364299,
+          "10": 0.10598816029143895,
+          "25": 0.055441712204007274,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "d099aa6f697c164cf9b8e12e66e58535638d11370858fbbabb5ce8042a5e16df"
+      },
+      "float32": {
+        "n_params": 100180,
+        "n_bits": 3205760,
+        "acc": {
+          "0": 0.9784,
+          "1": 0.098,
+          "5": 0.098,
+          "10": 0.098,
+          "25": 0.098,
+          "50": 0.098
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.0,
+          "5": 0.0,
+          "10": 0.0,
+          "25": 0.0,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "74fbdd9d3108ece16d423fe46f3ba81d2e09981e2c56c25bb6d0614c388301ab"
+      },
+      "sign": {
+        "n_params": 100180,
+        "n_bits": 100044,
+        "acc": {
+          "0": 0.7743,
+          "1": 0.7866,
+          "5": 0.6711,
+          "10": 0.4694,
+          "25": 0.266,
+          "50": 0.1307
+        },
+        "R": {
+          "0": 1.0,
+          "1": 1.0,
+          "5": 0.8469523950763755,
+          "10": 0.5478273765386326,
+          "25": 0.24618122497404718,
+          "50": 0.045528696425923186
+        },
+        "predictions_sha256_p0": "142db5b9d530b9c90c8f94a3fcc44faf3b3cb0a5a89d33919caed0b0fbfe4ae8",
+        "n_exact_scales_and_biases": 272
+      }
+    },
+    "mlp_bits": {
+      "int8": {
+        "n_params": 12730,
+        "n_bits": 101840,
+        "acc": {
+          "0": 0.9515,
+          "1": 0.5331,
+          "5": 0.335,
+          "10": 0.2194,
+          "25": 0.1322,
+          "50": 0.0937
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.5086318261890781,
+          "5": 0.2759835584263065,
+          "10": 0.14022313564298297,
+          "25": 0.03781561949500881,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "0bc3247f5d418083a7bc66fbdd6c256bae69071f0315d73ab609bb4805456cca"
+      }
+    }
+  },
+  "runtime": {
+    "phase_seconds": {
+      "engramm": 584.2,
+      "features": 0.2,
+      "lr_fit": 0.6,
+      "mlp_fit": 169.3,
+      "mlp_bits_fit": 155.1,
+      "baseline_sweeps": 2.3
+    },
+    "wall_seconds": 912.0,
+    "peak_rss_mb": 1390.1015625,
+    "note": "container figures are not official (docs/PROTOCOL.md)"
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}
