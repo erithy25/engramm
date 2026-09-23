@@ -23,3 +23,6 @@ venv/
 # verbindliche Fortschritt steht in results/e2_sweep/progress.log, und der
 # wird committet.
 results/*/sweep.out
+
+# Modellgewichte der M5-Baselines (nie committen; Bezugsquelle + Prüfsumme in experiments/m5_baselines.py)
+models/
