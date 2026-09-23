@@ -572,6 +572,39 @@ historische Zahl mit der historischen Architektur nachgemessen werden kann.
 
 ---
 
+## E11 — Bitkorruptions-Robustheit (README-Roadmap Phase 4)
+
+**Registrierung: `docs/PREREG_ROBUSTNESS.md` v1.3** (v1.0–1.2 am 15.08., v1.3 am
+2026-09-23 vor jeder Messung dieser Studie). Harness
+`bash experiments/robustness_all.sh` → `experiments/robustness.py` je (Aufgabe, Seed),
+Referee `experiments/robustness_verdict.py`. 2 Aufgaben × 10 Seeds.
+
+Dieser Eintrag registriert nichts neu, er hält nur die **Erwartung** fest,
+bevor das erste offizielle Record existiert.
+
+> **Offenlegung — die Erwartung ist nicht blind.** Vor diesem Eintrag liefen
+> Rauchtests des Harness auf Teilmengen mit D = 2.048 (MNIST 3.000/1.000,
+> Seeds 42 und 7; WiLI 6.000/2.000, Seed 42; Records nur im Scratchpad,
+> `official = false`). Gesehen: ENGRAMM auf WiLI deutlich robuster als die
+> int8-Kontrollen (R(25 %) 0,84 gegen 0,11), auf MNIST nicht klar (R(5 %)
+> 0,84 gegen 0,88 der MLP); die 1-Bit-MLP liegt auf beiden Aufgaben nahe an
+> ENGRAMM; die 1-Bit-LR auf WiLI hat acc(0) = 0,4 % (nach §4.1 nicht
+> interpretierbar). Außerdem bekannt: E3, Prototypen + T2 auf MNIST ≈ 85,4 %.
+
+**Erwartung.**
+
+| Punkt | Erwartung |
+|---|---|
+| §9-Schwellen | ENGRAMM-MNIST knapp über 85 % (E3-Niveau) — das Risiko eines Abbruchs ist real; WiLI ≫ 60 %; MLP über 90 / 65 % |
+| §9.1-Validierung p = 50 % | bestanden für alle Systeme und Formate |
+| WiLI (§7) | bestätigt: ENGRAMM ≥ 0,10 über beiden int8-Kontrollen bei 5/10/25 % |
+| MNIST (§7) | nicht bestätigt: Abstand zur int8-MLP bei 5 % unter 0,10 |
+| Gesamtausgang | **TEILBESTÄTIGUNG (WiLI)** |
+| §4.1-Lesart | Vorsprung auf WiLI gegenüber der 1-Bit-MLP < 0,10 bei 5 % → **dem Zahlenformat zuzuschreiben**, ein Vorteil der verteilten Repräsentation nicht gezeigt |
+| float32 | kollabiert schon bei 1 % (vorab erwartet, nie Schlagzeile) |
+
+---
+
 ## M1 — WiLI-2018, voller Trainingssplit (keine Vorregistrierung)
 
 **Kein E-Eintrag, und das mit Absicht.** Eine Erwartung wird gegen einen
