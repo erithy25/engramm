@@ -48,9 +48,18 @@ _POST = re.compile(rb"<post>(.*?)</post>", re.S)
 _SPACE = re.compile(r"\s+")
 
 
+#: Version of the post preprocessing; part of every cache key derived from it.
+PREPROCESSING = 2
+
+
 def _posts(raw: bytes) -> list[str]:
-    """Whitespace-normalised posts of one author file, in file order."""
-    return [_SPACE.sub(" ", body.decode("latin-1")).strip() for body in _POST.findall(raw)]
+    """Whitespace-normalised posts of one author file, in file order.
+
+    NUL bytes (32 posts in 29 of the corpus files — extraction debris, not
+    text) count as whitespace (version 2, ``docs/DEVIATIONS.md`` GAP-10).
+    """
+    return [_SPACE.sub(" ", body.decode("latin-1").replace("\x00", " ")).strip()
+            for body in _POST.findall(raw)]
 
 
 def _author_id(member: str) -> str:
@@ -63,7 +72,7 @@ def eligibility_index(archive: Path, min_chars: int = MIN_POST_CHARS) -> dict[st
     Keyed by the archive digest and ``min_chars``, so a changed threshold or
     archive can never reuse a stale index.
     """
-    key = f"{BLOGS_SOURCE['sha256'][:16]}_min{min_chars}"
+    key = f"{BLOGS_SOURCE['sha256'][:16]}_min{min_chars}_pre{PREPROCESSING}"
     path = CACHE_DIR / f"blogs_index_{key}.json"
     if path.exists():
         return json.loads(path.read_text(encoding="utf-8"))

@@ -314,6 +314,16 @@ after whitespace normalisation; authors need 25 qualifying posts (10 train,
 10 test, 5 validation); authors, their post order and the tranche order are
 drawn with the run's seeded generator.
 
+**Amendment 2026-09-23 (preprocessing version 2), before any M3 measurement.**
+The first registered M3 run (seed 42) stopped while encoding: 32 posts in 29
+of the corpus files contain NUL bytes (extraction debris), which the trigram
+encoder refuses. NUL now counts as whitespace before normalisation; every
+other post is unchanged, and the eligibility-index cache key carries the
+preprocessing version so no stale index can be reused. The fix sits in the
+blog loader rather than in the encoder on purpose: `engramm/encoders.py` is
+imported by runs that were in flight, and a change there would have touched
+their provenance for no computational reason.
+
 ## GAP-11 — M2 stream protocol
 
 **What the record says.** A 50,000-item stream of "Banking77 train complete +
