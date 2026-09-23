@@ -512,6 +512,36 @@ Kriterium, aber die schärfere Frage nach einer Effizienz-Nische.
 
 ---
 
+## E10 — M1 mit der historischen Architektur: WiLI 10-shot, volle Pipeline, λe = λp = 1
+
+**Registriert 2026-09-23, vor dem Lauf auf dem Testsplit.** Harness
+`python -m experiments.run_benchmark --task wili --shots 10 --seeds 5 --pipeline full --lambda-e 1 --theta0 0 --t2-epochs 0`.
+
+### Warum dieser Lauf
+
+Die README-Zahl 79,30 % wurde mit der **vollen Pipeline** und der damaligen
+Standardkonfiguration λe = λp = 1 gemessen; E1 hat bisher nur die
+Prototypen-Hälfte repliziert (Referenz 82,64 %). Die Validierung
+(`results/tuning/wili_seed42_10shot.json`, 4.700 Absätze außerhalb der Shots)
+zeigt zweierlei:
+
+* **Das Episoden-Paradox reproduziert sich:** die beste Zelle ist λe = 0 —
+  reine Prototypen, 84,96 %. Jede Episoden-Gewichtung verschlechtert. Die
+  auf Validierung gewählte volle Pipeline *ist* auf WiLI also die
+  E1-Konfiguration; ihr Testwert steht schon fest (84,79 % ± 0,37).
+* **Die historische Konfiguration** (λe = λp = 1, θ₀ = 0, ohne T2) erreicht auf
+  Validierung 78,45 % — nahe an den historischen 79,30 %. Mit T2 (2 Epochen)
+  72,68 %; die historische Zahl passt also zur Variante ohne T2.
+
+### Kriterium (fixiert vor dem Lauf)
+
+**Replikation der README-Zahl:** \|Mittel − 79,30\| ≤ 3 pp über 5 Seeds (dasselbe
+Band wie E1). **Erwartung:** 77,5–80 %. Offizielle M1-Zahl bleibt die
+validiert beste Konfiguration (E1, 84,79 %); E10 zeigt nur, dass die
+historische Zahl mit der historischen Architektur nachgemessen werden kann.
+
+---
+
 ## M1 — WiLI-2018, voller Trainingssplit (keine Vorregistrierung)
 
 **Kein E-Eintrag, und das mit Absicht.** Eine Erwartung wird gegen einen
