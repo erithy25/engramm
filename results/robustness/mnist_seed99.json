@@ -1,0 +1,318 @@
+{
+  "study": "docs/PREREG_ROBUSTNESS.md v1.3",
+  "record_schema": 1,
+  "task": "mnist",
+  "seed": 99,
+  "timestamp_utc": "2026-09-23T23:20:30+00:00",
+  "git": {
+    "commit": "fb9b42a7be34ee67ee53d1f3bdce845640d5e024",
+    "dirty": false,
+    "untracked": 0,
+    "captured": "before_run",
+    "code_changed_during_run": false,
+    "changed_python_files": []
+  },
+  "canonical": false,
+  "official": true,
+  "data": {
+    "n_train": 60000,
+    "n_test": 10000,
+    "n_classes": 10,
+    "limit_train": null,
+    "limit_test": null
+  },
+  "chance": 0.1,
+  "levels_percent": [
+    0,
+    1,
+    5,
+    10,
+    25,
+    50
+  ],
+  "engramm": {
+    "dimension": 10000,
+    "t2_epochs": 2,
+    "lambda_e": 0.0,
+    "encoder": "PixelThermometerEncoder(dimension=10000, n_positions=784, n_levels=16, construction='progressive')",
+    "t2_error_per_epoch": [
+      0.181733,
+      0.155433
+    ],
+    "accumulator_halvings": 0,
+    "acc_engramm_predict_p0": 0.8555,
+    "prototype_predict_matches_engramm_predict": true,
+    "train_seconds": 285.33836587800033,
+    "test_encode_seconds": 45.21800912100116
+  },
+  "baselines": {
+    "lr": {
+      "n_iter": 252,
+      "max_iter": 1000,
+      "converged": true,
+      "fit_seconds": 1800.281126578,
+      "from_cache": true,
+      "cache_tag": "af0830c114de2f9f5f7a2aab",
+      "trained_once_per_task": true
+    },
+    "mlp": {
+      "hidden": 126,
+      "epochs": 30,
+      "final_training_loss": 0.005018117601899958
+    },
+    "mlp_bits": {
+      "hidden": 16,
+      "epochs": 30,
+      "final_training_loss": 0.1339129720373875
+    }
+  },
+  "features": {
+    "inputs": "pixels / 255"
+  },
+  "systems": {
+    "engramm": {
+      "binary": {
+        "n_params": 100000,
+        "n_bits": 100000,
+        "acc": {
+          "0": 0.8555,
+          "1": 0.846,
+          "5": 0.7607,
+          "10": 0.7337,
+          "25": 0.4574,
+          "50": 0.0909
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.987425545996029,
+          "5": 0.8745201853077432,
+          "10": 0.8387822634017207,
+          "25": 0.473064195896757,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "af9b521d18054a4401dc8af465322b317e01dad5278f25527adb64084181ecd3"
+      },
+      "binary+item_memory": {
+        "n_params": 8100000,
+        "n_bits": 8100000,
+        "acc": {
+          "0": 0.8555,
+          "1": 0.8443,
+          "5": 0.7451,
+          "10": 0.5338,
+          "25": 0.173,
+          "50": 0.1
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.9851753805426869,
+          "5": 0.8538716082064857,
+          "10": 0.5741892786234283,
+          "25": 0.09662475181998673,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "af9b521d18054a4401dc8af465322b317e01dad5278f25527adb64084181ecd3"
+      }
+    },
+    "engramm_t1": {
+      "binary": {
+        "n_params": 100000,
+        "n_bits": 100000,
+        "acc": {
+          "0": 0.8029,
+          "1": 0.797,
+          "5": 0.7467,
+          "10": 0.7214,
+          "25": 0.4957,
+          "50": 0.095
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.9916062028738086,
+          "5": 0.9200455256793286,
+          "10": 0.8840517854602363,
+          "25": 0.5629534784464362,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "2b18a7be513810c9d4433c9eb88e5441924c586fe5faa9c07aeaba39144d7ae6"
+      }
+    },
+    "lr": {
+      "int8": {
+        "n_params": 7850,
+        "n_bits": 62800,
+        "acc": {
+          "0": 0.9262,
+          "1": 0.7124,
+          "5": 0.4239,
+          "10": 0.3478,
+          "25": 0.244,
+          "50": 0.0706
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.7412248850157347,
+          "5": 0.3920358266763495,
+          "10": 0.2999273783587509,
+          "25": 0.17429193899782133,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "4a1d8cf1d2ff4dca9bb65b013ecc68493d42adda0359ed3397cf7c425bb29fb8"
+      },
+      "float32": {
+        "n_params": 7850,
+        "n_bits": 251200,
+        "acc": {
+          "0": 0.9264,
+          "1": 0.098,
+          "5": 0.098,
+          "10": 0.098,
+          "25": 0.098,
+          "50": 0.098
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.0,
+          "5": 0.0,
+          "10": 0.0,
+          "25": 0.0,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "f2264ceb5585cc0b9412b862b15ca7ad472a8c870fd292633d6e7ad4346c90e8"
+      },
+      "sign": {
+        "n_params": 7850,
+        "n_bits": 7840,
+        "acc": {
+          "0": 0.6992,
+          "1": 0.695,
+          "5": 0.6542,
+          "10": 0.5553,
+          "25": 0.4488,
+          "50": 0.0896
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.9929906542056073,
+          "5": 0.9248998664886515,
+          "10": 0.7598464619492656,
+          "25": 0.582109479305741,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "b1d8ab5bbd9801a523f5f461f7cb7d01a5fd9c80aaf700cad45d85d3a48f01ba",
+        "n_exact_scales_and_biases": 20
+      }
+    },
+    "mlp": {
+      "int8": {
+        "n_params": 100180,
+        "n_bits": 801440,
+        "acc": {
+          "0": 0.9792,
+          "1": 0.7868,
+          "5": 0.2973,
+          "10": 0.1471,
+          "25": 0.116,
+          "50": 0.0733
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.7811646951774341,
+          "5": 0.22440855323020928,
+          "10": 0.053571428571428575,
+          "25": 0.018198362147406735,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "9db7f327911d13dc909b8b9c09cca2dcd7831ec0e8072121dba8c322695dadca"
+      },
+      "float32": {
+        "n_params": 100180,
+        "n_bits": 3205760,
+        "acc": {
+          "0": 0.979,
+          "1": 0.098,
+          "5": 0.098,
+          "10": 0.098,
+          "25": 0.098,
+          "50": 0.098
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.0,
+          "5": 0.0,
+          "10": 0.0,
+          "25": 0.0,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "59021a636d8c8c70f5f3e34b4ca4f202dfbb7e329c95c4b7aecc95f00b8e93a8"
+      },
+      "sign": {
+        "n_params": 100180,
+        "n_bits": 100044,
+        "acc": {
+          "0": 0.6878,
+          "1": 0.6743,
+          "5": 0.5595,
+          "10": 0.483,
+          "25": 0.2314,
+          "50": 0.0976
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.9770330044232733,
+          "5": 0.7817284790745151,
+          "10": 0.6515821708063968,
+          "25": 0.22354542361347396,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "be8336a172bb31ad42b311ad61df31862df2aa5616bd92389756780741be364e",
+        "n_exact_scales_and_biases": 272
+      }
+    },
+    "mlp_bits": {
+      "int8": {
+        "n_params": 12730,
+        "n_bits": 101840,
+        "acc": {
+          "0": 0.951,
+          "1": 0.8105,
+          "5": 0.1442,
+          "10": 0.1249,
+          "25": 0.1222,
+          "50": 0.076
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.8349001175088132,
+          "5": 0.051938895417156274,
+          "10": 0.029259694477085773,
+          "25": 0.02608695652173913,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "b237c0d08c4e7726786d51588146d4aa272431810a2c8917568a7a005e15b235"
+      }
+    }
+  },
+  "runtime": {
+    "phase_seconds": {
+      "engramm": 577.2,
+      "features": 0.2,
+      "lr_fit": 0.7,
+      "mlp_fit": 174.4,
+      "mlp_bits_fit": 172.5,
+      "baseline_sweeps": 2.3
+    },
+    "wall_seconds": 927.6,
+    "peak_rss_mb": 1390.0078125,
+    "note": "container figures are not official (docs/PROTOCOL.md)"
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}
