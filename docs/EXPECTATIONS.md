@@ -411,6 +411,36 @@ vorregistriertes M1b-Genauigkeitskriterium **≥ 94 %** (D5 §2).
 **Erwartung:** Mittel 94,6–95,4 %. Gegenüber der Validierung (50.000
 Trainingsbilder) lernt der Testlauf auf allen 60.000, was eher hebt.
 
+### Ergebnis — gemessen 2026-09-23, Container, `canonical=false`
+
+Harness wie registriert, Code-Stand `72e704e`, Records in `results/mnist_*_20260923T2*.json`.
+
+| Seed | Accuracy | Macro-F1 | T2-Fehler Ep. 1 / 2 |
+|---|---|---|---|
+| 42 | 0,9488 | 0,9490 | 5,36 % / 5,18 % |
+| 7 | 0,9475 | 0,9477 | 5,40 % / 5,17 % |
+| 1337 | 0,9472 | 0,9473 | 5,58 % / 5,35 % |
+| 2026 | 0,9472 | 0,9473 | 5,47 % / 5,23 % |
+| 99 | 0,9490 | 0,9492 | 5,43 % / 5,20 % |
+| **Mittel ± SD** | **0,9479 ± 0,0009** | **0,9481 ± 0,0009** | |
+
+1. **M1b-Genauigkeitskriterium (≥ 94 %): ERFÜLLT** — 94,79 %.
+2. **Replikation: bestätigt** — +0,20 pp gegenüber 94,59 %, SD 0,09 pp.
+   Die T2-Fehlerraten (≈ 5,4 / 5,2 %) treffen die historischen 5,08 / 5,16 %
+   bis auf wenige Zehntel.
+3. **Determinismus:** folgt im Schritt `repro` von `experiments/reproduce_all.sh`
+   (Seed 42 erneut, Vergleich über `predictions_sha256`).
+4. **Zeitkriterium:** im Container nicht bewertbar; Wandzeit 12,8–17,6 min je
+   Seed inklusive Kodierung, teils unter Parallellast — kein Urteil.
+
+**Provenienz-Vermerk.** Alle fünf Records tragen `git.changed_during_run = true`:
+während des Laufs wurden Harnesses und Dokumente committet. Geprüft mit
+`git diff --name-only 72e704e <Schreib-Commit> -- engramm/ data/loaders.py
+experiments/run_benchmark.py experiments/common.py`: **leer** — keine vom Lauf
+importierte Datei hat sich geändert (geändert wurden nur neue Harnesses unter
+`experiments/m*.py`). Das Flag wurde danach verfeinert
+(`code_changed_during_run`, `results/README.md`).
+
 ---
 
 ## E5 — M0: HNSW-Recall auf 10⁶ realen WiLI-Keys
