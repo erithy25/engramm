@@ -1,0 +1,321 @@
+{
+  "study": "docs/PREREG_ROBUSTNESS.md v1.3",
+  "record_schema": 1,
+  "task": "mnist",
+  "seed": 1337,
+  "timestamp_utc": "2026-09-23T22:49:44+00:00",
+  "git": {
+    "commit": "641d21769453b7037d06698070af07987cf8b0b0",
+    "dirty": false,
+    "untracked": 0,
+    "captured": "before_run",
+    "code_changed_during_run": true,
+    "changed_python_files": [
+      "data/blogs.py",
+      "tests/test_blogs.py"
+    ]
+  },
+  "canonical": false,
+  "official": true,
+  "data": {
+    "n_train": 60000,
+    "n_test": 10000,
+    "n_classes": 10,
+    "limit_train": null,
+    "limit_test": null
+  },
+  "chance": 0.1,
+  "levels_percent": [
+    0,
+    1,
+    5,
+    10,
+    25,
+    50
+  ],
+  "engramm": {
+    "dimension": 10000,
+    "t2_epochs": 2,
+    "lambda_e": 0.0,
+    "encoder": "PixelThermometerEncoder(dimension=10000, n_positions=784, n_levels=16, construction='progressive')",
+    "t2_error_per_epoch": [
+      0.185567,
+      0.155433
+    ],
+    "accumulator_halvings": 0,
+    "acc_engramm_predict_p0": 0.8524,
+    "prototype_predict_matches_engramm_predict": true,
+    "train_seconds": 304.5311005530002,
+    "test_encode_seconds": 51.64376337400063
+  },
+  "baselines": {
+    "lr": {
+      "n_iter": 252,
+      "max_iter": 1000,
+      "converged": true,
+      "fit_seconds": 1800.281126578,
+      "from_cache": true,
+      "cache_tag": "af0830c114de2f9f5f7a2aab",
+      "trained_once_per_task": true
+    },
+    "mlp": {
+      "hidden": 126,
+      "epochs": 30,
+      "final_training_loss": 0.0047954144041373725
+    },
+    "mlp_bits": {
+      "hidden": 16,
+      "epochs": 30,
+      "final_training_loss": 0.12128587788436453
+    }
+  },
+  "features": {
+    "inputs": "pixels / 255"
+  },
+  "systems": {
+    "engramm": {
+      "binary": {
+        "n_params": 100000,
+        "n_bits": 100000,
+        "acc": {
+          "0": 0.8524,
+          "1": 0.8524,
+          "5": 0.8057,
+          "10": 0.7841,
+          "25": 0.6238,
+          "50": 0.0851
+        },
+        "R": {
+          "0": 1.0,
+          "1": 1.0,
+          "5": 0.9379319510898457,
+          "10": 0.9092238171185539,
+          "25": 0.6961722488038278,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "9425f4e96ef3054e865a472d71ca8acbededd016cefba647f530e2e000612b20"
+      },
+      "binary+item_memory": {
+        "n_params": 8100000,
+        "n_bits": 8100000,
+        "acc": {
+          "0": 0.8524,
+          "1": 0.8315,
+          "5": 0.7325,
+          "10": 0.4722,
+          "25": 0.1512,
+          "50": 0.1019
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.9722222222222222,
+          "5": 0.8406432748538012,
+          "10": 0.4946836788942051,
+          "25": 0.0680489101541733,
+          "50": 0.0025252525252525237
+        },
+        "predictions_sha256_p0": "9425f4e96ef3054e865a472d71ca8acbededd016cefba647f530e2e000612b20"
+      }
+    },
+    "engramm_t1": {
+      "binary": {
+        "n_params": 100000,
+        "n_bits": 100000,
+        "acc": {
+          "0": 0.7943,
+          "1": 0.7946,
+          "5": 0.773,
+          "10": 0.7492,
+          "25": 0.6511,
+          "50": 0.0872
+        },
+        "R": {
+          "0": 1.0,
+          "1": 1.0,
+          "5": 0.9693216188967305,
+          "10": 0.9350424888376782,
+          "25": 0.7937490998127611,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "5082020c3f703bb25013772b8ed1e298a4f713f90a387c53ba4563d614700f77"
+      }
+    },
+    "lr": {
+      "int8": {
+        "n_params": 7850,
+        "n_bits": 62800,
+        "acc": {
+          "0": 0.9262,
+          "1": 0.6408,
+          "5": 0.4802,
+          "10": 0.3468,
+          "25": 0.1136,
+          "50": 0.1006
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.654563059791818,
+          "5": 0.4601791333817477,
+          "10": 0.298717017671266,
+          "25": 0.01646090534979424,
+          "50": 0.0007262164124909095
+        },
+        "predictions_sha256_p0": "4a1d8cf1d2ff4dca9bb65b013ecc68493d42adda0359ed3397cf7c425bb29fb8"
+      },
+      "float32": {
+        "n_params": 7850,
+        "n_bits": 251200,
+        "acc": {
+          "0": 0.9264,
+          "1": 0.1517,
+          "5": 0.1017,
+          "10": 0.098,
+          "25": 0.098,
+          "50": 0.098
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.06256050338818973,
+          "5": 0.002057115198451105,
+          "10": 0.0,
+          "25": 0.0,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "f2264ceb5585cc0b9412b862b15ca7ad472a8c870fd292633d6e7ad4346c90e8"
+      },
+      "sign": {
+        "n_params": 7850,
+        "n_bits": 7840,
+        "acc": {
+          "0": 0.6992,
+          "1": 0.6673,
+          "5": 0.6218,
+          "10": 0.6067,
+          "25": 0.3524,
+          "50": 0.1509
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.946762349799733,
+          "5": 0.8708277703604806,
+          "10": 0.8456275033377837,
+          "25": 0.4212283044058744,
+          "50": 0.08494659546061414
+        },
+        "predictions_sha256_p0": "b1d8ab5bbd9801a523f5f461f7cb7d01a5fd9c80aaf700cad45d85d3a48f01ba",
+        "n_exact_scales_and_biases": 20
+      }
+    },
+    "mlp": {
+      "int8": {
+        "n_params": 100180,
+        "n_bits": 801440,
+        "acc": {
+          "0": 0.9784,
+          "1": 0.8994,
+          "5": 0.4679,
+          "10": 0.2729,
+          "25": 0.0543,
+          "50": 0.0775
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.910063752276867,
+          "5": 0.41882969034608375,
+          "10": 0.19683515482695807,
+          "25": 0.0,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "8171210cfe3afdeb5243e69f2862692b66d26f570dec5251757a639fc3ec171d"
+      },
+      "float32": {
+        "n_params": 100180,
+        "n_bits": 3205760,
+        "acc": {
+          "0": 0.9783,
+          "1": 0.098,
+          "5": 0.098,
+          "10": 0.098,
+          "25": 0.098,
+          "50": 0.098
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.0,
+          "5": 0.0,
+          "10": 0.0,
+          "25": 0.0,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "91f2a7f40782f70f3f9cc15731f1efad63fb65ce8f70231504cc463548a501cb"
+      },
+      "sign": {
+        "n_params": 100180,
+        "n_bits": 100044,
+        "acc": {
+          "0": 0.6608,
+          "1": 0.6047,
+          "5": 0.5466,
+          "10": 0.3105,
+          "25": 0.2454,
+          "50": 0.1859
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.8999643366619114,
+          "5": 0.7963623395149785,
+          "10": 0.3753566333808844,
+          "25": 0.2592724679029957,
+          "50": 0.1531740370898716
+        },
+        "predictions_sha256_p0": "fe0c1f16c06eb04897878aaa61a19f2f4e239b656e978f6fa3f9e7683eb7f6c7",
+        "n_exact_scales_and_biases": 272
+      }
+    },
+    "mlp_bits": {
+      "int8": {
+        "n_params": 12730,
+        "n_bits": 101840,
+        "acc": {
+          "0": 0.9542,
+          "1": 0.8144,
+          "5": 0.1182,
+          "10": 0.0953,
+          "25": 0.1111,
+          "50": 0.0997
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.8363380941231562,
+          "5": 0.02130648560056192,
+          "10": 0.0,
+          "25": 0.012994614844298756,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "0ade06e15a43b7c0a357574bceddafdc3be347f54c0f0abf7d84ab2fe71689c8"
+      }
+    }
+  },
+  "runtime": {
+    "phase_seconds": {
+      "engramm": 612.9,
+      "features": 0.3,
+      "lr_fit": 0.6,
+      "mlp_fit": 349.3,
+      "mlp_bits_fit": 161.4,
+      "baseline_sweeps": 2.1
+    },
+    "wall_seconds": 1126.8,
+    "peak_rss_mb": 1389.96484375,
+    "note": "container figures are not official (docs/PROTOCOL.md)"
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}
