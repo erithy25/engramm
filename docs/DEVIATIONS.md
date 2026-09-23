@@ -93,6 +93,14 @@ choosing.
 name, e.g. a literal thermometer code. If the MNIST result deviates from
 94.62 %, this is the most likely place for the difference to originate.
 
+**Resolved 2026-09-23 (E2, E3, E4).** The feared deviation did not come from
+here. E2 swept four level constructions without a clear winner; E3 showed
+that the 6.42-pp prototype gap to the recorded 86.49 % was the missing T2
+(prototypes + 2 T2 epochs: 85.47 ± 0.15 %, inside the registered ±1.5-pp
+band); E4 reproduced M1b with the full pipeline at 94.79 ± 0.09 %. The
+`progressive` construction stays the shipped choice; GAP-1 is no longer a
+candidate cause of any open gap.
+
 ## GAP-2 — mapping pixel intensity to level
 
 **What the record says.** Nothing.

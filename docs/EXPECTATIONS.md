@@ -378,6 +378,31 @@ historischen 17,84 % / 15,16 %.
 | **Teilweise** | Mittel ≥ 83,5 %, aber außerhalb des Bandes | T2 erklärt einen Teil, Rest beziffert |
 | **These widerlegt** | Mittel < 83,5 % | Lücke bleibt offen |
 
+### Ergebnis — gemessen 2026-09-23, Container, `canonical=false`
+
+Code-Stand `df971e1`, Records `results/mnist_*_20260923T21[1-3]*.json`.
+
+| Seed | Accuracy | Macro-F1 | T2-Fehler Ep. 1 / 2 |
+|---|---|---|---|
+| 42 | 0,8542 | 0,8522 | 17,91 % / 15,21 % |
+| 7 | 0,8564 | 0,8543 | 18,33 % / 15,69 % |
+| 1337 | 0,8524 | 0,8497 | 18,56 % / 15,54 % |
+| 2026 | 0,8548 | 0,8527 | 18,63 % / 15,57 % |
+| 99 | 0,8555 | 0,8532 | 18,17 % / 15,54 % |
+| **Mittel ± SD** | **0,8547 ± 0,0015** | **0,8524 ± 0,0017** | |
+
+**THESE BESTÄTIGT** — |85,47 − 86,49| = 1,02 pp ≤ 1,5 pp. Zwei T2-Epochen heben
+die Prototypen von 80,07 % (E1-Protokoll, ohne T2) auf 85,47 % (+5,40 pp) und
+schließen damit 84 % der 6,42-pp-Lücke. Die T2-Fehlerraten (≈ 18,3 / 15,5 %)
+treffen die historischen 17,84 / 15,16 % auf wenige Zehntel. GAP-1 (Thermometer-
+Konstruktion) ist als Ursache gestrichen (`docs/DEVIATIONS.md`); die verbleibenden
+~1 pp liegen im registrierten Band und werden nicht weiter zugeordnet.
+
+**Provenienz.** Seeds 2026 und 99 tragen `code_changed_during_run = true`; die
+gelisteten Dateien (`engramm/corruption.py`, `experiments/robustness*.py`,
+`experiments/fetch_models.py`, Tests) sind neu und werden von `run_benchmark`
+nicht importiert — das Ergebnis ist davon nicht berührt.
+
 ---
 
 ## E4 — M1b: MNIST, volle Pipeline (Episoden + Fusion + T2)
