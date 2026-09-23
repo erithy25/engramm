@@ -413,6 +413,57 @@ Trainingsbilder) lernt der Testlauf auf allen 60.000, was eher hebt.
 
 ---
 
+## E5 — M0: HNSW-Recall auf 10⁶ realen WiLI-Keys
+
+**Registriert 2026-09-23, vor dem Lauf.** Harness
+`python -m experiments.m0_bench --seed 42`: 10⁶ Byte-Fenster (100 B,
+Schrittweite 50) aus WiLI-Trainingsabsätzen, D = 10.000; 1.000 Queries aus
+Testabsätzen; FAISS `IndexBinaryHNSW` (M = 32, efConstruction = 40);
+Recall@32 tie-tolerant gegen exakten Brute-Force.
+
+**Kriterium (D5 §1, unverändert):** Recall@32 ≥ 95 % bei einem ef ∈ {64, 128, 256}.
+**Erwartung:** Muster wie historisch (92,06 / 95,57 / 97,31 % bei ef 64 / 128 / 256);
+ef = 64 unter, ef = 128 über 95 %. Die Schlüssel sind nicht bitgleich zu den
+historischen (andere Fensterwahl, rekonstruierter Encoder), der Befund soll es sein.
+**Energie/Query:** hier nicht messbar (keine Leistungsschnittstelle im
+Container) — wird als *nicht gemessen* geführt, nicht geschätzt.
+Mikrobenchmarks: Container-Werte, nicht offiziell (PROTOCOL Regel 2).
+
+---
+
+## E6 — M2a: Konsolidierung durch Ähnlichkeitsabsorption
+
+**Registriert 2026-09-23, vor dem Lauf.** Harness `python -m experiments.m2_stream --seed 42`.
+50.000er-Strom (Banking77-Train komplett + 39.997 WiLI-Absätze), Chunks à 2.000
+(T1 + eine LOO-T2-Epoche), T3 nach jedem Chunk; 5.430 Auswertungs-Queries.
+Feste Konfiguration λe = λp = 1, θ₀ = 0 (M2 vergleicht Läufe mit/ohne T3,
+nicht Konfigurationen).
+
+**Kriterium (D5 §3, unverändert, UND):** Kompression ≥ 5× ∧ Δacc ≥ −1,0 pp ∧ T3-CPU ≤ 10 %;
+No-Go-Pfad θ ∈ {0,20; 0,28; 0,35}.
+**Erwartung: NICHT ERFÜLLT** — Kompression und T3-Kosten erfüllt, Δacc bei
+θ = 0,12 schlechter als −20 pp (historisch −53,00 pp; Rauchtest bei D = 512 auf
+8.000 Einträgen: 55,5 % → 6,3 %), kein θ im Sweep erfüllt Kompression und
+Genauigkeit zugleich. Mechanismus wie W18: die prototypnahen Episoden werden
+absorbiert, die atypischen stimmen allein ab.
+
+---
+
+## E7 — M2b: Verdrängung nach Nützlichkeit und Persistenz-Gate
+
+**Registriert 2026-09-23, vor dem Lauf.** Harness `python -m experiments.m2b --seed 42`.
+
+**(a) Charakterisierung, kein Gate:** Verdrängung auf 80 / 50 / 20 % Bestand.
+Erwartung: monoton fallend, bei 80 % zwischen −2 und −10 pp (historisch −6,85 pp);
+kein Redundanzüberschuss.
+
+**(b) Persistenz-GATE:** Voll-Replay aus dem L2-Log gleich Live-Zustand
+(Zustands-Digest **und** alle Vorhersagen) ∧ an jeder Chunk-Grenze Replay bis
+dahin = Live-Zustand ∧ Crash-Replay nach 60-%-Byte-Schnitt = Zustand nach dem
+letzten vollständigen Ereignis. Erwartung: **ERFÜLLT**, exakt.
+
+---
+
 ## M1 — WiLI-2018, voller Trainingssplit (keine Vorregistrierung)
 
 **Kein E-Eintrag, und das mit Absicht.** Eine Erwartung wird gegen einen
