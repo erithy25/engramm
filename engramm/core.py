@@ -1,8 +1,8 @@
 """VSA algebra, item memory, and the prototype classifier.
 
-Scope note: this is the reduced core defined for the rebuild — no HNSW
-index, no episodic memory, no consolidation phases. Those return once the
-core is implemented and measured (see the README roadmap).
+Scope note: this module is the prototype half of the architecture. The
+episodic memory, score fusion and the T2/T3 phases that build on it live in
+:mod:`engramm.memory`; the L2 event log in :mod:`engramm.persistence`.
 
 Representation
 --------------

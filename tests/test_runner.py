@@ -464,3 +464,42 @@ def test_predictions_digest_changes_with_any_single_prediction() -> None:
     a = predictions_digest(np.array([0, 1, 1]), labels)
     b = predictions_digest(np.array([0, 1, 0]), labels)
     assert a != b and a == predictions_digest(np.array([0, 1, 1]), labels)
+
+
+@integration
+def test_full_pipeline_run_records_its_configuration(tmp_path: Path) -> None:
+    """--pipeline full with T2 goes through and records what it did."""
+    import json
+
+    proc = subprocess.run(
+        [sys.executable, "-m", "experiments.run_benchmark", "--task", "mnist",
+         "--seed-list", "42", "--D", "512", "--limit-train", "300",
+         "--limit-test", "100", "--pipeline", "full", "--t2-epochs", "1",
+         "--lambda-e", "0.5", "--theta0", "0.1", "--results-dir", str(tmp_path)],
+        capture_output=True, text=True, cwd=REPO_ROOT,
+    )
+    assert proc.returncode == 0, proc.stderr
+    record = json.loads(next(tmp_path.glob("mnist_*.json")).read_text())
+    hp = record["hyperparams"]
+    assert hp["pipeline"] == "full" and hp["episodes"] is True
+    assert hp["t2_epochs"] == 1 and hp["fusion"]["lambda_e"] == 0.5
+    assert hp["n_episodes"] == 300
+    assert len(record["result"]["t2_error_per_epoch"]) == 1
+    assert record["git"]["captured"] == "before_run"
+    assert record["runtime"]["peak_rss_scope"] == "run"
+
+
+@integration
+def test_config_from_refuses_a_record_that_used_test(tmp_path: Path) -> None:
+    import json
+
+    bad = tmp_path / "tuning.json"
+    bad.write_text(json.dumps({"test_split_used": True, "k": 32,
+                               "selected": {"t2_epochs": 0, "lambda_e": 1, "theta0": 0}}))
+    proc = subprocess.run(
+        [sys.executable, "-m", "experiments.run_benchmark", "--task", "mnist",
+         "--seed-list", "42", "--D", "512", "--limit-train", "50", "--limit-test", "20",
+         "--pipeline", "full", "--config-from", str(bad), "--results-dir", str(tmp_path)],
+        capture_output=True, text=True, cwd=REPO_ROOT,
+    )
+    assert proc.returncode != 0 and "test_split_used" in (proc.stderr + proc.stdout)

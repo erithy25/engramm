@@ -178,8 +178,18 @@ class TrigramEncoder(Encoder):
     """
 
     def __init__(self, item_memory: ItemMemory,
-                 chunk_bytes: int = _CHUNK_BYTES) -> None:
+                 chunk_bytes: int = _CHUNK_BYTES, frame: bool = False,
+                 lowercase: bool = False) -> None:
         super().__init__(item_memory, chunk_bytes)
+        #: Surround every text with one space, so its first and last word
+        #: produce boundary trigrams like any inner word, and a two-byte
+        #: utterance ("hi") still has trigrams. Off for WiLI, whose
+        #: registered records were produced without it; on for the intent
+        #: tasks, where utterances can be two bytes long (docs/DEVIATIONS.md
+        #: GAP-9).
+        self.frame = bool(frame)
+        #: Case-fold before encoding (intent tasks only, chosen on validation).
+        self.lowercase = bool(lowercase)
         base = np.stack([item_memory.vector(bytes([b])) for b in range(256)])
         self._tables = (
             permute(base, 2, self.dimension),   # applied to the first byte
@@ -188,10 +198,24 @@ class TrigramEncoder(Encoder):
         )
 
     def __repr__(self) -> str:
-        return f"TrigramEncoder(dimension={self.dimension})"
+        options = "".join([", frame=True" if self.frame else "",
+                           ", lowercase=True" if self.lowercase else ""])
+        return f"TrigramEncoder(dimension={self.dimension}{options})"
+
+    def prepare(self, text: str | bytes) -> str | bytes:
+        """Apply the configured normalisation; the identity by default."""
+        if isinstance(text, bytes):
+            if self.lowercase:
+                text = text.lower()
+            return b" " + text + b" " if self.frame else text
+        if self.lowercase:
+            text = text.lower()
+        return f" {text} " if self.frame else text
 
     def accumulate(self, samples: Sequence[str] | Sequence[bytes]) -> np.ndarray:
         texts = list(samples)
+        if self.frame or self.lowercase:
+            texts = [self.prepare(t) for t in texts]
         if not texts:
             return np.zeros((0, self.dimension), dtype=np.int32)
 
@@ -525,10 +549,20 @@ class PixelThermometerEncoder(Encoder):
         return totals
 
 
+#: Text tasks whose utterances are short and need boundary framing.
+INTENT_TASKS = ("banking77", "clinc150")
+
+
 def build_encoder(task: str, item_memory: ItemMemory, **kwargs: Any) -> Encoder:
-    """Return the encoder registered for a task name."""
+    """Return the encoder registered for a task name.
+
+    ``kwargs`` are passed through to the encoder (e.g. ``lowercase`` for
+    the intent tasks, ``construction`` for MNIST).
+    """
     if task == "wili":
-        return TrigramEncoder(item_memory)
+        return TrigramEncoder(item_memory, **kwargs)
+    if task in INTENT_TASKS:
+        return TrigramEncoder(item_memory, frame=True, **kwargs)
     if task == "mnist":
         return PixelThermometerEncoder(item_memory, **kwargs)
     raise ValueError(f"no encoder registered for task {task!r}")

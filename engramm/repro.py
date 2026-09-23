@@ -189,6 +189,16 @@ def _model_probe(seed: int) -> dict[str, Any]:
     queries = np.stack([noisy(stack[c], f"query{c}") for c in range(3)])
     scores = model.score(queries)
 
+    # The full pipeline on the same data: episodic retrieval (float32 matrix
+    # product, content-id tie-break), score fusion, and one epoch of
+    # leave-one-out T2 in a seeded order.
+    from engramm.memory import Engramm, FusionConfig
+    full = Engramm(dimension, seed, FusionConfig(k=5, theta0=0.1, lambda_e=0.5))
+    positions = full.learn(train, labels)
+    t2_errors = full.refine(train, labels, epochs=1, rng=np.random.default_rng(seed),
+                            episode_positions=positions)
+    full_positions, full_dists = full.episodes.topk(queries, 5)
+
     return {
         "vector_checksums": [int(v.sum()) for v in stack],
         "bind_distance": int(hamming(bound, stack[0])),
@@ -201,6 +211,11 @@ def _model_probe(seed: int) -> dict[str, Any]:
         "scores_repr": [repr(round(float(s), 12)) for s in scores.ravel()],
         "predictions": [int(i) for i in scores.argmax(axis=1)],
         "labels": list(model.labels),
+        "episode_topk": full_positions.tolist(),
+        "episode_topk_distances": full_dists.tolist(),
+        "fused_scores_repr": [repr(round(float(v), 12)) for v in full.scores(queries).ravel()],
+        "t2_errors": [repr(e) for e in t2_errors],
+        "full_state_digest": full.state_digest(),
     }
 
 

@@ -210,15 +210,121 @@ state depend on presentation order — which would contradict the project's
 own order-invariance claims. The hash construction removes the dependency
 entirely and is stable across platforms and NumPy versions.
 
-## CHANGED-5 — scope: no episodes, no HNSW, no consolidation
+## CHANGED-5 — scope (superseded 2026-09-23)
 
-The rebuild implements prototypes only. The episodic layer, the HNSW index
-and the consolidation phases are out of scope until the core is measured
-(README roadmap). Historical numbers that depend on the episodic layer —
-notably MNIST 94.62 %, which the record attributes +8.13 pp to it — are
-therefore **not directly comparable** to what this core will produce. The
-WiLI figure is less affected: the record has prototypes-only *ahead* by
-4.2 pp there (82.64 % vs 79.30 %).
+The first rebuild implemented prototypes only. Since 2026-09-23 the episodic
+layer, score fusion, T2 refinement, T3 consolidation and the L2 event log
+are implemented in `engramm/memory.py` and `engramm/persistence.py`
+(GAP-5 to GAP-8 and CHANGED-6/7 below). The reduced prototypes-only path
+is kept unchanged in `experiments/run_benchmark.py`, so the registered
+E1/E2 records remain reproducible bit for bit. HNSW is not part of the
+classifier (CHANGED-7); it is measured on its own in the M0 audit.
+
+---
+
+## GAP-5 — utility weight û(util)
+
+**What the record says.** The fusion pseudocode weights each retrieved
+episode by `û(e.util)`; utilities move by ±1 per retrieval in T2 and are
+clipped (`UTIL_CLIP`). Neither the clip value nor the shape of `û` survived.
+
+**Choice made.** `util ∈ [−8, 8]`, `û(u) = 1 + u/8 ∈ [0, 2]`: a neutral
+episode weighs 1, one that has only ever misled weighs 0 (effectively
+evicted from voting), one that has only ever helped weighs 2. Linear,
+monotone, no fitted constant.
+
+## GAP-6 — leave-one-out retrieval during T2
+
+**What the record says.** T2 (`learn_online`) classifies a training example
+against the memory, and the memory already contains that example as an
+episode.
+
+**Choice made.** During T2 an example's own episode is excluded from its
+retrieval. Without it every example finds itself at distance 0, is
+classified correctly almost always, and T2 learns next to nothing. Evidence
+that the original behaved alike: the recorded T2 error of the full pipeline
+on MNIST was 5.08 % / 5.16 % — far above what self-retrieval allows — and
+the rebuild with leave-one-out reproduces it closely (5.71 % / 5.54 % on the
+validation fit, `results/tuning/mnist_seed42.json`).
+
+## GAP-7 — exploration ε
+
+**What the record says.** `QUERY` adds four random episodes with
+probability ε; D5 records the ε-ablation as postponed.
+
+**Choice made.** ε = 0. Exploration only matters for utility learning in
+long-running deployments; no benchmark here depends on it, and a random
+term in every query would make readout nondeterministic for no measured
+benefit. Declared, not dropped: it is a one-line addition if a future
+experiment registers it.
+
+## GAP-8 — how λe, λp, θ₀ are chosen
+
+**What the record says.** D2 §3 names λe, λp, T (and θ_merge) the only
+task-specific fit parameters, "fitted on a declared validation split"; θ₀ is
+a global constant whose value was lost. The historical official runs used
+λe = λp = 1.
+
+**Choice made.** λp = 1 fixed (only the ratio matters for argmax), λe and θ₀
+chosen per task by `experiments/tune_fusion.py` on a validation split carved
+from **training** data (MNIST: the last 10,000 of the official training
+split; few-shot text tasks: training examples outside the shots; CLINC150:
+its official validation split). The test split is never loaded by the
+tuner, and every grid cell is committed in `results/tuning/`. The benchmark
+runner takes the configuration only through `--config-from`, which refuses
+a tuning record that does not certify `test_split_used: false`. The
+temperature T does not affect argmax and is not used.
+
+## GAP-9 — text framing for short utterances
+
+**What the record says.** Nothing about intent utterances; the encoder
+rejects texts under three bytes (GAP-3), and CLINC150 contains two-byte
+utterances.
+
+**Choice made.** For Banking77 and CLINC150 every text is framed by one
+space on each side (`TrigramEncoder(frame=True)`), so the first and last
+word produce boundary trigrams like inner words and no utterance is too
+short. Lower-casing was offered to the validation sweep and not selected.
+WiLI keeps the unframed encoder its registered records were measured with.
+
+Also tried on Banking77 validation and **rejected**, recorded so the
+choice is not re-litigated from memory: an added word-unigram/bigram
+channel (best 61.9 % at weight 0, falling to 53.3 % at weight 2) and
+character n-gram orders 4, 5, (3,4), (2,3,4), (3,4,5) (61.9–62.7 %, all within
+one standard error of trigrams). Neither justified leaving the recorded
+trigram encoder.
+
+## GAP-10 — M3 protocol on the Blog Authorship Corpus
+
+**What the record says.** 1,000 authors, 10 tranches of 100, 10-shot,
+strictly sequential; test posts per author 10 (inferred from "594 = 594"
+hits against a 5.94 % top-1). How authors and posts were selected is not
+recorded.
+
+**Choice made** (`data/blogs.py`): a post qualifies at ≥ 200 characters
+after whitespace normalisation; authors need 25 qualifying posts (10 train,
+10 test, 5 validation); authors, their post order and the tranche order are
+drawn with the run's seeded generator.
+
+## CHANGED-6 — episode tie-break by content identity (fixes W19)
+
+The recovered retrieval used `argpartition`, which picks among
+equal-distance episodes by array position, so the answer depended on
+insertion order although the state did not (577 vs. 580 hits under
+reordering, W19). Episodes are now ordered by `(distance, content id)`,
+where the id is SHAKE-256 of label and key; classes tie-break by label, not
+by index. State *and* readout are order-invariant under T1, which
+`tests/test_memory.py` checks across permutations and batchings.
+
+## CHANGED-7 — retrieval is exact; HNSW is audited separately
+
+Retrieval is exact brute force, computed as a float32 matrix product of ±1
+vectors (every partial sum is an integer below 2²⁴, so the result is exact
+and independent of BLAS summation order). At the sizes the benchmarks use
+(≤ 117,500 episodes) this is fast enough, and an approximate index would
+add recall loss to every number. The HNSW question the original M0 answered
+— does approximate search on these keys reach ≥ 95 % recall — is measured
+by `experiments/m0_bench.py` on its own.
 
 ---
 

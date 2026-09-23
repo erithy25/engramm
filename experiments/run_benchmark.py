@@ -33,6 +33,7 @@ import numpy as np
 from data.loaders import Dataset, fit_train_artifacts, load_mnist, load_wili
 from engramm.core import ItemMemory, PrototypeClassifier, unpack_bits
 from engramm.encoders import Encoder, build_encoder
+from engramm.memory import Engramm, FusionConfig
 from engramm.metrics import accuracy, macro_f1
 from engramm.repro import (
     git_revision,
@@ -77,6 +78,10 @@ def load_task(task: str, shots: int | None, rng: np.random.Generator,
         return load_mnist(allow_download=allow_download)
     if task == "wili":
         return load_wili(shots=shots, rng=rng, allow_download=allow_download)
+    if task in ("banking77", "clinc150"):
+        from data.intents import load_banking77, load_clinc150
+        loader = load_banking77 if task == "banking77" else load_clinc150
+        return loader(shots=shots, rng=rng, allow_download=allow_download)
     raise SystemExit(f"unknown task {task!r}")
 
 
@@ -230,19 +235,102 @@ def duplicate_breakdown(dataset: Dataset, predicted: np.ndarray) -> dict[str, An
     }
 
 
+def encode_streaming(encoder: Encoder, samples: Any, batch_size: int) -> np.ndarray:
+    """Packed encodings of a whole split, built one batch at a time.
+
+    Only the packed form (``D / 8`` bytes per sample) is kept; the ``int32``
+    accumulator of each batch is released before the next one is built.
+    """
+    total = len(samples)
+    out = np.empty((total, encoder.dimension // 8), dtype=np.uint8)
+    for start in range(0, total, batch_size):
+        stop = min(start + batch_size, total)
+        batch = (samples[start:stop] if isinstance(samples, np.ndarray)
+                 else list(samples[start:stop]))
+        out[start:stop] = encoder.encode(batch)
+    return out
+
+
+def run_engramm(model: Engramm, encoder: Encoder, dataset: Dataset, seed: int,
+                t2_epochs: int, train_batch_size: int,
+                test_batch_size: int) -> tuple[np.ndarray, list[float]]:
+    """T1 (+ episodes), optional T2, then streamed prediction of the test split.
+
+    T2 visits the training examples in a fresh random order per epoch drawn
+    from ``default_rng(seed)`` — the same generator the validation sweep in
+    ``experiments/tune_fusion.py`` uses — and retrieves leave-one-out, so an
+    example never finds its own episode.
+    """
+    labels = [dataset.labels[i] for i in dataset.y_train]
+    packed = encode_streaming(encoder, dataset.x_train, train_batch_size)
+    positions = model.learn(packed, labels)
+    errors = model.refine(packed, labels, t2_epochs, rng=np.random.default_rng(seed),
+                          episode_positions=positions) if t2_epochs else []
+    del packed
+
+    predictions = np.empty(dataset.n_test, dtype=np.int64)
+    for start in range(0, dataset.n_test, test_batch_size):
+        stop = min(start + test_batch_size, dataset.n_test)
+        batch = (dataset.x_test[start:stop] if isinstance(dataset.x_test, np.ndarray)
+                 else list(dataset.x_test[start:stop]))
+        predictions[start:stop] = model.predict(encoder.encode(batch))
+    return predictions, errors
+
+
 def run_seed(task: str, seed: int, dimension: int, shots: int | None,
              limit_train: int | None, limit_test: int | None,
              allow_download: bool,
              test_batch_size: int = DEFAULT_TEST_BATCH,
-             train_batch_size: int = DEFAULT_TRAIN_BATCH) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Run one seed end to end; returns ``(result, hyperparameters)``."""
+             train_batch_size: int = DEFAULT_TRAIN_BATCH,
+             pipeline: str = "prototypes",
+             t2_epochs: int = 0,
+             fusion: dict[str, Any] | None = None,
+             config_source: str | None = None,
+             encoder_options: dict[str, Any] | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Run one seed end to end; returns ``(result, hyperparameters)``.
+
+    ``pipeline="prototypes"`` with ``t2_epochs=0`` is the reduced core that
+    produced the registered E1/E2 records, kept on its original code path so
+    those records stay reproducible bit for bit. Everything else — episodes,
+    T2, score fusion — runs through :class:`engramm.memory.Engramm`.
+    """
+    if pipeline not in ("prototypes", "full"):
+        raise ValueError(f"unknown pipeline {pipeline!r}")
     rng = set_all_seeds(seed)
     dataset = subset(load_task(task, shots, rng, allow_download),
                      limit_train, limit_test)
     artifacts = fit_train_artifacts(dataset)
 
     item_memory = ItemMemory(seed, dimension)
-    encoder = build_encoder(task, item_memory)
+    encoder = build_encoder(task, item_memory, **(encoder_options or {}))
+
+    if pipeline == "full" or t2_epochs > 0:
+        config = FusionConfig(**(fusion or {}))
+        if pipeline == "prototypes":
+            config = FusionConfig(**{**config.to_dict(), "lambda_e": 0.0})
+        engramm = Engramm(dimension, seed, config)
+        predicted_model, errors = run_engramm(engramm, encoder, dataset, seed,
+                                              t2_epochs, train_batch_size,
+                                              test_batch_size)
+        if engramm.prototypes.halvings:
+            raise RuntimeError(f"accumulator halved {engramm.prototypes.halvings} "
+                               f"time(s); see docs/DEVIATIONS.md KNOWN-2")
+        predicted = to_dataset_indices(predicted_model, engramm.labels, dataset.labels)
+        result = _result(dataset, predicted)
+        result["t2_error_per_epoch"] = [round(e, 6) for e in errors]
+        hyperparameters = _hyperparameters(
+            task, dimension, shots, encoder, artifacts, dataset, limit_train,
+            limit_test, test_batch_size, train_batch_size,
+            engramm.prototypes.halvings)
+        hyperparameters.update({
+            "pipeline": pipeline,
+            "episodes": pipeline == "full",
+            "t2_epochs": t2_epochs,
+            "fusion": config.to_dict(),
+            "config_source": config_source or "command line",
+            "n_episodes": len(engramm.episodes),
+        })
+        return result, hyperparameters
 
     model = PrototypeClassifier(dimension, seed=seed)
     learn_streaming(model, encoder, dataset.x_train,
@@ -260,6 +348,15 @@ def run_seed(task: str, seed: int, dimension: int, shots: int | None,
         predict_streaming(model, encoder, dataset.x_test, test_batch_size),
         model.labels, dataset.labels)
 
+    result = _result(dataset, predicted)
+    hyperparameters = _hyperparameters(
+        task, dimension, shots, encoder, artifacts, dataset, limit_train,
+        limit_test, test_batch_size, train_batch_size, model.halvings)
+    hyperparameters.update({"pipeline": "prototypes", "episodes": False, "t2_epochs": 0})
+    return result, hyperparameters
+
+
+def _result(dataset: Dataset, predicted: np.ndarray) -> dict[str, Any]:
     result = {
         "accuracy": accuracy(dataset.y_test, predicted),
         "macro_f1": macro_f1(dataset.y_test, predicted, dataset.n_classes),
@@ -270,7 +367,14 @@ def run_seed(task: str, seed: int, dimension: int, shots: int | None,
         "predictions_sha256": predictions_digest(predicted, dataset.labels),
     }
     result.update(duplicate_breakdown(dataset, predicted))
-    hyperparameters = {
+    return result
+
+
+def _hyperparameters(task: str, dimension: int, shots: int | None, encoder: Encoder,
+                     artifacts: Any, dataset: Dataset, limit_train: int | None,
+                     limit_test: int | None, test_batch_size: int,
+                     train_batch_size: int, halvings: int) -> dict[str, Any]:
+    return {
         "task": task,
         "dimension": dimension,
         "shots": shots,
@@ -282,11 +386,8 @@ def run_seed(task: str, seed: int, dimension: int, shots: int | None,
         "limit_test": limit_test,
         "test_batch_size": test_batch_size,
         "train_batch_size": train_batch_size,
-        "accumulator_halvings": model.halvings,
-        "episodes": False,
-        "t2_epochs": 0,
+        "accumulator_halvings": halvings,
     }
-    return result, hyperparameters
 
 
 def run_dry(task: str, seed: int, dimension: int, shots: int | None,
@@ -342,7 +443,8 @@ def main(argv: list[str] | None = None) -> int:
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("--task", choices=["mnist", "wili"], required=True)
+    parser.add_argument("--task", choices=["mnist", "wili", "banking77", "clinc150"],
+                        required=True)
     parser.add_argument("--seeds", type=int, default=5,
                         help="how many of the registered seeds to run (default 5)")
     parser.add_argument("--seed-list", type=str, default=None,
@@ -368,6 +470,20 @@ def main(argv: list[str] | None = None) -> int:
                              f"(default {DEFAULT_TEST_BATCH})")
     parser.add_argument("--allow-download", action="store_true",
                         help="permit fetching sources that are not cached")
+    parser.add_argument("--pipeline", choices=["prototypes", "full"], default="prototypes",
+                        help="prototypes = reduced core (registered E1/E2 path); "
+                             "full = episodes + score fusion (docs/D2_SPEC.md)")
+    parser.add_argument("--t2-epochs", type=int, default=0,
+                        help="error-driven refinement epochs (T2)")
+    parser.add_argument("--k", type=int, default=32)
+    parser.add_argument("--theta0", type=float, default=0.0)
+    parser.add_argument("--lambda-e", type=float, default=1.0)
+    parser.add_argument("--lambda-p", type=float, default=1.0)
+    parser.add_argument("--t2-local", action="store_true")
+    parser.add_argument("--config-from", type=str, default=None,
+                        help="take t2_epochs, lambda_e, theta0, k and t2_local from "
+                             "the 'selected' cell of a results/tuning/*.json record "
+                             "(chosen on validation, never on test)")
     parser.add_argument("--no-isolate", action="store_true",
                         help="run seeds in this process instead of one child "
                              "process each; peak memory is then the process "
@@ -395,6 +511,23 @@ def main(argv: list[str] | None = None) -> int:
           + ("" if is_canonical_environment() else
              "  (timing and memory figures are not official — docs/PROTOCOL.md)"))
 
+    fusion = {"k": args.k, "theta0": args.theta0, "lambda_e": args.lambda_e,
+              "lambda_p": args.lambda_p, "t2_local": args.t2_local}
+    encoder_options: dict[str, Any] = {}
+    t2_epochs, config_source = args.t2_epochs, None
+    if args.config_from:
+        import json
+        tuning = json.loads(open(args.config_from, encoding="utf-8").read())
+        if tuning.get("test_split_used", True):
+            raise SystemExit(f"{args.config_from} does not certify test_split_used=false")
+        selected = tuning["selected"]
+        fusion.update({"k": tuning["k"], "theta0": selected["theta0"],
+                       "lambda_e": selected["lambda_e"],
+                       "t2_local": tuning.get("t2_local", False)})
+        t2_epochs, config_source = selected["t2_epochs"], args.config_from
+        encoder_options = selected.get("encoder_options", {})
+        print(f"configuration from {args.config_from}: t2_epochs={t2_epochs} {fusion}")
+
     # The code that runs is the code checked out now: Python has already
     # imported it. Capturing provenance at write time instead would credit a
     # commit made mid-run to seeds that never executed it.
@@ -407,7 +540,10 @@ def main(argv: list[str] | None = None) -> int:
                       limit_test=args.limit_test,
                       allow_download=args.allow_download,
                       test_batch_size=args.test_batch,
-                      train_batch_size=args.train_batch)
+                      train_batch_size=args.train_batch,
+                      pipeline=args.pipeline, t2_epochs=t2_epochs,
+                      fusion=fusion, config_source=config_source,
+                      encoder_options=encoder_options)
         if args.no_isolate:
             result, hyperparameters, elapsed, peak = _timed_run_seed(kwargs)
         else:

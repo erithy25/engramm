@@ -1,10 +1,10 @@
 """ENGRAMM — hyperdimensional computing classifier (from-scratch rebuild).
 
-The original implementation was lost (see the repository README's Status
-section). This package is the reimplementation, built from the preserved
-design documents in ``docs/`` — deliberately smaller than the original:
-no HNSW index, no episodic memory, no consolidation phases. Core first,
-measured, then extended.
+The original implementation was lost (see ``docs/AUDIT_2026-08.md``). This
+package is the reimplementation, built from the preserved design documents
+in ``docs/``: prototypes, episodic memory with score fusion, T1/T2/T3
+learning and the L2 event log. Every point where the recovered
+specification was silent is recorded in ``docs/DEVIATIONS.md``.
 
 Modules
 -------
@@ -15,7 +15,11 @@ Modules
 ``engramm.metrics``
     Hamming distance, similarity, accuracy, macro-F1.
 ``engramm.encoders``
-    Text n-gram and MNIST pixel encoders (added in step B4).
+    Text n-gram and MNIST pixel encoders.
+``engramm.memory``
+    The full pipeline: episodic memory, score fusion, T1/T2/T3.
+``engramm.persistence``
+    The L2 append-only event log and exact (crash) replay.
 """
 
 from engramm.core import (
@@ -34,6 +38,8 @@ from engramm.core import (
     unbind,
     unpack_bits,
 )
+from engramm.memory import Engramm, EpisodicMemory, FusionConfig
+from engramm.persistence import EventLog, replay
 from engramm.metrics import (
     accuracy,
     hamming,
@@ -72,6 +78,12 @@ __all__ = [
     "to_signed",
     "unbind",
     "unpack_bits",
+    # full pipeline
+    "Engramm",
+    "EpisodicMemory",
+    "FusionConfig",
+    "EventLog",
+    "replay",
     # metrics
     "accuracy",
     "hamming",
