@@ -484,6 +484,52 @@ historischen (andere Fensterwahl, rekonstruierter Encoder), der Befund soll es s
 Container) — wird als *nicht gemessen* geführt, nicht geschätzt.
 Mikrobenchmarks: Container-Werte, nicht offiziell (PROTOCOL Regel 2).
 
+### Ergebnis — gemessen 2026-09-23, Container, `canonical=false`
+
+Record `results/m0/m0_42_20260923T220003Z.json` (Code `ddaa446`, sauberer Baum).
+
+| ef | Recall@32 tie-tolerant | strikt (IDs) | p50 / p99 (Container) | historisch |
+|---|---|---|---|---|
+| 64 | 0,8745 | 0,8675 | 1,50 / 2,40 ms | 0,9206 |
+| 128 | 0,9195 | 0,9128 | 2,42 / 4,64 ms | 0,9557 |
+| 256 | **0,9471** | 0,9408 | 3,83 / 7,18 ms | 0,9731 |
+
+**KRITERIUM NICHT ERFÜLLT** — kein ef ∈ {64, 128, 256} erreicht 95 %; bester Wert
+94,71 % bei ef = 256. Die Kurve liegt durchgehend 3–5 pp unter der historischen.
+Das Muster der Erwartung (ef = 64 darunter, ef = 128 darüber) trat nicht ein.
+
+**Warum die Zahlen nicht direkt vergleichbar sind.** Die Akten nennen nur
+„10⁶ reale WiLI-Fenster-Keys“ mit Anker md5(keys[:1000]) = `709c99…d20a`; unsere
+Keys (100-B-Fenster, Schrittweite 50, Anker `d6d227…7f7f`) sind andere. Nicht
+überliefert sind außerdem die HNSW-Build-Parameter — M = 32 und efConstruction = 40
+(FAISS-Standard) waren unsere Wahl. Beides beeinflusst den Recall direkt. Der
+registrierte Befund bleibt davon unberührt: unter dem registrierten Setup ist M0
+nicht erfüllt. Ob die W12-Frage („bricht HNSW auf Hamming-Clustern ein?“) am
+Index-Aufbau hängt, prüft E5b.
+
+Brute-Force 144,7 ms/Query (Container, 1 Thread, NumPy/FAISS-Flat; historisch 39,9 ms
+auf dem M4), Energie nicht gemessen. Alle Zeiten Container, nicht offiziell.
+
+---
+
+## E5b — M0-Nachtrag: Recall in Abhängigkeit von der Build-Qualität (efConstruction)
+
+**Registriert 2026-09-23, nach E5, vor dem Lauf.** Harness wie E5 mit
+`--ef-construction {80, 160, 320}` (M = 32), dieselben 10⁶ Keys (Cache), dieselben
+1.000 Queries, dieselbe Grundwahrheit.
+
+**Warum zulässig und was es nicht ist.** efConstruction ist in den Akten nicht
+überliefert, E5 hat den FAISS-Standard 40 genommen. E5b ist eine
+Charakterisierung dieses freien Parameters, **kein Ersatz für E5**: E5 bleibt
+„nicht erfüllt“ und wird so berichtet.
+
+**Lesart (fixiert vor dem Lauf):** Erreicht mindestens ein efC ∈ {80, 160, 320}
+Recall@32 ≥ 95 % bei ef = 128 (dem historischen GO-Punkt), gilt der
+W12-Risikopunkt als **mit höherem Build-Aufwand entschärft** — äquivalent zum
+historischen GO, mit dem Preis in Build-Zeit ausgewiesen. Erreicht keines 95 % bei
+ef ≤ 256, ist W12 auf diesen Keys **nicht entschärft**.
+**Erwartung:** efC = 160 erreicht ≥ 95 % bei ef = 128; Build-Zeit ~4× E5.
+
 ---
 
 ## E6 — M2a: Konsolidierung durch Ähnlichkeitsabsorption
