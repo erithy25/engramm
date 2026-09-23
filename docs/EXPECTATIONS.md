@@ -464,6 +464,54 @@ letzten vollständigen Ereignis. Erwartung: **ERFÜLLT**, exakt.
 
 ---
 
+## E8 — M3: 1.000 Autoren strikt sequenziell
+
+**Registriert 2026-09-23, vor dem Lauf.** Harness `python -m experiments.m3 --seed 42`
+(Protokoll GAP-10; Konfiguration auf 5 Validierungsposts je Autor gewählt).
+
+**Kriterien (D5 §4, unverändert):** Vergessen (V1, Tranche-1-Block) ≤ 1,0 pp ∧
+Lernzeit/Klasse ≤ 1 s; zusätzlich absolut Top-1 ≥ 30 % (R-1 unter 20 %), Top-5 ≥ 50 %,
+Rekonstruktion exakt, Reihenfolge-Invarianz. **V2** (ratifiziert): Interferenz-
+Vergessen der t2_local-Variante ≤ 1 pp.
+
+**Erwartung:** V1 **NICHT ERFÜLLT** (Verdrängung bei wachsendem K, wie historisch
++10,00 pp); Top-1 zwischen 5 und 15 % (historisch 5,94 %), R-1 bleibt ausgelöst;
+Zustands-Invarianz ✓; **Auslese-Invarianz ✓** (historisch verletzt, W19 — mit dem
+Inhalts-ID-Tie-Break jetzt erwartet erfüllt); Rekonstruktion exakt ✓; V2 offen —
+im Rauchtest (100 Autoren, D = 512) lag t2_local mit +4 pp *über* 1 pp.
+
+---
+
+## E9 — M5: ENGRAMM gegen lokale LLM-Baselines (Banking77, CLINC150)
+
+**Registriert 2026-09-23.** Harnesses `experiments/m5_engramm.py` (ENGRAMM,
+Konfiguration aus `results/tuning/<task>_seed42_10shot.json`, `t2_local=True`),
+`experiments/m5_baselines.py` (B0, B1, B3 in `.venv_b1`), Schiedsrichter
+`experiments/m5_compare.py`. Seed 42 wie historisch; ENGRAMM und B0 zusätzlich
+über 5 Seeds.
+
+> **Offenlegung — keine blinde Erwartung für Banking77.** Vor dieser
+> Registrierung lief ein Rauchtest des Harness mit der bereits feststehenden
+> Konfiguration auf dem Banking77-*Testsplit* (Seed 42): ENGRAMM 63,73 %,
+> B0 82,82 %. Die Konfiguration stammt aus der Validierung und bleibt
+> unverändert; die Banking77-Erwartung unten ist aber nicht mehr blind.
+> CLINC150 wurde nicht auf Test ausgewertet.
+
+**Kriterien (D5 §6, Kriterium 4 in V2-Form, unverändert):** acc ≥ B1 − 5 pp ∧
+Energie ≤ B1/10 ∧ Lernzeit ≤ B3/100 ∧ Interferenz ≤ 1 pp ∧ B3-Vergessen > 5 pp.
+Kriterium 4 wird an der Konfiguration gemessen, deren Genauigkeit bewertet wird
+(nicht aus M3 übernommen). **Energie ist im Container nicht messbar**; der
+Schiedsrichter entscheidet nur, was ohne sie entscheidbar ist.
+
+**Erwartung:** Genauigkeitslücke zu B1 > 15 pp auf beiden Aufgaben →
+**(3) NIEDERLAGE** auf beiden, unabhängig von der Energie (historisch −20,4 / −22,0 pp).
+ENGRAMM ~62–64 % (Banking77) / ~69–73 % (CLINC150, Validierung 72,8 %).
+Lernzeit-Verhältnis zu B3 ≥ 100× (Wandzeit). B0 (bge-kNN, ohne LLM) liegt
+voraussichtlich ebenfalls > 15 pp vor ENGRAMM — das ist kein registriertes
+Kriterium, aber die schärfere Frage nach einer Effizienz-Nische.
+
+---
+
 ## M1 — WiLI-2018, voller Trainingssplit (keine Vorregistrierung)
 
 **Kein E-Eintrag, und das mit Absicht.** Eine Erwartung wird gegen einen
