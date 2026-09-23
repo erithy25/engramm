@@ -1,0 +1,408 @@
+[
+ {
+  "section": "14.7",
+  "check": "(a) A sha256 [runner]",
+  "got": "7d7fad7d6b95959531e7a2a780a9a0e3ecec7cfc99789b4ec6f88461a42496a3",
+  "expected": "7d7fad7d6b95959531e7a2a780a9a0e3ecec7cfc99789b4ec6f88461a42496a3",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "(a) P sha256 [runner]",
+  "got": "d6b6964c9a84b9aec50be9996aa0a61dc3fdc75dc40dd166f5a5f60328f8bcd7",
+  "expected": "d6b6964c9a84b9aec50be9996aa0a61dc3fdc75dc40dd166f5a5f60328f8bcd7",
+  "ok": true
+ },
+ {
+  "section": "14.4",
+  "check": "first 100 test encodings sha256 [runner]",
+  "got": "bc47359e3bc03f90628d3864a89eebd0dbdd1cd47110a829ce1cd886358c2f89",
+  "expected": "bc47359e3bc03f90628d3864a89eebd0dbdd1cd47110a829ce1cd886358c2f89",
+  "ok": true
+ },
+ {
+  "section": "14.5",
+  "check": "first 1000 train encodings sha256 [runner]",
+  "got": "39efb3167dd91b99d60201ad8996d2363cccbe94bf02a8f5072c7de0ca0b25d2",
+  "expected": "39efb3167dd91b99d60201ad8996d2363cccbe94bf02a8f5072c7de0ca0b25d2",
+  "ok": true
+ },
+ {
+  "section": "14.5",
+  "check": "all 60000 train encodings sha256",
+  "got": "c9ca644eac5c3a55dc8de32f9a73bf12c311f35ec7feed368bb90fb27f8dca79",
+  "expected": "c9ca644eac5c3a55dc8de32f9a73bf12c311f35ec7feed368bb90fb27f8dca79",
+  "ok": true
+ },
+ {
+  "section": "14.5",
+  "check": "first 1000 test encodings sha256 [runner]",
+  "got": "24e8d4226032991db7d1534022b8f8868c160f70dc01aec9e7fa1edd6adc972c",
+  "expected": "24e8d4226032991db7d1534022b8f8868c160f70dc01aec9e7fa1edd6adc972c",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 A sha256 (b, 12 batches)",
+  "got": "b14227b9968fc12c5cd6eb50f11e9f27f9cefade3e5ffaf8aa88cd3c3912359a",
+  "expected": "b14227b9968fc12c5cd6eb50f11e9f27f9cefade3e5ffaf8aa88cd3c3912359a",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 P sha256 (b, 12 batches)",
+  "got": "60f9d66f0df01b577b953821eda4579aa3cc431aa117c17308a8f033a39eae32",
+  "expected": "60f9d66f0df01b577b953821eda4579aa3cc431aa117c17308a8f033a39eae32",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 zeros per class (b, 12 batches)",
+  "got": "[0, 1, 1, 0, 0, 0, 0, 0, 0, 0]",
+  "expected": "[0, 1, 1, 0, 0, 0, 0, 0, 0, 0]",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 max|A| (b, 12 batches)",
+  "got": "6742",
+  "expected": "6742",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 A[0][0:8], P[0] first8 (b, 12 batches)",
+  "got": "([-4325, 3499, -5923, -5923, 5923, 4949, -3441, -3931], '4cc82f061d5236c7')",
+  "expected": "([-4325, 3499, -5923, -5923, 5923, 4949, -3441, -3931], '4cc82f061d5236c7')",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 A[1][0:8], P[1] first8 (b, 12 batches)",
+  "got": "([-6580, 5954, -6742, -6742, 6742, 6552, -3234, -1210], '4ce90e0f1f5236d7')",
+  "expected": "([-6580, 5954, -6742, -6742, 6742, 6552, -3234, -1210], '4ce90e0f1f5236d7')",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 A sha256 (c, one call)",
+  "got": "b14227b9968fc12c5cd6eb50f11e9f27f9cefade3e5ffaf8aa88cd3c3912359a",
+  "expected": "b14227b9968fc12c5cd6eb50f11e9f27f9cefade3e5ffaf8aa88cd3c3912359a",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 P sha256 (c, one call)",
+  "got": "60f9d66f0df01b577b953821eda4579aa3cc431aa117c17308a8f033a39eae32",
+  "expected": "60f9d66f0df01b577b953821eda4579aa3cc431aa117c17308a8f033a39eae32",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 zeros per class (c, one call)",
+  "got": "[0, 1, 1, 0, 0, 0, 0, 0, 0, 0]",
+  "expected": "[0, 1, 1, 0, 0, 0, 0, 0, 0, 0]",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 max|A| (c, one call)",
+  "got": "6742",
+  "expected": "6742",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 A[0][0:8], P[0] first8 (c, one call)",
+  "got": "([-4325, 3499, -5923, -5923, 5923, 4949, -3441, -3931], '4cc82f061d5236c7')",
+  "expected": "([-4325, 3499, -5923, -5923, 5923, 4949, -3441, -3931], '4cc82f061d5236c7')",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 A[1][0:8], P[1] first8 (c, one call)",
+  "got": "([-6580, 5954, -6742, -6742, 6742, 6552, -3234, -1210], '4ce90e0f1f5236d7')",
+  "expected": "([-6580, 5954, -6742, -6742, 6742, 6552, -3234, -1210], '4ce90e0f1f5236d7')",
+  "ok": true
+ },
+ {
+  "section": "14.8",
+  "check": "(c) T2 misses per epoch",
+  "got": "[10747, 9125]",
+  "expected": "[10747, 9125]",
+  "ok": true
+ },
+ {
+  "section": "14.8",
+  "check": "(c) t2_error_per_epoch",
+  "got": "[0.179117, 0.152083]",
+  "expected": "[0.179117, 0.152083]",
+  "ok": true
+ },
+ {
+  "section": "14.8",
+  "check": "(c) A sha256 after T2",
+  "got": "6f84e91d2eb131ad90e2fd2fba4c165cb7de77fdd00155cd9474240e31d614b5",
+  "expected": "6f84e91d2eb131ad90e2fd2fba4c165cb7de77fdd00155cd9474240e31d614b5",
+  "ok": true
+ },
+ {
+  "section": "14.8",
+  "check": "(c) P sha256 after T2",
+  "got": "a8b15f4c1e647d9066d4ee2a4ccc88a4db6c3c11fe8ed6d236553bfe78bc44b8",
+  "expected": "a8b15f4c1e647d9066d4ee2a4ccc88a4db6c3c11fe8ed6d236553bfe78bc44b8",
+  "ok": true
+ },
+ {
+  "section": "14.8",
+  "check": "(c) max|A| / halvings / utilities all 0",
+  "got": "(7015, 0, 0)",
+  "expected": "(7015, 0, 0)",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 A sha256 (d)",
+  "got": "b14227b9968fc12c5cd6eb50f11e9f27f9cefade3e5ffaf8aa88cd3c3912359a",
+  "expected": "b14227b9968fc12c5cd6eb50f11e9f27f9cefade3e5ffaf8aa88cd3c3912359a",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 P sha256 (d)",
+  "got": "60f9d66f0df01b577b953821eda4579aa3cc431aa117c17308a8f033a39eae32",
+  "expected": "60f9d66f0df01b577b953821eda4579aa3cc431aa117c17308a8f033a39eae32",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 zeros per class (d)",
+  "got": "[0, 1, 1, 0, 0, 0, 0, 0, 0, 0]",
+  "expected": "[0, 1, 1, 0, 0, 0, 0, 0, 0, 0]",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 max|A| (d)",
+  "got": "6742",
+  "expected": "6742",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 A[0][0:8], P[0] first8 (d)",
+  "got": "([-4325, 3499, -5923, -5923, 5923, 4949, -3441, -3931], '4cc82f061d5236c7')",
+  "expected": "([-4325, 3499, -5923, -5923, 5923, 4949, -3441, -3931], '4cc82f061d5236c7')",
+  "ok": true
+ },
+ {
+  "section": "14.7",
+  "check": "MNIST T1 A[1][0:8], P[1] first8 (d)",
+  "got": "([-6580, 5954, -6742, -6742, 6742, 6552, -3234, -1210], '4ce90e0f1f5236d7')",
+  "expected": "([-6580, 5954, -6742, -6742, 6742, 6552, -3234, -1210], '4ce90e0f1f5236d7')",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "ids sha256 (u64be)",
+  "got": "fba1c601bfefac706d3b860de5d6ac1fc10306ab02478eaae6a8db48653478e8",
+  "expected": "fba1c601bfefac706d3b860de5d6ac1fc10306ab02478eaae6a8db48653478e8",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "ids distinct",
+  "got": "True",
+  "expected": "True",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "smallest id episode / value",
+  "got": "(50981, '0001625fabf98577')",
+  "expected": "(50981, '0001625fabf98577')",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "rank[0:5]",
+  "got": "[40204, 6826, 51267, 54572, 22565]",
+  "expected": "[40204, 6826, 51267, 54572, 22565]",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "train ex0 LOO top-8 positions",
+  "got": "[32248, 18932, 30483, 26251, 21654, 31008, 52295, 46358]",
+  "expected": "[32248, 18932, 30483, 26251, 21654, 31008, 52295, 46358]",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "train ex0 LOO top-8 distances",
+  "got": "[934, 942, 951, 973, 989, 993, 998, 999]",
+  "expected": "[934, 942, 951, 973, 989, 993, 998, 999]",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "ex3493 label",
+  "got": "8",
+  "expected": "8",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "ex3493 LOO top-8 positions",
+  "got": "[26720, 27579, 59277, 22703, 59015, 3499, 295, 58302]",
+  "expected": "[26720, 27579, 59277, 22703, 59015, 3499, 295, 58302]",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "ex3493 LOO top-8 distances",
+  "got": "[735, 738, 759, 762, 803, 807, 809, 818]",
+  "expected": "[735, 738, 759, 762, 803, 807, 809, 818]",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "ex3493 32nd neighbour distance",
+  "got": "908",
+  "expected": "908",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "ex3493 all 32 neighbours class 8",
+  "got": "True",
+  "expected": "True",
+  "ok": true
+ },
+ {
+  "section": "impl",
+  "check": "LOO retrieval == brute force popcount/sort (5 queries)",
+  "got": "True",
+  "expected": "True",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "first T2 step example",
+  "got": "3493",
+  "expected": "3493",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "first step prototype sims",
+  "got": "[0.757, 0.8068, 0.8034, 0.7942, 0.7772, 0.7908, 0.7944, 0.7666, 0.8178, 0.781]",
+  "expected": "[0.757, 0.8068, 0.8034, 0.7942, 0.7772, 0.7908, 0.7944, 0.7666, 0.8178, 0.781]",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "first step sims exact repr",
+  "got": "['0.757', '0.8068', '0.8034', '0.7942', '0.7772', '0.7908', '0.7944', '0.7666', '0.8178', '0.781']",
+  "expected": "['0.757', '0.8068', '0.8034', '0.7942', '0.7772', '0.7908', '0.7944', '0.7666', '0.8178', '0.781']",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "first step fused == sims for c != 8",
+  "got": "True",
+  "expected": "True",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "first step class-8 fused score repr",
+  "got": "5.856550000000001",
+  "expected": "5.856550000000001",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "first step prediction",
+  "got": "8",
+  "expected": "8",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "first step: all 32 neighbours util +1",
+  "got": "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]",
+  "expected": "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "after 1000 steps: misses",
+  "got": "48",
+  "expected": "48",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "after 1000 steps: util sha256",
+  "got": "be1fbcbf700aece0b4bd5de3872af95cdc61a698d70b03a6083460a05490e634",
+  "expected": "be1fbcbf700aece0b4bd5de3872af95cdc61a698d70b03a6083460a05490e634",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "after 1000 steps: util nonzero/min/max",
+  "got": "(22229, -3, 7)",
+  "expected": "(22229, -3, 7)",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "after 1000 steps: A sha256",
+  "got": "3e2945a9642d97ca80600abccb09ab6d7e7fe166640d75122aac080713031713",
+  "expected": "3e2945a9642d97ca80600abccb09ab6d7e7fe166640d75122aac080713031713",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "after 1000 steps: P sha256",
+  "got": "d09d5b392ee3125771d0eaf59b39309a9fdb9a6339ed4578c5198c88932cfe58",
+  "expected": "d09d5b392ee3125771d0eaf59b39309a9fdb9a6339ed4578c5198c88932cfe58",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "(d) T2 misses per epoch (recorded run)",
+  "got": "[3215, 3110]",
+  "expected": "[3215, 3110]",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "(d) t2_error_per_epoch (recorded run)",
+  "got": "[0.053583, 0.051833]",
+  "expected": "[0.053583, 0.051833]",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "test0 top-8 positions",
+  "got": "[53843, 27059, 47003, 38620, 14563, 16186, 44566, 15260]",
+  "expected": "[53843, 27059, 47003, 38620, 14563, 16186, 44566, 15260]",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "test0 top-8 distances",
+  "got": "[575, 638, 670, 673, 679, 681, 692, 694]",
+  "expected": "[575, 638, 670, 673, 679, 681, 692, 694]",
+  "ok": true
+ },
+ {
+  "section": "14.9",
+  "check": "test0 32nd neighbour distance",
+  "got": "749",
+  "expected": "749",
+  "ok": true
+ }
+]

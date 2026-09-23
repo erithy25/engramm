@@ -1,0 +1,83 @@
+{
+  "timestamp_utc": "2026-09-23T22:25:24+00:00",
+  "procedure": "README 'Method' step 3: a separate agent session re-derived the harness from docs/SPEC_REBUILD.md alone (no access to engramm/, experiments/, data/*.py, tests/, legacy/, results/, caches or git history), read only the five raw archives, and re-ran the benchmarks on the same hardware. Code: reproduction/independent/.",
+  "what_this_shows": "specification completeness and determinism on this platform; not third-party replication on different hardware",
+  "environment": "Linux x86_64 container, Python 3.11.15, NumPy 2.4.1 (canonical = false)",
+  "conformance_checks": {
+    "total": 185,
+    "failed": 0,
+    "file": "results/repro/independent_seed42_conformance.json"
+  },
+  "all_identical": true,
+  "rows": [
+    {
+      "config": "a",
+      "benchmark": "WiLI-2018 10-shot, prototypes (T1)",
+      "committed_record": "results/wili_42_20260815T233719Z.json",
+      "independent": {
+        "accuracy": 0.8488510638297873,
+        "macro_f1": 0.8517737694590454,
+        "predictions_sha256": "feee1e1f3f48dca0755c58650b491fec5fe8fff0c926e12857e50ef16805d592"
+      },
+      "checks": {
+        "accuracy": true,
+        "macro_f1": true
+      },
+      "identical": true
+    },
+    {
+      "config": "b",
+      "benchmark": "MNIST, prototypes (T1)",
+      "committed_record": "results/mnist_42_20260815T183016Z.json",
+      "independent": {
+        "accuracy": 0.8054,
+        "macro_f1": 0.802902746307128,
+        "predictions_sha256": "4ba1886c3c83a82390eed7b0f8b9aec484812f0326fdf05856cdc717d6efcd45"
+      },
+      "checks": {
+        "accuracy": true,
+        "macro_f1": true
+      },
+      "identical": true
+    },
+    {
+      "config": "c",
+      "benchmark": "MNIST, prototypes + 2 T2 epochs (E3)",
+      "committed_record": "results/mnist_42_20260923T211503Z.json",
+      "independent": {
+        "accuracy": 0.8542,
+        "macro_f1": 0.85215118003707,
+        "predictions_sha256": "fbea206a4e913c96e7b61ff174d1ac1ba398e5cbade2d9ca52ab38cb1cd64f08"
+      },
+      "checks": {
+        "accuracy": true,
+        "macro_f1": true,
+        "predictions_sha256": true
+      },
+      "identical": true
+    },
+    {
+      "config": "d",
+      "benchmark": "MNIST, full pipeline (M1b / E4)",
+      "committed_record": "results/mnist_42_20260923T200730Z.json",
+      "independent": {
+        "accuracy": 0.9488,
+        "macro_f1": 0.9489597256813207,
+        "predictions_sha256": "54a7785a8c6b30e55509c5074b5b5370b41dd8155dd7f1b60dd3355cb7fe96db"
+      },
+      "checks": {
+        "accuracy": true,
+        "macro_f1": true,
+        "predictions_sha256": true
+      },
+      "identical": true
+    }
+  ],
+  "spec_gaps_reported": [
+    "(d) configuration only transcribed in the spec (tuning JSON off-limits); transcription confirmed by \u00a714.9 checks",
+    "\u00a78.2: content of a class's P row before its first binarisation unspecified (irrelevant: every class occurs in training)",
+    "record-only fields (artifacts_digest) underspecified \u2014 do not affect predictions",
+    "'text occurs in the training split' wording loose (informative field only)",
+    "\u00a711.4 writes 8.0 for util_clip literally (identical for these runs)"
+  ]
+}

@@ -1,0 +1,89 @@
+{
+ "a": {
+  "accuracy": 0.8488510638297873,
+  "macro_f1": 0.8517737694590454,
+  "macro_f1_numpy_mean": 0.8517737694590454,
+  "predictions_sha256": "feee1e1f3f48dca0755c58650b491fec5fe8fff0c926e12857e50ef16805d592",
+  "n_test": 117500,
+  "test_items_in_train": 3147,
+  "accuracy_excluding_train_duplicates": 0.8496235341442726,
+  "n_train": 2350,
+  "n_classes": 235,
+  "chance_level": 0.00425531914893617,
+  "halvings": 0,
+  "runtime_s": 128.5,
+  "test_encoding_s": 103.3
+ },
+ "b": {
+  "accuracy": 0.8054,
+  "macro_f1": 0.802902746307128,
+  "macro_f1_numpy_mean": 0.802902746307128,
+  "predictions_sha256": "4ba1886c3c83a82390eed7b0f8b9aec484812f0326fdf05856cdc717d6efcd45",
+  "n_test": 10000,
+  "n_train": 60000,
+  "n_classes": 10,
+  "chance_level": 0.1,
+  "halvings": 0,
+  "runtime_s_excluding_encoding": 2.2
+ },
+ "c": {
+  "accuracy": 0.8542,
+  "macro_f1": 0.85215118003707,
+  "macro_f1_numpy_mean": 0.85215118003707,
+  "predictions_sha256": "fbea206a4e913c96e7b61ff174d1ac1ba398e5cbade2d9ca52ab38cb1cd64f08",
+  "n_test": 10000,
+  "n_train": 60000,
+  "n_classes": 10,
+  "chance_level": 0.1,
+  "halvings": 0,
+  "t2_error_per_epoch": [
+   0.179117,
+   0.152083
+  ],
+  "t2_misses_per_epoch": [
+   10747,
+   9125
+  ],
+  "t2_s": 3.3,
+  "runtime_s_excluding_encoding": 5.9,
+  "config": {
+   "k": 32,
+   "theta0": 0.0,
+   "lambda_e": 0.0,
+   "lambda_p": 1.0,
+   "util_clip": 8,
+   "t2_local": false
+  }
+ },
+ "d": {
+  "accuracy": 0.9488,
+  "macro_f1": 0.9489597256813207,
+  "macro_f1_numpy_mean": 0.9489597256813207,
+  "predictions_sha256": "54a7785a8c6b30e55509c5074b5b5370b41dd8155dd7f1b60dd3355cb7fe96db",
+  "n_test": 10000,
+  "n_train": 60000,
+  "n_classes": 10,
+  "chance_level": 0.1,
+  "halvings": 0,
+  "t2_error_per_epoch": [
+   0.053583,
+   0.051833
+  ],
+  "t2_misses_per_epoch": [
+   3215,
+   3110
+  ],
+  "t2_s": 4.9,
+  "loo_retrieval_s": 965.8,
+  "test_retrieval_s": 152.0,
+  "runtime_s_excluding_encoding": 1125.6,
+  "config": {
+   "k": 32,
+   "theta0": 0.2,
+   "lambda_e": 0.25,
+   "lambda_p": 1.0,
+   "util_clip": 8,
+   "t2_local": false
+  }
+ }
+}

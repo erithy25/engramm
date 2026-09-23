@@ -676,6 +676,41 @@ bevor das erste offizielle Record existiert.
 
 ---
 
+## R1 — Unabhängige Reproduktion nach README-Definition (Methode, Schritt 3)
+
+**Durchgeführt 2026-09-23.** Die README definiert: eine separate Agenten-Session
+leitet das Harness *aus der Spezifikation* ab und misst ohne Zugriff auf die
+Implementierung, auf derselben Hardware. Das war bisher nicht möglich —
+`docs/D2_SPEC.md` ist ein 21-Zeilen-Fragment, die Spezifikation stand faktisch
+im Code. Ablauf:
+
+1. `docs/SPEC_REBUILD.md` (1.217 Zeilen) aus dem Code abgeleitet: Hash-Eingaben
+   Byte für Byte, Bit-/Rotationskonventionen, Tie-Regeln, T2, Retrieval-Ordnung,
+   Operationsreihenfolge der Fusion, NumPy-PCG64-Pfade als reines Python,
+   Konformitäts-Checkliste — **ohne** Test-Genauigkeiten oder Vorhersage-Digests.
+2. Ein isolierter Agent erhielt nur dieses Dokument und die fünf Rohdaten-Archive
+   (kein Zugriff auf `engramm/`, `experiments/`, `data/*.py`, `tests/`, `legacy/`,
+   `results/`, Caches, Git-Historie) und implementierte neu:
+   `reproduction/independent/`.
+
+**Ergebnis:** 185/185 Konformitätsprüfungen bestanden; alle vier Konfigurationen
+**bitgleich** zu den committeten Records (`results/repro/independent_verification.json`):
+
+| Konfiguration (Seed 42) | Accuracy | Vergleich |
+|---|---|---|
+| WiLI 10-shot, Prototypen (E1) | 0,8488510638297873 | Accuracy + Macro-F1 identisch (Altrecord ohne Digest) |
+| MNIST, Prototypen T1 | 0,8054 | Accuracy + Macro-F1 identisch (Altrecord ohne Digest) |
+| MNIST, Prototypen + T2 (E3) | 0,8542 | `predictions_sha256` identisch |
+| MNIST, volle Pipeline (M1b/E4) | 0,9488 | `predictions_sha256` identisch |
+
+**Was das zeigt:** Die Spezifikation ist vollständig, die Vorhersagen sind auf
+dieser Plattform deterministisch. **Was nicht:** Replikation durch Dritte auf anderer
+Hardware; gleiche Python-/NumPy-Version, gleicher Maschinentyp (`canonical=false`).
+Gemeldete Spec-Lücken (alle ohne Einfluss auf Vorhersagen) stehen in der
+Verifikationsdatei.
+
+---
+
 ## M1 — WiLI-2018, voller Trainingssplit (keine Vorregistrierung)
 
 **Kein E-Eintrag, und das mit Absicht.** Eine Erwartung wird gegen einen
