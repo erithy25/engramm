@@ -584,6 +584,29 @@ kein Redundanzüberschuss.
 dahin = Live-Zustand ∧ Crash-Replay nach 60-%-Byte-Schnitt = Zustand nach dem
 letzten vollständigen Ereignis. Erwartung: **ERFÜLLT**, exakt.
 
+### Ergebnis Seed 42 — gemessen 2026-09-23, Container, `canonical=false`
+
+Record `results/m2/m2b_42_20260923T224248Z.json`.
+
+**(a) Verdrängung nach Nützlichkeit** (Strom wie E6, Referenz 82,43 %):
+
+| Bestand | Episoden | Accuracy | Δ | Banking77 | WiLI |
+|---|---|---|---|---|---|
+| 100 % | 50.000 | 82,43 % | — | 77,82 % | 88,47 % |
+| 80 % | 40.000 | 76,45 % | **−5,99 pp** | 68,70 % | 86,60 % |
+| 50 % | 25.000 | 67,70 % | −14,73 pp | 55,71 % | 83,40 % |
+| 20 % | 10.000 | 53,09 % | −29,34 pp | 34,87 % | 76,98 % |
+
+Monoton fallend, bei 80 % im erwarteten Band (−2 … −10 pp; historisch −6,85 pp);
+kein Redundanzüberschuss — wie erwartet.
+
+**(b) Persistenz-GATE: ERFÜLLT** (geloggter Lauf, 20.011 Ereignisse, 53,9 MB L2-Log):
+Voll-Replay → Zustands-Digest und alle Vorhersagen identisch (75,89 % live = replayed);
+10/10 Chunk-Grenzen identisch; Crash-Replay nach 60-%-Byte-Schnitt → 12.006 Ereignisse
+wiederhergestellt, 1.372 Byte (angeschnittener Record) verworfen, Zustand und
+Vorhersagen identisch zum Zustand nach dem letzten vollständigen Ereignis.
+Seeds 7 und 1337 folgen.
+
 ---
 
 ## E8 — M3: 1.000 Autoren strikt sequenziell
