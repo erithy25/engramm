@@ -1,0 +1,2338 @@
+{
+  "task": "banking77",
+  "seed": 42,
+  "dimension": 10000,
+  "shots": 10,
+  "k": 32,
+  "t2_local": true,
+  "validation": "20 per class from training examples outside the shots",
+  "encoder": "TrigramEncoder(dimension=10000, frame=True)",
+  "test_split_used": false,
+  "timestamp_utc": "2026-09-23T19:38:55+00:00",
+  "git": {
+    "commit": "ba082f3ffdc06e409355be22e90b3f0de85a7e53",
+    "dirty": true,
+    "untracked": 7
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "grid": [
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.0,
+      "theta0": 0.0,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.0,
+      "val_accuracy": 0.5824675324675325,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.1,
+      "val_accuracy": 0.6032467532467533,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.15,
+      "val_accuracy": 0.6071428571428571,
+      "t2_errors": [],
+      "seconds": 0.7,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.2,
+      "val_accuracy": 0.6123376623376623,
+      "t2_errors": [],
+      "seconds": 0.7,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.25,
+      "val_accuracy": 0.6071428571428571,
+      "t2_errors": [],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.3,
+      "val_accuracy": 0.6032467532467533,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.35,
+      "val_accuracy": 0.6006493506493507,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.4,
+      "val_accuracy": 0.6006493506493507,
+      "t2_errors": [],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.5,
+      "val_accuracy": 0.5987012987012987,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.0,
+      "val_accuracy": 0.5772727272727273,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.1,
+      "val_accuracy": 0.6032467532467533,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.15,
+      "val_accuracy": 0.6097402597402597,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.2,
+      "val_accuracy": 0.6207792207792208,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.25,
+      "val_accuracy": 0.6181818181818182,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.3,
+      "val_accuracy": 0.6123376623376623,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.35,
+      "val_accuracy": 0.6051948051948052,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.4,
+      "val_accuracy": 0.6012987012987013,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.5,
+      "val_accuracy": 0.5987012987012987,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.0,
+      "val_accuracy": 0.5720779220779221,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.1,
+      "val_accuracy": 0.5935064935064935,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.15,
+      "val_accuracy": 0.6103896103896104,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.2,
+      "val_accuracy": 0.6194805194805195,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.25,
+      "val_accuracy": 0.6188311688311688,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.3,
+      "val_accuracy": 0.6162337662337662,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.35,
+      "val_accuracy": 0.6142857142857143,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.4,
+      "val_accuracy": 0.6058441558441559,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.5,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.0,
+      "val_accuracy": 0.564935064935065,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.1,
+      "val_accuracy": 0.587012987012987,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.15,
+      "val_accuracy": 0.6006493506493507,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.2,
+      "val_accuracy": 0.6071428571428571,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.25,
+      "val_accuracy": 0.6175324675324675,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.3,
+      "val_accuracy": 0.612987012987013,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.35,
+      "val_accuracy": 0.6116883116883117,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.4,
+      "val_accuracy": 0.6090909090909091,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.5,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.0,
+      "val_accuracy": 0.5584415584415584,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.1,
+      "val_accuracy": 0.5811688311688312,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.15,
+      "val_accuracy": 0.5915584415584415,
+      "t2_errors": [],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.2,
+      "val_accuracy": 0.6,
+      "t2_errors": [],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.25,
+      "val_accuracy": 0.6051948051948052,
+      "t2_errors": [],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.3,
+      "val_accuracy": 0.6090909090909091,
+      "t2_errors": [],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.35,
+      "val_accuracy": 0.6077922077922078,
+      "t2_errors": [],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.4,
+      "val_accuracy": 0.6123376623376623,
+      "t2_errors": [],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.5,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.0,
+      "theta0": 0.0,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [
+        0.02208,
+        0.0013
+      ],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.0,
+      "val_accuracy": 0.5909090909090909,
+      "t2_errors": [
+        0.05065,
+        0.0
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.1,
+      "val_accuracy": 0.5961038961038961,
+      "t2_errors": [
+        0.03896,
+        0.0
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.15,
+      "val_accuracy": 0.6006493506493507,
+      "t2_errors": [
+        0.03247,
+        0.0013
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.2,
+      "val_accuracy": 0.6025974025974026,
+      "t2_errors": [
+        0.02727,
+        0.0013
+      ],
+      "seconds": 0.5,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.25,
+      "val_accuracy": 0.6025974025974026,
+      "t2_errors": [
+        0.02597,
+        0.0013
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.3,
+      "val_accuracy": 0.6,
+      "t2_errors": [
+        0.02208,
+        0.0013
+      ],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.35,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [
+        0.02208,
+        0.0013
+      ],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.4,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [
+        0.02208,
+        0.0013
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.5,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [
+        0.02208,
+        0.0013
+      ],
+      "seconds": 0.5,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.0,
+      "val_accuracy": 0.5883116883116883,
+      "t2_errors": [
+        0.10649,
+        0.01818
+      ],
+      "seconds": 0.5,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.1,
+      "val_accuracy": 0.5941558441558441,
+      "t2_errors": [
+        0.05455,
+        0.0026
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.15,
+      "val_accuracy": 0.5961038961038961,
+      "t2_errors": [
+        0.04156,
+        0.0013
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.2,
+      "val_accuracy": 0.6038961038961039,
+      "t2_errors": [
+        0.03247,
+        0.0013
+      ],
+      "seconds": 0.6,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.25,
+      "val_accuracy": 0.6012987012987013,
+      "t2_errors": [
+        0.02727,
+        0.0013
+      ],
+      "seconds": 0.7,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.3,
+      "val_accuracy": 0.6025974025974026,
+      "t2_errors": [
+        0.02597,
+        0.0013
+      ],
+      "seconds": 0.5,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.35,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [
+        0.02208,
+        0.0013
+      ],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.4,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [
+        0.02208,
+        0.0013
+      ],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.5,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [
+        0.02208,
+        0.0013
+      ],
+      "seconds": 0.5,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.0,
+      "val_accuracy": 0.5714285714285714,
+      "t2_errors": [
+        0.21039,
+        0.04416
+      ],
+      "seconds": 0.5,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.1,
+      "val_accuracy": 0.5909090909090909,
+      "t2_errors": [
+        0.11558,
+        0.01558
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.15,
+      "val_accuracy": 0.6006493506493507,
+      "t2_errors": [
+        0.06494,
+        0.00909
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.2,
+      "val_accuracy": 0.6038961038961039,
+      "t2_errors": [
+        0.04156,
+        0.0039
+      ],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.25,
+      "val_accuracy": 0.6032467532467533,
+      "t2_errors": [
+        0.02987,
+        0.0013
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.3,
+      "val_accuracy": 0.6019480519480519,
+      "t2_errors": [
+        0.02857,
+        0.0013
+      ],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.35,
+      "val_accuracy": 0.5987012987012987,
+      "t2_errors": [
+        0.02208,
+        0.0013
+      ],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.4,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [
+        0.02208,
+        0.0013
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.5,
+      "val_accuracy": 0.5987012987012987,
+      "t2_errors": [
+        0.02208,
+        0.0013
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.0,
+      "val_accuracy": 0.5149350649350649,
+      "t2_errors": [
+        0.32727,
+        0.14026
+      ],
+      "seconds": 0.8,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.1,
+      "val_accuracy": 0.5727272727272728,
+      "t2_errors": [
+        0.21948,
+        0.05195
+      ],
+      "seconds": 0.8,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.15,
+      "val_accuracy": 0.5954545454545455,
+      "t2_errors": [
+        0.13247,
+        0.02338
+      ],
+      "seconds": 0.6,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.2,
+      "val_accuracy": 0.5954545454545455,
+      "t2_errors": [
+        0.06883,
+        0.01299
+      ],
+      "seconds": 0.7,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.25,
+      "val_accuracy": 0.6038961038961039,
+      "t2_errors": [
+        0.04675,
+        0.00519
+      ],
+      "seconds": 0.5,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.3,
+      "val_accuracy": 0.6012987012987013,
+      "t2_errors": [
+        0.02857,
+        0.0013
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.35,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [
+        0.02338,
+        0.0013
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.4,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [
+        0.02338,
+        0.0013
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.5,
+      "val_accuracy": 0.5987012987012987,
+      "t2_errors": [
+        0.02208,
+        0.0013
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.0,
+      "val_accuracy": 0.4344155844155844,
+      "t2_errors": [
+        0.45325,
+        0.30909
+      ],
+      "seconds": 0.7,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.1,
+      "val_accuracy": 0.5194805194805194,
+      "t2_errors": [
+        0.32468,
+        0.14805
+      ],
+      "seconds": 0.6,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.15,
+      "val_accuracy": 0.5668831168831169,
+      "t2_errors": [
+        0.23117,
+        0.06364
+      ],
+      "seconds": 0.5,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.2,
+      "val_accuracy": 0.5889610389610389,
+      "t2_errors": [
+        0.12857,
+        0.03247
+      ],
+      "seconds": 0.5,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.25,
+      "val_accuracy": 0.5941558441558441,
+      "t2_errors": [
+        0.06494,
+        0.01688
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.3,
+      "val_accuracy": 0.6032467532467533,
+      "t2_errors": [
+        0.04026,
+        0.00649
+      ],
+      "seconds": 0.4,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.35,
+      "val_accuracy": 0.6019480519480519,
+      "t2_errors": [
+        0.02597,
+        0.0013
+      ],
+      "seconds": 0.3,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.4,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [
+        0.02338,
+        0.0013
+      ],
+      "seconds": 0.5,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.5,
+      "val_accuracy": 0.5987012987012987,
+      "t2_errors": [
+        0.02208,
+        0.0013
+      ],
+      "seconds": 0.6,
+      "encoder_options": {},
+      "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.0,
+      "theta0": 0.0,
+      "val_accuracy": 0.5922077922077922,
+      "t2_errors": [],
+      "seconds": 0.5,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.0,
+      "val_accuracy": 0.5902597402597403,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.1,
+      "val_accuracy": 0.5909090909090909,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.15,
+      "val_accuracy": 0.6012987012987013,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.2,
+      "val_accuracy": 0.6038961038961039,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.25,
+      "val_accuracy": 0.5993506493506493,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.3,
+      "val_accuracy": 0.5941558441558441,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.35,
+      "val_accuracy": 0.5941558441558441,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.4,
+      "val_accuracy": 0.5941558441558441,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.125,
+      "theta0": 0.5,
+      "val_accuracy": 0.5909090909090909,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.0,
+      "val_accuracy": 0.5857142857142857,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.1,
+      "val_accuracy": 0.5961038961038961,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.15,
+      "val_accuracy": 0.6,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.2,
+      "val_accuracy": 0.6090909090909091,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.25,
+      "val_accuracy": 0.611038961038961,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.3,
+      "val_accuracy": 0.6019480519480519,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.35,
+      "val_accuracy": 0.5980519480519481,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.4,
+      "val_accuracy": 0.5948051948051948,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.25,
+      "theta0": 0.5,
+      "val_accuracy": 0.5922077922077922,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.0,
+      "val_accuracy": 0.5811688311688312,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.1,
+      "val_accuracy": 0.5954545454545455,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.15,
+      "val_accuracy": 0.6019480519480519,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.2,
+      "val_accuracy": 0.6168831168831169,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.25,
+      "val_accuracy": 0.6168831168831169,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.3,
+      "val_accuracy": 0.6149350649350649,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.35,
+      "val_accuracy": 0.6064935064935065,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.4,
+      "val_accuracy": 0.6012987012987013,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 0.5,
+      "theta0": 0.5,
+      "val_accuracy": 0.5954545454545455,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.0,
+      "val_accuracy": 0.5714285714285714,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.1,
+      "val_accuracy": 0.5909090909090909,
+      "t2_errors": [],
+      "seconds": 0.3,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.15,
+      "val_accuracy": 0.5967532467532467,
+      "t2_errors": [],
+      "seconds": 0.5,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.2,
+      "val_accuracy": 0.6071428571428571,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.25,
+      "val_accuracy": 0.6175324675324675,
+      "t2_errors": [],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.3,
+      "val_accuracy": 0.6149350649350649,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.35,
+      "val_accuracy": 0.6097402597402597,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.4,
+      "val_accuracy": 0.6051948051948052,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 1.0,
+      "theta0": 0.5,
+      "val_accuracy": 0.5954545454545455,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.0,
+      "val_accuracy": 0.5688311688311688,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.1,
+      "val_accuracy": 0.5857142857142857,
+      "t2_errors": [],
+      "seconds": 0.3,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.15,
+      "val_accuracy": 0.5941558441558441,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.2,
+      "val_accuracy": 0.5954545454545455,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.25,
+      "val_accuracy": 0.6071428571428571,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.3,
+      "val_accuracy": 0.6116883116883117,
+      "t2_errors": [],
+      "seconds": 0.2,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.35,
+      "val_accuracy": 0.6090909090909091,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.4,
+      "val_accuracy": 0.6045454545454545,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 0,
+      "lambda_e": 2.0,
+      "theta0": 0.5,
+      "val_accuracy": 0.5967532467532467,
+      "t2_errors": [],
+      "seconds": 0.1,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.0,
+      "theta0": 0.0,
+      "val_accuracy": 0.5915584415584415,
+      "t2_errors": [
+        0.02857,
+        0.0026
+      ],
+      "seconds": 0.3,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.0,
+      "val_accuracy": 0.5883116883116883,
+      "t2_errors": [
+        0.05974,
+        0.01039
+      ],
+      "seconds": 0.7,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.1,
+      "val_accuracy": 0.5980519480519481,
+      "t2_errors": [
+        0.04286,
+        0.0039
+      ],
+      "seconds": 0.3,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.15,
+      "val_accuracy": 0.5987012987012987,
+      "t2_errors": [
+        0.03636,
+        0.00519
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.2,
+      "val_accuracy": 0.5948051948051948,
+      "t2_errors": [
+        0.03117,
+        0.00519
+      ],
+      "seconds": 0.3,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.25,
+      "val_accuracy": 0.5941558441558441,
+      "t2_errors": [
+        0.02857,
+        0.00519
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.3,
+      "val_accuracy": 0.5935064935064935,
+      "t2_errors": [
+        0.02857,
+        0.00519
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.35,
+      "val_accuracy": 0.5915584415584415,
+      "t2_errors": [
+        0.02857,
+        0.0026
+      ],
+      "seconds": 0.7,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.4,
+      "val_accuracy": 0.5915584415584415,
+      "t2_errors": [
+        0.02727,
+        0.0039
+      ],
+      "seconds": 0.7,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.125,
+      "theta0": 0.5,
+      "val_accuracy": 0.5915584415584415,
+      "t2_errors": [
+        0.02857,
+        0.0026
+      ],
+      "seconds": 0.7,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.0,
+      "val_accuracy": 0.5811688311688312,
+      "t2_errors": [
+        0.11948,
+        0.02208
+      ],
+      "seconds": 0.8,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.1,
+      "val_accuracy": 0.5915584415584415,
+      "t2_errors": [
+        0.06494,
+        0.00909
+      ],
+      "seconds": 0.5,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.15,
+      "val_accuracy": 0.5961038961038961,
+      "t2_errors": [
+        0.04545,
+        0.00519
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.2,
+      "val_accuracy": 0.5961038961038961,
+      "t2_errors": [
+        0.04026,
+        0.0039
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.25,
+      "val_accuracy": 0.5954545454545455,
+      "t2_errors": [
+        0.03247,
+        0.0039
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.3,
+      "val_accuracy": 0.5941558441558441,
+      "t2_errors": [
+        0.02857,
+        0.00519
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.35,
+      "val_accuracy": 0.5935064935064935,
+      "t2_errors": [
+        0.02727,
+        0.00519
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.4,
+      "val_accuracy": 0.5915584415584415,
+      "t2_errors": [
+        0.02727,
+        0.0039
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.25,
+      "theta0": 0.5,
+      "val_accuracy": 0.5915584415584415,
+      "t2_errors": [
+        0.02857,
+        0.0026
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.0,
+      "val_accuracy": 0.5577922077922078,
+      "t2_errors": [
+        0.22597,
+        0.05065
+      ],
+      "seconds": 0.5,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.1,
+      "val_accuracy": 0.587012987012987,
+      "t2_errors": [
+        0.13636,
+        0.02468
+      ],
+      "seconds": 0.5,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.15,
+      "val_accuracy": 0.5954545454545455,
+      "t2_errors": [
+        0.07532,
+        0.01818
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.2,
+      "val_accuracy": 0.5935064935064935,
+      "t2_errors": [
+        0.05065,
+        0.0039
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.25,
+      "val_accuracy": 0.5902597402597403,
+      "t2_errors": [
+        0.03896,
+        0.0039
+      ],
+      "seconds": 0.5,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.3,
+      "val_accuracy": 0.5922077922077922,
+      "t2_errors": [
+        0.03247,
+        0.0039
+      ],
+      "seconds": 0.6,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.35,
+      "val_accuracy": 0.5941558441558441,
+      "t2_errors": [
+        0.02727,
+        0.00519
+      ],
+      "seconds": 0.7,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.4,
+      "val_accuracy": 0.5915584415584415,
+      "t2_errors": [
+        0.02727,
+        0.0039
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 0.5,
+      "theta0": 0.5,
+      "val_accuracy": 0.5915584415584415,
+      "t2_errors": [
+        0.02857,
+        0.0026
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.0,
+      "val_accuracy": 0.5025974025974026,
+      "t2_errors": [
+        0.34805,
+        0.14935
+      ],
+      "seconds": 0.6,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.1,
+      "val_accuracy": 0.5558441558441558,
+      "t2_errors": [
+        0.23117,
+        0.06753
+      ],
+      "seconds": 0.6,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.15,
+      "val_accuracy": 0.5831168831168831,
+      "t2_errors": [
+        0.16883,
+        0.03377
+      ],
+      "seconds": 0.5,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.2,
+      "val_accuracy": 0.5928571428571429,
+      "t2_errors": [
+        0.08961,
+        0.02208
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.25,
+      "val_accuracy": 0.5967532467532467,
+      "t2_errors": [
+        0.05584,
+        0.00649
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.3,
+      "val_accuracy": 0.5928571428571429,
+      "t2_errors": [
+        0.03896,
+        0.0026
+      ],
+      "seconds": 0.6,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.35,
+      "val_accuracy": 0.5928571428571429,
+      "t2_errors": [
+        0.02987,
+        0.0039
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.4,
+      "val_accuracy": 0.5915584415584415,
+      "t2_errors": [
+        0.02857,
+        0.00519
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 1.0,
+      "theta0": 0.5,
+      "val_accuracy": 0.5915584415584415,
+      "t2_errors": [
+        0.02857,
+        0.0026
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.0,
+      "val_accuracy": 0.43766233766233764,
+      "t2_errors": [
+        0.47532,
+        0.34286
+      ],
+      "seconds": 1.0,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.1,
+      "val_accuracy": 0.5064935064935064,
+      "t2_errors": [
+        0.36364,
+        0.16104
+      ],
+      "seconds": 0.9,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.15,
+      "val_accuracy": 0.551948051948052,
+      "t2_errors": [
+        0.25844,
+        0.08831
+      ],
+      "seconds": 0.6,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.2,
+      "val_accuracy": 0.5805194805194805,
+      "t2_errors": [
+        0.16494,
+        0.03506
+      ],
+      "seconds": 0.5,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.25,
+      "val_accuracy": 0.5928571428571429,
+      "t2_errors": [
+        0.09351,
+        0.01948
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.3,
+      "val_accuracy": 0.5935064935064935,
+      "t2_errors": [
+        0.05325,
+        0.00909
+      ],
+      "seconds": 0.4,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.35,
+      "val_accuracy": 0.5928571428571429,
+      "t2_errors": [
+        0.03377,
+        0.0026
+      ],
+      "seconds": 0.3,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.4,
+      "val_accuracy": 0.5915584415584415,
+      "t2_errors": [
+        0.02857,
+        0.00519
+      ],
+      "seconds": 0.3,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    },
+    {
+      "t2_epochs": 2,
+      "lambda_e": 2.0,
+      "theta0": 0.5,
+      "val_accuracy": 0.5915584415584415,
+      "t2_errors": [
+        0.02857,
+        0.0026
+      ],
+      "seconds": 0.3,
+      "encoder_options": {
+        "lowercase": true
+      },
+      "encoder": "TrigramEncoder(dimension=10000, frame=True, lowercase=True)"
+    }
+  ],
+  "selected": {
+    "t2_epochs": 0,
+    "lambda_e": 0.25,
+    "theta0": 0.2,
+    "val_accuracy": 0.6207792207792208,
+    "t2_errors": [],
+    "seconds": 0.1,
+    "encoder_options": {},
+    "encoder": "TrigramEncoder(dimension=10000, frame=True)"
+  }
+}
