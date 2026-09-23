@@ -1,0 +1,328 @@
+{
+  "study": "docs/PREREG_ROBUSTNESS.md v1.3",
+  "record_schema": 1,
+  "task": "mnist",
+  "seed": 7,
+  "timestamp_utc": "2026-09-23T22:30:54+00:00",
+  "git": {
+    "commit": "dd05cc37449bf471071fc8d3dd9ad7032638af66",
+    "dirty": false,
+    "untracked": 0,
+    "captured": "before_run",
+    "code_changed_during_run": true,
+    "changed_python_files": [
+      "reproduction/independent/appendix_a.py",
+      "reproduction/independent/check_data.py",
+      "reproduction/independent/check_enc.py",
+      "reproduction/independent/check_small.py",
+      "reproduction/independent/check_t1a.py",
+      "reproduction/independent/hdc.py",
+      "reproduction/independent/make_tables.py",
+      "reproduction/independent/model.py",
+      "reproduction/independent/run_all.py"
+    ]
+  },
+  "canonical": false,
+  "official": true,
+  "data": {
+    "n_train": 60000,
+    "n_test": 10000,
+    "n_classes": 10,
+    "limit_train": null,
+    "limit_test": null
+  },
+  "chance": 0.1,
+  "levels_percent": [
+    0,
+    1,
+    5,
+    10,
+    25,
+    50
+  ],
+  "engramm": {
+    "dimension": 10000,
+    "t2_epochs": 2,
+    "lambda_e": 0.0,
+    "encoder": "PixelThermometerEncoder(dimension=10000, n_positions=784, n_levels=16, construction='progressive')",
+    "t2_error_per_epoch": [
+      0.18325,
+      0.1569
+    ],
+    "accumulator_halvings": 0,
+    "acc_engramm_predict_p0": 0.8564,
+    "prototype_predict_matches_engramm_predict": true,
+    "train_seconds": 305.43081220800013,
+    "test_encode_seconds": 47.222679594999136
+  },
+  "baselines": {
+    "lr": {
+      "n_iter": 252,
+      "max_iter": 1000,
+      "converged": true,
+      "fit_seconds": 1800.281126578,
+      "from_cache": true,
+      "cache_tag": "af0830c114de2f9f5f7a2aab",
+      "trained_once_per_task": true
+    },
+    "mlp": {
+      "hidden": 126,
+      "epochs": 30,
+      "final_training_loss": 0.004399826573536946
+    },
+    "mlp_bits": {
+      "hidden": 16,
+      "epochs": 30,
+      "final_training_loss": 0.13847975825886372
+    }
+  },
+  "features": {
+    "inputs": "pixels / 255"
+  },
+  "systems": {
+    "engramm": {
+      "binary": {
+        "n_params": 100000,
+        "n_bits": 100000,
+        "acc": {
+          "0": 0.8564,
+          "1": 0.8474,
+          "5": 0.8368,
+          "10": 0.7945,
+          "25": 0.6105,
+          "50": 0.111
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.9881015335801163,
+          "5": 0.9740877842411422,
+          "10": 0.918164992067689,
+          "25": 0.6749074563722898,
+          "50": 0.014542570068746688
+        },
+        "predictions_sha256_p0": "9e851ee7bf13674917732ae353ee9b0f6a111e833058e01f36c1638d5ca6a58f"
+      },
+      "binary+item_memory": {
+        "n_params": 8100000,
+        "n_bits": 8100000,
+        "acc": {
+          "0": 0.8564,
+          "1": 0.8413,
+          "5": 0.7049,
+          "10": 0.4472,
+          "25": 0.1379,
+          "50": 0.0811
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.9800370174510841,
+          "5": 0.799709148598625,
+          "10": 0.45901639344262285,
+          "25": 0.0501057641459545,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "9e851ee7bf13674917732ae353ee9b0f6a111e833058e01f36c1638d5ca6a58f"
+      }
+    },
+    "engramm_t1": {
+      "binary": {
+        "n_params": 100000,
+        "n_bits": 100000,
+        "acc": {
+          "0": 0.8015,
+          "1": 0.7949,
+          "5": 0.7936,
+          "10": 0.7691,
+          "25": 0.6239,
+          "50": 0.1088
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.9905915894511761,
+          "5": 0.9887384176764077,
+          "10": 0.9538132573057734,
+          "25": 0.7468282252316465,
+          "50": 0.012544547398431916
+        },
+        "predictions_sha256_p0": "92d367a0e25680240f8ad2af4fc1490a9479144b0b7ade5cfea35325b54293dd"
+      }
+    },
+    "lr": {
+      "int8": {
+        "n_params": 7850,
+        "n_bits": 62800,
+        "acc": {
+          "0": 0.9262,
+          "1": 0.6504,
+          "5": 0.3883,
+          "10": 0.2583,
+          "25": 0.1733,
+          "50": 0.1103
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.6661825223916726,
+          "5": 0.34894698620188813,
+          "10": 0.19160009682885495,
+          "25": 0.088719438392641,
+          "50": 0.012466715081094154
+        },
+        "predictions_sha256_p0": "4a1d8cf1d2ff4dca9bb65b013ecc68493d42adda0359ed3397cf7c425bb29fb8"
+      },
+      "float32": {
+        "n_params": 7850,
+        "n_bits": 251200,
+        "acc": {
+          "0": 0.9264,
+          "1": 0.1032,
+          "5": 0.098,
+          "10": 0.098,
+          "25": 0.098,
+          "50": 0.098
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.003872216844143265,
+          "5": 0.0,
+          "10": 0.0,
+          "25": 0.0,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "f2264ceb5585cc0b9412b862b15ca7ad472a8c870fd292633d6e7ad4346c90e8"
+      },
+      "sign": {
+        "n_params": 7850,
+        "n_bits": 7840,
+        "acc": {
+          "0": 0.6992,
+          "1": 0.6908,
+          "5": 0.62,
+          "10": 0.5017,
+          "25": 0.3395,
+          "50": 0.0964
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.9859813084112148,
+          "5": 0.8678237650200267,
+          "10": 0.6703938584779706,
+          "25": 0.39969959946595457,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "b1d8ab5bbd9801a523f5f461f7cb7d01a5fd9c80aaf700cad45d85d3a48f01ba",
+        "n_exact_scales_and_biases": 20
+      }
+    },
+    "mlp": {
+      "int8": {
+        "n_params": 100180,
+        "n_bits": 801440,
+        "acc": {
+          "0": 0.9782,
+          "1": 0.9239,
+          "5": 0.5109,
+          "10": 0.266,
+          "25": 0.1019,
+          "50": 0.0821
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.9381689820086542,
+          "5": 0.4678888635846049,
+          "10": 0.1890230015941699,
+          "25": 0.0021635162833067625,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "6d75e572c2a203998ca127c9cf5b8a3db749afb9c0955ed026b02ab2350fc5bd"
+      },
+      "float32": {
+        "n_params": 100180,
+        "n_bits": 3205760,
+        "acc": {
+          "0": 0.9786,
+          "1": 0.098,
+          "5": 0.098,
+          "10": 0.098,
+          "25": 0.098,
+          "50": 0.098
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.0,
+          "5": 0.0,
+          "10": 0.0,
+          "25": 0.0,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "f9fd91c4800fb2339e0e8a0148288b66ce8588133a46d7893e3fb2b1c9876cce"
+      },
+      "sign": {
+        "n_params": 100180,
+        "n_bits": 100044,
+        "acc": {
+          "0": 0.6661,
+          "1": 0.5893,
+          "5": 0.571,
+          "10": 0.4579,
+          "25": 0.2989,
+          "50": 0.0912
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.8643349231584526,
+          "5": 0.8320084790673025,
+          "10": 0.6322204557498674,
+          "25": 0.3513513513513513,
+          "50": 0.0
+        },
+        "predictions_sha256_p0": "0efc6b2f5ba4e3310400693b5811b3b829280627cc6196ced16d70ebe4810813",
+        "n_exact_scales_and_biases": 272
+      }
+    },
+    "mlp_bits": {
+      "int8": {
+        "n_params": 12730,
+        "n_bits": 101840,
+        "acc": {
+          "0": 0.9507,
+          "1": 0.7142,
+          "5": 0.2485,
+          "10": 0.2318,
+          "25": 0.1314,
+          "50": 0.1158
+        },
+        "R": {
+          "0": 1.0,
+          "1": 0.7219936522863524,
+          "5": 0.1745621253085694,
+          "10": 0.15493123310215118,
+          "25": 0.0369107793581756,
+          "50": 0.018572939931820846
+        },
+        "predictions_sha256_p0": "c4a2232f79cb45dad164d5b9af6819a1f6c13e2f2a44fb4401de2681b6ab8ca1"
+      }
+    }
+  },
+  "runtime": {
+    "phase_seconds": {
+      "engramm": 616.4,
+      "features": 0.3,
+      "lr_fit": 0.7,
+      "mlp_fit": 164.4,
+      "mlp_bits_fit": 179.3,
+      "baseline_sweeps": 2.2
+    },
+    "wall_seconds": 963.7,
+    "peak_rss_mb": 1390.0625,
+    "note": "container figures are not official (docs/PROTOCOL.md)"
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}
