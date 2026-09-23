@@ -548,6 +548,27 @@ No-Go-Pfad θ ∈ {0,20; 0,28; 0,35}.
 Genauigkeit zugleich. Mechanismus wie W18: die prototypnahen Episoden werden
 absorbiert, die atypischen stimmen allein ab.
 
+### Ergebnis Seed 42 — gemessen 2026-09-23, Container, `canonical=false`
+
+Record `results/m2/m2a_42_20260923T222830Z.json`. Referenz A (ohne T3): 82,43 %
+(Banking77 77,82 / WiLI 88,47).
+
+| θ_merge | Episoden behalten | Kompression | Accuracy | Δacc | T3-CPU-Anteil |
+|---|---|---|---|---|---|
+| 0,12 | 8.338 | **6,00×** | 47,24 % | **−35,19 pp** | 0,17 % |
+| 0,20 | 10.707 | 4,67× | 57,75 % | −24,68 pp | 0,18 % |
+| 0,28 | 17.435 | 2,87× | 60,98 % | −21,45 pp | 0,21 % |
+| 0,35 | 26.155 | 1,91× | 70,00 % | −12,43 pp | 0,24 % |
+
+**KRITERIUM NICHT ERFÜLLT** — genau wie registriert erwartet: Kompression ≥ 5× ✓ und
+T3-CPU ≤ 10 % ✓, aber Δacc −35,19 pp ≪ −1 pp; kein θ im No-Go-Sweep erfüllt
+Kompression und Genauigkeit zugleich. Das historische Negativergebnis (−53,00 pp)
+ist qualitativ reproduziert; der Betrag ist kleiner, der Mechanismus derselbe.
+
+Nebenbefund: im Strom senkt T2 die Referenz (A ohne T2: 85,34 % gegen A mit T2:
+82,43 %) — Banking77 fällt mit T2 um 6,0 pp, WiLI steigt um 1,1 pp.
+Seeds 7 und 1337 folgen in der Warteschlange.
+
 ---
 
 ## E7 — M2b: Verdrängung nach Nützlichkeit und Persistenz-Gate
