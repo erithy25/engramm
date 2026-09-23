@@ -20,14 +20,18 @@ record. `data/` and `logs/` are gitignored; `results/` never is.
 | `results/m2/` | M2a stream consolidation, M2b eviction + persistence gate | `experiments/m2_stream.py`, `experiments/m2b.py` |
 | `results/m3/` | 1,000-author sequential learning | `experiments/m3.py` |
 | `results/m5/` | M5 showdown: shared few-shot splits, one record per system and task, B1's per-query JSONL, the referee's verdict | `experiments/m5_engramm.py`, `experiments/m5_baselines.py`, `experiments/m5_compare.py` |
-| `results/repro/` | bitwise re-run checks against committed records | `experiments/verify_reproduction.py` |
+| `results/repro/` | bitwise re-run checks against committed records; the independent reproduction from `docs/SPEC_REBUILD.md` (`independent_*.json`) | `experiments/verify_reproduction.py`, `reproduction/independent/` |
+| `results/robustness/` | bit-corruption study (PREREG_ROBUSTNESS v1.3): one record per task and seed, `verdict.json`, `SUMMARY.md` | `experiments/robustness.py`, `experiments/robustness_verdict.py` |
+| `results/m0b/` | M0 addendum E5b: recall against HNSW build quality | `experiments/m0_bench.py --ef-construction` |
 | `results/crossplatform/` | determinism digests per platform | `experiments/record_digest.py` |
 
 Everything is produced by one command, step by step, each step registered
 in `docs/EXPECTATIONS.md` before it first ran:
 
 ```
-bash experiments/reproduce_all.sh            # or: … reproduce_all.sh m2a m3
+bash experiments/reproduce_all.sh            # or: … reproduce_all.sh m2a m3@7
+bash experiments/robustness_all.sh           # the bit-corruption grid, 2 tasks × 10 seeds
+.venv_b1/bin/python -m experiments.fetch_models   # M5 baseline models, pinned + verified
 ```
 
 ## Record schema (`schema_version: 4`)
@@ -45,7 +49,9 @@ Produced by `engramm.repro.write_result()`. All fields are mandatory.
     "dirty": false,
     "untracked": 0,
     "captured": "before_run",
-    "changed_during_run": false
+    "changed_during_run": false,
+    "code_changed_during_run": false,
+    "changed_python_files": []
   },
   "result": {
     "accuracy": 0.0,
