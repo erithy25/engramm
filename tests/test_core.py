@@ -651,3 +651,19 @@ def test_shape_mismatches_are_rejected(memory: ItemMemory) -> None:
         model.learn(np.zeros((3, D), dtype=np.int8), ["a", "b"])
     with pytest.raises(ValueError, match="shape"):
         model.learn(np.zeros((3, 64), dtype=np.int8), ["a", "b", "c"])
+
+
+def test_large_batch_does_not_wrap_the_int16_accumulator() -> None:
+    """Summing a big batch must halve, never wrap around.
+
+    16,384 identical examples on top of 16,384 already learned used to give
+    -32,768 in int16 with no halving recorded — every sign inverted.
+    """
+    dimension = 64
+    model = PrototypeClassifier(dimension, seed=0)
+    signed = np.ones((16_384, dimension), dtype=np.int8)
+    model.learn(signed, ["c"] * signed.shape[0])
+    model.learn(signed, ["c"] * signed.shape[0])
+    assert model.halvings >= 1
+    assert np.all(model.A[0] > 0), "a sign flipped: the accumulator wrapped"
+    assert int(np.abs(model.A.astype(np.int32)).max()) <= HALVE_THRESHOLD

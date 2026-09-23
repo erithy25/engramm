@@ -31,7 +31,7 @@ from typing import Any
 
 import numpy as np
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -138,10 +138,21 @@ def _model_probe(seed: int) -> dict[str, Any]:
     Imported lazily because :mod:`engramm.core` depends on this module —
     a top-level import would be circular.
 
-    Uses a reduced dimension and small odd class sizes, plus one deliberately
-    even bundle so the tie path is pinned too: tie resolution is a keyed hash
-    (:func:`engramm.core.resolve_tie`), which is exactly the kind of branch
-    that could differ between platforms if it were ever reimplemented.
+    Uses a reduced dimension and covers three paths that could differ
+    between platforms if they were ever reimplemented:
+
+    * an **even** bundle, so encoding-side tie resolution (a keyed hash,
+      :func:`engramm.core.resolve_tie`) is actually exercised — the probe
+      asserts that ties occurred rather than assuming it;
+    * three **distinguishable** classes learned from four noisy copies each
+      (again an even count, so prototype-side ties occur too), so the probe
+      covers class-discriminative learning and not three identical
+      prototypes;
+    * the scores of those prototypes against held-out noisy queries.
+
+    Earlier versions claimed to pin the tie path but bundled seven vectors
+    and trained three identical prototypes, so neither tie site was reached
+    (found in review, 2026-09-23).
     """
     from engramm.core import (
         ItemMemory, PrototypeClassifier, bind, bundle, permute, to_signed,
@@ -155,22 +166,40 @@ def _model_probe(seed: int) -> dict[str, Any]:
 
     bound = bind(stack[0], stack[1])
     rotated = permute(stack[2], 3, dimension)
-    bundled = bundle(stack, dimension)
+    even_bundle = bundle(stack[:6], dimension)
+    even_totals = to_signed(stack[:6], dimension).astype(np.int32).sum(axis=0)
+    if not np.any(even_totals == 0):
+        raise AssertionError("probe bundle has no ties; the tie path is not exercised")
 
+    def noisy(base: np.ndarray, tag: str) -> np.ndarray:
+        # About one bit in eight flipped: three independent masks ANDed.
+        mask = (memory.vector(f"{tag}:a") & memory.vector(f"{tag}:b")
+                & memory.vector(f"{tag}:c"))
+        return base ^ mask
+
+    train = np.stack([noisy(stack[c], f"train{c}.{j}")
+                      for c in range(3) for j in range(4)])
+    labels = [f"class{c}" for c in range(3) for _ in range(4)]
     model = PrototypeClassifier(dimension, seed=seed)
-    labels = [f"class{i % 3}" for i in range(9)]
-    model.learn(to_signed(stack[:3].repeat(3, axis=0), dimension).astype(np.int8),
-                labels)
-    scores = model.score(stack)
+    model.learn(to_signed(train, dimension), labels)
+    accumulator_ties = int(np.count_nonzero(model.A == 0))
+    if accumulator_ties == 0:
+        raise AssertionError("probe prototypes have no ties; the tie path is not exercised")
+
+    queries = np.stack([noisy(stack[c], f"query{c}") for c in range(3)])
+    scores = model.score(queries)
 
     return {
         "vector_checksums": [int(v.sum()) for v in stack],
         "bind_distance": int(hamming(bound, stack[0])),
         "permute_distance": int(hamming(rotated, stack[2])),
-        "bundle_distances": [int(hamming(bundled, v)) for v in stack],
+        "even_bundle_distances": [int(hamming(even_bundle, v)) for v in stack],
+        "even_bundle_ties": int(np.count_nonzero(even_totals == 0)),
         "prototype_checksums": [int(p.sum()) for p in model.P],
         "accumulator_checksums": [int(a.sum()) for a in model.A],
+        "accumulator_ties": accumulator_ties,
         "scores_repr": [repr(round(float(s), 12)) for s in scores.ravel()],
+        "predictions": [int(i) for i in scores.argmax(axis=1)],
         "labels": list(model.labels),
     }
 
@@ -240,6 +269,13 @@ def collect_environment() -> dict[str, Any]:
 def peak_rss_mb() -> float:
     """Peak resident set size of this process, in MiB.
 
+    This is the **process** high-water mark: it never decreases. A figure
+    taken after the second of two runs in one process therefore reports the
+    maximum of both. Per-run figures must come from a process that ran
+    nothing else — ``experiments/run_benchmark.py`` runs each seed in its own
+    child process for exactly that reason and passes the child's figure to
+    :func:`write_result`.
+
     ``ru_maxrss`` is reported in bytes on macOS but in kibibytes on Linux;
     both are normalized to MiB here.
     """
@@ -257,6 +293,8 @@ def write_result(
     hyperparams: dict[str, Any],
     wall_seconds: float,
     results_dir: Path | str | None = None,
+    git_state: dict[str, Any] | None = None,
+    peak_rss: float | None = None,
 ) -> Path:
     """Write one benchmark run as a JSON record and return its path.
 
@@ -290,19 +328,39 @@ def write_result(
         Wall-clock duration of the run.
     results_dir:
         Target directory; defaults to ``<repo root>/results``.
+    git_state:
+        The :func:`git_revision` taken **before** the run started. Python
+        imports the code when the process starts, so the commit that ran is
+        the one checked out at launch — not the one checked out when the
+        record is written. With ``git_state`` the record carries the launch
+        state and ``changed_during_run`` says whether HEAD or the dirty flag
+        moved in the meantime. Without it the state is captured at write
+        time and ``changed_during_run`` is ``None`` (unknown).
+    peak_rss:
+        Peak memory of the run in MiB, when measured in an isolated process.
+        Defaults to this process's high-water mark (see :func:`peak_rss_mb`),
+        and ``runtime.peak_rss_scope`` records which of the two it is.
     """
     ts = datetime.now(timezone.utc)
+    at_write = git_revision()
+    if git_state is not None:
+        git = {**git_state, "captured": "before_run",
+               "changed_during_run": (git_state.get("commit") != at_write["commit"]
+                                      or git_state.get("dirty") != at_write["dirty"])}
+    else:
+        git = {**at_write, "captured": "at_write", "changed_during_run": None}
     record: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "task": task,
         "seed": seed,
         "timestamp_utc": ts.isoformat(timespec="seconds"),
-        "git": git_revision(),
+        "git": git,
         "result": result,
         "hyperparams": hyperparams,
         "runtime": {
             "wall_seconds": round(wall_seconds, 3),
-            "peak_rss_mb": round(peak_rss_mb(), 1),
+            "peak_rss_mb": round(peak_rss if peak_rss is not None else peak_rss_mb(), 1),
+            "peak_rss_scope": "run" if peak_rss is not None else "process",
         },
         "environment": collect_environment(),
     }

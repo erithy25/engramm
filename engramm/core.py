@@ -468,9 +468,12 @@ class PrototypeClassifier:
         # Compute, binarise, then commit. Binarisation can raise on an
         # unresolved tie, and a half-applied update would leave A and P
         # describing different states.
+        # Sums are formed in int32 and only narrowed after halving. Adding a
+        # large batch directly in int16 wrapped around silently (e.g. 16,384
+        # plus a 16,384-sample batch gave -32,768 with no halving recorded).
         updated = {
-            index: self.A[index] + signed[label_array == self.labels[index]].sum(
-                axis=0, dtype=np.int32).astype(np.int16)
+            index: self.A[index].astype(np.int32)
+            + signed[label_array == self.labels[index]].sum(axis=0, dtype=np.int32)
             for index in indices
         }
         updated = self._halved_if_needed(updated)
@@ -503,8 +506,8 @@ class PrototypeClassifier:
 
         # Atomic for the same reason as learn(): binarisation may raise.
         updated = {
-            true_index: self.A[true_index] + signed,
-            predicted_index: self.A[predicted_index] - signed,
+            true_index: self.A[true_index].astype(np.int32) + signed,
+            predicted_index: self.A[predicted_index].astype(np.int32) - signed,
         }
         updated = self._halved_if_needed(updated)
         packed_rows = {index: self._binarise_row(index, row)
@@ -575,14 +578,18 @@ class PrototypeClassifier:
         never produced. The binarised prototypes are therefore unchanged by
         halving, which is the invariant that makes it safe.
         """
-        rows = {**{i: self.A[i] for i in range(self.n_classes)}, **updated}
-        peak = max((int(np.abs(row).max()) for row in rows.values() if row.size),
-                   default=0)
-        if peak <= HALVE_THRESHOLD:
-            return updated
-        self.halvings += 1
-        self.A = _halve_signed(self.A)
-        return {index: _halve_signed(row) for index, row in updated.items()}
+        updated = {index: np.asarray(row, dtype=np.int32) for index, row in updated.items()}
+        while True:
+            rows = {**{i: self.A[i] for i in range(self.n_classes)}, **updated}
+            # int32 before abs: np.abs(int16(-32768)) is -32768.
+            peak = max((int(np.abs(row.astype(np.int32)).max())
+                        for row in rows.values() if row.size), default=0)
+            if peak <= HALVE_THRESHOLD:
+                break
+            self.halvings += 1
+            self.A = _halve_signed(self.A)
+            updated = {index: _halve_signed(row) for index, row in updated.items()}
+        return {index: row.astype(np.int16) for index, row in updated.items()}
 
     def _binarise_row(self, index: int, row: np.ndarray) -> np.ndarray:
         """Binarise one accumulator row into its packed prototype."""

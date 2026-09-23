@@ -18,9 +18,12 @@ split, without writing a record.
 from __future__ import annotations
 
 import argparse
+import hashlib
+import multiprocessing
 import statistics
 import sys
 import time
+from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
 from collections.abc import Sequence
 from typing import Any
@@ -32,6 +35,7 @@ from engramm.core import ItemMemory, PrototypeClassifier, unpack_bits
 from engramm.encoders import Encoder, build_encoder
 from engramm.metrics import accuracy, macro_f1
 from engramm.repro import (
+    git_revision,
     is_canonical_environment,
     peak_rss_mb,
     set_all_seeds,
@@ -92,6 +96,10 @@ def subset(dataset: Dataset, limit_train: int | None,
         changes["x_test"] = (x[:limit_test] if isinstance(x, np.ndarray)
                              else tuple(x[:limit_test]))
         changes["y_test"] = dataset.y_test[:limit_test]
+        mask = dataset.metadata.get("test_in_full_train")
+        if mask is not None:
+            changes["metadata"] = {**dataset.metadata,
+                                   "test_in_full_train": np.asarray(mask)[:limit_test]}
     return replace(dataset, **changes) if changes else dataset
 
 
@@ -163,6 +171,65 @@ def learn_streaming(model: PrototypeClassifier, encoder: Encoder,
         model.learn(signed, list(labels[start:stop]))
 
 
+def to_dataset_indices(predicted: np.ndarray, model_labels: Sequence[str],
+                       dataset_labels: Sequence[str]) -> np.ndarray:
+    """Translate the model's class indices into the dataset's.
+
+    The model numbers the classes it has *seen*, the dataset numbers all of
+    them. Both are sorted, so the two coincide exactly when every class
+    occurs in training — which is true for every registered run, but not
+    for a ``--limit-train`` subset that happens to miss a class. Comparing
+    raw indices there silently shifted every later class (perfect
+    predictions scored 0.0 in the review's reproduction). Mapping by label
+    removes the assumption instead of relying on it.
+    """
+    position = {label: i for i, label in enumerate(dataset_labels)}
+    missing = [label for label in model_labels if label not in position]
+    if missing:
+        raise ValueError(f"model knows labels the dataset does not: {missing[:5]}")
+    lookup = np.array([position[label] for label in model_labels], dtype=np.int64)
+    return lookup[np.asarray(predicted, dtype=np.int64)]
+
+
+def predictions_digest(predicted: np.ndarray, labels: Sequence[str]) -> str:
+    """SHA-256 over the predicted label names, in test-split order.
+
+    Accuracy can agree to four decimals while individual predictions
+    differ; this digest makes "the run reproduced" a bitwise statement about
+    every single output rather than about a summary statistic.
+    """
+    hasher = hashlib.sha256()
+    for index in np.asarray(predicted, dtype=np.int64):
+        hasher.update(labels[int(index)].encode("utf-8") + b"\n")
+    return hasher.hexdigest()
+
+
+def duplicate_breakdown(dataset: Dataset, predicted: np.ndarray) -> dict[str, Any]:
+    """Accuracy with and without test items whose exact text is in training.
+
+    WiLI-2018's official split repeats 639 distinct paragraphs across train
+    and test, which affects 3,147 test items (2.68 %) because some repeat
+    hundreds of times. The official split is used unchanged — results stay
+    comparable to the literature — but the share is reported, and so is the
+    accuracy on the remaining items, so any inflation from memorised
+    duplicates is visible rather than argued away.
+    """
+    mask = dataset.metadata.get("test_in_full_train")
+    if mask is None:
+        return {}
+    mask = np.asarray(mask, dtype=bool)
+    if mask.shape[0] != dataset.n_test:
+        return {}
+    y_true = np.asarray(dataset.y_test)
+    keep = ~mask
+    return {
+        "test_items_in_train": int(mask.sum()),
+        "accuracy_excluding_train_duplicates": (
+            float(np.count_nonzero(y_true[keep] == predicted[keep]) / keep.sum())
+            if keep.any() else None),
+    }
+
+
 def run_seed(task: str, seed: int, dimension: int, shots: int | None,
              limit_train: int | None, limit_test: int | None,
              allow_download: bool,
@@ -189,7 +256,9 @@ def run_seed(task: str, seed: int, dimension: int, shots: int | None,
             f"or raise HALVE_THRESHOLD, before citing this number."
         )
 
-    predicted = predict_streaming(model, encoder, dataset.x_test, test_batch_size)
+    predicted = to_dataset_indices(
+        predict_streaming(model, encoder, dataset.x_test, test_batch_size),
+        model.labels, dataset.labels)
 
     result = {
         "accuracy": accuracy(dataset.y_test, predicted),
@@ -198,14 +267,17 @@ def run_seed(task: str, seed: int, dimension: int, shots: int | None,
         "n_test": dataset.n_test,
         "n_classes": dataset.n_classes,
         "chance_level": dataset.chance_level,
+        "predictions_sha256": predictions_digest(predicted, dataset.labels),
     }
+    result.update(duplicate_breakdown(dataset, predicted))
     hyperparameters = {
         "task": task,
         "dimension": dimension,
         "shots": shots,
         "encoder": repr(encoder),
         "artifacts_digest": artifacts.digest(),
-        "official_split": dataset.metadata.get("official_split"),
+        "official_split": bool(dataset.metadata.get("official_split"))
+                          and limit_train is None and limit_test is None,
         "limit_train": limit_train,
         "limit_test": limit_test,
         "test_batch_size": test_batch_size,
@@ -296,6 +368,10 @@ def main(argv: list[str] | None = None) -> int:
                              f"(default {DEFAULT_TEST_BATCH})")
     parser.add_argument("--allow-download", action="store_true",
                         help="permit fetching sources that are not cached")
+    parser.add_argument("--no-isolate", action="store_true",
+                        help="run seeds in this process instead of one child "
+                             "process each; peak memory is then the process "
+                             "high-water mark, not a per-seed figure")
     args = parser.parse_args(argv)
 
     if args.seed_list:
@@ -319,27 +395,59 @@ def main(argv: list[str] | None = None) -> int:
           + ("" if is_canonical_environment() else
              "  (timing and memory figures are not official — docs/PROTOCOL.md)"))
 
+    # The code that runs is the code checked out now: Python has already
+    # imported it. Capturing provenance at write time instead would credit a
+    # commit made mid-run to seeds that never executed it.
+    git_state = git_revision()
+
     results: list[SeedResult] = []
     for seed in seeds:
-        started = time.perf_counter()
-        result, hyperparameters = run_seed(
-            args.task, seed, args.dimension, args.shots,
-            args.limit_train, args.limit_test, args.allow_download,
-            args.test_batch)
-        elapsed = time.perf_counter() - started
+        kwargs = dict(task=args.task, seed=seed, dimension=args.dimension,
+                      shots=args.shots, limit_train=args.limit_train,
+                      limit_test=args.limit_test,
+                      allow_download=args.allow_download,
+                      test_batch_size=args.test_batch,
+                      train_batch_size=args.train_batch)
+        if args.no_isolate:
+            result, hyperparameters, elapsed, peak = _timed_run_seed(kwargs)
+        else:
+            result, hyperparameters, elapsed, peak = run_isolated(kwargs)
         path = write_result(task=args.task, seed=seed, result=result,
                             hyperparams=hyperparameters, wall_seconds=elapsed,
-                            results_dir=args.results_dir)
+                            results_dir=args.results_dir, git_state=git_state,
+                            peak_rss=peak if not args.no_isolate else None)
         results.append(SeedResult(
             seed=seed, accuracy=result["accuracy"], macro_f1=result["macro_f1"],
-            wall_seconds=elapsed, peak_rss_mb=peak_rss_mb(), record_path=str(path),
+            wall_seconds=elapsed, peak_rss_mb=peak, record_path=str(path),
         ))
         print(f"  seed {seed:>5}: accuracy={result['accuracy']:.4f} "
               f"macro_f1={result['macro_f1']:.4f} "
-              f"({elapsed:.1f}s, peak {peak_rss_mb():.0f} MiB) -> {path.name}")
+              f"({elapsed:.1f}s, peak {peak:.0f} MiB) -> {path.name}", flush=True)
 
     _print_summary(results)
     return 0
+
+
+def _timed_run_seed(kwargs: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any], float, float]:
+    """Run one seed and return ``(result, hyperparams, wall_seconds, peak_rss_mb)``."""
+    started = time.perf_counter()
+    result, hyperparameters = run_seed(**kwargs)
+    return result, hyperparameters, time.perf_counter() - started, peak_rss_mb()
+
+
+def run_isolated(kwargs: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any], float, float]:
+    """Run one seed in a fresh child process.
+
+    ``ru_maxrss`` is a per-process high-water mark that never falls, so in a
+    shared process every seed after the first reported the largest peak of
+    all earlier seeds (visible in the committed MNIST records: 3113 → 3135 →
+    3135 → 3136 → 3136 MiB). A spawned child starts from nothing, so its
+    peak belongs to its seed alone. ``spawn`` rather than ``fork`` so the
+    child does not inherit the parent's memory either.
+    """
+    context = multiprocessing.get_context("spawn")
+    with ProcessPoolExecutor(max_workers=1, mp_context=context) as pool:
+        return pool.submit(_timed_run_seed, kwargs).result()
 
 
 def _print_summary(results: list[SeedResult]) -> None:

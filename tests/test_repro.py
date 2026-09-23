@@ -66,9 +66,54 @@ def test_record_carries_the_provenance_fields(tmp_path: Path) -> None:
     import json
     record = json.loads(path.read_text())
     assert record["schema_version"] == SCHEMA_VERSION
-    assert set(record["git"]) == {"commit", "dirty", "untracked"}
+    assert set(record["git"]) == {"commit", "dirty", "untracked", "captured",
+                                  "changed_during_run"}
+    assert record["git"]["captured"] == "at_write"
     assert record["environment"]["canonical"] in (True, False)
     assert record["runtime"]["peak_rss_mb"] > 0
+    assert record["runtime"]["peak_rss_scope"] == "process"
+
+
+def test_provenance_is_taken_from_before_the_run(tmp_path: Path) -> None:
+    """The commit that ran is the one checked out at launch.
+
+    A commit made while a long run is in flight used to be credited to every
+    later seed, although those seeds executed the code imported at start.
+    With ``git_state`` the record keeps the launch state and flags the move.
+    """
+    import subprocess
+
+    import engramm.repro as repro
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    run = lambda *a: subprocess.run(a, cwd=repo, capture_output=True, check=True)
+    run("git", "init", "-q")
+    run("git", "config", "user.email", "t@example.com")
+    run("git", "config", "user.name", "t")
+    (repo / "code.py").write_text("x = 1\n")
+    run("git", "add", "code.py")
+    run("git", "commit", "-qm", "initial")
+
+    original = repro._REPO_ROOT
+    try:
+        repro._REPO_ROOT = repo
+        launch = repro.git_revision()
+        (repo / "code.py").write_text("x = 2\n")
+        run("git", "commit", "-qam", "mid-run commit")
+        import json
+        path = repro.write_result(task="t", seed=1, result={}, hyperparams={},
+                                  wall_seconds=0.0, results_dir=tmp_path / "out",
+                                  git_state=launch, peak_rss=12.5)
+        record = json.loads(path.read_text())
+    finally:
+        repro._REPO_ROOT = original
+
+    assert record["git"]["commit"] == launch["commit"]
+    assert record["git"]["captured"] == "before_run"
+    assert record["git"]["changed_during_run"] is True
+    assert record["runtime"]["peak_rss_mb"] == 12.5
+    assert record["runtime"]["peak_rss_scope"] == "run"
 
 
 def test_records_are_append_only_even_within_one_second(tmp_path: Path) -> None:

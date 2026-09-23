@@ -432,3 +432,35 @@ def test_real_run_completes_and_writes_one_record_per_seed(tmp_path: Path) -> No
     assert record["environment"]["canonical"] is False
     assert record["hyperparams"]["dimension"] == 512
     assert 0.0 <= record["result"]["accuracy"] <= 1.0
+
+
+def test_predictions_are_mapped_by_label_not_by_raw_index() -> None:
+    """A class absent from training must not shift every later class.
+
+    The model numbers only the classes it has seen; the dataset numbers all
+    of them. Comparing raw indices made perfect predictions score 0.0 once
+    a class was missing from a ``--limit-train`` subset.
+    """
+    from experiments.run_benchmark import to_dataset_indices
+
+    dataset_labels = ("a", "b", "c", "d")
+    model_labels = ["a", "c", "d"]            # "b" never seen in training
+    model_predictions = np.array([0, 1, 2, 2])  # a, c, d, d
+    mapped = to_dataset_indices(model_predictions, model_labels, dataset_labels)
+    assert mapped.tolist() == [0, 2, 3, 3]
+
+
+def test_mapping_rejects_labels_the_dataset_does_not_have() -> None:
+    from experiments.run_benchmark import to_dataset_indices
+
+    with pytest.raises(ValueError, match="does not"):
+        to_dataset_indices(np.array([0]), ["zzz"], ("a", "b"))
+
+
+def test_predictions_digest_changes_with_any_single_prediction() -> None:
+    from experiments.run_benchmark import predictions_digest
+
+    labels = ("x", "y")
+    a = predictions_digest(np.array([0, 1, 1]), labels)
+    b = predictions_digest(np.array([0, 1, 0]), labels)
+    assert a != b and a == predictions_digest(np.array([0, 1, 1]), labels)

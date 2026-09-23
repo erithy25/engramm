@@ -64,11 +64,15 @@ figure means pointing at a record. Consequently:
 
 Two properties are enforced by the test suite rather than by convention:
 
-* **Hash-order independence.** `tests/test_no_leakage.py` runs the same
-  benchmark twice via subprocess with `PYTHONHASHSEED=0` and
-  `PYTHONHASHSEED=1` and requires identical results. This makes the rule
-  "never let results depend on `set`/`dict` iteration order" enforced
-  instead of merely documented.
+* **Hash-order independence.** Two subprocess checks under
+  `PYTHONHASHSEED=0` and `PYTHONHASHSEED=1`, each requiring identical
+  output: `tests/test_no_leakage.py` for the data pipeline (loaders, shot
+  selection, train-only feature fitting — it needs the dataset cache and
+  skips without it), and `tests/test_determinism.py` for the model side
+  (item memory, both tie-resolution sites, prototype learning, episodic
+  retrieval, error-driven refinement, scoring — the determinism digest).
+  Earlier wording claimed the first one ran "the same benchmark"; it runs
+  the data probe only, which is why the second exists.
 * **Cross-platform bit-identity.** The same seed must produce the identical
   result on the Linux container and on the reference machine. See
   `results/crossplatform/README.md` for how the comparison is recorded —

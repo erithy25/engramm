@@ -55,13 +55,12 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     seeds = [int(s) for s in args.seeds.split(",") if s.strip()]
 
-    digests = {
-        str(seed): {
-            "values": determinism_digest(seed),
-            "sha256": digest_hash(determinism_digest(seed)),
-        }
-        for seed in seeds
-    }
+    # Computed once per seed, so the stored hash is provably the hash of the
+    # stored values (it used to be computed from a second evaluation).
+    digests = {}
+    for seed in seeds:
+        values = determinism_digest(seed)
+        digests[str(seed)] = {"values": values, "sha256": digest_hash(values)}
     record = {
         "platform_tag": platform_tag(),
         "canonical": is_canonical_environment(),

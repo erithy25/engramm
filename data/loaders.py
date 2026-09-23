@@ -299,6 +299,13 @@ def load_wili(cache_dir: Path | str | None = None,
     y_train = np.array([index_of[y] for y in y_train_raw], dtype=np.int64)
     y_test = np.array([index_of[y] for y in y_test_raw], dtype=np.int64)
 
+    # Membership only — the set is never iterated, so hash order cannot
+    # leak into anything. Computed against the FULL training split, so a
+    # few-shot run still knows which test items the corpus repeats.
+    full_train_texts = set(x_train)
+    test_in_full_train = np.fromiter((text in full_train_texts for text in x_test),
+                                     dtype=bool, count=len(x_test))
+
     metadata: dict[str, Any] = {
         "source": WILI_SOURCE["url"],
         "sha256": WILI_SOURCE["sha256"],
@@ -306,6 +313,10 @@ def load_wili(cache_dir: Path | str | None = None,
         "shots": shots,
         "paragraphs_per_class_available": WILI_PER_CLASS,
         "full_train_size": len(x_train),
+        # Per test item: does its exact text also occur in the full training
+        # split? 3,147 items (2.68 %), from 639 distinct paragraphs. Reported,
+        # not removed — see WILI_KNOWN_TRAIN_TEST_OVERLAP.
+        "test_in_full_train": test_in_full_train,
     }
 
     x_train_out: tuple[str, ...] = tuple(x_train)
@@ -576,6 +587,12 @@ def pooled_trigram_vocabulary(texts: Sequence[str],
     ranked = sorted(counts.items(), key=lambda item: (-item[1], item[0]))
     return tuple(trigram for trigram, _ in ranked[:size])
 
+
+#: Test items whose exact text also occurs in the training split: 3,147 of
+#: 117,500 (2.68 %). The 639 below counts *distinct* texts; several of them
+#: repeat hundreds of times on the test side (one Chechen paragraph 330x), so
+#: the share of affected test items is far larger than 639/117,500 suggests.
+WILI_TEST_ITEMS_IN_TRAIN = 3_147
 
 #: Paragraphs appearing identically in both WiLI-2018 splits, measured on
 #: the verified archive. This is a property of the published benchmark, not
