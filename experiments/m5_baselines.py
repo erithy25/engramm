@@ -38,6 +38,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 import time
 from datetime import datetime, timezone
@@ -112,11 +113,27 @@ def _versions() -> dict[str, str]:
     return out
 
 
+def _git_state() -> dict[str, Any]:
+    """Commit and dirtiness of the tree, captured when the run starts."""
+    def git(*args: str) -> str:
+        return subprocess.run(["git", *args], cwd=REPO, capture_output=True,
+                              text=True, check=True).stdout.strip()
+    try:
+        return {"commit": git("rev-parse", "HEAD"),
+                "dirty": bool(git("status", "--porcelain", "--untracked-files=no")),
+                "captured": "before_run"}
+    except (OSError, subprocess.CalledProcessError):
+        return {"commit": None, "dirty": None, "captured": "unavailable"}
+
+
+GIT_STATE = _git_state()
+
+
 def _write(record: dict[str, Any], system: str, task: str, seed: int) -> Path:
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     path = RESULTS_DIR / f"m5_{system}_{task}_seed{seed}.json"
     record.update({"timestamp_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                   "versions": _versions(), "cpu_count": os.cpu_count()})
+                   "git": GIT_STATE, "versions": _versions(), "cpu_count": os.cpu_count()})
     path.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
     return path
 

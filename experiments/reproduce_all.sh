@@ -114,7 +114,7 @@ repro_all() {
     --results-dir logs/runs/repro || return 1
   "$PY" -u -m experiments.verify_reproduction logs/runs/repro
 }
-step_repro() { run_step repro logs/runs/repro-records results/repro repro_all; }
+step_repro() { run_step repro logs/runs/repro results/repro repro_all; }
 
 # Order: cheap and registered-first, the multi-hour LLM baseline last.
 ALL="e3 m0 m2a m2b m3 m5e b0 b3 e10 repro m2a@7 m2b@7 m3@7 m2a@1337 m2b@1337 m3@1337 b1"
