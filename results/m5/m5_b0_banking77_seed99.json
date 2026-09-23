@@ -1,0 +1,31 @@
+{
+  "task": "banking77",
+  "system": "b0",
+  "seed": 99,
+  "k": 5,
+  "model": "BAAI/bge-small-en-v1.5 kNN (cosine, top-5, similarity-weighted)",
+  "n_classes": 77,
+  "n_test": 3080,
+  "acc": 0.8327922077922078,
+  "learn_ms_per_class_wall": 586.9496411558359,
+  "query_ms_mean_batched": 52.40218743896099,
+  "cpu_seconds_per_query_proxy": 0.06858116190681818,
+  "energy_mj_per_query": null,
+  "timestamp_utc": "2026-09-23T23:03:48+00:00",
+  "git": {
+    "commit": "3d790226c47d5545c06d7837374b3602f0b14bdd",
+    "dirty": false,
+    "captured": "before_run"
+  },
+  "versions": {
+    "python": "3.12.3",
+    "numpy": "2.5.3",
+    "torch": "2.14.0+cpu",
+    "transformers": "5.17.0",
+    "peft": "0.21.0",
+    "sentence_transformers": "6.1.0",
+    "faiss": "1.15.1",
+    "llama_cpp": "0.3.35"
+  },
+  "cpu_count": 4
+}

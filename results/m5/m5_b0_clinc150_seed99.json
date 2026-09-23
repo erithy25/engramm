@@ -1,0 +1,31 @@
+{
+  "task": "clinc150",
+  "system": "b0",
+  "seed": 99,
+  "k": 5,
+  "model": "BAAI/bge-small-en-v1.5 kNN (cosine, top-5, similarity-weighted)",
+  "n_classes": 150,
+  "n_test": 4500,
+  "acc": 0.8704444444444445,
+  "learn_ms_per_class_wall": 534.0493863666658,
+  "query_ms_mean_batched": 53.21221689377772,
+  "cpu_seconds_per_query_proxy": 0.07497536747733333,
+  "energy_mj_per_query": null,
+  "timestamp_utc": "2026-09-23T23:30:55+00:00",
+  "git": {
+    "commit": "0985577bf3fdc5aa29028e83109a3b5110b110b2",
+    "dirty": false,
+    "captured": "before_run"
+  },
+  "versions": {
+    "python": "3.12.3",
+    "numpy": "2.5.3",
+    "torch": "2.14.0+cpu",
+    "transformers": "5.17.0",
+    "peft": "0.21.0",
+    "sentence_transformers": "6.1.0",
+    "faiss": "1.15.1",
+    "llama_cpp": "0.3.35"
+  },
+  "cpu_count": 4
+}
