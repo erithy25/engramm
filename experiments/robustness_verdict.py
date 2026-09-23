@@ -41,6 +41,9 @@ FLOORS = {"engramm": {"mnist": 0.85, "wili": 0.60},
 PRIMARY = ("engramm", "binary")
 CONTROLS = (("lr", "int8"), ("mlp", "int8"))
 FORMAT_CONTROLS = (("lr", "sign"), ("mlp", "sign"))
+#: §4.1: a format control whose acc(0) is not ≥ 10 pp above chance is not
+#: interpretable and drops out of the comparison.
+FORMAT_MIN_ABOVE_CHANCE = 0.10
 
 
 def load_records(directory: Path, include_unofficial: bool = False
@@ -154,7 +157,17 @@ def verdict(records: dict[str, dict[int, dict[str, Any]]]) -> dict[str, Any]:
         c = curves(records[task])
         chk = checks(task, c)
         primary = compare(c, PRIMARY, CONTROLS)
-        format_check = compare(c, PRIMARY, FORMAT_CONTROLS)
+        chance = next(iter(records[task].values()))["chance"]
+        interpretable = tuple(k for k in FORMAT_CONTROLS
+                              if c["/".join(k)]["acc"]["0"]["mean"] is not None
+                              and c["/".join(k)]["acc"]["0"]["mean"]
+                              >= chance + FORMAT_MIN_ABOVE_CHANCE)
+        format_check = (compare(c, PRIMARY, interpretable) if interpretable
+                        else {"per_level": {}, "confirmed": False,
+                              "below_better_at_majority": False,
+                              "equivalent_at_every_level": False})
+        format_check["not_interpretable"] = ["/".join(k) for k in FORMAT_CONTROLS
+                                             if k not in interpretable]
         equal_bits = compare(c, PRIMARY, (("mlp_bits", "int8"),))
         secondary_state = None
         if "lr/int8+idf" in c:
@@ -213,9 +226,10 @@ def verdict(records: dict[str, dict[int, dict[str, Any]]]) -> dict[str, Any]:
 
     qualifier = None
     if outcome.startswith(("CONFIRMED", "PARTIAL")):
-        survives = [t for t in confirmed if all(
-            v["gap_to_better"] is not None and v["gap_to_better"] >= MARGIN_CONFIRM
-            for v in tasks[t]["format_control_4_1"]["per_level"].values())]
+        survives = [t for t in confirmed
+                    if tasks[t]["format_control_4_1"]["per_level"] and all(
+                        v["gap_to_better"] is not None and v["gap_to_better"] >= MARGIN_CONFIRM
+                        for v in tasks[t]["format_control_4_1"]["per_level"].values())]
         qualifier = ("§4.1: the advantage also holds against the 1-bit format controls on "
                      + ", ".join(survives)) if survives == confirmed else (
             "§4.1: the measured advantage is attributable to the number format; an "
