@@ -9,6 +9,27 @@ Every benchmark run writes exactly one JSON file here, named
 These files are **committed to git** — they are the project's measurement
 record. `data/` and `logs/` are gitignored; `results/` never is.
 
+## Layout
+
+| Path | What | Written by |
+|---|---|---|
+| `results/<task>_<seed>_<stamp>.json` | benchmark records (MNIST, WiLI, …), schema below | `experiments/run_benchmark.py` |
+| `results/tuning/` | validation sweeps that chose every fusion configuration; each certifies `test_split_used: false` | `experiments/tune_fusion.py` |
+| `results/e2_sweep/` | the registered E2 thermometer sweep (48 cells) | `experiments/run_sweep.py` |
+| `results/m0/` | HNSW recall audit on 10⁶ WiLI keys | `experiments/m0_bench.py` |
+| `results/m2/` | M2a stream consolidation, M2b eviction + persistence gate | `experiments/m2_stream.py`, `experiments/m2b.py` |
+| `results/m3/` | 1,000-author sequential learning | `experiments/m3.py` |
+| `results/m5/` | M5 showdown: shared few-shot splits, one record per system and task, B1's per-query JSONL, the referee's verdict | `experiments/m5_engramm.py`, `experiments/m5_baselines.py`, `experiments/m5_compare.py` |
+| `results/repro/` | bitwise re-run checks against committed records | `experiments/verify_reproduction.py` |
+| `results/crossplatform/` | determinism digests per platform | `experiments/record_digest.py` |
+
+Everything is produced by one command, step by step, each step registered
+in `docs/EXPECTATIONS.md` before it first ran:
+
+```
+bash experiments/reproduce_all.sh            # or: … reproduce_all.sh m2a m3
+```
+
 ## Record schema (`schema_version: 4`)
 
 Produced by `engramm.repro.write_result()`. All fields are mandatory.
