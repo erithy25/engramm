@@ -1,0 +1,68 @@
+{
+  "schema_version": 4,
+  "task": "mnist",
+  "seed": 7,
+  "timestamp_utc": "2026-09-23T21:20:45+00:00",
+  "git": {
+    "commit": "df971e1c74ffaf01f7caa715c7a8d26ee8f3f149",
+    "dirty": false,
+    "untracked": 0,
+    "captured": "before_run",
+    "changed_during_run": true,
+    "code_changed_during_run": false,
+    "changed_python_files": []
+  },
+  "result": {
+    "accuracy": 0.8564,
+    "macro_f1": 0.8542629913417839,
+    "n_train": 60000,
+    "n_test": 10000,
+    "n_classes": 10,
+    "chance_level": 0.1,
+    "predictions_sha256": "69bb0d24dad6bba98a9296b3118b56b3e88f1a888850af53a56ad5d7492fbea8",
+    "t2_error_per_epoch": [
+      0.18325,
+      0.1569
+    ]
+  },
+  "hyperparams": {
+    "task": "mnist",
+    "dimension": 10000,
+    "shots": null,
+    "encoder": "PixelThermometerEncoder(dimension=10000, n_positions=784, n_levels=16, construction='progressive')",
+    "artifacts_digest": "02f74716b5f86df2196f328476e5dea0561de1843d955e94ec7de2fcbc5147f0",
+    "official_split": true,
+    "limit_train": null,
+    "limit_test": null,
+    "test_batch_size": 2000,
+    "train_batch_size": 5000,
+    "accumulator_halvings": 0,
+    "pipeline": "prototypes",
+    "episodes": false,
+    "t2_epochs": 2,
+    "fusion": {
+      "k": 32,
+      "theta0": 0.0,
+      "lambda_e": 0.0,
+      "lambda_p": 1.0,
+      "util_clip": 8,
+      "t2_local": false
+    },
+    "config_source": "command line",
+    "n_episodes": 60000
+  },
+  "runtime": {
+    "wall_seconds": 341.503,
+    "peak_rss_mb": 1380.7,
+    "peak_rss_scope": "run"
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}
