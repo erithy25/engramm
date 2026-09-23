@@ -306,6 +306,24 @@ after whitespace normalisation; authors need 25 qualifying posts (10 train,
 10 test, 5 validation); authors, their post order and the tranche order are
 drawn with the run's seeded generator.
 
+## GAP-11 — M2 stream protocol
+
+**What the record says.** A 50,000-item stream of "Banking77 train complete +
+WiLI filler", θ_merge = 0.12, T3 every 2,000 items, 5,430 evaluation queries;
+absorption requires `util < 2`; a T2 ablation on Banking77. How the WiLI
+filler was drawn, how the stream was ordered, whether T2 ran inside the
+stream and with which fusion weights is not recorded.
+
+**Choice made** (`experiments/m2_stream.py`): 39,997 WiLI training paragraphs
+drawn with the seed, stream order a seeded permutation; every 2,000-item chunk
+is learned with T1 and one leave-one-out T2 epoch (which is what gives
+episodes the utilities that the `util < 2` condition and the M2b eviction
+read); fusion at the historical defaults λe = λp = 1, θ₀ = 0, held fixed —
+M2 compares runs with and without consolidation, not configurations. The
+5,430 queries are the Banking77 test split (3,080) plus ten WiLI test
+paragraphs per language (2,350) — the only split that adds up to the
+recorded count.
+
 ## CHANGED-6 — episode tie-break by content identity (fixes W19)
 
 The recovered retrieval used `argpartition`, which picks among

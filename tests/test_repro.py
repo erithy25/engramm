@@ -67,7 +67,8 @@ def test_record_carries_the_provenance_fields(tmp_path: Path) -> None:
     record = json.loads(path.read_text())
     assert record["schema_version"] == SCHEMA_VERSION
     assert set(record["git"]) == {"commit", "dirty", "untracked", "captured",
-                                  "changed_during_run"}
+                                  "changed_during_run", "code_changed_during_run",
+                                  "changed_python_files"}
     assert record["git"]["captured"] == "at_write"
     assert record["environment"]["canonical"] in (True, False)
     assert record["runtime"]["peak_rss_mb"] > 0
@@ -112,6 +113,8 @@ def test_provenance_is_taken_from_before_the_run(tmp_path: Path) -> None:
     assert record["git"]["commit"] == launch["commit"]
     assert record["git"]["captured"] == "before_run"
     assert record["git"]["changed_during_run"] is True
+    assert record["git"]["code_changed_during_run"] is True
+    assert record["git"]["changed_python_files"] == ["code.py"]
     assert record["runtime"]["peak_rss_mb"] == 12.5
     assert record["runtime"]["peak_rss_scope"] == "run"
 
@@ -142,3 +145,36 @@ def test_seeding_is_reproducible_and_seed_sensitive() -> None:
     c = set_all_seeds(43).integers(0, 1000, 20)
     assert np.array_equal(a, b)
     assert not np.array_equal(a, c)
+
+
+def test_a_docs_only_commit_does_not_mark_code_as_changed(tmp_path: Path) -> None:
+    """Committing documentation mid-run moves HEAD but changes no code."""
+    import json
+    import subprocess
+
+    import engramm.repro as repro
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    run = lambda *a: subprocess.run(a, cwd=repo, capture_output=True, check=True)
+    run("git", "init", "-q")
+    run("git", "config", "user.email", "t@example.com")
+    run("git", "config", "user.name", "t")
+    (repo / "code.py").write_text("x = 1\n")
+    run("git", "add", "code.py")
+    run("git", "commit", "-qm", "initial")
+    original = repro._REPO_ROOT
+    try:
+        repro._REPO_ROOT = repo
+        launch = repro.git_revision()
+        (repo / "NOTES.md").write_text("docs\n")
+        run("git", "add", "NOTES.md")
+        run("git", "commit", "-qm", "docs")
+        path = repro.write_result(task="t", seed=1, result={}, hyperparams={},
+                                  wall_seconds=0.0, results_dir=tmp_path / "out",
+                                  git_state=launch)
+        record = json.loads(path.read_text())
+    finally:
+        repro._REPO_ROOT = original
+    assert record["git"]["changed_during_run"] is True
+    assert record["git"]["code_changed_during_run"] is False

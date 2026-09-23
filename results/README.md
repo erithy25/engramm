@@ -96,10 +96,16 @@ Conventions:
   so a reproduction can be checked prediction by prediction rather than via
   a rounded accuracy.
 * **`git.captured`** says when provenance was taken. `before_run` (schema 4
-  runners) records the checkout the process imported at launch; if HEAD or
-  the dirty flag moved before the record was written, `changed_during_run`
-  is `true` and the record is **not citable** until re-run. `at_write`
-  (schema ≤ 3, and callers that pass no launch state) is the weaker form.
+  runners) records the checkout the process imported at launch.
+  `changed_during_run` says whether HEAD or the dirty flag moved before the
+  record was written — informational, because commits of documentation or
+  of other runs' results do not change what ran. What matters is
+  **`code_changed_during_run`**: whether any `*.py` file differs between the
+  launch commit and the working tree at write time (listed in
+  `changed_python_files`). Seeds run in freshly spawned processes, which
+  import the code again, so a Python change mid-run can reach later seeds:
+  such a record is **not citable** until re-run. `at_write` (schema ≤ 3, and
+  callers that pass no launch state) is the weaker form.
 * **`runtime.peak_rss_scope`**: `run` means the seed ran in its own child
   process and the figure is its own peak; `process` means it is the
   high-water mark of a process that may have run earlier seeds too (all

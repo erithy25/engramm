@@ -263,6 +263,27 @@ def git_revision() -> dict[str, Any]:
             "untracked": untracked}
 
 
+def python_files_changed_since(commit: str | None) -> list[str]:
+    """Python files that differ between ``commit`` and the working tree now.
+
+    A run imports its code at start — and every spawned child process imports
+    it again when it starts. A Python file changed while a multi-seed run is
+    in flight is therefore code that some seeds may have executed and others
+    not. Commits touching only documentation or result files do not matter
+    and are not listed. Returns ``[]`` when git is unavailable.
+    """
+    if not commit:
+        return []
+    try:
+        changed = subprocess.run(
+            ["git", "diff", "--name-only", commit, "--", "*.py"],
+            cwd=_REPO_ROOT, capture_output=True, text=True, check=True,
+        ).stdout.split()
+    except (OSError, subprocess.CalledProcessError):
+        return []
+    return sorted(changed)
+
+
 def collect_environment() -> dict[str, Any]:
     """Capture the software and hardware environment of this run.
 
@@ -359,11 +380,15 @@ def write_result(
     ts = datetime.now(timezone.utc)
     at_write = git_revision()
     if git_state is not None:
+        changed_code = python_files_changed_since(git_state.get("commit"))
         git = {**git_state, "captured": "before_run",
                "changed_during_run": (git_state.get("commit") != at_write["commit"]
-                                      or git_state.get("dirty") != at_write["dirty"])}
+                                      or git_state.get("dirty") != at_write["dirty"]),
+               "code_changed_during_run": bool(changed_code),
+               "changed_python_files": changed_code[:50]}
     else:
-        git = {**at_write, "captured": "at_write", "changed_during_run": None}
+        git = {**at_write, "captured": "at_write", "changed_during_run": None,
+               "code_changed_during_run": None, "changed_python_files": []}
     record: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "task": task,

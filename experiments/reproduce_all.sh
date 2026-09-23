@@ -60,12 +60,15 @@ step_e4()  { run_step e4 logs/runs/e4 results "$PY" -u -m experiments.run_benchm
                --config-from results/tuning/mnist_seed42.json --results-dir logs/runs/e4; }
 step_m0()  { run_step m0 logs/runs/m0 results/m0 "$PY" -u -m experiments.m0_bench --seed 42 \
                --results-dir logs/runs/m0; }
-step_m2a() { run_step m2a logs/runs/m2a results/m2 "$PY" -u -m experiments.m2_stream --seed 42 \
-               --results-dir logs/runs/m2a; }
-step_m2b() { run_step m2b logs/runs/m2b results/m2 "$PY" -u -m experiments.m2b --seed 42 \
-               --work-dir logs/m2b --results-dir logs/runs/m2b; }
-step_m3()  { run_step m3 logs/runs/m3 results/m3 "$PY" -u -m experiments.m3 --seed 42 \
-               --work-dir logs/m3 --results-dir logs/runs/m3; }
+# M2a, M2b and M3 take an optional seed (default 42): "m3@7" in the step list.
+step_m2a() { local seed=${1:-42}; run_step "m2a@$seed" "logs/runs/m2a@$seed" results/m2 \
+               "$PY" -u -m experiments.m2_stream --seed "$seed" --results-dir "logs/runs/m2a@$seed"; }
+step_m2b() { local seed=${1:-42}; run_step "m2b@$seed" "logs/runs/m2b@$seed" results/m2 \
+               "$PY" -u -m experiments.m2b --seed "$seed" --work-dir logs/m2b \
+               --results-dir "logs/runs/m2b@$seed"; }
+step_m3()  { local seed=${1:-42}; run_step "m3@$seed" "logs/runs/m3@$seed" results/m3 \
+               "$PY" -u -m experiments.m3 --seed "$seed" --work-dir logs/m3 \
+               --results-dir "logs/runs/m3@$seed"; }
 m5_engramm_all() {
   for task in banking77 clinc150; do
     for seed in ${SEEDS5//,/ }; do
@@ -114,7 +117,11 @@ repro_all() {
 step_repro() { run_step repro logs/runs/repro-records results/repro repro_all; }
 
 # Order: cheap and registered-first, the multi-hour LLM baseline last.
-ALL="e3 m0 m2a m2b m3 m5e b0 b3 e10 repro b1"
+ALL="e3 m0 m2a m2b m3 m5e b0 b3 e10 repro m2a@7 m2b@7 m3@7 m2a@1337 m2b@1337 m3@1337 b1"
 STEPS=${*:-$ALL}
-for s in $STEPS; do "step_$s"; done
+for s in $STEPS; do
+  name=${s%@*}; seed=""
+  [ "$name" != "$s" ] && seed=${s#*@}
+  "step_$name" $seed
+done
 log "queue finished"
