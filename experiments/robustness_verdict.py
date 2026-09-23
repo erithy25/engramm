@@ -46,6 +46,24 @@ FORMAT_CONTROLS = (("lr", "sign"), ("mlp", "sign"))
 FORMAT_MIN_ABOVE_CHANCE = 0.10
 
 
+def study_code_files() -> set[str]:
+    """Repository files the study process imports (everything but this referee).
+
+    A record lists every Python file changed while it ran; only those the
+    study actually executes can have influenced it. Documentation, tests and
+    this referee cannot.
+    """
+    repo = Path(__file__).resolve().parent.parent
+    files = set()
+    for module in list(sys.modules.values()):
+        path = getattr(module, "__file__", None)
+        if path and Path(path).resolve().is_relative_to(repo):
+            rel = Path(path).resolve().relative_to(repo).as_posix()
+            if not rel.startswith((".venv", "tests/")) and rel != "experiments/robustness_verdict.py":
+                files.add(rel)
+    return files
+
+
 def load_records(directory: Path, include_unofficial: bool = False
                  ) -> dict[str, dict[int, dict[str, Any]]]:
     """Official records only, unless smoke-testing the referee itself."""
@@ -176,8 +194,9 @@ def verdict(records: dict[str, dict[int, dict[str, Any]]]) -> dict[str, Any]:
         tasks[task] = {
             "seeds": seeds, "complete": set(seeds) == set(SEEDS),
             "canonical": all(r["canonical"] for r in records[task].values()),
-            "code_changed_during_any_run": any(r["git"]["code_changed_during_run"]
-                                               for r in records[task].values()),
+            "study_code_changed_during_any_run": sorted(
+                {f for r in records[task].values()
+                 for f in r["git"].get("changed_python_files", [])} & study_code_files()),
             "commits": sorted({r["git"]["commit"] for r in records[task].values()}),
             "checks": chk,
             "primary": primary,
