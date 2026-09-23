@@ -310,9 +310,106 @@ weginterpretiert.
    ist bereits der Fall — es steht hier, weil ein Sweep genau die Situation
    ist, in der es kippt.
 
-### Ergebnis
+### Ergebnis — gemessen 2026-08-16/17, eingetragen 2026-09-23
 
-*(wird nach dem Sweep eingetragen; das Gitter oben bleibt unverändert)*
+Alle 48 Zellen liefen durch (D = 4.000, Container, `canonical=false`,
+Records in `results/e2_sweep/`). Eingetragen wurde das Ergebnis erst fünf
+Wochen später — die Auswertung folgt ausschließlich den oben registrierten
+Regeln, nichts wurde nachträglich an Bändern oder Kontrollen geändert.
+
+| Konstruktion | Q=4 | Q=8 | Q=16 | Q=32 |
+|---|---|---|---|---|
+| `progressive` (Basis) | 0,7799 | 0,7754 | **0,7785** | 0,7800 |
+| `linear_thermometer` | 0,7935 | 0,7964 | 0,7957 | **0,7994** |
+| `random_levels` (Kontrolle) | 0,7833 | 0,7794 | 0,7826 | 0,7792 |
+| `single_flip_block` | 0,7626 | 0,7711 | 0,7750 | 0,7786 |
+
+(Mittel über Seeds 42/7/1337.)
+
+**Referenzzelle reproduziert exakt:** `progressive`/Q=16 = 0,7857 / 0,7831 /
+0,7666, bitgleich zum Referenzlauf aus Nachtrag 2.
+
+**Negativkontrolle: VERLETZT.** `random_levels` ist bei Q = 4, 8, 16 *nicht*
+schlechter als `progressive` (+0,34 / +0,40 / +0,42 pp), nur bei Q = 32
+knapp (−0,08 pp). Nach der registrierten Regel misst die Achse damit nicht,
+was sie zu messen vorgibt: **das Ergebnis der Konstruktions-Achse ist ohne
+Aussagekraft.** Berichtet, nicht weginterpretiert. (Beobachtung ohne
+Kriteriumsrang: `linear_thermometer` liegt in allen vier Q-Stufen 1,0–2,0 pp
+über `random_levels` — Ordnung *kann* helfen, die ausgelieferte
+`progressive`-Konstruktion nutzt sie nur nicht messbar.)
+
+**Beste Zelle:** `linear_thermometer`/Q=32 mit 79,94 % = +2,09 pp über der
+D-4.000-Basis 77,85 % → Band **„teilweise erklärt"**, 0,09 pp über der
+Bandgrenze und damit innerhalb der Seed-Streuung (~0,6 pp).
+
+**Schritt 4 (Bestätigung der Gewinnerzelle bei D = 10.000, 5 Seeds): nicht
+ausgeführt.** Überholt durch E3 — die Lücke hat eine direktere Erklärung
+(siehe dort). GAP-1 als Hauptursache ist durch E2 **nicht gestützt**.
+
+---
+
+## E3 — MNIST: Prototypen + T2 (die T2-These zur 6,42-pp-Lücke)
+
+**Registriert 2026-09-23, vor dem Lauf auf dem Testsplit.** Harness
+`python -m experiments.run_benchmark --task mnist --seeds 5 --pipeline prototypes --t2-epochs 2`.
+
+### Die These
+
+Der Referenzpunkt 86,49 % (Prototypen-only-Ablation der Aktenlage) lief
+**mit zwei T2-Epochen**: D4 vermerkt für genau diesen Lauf „T2-Fehler Ep. 1/2
+17,84 % / 15,16 %". Der Neubau lief ohne T2 (`t2_epochs = 0` war hart
+kodiert), und T2 war in keinem Dokument als Ursache der Lücke betrachtet
+worden — weder in GAP-1 noch in E2. Das ist der naheliegendere Kandidat als
+die Thermometer-Konstruktion: Eine T2-Fehlerrate von ~18 % in der ersten
+Epoche passt zu einem Startzustand von ~80 % — dem Neubau ohne T2.
+
+### Evidenz vor dem Testlauf (Validierung, nicht Test)
+
+`results/tuning/mnist_seed42.json`: Training auf den ersten 50.000, Validierung
+auf den letzten 10.000 Trainingsbildern. Prototypen + 2 T2-Epochen:
+**86,98 %**, T2-Fehler 18,20 % / 15,53 % — fast deckungsgleich mit den
+historischen 17,84 % / 15,16 %.
+
+### Kriterien (fixiert vor dem Testlauf)
+
+| Band | Bedingung | Lesart |
+|---|---|---|
+| **These bestätigt** | \|Mittel − 86,49\| ≤ 1,5 pp über 5 Seeds | T2 erklärt die Lücke; GAP-1 wird als Ursache gestrichen |
+| **Teilweise** | Mittel ≥ 83,5 %, aber außerhalb des Bandes | T2 erklärt einen Teil, Rest beziffert |
+| **These widerlegt** | Mittel < 83,5 % | Lücke bleibt offen |
+
+---
+
+## E4 — M1b: MNIST, volle Pipeline (Episoden + Fusion + T2)
+
+**Registriert 2026-09-23, vor dem Lauf auf dem Testsplit.** Harness
+`python -m experiments.run_benchmark --task mnist --seeds 5 --pipeline full --config-from results/tuning/mnist_seed42.json`.
+
+### Konfiguration — auf Validierung gewählt, nicht auf Test
+
+Aus `results/tuning/mnist_seed42.json` (Gitter θ₀ × λe × T2-Epochen, alle
+Zellen im Record): **T2 = 2 Epochen, λe = 0,25, λp = 1, θ₀ = 0,2, k = 32**,
+Validierung 94,83 %. Die Wahl ist fast flach — alle Zellen mit Episoden
+liegen zwischen 94,77 % und 94,83 % —, die Konfiguration trägt das Ergebnis
+also nicht, die Architektur tut es.
+
+### Referenzpunkte
+
+Historisch 94,62 % (Seed 42) und **94,59 % ± 0,04** (5 Seeds) mit λe = λp = 1;
+vorregistriertes M1b-Genauigkeitskriterium **≥ 94 %** (D5 §2).
+
+### Kriterien (fixiert vor dem Testlauf)
+
+1. **M1b-Genauigkeitskriterium:** Mittel über 5 Seeds ≥ 94,0 % → erfüllt.
+2. **Replikation:** \|Mittel − 94,59\| ≤ 1,0 pp **und** Seed-SD ≤ 0,5 pp.
+3. **Determinismus:** Seed 42 ein zweites Mal in einem eigenen Prozess —
+   `predictions_sha256` muss identisch sein.
+4. **Zeitkriterium (< 30 min CPU):** im Container nicht bewertbar
+   (`docs/PROTOCOL.md` Regel 2). Die Wandzeit wird mitgeschrieben, ist aber
+   kein Urteil. Offen bis zum Lauf auf dem M4.
+
+**Erwartung:** Mittel 94,6–95,4 %. Gegenüber der Validierung (50.000
+Trainingsbilder) lernt der Testlauf auf allen 60.000, was eher hebt.
 
 ---
 
