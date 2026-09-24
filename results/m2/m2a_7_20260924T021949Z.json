@@ -1,0 +1,123 @@
+{
+  "task": "m2a_stream_consolidation",
+  "seed": 7,
+  "timestamp_utc": "2026-09-24T02:19:49+00:00",
+  "git": {
+    "commit": "21ee46c2bfad48193e36d29792f0cc4083b30764",
+    "dirty": false,
+    "untracked": 0,
+    "captured": "before_run"
+  },
+  "setup": {
+    "dimension": 10000,
+    "stream_items": 50000,
+    "chunk": 2000,
+    "encoder": "TrigramEncoder(dimension=10000)",
+    "config": {
+      "k": 32,
+      "theta0": 0.0,
+      "lambda_e": 1.0,
+      "lambda_p": 1.0,
+      "util_clip": 8,
+      "t2_local": false
+    },
+    "util_max": 2,
+    "evaluation_queries": 5430
+  },
+  "runs": {
+    "A_no_T3": {
+      "episodes_kept": 50000,
+      "items": 50000,
+      "absorbed": 0,
+      "learn_cpu_seconds": 438.6810349869999,
+      "t3_cpu_seconds": 0.0,
+      "t3_cpu_share": 0.0,
+      "total": 0.827255985267035,
+      "b77": 0.7733766233766234,
+      "wili": 0.8978723404255319
+    },
+    "A_no_T3_no_T2": {
+      "episodes_kept": 50000,
+      "items": 50000,
+      "absorbed": 0,
+      "learn_cpu_seconds": 1.9058090740002172,
+      "t3_cpu_seconds": 0.0,
+      "t3_cpu_share": 0.0,
+      "total": 0.8639042357274401,
+      "b77": 0.8366883116883117,
+      "wili": 0.8995744680851064
+    },
+    "B_theta_0.12": {
+      "episodes_kept": 8674,
+      "items": 50000,
+      "absorbed": 41326,
+      "learn_cpu_seconds": 162.45231257999967,
+      "t3_cpu_seconds": 0.2321934799998644,
+      "t3_cpu_share": 0.0014272624088383027,
+      "total": 0.46335174953959485,
+      "b77": 0.3581168831168831,
+      "wili": 0.6012765957446808,
+      "compression": 5.76435323956652,
+      "delta_acc_pp": -36.39042357274402
+    },
+    "B_theta_0.2": {
+      "episodes_kept": 10885,
+      "items": 50000,
+      "absorbed": 39115,
+      "learn_cpu_seconds": 173.0996594830001,
+      "t3_cpu_seconds": 0.281521426000495,
+      "t3_cpu_share": 0.0016237138570895536,
+      "total": 0.5513812154696133,
+      "b77": 0.4850649350649351,
+      "wili": 0.6382978723404256,
+      "compression": 4.593477262287552,
+      "delta_acc_pp": -27.587476979742178
+    },
+    "B_theta_0.28": {
+      "episodes_kept": 17335,
+      "items": 50000,
+      "absorbed": 32665,
+      "learn_cpu_seconds": 215.71096350100015,
+      "t3_cpu_seconds": 0.40251695299980383,
+      "t3_cpu_share": 0.0018625258922035644,
+      "total": 0.6084714548802946,
+      "b77": 0.5162337662337663,
+      "wili": 0.7293617021276596,
+      "compression": 2.884338044418806,
+      "delta_acc_pp": -21.87845303867404
+    },
+    "B_theta_0.35": {
+      "episodes_kept": 26062,
+      "items": 50000,
+      "absorbed": 23938,
+      "learn_cpu_seconds": 274.9769714489996,
+      "t3_cpu_seconds": 0.5959463390001929,
+      "t3_cpu_share": 0.0021625722287364198,
+      "total": 0.676427255985267,
+      "b77": 0.5951298701298702,
+      "wili": 0.7829787234042553,
+      "compression": 1.9185020336121557,
+      "delta_acc_pp": -15.082872928176805
+    }
+  },
+  "criterion": {
+    "compression_ge_5x": true,
+    "delta_acc_le_1pp": false,
+    "t3_cpu_share_le_10pct": true,
+    "met": false
+  },
+  "theta_meeting_both_compression_and_accuracy": [],
+  "t2_ablation_b77_pp": -6.3311688311688314,
+  "runtime": {
+    "wall_seconds": 1442.2340974379986
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}
