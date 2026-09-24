@@ -50,6 +50,7 @@ from engramm.core import ItemMemory
 from engramm.encoders import TrigramEncoder
 from engramm.metrics import hamming
 from engramm.repro import collect_environment, git_revision, peak_rss_mb, set_all_seeds
+from experiments.energy import measure_energy
 from experiments.common import encode_cached
 
 WINDOW = 100
@@ -187,6 +188,15 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  ef={ef}: recall@32 {recall:.4f} (strict ids {strict:.4f})  "
               f"p50 {rows[-1]['query_ms_p50']:.2f} ms", flush=True)
 
+    # Energy per query at the historical GO point (ef = 128), single thread,
+    # over the first 200 queries — where the hardware exposes it at all.
+    index.hnsw.efSearch = 128
+    faiss.omp_set_num_threads(1)
+    cycle = iter(range(10**9))
+    energy = measure_energy(lambda: index.search(q[next(cycle) % 200:][:1], K), 200)
+    print(f"energy per query (ef=128): {energy['mj_per_call']} mJ "
+          f"({energy['source'] or energy['note']})", flush=True)
+
     go = [r["ef"] for r in rows if r["recall_at_32_tie_tolerant"] >= 0.95]
     record = {
         "task": "m0_hnsw_recall", "seed": args.seed,
@@ -213,9 +223,8 @@ def main(argv: list[str] | None = None) -> int:
             "ground_truth_seconds": truth_seconds,
             "key_encoding_seconds": encode_seconds,
         },
-        "energy_mj_per_query": None,
-        "energy_note": ("not measured: no power interface in this container (no RAPL, "
-                        "no powermetrics); measurable only on the reference machine"),
+        "energy_mj_per_query": energy["mj_per_call"],
+        "energy": {**energy, "ef": 128, "threads": 1},
         "runtime": {"wall_seconds": time.perf_counter() - started,
                     "peak_rss_mb": peak_rss_mb(), "peak_rss_scope": "process"},
         "environment": collect_environment(),

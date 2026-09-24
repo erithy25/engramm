@@ -48,6 +48,7 @@ from typing import Any
 import numpy as np
 
 from data.intents import load_banking77, load_clinc150
+from experiments.energy import measure_energy
 
 REPO = Path(__file__).resolve().parent.parent
 RESULTS_DIR = REPO / "results" / "m5"
@@ -189,10 +190,21 @@ def _sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def run_b1(task: str, seed: int, limit: int | None = None, threads: int = 4) -> None:
+#: llama.cpp threads for B1. Two, for prompt evaluation *and* generation: on
+#: a shared 4-core machine, llama.cpp's thread barriers degrade catastrophically
+#: once cores are oversubscribed (measured: 4 threads under load 40–60 s per
+#: query, 2 threads 2.3–2.5 s). The thread count is not part of the method —
+#: the historical B1 ran on the GPU — and it is recorded with the results.
+B1_THREADS = 2
+
+
+def run_b1(task: str, seed: int, limit: int | None = None, threads: int = B1_THREADS) -> None:
     import faiss
     from llama_cpp import Llama
 
+    import torch
+
+    torch.set_num_threads(threads)            # the per-query embedding, same reason
     if _sha256(QWEN_B1) != QWEN_B1_SHA256:
         raise RuntimeError(f"{QWEN_B1} does not match its recorded digest")
     data = load_split(task, seed)
@@ -202,6 +214,7 @@ def run_b1(task: str, seed: int, limit: int | None = None, threads: int = 4) -> 
     index = faiss.IndexFlatIP(train.shape[1])
     index.add(train)
     llm = Llama(model_path=str(QWEN_B1), n_ctx=4096, n_threads=threads,
+                n_threads_batch=threads,
                 n_gpu_layers=0, seed=seed, verbose=False)
     intents = ", ".join(classes)
     system = ("You are an intent classifier. Reply with exactly one intent label "
@@ -215,23 +228,26 @@ def run_b1(task: str, seed: int, limit: int | None = None, threads: int = 4) -> 
     if out_path.exists():
         done = [json.loads(line) for line in out_path.read_text().splitlines() if line.strip()]
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    def classify(text: str) -> tuple[str, str]:
+        q = emb.encode([text], normalize_embeddings=True).astype("float32")
+        _, neighbours = index.search(q, 5)
+        shots = "\n".join(f'- "{data["train_texts"][j]}" -> {data["train_labels"][j]}'
+                          for j in neighbours[0])
+        # The constant part (system + allowed intents) comes first, so
+        # llama.cpp reuses its KV cache across queries.
+        messages = [{"role": "system", "content": system},
+                    {"role": "user", "content":
+                     f"Allowed intents: {intents}\n\nExamples:\n{shots}\n\n"
+                     f'Text: "{text}"\nIntent:'}]
+        reply = llm.create_chat_completion(messages=messages, max_tokens=16,
+                                           temperature=0.0)
+        raw = reply["choices"][0]["message"]["content"]
+        return raw, parse_label(raw, classes)
+
     with open(out_path, "a", encoding="utf-8") as sink:
         for i in range(len(done), len(texts)):
             marker, cpu = time.perf_counter(), time.process_time()
-            q = emb.encode([texts[i]], normalize_embeddings=True).astype("float32")
-            _, neighbours = index.search(q, 5)
-            shots = "\n".join(f'- "{data["train_texts"][j]}" -> {data["train_labels"][j]}'
-                              for j in neighbours[0])
-            # The constant part (system + allowed intents) comes first, so
-            # llama.cpp reuses its KV cache across queries.
-            messages = [{"role": "system", "content": system},
-                        {"role": "user", "content":
-                         f"Allowed intents: {intents}\n\nExamples:\n{shots}\n\n"
-                         f'Text: "{texts[i]}"\nIntent:'}]
-            reply = llm.create_chat_completion(messages=messages, max_tokens=16,
-                                               temperature=0.0)
-            raw = reply["choices"][0]["message"]["content"]
-            pred = parse_label(raw, classes)
+            raw, pred = classify(texts[i])
             row = {"i": i, "gold": gold[i], "pred": pred, "raw": raw,
                    "ms": (time.perf_counter() - marker) * 1e3,
                    "cpu_s": time.process_time() - cpu}
@@ -241,6 +257,11 @@ def run_b1(task: str, seed: int, limit: int | None = None, threads: int = 4) -> 
             if (i + 1) % 100 == 0:
                 acc = np.mean([r["pred"] == r["gold"] for r in done])
                 print(f"  [{task}] B1 {i + 1}/{len(texts)} acc={acc:.4f}", flush=True)
+
+    # Energy per query: a separate probe over the first 20 test queries after
+    # scoring (predictions are not touched), where the hardware exposes it.
+    probe = iter(range(10**9))
+    energy = measure_energy(lambda: classify(texts[next(probe) % 20]), 20)
 
     record = {"task": task, "system": "b1", "seed": seed,
               "model": "Qwen2.5-3B-Instruct-Q4_K_M (llama.cpp, CPU) + bge-small-en-v1.5 + FAISS top-5",
@@ -252,8 +273,9 @@ def run_b1(task: str, seed: int, limit: int | None = None, threads: int = 4) -> 
               "learn_note": "RAG: learning is embedding the shots and inserting them into the index",
               "query_ms_mean": float(np.mean([r["ms"] for r in done])),
               "cpu_seconds_per_query_proxy": float(np.mean([r["cpu_s"] for r in done])),
-              "energy_mj_per_query": None,
-              "energy_note": "not measured: no power interface in this container"}
+              "llama_threads": {"generation": threads, "batch": threads},
+              "energy_mj_per_query": energy["mj_per_call"],
+              "energy": energy}
     print(f"[{task}] B1: acc={record['acc']:.4f} -> {_write(record, 'b1', task, seed)}")
 
 

@@ -50,6 +50,7 @@ from engramm.core import ItemMemory
 from engramm.encoders import build_encoder
 from engramm.memory import Engramm, FusionConfig
 from engramm.repro import collect_environment, git_revision, set_all_seeds
+from experiments.energy import measure_energy
 
 RESULTS_DIR = Path(__file__).resolve().parent.parent / "results" / "m5"
 LOADERS = {"banking77": load_banking77, "clinc150": load_clinc150}
@@ -140,6 +141,11 @@ def main(argv: list[str] | None = None) -> int:
         latencies.append((time.perf_counter() - marker) * 1e3)
         cpu_per_query.append(time.process_time() - cpu)
 
+    # 5: energy per query over the same 500 single queries, where measurable
+    probe = iter(range(10**9))
+    energy = measure_energy(
+        lambda: model.predict(encoder.encode([test_texts[next(probe) % 500]])), 500)
+
     # 4: forgetting over the same class tranches as B3
     blocks = tranche_blocks(list(full.labels), TRANCHES[args.task])
     first = set(blocks[0])
@@ -188,8 +194,8 @@ def main(argv: list[str] | None = None) -> int:
         "query_ms_mean": float(np.mean(latencies)),
         "query_ms_p99": float(np.percentile(latencies, 99)),
         "cpu_seconds_per_query_proxy": float(np.mean(cpu_per_query)),
-        "energy_mj_per_query": None,
-        "energy_note": "not measured: no power interface in this container",
+        "energy_mj_per_query": energy["mj_per_call"],
+        "energy": energy,
         "forgetting": {
             "tranches": len(blocks), "first_block_classes": len(blocks[0]),
             "t1_only_block_after_first": t1_first, "t1_only_block_final": t1_final,
