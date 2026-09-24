@@ -650,6 +650,33 @@ Zustands-Invarianz ✓; **Auslese-Invarianz ✓** (historisch verletzt, W19 — 
 Inhalts-ID-Tie-Break jetzt erwartet erfüllt); Rekonstruktion exakt ✓; V2 offen —
 im Rauchtest (100 Autoren, D = 512) lag t2_local mit +4 pp *über* 1 pp.
 
+### Ergebnis Seed 42 — gemessen 2026-09-24, Container, `canonical=false`
+
+Record `results/m3/m3_42_20260924T005532Z.json` (Code `089f29f`, Vorverarbeitung v2 —
+der erste Anlauf brach vor jeder Messung an NUL-Bytes ab, GAP-10). 1.000 von 4.244
+geeigneten Autoren; Validierung wählte T2 = 2, λe = 0,5, θ₀ = 0,3 (Val-Acc 18,58 %).
+
+| Variante | Top-1 | Top-5 | Vergessen V1 | Interferenz V2 | Lernzeit/Klasse (Container) |
+|---|---|---|---|---|---|
+| **full** (bewertet) | **14,61 %** | 27,44 % | **+21,10 pp** | −4,50 pp | 40 ms |
+| t1_only | 9,83 % | 19,85 % | +10,40 pp | 0 | 1,3 ms |
+| t2_local | 14,28 % | 26,09 % | +16,50 pp | **−5,30 pp** | 44 ms |
+
+| Kriterium | Ergebnis |
+|---|---|
+| Vergessen V1 ≤ 1,0 pp | ✗ **nicht erfüllt** (+21,10 pp) — erwartet |
+| Lernzeit/Klasse ≤ 1 s | ✓ (40 ms, Container) |
+| Top-1 ≥ 30 % / Top-5 ≥ 50 % | ✗ (14,61 / 27,44 %) — R-1 (Top-1 < 20 %) bleibt ausgelöst |
+| Rekonstruktion aus L2 | ✓ exakt (Zustand und alle 10.000 Vorhersagen, 1.461 = 1.461 Treffer) |
+| Zustands-Invarianz | ✓ |
+| **Auslese-Invarianz** | ✓ **0 Abweichungen** — historisch verletzt (W19), durch den Inhalts-ID-Tie-Break behoben |
+| V2 (ratifiziert): Interferenz t2_local ≤ 1 pp | ✓ (−5,30 pp: T2 *hebt* den Tranche-1-Block gegenüber T1-only) |
+
+**M3 insgesamt NICHT ERFÜLLT** (V1 und Top-1), wie registriert erwartet. Gegenüber
+der Aktenlage ist das Ergebnis besser: Top-1 14,61 % statt 5,94 % (2,5×), und die
+Auslese-Invarianz, die historisch fehlschlug, hält jetzt. Top-1 liegt knapp unter
+dem erwarteten Band (5–15 %) an dessen Oberkante. Seeds 7 und 1337 folgen.
+
 ---
 
 ## E9 — M5: ENGRAMM gegen lokale LLM-Baselines (Banking77, CLINC150)
