@@ -1,0 +1,45 @@
+{
+  "task": "banking77",
+  "system": "b1",
+  "seed": 42,
+  "model": "Qwen2.5-3B-Instruct-Q4_K_M (llama.cpp, CPU) + bge-small-en-v1.5 + FAISS top-5",
+  "model_sha256": "626b4a6678b86442240e33df819e00132d3ba7dddfe1cdc4fbb18e0a9615c62d",
+  "n_classes": 77,
+  "n_test": 3080,
+  "complete": true,
+  "acc": 0.8051948051948052,
+  "learn_ms_per_class_wall": null,
+  "learn_note": "RAG: learning is embedding the shots and inserting them into the index",
+  "query_ms_mean": 8198.3390690568,
+  "cpu_seconds_per_query_proxy": 13.660966956129887,
+  "llama_threads": {
+    "generation": 2,
+    "batch": 2
+  },
+  "energy_mj_per_query": null,
+  "energy": {
+    "available": false,
+    "source": null,
+    "mj_per_call": null,
+    "mj_per_call_above_idle": null,
+    "calls": 20,
+    "note": "not measured: no power interface (no readable RAPL counters, no passwordless powermetrics)"
+  },
+  "timestamp_utc": "2026-09-24T08:18:11+00:00",
+  "git": {
+    "commit": "146425514844bfbb1ab9e374d5407a8e586c8dff",
+    "dirty": false,
+    "captured": "before_run"
+  },
+  "versions": {
+    "python": "3.12.3",
+    "numpy": "2.5.3",
+    "torch": "2.14.0+cpu",
+    "transformers": "5.17.0",
+    "peft": "0.21.0",
+    "sentence_transformers": "6.1.0",
+    "faiss": "1.15.1",
+    "llama_cpp": "0.3.35"
+  },
+  "cpu_count": 4
+}

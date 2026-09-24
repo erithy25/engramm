@@ -1,0 +1,76 @@
+{
+  "seed": 42,
+  "overall": "(3) NIEDERLAGE auf beiden Aufgaben",
+  "tasks": [
+    {
+      "task": "banking77",
+      "seed": 42,
+      "decided": true,
+      "outcome": "(3) NIEDERLAGE — Genauigkeits-Katastrophe (> 15 pp)",
+      "accuracy": {
+        "engramm": 0.6373376623376623,
+        "b1": 0.8051948051948052,
+        "gap_pp": 16.785714285714292,
+        "b0_embedding_knn": 0.8282467532467532,
+        "b3_lora": 0.14707792207792209
+      },
+      "criteria": {
+        "1_accuracy": false,
+        "2_energy": null,
+        "3_learning_time": true,
+        "4_forgetting": true
+      },
+      "energy": {
+        "engramm": null,
+        "b1": null,
+        "cpu_seconds_per_query_ratio_b1_over_engramm_PROXY": 812.8960914219807
+      },
+      "learning_time_ms_per_class": {
+        "engramm_wall": 7.632074636355604,
+        "b3_wall": 5186.344318649354,
+        "b3_cpu": 20320.287848324675,
+        "ratio_wall": 679.5458071051946
+      },
+      "forgetting_pp": {
+        "engramm_interference_v2": 0.0,
+        "engramm_classical_v1": 21.818181818181813,
+        "b3_classical": 66.13636363636364
+      }
+    },
+    {
+      "task": "clinc150",
+      "seed": 42,
+      "decided": true,
+      "outcome": "(3) NIEDERLAGE — Genauigkeits-Katastrophe (> 15 pp)",
+      "accuracy": {
+        "engramm": 0.73,
+        "b1": 0.9037777777777778,
+        "gap_pp": 17.37777777777778,
+        "b0_embedding_knn": 0.8646666666666667,
+        "b3_lora": 0.344
+      },
+      "criteria": {
+        "1_accuracy": false,
+        "2_energy": null,
+        "3_learning_time": true,
+        "4_forgetting": true
+      },
+      "energy": {
+        "engramm": null,
+        "b1": null,
+        "cpu_seconds_per_query_ratio_b1_over_engramm_PROXY": 624.7108094515216
+      },
+      "learning_time_ms_per_class": {
+        "engramm_wall": 7.589070933330125,
+        "b3_wall": 4808.514449226641,
+        "b3_cpu": 18931.291178933334,
+        "ratio_wall": 633.6104236565146
+      },
+      "forgetting_pp": {
+        "engramm_interference_v2": 0.0,
+        "engramm_classical_v1": 11.555555555555564,
+        "b3_classical": 76.22222222222223
+      }
+    }
+  ]
+}
