@@ -530,6 +530,31 @@ historischen GO, mit dem Preis in Build-Zeit ausgewiesen. Erreicht keines 95 % b
 ef ≤ 256, ist W12 auf diesen Keys **nicht entschärft**.
 **Erwartung:** efC = 160 erreicht ≥ 95 % bei ef = 128; Build-Zeit ~4× E5.
 
+### Ergebnis — gemessen 2026-09-23/24, Container, `canonical=false`
+
+Records `results/m0b/` (sauberer Baum; Build-Zeiten unter Parallellast und inkl.
+Pausen während B3 — nicht offiziell, nur Größenordnung).
+
+| efConstruction | ef = 64 | ef = 128 | ef = 256 | D5-Kriterium |
+|---|---|---|---|---|
+| 40 (E5) | 0,8745 | 0,9195 | 0,9471 | nicht erfüllt |
+| 80 | 0,8689 | 0,9118 | 0,9377 | nicht erfüllt |
+| 160 | 0,9093 | 0,9451 | **0,9696** | erfüllt ab ef = 256 |
+| **320** | 0,9273 | **0,9595** | 0,9761 | **erfüllt ab ef = 128** |
+| historisch (M4) | 0,9206 | 0,9557 | 0,9731 | erfüllt ab ef = 128 |
+
+**Lesart nach Registrierung: W12 mit höherem Build-Aufwand ENTSCHÄRFT** — efC = 320
+erreicht 95,95 % bei ef = 128 und bildet die historische Kurve auf 0,3–0,7 pp genau
+nach. Der Preis ist Build-Zeit (hier ~8× E5 bei gleicher Last; Container, nicht
+offiziell). efC = 80 liegt *unter* efC = 40: der Mehr-Thread-Aufbau von FAISS ist
+nicht deterministisch, die Streuung zwischen zwei Builds liegt in der Größenordnung
+1 pp — deshalb ist keine einzelne Nachkommastelle dieser Tabelle belastbar, wohl
+aber der Trend über efC.
+
+**Was bleibt:** E5 (registriertes Setup, efC = 40) ist **nicht erfüllt** und wird so
+berichtet. E5b zeigt, dass das historische GO mit einem sorgfältiger gebauten Index
+erreichbar ist — die historische efConstruction ist nicht überliefert.
+
 ---
 
 ## E6 — M2a: Konsolidierung durch Ähnlichkeitsabsorption

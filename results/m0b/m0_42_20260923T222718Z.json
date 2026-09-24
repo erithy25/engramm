@@ -1,0 +1,78 @@
+{
+  "task": "m0_hnsw_recall",
+  "seed": 42,
+  "timestamp_utc": "2026-09-23T22:27:18+00:00",
+  "git": {
+    "commit": "888d3c22b111db2e8a515767dd21af3578cb2f0d",
+    "dirty": false,
+    "untracked": 0,
+    "captured": "before_run"
+  },
+  "setup": {
+    "dimension": 10000,
+    "n_keys": 1000000,
+    "n_queries": 1000,
+    "window_bytes": 100,
+    "stride_bytes": 50,
+    "k": 32,
+    "keys": "WiLI-2018 training paragraphs, byte windows in split order",
+    "queries": "first window of seeded-random WiLI-2018 test paragraphs",
+    "index": "faiss.IndexBinaryHNSW(M=32, efConstruction=80)",
+    "faiss": "1.15.1",
+    "key_anchor_md5_first_1000": "d6d2271aa23bc8070f29660f5c6b7f7f"
+  },
+  "recall": [
+    {
+      "ef": 64,
+      "recall_at_32_tie_tolerant": 0.8689375,
+      "recall_at_32_strict_ids": 0.8634375,
+      "query_ms_p50": 1.2925190003443277,
+      "query_ms_p99": 9.25278171054742
+    },
+    {
+      "ef": 128,
+      "recall_at_32_tie_tolerant": 0.9118125,
+      "recall_at_32_strict_ids": 0.90621875,
+      "query_ms_p50": 2.0615674993678113,
+      "query_ms_p99": 6.5379284187838484
+    },
+    {
+      "ef": 256,
+      "recall_at_32_tie_tolerant": 0.9376875,
+      "recall_at_32_strict_ids": 0.9324375,
+      "query_ms_p50": 3.256508500271593,
+      "query_ms_p99": 5.83275790009793
+    }
+  ],
+  "criterion": {
+    "registered": "recall@32 >= 0.95 at some ef in {64,128,256} (D5 \u00a71)",
+    "met": false,
+    "first_ef_meeting_it": null
+  },
+  "microbenchmarks_not_official": {
+    "encode_s_100_bytes_us": 929.1353170001457,
+    "hamming_hot_ns_per_pair_numpy": 560.7331640611335,
+    "hamming_cold_ns_per_pair_numpy_random_gather": 5915.673859999515,
+    "brute_force_ms_per_query_1e6_single_thread": 123.74880420002228,
+    "hnsw_insert_ms_per_key_thread_normalised": 5.460711154987999,
+    "hnsw_build_seconds": 1365.1777887469998,
+    "ground_truth_seconds": 144.3916516900008,
+    "key_encoding_seconds": 5.8358399020016805
+  },
+  "energy_mj_per_query": null,
+  "energy_note": "not measured: no power interface in this container (no RAPL, no powermetrics); measurable only on the reference machine",
+  "runtime": {
+    "wall_seconds": 1534.3059623570007,
+    "peak_rss_mb": 3034.28125,
+    "peak_rss_scope": "process"
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}
