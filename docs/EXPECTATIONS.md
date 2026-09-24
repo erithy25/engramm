@@ -737,6 +737,22 @@ Band wie E1). **Erwartung:** 77,5–80 %. Offizielle M1-Zahl bleibt die
 validiert beste Konfiguration (E1, 84,79 %); E10 zeigt nur, dass die
 historische Zahl mit der historischen Architektur nachgemessen werden kann.
 
+### Ergebnis — gemessen 2026-09-24, Container, `canonical=false`
+
+Records `results/wili_*_20260924T0*.json`.
+
+| Seed | 42 | 7 | 1337 | 2026 | 99 | **Mittel ± SD** |
+|---|---|---|---|---|---|---|
+| Accuracy | 0,7804 | 0,7824 | 0,7820 | 0,7813 | 0,7708 | **0,7794 ± 0,0049** |
+| Macro-F1 | 0,7813 | 0,7814 | 0,7758 | 0,7790 | 0,7714 | 0,7778 ± 0,0042 |
+
+**REPLIKATION DER README-ZAHL BESTÄTIGT** — |77,94 − 79,30| = 1,36 pp ≤ 3 pp, im
+erwarteten Band (77,5–80 %). Die historischen 79,30 % sind damit als Wert der
+*historischen Architektur* (volle Pipeline, λe = λp = 1, ohne T2) nachgemessen. Das
+Episoden-Paradox bestätigt sich auf Test: dieselbe Pipeline ohne Episodenstimme
+(E1, reine Prototypen) liegt 6,85 pp höher (84,79 %). Offizielle M1-Zahl bleibt
+E1.
+
 ---
 
 ## E11 — Bitkorruptions-Robustheit (README-Roadmap Phase 4)
