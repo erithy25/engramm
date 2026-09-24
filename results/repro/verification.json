@@ -1,0 +1,44 @@
+{
+  "timestamp_utc": "2026-09-24T01:55:45+00:00",
+  "what_this_shows": "determinism on this platform from the committed tree; not third-party replication on other hardware",
+  "all_identical": true,
+  "rows": [
+    {
+      "rerun": "mnist_42_20260924T013351Z.json",
+      "matched": "mnist_42_20260923T200730Z.json",
+      "committed_commit": "72e704e2440a05a6cb0ce3c3c8662524bf2ff3c8",
+      "rerun_commit": "3f24bea48c332f46c8d4c39b8dc45f48e2a01628",
+      "accuracy": 0.9488,
+      "checks": {
+        "accuracy": true,
+        "macro_f1": true,
+        "predictions_sha256": true
+      },
+      "identical": true
+    },
+    {
+      "rerun": "wili_42_20260924T014451Z.json",
+      "matched": "wili_42_20260815T233719Z.json",
+      "committed_commit": "d24effb7c8249c60fc633ce88158a7cd2efeef8f",
+      "rerun_commit": "3f8065323e6eacddef83570cbc57e2d4ec913ac1",
+      "accuracy": 0.8488510638297873,
+      "checks": {
+        "accuracy": true,
+        "macro_f1": true
+      },
+      "identical": true
+    },
+    {
+      "rerun": "wili_7_20260924T015545Z.json",
+      "matched": "wili_7_20260815T235539Z.json",
+      "committed_commit": "d24effb7c8249c60fc633ce88158a7cd2efeef8f",
+      "rerun_commit": "3f8065323e6eacddef83570cbc57e2d4ec913ac1",
+      "accuracy": 0.8476255319148936,
+      "checks": {
+        "accuracy": true,
+        "macro_f1": true
+      },
+      "identical": true
+    }
+  ]
+}

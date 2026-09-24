@@ -1,0 +1,74 @@
+{
+  "schema_version": 4,
+  "task": "mnist",
+  "seed": 42,
+  "timestamp_utc": "2026-09-24T01:33:51+00:00",
+  "git": {
+    "commit": "3f24bea48c332f46c8d4c39b8dc45f48e2a01628",
+    "dirty": true,
+    "untracked": 2,
+    "captured": "before_run",
+    "changed_during_run": true,
+    "code_changed_during_run": true,
+    "changed_python_files": [
+      "experiments/energy.py",
+      "experiments/m0_bench.py",
+      "experiments/m5_baselines.py",
+      "experiments/m5_engramm.py",
+      "tests/test_energy.py"
+    ]
+  },
+  "result": {
+    "accuracy": 0.9488,
+    "macro_f1": 0.9489597256813207,
+    "n_train": 60000,
+    "n_test": 10000,
+    "n_classes": 10,
+    "chance_level": 0.1,
+    "predictions_sha256": "54a7785a8c6b30e55509c5074b5b5370b41dd8155dd7f1b60dd3355cb7fe96db",
+    "t2_error_per_epoch": [
+      0.053583,
+      0.051833
+    ]
+  },
+  "hyperparams": {
+    "task": "mnist",
+    "dimension": 10000,
+    "shots": null,
+    "encoder": "PixelThermometerEncoder(dimension=10000, n_positions=784, n_levels=16, construction='progressive')",
+    "artifacts_digest": "02f74716b5f86df2196f328476e5dea0561de1843d955e94ec7de2fcbc5147f0",
+    "official_split": true,
+    "limit_train": null,
+    "limit_test": null,
+    "test_batch_size": 2000,
+    "train_batch_size": 5000,
+    "accumulator_halvings": 0,
+    "pipeline": "full",
+    "episodes": true,
+    "t2_epochs": 2,
+    "fusion": {
+      "k": 32,
+      "theta0": 0.2,
+      "lambda_e": 0.25,
+      "lambda_p": 1.0,
+      "util_clip": 8,
+      "t2_local": false
+    },
+    "config_source": "results/tuning/mnist_seed42.json",
+    "n_episodes": 60000
+  },
+  "runtime": {
+    "wall_seconds": 1112.101,
+    "peak_rss_mb": 5496.9,
+    "peak_rss_scope": "run"
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}
