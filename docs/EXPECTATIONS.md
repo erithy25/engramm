@@ -735,6 +735,36 @@ Lernzeit-Verhältnis zu B3 ≥ 100× (Wandzeit). B0 (bge-kNN, ohne LLM) liegt
 voraussichtlich ebenfalls > 15 pp vor ENGRAMM — das ist kein registriertes
 Kriterium, aber die schärfere Frage nach einer Effizienz-Nische.
 
+### Ergebnis — gemessen 2026-09-23/24, Container, `canonical=false`
+
+Records `results/m5/` (ENGRAMM und B0 je 5 Seeds, B1 und B3 Seed 42), Schiedsspruch
+`results/m5/m5_verdict_seed42.json`. B1 lief mit zwei llama.cpp-Threads auf der CPU
+(`docs/DEVIATIONS.md` CHANGED-8).
+
+| | Banking77 | CLINC150 |
+|---|---|---|
+| ENGRAMM, 5 Seeds | 65,39 ± 1,26 % | 72,80 ± 0,32 % |
+| ENGRAMM, Seed 42 (bewertet) | 63,73 % | 73,00 % |
+| **B1** LLM+RAG (Qwen2.5-3B, Seed 42) | **80,52 %** | **90,38 %** |
+| B0 bge-kNN, 5 Seeds | 83,92 ± 0,82 % | 86,57 ± 0,49 % |
+| B3 LoRA in Tranchen | 14,71 %, Vergessen +66,1 pp | 34,40 %, Vergessen +76,2 pp |
+| Abstand zu B1 | **16,79 pp** | **17,38 pp** |
+| Lernzeit/Klasse ENGRAMM vs. B3 (Wand) | 7,6 ms vs. 5,19 s → 680× | 7,6 ms vs. 4,81 s → 634× |
+
+| Kriterium | Banking77 | CLINC150 |
+|---|---|---|
+| 1 Genauigkeit ≥ B1 − 5 pp | ✗ | ✗ |
+| 2 Energie ≤ B1/10 | nicht gemessen | nicht gemessen |
+| 3 Lernzeit ≤ B3/100 | ✓ | ✓ |
+| 4 Interferenz ≤ 1 pp ∧ B3-Vergessen > 5 pp | ✓ (0 pp; 66 pp) | ✓ (0 pp; 76 pp) |
+
+**AUSGANG: (3) NIEDERLAGE auf beiden Aufgaben** — Genauigkeitslücke > 15 pp, damit
+unabhängig von der nicht messbaren Energie entschieden. Wie registriert erwartet;
+die historische Niederlage (−20,4 / −22,0 pp) ist reproduziert, der Abstand ist um
+3,6 / 4,6 pp kleiner. B0 (ohne LLM) liegt auf Banking77 sogar vor B1: eine
+Effizienz-Nische müsste gegen Embedding-kNN begründet werden, nicht gegen ein LLM.
+CPU-Sekunden pro Query B1/ENGRAMM ≈ 625× (Proxy, keine Energie).
+
 ---
 
 ## E10 — M1 mit der historischen Architektur: WiLI 10-shot, volle Pipeline, λe = λp = 1
