@@ -362,8 +362,6 @@ add recall loss to every number. The HNSW question the original M0 answered
 — does approximate search on these keys reach ≥ 95 % recall — is measured
 by `experiments/m0_bench.py` on its own.
 
----
-
 ## CHANGED-8 — M5 baselines on the CPU, B1 with two llama.cpp threads
 
 **What the record says.** B1 (Qwen2.5-3B-Instruct Q4_K_M + bge-small RAG) ran
@@ -381,6 +379,8 @@ predictions in the check. B3 reports wall clock *and* CPU time.
 any criterion (B1 contributes accuracy and energy; energy is not measurable
 in the container). B1's latency is not comparable to the historical GPU
 figure, and is not used.
+
+---
 
 ## KNOWN-1 — a single outlier document defeats the encoder's memory bound
 
