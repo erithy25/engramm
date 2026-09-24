@@ -364,6 +364,24 @@ by `experiments/m0_bench.py` on its own.
 
 ---
 
+## CHANGED-8 — M5 baselines on the CPU, B1 with two llama.cpp threads
+
+**What the record says.** B1 (Qwen2.5-3B-Instruct Q4_K_M + bge-small RAG) ran
+with Metal GPU acceleration on the M4; B3's learning time was taken with
+`process_time()`, which sums over PyTorch's threads.
+
+**Choice made.** All baselines run on the CPU here (no GPU in the container).
+B1 uses `n_threads = n_threads_batch = 2` (and two torch threads for the
+per-query embedding). On a 4-core machine shared with other jobs, llama.cpp's
+thread barriers collapse once cores are oversubscribed: four threads cost
+40–60 s per query under load, two threads 2.3–10 s, with identical
+predictions in the check. B3 reports wall clock *and* CPU time.
+
+**Consequence.** Thread count is not part of B1's method and does not enter
+any criterion (B1 contributes accuracy and energy; energy is not measurable
+in the container). B1's latency is not comparable to the historical GPU
+figure, and is not used.
+
 ## KNOWN-1 — a single outlier document defeats the encoder's memory bound
 
 **Not a deviation from the specification — a defect in this rebuild's
