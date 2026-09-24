@@ -1,7 +1,7 @@
 {
   "study": "docs/PREREG_ROBUSTNESS.md v1.3",
   "outcome": "CONFIRMED (\u00a77)",
-  "format_qualifier_4_1": "\u00a74.1: the measured advantage is attributable to the number format; an advantage of the distributed representation is NOT shown (it survives only on wili)",
+  "format_qualifier_4_1": "\u00a74.1: the advantage also holds against the 1-bit format controls on wili; on mnist the measured advantage is attributable to the number format; an advantage of the distributed representation is NOT shown there",
   "tasks": {
     "mnist": {
       "seeds": [

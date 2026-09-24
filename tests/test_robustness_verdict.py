@@ -61,7 +61,8 @@ WEAK = {"1": 0.9, "5": 0.6, "10": 0.4, "25": 0.1}
 def test_confirmation_explained_by_format_is_qualified():
     result = verdict(_records(STRONG, WEAK, sign_R=STRONG))
     assert result["outcome"] == "CONFIRMED (§7)"
-    assert "format" in result["format_qualifier_4_1"] and "NOT" in result["format_qualifier_4_1"]
+    assert "attributable to the number format" in result["format_qualifier_4_1"]
+    assert "NOT shown there" in result["format_qualifier_4_1"]
 
 
 def test_confirmation_that_survives_the_format_control_says_so():
@@ -112,3 +113,14 @@ def test_format_control_near_chance_is_not_interpretable():
             broken["acc"] = {p: chance + 0.01 for p in LEVELS}
     result = verdict(records)
     assert result["tasks"]["mnist"]["format_control_4_1"]["not_interpretable"] == ["lr/sign"]
+
+
+def test_format_reading_is_per_task():
+    records = _records(STRONG, WEAK, sign_R=WEAK)
+    for record in records["mnist"].values():
+        for kind in ("lr", "mlp"):
+            record["systems"][kind]["sign"] = _curve(0.8, STRONG, 0.1, 0.01,
+                                                     np.random.default_rng(record["seed"]))
+    q = verdict(records)["format_qualifier_4_1"]
+    assert "also holds against the 1-bit format controls on wili" in q
+    assert "on mnist the measured advantage is attributable to the number format" in q

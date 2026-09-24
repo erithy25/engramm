@@ -249,11 +249,19 @@ def verdict(records: dict[str, dict[int, dict[str, Any]]]) -> dict[str, Any]:
                     if tasks[t]["format_control_4_1"]["per_level"] and all(
                         v["gap_to_better"] is not None and v["gap_to_better"] >= MARGIN_CONFIRM
                         for v in tasks[t]["format_control_4_1"]["per_level"].values())]
-        qualifier = ("§4.1: the advantage also holds against the 1-bit format controls on "
-                     + ", ".join(survives)) if survives == confirmed else (
-            "§4.1: the measured advantage is attributable to the number format; an "
-            "advantage of the distributed representation is NOT shown"
-            + (f" (it survives only on {', '.join(survives)})" if survives else ""))
+        # §4.1 is a per-task reading: on each confirmed task, either the
+        # advantage also holds against the format controls, or it is
+        # attributable to the number format on that task.
+        failed = [t for t in confirmed if t not in survives]
+        parts = []
+        if survives:
+            parts.append("the advantage also holds against the 1-bit format controls on "
+                         + ", ".join(survives))
+        if failed:
+            parts.append("on " + ", ".join(failed) + " the measured advantage is attributable "
+                         "to the number format; an advantage of the distributed "
+                         "representation is NOT shown there")
+        qualifier = "§4.1: " + "; ".join(parts)
     return {"study": "docs/PREREG_ROBUSTNESS.md v1.3", "outcome": outcome,
             "format_qualifier_4_1": qualifier, "tasks": tasks}
 

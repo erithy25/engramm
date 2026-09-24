@@ -56,7 +56,7 @@ before it ran; deviations from the record are in [`docs/DEVIATIONS.md`](docs/DEV
 | M2b | Utility-based eviction + L2 persistence gate | crash replay passed | **gate passed on 3/3 seeds**: full replay, 10/10 checkpoints and a crash replay at a 60 % byte cut reproduce state and all predictions exactly; eviction to 80 % costs −5.69 ± 0.26 pp | persistence gate: **met** |
 | M3 | 1,000 authors, strictly sequential | 5.94 % top-1; state invariant, read-out **not** (W19) | top-1 **15.46 % ± 0.74**, top-5 27.78 %, forgetting +18.8 pp (3 seeds); **state and read-out invariance hold on 3/3 seeds** (0 differences); reconstruction from the log exact | forgetting ≤ 1 pp, top-1 ≥ 30 %: **not met** (as predicted) |
 | M5 | Intent classification vs. local LLM baselines (Banking77 / CLINC150, 10-shot) | hypothesis failed: ENGRAMM 62.6 / 69.0 %, 20.4 / 22.0 pp behind LLM+RAG | ENGRAMM **65.39 % ± 1.26 / 72.80 % ± 0.32** (5 seeds); embedding kNN without an LLM (B0) 83.92 / 86.57 %; LoRA in tranches (B3) 14.7 / 34.4 % with +66 / +76 pp forgetting; LLM+RAG (B1): *running* | registered outcome: *pending B1* |
-| Phase 4 | Bit-corruption robustness vs. equal-size baselines | — (new) | *running* — MNIST complete (10 seeds), WiLI in progress | [`docs/PREREG_ROBUSTNESS.md`](docs/PREREG_ROBUSTNESS.md) v1.3: *pending* |
+| Phase 4 | Bit-corruption robustness vs. equal-size baselines (MNIST, WiLI; 10 seeds) | — (new) | chance-corrected retention at 5 / 10 / 25 % flipped bits: ENGRAMM **0.94 / 0.85 / 0.55** (MNIST), **0.99 / 0.99 / 0.95** (WiLI); int8 MLP 0.38 / 0.14 / 0.03 and 0.50 / 0.13 / 0.01. Against the 1-bit format control: advantage holds on WiLI, **not** on MNIST (1-bit LR 0.88 / 0.73 / 0.45) | [`docs/PREREG_ROBUSTNESS.md`](docs/PREREG_ROBUSTNESS.md) v1.3: **confirmed** (§7) on both tasks; §4.1: attributable to number format on MNIST, representation advantage shown on WiLI |
 
 Per-seed values, the registered expectations and every verdict are in
 [`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E1–E11); the records are in
@@ -130,12 +130,17 @@ The rebuild is also a re-scoping. The primary research question:
    `docs/D4_PROTOTYP.md`: item memory, encoders, T1, T2, episodic memory with
    exact top-k, score fusion, T3, the L2 event log with exact and crash replay.
 3. **Re-run of the historical benchmarks** — *done*, 5 seeds each (table above).
-4. **Bit-corruption study** — *built and running*: preregistered
+4. **Bit-corruption study** — *done*: preregistered
    ([`docs/PREREG_ROBUSTNESS.md`](docs/PREREG_ROBUSTNESS.md), v1.3 adds a
    1-bit format-matched control, because an int8 baseline can lose by its
    number format alone), corruption code validated before the first run
    (`tests/test_corruption.py`), 2 tasks × 10 seeds
-   (`experiments/robustness_all.sh`).
+   (`experiments/robustness_all.sh`). Outcome: **confirmed** under the
+   registered rules — binary HDC prototypes keep far more of their accuracy
+   than int8 baselines of equal parameter count on both tasks. The format
+   control qualifies it: on MNIST a sign-binarised logistic regression degrades
+   almost as gracefully, so there the advantage is the number format's; on
+   WiLI it survives the format control (`results/robustness/SUMMARY.md`).
 
 Still open: confirming the accuracy figures bit-identically on the M4, and
 measuring energy there.

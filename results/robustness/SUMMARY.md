@@ -1,6 +1,6 @@
 **Outcome:** CONFIRMED (§7)
 
-**Format reading:** §4.1: the measured advantage is attributable to the number format; an advantage of the distributed representation is NOT shown (it survives only on wili)
+**Format reading:** §4.1: the advantage also holds against the 1-bit format controls on wili; on mnist the measured advantage is attributable to the number format; an advantage of the distributed representation is NOT shown there
 
 ### mnist (10 seeds)
 

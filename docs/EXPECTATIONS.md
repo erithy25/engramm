@@ -814,6 +814,49 @@ bevor das erste offizielle Record existiert.
 | §4.1-Lesart | Vorsprung auf WiLI gegenüber der 1-Bit-MLP < 0,10 bei 5 % → **dem Zahlenformat zuzuschreiben**, ein Vorteil der verteilten Repräsentation nicht gezeigt |
 | float32 | kollabiert schon bei 1 % (vorab erwartet, nie Schlagzeile) |
 
+### Ergebnis — gemessen 2026-09-23/24, Container, `canonical=false`
+
+Records `results/robustness/{mnist,wili}_seed*.json` (je 10 Seeds), Referee-Ausgabe
+`results/robustness/verdict.json` und `SUMMARY.md`. Kein vom Studienprozess
+importierter Code änderte sich während eines Laufs.
+
+**§9-Prüfungen:** alle Schwellen erfüllt (ENGRAMM MNIST 85,57 % ≥ 85, WiLI 92,11 % ≥ 60;
+MLP 97,86 / 95,03 %; MLP gleiches Bitbudget 95,20 / 94,13 %); p = 50 %-Validierung für
+jedes System und Format bestanden (mittleres R ≤ 0,05).
+
+Mittleres R(p) über 10 Seeds, Primärvergleich:
+
+| Aufgabe | System | R(5 %) | R(10 %) | R(25 %) |
+|---|---|---|---|---|
+| MNIST | **ENGRAMM** (binär) | **0,937** | **0,852** | **0,547** |
+| | LR int8 | 0,374 | 0,242 | 0,095 |
+| | MLP int8 | 0,378 | 0,144 | 0,031 |
+| | *1-Bit-LR (§4.1)* | *0,884* | *0,732* | *0,453* |
+| | *1-Bit-MLP (§4.1)* | *0,762* | *0,590* | *0,219* |
+| WiLI | **ENGRAMM** (binär) | **0,993** | **0,987** | **0,952** |
+| | LR int8 | 0,603 | 0,296 | 0,041 |
+| | MLP int8 | 0,496 | 0,126 | 0,006 |
+| | *1-Bit-MLP (§4.1)* | *0,834* | *0,696* | *0,259* |
+| | *1-Bit-LR* | nicht interpretierbar (acc(0) 1,0 %) | | |
+
+**AUSGANG NACH §7: BESTÄTIGT** — auf beiden Aufgaben liegt ENGRAMM bei 5, 10 und 25 %
+um ≥ 0,10 über beiden int8-Kontrollen (kleinster Abstand 0,39), die 95-%-KIs
+überlappen nirgends. Auch die Sekundärvergleiche (gleiches Bitbudget §3.3,
+Item-Memory/idf-Zustand, T1-only) bestätigen.
+
+**§4.1-LESART, je Aufgabe:**
+- **WiLI:** der Vorsprung hält auch gegen die 1-Bit-Formatkontrolle (Abstand 0,16 /
+  0,29 / 0,69) — hier ist ein Vorteil der verteilten Repräsentation gezeigt.
+- **MNIST:** gegen die 1-Bit-LR bleibt der Abstand bei 5 % (0,05) und 25 % (0,09)
+  unter 0,10 — der gemessene Vorsprung ist dort **dem Zahlenformat zuzuschreiben**,
+  ein Vorteil der Repräsentation ist auf MNIST **nicht** gezeigt.
+
+**Gegen die Erwartung:** erwartet war eine Teilbestätigung (nur WiLI) mit
+Formatlesart auf WiLI. Eingetreten ist das Gegenteil der Formatlesart — MNIST ist
+die formaterklärte Aufgabe, WiLI die, auf der der Vorsprung auch den Formattest
+übersteht. float32 kollabiert erwartungsgemäß schon bei 1 % (nie Schlagzeile).
+Container-Werte (`canonical=false`); Bestätigung auf dem M4 steht aus.
+
 ---
 
 ## R1 — Unabhängige Reproduktion nach README-Definition (Methode, Schritt 3)
