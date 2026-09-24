@@ -453,8 +453,9 @@ Harness wie registriert, Code-Stand `72e704e`, Records in `results/mnist_*_20260
 2. **Replikation: bestätigt** — +0,20 pp gegenüber 94,59 %, SD 0,09 pp.
    Die T2-Fehlerraten (≈ 5,4 / 5,2 %) treffen die historischen 5,08 / 5,16 %
    bis auf wenige Zehntel.
-3. **Determinismus:** folgt im Schritt `repro` von `experiments/reproduce_all.sh`
-   (Seed 42 erneut, Vergleich über `predictions_sha256`).
+3. **Determinismus: ERFÜLLT** — Schritt `repro` (2026-09-24): Seed 42 aus dem
+   committeten Baum erneut gerechnet, `predictions_sha256` identisch; zusätzlich
+   von einer unabhängigen Neuimplementierung bitgleich reproduziert (R1).
 4. **Zeitkriterium:** im Container nicht bewertbar; Wandzeit 12,8–17,6 min je
    Seed inklusive Kodierung, teils unter Parallellast — kein Urteil.
 
@@ -810,10 +811,15 @@ im Code. Ablauf:
 
 | Konfiguration (Seed 42) | Accuracy | Vergleich |
 |---|---|---|
-| WiLI 10-shot, Prototypen (E1) | 0,8488510638297873 | Accuracy + Macro-F1 identisch (Altrecord ohne Digest) |
+| WiLI 10-shot, Prototypen (E1) | 0,8488510638297873 | Accuracy + Macro-F1 identisch; `predictions_sha256` identisch mit dem Determinismus-Re-Run (`results/repro/wili_42_20260924T014451Z.json`) |
 | MNIST, Prototypen T1 | 0,8054 | Accuracy + Macro-F1 identisch (Altrecord ohne Digest) |
 | MNIST, Prototypen + T2 (E3) | 0,8542 | `predictions_sha256` identisch |
 | MNIST, volle Pipeline (M1b/E4) | 0,9488 | `predictions_sha256` identisch |
+
+**Determinismus-Re-Run** (Schritt `repro`, 2026-09-24, `results/repro/verification.json`):
+MNIST volle Pipeline Seed 42 und WiLI 10-shot Seeds 42/7 aus dem committeten Baum
+erneut gerechnet — alle drei bitgleich zu den Records (M1b auch per Digest).
+Damit ist Kriterium 3 von E4 (Determinismus) erfüllt.
 
 **Was das zeigt:** Die Spezifikation ist vollständig, die Vorhersagen sind auf
 dieser Plattform deterministisch. **Was nicht:** Replikation durch Dritte auf anderer

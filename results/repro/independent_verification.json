@@ -21,9 +21,11 @@
       },
       "checks": {
         "accuracy": true,
-        "macro_f1": true
+        "macro_f1": true,
+        "predictions_sha256_vs_rerun": true
       },
-      "identical": true
+      "identical": true,
+      "rerun_record_with_digest": "results/repro/wili_42_20260924T014451Z.json"
     },
     {
       "config": "b",
