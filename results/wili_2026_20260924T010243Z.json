@@ -1,0 +1,71 @@
+{
+  "schema_version": 4,
+  "task": "wili",
+  "seed": 2026,
+  "timestamp_utc": "2026-09-24T01:02:43+00:00",
+  "git": {
+    "commit": "089f29f6086cf36d7202dd154bd4f231cda4b666",
+    "dirty": false,
+    "untracked": 0,
+    "captured": "before_run",
+    "changed_during_run": true,
+    "code_changed_during_run": true,
+    "changed_python_files": [
+      "experiments/m0_bench.py",
+      "experiments/m5_baselines.py",
+      "experiments/m5_engramm.py"
+    ]
+  },
+  "result": {
+    "accuracy": 0.7812595744680851,
+    "macro_f1": 0.7790280237272407,
+    "n_train": 2350,
+    "n_test": 117500,
+    "n_classes": 235,
+    "chance_level": 0.00425531914893617,
+    "predictions_sha256": "b3681d4ee2d5cf79500675826d1240b5ab6c7f88b942598f7d98b56bec222fb4",
+    "test_items_in_train": 3147,
+    "accuracy_excluding_train_duplicates": 0.7800844752651876,
+    "t2_error_per_epoch": []
+  },
+  "hyperparams": {
+    "task": "wili",
+    "dimension": 10000,
+    "shots": 10,
+    "encoder": "TrigramEncoder(dimension=10000)",
+    "artifacts_digest": "69ce5d45128a14fff84b0ae62eb19f48d8992a1ac3d1df74aa4eaa1e3370058a",
+    "official_split": true,
+    "limit_train": null,
+    "limit_test": null,
+    "test_batch_size": 2000,
+    "train_batch_size": 5000,
+    "accumulator_halvings": 0,
+    "pipeline": "full",
+    "episodes": true,
+    "t2_epochs": 0,
+    "fusion": {
+      "k": 32,
+      "theta0": 0.0,
+      "lambda_e": 1.0,
+      "lambda_p": 1.0,
+      "util_clip": 8,
+      "t2_local": false
+    },
+    "config_source": "command line",
+    "n_episodes": 2350
+  },
+  "runtime": {
+    "wall_seconds": 782.039,
+    "peak_rss_mb": 658.5,
+    "peak_rss_scope": "run"
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}
