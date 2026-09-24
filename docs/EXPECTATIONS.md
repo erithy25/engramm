@@ -593,7 +593,17 @@ ist qualitativ reproduziert; der Betrag ist kleiner, der Mechanismus derselbe.
 
 Nebenbefund: im Strom senkt T2 die Referenz (A ohne T2: 85,34 % gegen A mit T2:
 82,43 %) — Banking77 fällt mit T2 um 6,0 pp, WiLI steigt um 1,1 pp.
-Seeds 7 und 1337 folgen in der Warteschlange.
+
+**Drei Seeds** (`results/m2/m2a_{42,7,1337}_*.json`), θ = 0,12:
+
+| Seed | Referenz A | mit T3 | Δacc | Kompression |
+|---|---|---|---|---|
+| 42 | 82,43 % | 47,24 % | −35,19 pp | 6,00× |
+| 7 | 82,73 % | 46,34 % | −36,39 pp | 5,76× |
+| 1337 | 82,12 % | 46,87 % | −35,25 pp | 5,75× |
+| **Mittel ± SD** | 82,42 % | | **−35,61 ± 0,68 pp** | 5,84× |
+
+Auf allen drei Seeds **nicht erfüllt**, in derselben Weise.
 
 ---
 
@@ -631,7 +641,10 @@ Voll-Replay → Zustands-Digest und alle Vorhersagen identisch (75,89 % live = r
 10/10 Chunk-Grenzen identisch; Crash-Replay nach 60-%-Byte-Schnitt → 12.006 Ereignisse
 wiederhergestellt, 1.372 Byte (angeschnittener Record) verworfen, Zustand und
 Vorhersagen identisch zum Zustand nach dem letzten vollständigen Ereignis.
-Seeds 7 und 1337 folgen.
+
+**Drei Seeds** (`results/m2/m2b_{42,7,1337}_*.json`): Persistenz-Gate auf **3/3**
+erfüllt (Voll-Replay, 10/10 Checkpoints, Crash-Replay jeweils exakt); Verdrängung
+auf 80 % Bestand −5,99 / −5,49 / −5,60 pp → **−5,69 ± 0,26 pp**.
 
 ---
 
@@ -676,7 +689,21 @@ geeigneten Autoren; Validierung wählte T2 = 2, λe = 0,5, θ₀ = 0,3 (Val-Acc 
 **M3 insgesamt NICHT ERFÜLLT** (V1 und Top-1), wie registriert erwartet. Gegenüber
 der Aktenlage ist das Ergebnis besser: Top-1 14,61 % statt 5,94 % (2,5×), und die
 Auslese-Invarianz, die historisch fehlschlug, hält jetzt. Top-1 liegt knapp unter
-dem erwarteten Band (5–15 %) an dessen Oberkante. Seeds 7 und 1337 folgen.
+dem erwarteten Band (5–15 %) an dessen Oberkante.
+
+**Drei Seeds** (`results/m3/m3_{42,7,1337}_*.json`; die Validierung wählte je Seed
+eigene Konfigurationen, immer mit T2 = 2):
+
+| Seed | Top-1 | Top-5 | V1 (full) | V2 t2_local | Invarianz Zustand / Auslese | Rekonstruktion |
+|---|---|---|---|---|---|---|
+| 42 | 14,61 % | 27,44 % | +21,10 pp | −5,30 pp | ✓ / ✓ | exakt |
+| 7 | 15,97 % | 27,70 % | +19,30 pp | −0,40 pp | ✓ / ✓ | exakt |
+| 1337 | 15,80 % | 28,19 % | +16,00 pp | −4,50 pp | ✓ / ✓ | exakt |
+| **Mittel ± SD** | **15,46 ± 0,74 %** | 27,78 ± 0,38 % | +18,80 ± 2,59 pp | alle ≤ 1 pp | 3/3 | 3/3 |
+
+Auf allen drei Seeds dasselbe Bild: V1 und Top-1 **nicht erfüllt**; V2,
+Invarianz und Rekonstruktion **erfüllt**. Top-1 liegt über dem erwarteten Band
+(5–15 %) — besser als erwartet, weiterhin weit unter 30 %.
 
 ---
 
