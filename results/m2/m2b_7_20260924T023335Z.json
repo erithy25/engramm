@@ -1,0 +1,94 @@
+{
+  "task": "m2b_eviction_persistence",
+  "seed": 7,
+  "timestamp_utc": "2026-09-24T02:33:35+00:00",
+  "git": {
+    "commit": "5c89c041191acd38735d2e525b0c67b7c8623744",
+    "dirty": false,
+    "untracked": 0,
+    "captured": "before_run"
+  },
+  "setup": {
+    "dimension": 10000,
+    "config": {
+      "k": 32,
+      "theta0": 0.0,
+      "lambda_e": 1.0,
+      "lambda_p": 1.0,
+      "util_clip": 8,
+      "t2_local": false
+    },
+    "stream_items": 50000,
+    "persistence_items": 20000,
+    "encoder": "TrigramEncoder(dimension=10000)"
+  },
+  "eviction_curve": [
+    {
+      "retained": 1.0,
+      "episodes": 50000,
+      "total": 0.827255985267035,
+      "b77": 0.7733766233766234,
+      "wili": 0.8978723404255319,
+      "delta_acc_pp": 0.0
+    },
+    {
+      "retained": 0.8,
+      "episodes": 40000,
+      "total": 0.7723756906077348,
+      "b77": 0.6951298701298702,
+      "wili": 0.8736170212765958,
+      "delta_acc_pp": -5.488029465930023
+    },
+    {
+      "retained": 0.5,
+      "episodes": 25000,
+      "total": 0.6972375690607735,
+      "b77": 0.5814935064935065,
+      "wili": 0.8489361702127659,
+      "delta_acc_pp": -13.001841620626154
+    },
+    {
+      "retained": 0.2,
+      "episodes": 10000,
+      "total": 0.5567219152854512,
+      "b77": 0.38181818181818183,
+      "wili": 0.7859574468085107,
+      "delta_acc_pp": -27.05340699815838
+    }
+  ],
+  "persistence": {
+    "full_replay": {
+      "events": 20011,
+      "log_bytes": 53890302,
+      "state_digest_equal": true,
+      "predictions_equal": true,
+      "accuracy_live": 0.7574585635359116,
+      "accuracy_replayed": 0.7574585635359116,
+      "rebuild_seconds_not_official": 9.135755535000499
+    },
+    "crash_replay": {
+      "cut_fraction": 0.6,
+      "events_recovered": 12006,
+      "bytes_discarded": 1053,
+      "state_digest_equal": true,
+      "predictions_equal": true,
+      "accuracy_crashed": 0.7143646408839779,
+      "accuracy_reference": 0.7143646408839779
+    },
+    "checkpoints_equal": 10,
+    "checkpoints_total": 10,
+    "gate_met": true
+  },
+  "runtime": {
+    "wall_seconds": 823.8239170769994
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  }
+}
