@@ -1,0 +1,38 @@
+{
+  "task": "banking77",
+  "system": "b3",
+  "seed": 42,
+  "epochs_per_tranche": 2,
+  "model": "Qwen/Qwen2.5-0.5B-Instruct LoRA r=8 (q_proj, v_proj), SEQ_CLS",
+  "n_classes": 77,
+  "n_test": 3080,
+  "acc": 0.14707792207792209,
+  "learn_ms_per_class_wall": 5186.344318649354,
+  "learn_ms_per_class_cpu": 20320.287848324675,
+  "torch_threads": 4,
+  "forgetting": {
+    "tranches": 7,
+    "first_block_classes": 11,
+    "block_after_first": 0.6613636363636364,
+    "block_final": 0.0,
+    "classical_pp": 66.13636363636364
+  },
+  "energy_mj_per_query": null,
+  "timestamp_utc": "2026-09-23T23:45:52+00:00",
+  "git": {
+    "commit": "33180a94ee080def634542e30278b3213a55708c",
+    "dirty": false,
+    "captured": "before_run"
+  },
+  "versions": {
+    "python": "3.12.3",
+    "numpy": "2.5.3",
+    "torch": "2.14.0+cpu",
+    "transformers": "5.17.0",
+    "peft": "0.21.0",
+    "sentence_transformers": "6.1.0",
+    "faiss": "1.15.1",
+    "llama_cpp": "0.3.35"
+  },
+  "cpu_count": 4
+}
