@@ -4,7 +4,7 @@
 Validierungs- oder Testsplit, vor dem Training des Tokenizers und bevor der
 Modellcode existiert. Der Commit-Zeitstempel dieser Datei ist ihr Zweck.
 
-**Version 1.0** · Projekt ENGRAMM · Registriert 2026-09-25 · Änderungen nur
+**Version 1.1** · Projekt ENGRAMM · Registriert 2026-09-25, geändert 2026-09-25 (§7, vor jeder KNN-Messung auf val/test) · Änderungen nur
 per neuer Version mit Datum und Begründung in §14, jeweils **vor** der Messung,
 die sie betrifft.
 
@@ -132,12 +132,13 @@ Tie-Regel, Clustering-Start). Gitter, gewählt auf val-B Hälfte 1 im Pilot:
 
 | Parameter | Werte |
 |---|---|
-| KNN-Kernbreite τ (gewichtete Hamming-Einheiten) | 64, 128, 256 |
+| KNN-Kernbreite τ (gewichtete Hamming-Einheiten) | 256, 1.024, 4.096 (v1.1; v1.0: 64, 128, 256) |
 | TOPIC-Schärfe β | 4, 8 |
 
 Fest: D_s = 2.048 Bit, 512 Wortklassen, Positionsgewichte (8, 4, 2, 1, 1, 1),
 Themenfenster 256 Tokens, Eimergrenze 16.384 Stellen, mindestens 64
-Nachbarn je Abfrage. Die gewählte Konfiguration wird für den Hauptlauf nicht
+Nachbarn je Abfrage, Themen-Term v = 2 (256-Bit-Signaturen je 128-Token-Segment,
+mit 8 skaliert). Die gewählte Konfiguration wird für den Hauptlauf nicht
 mehr verändert.
 
 ## 8. Kriterien (Test-Split, Hauptmodell, mit Near-Duplicate-Filter)
@@ -220,3 +221,12 @@ im Container.
 ## 14. Änderungsprotokoll
 
 * v1.0 (2026-09-25): Erstregistrierung.
+* v1.1 (2026-09-25, vor jeder KNN- oder TOPIC-Messung auf val/test): τ-Gitter von
+  {64, 128, 256} auf {256, 1.024, 4.096}. Grund: v1.0 legte die Werte fest, bevor die
+  Skala der Distanz bekannt war. Eine Diagnose **nur auf Train-Daten** (2.000
+  Abfragen aus Train-Positionen hinter dem Pilot-Präfix, Codebuch Seed 42) ergab für
+  den Abstand zum nächsten Nachbarn Δ = d − d_min: 1 %-Perzentil ≈ 940, 5 % ≈ 2.800
+  (Median über Abfragen). Mit τ ≤ 256 hätte jeder Kern praktisch nur den einzelnen
+  nächsten Nachbarn gewichtet (exp(−940/256) ≈ 0,025) — das Gitter hätte keine
+  Kernbreite geprüft, sondern dreimal 1-NN. Der Themen-Term v = 2 stand im Code, aber
+  nicht in v1.0; er wird hier nachgetragen, nicht verändert.
