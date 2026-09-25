@@ -52,7 +52,8 @@ def test_counts_and_longest_match_match_brute_force():
         assert ks[q] == best
         if best:
             hp = h[len(h) - best:]
-            assert cnt[q] == _brute_count(t, hp)
+            at_end = np.array_equal(t[len(t) - best:], hp)
+            assert cnt[q] == _brute_count(t, hp) - at_end
             assert cntw[q] == _brute_count(t, np.append(hp, ev[i]).astype(np.uint16))
 
 

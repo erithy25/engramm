@@ -207,9 +207,9 @@ class Codebook:
 
 
 def context_vocabulary(counts: np.ndarray, n_ctx: int = N_CONTEXT) -> np.ndarray:
-    """The n_ctx most frequent non-EOS tokens (ties by id), and the token→index map."""
+    """The n_ctx most frequent non-EOS tokens that occur at all (ties by id)."""
     order = np.lexsort((np.arange(len(counts)), -counts))
-    order = order[order != 0][:n_ctx]
+    order = order[(order != 0) & (counts[order] > 0)][:n_ctx]
     return order.astype(np.int64)
 
 

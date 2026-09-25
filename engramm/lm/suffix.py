@@ -115,9 +115,20 @@ def _next_count(tokens, sa, lo, hi, k, w):
     return a - first
 
 
+@numba.njit(cache=True)
+def _ends_with(tokens, h, hl, k):
+    n = len(tokens)
+    if k > n:
+        return False
+    for j in range(k):
+        if tokens[n - k + j] != h[hl - k + j]:
+            return False
+    return True
+
+
 @numba.njit(cache=True, parallel=True)
 def _stream_inf(tokens_c, sa, ev, run, positions, kmax):
-    """For each eval position: match length k, count(h'), count(h' w)."""
+    """For each eval position: match length k, #continued occurrences of h', count(h' w)."""
     m = len(positions)
     ks = np.zeros(m, dtype=np.int32)
     cnt = np.zeros(m, dtype=np.int64)
@@ -129,7 +140,10 @@ def _stream_inf(tokens_c, sa, ev, run, positions, kmax):
         k, lo, hi = longest_suffix(tokens_c, sa, h, hl, kmax)
         ks[q] = k
         if k > 0:
-            cnt[q] = hi - lo
+            c = hi - lo
+            if _ends_with(tokens_c, h, hl, k):
+                c -= 1                      # the occurrence at the very end has no next token
+            cnt[q] = c
             cnt_w[q] = _next_count(tokens_c, sa, lo, hi, k, ev[i])
     return ks, cnt, cnt_w
 
