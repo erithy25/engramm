@@ -23,7 +23,7 @@ from data.lm_corpus import _split_hash
 from engramm.lm.generate import Decoding, generate, longest_copied_run
 from engramm.repro import git_revision, peak_rss_mb
 from experiments.lm_common import RESULTS_DIR, load_split, write_record
-from experiments.lm_final_model import assemble, fitted_mixture, kn_only
+from experiments.lm_final_model import assemble, fitted_mixture, kn_only, null_only
 from experiments.lm_mix import dedup_keep
 
 N_PROMPTS, PROMPT_TOKENS, GEN_TOKENS, PANEL = 200, 16, 100, 60
@@ -56,11 +56,13 @@ def main() -> None:
     ap.add_argument("--cache", default="document", help="exploratory: document | prompt | off")
     ap.add_argument("--top-p", type=float, default=0.95)
     ap.add_argument("--tag", default="", help="exploratory runs: suffix for all output files")
+    ap.add_argument("--baseline", choices=("kn5", "null"), default="kn5",
+                    help="exploratory: the system ENGRAMM-LM is compared with (stored under the key kn5)")
     args = ap.parse_args()
     sfx = f"_{args.tag}" if args.tag else ""
     git_state, t0 = git_revision(), time.time()
     full = assemble(args.scale, args.seed, fitted_mixture(args.scale, args.seed, args.tau_index, args.beta_index))
-    kn = kn_only(full)
+    kn = kn_only(full) if args.baseline == "kn5" else null_only(full, args.scale)
     dec = Decoding(top_p=args.top_p, cache=args.cache)
     ps = prompts(full.tok, args.split)[:args.n]
     rows, speed = [], {"engramm": [], "kn5": []}
@@ -106,6 +108,7 @@ def main() -> None:
         (RESULTS_DIR / "p6_panel_form.md").write_text("\n".join(lines) + "\n")
     tps = {k: sum(n for n, _ in v) / sum(t for _, t in v) for k, v in speed.items()}
     out = {"scale": args.scale, "n_prompts": len(rows), "split": args.split, "tag": args.tag,
+           "baseline": args.baseline,
            "decoding": {"temperature": dec.temperature, "top_p": dec.top_p, "cache": dec.cache,
                         "exploratory": bool(args.tag)}, "tokens_per_second": tps,
            "tokens_per_second_with_provenance": explain_tps, "peak_rss_mb": peak_rss_mb(),

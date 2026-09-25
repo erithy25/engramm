@@ -1,0 +1,38 @@
+{
+  "schema": "engramm-lm/1",
+  "name": "p6_judge_x2null",
+  "study": "docs/PREREG_LM.md v1.0",
+  "timestamp_utc": "20260925T235444Z",
+  "git": {
+    "commit": "1495801b1a820e323244e043cbc8ba500e9ff1ff",
+    "dirty": true,
+    "untracked": 41,
+    "changed_during_run": false
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 0.02099156379699707,
+    "peak_rss_mb": 35.37109375
+  },
+  "judgments": 200,
+  "missing": [],
+  "wins": 101,
+  "ties": 11,
+  "losses": 88,
+  "preference_engramm": 0.5325,
+  "by_order": {
+    "engramm_first": 0.565,
+    "engramm_second": 0.5
+  },
+  "p6_pass": false,
+  "judge_prompt": "You are a strict, impartial judge of English writing quality.\nEach item has the beginning of a text and two possible continuations, A and B,\nproduced by two different automatic systems. Judge ONLY which continuation is\nbetter English writing: more fluent and grammatical, more coherent, and more\nconsistent with the beginning. Ignore factual accuracy about the real world.\nLength differences are not a merit by themselves. Answer \"A\", \"B\", or \"=\" if\nthey are truly equally good or equally bad.\n\nReturn ONLY a JSON object mapping every item id to \"A\", \"B\" or \"=\", with no\nother text. The items follow as JSON.",
+  "tag": "x2null"
+}

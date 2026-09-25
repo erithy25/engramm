@@ -209,3 +209,16 @@ def test_cli_learn_write_why_forget(model, tmp_path, capsys):
     capsys.readouterr()
     assert main(["--model", str(d), "status"]) == 0
     assert capsys.readouterr().out == base
+
+
+def test_exploratory_writing_modes(model, tok):
+    h = np.concatenate([[0], tok.encode("The farmer bought a red boat on Monday. The farmer")]).astype(np.uint16)
+    _, d_off = model.next_distribution(h, detail=True, cache_until=1)
+    assert np.array_equal(d_off["components"]["cache"], d_off["components"]["kn"])
+    _, d_doc = model.next_distribution(h, detail=True)
+    assert not np.array_equal(d_doc["components"]["cache"], d_doc["components"]["kn"])
+    a = generate(model, "The farmer", 20, seed=2, dec=Decoding(cache="off", top_p=0.8))
+    b = generate(model, "The farmer", 20, seed=2, dec=Decoding(cache="off", top_p=0.8))
+    assert a.ids == b.ids
+    with pytest.raises(ValueError):
+        generate(model, "The farmer", 2, dec=Decoding(cache="nonsense"))

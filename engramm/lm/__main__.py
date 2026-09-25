@@ -49,6 +49,8 @@ def main(argv: list[str] | None = None) -> int:
     w.add_argument("--seed", type=int, default=0)
     w.add_argument("--temperature", type=float, default=0.9)
     w.add_argument("--top-p", type=float, default=0.95)
+    w.add_argument("--cache", choices=("document", "prompt", "off"), default="document",
+                   help="what the document cache may see while writing (registered: document)")
     w.add_argument("--explain", action="store_true")
     le = sub.add_parser("learn")
     le.add_argument("--source", required=True)
@@ -71,7 +73,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "write":
         t0 = time.time()
         g = generate(m, args.prompt, args.tokens, args.seed,
-                     Decoding(temperature=args.temperature, top_p=args.top_p), explain=args.explain)
+                     Decoding(temperature=args.temperature, top_p=args.top_p, cache=args.cache), explain=args.explain)
         dt = time.time() - t0
         print(args.prompt + g.text)
         print(f"\n[{len(g.ids)} tokens, {len(g.ids) / max(dt, 1e-9):.1f} tokens/s, seed {args.seed}]",
