@@ -1025,6 +1025,26 @@ HDC-Teils (KNN + TOPIC) gegenüber dem exakten Null-Modell (KN-5 + ∞-Gramm + C
 | P6 Richter ≥ 60 % gegen KN-5 | knapp, ~55 % |
 | Transformer 12 h CPU | etwa gleichauf; GPT-2 small klar besser (≈ 0,72 × KN-5) |
 
+### Zwischenergebnisse — gemessen 2026-09-25, Container, `canonical=false`
+
+Records `results/lm/g0_kn_pilot_*.json`, `g1_pilot_*.json`, `g2_pilot_*.json`. Pilot = erste
+30 M Train-Tokens; Messung auf val-B Hälfte 2, Near-Duplicate-gefiltert.
+
+| Tor | Ergebnis |
+|---|---|
+| G0 | bestanden: KN-2…5 monoton (1,867 → 1,759 → 1,745 → 1,743 BPB, ungefiltert), Σp = 1 bis 4e-16 |
+| G1 | bestanden: KN-5 1,759 · KN-5 + Cache 1,686 · Null-Modell 1,670 BPB (−5,0 % gegen KN-5) |
+| **G2 (KILL)** | **ausgelöst (K1):** ENGRAMM-LM gegen Null-Modell −0,46 / −0,45 / −0,45 % (Seeds 42/7/1337), Mittel 0,45 % < 1 %. Ablation Seed 42: nur KNN 1,6624, nur TOPIC 1,6700 (= Null-Modell) |
+
+**Gegen die Erwartung:** G2 war „eher bestanden" erwartet. Der KNN-Teil hilft messbar und
+seed-stabil, aber nur um ein Drittel der registrierten Schwelle; der Themenvektor bringt
+nichts über den Dokument-Cache hinaus. Nach §9 gilt der HDC-Teil damit als gescheitert; die
+Studie läuft auf dem Null-Modell weiter und wird trotzdem vollständig gemessen.
+
+Nebenbefund Pruning: unbeschnittenes KN-5 erreicht im Pilot 1,719 statt 1,743 BPB (ungefiltert,
+−1,4 %), braucht aber 2,0 statt 0,15 GB — bei 285 M Tokens nicht im RAM-Budget. Die
+registrierte Referenz „KN-5" ist beschnitten; P1 ist dadurch um etwa 1,4 % leichter.
+
 ---
 
 ## Offene Fragen, nicht terminiert
