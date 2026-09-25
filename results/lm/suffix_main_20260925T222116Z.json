@@ -1,0 +1,59 @@
+{
+  "schema": "engramm-lm/1",
+  "name": "suffix_main",
+  "study": "docs/PREREG_LM.md v1.0",
+  "timestamp_utc": "20260925T222116Z",
+  "git": {
+    "commit": "b0be8651c826af8e4b860eb2484c38e0db0c4c4d",
+    "dirty": false,
+    "untracked": 6,
+    "changed_during_run": false
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 85.94329023361206,
+    "peak_rss_mb": 5635.55078125
+  },
+  "scale": "main",
+  "tokens": 284741161,
+  "sa_seconds": 76.9400794506073,
+  "sa_mb": 1086.201328277588,
+  "dedup": {
+    "val_a": {
+      "docs": 767,
+      "excluded_bytes": 63164,
+      "total_bytes": 2398272,
+      "mean_overlap": 0.024759280125826493,
+      "n_excluded": 32
+    },
+    "val_b": {
+      "docs": 772,
+      "excluded_bytes": 96948,
+      "total_bytes": 2492707,
+      "mean_overlap": 0.032544090472060964,
+      "n_excluded": 46
+    },
+    "test": {
+      "docs": 1137,
+      "excluded_bytes": 117405,
+      "total_bytes": 3745775,
+      "mean_overlap": 0.025117403526207182,
+      "n_excluded": 45
+    },
+    "wt103_test": {
+      "docs": 62,
+      "excluded_bytes": 126182,
+      "total_bytes": 1234350,
+      "mean_overlap": 0.060669294917246146,
+      "n_excluded": 4
+    }
+  }
+}

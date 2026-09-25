@@ -1,0 +1,29 @@
+{
+  "schema": "engramm-lm/1",
+  "name": "suffix_pilot",
+  "study": "docs/PREREG_LM.md v1.0",
+  "timestamp_utc": "20260925T222137Z",
+  "git": {
+    "commit": "b0be8651c826af8e4b860eb2484c38e0db0c4c4d",
+    "dirty": false,
+    "untracked": 8,
+    "changed_during_run": false
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 8.150163412094116,
+    "peak_rss_mb": 1183.41796875
+  },
+  "scale": "pilot",
+  "tokens": 29997166,
+  "sa_seconds": 8.13845944404602,
+  "sa_mb": 114.43010711669922
+}
