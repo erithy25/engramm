@@ -1,0 +1,91 @@
+{
+  "schema": "engramm-lm/1",
+  "name": "k2_main",
+  "study": "docs/PREREG_LM.md v1.0",
+  "timestamp_utc": "20260925T231457Z",
+  "git": {
+    "commit": "71eb2160c082700d866bb7ae56b9a0318f7bc10b",
+    "dirty": true,
+    "untracked": 1,
+    "changed_during_run": false
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 15.637694597244263,
+    "peak_rss_mb": 295.328125
+  },
+  "seed": 42,
+  "tau_index": 1,
+  "beta_index": 1,
+  "kn5": {
+    "bpb": 1.607587275501807,
+    "ci95": [
+      1.568205123280968,
+      1.6538167367085546
+    ],
+    "docs": 350,
+    "bytes": 1147980
+  },
+  "kn5_cache": {
+    "bpb": 1.5539503696245553,
+    "ci95": [
+      1.519741733631689,
+      1.5942495156810619
+    ],
+    "docs": 350,
+    "bytes": 1147980
+  },
+  "null": {
+    "bpb": 1.5300683800227137,
+    "ci95": [
+      1.4927555780770163,
+      1.5723807083928019
+    ],
+    "docs": 350,
+    "bytes": 1147980
+  },
+  "null_knn": {
+    "bpb": 1.5196080847262516,
+    "ci95": [
+      1.481873985679252,
+      1.5623740994730848
+    ],
+    "docs": 350,
+    "bytes": 1147980
+  },
+  "null_topic": {
+    "bpb": 1.5298840442944768,
+    "ci95": [
+      1.4925690428244718,
+      1.5721599203191967
+    ],
+    "docs": 350,
+    "bytes": 1147980
+  },
+  "engramm": {
+    "bpb": 1.5193670735687788,
+    "ci95": [
+      1.4816994616928494,
+      1.5620649560343918
+    ],
+    "docs": 350,
+    "bytes": 1147980
+  },
+  "ratio_engramm_over_null": {
+    "ratio": 0.9930059946381115,
+    "ci95": [
+      0.9923376372191419,
+      0.9936425300030223
+    ]
+  },
+  "k2_triggered": false,
+  "scale": "main"
+}

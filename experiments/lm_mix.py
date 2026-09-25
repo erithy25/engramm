@@ -186,13 +186,36 @@ def stage_g2(scale):
     return res
 
 
+def stage_k2(scale, seed, tau, beta):
+    """Main scale, frozen configuration: ENGRAMM-LM against the null model on val-B half 2."""
+    c = load(scale, ("val_a", "val_b"), seed)
+    vb = c["val_b"].split
+    m2 = dedup_keep("val_b", vb.n_docs) & half_mask(vb, 1)
+    res = {"seed": seed, "tau_index": tau, "beta_index": beta}
+    bits = {}
+    for sysname in SYSTEMS:
+        mix, edges, o = fit_and_score(SYSTEMS[sysname], c["val_a"], {"val_b": c["val_b"]}, tau, beta)
+        bits[sysname] = o["val_b"]
+        res[sysname] = summarise(o["val_b"], "val_b", vb, 1).as_dict()
+        print(sysname, res[sysname]["bpb"], flush=True)
+    res["ratio_engramm_over_null"] = bpb_ratio(bits["engramm"], bits["null"], m2)
+    res["k2_triggered"] = bool(res["engramm"]["bpb"] >= res["null"]["bpb"])
+    return res
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--scale", default="pilot")
-    ap.add_argument("--stage", choices=("g1", "g2"), required=True)
+    ap.add_argument("--stage", choices=("g1", "g2", "k2"), required=True)
+    ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--tau-index", type=int, default=1)
+    ap.add_argument("--beta-index", type=int, default=1)
     args = ap.parse_args()
     git_state, t0 = git_revision(), time.time()
-    res = stage_g1(args.scale) if args.stage == "g1" else stage_g2(args.scale)
+    if args.stage == "k2":
+        res = stage_k2(args.scale, args.seed, args.tau_index, args.beta_index)
+    else:
+        res = stage_g1(args.scale) if args.stage == "g1" else stage_g2(args.scale)
     res["scale"] = args.scale
     print(write_record(f"{args.stage}_{args.scale}", res, t0, git_state), flush=True)
 
