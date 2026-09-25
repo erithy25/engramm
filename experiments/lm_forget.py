@@ -23,6 +23,7 @@ from pathlib import Path
 import numpy as np
 
 from engramm.lm.log import LoggedModel, replay_lm
+from engramm.lm.model import HDCLanguageModel
 from engramm.lm.tokenizer import EOS
 from engramm.repro import git_revision
 from experiments.lm_common import write_record
@@ -84,7 +85,7 @@ def main() -> None:
         d_after = m.state_digest()
         exp_after, lp_after = exposure(m, secret.replace(" ", ""), np.random.default_rng(1))
         lm.log.close()
-        fresh = assemble(args.scale, args.seed, m.mix)
+        fresh = HDCLanguageModel(m.train, m.kn, m.index.sa, m.cb, m.pos, m.segsig, m.mix, m.seed, m.tok)
         replayed, n_events, _ = replay_lm(Path(tmp) / "user.log", fresh)
         replay_ok = replayed.state_digest() == d_after
     for k in set_a:

@@ -1,0 +1,163 @@
+{
+  "schema": "engramm-lm/1",
+  "name": "p3_facts_main",
+  "study": "docs/PREREG_LM.md v1.0",
+  "timestamp_utc": "20260925T231649Z",
+  "git": {
+    "commit": "c7b1a0f3c26ad9643f9ea9142d6e3dcf248b5f83",
+    "dirty": false,
+    "untracked": 0,
+    "changed_during_run": false
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 59.63572549819946,
+    "peak_rss_mb": 4503.91796875
+  },
+  "scale": "main",
+  "seed": 42,
+  "n_facts": 200,
+  "n_queries": 400,
+  "systems": {
+    "engramm": {
+      "before": {
+        "top10": 0.01,
+        "top1": 0.0,
+        "mrr": 0.005787356036806756,
+        "median_rank": 1062.0
+      },
+      "after_BC": {
+        "top10": 0.2575,
+        "top1": 0.065,
+        "mrr": 0.11875661233077263,
+        "median_rank": 210.5
+      },
+      "after_A": {
+        "top10": 1.0,
+        "top1": 1.0,
+        "mrr": 1.0,
+        "median_rank": 1.0
+      },
+      "learn_seconds": 6.7390360832214355,
+      "top10_by_relation": {
+        "capital": 0.35,
+        "founder": 0.05,
+        "author": 0.0,
+        "inventor": 0.15,
+        "river": 0.65,
+        "birthplace": 0.4,
+        "mascot": 0.0,
+        "captain": 1.0,
+        "language": 0.0,
+        "currency": 0.65,
+        "spouse": 0.05,
+        "teacher": 0.0,
+        "dish": 0.0,
+        "mountain": 1.0,
+        "discoverer": 0.0,
+        "ceo": 0.5,
+        "owner": 0.0,
+        "festival": 0.3,
+        "architect": 0.05,
+        "anthem": 0.0
+      }
+    },
+    "kn5_learned": {
+      "before": {
+        "top10": 0.0025,
+        "top1": 0.0,
+        "mrr": 0.005142597357012737,
+        "median_rank": 1089.5
+      },
+      "after_BC": {
+        "top10": 0.265,
+        "top1": 0.07,
+        "mrr": 0.12408359631260135,
+        "median_rank": 333.0
+      },
+      "after_A": {
+        "top10": 1.0,
+        "top1": 0.68,
+        "mrr": 0.7520138888888889,
+        "median_rank": 1.0
+      },
+      "learn_seconds": 9.32583236694336,
+      "top10_by_relation": {
+        "capital": 0.4,
+        "founder": 0.05,
+        "author": 0.0,
+        "inventor": 0.15,
+        "river": 0.65,
+        "birthplace": 0.35,
+        "mascot": 0.0,
+        "captain": 1.0,
+        "language": 0.15,
+        "currency": 0.7,
+        "spouse": 0.0,
+        "teacher": 0.0,
+        "dish": 0.0,
+        "mountain": 1.0,
+        "discoverer": 0.0,
+        "ceo": 0.5,
+        "owner": 0.0,
+        "festival": 0.3,
+        "architect": 0.05,
+        "anthem": 0.0
+      }
+    },
+    "null_learned": {
+      "before": {
+        "top10": 0.01,
+        "top1": 0.0,
+        "mrr": 0.006114118336283165,
+        "median_rank": 1067.0
+      },
+      "after_BC": {
+        "top10": 0.2675,
+        "top1": 0.07,
+        "mrr": 0.12298414979742209,
+        "median_rank": 231.0
+      },
+      "after_A": {
+        "top10": 1.0,
+        "top1": 1.0,
+        "mrr": 1.0,
+        "median_rank": 1.0
+      },
+      "learn_seconds": 10.514705419540405,
+      "top10_by_relation": {
+        "capital": 0.4,
+        "founder": 0.05,
+        "author": 0.0,
+        "inventor": 0.15,
+        "river": 0.65,
+        "birthplace": 0.35,
+        "mascot": 0.0,
+        "captain": 1.0,
+        "language": 0.1,
+        "currency": 0.65,
+        "spouse": 0.1,
+        "teacher": 0.05,
+        "dish": 0.0,
+        "mountain": 1.0,
+        "discoverer": 0.0,
+        "ceo": 0.5,
+        "owner": 0.0,
+        "festival": 0.3,
+        "architect": 0.05,
+        "anthem": 0.0
+      }
+    }
+  },
+  "p3_threshold": 0.53,
+  "p3_pass": false,
+  "k4_triggered": true
+}
