@@ -383,8 +383,12 @@ class HDCLanguageModel:
                                   self._tomb[0], self._tomb[1], self.user.tokens, self.user.positions,
                                   self.user.segsig)
 
-    def next_distribution(self, history, detail: bool = False):
-        """p(· | history) over the vocabulary; history = token ids (EOS = document start)."""
+    def next_distribution(self, history, detail: bool = False, cache_until: int | None = None):
+        """p(· | history) over the vocabulary; history = token ids (EOS = document start).
+
+        ``cache_until`` (writing mode, exploratory): only the first ``cache_until`` tokens
+        of the history — the given prompt — feed the document cache, so the model's own
+        sampled words cannot reinforce themselves."""
         full = np.asarray(history, dtype=np.uint16)
         if len(full) == 0 or full[0] != EOS:
             full = np.concatenate([[EOS], full]).astype(np.uint16)
@@ -397,7 +401,7 @@ class HDCLanguageModel:
             k, p_inf = self._inf(h)
             comps["inf"] = p_kn if p_inf is None else p_inf
         if "cache" in self.mix.components:
-            c = cache_distribution(full, self.vocab)
+            c = cache_distribution(full if cache_until is None else full[:cache_until], self.vocab)
             comps["cache"] = p_kn if c is None else c
         dmin, knn_info = -1, None
         if "knn" in self.mix.components:

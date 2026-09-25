@@ -1,0 +1,49 @@
+{
+  "schema": "engramm-lm/1",
+  "name": "p4_forget_main",
+  "study": "docs/PREREG_LM.md v1.0",
+  "timestamp_utc": "20260925T233430Z",
+  "git": {
+    "commit": "c7b1a0f3c26ad9643f9ea9142d6e3dcf248b5f83",
+    "dirty": true,
+    "untracked": 2,
+    "changed_during_run": true
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 81.6676652431488,
+    "peak_rss_mb": 5596.3046875
+  },
+  "scale": "main",
+  "seed": 42,
+  "a_digest_equal": true,
+  "back_to_base": true,
+  "replay_equal": true,
+  "replay_events": 303,
+  "canary": {
+    "logprob_never": -136.2398161164341,
+    "logprob_learnt": -20.07941023059581,
+    "logprob_after_forget": -142.45618406170232,
+    "bit_identical": false,
+    "exposure_never": 2.2934996865608452,
+    "exposure_learnt": 7.651051691178929,
+    "exposure_after": 2.066089190457773
+  },
+  "timing": {
+    "learn_a_one_call_per_text_ms_per_1k_tokens": 2183.3146272733347,
+    "learn_a_ms_per_call": 32.61872053146362,
+    "learn_b_ms_per_1k_tokens": 24.32799920803163,
+    "forget_b_ms_per_1k_tokens": 19.95563507080078,
+    "b_tokens": 1640,
+    "note": "B (100 facts + canary) learnt and forgotten in one batch call each; A one call per fact. Each call rebuilds the user layer. Container timing, not official"
+  },
+  "p4_pass": false
+}

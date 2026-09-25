@@ -2,7 +2,7 @@
 
 (a) learn(A) → digest d_A; then learn(B) and forget(B) → digest must equal d_A.
 (b) A canary (random digits) inside B: its log-probability after forgetting must
-    equal, bit for bit, its log-probability in a model that never saw it; also
+    equal, bit for bit, its log-probability in the state learn(A) that never saw it; also
     reported: its exposure (rank among 1,000 random digit strings of the same
     shape) before learning, while learnt, and after forgetting.
 (c) learn / forget time per 1,000 tokens: B in one batch call (criterion), A one call per
@@ -64,9 +64,7 @@ def main() -> None:
     secret = "4071 9352 8816"
     m = assemble(args.scale, args.seed, fitted_mixture(args.scale, args.seed, args.tau_index, args.beta_index))
     tok_count = lambda keys: sum(len(m.tok.encode(texts[k])) for k in keys)   # noqa: E731
-    rng = np.random.default_rng(1)
 
-    exp_never, lp_never = exposure(m, secret.replace(" ", ""), np.random.default_rng(1))
     d0 = m.state_digest()
     with tempfile.TemporaryDirectory() as tmp:
         lm = LoggedModel(m, Path(tmp) / "user.log")
@@ -75,6 +73,8 @@ def main() -> None:
             lm.learn_text(texts[k], k)
         learn_a_s = time.time() - t
         d_a = m.state_digest()
+        # "never learnt" = the state that holds A but never saw B or the canary
+        exp_never, lp_never = exposure(m, secret.replace(" ", ""), np.random.default_rng(1))
         t = time.time()
         lm.learn_texts({**{k: texts[k] for k in set_b}, "canary": canary_text(secret.replace(" ", ""))})
         learn_b_s = time.time() - t

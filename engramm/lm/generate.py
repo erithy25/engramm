@@ -33,6 +33,8 @@ class Decoding:
     no_repeat: int = NO_REPEAT
     quote_cap: int = QUOTE_CAP
     stop_at_eos: bool = True
+    #: exploratory writing mode: the document cache sees only the prompt (not registered)
+    cache_prompt_only: bool = False
 
 
 @dataclass
@@ -108,7 +110,10 @@ def generate(model, prompt: str, n_tokens: int = 100, seed: int = 0, dec: Decodi
     seq = [EOS] + [int(x) for x in prompt_ids]
     gen = Generation(prompt_ids)
     for t in range(n_tokens):
-        p = model.next_distribution(np.asarray(seq, dtype=np.uint16))
+        if dec.cache_prompt_only:
+            p = model.next_distribution(np.asarray(seq, dtype=np.uint16), cache_until=len(prompt_ids) + 1)
+        else:
+            p = model.next_distribution(np.asarray(seq, dtype=np.uint16))
         banned = _banned_repeats(seq[1:], dec.no_repeat) | _banned_quotes(model, seq[1:], dec.quote_cap)
         if not dec.stop_at_eos:
             banned.add(EOS)

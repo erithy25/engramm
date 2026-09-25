@@ -1,0 +1,42 @@
+{
+  "schema": "engramm-lm/1",
+  "name": "p5p6_generate_main",
+  "study": "docs/PREREG_LM.md v1.0",
+  "timestamp_utc": "20260925T233844Z",
+  "git": {
+    "commit": "26c772e4c052aa4f30ebe09962cd4a1b8cde68cc",
+    "dirty": true,
+    "untracked": 3,
+    "changed_during_run": false
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 253.5601828098297,
+    "peak_rss_mb": 4490.01953125
+  },
+  "scale": "main",
+  "n_prompts": 200,
+  "tokens_per_second": {
+    "engramm": 128.21552462249684,
+    "kn5": 210.7877869619149
+  },
+  "tokens_per_second_with_provenance": 117.26804709625327,
+  "peak_rss_mb": 4490.01953125,
+  "longest_copy_max": {
+    "engramm": 32,
+    "kn5": 29
+  },
+  "longest_copy_mean": {
+    "engramm": 12.485,
+    "kn5": 9.205
+  },
+  "k3_triggered": false
+}
