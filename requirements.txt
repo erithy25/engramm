@@ -8,5 +8,10 @@
 numpy==2.4.1
 scipy==1.17.1
 faiss-cpu==1.15.1
+# ENGRAMM-LM (engramm/lm): JIT für die Suchschleifen, Suffix-Array, BPE durch Zählen, Parquet-Lesen
+numba==0.67.0
+pydivsufsort==0.0.20
+tokenizers==0.23.2
+pyarrow==25.0.1
 scikit-learn==1.9.0
 pytest==9.1.1
