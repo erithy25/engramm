@@ -29,9 +29,9 @@ from experiments.lm_mix import dedup_keep
 N_PROMPTS, PROMPT_TOKENS, GEN_TOKENS, PANEL = 200, 16, 100, 60
 
 
-def prompts(tok):
-    test = load_split("test")
-    keep = dedup_keep("test", test.n_docs)
+def prompts(tok, split: str = "test"):
+    test = load_split(split)
+    keep = dedup_keep(split, test.n_docs)
     order = sorted((i for i in range(test.n_docs) if keep[i]),
                    key=lambda i: _split_hash(*test.doc_keys[i]))
     out = []
@@ -52,12 +52,17 @@ def main() -> None:
     ap.add_argument("--tau-index", type=int, required=True)
     ap.add_argument("--beta-index", type=int, required=True)
     ap.add_argument("--n", type=int, default=N_PROMPTS)
+    ap.add_argument("--split", default="test")
+    ap.add_argument("--cache", default="document", help="exploratory: document | prompt | off")
+    ap.add_argument("--top-p", type=float, default=0.95)
+    ap.add_argument("--tag", default="", help="exploratory runs: suffix for all output files")
     args = ap.parse_args()
+    sfx = f"_{args.tag}" if args.tag else ""
     git_state, t0 = git_revision(), time.time()
     full = assemble(args.scale, args.seed, fitted_mixture(args.scale, args.seed, args.tau_index, args.beta_index))
     kn = kn_only(full)
-    dec = Decoding()
-    ps = prompts(full.tok)[:args.n]
+    dec = Decoding(top_p=args.top_p, cache=args.cache)
+    ps = prompts(full.tok, args.split)[:args.n]
     rows, speed = [], {"engramm": [], "kn5": []}
     for j, p in enumerate(ps):
         row = dict(p)
@@ -78,7 +83,7 @@ def main() -> None:
         g = generate(full, p["prompt"], 50, seed=42, dec=dec, explain=True)
         n_expl += len(g.ids)
     explain_tps = n_expl / (time.time() - tw)
-    (RESULTS_DIR / "p6_generations.json").write_text(json.dumps(rows, indent=1, ensure_ascii=False) + "\n")
+    (RESULTS_DIR / f"p6_generations{sfx}.json").write_text(json.dumps(rows, indent=1, ensure_ascii=False) + "\n")
 
     # blind judging items: both orders, order of first presentation from a hash of the prompt
     items = []
@@ -89,7 +94,7 @@ def main() -> None:
             a, b = (r["engramm"], r["kn5"]) if e_first else (r["kn5"], r["engramm"])
             items.append({"item": f"{k}-{swap}", "prompt": r["prompt"], "A": a, "B": b,
                           "engramm_is": "A" if e_first else "B"})
-    (RESULTS_DIR / "p6_judge_items.json").write_text(json.dumps(items, indent=1, ensure_ascii=False) + "\n")
+    (RESULTS_DIR / f"p6_judge_items{sfx}.json").write_text(json.dumps(items, indent=1, ensure_ascii=False) + "\n")
     lines = ["# ENGRAMM-LM — Lesebogen für das menschliche Panel (P6)", "",
              "Für jedes Paar: Welche Fortsetzung ist das bessere Englisch (flüssig, sinnvoll, beim Thema)? "
              "Kreuzen Sie A, B oder = an. Die Zuordnung der Systeme ist verdeckt "
@@ -97,15 +102,18 @@ def main() -> None:
     for it in [i for i in items if i["item"].endswith("-0")][:PANEL]:
         lines += [f"## Paar {it['item']}", "", f"**Anfang:** {it['prompt']}", "", f"**A:** …{it['A']}", "",
                   f"**B:** …{it['B']}", "", "☐ A  ☐ B  ☐ =", ""]
-    (RESULTS_DIR / "p6_panel_form.md").write_text("\n".join(lines) + "\n")
+    if not args.tag:
+        (RESULTS_DIR / "p6_panel_form.md").write_text("\n".join(lines) + "\n")
     tps = {k: sum(n for n, _ in v) / sum(t for _, t in v) for k, v in speed.items()}
-    out = {"scale": args.scale, "n_prompts": len(rows), "tokens_per_second": tps,
+    out = {"scale": args.scale, "n_prompts": len(rows), "split": args.split, "tag": args.tag,
+           "decoding": {"temperature": dec.temperature, "top_p": dec.top_p, "cache": dec.cache,
+                        "exploratory": bool(args.tag)}, "tokens_per_second": tps,
            "tokens_per_second_with_provenance": explain_tps, "peak_rss_mb": peak_rss_mb(),
            "longest_copy_max": {k: max(r[k + "_longest_copy"] for r in rows) for k in ("engramm", "kn5")},
            "longest_copy_mean": {k: float(np.mean([r[k + "_longest_copy"] for r in rows])) for k in ("engramm", "kn5")},
            "k3_triggered": bool(tps["engramm"] < 2)}
     print(json.dumps(out, indent=1), flush=True)
-    print(write_record(f"p5p6_generate_{args.scale}", out, t0, git_state), flush=True)
+    print(write_record(f"p5p6_generate_{args.scale}{sfx}", out, t0, git_state), flush=True)
 
 
 if __name__ == "__main__":

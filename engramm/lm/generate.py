@@ -33,8 +33,10 @@ class Decoding:
     no_repeat: int = NO_REPEAT
     quote_cap: int = QUOTE_CAP
     stop_at_eos: bool = True
-    #: exploratory writing mode: the document cache sees only the prompt (not registered)
-    cache_prompt_only: bool = False
+    #: exploratory writing modes (not registered): what the document cache may see —
+    #: "document" (registered: prompt + generated text), "prompt", or "off" (cache inactive,
+    #: its weight goes to KN5 exactly as for any component without a signal)
+    cache: str = "document"
 
 
 @dataclass
@@ -110,10 +112,14 @@ def generate(model, prompt: str, n_tokens: int = 100, seed: int = 0, dec: Decodi
     seq = [EOS] + [int(x) for x in prompt_ids]
     gen = Generation(prompt_ids)
     for t in range(n_tokens):
-        if dec.cache_prompt_only:
-            p = model.next_distribution(np.asarray(seq, dtype=np.uint16), cache_until=len(prompt_ids) + 1)
-        else:
+        if dec.cache == "document":
             p = model.next_distribution(np.asarray(seq, dtype=np.uint16))
+        elif dec.cache == "prompt":
+            p = model.next_distribution(np.asarray(seq, dtype=np.uint16), cache_until=len(prompt_ids) + 1)
+        elif dec.cache == "off":
+            p = model.next_distribution(np.asarray(seq, dtype=np.uint16), cache_until=1)
+        else:
+            raise ValueError(f"unknown cache mode {dec.cache!r}")
         banned = _banned_repeats(seq[1:], dec.no_repeat) | _banned_quotes(model, seq[1:], dec.quote_cap)
         if not dec.stop_at_eos:
             banned.add(EOS)

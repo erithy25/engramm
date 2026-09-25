@@ -18,7 +18,6 @@ from engramm.repro import git_revision
 from experiments.lm_common import RESULTS_DIR, write_record
 
 BATCH = 25
-DIR = RESULTS_DIR / "p6_judge"
 JUDGE_PROMPT = """You are a strict, impartial judge of English writing quality.
 Each item has the beginning of a text and two possible continuations, A and B,
 produced by two different automatic systems. Judge ONLY which continuation is
@@ -31,8 +30,9 @@ Return ONLY a JSON object mapping every item id to "A", "B" or "=", with no
 other text. The items follow as JSON."""
 
 
-def batches() -> None:
-    items = json.loads((RESULTS_DIR / "p6_judge_items.json").read_text())
+def batches(sfx: str = "") -> None:
+    DIR = RESULTS_DIR / f"p6_judge{sfx}"
+    items = json.loads((RESULTS_DIR / f"p6_judge_items{sfx}.json").read_text())
     DIR.mkdir(parents=True, exist_ok=True)
     (DIR / "PROMPT.txt").write_text(JUDGE_PROMPT + "\n")
     blind = [{"item": i["item"], "beginning": i["prompt"], "A": i["A"], "B": i["B"]} for i in items]
@@ -46,9 +46,10 @@ def batches() -> None:
     print(f"{(len(ordered) + BATCH - 1) // BATCH} batches in {DIR}")
 
 
-def score() -> None:
+def score(sfx: str = "") -> None:
+    DIR = RESULTS_DIR / f"p6_judge{sfx}"
     git_state, t0 = git_revision(), time.time()
-    items = {i["item"]: i for i in json.loads((RESULTS_DIR / "p6_judge_items.json").read_text())}
+    items = {i["item"]: i for i in json.loads((RESULTS_DIR / f"p6_judge_items{sfx}.json").read_text())}
     verdicts = {}
     for f in sorted(DIR.glob("answer_*.json")):
         verdicts.update(json.loads(f.read_text()))
@@ -77,14 +78,17 @@ def score() -> None:
            "by_order": {k: v[0] / v[1] if v[1] else None for k, v in by_order.items()},
            "p6_pass": bool(n == len(items) and share >= 0.60), "judge_prompt": JUDGE_PROMPT}
     print(json.dumps({k: v for k, v in out.items() if k != "judge_prompt"}, indent=1))
-    print(write_record("p6_judge", out, t0, git_state))
+    out["tag"] = sfx.lstrip("_")
+    print(write_record(f"p6_judge{sfx}", out, t0, git_state))
 
 
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", choices=("batches", "score"))
+    ap.add_argument("--tag", default="")
     a = ap.parse_args()
-    batches() if a.cmd == "batches" else score()
+    sfx = f"_{a.tag}" if a.tag else ""
+    batches(sfx) if a.cmd == "batches" else score(sfx)
 
 
 if __name__ == "__main__":
