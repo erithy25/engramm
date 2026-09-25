@@ -110,6 +110,112 @@ def _gather_eos_start(tokens, run, order, start):
     return out
 
 
+@numba.njit(cache=True)
+def _unique_counts_sorted(a):
+    """Distinct values of a sorted array and their multiplicities (uint32)."""
+    n = len(a)
+    if n == 0:
+        return np.zeros(0, dtype=np.uint64), np.zeros(0, dtype=np.uint32)
+    d = 1
+    for i in range(1, n):
+        if a[i] != a[i - 1]:
+            d += 1
+    keys = np.empty(d, dtype=np.uint64)
+    cnt = np.zeros(d, dtype=np.uint32)
+    k = 0
+    keys[0] = a[0]
+    for i in range(n):
+        if i > 0 and a[i] != a[i - 1]:
+            k += 1
+            keys[k] = a[i]
+        cnt[k] += 1
+    return keys, cnt
+
+
+@numba.njit(cache=True)
+def _merge_sorted(k1, c1, k2, c2):
+    """Merge two sorted, disjoint key sets with counts."""
+    n = len(k1) + len(k2)
+    keys = np.empty(n, dtype=np.uint64)
+    cnt = np.empty(n, dtype=np.uint32)
+    i = j = 0
+    for o in range(n):
+        if j >= len(k2) or (i < len(k1) and k1[i] < k2[j]):
+            keys[o] = k1[i]
+            cnt[o] = c1[i]
+            i += 1
+        else:
+            keys[o] = k2[j]
+            cnt[o] = c2[j]
+            j += 1
+    return keys, cnt
+
+
+@numba.njit(cache=True)
+def _table_from_keys(keys, a, prune):
+    """Table arrays from sorted full n-gram keys (context = key >> 15) and adjusted counts."""
+    n = len(keys)
+    coc = np.zeros(4, dtype=np.int64)
+    n_ctx = 0
+    n_keep = 0
+    i = 0
+    while i < n:
+        c = keys[i] >> np.uint64(15)
+        j = i
+        kept = 0
+        while j < n and (keys[j] >> np.uint64(15)) == c:
+            if a[j] <= 4:
+                coc[a[j] - 1] += 1
+            if not prune or a[j] >= 2:
+                kept += 1
+            j += 1
+        if kept > 0:
+            n_ctx += 1
+            n_keep += kept
+        i = j
+    ctx = np.empty(n_ctx, dtype=np.uint64)
+    ptr = np.zeros(n_ctx + 1, dtype=np.int64)
+    total = np.zeros(n_ctx, dtype=np.uint64)
+    n1 = np.zeros(n_ctx, dtype=np.uint32)
+    n2 = np.zeros(n_ctx, dtype=np.uint32)
+    n3 = np.zeros(n_ctx, dtype=np.uint32)
+    w = np.empty(n_keep, dtype=np.uint16)
+    aa = np.empty(n_keep, dtype=np.uint32)
+    r = 0
+    e = 0
+    i = 0
+    while i < n:
+        c = keys[i] >> np.uint64(15)
+        j = i
+        tot = np.uint64(0)
+        c1 = c2 = c3 = 0
+        start = e
+        while j < n and (keys[j] >> np.uint64(15)) == c:
+            x = a[j]
+            tot += np.uint64(x)
+            if x == 1:
+                c1 += 1
+            elif x == 2:
+                c2 += 1
+            else:
+                c3 += 1
+            if not prune or x >= 2:
+                w[e] = np.uint16(keys[j] & np.uint64(0x7FFF))
+                aa[e] = x
+                e += 1
+            j += 1
+        if e > start:
+            ctx[r] = c
+            total[r] = tot
+            n1[r] = c1
+            n2[r] = c2
+            n3[r] = c3
+            r += 1
+            ptr[r] = e
+        i = j
+    return ctx, ptr, total, n1, n2, n3, w, aa, coc
+
+
 def _distinct_sorted(first: np.ndarray | None, low: np.ndarray):
     """Distinct (first, low) pairs in lexicographic order, with multiplicities."""
     if first is None:
@@ -235,7 +341,7 @@ def _merge_keys(keys_a, cnt_a, keys_b, cnt_b):
 
 
 def build_kn(tokens: np.ndarray, order: int = MAX_ORDER, prune_from: int = 3,
-             chunk_budget: int = 60_000_000, log=None) -> KNModel:
+             chunk_budget: int = 30_000_000, log=None) -> KNModel:
     """Count a token stream (``[EOS] d1 [EOS] d2 … [EOS]``) into a modified-KN model."""
     if not 2 <= order <= MAX_ORDER:
         raise ValueError(f"order must be in 2..{MAX_ORDER}")
@@ -268,27 +374,30 @@ def build_kn(tokens: np.ndarray, order: int = MAX_ORDER, prune_from: int = 3,
         say(f"order {n}: chunk [{lo},{hi}) {m} positions")
     tables[n] = _concat_tables(parts)
     del parts
+    f = lw = None                             # noqa: F841  (release the last chunk)
 
     # --- lower orders: continuation counts (+ raw counts of EOS-initial n-grams) --
+    # memory-lean: sort in place, count and split with numba, reuse the key array
     while n > 1:
         m = n - 1
         suffix = np.concatenate(suffix_chunks) if suffix_chunks else np.zeros(0, dtype=np.uint64)
-        suffix_chunks = []
-        keys, cnt = np.unique(suffix, return_counts=True)
+        suffix_chunks.clear()
+        suffix.sort()
+        keys, cnt = _unique_counts_sorted(suffix)
         del suffix
-        cnt = cnt.astype(np.uint64)
         if m >= 2:
-            eos_keys, eos_cnt = np.unique(_gather_eos_start(tokens, run, m, 1), return_counts=True)
-            keys, cnt = _merge_keys(keys, cnt, eos_keys, eos_cnt.astype(np.uint64))
-        if m > 1:
-            suffix_chunks = [keys & np.uint64((1 << (BITS * (m - 1))) - 1)]
-            ctx = keys >> np.uint64(BITS)
-        else:
-            ctx = np.zeros(len(keys), dtype=np.uint64)
-        w = keys & np.uint64(TOKEN_MASK)
-        tables[m] = _table_from_sorted(m, ctx, w, cnt, prune=m >= prune_from)
+            eos = _gather_eos_start(tokens, run, m, 1)
+            eos.sort()
+            eos_keys, eos_cnt = _unique_counts_sorted(eos)
+            del eos
+            keys, cnt = _merge_sorted(keys, cnt, eos_keys, eos_cnt)
+        tables[m] = OrderTable(m, *_table_from_keys(keys, cnt, m >= prune_from), m >= prune_from)
         say(f"order {m}: {len(keys)} distinct")
-        del keys, cnt, ctx, w
+        del cnt
+        if m > 1:
+            np.bitwise_and(keys, np.uint64((1 << (BITS * (m - 1))) - 1), out=keys)
+            suffix_chunks.append(keys)
+        del keys
         n = m
     return KNModel.from_tables(tables, vocab_size=1 << BITS)
 
