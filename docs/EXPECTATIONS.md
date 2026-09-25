@@ -1005,6 +1005,28 @@ keinen Code.
 
 ---
 
+## E12 — ENGRAMM-LM: Texte schreiben nur durch Lesen und Zählen
+
+**Registrierung: `docs/PREREG_LM.md` v1.0** (2026-09-25, vor Tokenizer, Modellcode
+und jeder Messung auf val/test). Korpus: 1 C4-en-Shard + WikiText-103-Train,
+Dokument-Hash-Split; Metrik Bits pro Byte; Kernaussage P2 = Zusatznutzen des
+HDC-Teils (KNN + TOPIC) gegenüber dem exakten Null-Modell (KN-5 + ∞-Gramm + Cache).
+
+**Erwartung.**
+
+| Punkt | Erwartung |
+|---|---|
+| BPB ENGRAMM-LM / KN-5 | ≈ 0,93 (0,88–0,97); P1 (≤ 0,90) eher verfehlt |
+| P2 (≥ 2 % unter Null-Modell, KI < 1) | knapp, ~45 % |
+| G2 (Pilot, ≥ 1 %) | eher bestanden |
+| P3 umformulierte Fakten | knapp, ~50 % |
+| P4 Vergessen exakt | erfüllt (by construction) |
+| P5 M4 | im Container offen |
+| P6 Richter ≥ 60 % gegen KN-5 | knapp, ~55 % |
+| Transformer 12 h CPU | etwa gleichauf; GPT-2 small klar besser (≈ 0,72 × KN-5) |
+
+---
+
 ## Offene Fragen, nicht terminiert
 
 **O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**
