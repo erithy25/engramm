@@ -191,3 +191,21 @@ def test_independent_of_pythonhashseed(tmp_path):
         assert r.returncode == 0, r.stderr
         outs.append(r.stdout)
     assert outs[0] == outs[1]
+
+
+def test_cli_learn_write_why_forget(model, tmp_path, capsys):
+    from engramm.lm.__main__ import main
+
+    d = tmp_path / "model"
+    model.save(d)
+    assert main(["--model", str(d), "status"]) == 0
+    base = capsys.readouterr().out
+    assert main(["--model", str(d), "learn", "--source", "n1", "--text",
+                 "The glass tower of Velmora was built by Quendrik Ashby."]) == 0
+    assert main(["--model", str(d), "why", "The glass tower of Velmora was built by", " Quendrik"]) == 0
+    assert '"source": "n1"' in capsys.readouterr().out
+    assert main(["--model", str(d), "write", "The farmer", "--tokens", "8", "--seed", "3"]) == 0
+    assert main(["--model", str(d), "forget", "n1"]) == 0
+    capsys.readouterr()
+    assert main(["--model", str(d), "status"]) == 0
+    assert capsys.readouterr().out == base

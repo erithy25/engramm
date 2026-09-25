@@ -60,9 +60,19 @@ class LoggedModel:
         self.log.learn_text(source_id, text)
         self.model.learn_text(text, source_id)
 
+    def learn_texts(self, texts: dict[str, str]) -> None:
+        for sid, text in texts.items():
+            self.log.learn_text(sid, text)
+        self.model.learn_texts(texts)
+
     def forget(self, source_id: str) -> str:
         self.log.forget(source_id)
         return self.model.forget(source_id)
+
+    def forget_many(self, source_ids) -> list[str]:
+        for sid in source_ids:
+            self.log.forget(sid)
+        return self.model.forget_many(source_ids)
 
 
 def replay_lm(path: Path | str, model, consolidate_log=None):

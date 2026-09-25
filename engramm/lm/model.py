@@ -101,47 +101,54 @@ class UserLayer:
             h.update(len(s.encode()).to_bytes(8, "big") + s.encode())
             h.update(len(t.encode()).to_bytes(8, "big") + t.encode())
         h.update(self.tokens.tobytes())
+        for ctx in sorted(self.ngrams):
+            row = self.ngrams[ctx]
+            h.update(repr((ctx, sorted(row.items()))).encode())
         return h.hexdigest()
 
 
-def build_user_layer(texts: dict[str, str], tok: LMTokenizer, cb: Codebook, seed: int) -> UserLayer:
+def source_ngrams(ids: np.ndarray) -> dict:
+    """User n-gram counts (context of 1..4 tokens → next token) of one text."""
+    seq = [EOS] + [int(x) for x in ids] + [EOS]
+    out: dict = defaultdict(lambda: defaultdict(int))
+    for i in range(1, len(seq)):
+        for m in range(1, USER_MAX_ORDER):
+            if i - m < 0:
+                break
+            ctx = tuple(seq[i - m:i])
+            if EOS in ctx[1:]:
+                break
+            out[ctx][seq[i]] += 1
+    return {c: dict(v) for c, v in out.items()}
+
+
+def build_user_layer(texts: dict[str, str], ids: dict[str, np.ndarray], ngrams: dict,
+                     cb: Codebook, seed: int) -> UserLayer:
+    """The user layer of the live texts; ``ids`` and ``ngrams`` are the per-text token ids and
+    the summed n-gram counts (both pure functions of the live set)."""
     if not texts:
         return UserLayer()
     sources = tuple(sorted(texts))
-    parts, positions, source_of = [np.array([EOS], dtype=np.uint16)], [], [-1]
+    parts, positions, source_of = [np.array([EOS], dtype=np.uint16)], [], [np.full(1, -1, dtype=np.int64)]
     length = 1
-    ngrams: dict = defaultdict(lambda: defaultdict(int))
     for si, s in enumerate(sources):
-        ids = tok.encode(texts[s])
         # every text starts on its own 128-token segment -> its own topic signature
         pad = (-length) % K.SEG
         if pad == 0 and length > 1:
             pad = K.SEG
         if pad:
             parts.append(np.zeros(pad, dtype=np.uint16))
-            source_of.extend([-1] * pad)
+            source_of.append(np.full(pad, -1, dtype=np.int64))
             length += pad
-        doc = np.concatenate([ids, [EOS]]).astype(np.uint16)
-        start = length
+        doc = np.concatenate([ids[s], [EOS]]).astype(np.uint16)
         parts.append(doc)
-        source_of.extend([si] * len(doc))
-        positions.extend(range(start, start + len(doc)))
+        source_of.append(np.full(len(doc), si, dtype=np.int64))
+        positions.append(np.arange(length, length + len(doc), dtype=np.int64))
         length += len(doc)
-        seq = [EOS] + [int(x) for x in doc]
-        for i in range(1, len(seq)):
-            for m in range(1, USER_MAX_ORDER):
-                if i - m < 0:
-                    break
-                ctx = tuple(seq[i - m:i])
-                if EOS in ctx[1:]:
-                    break
-                ngrams[ctx][seq[i]] += 1
     tokens = np.concatenate(parts).astype(np.uint16)
     segsig = K.segment_signatures(tokens, cb.wide, cb.idf, tiebreak_vector(seed))
-    frozen = {c: dict(v) for c, v in ngrams.items()}
-    return UserLayer(sources, tuple(texts[s] for s in sources), tokens,
-                     np.asarray(positions, dtype=np.int64), np.asarray(source_of, dtype=np.int64),
-                     segsig, frozen, SuffixIndex(tokens))
+    return UserLayer(sources, tuple(texts[s] for s in sources), tokens, np.concatenate(positions),
+                     np.concatenate(source_of), segsig, ngrams, SuffixIndex(tokens))
 
 
 # ---------------------------------------------------------------------------
@@ -169,6 +176,8 @@ class HDCLanguageModel:
         self.topic_tab = topic_table(mixture.beta)
         self.vocab = kn.vocab_size
         self.user_texts: dict[str, str] = {}
+        self._user_ids: dict[str, np.ndarray] = {}
+        self._user_ngrams: dict = {}
         self.user = UserLayer()
         self.tombstones: set[int] = set()
         self._tomb = (np.zeros(0, dtype=np.int64), np.zeros(0, dtype=np.int64))
@@ -233,21 +242,59 @@ class HDCLanguageModel:
 
     # -- learning and forgetting ------------------------------------------------------------
 
+    def _rebuild_user(self) -> None:
+        self.user = build_user_layer(self.user_texts, self._user_ids, self._user_ngrams, self.cb, self.seed)
+
+    def _add_counts(self, grams: dict, sign: int) -> None:
+        for ctx, nxt in grams.items():
+            row = self._user_ngrams.setdefault(ctx, {})
+            for w, c in nxt.items():
+                v = row.get(w, 0) + sign * c
+                if v:
+                    row[w] = v
+                else:
+                    del row[w]
+            if not row:
+                del self._user_ngrams[ctx]
+
+    def learn_texts(self, texts: dict[str, str]) -> None:
+        """Learn several texts with one rebuild of the user layer."""
+        for sid, text in texts.items():
+            if not sid:
+                raise ValueError("source_id must be non-empty")
+            if sid in self.user_texts:
+                raise ValueError(f"source {sid!r} already learnt; forget it first")
+        for sid, text in texts.items():
+            ids = self.tok.encode(text)
+            self.user_texts[sid] = text
+            self._user_ids[sid] = ids
+            self._add_counts(source_ngrams(ids), +1)
+        self._rebuild_user()
+
     def learn_text(self, text: str, source_id: str) -> None:
-        if not source_id:
-            raise ValueError("source_id must be non-empty")
-        if source_id in self.user_texts:
-            raise ValueError(f"source {source_id!r} already learnt; forget it first")
-        self.user_texts[source_id] = text
-        self.user = build_user_layer(self.user_texts, self.tok, self.cb, self.seed)
+        self.learn_texts({source_id: text})
+
+    def forget_many(self, source_ids) -> list[str]:
+        kinds, user_changed = [], False
+        for sid in source_ids:
+            if sid in self.user_texts:
+                self._add_counts(source_ngrams(self._user_ids[sid]), -1)
+                del self.user_texts[sid]
+                del self._user_ids[sid]
+                user_changed = True
+                kinds.append("user")
+            else:
+                kinds.append(self._forget_base(sid))
+        if user_changed:
+            self._rebuild_user()
+        return kinds
 
     def forget(self, source_id: str) -> str:
         """Forget a user text (exact, immediately) or a base document given as
         ``"<source>\\x00<key>"`` (tomb-stoned now, removed from statistics by consolidate)."""
-        if source_id in self.user_texts:
-            del self.user_texts[source_id]
-            self.user = build_user_layer(self.user_texts, self.tok, self.cb, self.seed)
-            return "user"
+        return self.forget_many([source_id])[0]
+
+    def _forget_base(self, source_id: str) -> str:
         src, _, key = source_id.partition("\x00")
         doc = self._key_to_doc.get((src, key))
         if doc is None:
