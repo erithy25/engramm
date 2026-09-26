@@ -1,0 +1,43 @@
+{
+  "schema": "engramm-lm/1",
+  "name": "p5_device_main",
+  "study": "docs/PREREG_LM.md v1.0",
+  "timestamp_utc": "20260926T100039Z",
+  "git": {
+    "commit": "336e6ba6f85117506f8d0590b6e8222e580c06a1",
+    "dirty": false,
+    "untracked": 2,
+    "changed_during_run": false
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 589.0161774158478,
+    "peak_rss_mb": 8881.9765625
+  },
+  "scale": "main",
+  "build_seconds": 565.6817851066589,
+  "build_steps_seconds": {
+    "kn5": 218.8831992149353,
+    "suffix_array": 73.03919887542725,
+    "codebook": 108.60662889480591,
+    "knn_index": 101.39966702461243,
+    "segment_signatures": 63.75309109687805
+  },
+  "tokens_per_second_with_provenance": 108.94345192145431,
+  "peak_rss_mb": 8881.9765625,
+  "criteria": {
+    "speed": true,
+    "rss": true,
+    "build": true
+  },
+  "note": "official only on the reference machine (MacBook Air M4, W16 conditions)",
+  "p5_pass": true
+}

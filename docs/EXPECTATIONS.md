@@ -1098,6 +1098,16 @@ Spitzenlast des Systems beim KN-Aufbau 9,0 GB (einschließlich des parallel trai
 - Einzelaufrufe je Fakt: 54 ms pro Aufruf, also 3,6 s je 1.000 Tokens bei sehr kurzen Texten; das berichtet P4 nicht als Kriterium.
 - Ein erster P4-Lauf verglich den Canary gegen den falschen Zustand (vor learn(A)). Das war ein Fehler im Harness, nicht im Modell; er ist korrigiert, beide Records liegen vor.
 
+**P5 — ein Befehl für den M4:** `python -m experiments.lm_p5 --scale main`. Er misst Neuaufbau, Schreiben mit Quellenangabe und Spitzen-RSS in einem Prozess. Container-Lauf 2026-09-26 (`results/lm/p5_device_main_*.json`, nicht offiziell):
+
+| Messgröße | Wert | Schwelle | im Container |
+|---|---|---|---|
+| Aufbau | 566 s | ≤ 12 h | erfüllt |
+| Schreiben mit Quellen | 109 Tokens/s | ≥ 25 | erfüllt |
+| Spitzen-RSS | 8,9 GB | ≤ 10 GB | erfüllt |
+
+Offiziell bleibt P5 offen, bis derselbe Befehl auf dem M4 unter W16-Bedingungen gelaufen ist.
+
 **P5 (nur Container, nicht offiziell):**
 - Schreiben: 128 Tokens/s, mit Quellenangabe je Token 117 Tokens/s; KN-5 allein 211 Tokens/s.
 - Spitzen-RSS 4,5 GB; Aufbau ≈ 15 min.
