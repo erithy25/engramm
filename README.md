@@ -57,9 +57,10 @@ before it ran; deviations from the record are in [`docs/DEVIATIONS.md`](docs/DEV
 | M3 | 1,000 authors, strictly sequential | 5.94 % top-1; state invariant, read-out **not** (W19) | top-1 **15.46 % ± 0.74**, top-5 27.78 %, forgetting +18.8 pp (3 seeds); **state and read-out invariance hold on 3/3 seeds** (0 differences); reconstruction from the log exact | forgetting ≤ 1 pp, top-1 ≥ 30 %: **not met** (as predicted) |
 | M5 | Intent classification vs. local LLM baselines (Banking77 / CLINC150, 10-shot) | hypothesis failed: ENGRAMM 62.6 / 69.0 %, 20.4 / 22.0 pp behind LLM+RAG | ENGRAMM **65.39 % ± 1.26 / 72.80 % ± 0.32** (5 seeds); embedding kNN without an LLM (B0) 83.92 / 86.57 %; LoRA in tranches (B3) 14.7 / 34.4 % with +66 / +76 pp forgetting; LLM+RAG (B1, CPU) **80.52 / 90.38 %** — ENGRAMM **16.8 / 17.4 pp behind**; learning 634–680× faster than B3, no interference | **(3) defeat on both tasks** (accuracy gap > 15 pp; energy not measured, not needed for the decision) |
 | Phase 4 | Bit-corruption robustness vs. equal-size baselines (MNIST, WiLI; 10 seeds) | — (new) | chance-corrected retention at 5 / 10 / 25 % flipped bits: ENGRAMM **0.94 / 0.85 / 0.55** (MNIST), **0.99 / 0.99 / 0.95** (WiLI); int8 MLP 0.38 / 0.14 / 0.03 and 0.50 / 0.13 / 0.01. Against the 1-bit format control: advantage holds on WiLI, **not** on MNIST (1-bit LR 0.88 / 0.73 / 0.45) | [`docs/PREREG_ROBUSTNESS.md`](docs/PREREG_ROBUSTNESS.md) v1.3: **confirmed** (§7) on both tasks; §4.1: attributable to number format on MNIST, representation advantage shown on WiLI |
+| Phase 5 | ENGRAMM-LM: an English language model built only by counting (285 M tokens of C4 + Wikipedia) | — (new) | test bits/byte: KN-5 1.605 · exact null model (KN-5 + ∞-gram + cache) 1.525 · **ENGRAMM-LM 1.514** (HDC adds 0.7 %) · small Transformer, 6 h CPU 1.638 · GPT-2 small 1.039. Forgetting is bit-exact; 128 tokens/s on CPU; LLM judge prefers its texts over KN-5 in 19.8 % (registered decoding) | [`docs/PREREG_LM.md`](docs/PREREG_LM.md) v1.1: **refuted** (kill gate K1: HDC gain 0.45 % < 1 % in the pilot; P2 missed at 0.9926 vs ≤ 0.98). P4 met, P1/P3/P6 missed, P5 open (M4 only) |
 
 Per-seed values, the registered expectations and every verdict are in
-[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E1–E11); the records are in
+[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E1–E12); the records are in
 [`results/`](results/).
 
 What the rebuild adds beyond the historical record:
@@ -142,6 +143,24 @@ The rebuild is also a re-scoping. The primary research question:
    almost as gracefully, so there the advantage is the number format's; on
    WiLI it survives the format control (`results/robustness/SUMMARY.md`).
 
+5. **ENGRAMM-LM — writing English by reading and counting** — *done*
+   ([`docs/PREREG_LM.md`](docs/PREREG_LM.md), spec in [`docs/SPEC_LM.md`](docs/SPEC_LM.md),
+   code in `engramm/lm/`). Five components are mixed per token:
+   - exact modified Kneser-Ney 5-grams (equal to KenLM to 1.4·10⁻⁶);
+   - an ∞-gram suffix array;
+   - a document cache;
+   - an HDC similarity memory over 2,048-bit word vectors learnt from co-occurrence counts;
+   - an HDC topic vector.
+
+   Texts can be learnt and forgotten at runtime, bit-exactly (`learn`/`forget`), and every
+   written token cites its source (`why`). Outcome: **refuted** under the registered rules.
+   The model beats KN-5 by 5.7 %, but only 0.7 % of that comes from the HDC part, and the
+   kill gate asked for ≥ 1 %. Its texts lose to KN-5 under the registered decoding (the
+   cache amplifies its own sampling noise). An exploratory writing mode without the cache
+   wins 78 % against KN-5, mostly through longer verbatim reuse from the ∞-gram, not HDC.
+   Try it:
+   `python -m engramm.lm write "The history of the city" --cache off --top-p 0.8 --explain`.
+
 Still open: confirming the accuracy figures bit-identically on the M4, and
 measuring energy there.
 
@@ -170,6 +189,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.lock
 .venv/bin/python -m experiments.run_benchmark --task wili --shots 10 --seeds 5
 bash experiments/reproduce_all.sh                           # every registered milestone run
 bash experiments/robustness_all.sh                          # the bit-corruption study
+.venv/bin/python -m experiments.lm_prepare                  # ENGRAMM-LM: corpus, tokens (then lm_components, lm_mix, lm_eval)
 
 # M5 baselines run in their own environment:
 python3.12 -m venv .venv_b1
@@ -182,6 +202,8 @@ python3.12 -m venv .venv_b1
 ```
 engramm/                 the rebuilt core: item memory, encoders, prototypes, episodic
                          memory and fusion, T2/T3, L2 event log, determinism helpers
+engramm/lm/              ENGRAMM-LM: tokenizer, KN-5, suffix array, meaning vectors, KNN,
+                         topic, mixture, learn/forget/why, sampler, CLI (python -m engramm.lm)
 data/                    checksummed loaders (WiLI-2018, MNIST, Banking77, CLINC150,
                          Blog Authorship Corpus); train-only feature fitting
 experiments/             one harness per milestone, the robustness study, referees,

@@ -1120,6 +1120,48 @@ Lesart:
 - Der Vorsprung gegen KN-5 kommt überwiegend aus dem ∞-Gramm-Teil (längere wörtliche Stücke, durch den Zitat-Deckel auf 32 Tokens begrenzt), **nicht** aus dem HDC-Teil. Gegen das Null-Modell bleibt nur ein Unterschied im Rauschbereich.
 - Das ändert kein registriertes Urteil.
 
+### Testsplit — einmalige Auswertung 2026-09-26 (`results/lm/test_eval_*.json`)
+
+Alle Konfigurationen waren vorher eingefroren. Test: 1.092 von 1.137 Dokumenten nach dem Near-Duplicate-Filter.
+
+| System | BPB test | BPB WikiText-103-Test |
+|---|---|---|
+| KN-5 (285 M, beschnitten) | 1,6050 | 1,5418 |
+| KN-5 + Cache | 1,5485 | 1,4892 |
+| Null-Modell | 1,5248 | 1,4473 |
+| **ENGRAMM-LM** | **1,5136** | **1,4332** |
+| Transformer 6 h CPU (Referenz) | 1,6376 | 1,5966 |
+| GPT-2 small (fremd, Einordnung) | 1,0388 | 0,9773 |
+
+- Transformer: der 12-h-Checkpoint ist durch einen Container-Neustart verloren. 1 h: 1,998, 3 h: 1,798.
+- GPT-2: 124 M Parameter, 40 GB Trainingstext.
+
+| Kriterium | Wert | Ergebnis |
+|---|---|---|
+| P1: ENGRAMM / KN-5 ≤ 0,90 | 0,943 [0,939; 0,948] | **verfehlt** |
+| P2: ENGRAMM / Null-Modell ≤ 0,98, KI < 1 | 0,9926 [0,9921; 0,9931] | **verfehlt** (KI < 1 erfüllt, Größe nicht) |
+| P3 | 25,75 % gegen 26,5 % | **verfehlt**, K4 |
+| P4 | Digest und Canary bitgleich, 56/37 ms je 1k | **erfüllt** |
+| P5 | Container 128 Tokens/s, 4,5 GB, ≈ 15 min Aufbau | **offen** (nur M4) |
+| P6 | 19,8 % | **verfehlt** |
+
+Die Tore: K1 ist ausgelöst, K2 nicht, K3 nicht, K4 ist ausgelöst, K5 nicht.
+
+**AUSGANG NACH §11: WIDERLEGT (K1, P2 verfehlt)** — Referee `experiments/lm_verdict.py`, `results/lm/VERDICT.json`.
+
+**Gegen die Erwartung:**
+- Das Verhältnis zu KN-5 traf die Erwartung genau: 0,943 gegen erwartete ≈ 0,93, Band 0,88–0,97.
+- Die Aufteilung ist aber anders als gedacht: 5,0 % bringt der exakte Teil (∞-Gramm + Cache), nur 0,7 % der HDC-Teil.
+- Erwartet waren P2 knapp, P3 knapp und P6 knapp. Eingetreten ist dreimal „klar verfehlt".
+- Der Transformer lag mit 6 h CPU unter Last noch hinter KN-5, statt gleichauf.
+- GPT-2 small ist mit 0,65 × KN-5 noch deutlich besser als die erwarteten ≈ 0,72.
+
+**Was bleibt:**
+- ENGRAMM schreibt Englisch allein durch Zählen: ohne neuronales Netz und ohne fremdes Modell, in 15 Minuten gebaut, mit 128 Tokens/s auf der CPU.
+- Es lernt neue Texte in Millisekunden und vergisst sie bitgenau.
+- Es nennt für jedes Wort seine Quelle.
+- Der HDC-Teil hilft messbar und seed-stabil, aber für die registrierte Kernaussage zu wenig.
+
 ---
 
 ## Offene Fragen, nicht terminiert

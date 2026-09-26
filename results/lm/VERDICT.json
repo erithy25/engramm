@@ -1,0 +1,84 @@
+{
+  "criteria": {
+    "P1": {
+      "ratio": 0.9430661585068069,
+      "threshold": 0.9,
+      "pass": false
+    },
+    "P2": {
+      "ratio": 0.9926102430523801,
+      "ci95": [
+        0.9921082407317202,
+        0.9931058593389325
+      ],
+      "threshold": 0.98,
+      "pass": false
+    },
+    "P3": {
+      "engramm_top10": 0.2575,
+      "kn5_learned_top10": 0.265,
+      "threshold": 0.53,
+      "pass": false
+    },
+    "P4": {
+      "pass": true,
+      "digest_equal": true,
+      "canary_bit_identical": true,
+      "timing": {
+        "learn_a_one_call_per_text_ms_per_1k_tokens": 3582.267716546933,
+        "learn_a_ms_per_call": 53.51907968521118,
+        "learn_b_ms_per_1k_tokens": 55.758836792736524,
+        "forget_b_ms_per_1k_tokens": 36.559308447488924,
+        "b_tokens": 1640,
+        "note": "B (100 facts + canary) learnt and forgotten in one batch call each; A one call per fact. Each call rebuilds the user layer. Container timing, not official"
+      }
+    },
+    "P5": {
+      "status": "OFFEN — nur auf dem M4 gültig",
+      "container": {
+        "tokens_per_second": {
+          "engramm": 128.21552462249684,
+          "kn5": 210.7877869619149
+        },
+        "with_provenance": 117.26804709625327
+      }
+    },
+    "P6": {
+      "preference_engramm": 0.1975,
+      "threshold": 0.6,
+      "pass": false,
+      "human_panel": "Bogen erzeugt, nicht durchgeführt"
+    }
+  },
+  "kills": {
+    "K1": {
+      "triggered": true,
+      "mean_improvement": 0.004521977265102802
+    },
+    "K2": {
+      "triggered": false,
+      "ratio": {
+        "ratio": 0.9930059946381115,
+        "ci95": [
+          0.9923376372191419,
+          0.9936425300030223
+        ]
+      }
+    },
+    "K3": {
+      "triggered": false,
+      "tokens_per_second": {
+        "engramm": 128.21552462249684,
+        "kn5": 210.7877869619149
+      }
+    },
+    "K4": {
+      "triggered": true
+    },
+    "K5": {
+      "triggered": false
+    }
+  },
+  "missing_records": [],
+  "outcome": "WIDERLEGT (K1, P2 verfehlt)"
+}
