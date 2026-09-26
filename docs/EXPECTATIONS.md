@@ -1117,11 +1117,35 @@ Spitzenlast des Systems beim KN-Aufbau 9,0 GB (einschließlich des parallel trai
 **P5 erfüllt.** Die W16-Bedingungen (Netzteil, Deckel offen, alleiniger Lauf) sind nicht
 maschinell protokolliert. `caffeinate` lief.
 
-**Plattform-Befund.** Der Basis-Digest des Modells unterscheidet sich zwischen Container
-(`4c03b17a…`) und M4 (`2f6ee03a…`). Welcher Teil abweicht, zeigt
-`python -m experiments.lm_digests --scale main`; die Container-Werte stehen im Kopf des
-Skripts. Bis das geklärt ist, gilt: Die Modelle sind auf beiden Plattformen gleich gebaut,
-aber nicht nachweislich bitgleich.
+**Plattform-Befund.** Der Basis-Digest unterschied sich zunächst zwischen Container
+(`4c03b17a…`) und M4 (`2f6ee03a…`). `python -m experiments.lm_digests` zeigt, wo:
+- **bitgleich auf beiden Plattformen:** Tokenstrom, KN-5-Tabellen, Suffix-Array,
+  Bedeutungsvektoren (eng, weit), Wortklassen, idf, KNN-Index, Segment-Signaturen und die
+  KNN-Distanzgrenzen;
+- **verschieden** waren allein die Mischungsgewichte in den letzten Float-Bits.
+  Auf 10⁻⁹ gerundet waren auch sie gleich.
+
+Die Ursache: EM summiert Gleitkommazahlen, und Linux und macOS runden dabei im letzten
+Bit unterschiedlich.
+
+**Behoben** (das kündigte der Plan als „λ in Festkomma" an und war nicht umgesetzt):
+- Die Gewichte werden nach der EM auf ein 2⁻²⁴-Raster gerundet.
+- Jedes Gewicht bleibt ≥ 2⁻²⁴. Ein erster Versuch ohne diese Untergrenze setzte ein
+  winziges KN-Gewicht auf 0, und `lm_eval` brach mit „nicht geglättet" ab.
+- Jede Zeile summiert exakt auf 1.
+- Neuer Container-Digest: `b45c2065…`.
+
+**Wirkung auf die Testzahlen** (Test einmal neu ausgewertet, beide Records liegen vor):
+
+| System | vorher | nachher |
+|---|---|---|
+| ENGRAMM-LM | 1,51357694 | 1,51357693 |
+| Null-Modell | 1,52484518 | 1,52484518 |
+| Pilot-ENGRAMM | 1,66396 | 1,66378 (durch die Untergrenze) |
+| P2-Verhältnis | 0,99261024 | 0,99261024 |
+
+Das Urteil bleibt unverändert. Die Bitgleichheit mit Festkomma-Gewichten auf dem M4 steht
+noch aus: Dort muss der Digest `b45c2065…` erscheinen.
 
 **P5 (nur Container, nicht offiziell):**
 - Schreiben: 128 Tokens/s, mit Quellenangabe je Token 117 Tokens/s; KN-5 allein 211 Tokens/s.

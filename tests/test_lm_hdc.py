@@ -208,3 +208,19 @@ def test_as_words_bit_order():
     packed[0, 0] = 0x80
     w = as_words(packed)
     assert w[0, 0] == np.uint64(1) << np.uint64(63)
+
+
+def test_mixture_weights_are_fixed_point_and_platform_robust():
+    from engramm.lm.mixture import fit_em, quantize_weights
+    rng = np.random.default_rng(0)
+    P = rng.random((500, 3)) + 1e-3
+    b = rng.integers(0, 4, 500)
+    m = fit_em(P, b, 4, ("kn", "a", "b"))
+    assert np.all(m.weights.sum(axis=1) == 1.0)
+    assert np.all(m.weights * (1 << 24) == np.rint(m.weights * (1 << 24)))
+    # a last-bit perturbation of the EM result does not change the stored weights
+    noisy = m.weights * (1 + 1e-15)
+    assert np.array_equal(quantize_weights(noisy), m.weights)
+    # weights EM drove to ~0 stay strictly positive (KN5 must keep smoothing)
+    tiny = quantize_weights(np.array([[1e-12, 0.5, 0.5 - 1e-12]]))
+    assert tiny[0, 0] == 2.0 ** -24 and tiny.sum() == 1.0 and (tiny > 0).all()

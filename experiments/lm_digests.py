@@ -9,8 +9,11 @@ Container reference (Linux x86-64, 2026-09-26, seed 42, τ index 1, β index 1):
     codebook.eng 62150274cf6a7e3f · codebook.wide 80403c6753925781
     codebook.classes d67bb51975740471 · codebook.idf ae77d6409304701d
     knn_pos 3431b698d3ccd9e9 · segsig 86b00f0ab6417617
-    mixture.weights 1c246108bf9cd56c (rounded to 1e-9: 2a2b9f2e7a4da695) · knn_edges [1961, 2873, 4092]
-    base_digest 4c03b17aa3d1d03f7c30be08ee58813564488f15f3dbe3220fb77ca67d1500e1
+    knn_edges [1961, 2873, 4092]
+    with fixed-point weights (since 2026-09-26): mixture.weights 27104a10e90ed04f,
+    base_digest b45c20659e5591ff5298d631da4f5c9d566421d6db69f80eaa16a94737779b54
+    (before: float weights 1c246108bf9cd56c on Linux vs. 7c5a7f8e527b6bd7 on the M4 —
+    the only part that differed; rounded to 1e-9 both were 2a2b9f2e7a4da695)
 """
 
 from __future__ import annotations

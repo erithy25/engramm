@@ -1,15 +1,15 @@
 {
   "criteria": {
     "P1": {
-      "ratio": 0.9430661585068069,
+      "ratio": 0.9430661539506249,
       "threshold": 0.9,
       "pass": false
     },
     "P2": {
-      "ratio": 0.9926102430523801,
+      "ratio": 0.9926102382648448,
       "ci95": [
-        0.9921082407317202,
-        0.9931058593389325
+        0.9921082292617595,
+        0.9931058545040599
       ],
       "threshold": 0.98,
       "pass": false
@@ -34,13 +34,19 @@
       }
     },
     "P5": {
-      "status": "OFFEN — nur auf dem M4 gültig",
+      "status": "ERFÜLLT (M4)",
       "container": {
         "tokens_per_second": {
           "engramm": 128.21552462249684,
           "kn5": 210.7877869619149
         },
         "with_provenance": 117.26804709625327
+      },
+      "pass": true,
+      "m4": {
+        "build_seconds": 544.2361485958099,
+        "tokens_per_second_with_provenance": 118.88306963615702,
+        "peak_rss_mb": 6218.265625
       }
     },
     "P6": {

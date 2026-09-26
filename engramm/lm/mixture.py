@@ -8,8 +8,11 @@ p(w | h) = Σ_c λ_c(b(h)) · p_c(w | h), with the bucket b(h) built from
   val-A quartiles; no candidates = the farthest class).
 
 A component without a signal reports p_KN instead (so it can never hurt by
-being absent). EM: fixed number of iterations from uniform weights; sums are
-sequential, so the fitted weights are a fixed function of the data.
+being absent). EM: fixed number of iterations from uniform weights. The weights
+are then fixed-point quantised (2^-24 grid, every weight ≥ 2^-24, rows summing to
+exactly 1): EM's
+float sums can differ in the last bit between platforms (measured: container
+vs. M4 differed only there), the quantised weights do not.
 """
 
 from __future__ import annotations
@@ -19,6 +22,9 @@ from dataclasses import dataclass
 import numpy as np
 
 EM_ITERS = 100
+#: Fitted weights are stored as integers over 2^24 (fixed point), so a model is
+#: bit-identical across platforms even when EM's float sums differ in the last bits.
+WEIGHT_BITS = 24
 INF_EDGES = (5, 8, 16)
 
 
@@ -72,4 +78,21 @@ def fit_em(P: np.ndarray, buckets: np.ndarray, n_buckets: int, components: tuple
         new[nz] /= counts[nz, None]
         new[~nz] = 1.0 / C
         lam = new
-    return Mixture(components, n_buckets, lam)
+    return Mixture(components, n_buckets, quantize_weights(lam))
+
+
+def quantize_weights(lam: np.ndarray, bits: int = WEIGHT_BITS) -> np.ndarray:
+    """Round each row to multiples of 2^-bits that sum to exactly 1.
+
+    Every weight keeps at least one unit (2^-bits), so a component EM drove to
+    almost zero — above all KN5, which smooths every other component's zeros —
+    never becomes exactly zero. The rounding remainder goes to the row's largest
+    weight (ties: the first)."""
+    scale = 1 << bits
+    q = np.maximum(np.rint(lam * scale).astype(np.int64), 1)
+    rows = np.arange(len(q))
+    big = np.argmax(q, axis=1)
+    q[rows, big] += scale - q.sum(axis=1)
+    if (q < 1).any():
+        raise ValueError("weight quantisation produced a non-positive weight")
+    return q.astype(np.float64) / scale
