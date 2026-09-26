@@ -1,0 +1,46 @@
+{
+  "schema": "engramm-lm/1",
+  "name": "kenlm_parity_pilot",
+  "study": "docs/PREREG_LM.md v1.0",
+  "timestamp_utc": "20260926T001212Z",
+  "git": {
+    "commit": "8871e372fbd234572a79049122d5d8825aa3a564",
+    "dirty": false,
+    "untracked": 1,
+    "changed_during_run": false
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 161.7620279788971,
+    "peak_rss_mb": 3373.47265625
+  },
+  "scale": "pilot",
+  "kenlm_bpb": {
+    "bpb": 1.7415715289830793,
+    "ci95": [
+      1.700171670702086,
+      1.7883638441788299
+    ],
+    "docs": 350,
+    "bytes": 1147980
+  },
+  "ours_unpruned_bpb": {
+    "bpb": 1.7415739598959417,
+    "ci95": [
+      1.700173899281259,
+      1.7883665493667305
+    ],
+    "docs": 350,
+    "bytes": 1147980
+  },
+  "ratio_ours_over_kenlm": 1.0000013958156884,
+  "within_0_3_percent": true
+}
