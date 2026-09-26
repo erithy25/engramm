@@ -1164,6 +1164,25 @@ Die Tore: K1 ist ausgelöst, K2 nicht, K3 nicht, K4 ist ausgelöst, K5 nicht.
 
 ---
 
+## E13 — ENGRAMM-LM Schreibmodus (v2)
+
+**Registrierung: `docs/PREREG_LM_V2.md`** (2026-09-26, vor der Messung). Frische Test-Prompts
+201–400 (E12/P6 nutzte 1–200), Hauptmodell aus E12 unverändert, Cache beim Schreiben aus,
+top-p 0,8. LLM-Richter blind, beide Reihenfolgen.
+
+| Kriterium | Ergebnis | Erwartung |
+|---|---|---|
+| **V1**: gegen KN-5 (400 Urteile) | **65,5 %** (ENGRAMM zuerst 67,8 %, zweites 63,3 %) → **erfüllt** (≥ 60 %) | ~75 % |
+| **V2**: gegen Null-Modell (200 Urteile) | **52,5 %** → **verfehlt** | 50–55 % |
+
+- Längste wörtliche Übernahme im Mittel: ENGRAMM 23,5 Tokens gegen KN-5 10,9 und Null-Modell 23,3. Der Zitat-Deckel liegt bei 32 Tokens.
+- **Lesart:** Im Schreibmodus schreibt ENGRAMM-LM Texte, die ein Richter denen von KN-5 klar vorzieht. Der Grund sind die längeren übernommenen Stücke aus dem ∞-Gramm.
+- Der HDC-Teil verbessert die Texte nicht messbar (V2 im Rauschbereich).
+- Der Vorsprung fiel kleiner aus als explorativ auf val-B (78 %). Das spricht dafür, dass die explorative Zahl optimistisch war.
+- Der Schreibmodus ist seitdem der Standard der CLI (`python -m engramm.lm write`).
+
+---
+
 ## Offene Fragen, nicht terminiert
 
 **O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**

@@ -48,9 +48,10 @@ def main(argv: list[str] | None = None) -> int:
     w.add_argument("--tokens", type=int, default=100)
     w.add_argument("--seed", type=int, default=0)
     w.add_argument("--temperature", type=float, default=0.9)
-    w.add_argument("--top-p", type=float, default=0.95)
-    w.add_argument("--cache", choices=("document", "prompt", "off"), default="document",
-                   help="what the document cache may see while writing (registered: document)")
+    w.add_argument("--top-p", type=float, default=0.8)
+    w.add_argument("--cache", choices=("document", "prompt", "off"), default="off",
+                   help="what the document cache may see while writing; default = the writing mode "
+                        "confirmed in docs/PREREG_LM_V2.md (off, top-p 0.8); E12 used document, 0.95")
     w.add_argument("--explain", action="store_true")
     le = sub.add_parser("learn")
     le.add_argument("--source", required=True)

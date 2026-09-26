@@ -60,7 +60,7 @@ before it ran; deviations from the record are in [`docs/DEVIATIONS.md`](docs/DEV
 | Phase 5 | ENGRAMM-LM: an English language model built only by counting (285 M tokens of C4 + Wikipedia) | — (new) | test bits/byte: KN-5 1.605 · exact null model (KN-5 + ∞-gram + cache) 1.525 · **ENGRAMM-LM 1.514** (HDC adds 0.7 %) · small Transformer, 6 h CPU 1.638 · GPT-2 small 1.039. Forgetting is bit-exact; 128 tokens/s on CPU; LLM judge prefers its texts over KN-5 in 19.8 % (registered decoding) | [`docs/PREREG_LM.md`](docs/PREREG_LM.md) v1.1: **refuted** (kill gate K1: HDC gain 0.45 % < 1 % in the pilot; P2 missed at 0.9926 vs ≤ 0.98). P4 met, P1/P3/P6 missed, P5 open (M4 only) |
 
 Per-seed values, the registered expectations and every verdict are in
-[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E1–E12); the records are in
+[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E1–E13); the records are in
 [`results/`](results/).
 
 What the rebuild adds beyond the historical record:
@@ -158,8 +158,12 @@ The rebuild is also a re-scoping. The primary research question:
    kill gate asked for ≥ 1 %. Its texts lose to KN-5 under the registered decoding (the
    cache amplifies its own sampling noise). An exploratory writing mode without the cache
    wins 78 % against KN-5, mostly through longer verbatim reuse from the ∞-gram, not HDC.
-   Try it:
-   `python -m engramm.lm write "The history of the city" --cache off --top-p 0.8 --explain`.
+   That writing mode was then registered on its own
+   ([`docs/PREREG_LM_V2.md`](docs/PREREG_LM_V2.md)) and judged on 200 fresh test prompts. It was
+   preferred over KN-5 in **65.5 %** of 400 blind judgments (criterion ≥ 60 %: **met**). Against
+   the exact null model it was preferred in 52.5 % (**missed**), which confirms that HDC does not
+   make the texts better. It is the CLI default:
+   `python -m engramm.lm write "The history of the city" --explain`.
 
 Still open: confirming the accuracy figures bit-identically on the M4, and
 measuring energy there.
