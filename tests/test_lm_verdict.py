@@ -42,3 +42,13 @@ def test_missing_records_are_listed():
     v = verdict(r)
     assert v["missing_records"] == ["judge"] and "P6" not in v["criteria"]
     assert v["criteria"]["P5"]["status"].startswith("OFFEN")
+
+
+def test_device_record_closes_p5_only_when_canonical():
+    r = _recs()
+    dev = {"environment": {"canonical": False}, "p5_pass": True, "build_seconds": 1,
+           "tokens_per_second_with_provenance": 100, "peak_rss_mb": 1}
+    r["device"] = dev
+    assert verdict(r)["criteria"]["P5"]["status"].startswith("OFFEN")
+    dev["environment"]["canonical"] = True
+    assert verdict(r)["criteria"]["P5"]["status"] == "ERFÜLLT (M4)"

@@ -18,6 +18,7 @@ def latest(prefix: str) -> dict | None:
 
 def verdict(recs: dict) -> dict:
     g2, k2, test, p3, p4, gen, judge = (recs.get(k) for k in ("g2", "k2", "test", "p3", "p4", "gen", "judge"))
+    recs = {k: v for k, v in recs.items() if k != "device" or v is not None}
     out: dict = {"criteria": {}, "kills": {}}
     missing = [k for k, v in recs.items() if v is None]
     out["missing_records"] = missing
@@ -46,6 +47,13 @@ def verdict(recs: dict) -> dict:
     out["criteria"]["P5"] = {"status": "OFFEN — nur auf dem M4 gültig",
                              "container": None if not gen else {"tokens_per_second": gen["tokens_per_second"],
                                                                 "with_provenance": gen["tokens_per_second_with_provenance"]}}
+    dev = recs.get("device")
+    if dev and dev.get("environment", {}).get("canonical"):
+        out["criteria"]["P5"].update({
+            "status": "ERFÜLLT (M4)" if dev["p5_pass"] else "VERFEHLT (M4)", "pass": dev["p5_pass"],
+            "m4": {"build_seconds": dev["build_seconds"],
+                   "tokens_per_second_with_provenance": dev["tokens_per_second_with_provenance"],
+                   "peak_rss_mb": dev["peak_rss_mb"]}})
     if judge:
         out["criteria"]["P6"] = {"preference_engramm": judge["preference_engramm"], "threshold": 0.60,
                                  "pass": judge["p6_pass"], "human_panel": "Bogen erzeugt, nicht durchgeführt"}
@@ -67,7 +75,7 @@ def verdict(recs: dict) -> dict:
 def main() -> None:
     recs = {"g2": latest("g2_pilot"), "k2": latest("k2_main"), "test": latest("test_eval"),
             "p3": latest("p3_facts_main"), "p4": latest("p4_forget_main"), "gen": latest("p5p6_generate_main"),
-            "judge": latest("p6_judge")}
+            "judge": latest("p6_judge"), "device": latest("p5_device_main")}
     v = verdict(recs)
     (RESULTS_DIR / "VERDICT.json").write_text(json.dumps(v, indent=2, ensure_ascii=False) + "\n")
     print(json.dumps(v, indent=2, ensure_ascii=False))

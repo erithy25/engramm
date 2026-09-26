@@ -1106,7 +1106,22 @@ Spitzenlast des Systems beim KN-Aufbau 9,0 GB (einschließlich des parallel trai
 | Schreiben mit Quellen | 109 Tokens/s | ≥ 25 | erfüllt |
 | Spitzen-RSS | 8,9 GB | ≤ 10 GB | erfüllt |
 
-Offiziell bleibt P5 offen, bis derselbe Befehl auf dem M4 unter W16-Bedingungen gelaufen ist.
+**Auf dem M4 gemessen, 2026-09-26** (MacBook Air M4, 16 GB, macOS, Python 3.13, `caffeinate -i`, Record `p5_device_main_20260926T161917Z.json`, `canonical=true`):
+
+| Messgröße | M4 | Schwelle |
+|---|---|---|
+| Aufbau aus 285 M Tokens | **544 s** (KN-5 180 s, Suffix-Array 46 s, Codebuch 51 s, KNN-Index 251 s, Signaturen 17 s) | ≤ 12 h |
+| Schreiben mit Quellenangabe je Token | **118,9 Tokens/s** | ≥ 25 |
+| Spitzen-RSS | **6,2 GB** | ≤ 10 GB |
+
+**P5 erfüllt.** Die W16-Bedingungen (Netzteil, Deckel offen, alleiniger Lauf) sind nicht
+maschinell protokolliert. `caffeinate` lief.
+
+**Plattform-Befund.** Der Basis-Digest des Modells unterscheidet sich zwischen Container
+(`4c03b17a…`) und M4 (`2f6ee03a…`). Welcher Teil abweicht, zeigt
+`python -m experiments.lm_digests --scale main`; die Container-Werte stehen im Kopf des
+Skripts. Bis das geklärt ist, gilt: Die Modelle sind auf beiden Plattformen gleich gebaut,
+aber nicht nachweislich bitgleich.
 
 **P5 (nur Container, nicht offiziell):**
 - Schreiben: 128 Tokens/s, mit Quellenangabe je Token 117 Tokens/s; KN-5 allein 211 Tokens/s.

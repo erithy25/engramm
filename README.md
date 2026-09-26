@@ -53,13 +53,13 @@ ENGRAMM-LM reads 285 M tokens of general English (one C4 web shard and
 WikiText-103), counts what follows what and which words appear in similar
 places, and writes new text word by word from those counts. It uses no
 gradients, no neural network and no pretrained model. It rebuilds from scratch
-in about 10 minutes on a 4-core CPU.
+in about 9 minutes on a MacBook Air M4 (544 s, measured).
 
 What it can do:
 
-| Capability | Command | Measured (container, not official) |
+| Capability | Command | Measured (container unless marked M4) |
 |---|---|---|
-| **Write** English continuations | `python -m engramm.lm write "The history of the city"` | 109–128 tokens/s on CPU, peak RSS 8.9 GB |
+| **Write** English continuations | `python -m engramm.lm write "The history of the city"` | M4: 118.9 tokens/s including sources, 6.2 GB peak (container: 109–128 tokens/s) |
 | **Cite** the source of every written token: the longest verbatim match and the most similar contexts | `… write … --explain` or `python -m engramm.lm why "<prompt>" "<word>"` | 117 tokens/s with sources |
 | **Learn** a new text instantly | `python -m engramm.lm learn --source notes --file notes.txt` | 56 ms per 1,000 tokens |
 | **Forget** a text exactly | `python -m engramm.lm forget notes` | state digest and a canary's log-probability are **bit-identical** to never having learnt it; 37 ms per 1,000 tokens |
@@ -99,7 +99,7 @@ of *France* other countries, those of *three* other numbers.
 | A blind LLM judge prefers its texts over KN-5 (registered decoding, cache on) | missed: 19.8 % (a human panel is prepared, not run) |
 | Same, in the writing mode (cache off, top-p 0.8), registered separately on 200 fresh prompts | **met: 65.5 %** of 400 blind judgments |
 | Writing mode vs. the null model: does HDC make texts better? | no: 52.5 % |
-| ≥ 25 tokens/s, ≤ 10 GB, build ≤ 12 h on the MacBook Air M4 | open; the container run meets all three |
+| ≥ 25 tokens/s, ≤ 10 GB, build ≤ 12 h on the MacBook Air M4 | **met on the M4**: 118.9 tokens/s with sources, 6.2 GB peak, 544 s build |
 
 **What this means, plainly.** ENGRAMM-LM writes locally fluent English that a
 blind judge prefers to a classic n-gram model. The texts stay on topic within a
@@ -226,7 +226,6 @@ The rebuild is also a re-scoping. The research questions:
 Still open, all on the reference machine or with people:
 
 - confirming the accuracy figures bit-identically on the M4, and measuring energy there;
-- the official ENGRAMM-LM device measurement: `python -m experiments.lm_p5 --scale main` on the M4;
 - the human reading panel, with 3 readers × 60 pairs. The form is
   [`results/lm/p6_panel_form.md`](results/lm/p6_panel_form.md).
 
