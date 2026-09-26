@@ -232,8 +232,9 @@ class SentenceIndex:
         (d / "terms.txt").write_text("\n".join(self.terms) + "\n", encoding="utf-8")
 
     @classmethod
-    def load(cls, d: Path) -> SentenceIndex:
-        arrs = {n: np.load(d / f"{n}.npy") for n in ("starts", "lens", "ptr", "post", "sent_terms", "term_of")}
+    def load(cls, d: Path, mmap: bool = False) -> SentenceIndex:
+        arrs = {n: np.load(d / f"{n}.npy", mmap_mode="r" if mmap else None)
+                for n in ("starts", "lens", "ptr", "post", "sent_terms", "term_of")}
         terms = (d / "terms.txt").read_text(encoding="utf-8").split("\n")[:-1]
         return cls(terms=terms, **arrs)
 
