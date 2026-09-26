@@ -123,3 +123,18 @@ Zum Vergleich (nur Einordnung, nicht gemessen): neuronale Systeme erreichen auf 
 ## 7. Änderungsprotokoll
 
 * v1.0 (2026-09-26): Erstregistrierung.
+* **v1.1 (2026-09-27), vor jeder Testmessung:** Eine zusätzliche Quelle zum *Zählen* wird
+  erlaubt. Anlass: Auf Dev liegt die regelbasierte Antwort-Extraktion bei ~16 % EM
+  (Schwelle A1: 20 %). Freigegeben sind nur SQuAD-v1.1-Fragen (dieselben Dateien und
+  Prüfsummen) aus Artikeln mit SHAKE-256-Titel-Bit 0. Ausgeschlossen bleiben:
+  * die 42 Artikel von SQuAD-Dev2,
+  * die 1.500 Fragen aus Stufe 1,
+  * jeder Test-Artikel (Bit 1).
+
+  Aus Frage, Goldsatz und Goldspanne werden nur Häufigkeiten gezählt, als Naive-Bayes-Tabelle
+  über Merkmale der Antwortspanne:
+  * Art und Länge der Spanne, Lage zum Anker, Nachbarwörter,
+  * ENGRAMMs eigene HDC-Wortklassen.
+
+  Kein Gradientenverfahren und kein fremdes Modell. Kriterien, Schwellen und Testdaten bleiben
+  unverändert.
