@@ -57,6 +57,8 @@ in about 9 minutes on a MacBook Air M4 (544 s, measured).
 
 **Easiest way to use it: the local dashboard.** Run
 `python -m engramm.lm.dashboard` and open http://127.0.0.1:8765. In the page you can:
+- ask a question and get the best-matching sentence it has read, with its source, or "I don't know"
+  (needs the sentence index: `python -m experiments.chat_build`, 12 s);
 - write from a prompt, then click any word to see where it came from;
 - ask for the most likely next words;
 - teach it a text and forget it again.
@@ -67,6 +69,7 @@ What it can do:
 
 | Capability | Command | Measured (container unless marked M4) |
 |---|---|---|
+| **Answer** a question with the best-matching sentence and its source, or "I don't know" | `python -m engramm.lm ask "Who invented the telephone?"` | 41.7 % of SQuAD questions answered by the first sentence, 26 ms median |
 | **Write** English continuations | `python -m engramm.lm write "The history of the city"` | M4: 118.9 tokens/s including sources, 6.2 GB peak (container: 109–128 tokens/s) |
 | **Cite** the source of every written token: the longest verbatim match and the most similar contexts | `… write … --explain` or `python -m engramm.lm why "<prompt>" "<word>"` | 117 tokens/s with sources |
 | **Learn** a new text instantly | `python -m engramm.lm learn --source notes --file notes.txt` | 56 ms per 1,000 tokens |
@@ -127,6 +130,28 @@ container have the same SHA-256 digest (`b45c2065…`, checked part by part with
 number, deviation and verdict is in [`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md)
 (E12, E13) and [`docs/DEVIATIONS.md`](docs/DEVIATIONS.md) (CHANGED-9); the
 component specification is in [`docs/SPEC_LM.md`](docs/SPEC_LM.md).
+
+### ENGRAMM-Chat, stage 1: answering by looking up (preregistered in [`docs/PREREG_CHAT.md`](docs/PREREG_CHAT.md))
+
+`python -m engramm.lm ask "Who invented the telephone?"` returns the sentence, among the
+16 M sentences it has read and everything taught with `learn`, that best matches the
+question, with its source. Below a confidence threshold it answers "I don't know". Ranking
+is BM25 plus an idf-weighted soft word match from the HDC meaning vectors. There is no
+neural network and no external model, and grading is too an exact match against the SQuAD
+gold answers.
+
+| Registered criterion (1,000 SQuAD test questions whose paragraph is in the corpus) | Result |
+|---|---|
+| C1: the first sentence contains the answer | **met: 41.7 %** (top 5: 54.4 %) |
+| C2: gain over plain BM25 (21.8 %) | **met: +19.9 pp**, CI [17.2, 22.5]. An unregistered ablation shows that +18.6 pp of it come from exact word coverage; the meaning vectors add only +1.3 pp, CI [−0.5, 3.0] |
+| C3: with the dev threshold, ≥ 55 % precision at ≥ 25 % coverage | missed: 61.4 % precision, but only 18.9 % coverage |
+| C4: 200 invented facts learnt in one phrasing, asked in two others: learnt sentence ranked first | **met: 96.8 %** |
+| C5: median answer time ≤ 1 s | **met: 26 ms** (container) |
+
+Plainly: it finds the right sentence for about four in ten knowledge questions and nearly
+always finds what you taught it, even when you ask in other words. It returns whole
+sentences, not phrased answers. The registered "useful" verdict needs C1 and C3, so it is
+not reached. Details are in [`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E14).
 
 ## Results — rebuild, re-measured
 
@@ -276,6 +301,9 @@ done
 .venv/bin/python -m experiments.lm_eval && .venv/bin/python -m experiments.lm_verdict
 .venv/bin/python -m experiments.lm_final_model --scale main --tau-index 1 --beta-index 1 --save
 .venv/bin/python -m engramm.lm write "The history of the city" --explain
+.venv/bin/python -m experiments.chat_build                  # sentence index for questions (12 s)
+.venv/bin/python -m experiments.chat_eval                   # ENGRAMM-Chat stage 1 criteria C1–C5
+.venv/bin/python -m engramm.lm ask "Who invented the telephone?"
 .venv/bin/python -m engramm.lm.dashboard                    # web dashboard on http://127.0.0.1:8765
 .venv/bin/python -m experiments.lm_p5 --scale main          # device criterion (official only on the M4)
 

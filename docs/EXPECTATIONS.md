@@ -1237,6 +1237,79 @@ top-p 0,8. LLM-Richter blind, beide Reihenfolgen.
 
 ---
 
+## E14 — ENGRAMM-Chat, Stufe 1: Nachschlagen statt Plappern
+
+**Registrierung: `docs/PREREG_CHAT.md` v1.0** (2026-09-26, vor Indexbau und Messung).
+ENGRAMM beantwortet eine englische Frage mit dem passendsten Satz aus allem, was es gelesen
+oder mit `learn` gelernt hat, samt Quelle — oder sagt „I don't know“. Kein fremdes Modell,
+auch nicht in der Bewertung (exakter Abgleich mit den SQuAD-Goldantworten).
+
+### Ergebnis — gemessen 2026-09-26, Container, `canonical=false`
+
+Record: `results/chat/chat_stage1_container_20260926T211521Z.json` (Commit `e5c2c52`, sauber).
+Satzindex: 15.991.369 Sätze, 23.258 Begriffe, 223 M Einträge, Bau 12 s, Digest `7e024abb…`.
+Pool: 16.977 von 98.169 SQuAD-Fragen (3.361 von 20.958 Absätzen, 16 %). Auf Dev gewählt:
+α = 2, θ = 2,169 (Dev: Präzision 60,0 % bei 20,0 % Abdeckung).
+
+| | Kriterium | Ergebnis (Test, 1.000 Fragen) | Schwelle | Erwartung | |
+|---|---|---|---|---|---|
+| **C1** | Hit@1 ENGRAMM-Chat | **41,7 %**, KI [38,7; 44,7] (Hit@5 54,4 %) | ≥ 30 % | ~60 % | **erfüllt** |
+| **C2** | Hit@1 − Hit@1(BM25) | **+19,9 pp**, KI [17,2; 22,5] (BM25: 21,8 %) | ≥ 2 pp, KI > 0 | ~30 % | **erfüllt** — aber siehe Ablation |
+| **C3** | Präzision bei θ von Dev | 61,4 % bei **18,9 %** Abdeckung | ≥ 55 % bei ≥ 25 % | ~70 % | **verfehlt** (Abdeckung) |
+| **C4** | 200 erfundene Fakten, Frage B/C → gelernter Satz auf Platz 1 | **96,8 %** (B 97,0 %, C 96,5 %; ohne HDC 95,3 %) | ≥ 80 % | ~85 % | **erfüllt** |
+| **C5** | Median-Antwortzeit | **26 ms** (p90 47 ms), Container | ≤ 1 s | erfüllt | **erfüllt** (Container; M4 offiziell ausstehend) |
+
+**Ausgang nach §5:** „Nützlich“ verlangt C1 **und** C3 → **nicht erreicht**, weil C3 an der
+Abdeckung scheitert. „HDC-Beitrag bestätigt“ (C2) → **formal erfüllt**.
+
+### Explorativ, nicht registriert: Woher kommt der C2-Gewinn?
+
+`experiments/chat_explore.py`, Record `results/chat/chat_stage1_explore_20260926T211717Z.json`.
+S_HDC belohnt ein Fragewort, das *wörtlich* im Satz steht, mit sim = 1 — und ähnliche Wörter mit
+sim < 1. Ablation „exakt“: dieselbe Formel, aber sim = 1 nur für identische Begriffe, sonst 0.
+Das ist eine idf-gewichtete Wortabdeckung **ohne** Bedeutungsvektoren. α mit derselben Regel auf Dev.
+
+| System (Test) | Hit@1 |
+|---|---|
+| BM25 | 21,8 % |
+| BM25 + exakte Abdeckung (α = 2) | 40,4 % |
+| BM25 + S_HDC (α = 2, registriert) | 41,7 % |
+
+- exakt − BM25: **+18,6 pp**, KI [16,1; 21,1].
+- HDC − exakt: **+1,3 pp**, KI [−0,5; 3,0] — nicht signifikant. Auf Dev war „exakt“ sogar
+  leicht besser (40,6 % gegen 40,0 %).
+- **Lesart:** Das registrierte Kriterium C2 ist erfüllt, die *Deutung* „die Bedeutungsvektoren
+  helfen“ trägt es aber nicht. Fast der ganze Gewinn kommt daher, dass BM25 mit seiner
+  Längennormierung kurze Sätze bevorzugt, die nur einen Teil der Frage abdecken; der
+  Abdeckungsterm korrigiert das. Der Anteil der HDC-Ähnlichkeit ist höchstens klein — dasselbe
+  Muster wie in E12 (0,74 %) und E13 (52,5 %).
+- Präzision nach Abdeckung auf Test (explorativ): 61 % bei 10 %, 59 % bei 25 %, 55 % bei 40 %,
+  42 % bei 100 %. Ein anders gewähltes θ hätte C3 erreicht; die registrierte θ-Regel (60 % auf
+  Dev) war zu streng für die Abdeckungsschwelle. Das wird **nicht** nachträglich umgedeutet.
+
+### Was man daraus mitnimmt
+
+- ENGRAMM findet für 42 % der Wissensfragen den Satz mit der Antwort auf Platz 1 und für 54 %
+  unter den ersten fünf — in 26 ms, mit Quelle, ohne jedes neuronale Modell.
+- Selbst gelernte Fakten findet es auch bei anderer Formulierung fast immer (97 %). Nach
+  `forget` sind sie weg.
+- Fehlerbild aus den Beispielen: Es gibt ganze Sätze zurück, keine Antworten. Es liefert
+  manchmal eine *Frage* aus dem Korpus („When did Ángel Labruna die?“), und
+  Fragen nach Mengen oder Zeitpunkten brauchen den Satz *mit* der Zahl, nicht nur den
+  thematisch passenden. Das sind die Aufgaben von Stufe 2 (Faktengedächtnis) und Stufe 4
+  (formulierte Antworten).
+- **Blinder Fleck der Messung:** SQuAD-Fragen wurden *aus* dem Absatz geschrieben, der garantiert
+  im Korpus steht, und teilen viele Wörter mit dem Antwortsatz. Freie Fragen laufen deutlich
+  schlechter. Stichprobe mit dem eingefrorenen System (CLI, nicht registriert): „Who invented the
+  telephone?“ → „I can't remember who invented the telephone.“ (C4-Web); „What is the capital of
+  Australia?“ → die Frage „What is Australia capital city?“; „When did the Titanic sink?“ → ein
+  Werbesatz mit „sink just like the Titanic“ (der richtige Wikipedia-Satz kam als Alternative 1).
+  Ohne Satztyp-Filter und Antworttyp-Prüfung sind 42 % eine Obergrenze für den Alltag, keine Erwartung.
+- Der Chat ist im Dashboard (Karte „Fragen“) und per `python -m engramm.lm ask "…"` nutzbar,
+  mit den eingefrorenen Dev-Werten α = 2, θ = 2,169.
+
+---
+
 ## Offene Fragen, nicht terminiert
 
 **O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**

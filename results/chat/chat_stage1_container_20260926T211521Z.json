@@ -1,0 +1,350 @@
+{
+  "schema": "engramm-chat/1",
+  "name": "chat_stage1",
+  "study": "docs/PREREG_CHAT.md v1.0",
+  "index": {
+    "sentences": 15991369,
+    "terms": 23258,
+    "postings": 223490969,
+    "mean_terms_per_sentence": 15.545637774977239,
+    "build_seconds": 12.2,
+    "peak_rss_mb": 2793.5,
+    "digest": "7e024abbe481acf209df0ed4ecb658e852955ae70a747e984c2bf0e258f7c335"
+  },
+  "pool": {
+    "questions": 16977,
+    "all_questions": 98169,
+    "paragraphs": 3361,
+    "all_paragraphs": 20958
+  },
+  "split": {
+    "dev": 500,
+    "test": 1000,
+    "rule": "SHAKE-256(id), first 8 bytes big-endian, bit 0"
+  },
+  "dev": {
+    "grid": {
+      "0": {
+        "hit1": 0.252,
+        "hit5": 0.336
+      },
+      "0.5": {
+        "hit1": 0.34,
+        "hit5": 0.488
+      },
+      "1": {
+        "hit1": 0.382,
+        "hit5": 0.528
+      },
+      "2": {
+        "hit1": 0.4,
+        "hit5": 0.532
+      },
+      "4": {
+        "hit1": 0.396,
+        "hit5": 0.526
+      }
+    },
+    "alpha": 2.0,
+    "theta": 2.16878620662428,
+    "at_theta": {
+      "theta": 2.16878620662428,
+      "answered": 100,
+      "coverage": 0.2,
+      "precision": 0.6
+    }
+  },
+  "test": {
+    "hit1": 0.417,
+    "hit5": 0.544,
+    "bm25_hit1": 0.218,
+    "bm25_hit5": 0.356,
+    "no_candidates": 0,
+    "bm25_ci95": [
+      0.194,
+      0.244
+    ]
+  },
+  "criteria": {
+    "C1": {
+      "value": 0.417,
+      "ci95": [
+        0.387,
+        0.447
+      ],
+      "threshold": 0.3,
+      "pass": true
+    },
+    "C2": {
+      "diff": 0.19899999999999998,
+      "ci95": [
+        0.17200000000000001,
+        0.22499999999999998
+      ],
+      "threshold_pp": 0.02,
+      "pass": true
+    },
+    "C3": {
+      "theta": 2.16878620662428,
+      "answered": 189,
+      "coverage": 0.189,
+      "precision": 0.6137566137566137,
+      "threshold_precision": 0.55,
+      "threshold_coverage": 0.25,
+      "pass": false
+    },
+    "C4": {
+      "value": 0.9675,
+      "threshold": 0.8,
+      "pass": true
+    },
+    "C5": {
+      "median_seconds": 0.025528788566589355,
+      "p90_seconds": 0.04723742008209229,
+      "threshold": 1.0,
+      "pass": true,
+      "device": "container",
+      "official": false
+    }
+  },
+  "outcome": {
+    "useful": false,
+    "hdc_confirmed": true
+  },
+  "facts": {
+    "n_facts": 200,
+    "alpha=0": {
+      "rank1": 0.9525,
+      "n_queries": 400,
+      "rank1_B": 0.96,
+      "rank1_C": 0.945,
+      "examples": [
+        {
+          "query": "Gunpolris's capital city is called",
+          "hit": true,
+          "top": "The capital of Gunpolris is Nandoun."
+        },
+        {
+          "query": "If you travel to the capital of Gunpolris, you arrive in",
+          "hit": true,
+          "top": "The capital of Gunpolris is Nandoun."
+        },
+        {
+          "query": "Shasaer's capital city is called",
+          "hit": true,
+          "top": "The capital of Shasaer is Mensexdum."
+        },
+        {
+          "query": "Kuthkoum was started by its founder,",
+          "hit": false,
+          "top": "Jan Koum, Co-founder & CEO of WhatsApp."
+        },
+        {
+          "query": "The founder of Kuthkoum is",
+          "hit": false,
+          "top": "Jan Koum, Co-founder & CEO of WhatsApp."
+        },
+        {
+          "query": "Talnounben was started by its founder,",
+          "hit": false,
+          "top": "Benayoun, Robert."
+        }
+      ]
+    },
+    "alpha=2": {
+      "rank1": 0.9675,
+      "n_queries": 400,
+      "rank1_B": 0.97,
+      "rank1_C": 0.965,
+      "examples": [
+        {
+          "query": "Gunpolris's capital city is called",
+          "hit": true,
+          "top": "The capital of Gunpolris is Nandoun."
+        },
+        {
+          "query": "If you travel to the capital of Gunpolris, you arrive in",
+          "hit": true,
+          "top": "The capital of Gunpolris is Nandoun."
+        },
+        {
+          "query": "Shasaer's capital city is called",
+          "hit": true,
+          "top": "The capital of Shasaer is Mensexdum."
+        },
+        {
+          "query": "Burrum's capital city is called",
+          "hit": false,
+          "top": "Brandenburg-Prussia was allotted an area near the capital city Charlotte Amalie, called Brandenburgery, and other territories named Krum Bay and Bordeaux Estates further west."
+        },
+        {
+          "query": "Konzou was started by its founder,",
+          "hit": false,
+          "top": "founder Jean Touitou unveiled an advertisement for Yeezus which stated that the album would not be available for pre-order."
+        },
+        {
+          "query": "Groxthomdis was started by its founder,",
+          "hit": false,
+          "top": "Clevedon Town Football Club was started in the late 19th century and were one of the founder members of the Western Football League, winning its championship in the 1990s."
+        }
+      ]
+    }
+  },
+  "examples": [
+    {
+      "question": "On what wall of a church was the Last Judgment typically painted?",
+      "gold": [
+        "west"
+      ],
+      "answer": null,
+      "confidence": 1.8262,
+      "source": null,
+      "hit": false
+    },
+    {
+      "question": "When did Aspar die?",
+      "gold": [
+        "Aspar"
+      ],
+      "answer": "When did Ángel Labruna die?",
+      "confidence": 2.3816,
+      "source": {
+        "kind": "base",
+        "source": "c4",
+        "key": "http://www.vipfaq.com/%C3%81ngel_Labruna.html",
+        "token_offset": 729
+      },
+      "hit": false
+    },
+    {
+      "question": "How many Commonwealth nations still consider the British Queen their head of state?",
+      "gold": [
+        "Sixteen"
+      ],
+      "answer": null,
+      "confidence": 1.7886,
+      "source": null,
+      "hit": false
+    },
+    {
+      "question": "What was Charles Lyell's perception of what organisms are exposed to in their struggle for survival?",
+      "gold": [
+        "all organisms are exposed to severe competition"
+      ],
+      "answer": null,
+      "confidence": 1.6677,
+      "source": null,
+      "hit": false
+    },
+    {
+      "question": "When Napoleon was exiled, where did his wife and son go for shelter?",
+      "gold": [
+        "Austria"
+      ],
+      "answer": null,
+      "confidence": 1.6771,
+      "source": null,
+      "hit": false
+    },
+    {
+      "question": "How do plants interact with other species in their environment?",
+      "gold": [
+        "for resources"
+      ],
+      "answer": null,
+      "confidence": 1.7785,
+      "source": null,
+      "hit": false
+    },
+    {
+      "question": "What rains on Neptune? ",
+      "gold": [
+        "diamond crystals"
+      ],
+      "answer": null,
+      "confidence": 2.0382,
+      "source": null,
+      "hit": false
+    },
+    {
+      "question": "What is the least popular official language of Switzerland?",
+      "gold": [
+        "Romansh"
+      ],
+      "answer": null,
+      "confidence": 1.6783,
+      "source": null,
+      "hit": false
+    },
+    {
+      "question": "What was the named of the song  dedicated to the child?",
+      "gold": [
+        "Glory"
+      ],
+      "answer": null,
+      "confidence": 2.0753,
+      "source": null,
+      "hit": false
+    },
+    {
+      "question": "What map shows the relation between sub and quotient groups?",
+      "gold": [
+        "injective map"
+      ],
+      "answer": null,
+      "confidence": 1.6427,
+      "source": null,
+      "hit": false
+    },
+    {
+      "question": "What did the morphologist Ernst Haeckel convince Huxley of about comparative anatomy and paleontology?",
+      "gold": [
+        "that comparative anatomy and palaeontology could be used to reconstruct evolutionary genealogies"
+      ],
+      "answer": "Later, the German morphologist Ernst Haeckel would convince Huxley that comparative anatomy and palaeontology could be used to reconstruct evolutionary genealogies.",
+      "confidence": 2.3114,
+      "source": {
+        "kind": "base",
+        "source": "wiki",
+        "key": "On the Origin of Species",
+        "token_offset": 11520
+      },
+      "hit": true
+    },
+    {
+      "question": "Which species have long-distance migrants in the same family?",
+      "gold": [
+        "the common chiffchaff Phylloscopus collybita"
+      ],
+      "answer": "Those that have long-distance migrants in the same family, such as the common chiffchaff Phylloscopus collybita, are species of southern hemisphere origins that have progressively shortened their return migration to stay in the northern hemisphere.",
+      "confidence": 2.3709,
+      "source": {
+        "kind": "base",
+        "source": "wiki",
+        "key": "Bird migration",
+        "token_offset": 3855
+      },
+      "hit": true
+    }
+  ],
+  "timestamp_utc": "20260926T211521Z",
+  "git": {
+    "commit": "e5c2c521a1bd9c9b32eb9d840c75e40c801603fa",
+    "dirty": false,
+    "untracked": 0,
+    "changed_during_run": false
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 126.40661382675171,
+    "peak_rss_mb": 6138.49609375
+  }
+}

@@ -117,3 +117,19 @@ Interpoliertes modified Kneser-Ney (Chen & Goodman 1998), Ordnung 5.
 - BPB = Σ −log₂p / Σ(UTF-8-Bytes + 1).
 - Jedes Dokument einzeln, Kontext ab `EOS`.
 - Bootstrap: 2.000 Replikate, Seed 42, über Dokumente; Verhältnisse gepaart.
+
+## 6. Fragen (ENGRAMM-Chat, Stufe 1) — `engramm/lm/chat.py`
+
+Registriert in `docs/PREREG_CHAT.md`, gemessen in E14.
+
+- Sätze: Train-Strom geschnitten nach Tokens, deren Text auf `.`/`!`/`?` endet oder einen
+  Zeilenumbruch enthält, und an `EOS`; höchstens 64 Tokens je Satz.
+- Begriff eines Tokens: Text ohne Leerraum, klein; ohne Buchstabe/Ziffer oder mit `U+FFFD` kein Begriff.
+- Invertierter Index (CSR): Begriff → Satz-IDs, je Satz einmal; `sent_terms` = Begriffstokens je Satz.
+- BM25 mit binärem tf, k₁ = 1,2, b = 0,75, idf = ln(1 + (N − df + 0,5)/(df + 0,5));
+  Fragebegriffe mit df > 5 % der Sätze entfallen; Top-200 nach (Score ↓, Satz-ID ↑).
+- Score = BM25 + α · S_HDC · Σidf, S_HDC = Σ_q idf(q)·max_s max(0, 1 − ham(eng[q], eng[s])/1024) / Σidf.
+- Konfidenz = Score / Σidf; unter θ „I don't know“. Eingefroren (Dev): α = 2, θ = 2,16878620662428.
+- Nutzer-Texte werden bei jeder Frage in Sätze zerlegt und mit derselben Formel (Basis-idf) bewertet;
+  bei Gleichstand vor Basis-Sätzen.
+- Index bauen: `python -m experiments.chat_build` → `models/lm/main/chat/` (Digest in `info.json`).

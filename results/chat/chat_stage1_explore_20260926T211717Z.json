@@ -1,0 +1,82 @@
+{
+  "schema": "engramm-chat/1",
+  "name": "chat_stage1_explore",
+  "study": "exploratory, not preregistered",
+  "timestamp_utc": "20260926T211717Z",
+  "git": {
+    "commit": "6a26e18f7700448f95d42cca4f8a407afde74bfa",
+    "dirty": false,
+    "untracked": 0
+  },
+  "wall_seconds": 77.76749181747437,
+  "hdc": {
+    "dev_grid": {
+      "0": 0.252,
+      "0.5": 0.34,
+      "1": 0.382,
+      "2": 0.4,
+      "4": 0.396
+    },
+    "alpha": 2.0,
+    "test_hit1": 0.417
+  },
+  "exact": {
+    "dev_grid": {
+      "0": 0.252,
+      "0.5": 0.334,
+      "1": 0.388,
+      "2": 0.406,
+      "4": 0.404
+    },
+    "alpha": 2.0,
+    "test_hit1": 0.404
+  },
+  "hdc_minus_exact": {
+    "diff": 0.012999999999999956,
+    "ci95": [
+      -0.0050000000000000044,
+      0.02999999999999997
+    ]
+  },
+  "exact_minus_bm25": {
+    "diff": 0.18600000000000003,
+    "ci95": [
+      0.161,
+      0.211
+    ]
+  },
+  "test_precision_by_coverage": [
+    {
+      "coverage": 0.1,
+      "precision": 0.61
+    },
+    {
+      "coverage": 0.2,
+      "precision": 0.615
+    },
+    {
+      "coverage": 0.25,
+      "precision": 0.588
+    },
+    {
+      "coverage": 0.3,
+      "precision": 0.58
+    },
+    {
+      "coverage": 0.4,
+      "precision": 0.545
+    },
+    {
+      "coverage": 0.5,
+      "precision": 0.522
+    },
+    {
+      "coverage": 0.75,
+      "precision": 0.4666666666666667
+    },
+    {
+      "coverage": 1.0,
+      "precision": 0.417
+    }
+  ]
+}
