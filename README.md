@@ -112,7 +112,10 @@ is too little for the registered claim, so the claim is recorded as refuted.
 
 What *is* new is the combination of properties. It is a language model that
 learns a text in milliseconds, forgets it bit-exactly on request, names the
-source of every word it writes, and is deterministic across runs. Every
+source of every word it writes, and is bit-identical across platforms: built
+from the same data, the model on the MacBook Air M4 and the one in the Linux
+container have the same SHA-256 digest (`b45c2065…`, checked part by part with
+`python -m experiments.lm_digests`). Every
 number, deviation and verdict is in [`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md)
 (E12, E13) and [`docs/DEVIATIONS.md`](docs/DEVIATIONS.md) (CHANGED-9); the
 component specification is in [`docs/SPEC_LM.md`](docs/SPEC_LM.md).

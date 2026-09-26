@@ -1144,8 +1144,13 @@ Bit unterschiedlich.
 | Pilot-ENGRAMM | 1,66396 | 1,66378 (durch die Untergrenze) |
 | P2-Verhältnis | 0,99261024 | 0,99261024 |
 
-Das Urteil bleibt unverändert. Die Bitgleichheit mit Festkomma-Gewichten auf dem M4 steht
-noch aus: Dort muss der Digest `b45c2065…` erscheinen.
+Das Urteil bleibt unverändert.
+
+**Auf dem M4 bestätigt (2026-09-26):** Mit Festkomma-Gewichten liefert der M4 den Basis-Digest
+`b45c20659e5591ff…` — identisch zum Container. Alle Teile (Tokenstrom, KN-5, Suffix-Array,
+Bedeutungsvektoren, Wortklassen, idf, KNN-Index, Signaturen, Mischungsgewichte) sind auf
+Linux x86-64 und macOS arm64 **bitgleich**. Das ENGRAMM-LM ist damit plattformübergreifend
+exakt reproduzierbar.
 
 **P5 (nur Container, nicht offiziell):**
 - Schreiben: 128 Tokens/s, mit Quellenangabe je Token 117 Tokens/s; KN-5 allein 211 Tokens/s.
