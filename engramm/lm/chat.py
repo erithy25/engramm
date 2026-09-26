@@ -37,6 +37,9 @@ MAX_SENT = 64
 K1, B = 1.2, 0.75
 DF_CAP = 0.05
 TOP_BM25 = 200
+# α and θ chosen on the dev split (docs/PREREG_CHAT.md §2, results/chat/)
+FROZEN_ALPHA = 0.0
+FROZEN_THETA = 0.0
 
 
 # ---------------------------------------------------------------------------

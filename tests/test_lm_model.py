@@ -231,9 +231,11 @@ def test_dashboard_endpoints(model, tmp_path):
 
     from engramm.lm.dashboard import App, load_logged, serve
 
+    from engramm.lm.chat import SentenceIndex
+
     d = tmp_path / "dash"
     model.save(d)
-    app = App(load_logged(d))
+    app = App(load_logged(d), SentenceIndex.build(model.tokens, model.tok), df_cap=1.0)
     server = serve(app, port=0)
     port = server.server_address[1]
     threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -264,7 +266,13 @@ def test_dashboard_endpoints(model, tmp_path):
         assert [x["source"] for x in st["learned"]] == ["n1"]
         nx = call("/api/next", {"prompt": "The glass tower of Velmora was built by"})[1]
         assert nx["candidates"][0]["text"] == " Qu" or "Qu" in nx["candidates"][0]["text"]
+        code, ask = call("/api/ask", {"question": "Who built the glass tower of Velmora?"})
+        assert code == 200 and "Quendrik" in ask["answer"] and ask["source"] == {"kind": "user", "source": "n1"}
+        assert call("/api/ask", {"question": " "})[0] == 400
+        assert call("/api/status")[1]["chat"]["sentences"] > 0
         assert call("/api/forget", {"source": "n1"})[1]["kind"] == "user"
+        after = call("/api/ask", {"question": "Who built the glass tower of Velmora?"})[1]
+        assert after["source"] is None or after["source"]["kind"] != "user"
         assert call("/api/status")[1]["state_digest"] == base
         assert call("/api/nope", {})[0] == 404
     finally:

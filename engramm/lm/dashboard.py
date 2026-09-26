@@ -20,6 +20,7 @@ from pathlib import Path
 
 import numpy as np
 
+from engramm.lm.chat import DF_CAP, FROZEN_ALPHA, FROZEN_THETA, ChatEngine, SentenceIndex
 from engramm.lm.generate import Decoding, generate
 from engramm.lm.log import LoggedModel, replay_lm
 from engramm.lm.model import HDCLanguageModel
@@ -52,12 +53,33 @@ def _source(entry: dict | None) -> dict | None:
     return out
 
 
+def load_chat_index(model_dir: Path) -> SentenceIndex | None:
+    """The sentence index next to the model (``python -m experiments.chat_build``), if built."""
+    d = Path(model_dir).parent / "chat"
+    return SentenceIndex.load(d) if (d / "info.json").exists() else None
+
+
 class App:
     """The model plus a lock: one request changes or reads it at a time."""
 
-    def __init__(self, lm: LoggedModel):
+    def __init__(self, lm: LoggedModel, index: SentenceIndex | None = None, alpha: float = FROZEN_ALPHA,
+                 theta: float = FROZEN_THETA, df_cap: float = DF_CAP):
         self.lm = lm
         self.lock = threading.Lock()
+        self.chat = ChatEngine(lm.model, index, alpha=alpha, theta=theta, df_cap=df_cap) if index else None
+
+    def ask(self, question: str, alternatives: int = 3) -> dict:
+        question = question.strip()
+        if not question:
+            raise ValueError("Bitte eine Frage eingeben.")
+        if self.chat is None:
+            raise ValueError("Kein Satzindex – erst bauen: python -m experiments.chat_build")
+        self.chat.model = self.model
+        a = self.chat.answer(question, n_alternatives=alternatives)
+        return {"question": question, "answer": a.text, "source": _source(a.source),
+                "confidence": a.confidence, "threshold": self.chat.theta, "seconds": a.seconds,
+                "candidates": [{"text": c["text"], "source": _source(c["source"]), "score": c["score"]}
+                               for c in a.candidates]}
 
     @property
     def model(self) -> HDCLanguageModel:
@@ -69,7 +91,9 @@ class App:
                 "train_tokens": int(len(m.tokens)), "train_documents": int(m.train.n_docs),
                 "learned": [{"source": s, "tokens": int(len(m.tok.encode(t))), "preview": t[:120]}
                             for s, t in sorted(m.user_texts.items())],
-                "tombstones": len(m.tombstones), "epoch": m.epoch}
+                "tombstones": len(m.tombstones), "epoch": m.epoch,
+                "chat": None if self.chat is None else {"sentences": self.chat.index.n, "alpha": self.chat.alpha,
+                                                        "theta": self.chat.theta}}
 
     def write(self, prompt: str, tokens: int, seed: int, temperature: float, top_p: float, cache: str) -> dict:
         if not prompt.strip():
@@ -153,6 +177,8 @@ def make_handler(app: App):
                         out = app.learn(data.get("source", ""), data.get("text", ""))
                     elif self.path == "/api/forget":
                         out = app.forget(data.get("source", ""))
+                    elif self.path == "/api/ask":
+                        out = app.ask(data.get("question", ""))
                     elif self.path == "/api/next":
                         out = app.next_words(data.get("prompt", ""))
                     else:
@@ -181,7 +207,10 @@ def main(argv: list[str] | None = None) -> int:
               "  python -m experiments.lm_final_model --scale main --tau-index 1 --beta-index 1 --save")
         return 2
     print("Lade Modell … (dauert etwa eine Minute)", flush=True)
-    app = App(load_logged(args.model))
+    index = load_chat_index(args.model)
+    if index is None:
+        print("Hinweis: kein Satzindex – Fragen ist aus. Bauen mit: python -m experiments.chat_build", flush=True)
+    app = App(load_logged(args.model), index)
     server = serve(app, port=args.port)
     print(f"ENGRAMM-Dashboard läuft: http://127.0.0.1:{args.port}  (Beenden mit Ctrl+C)", flush=True)
     try:
@@ -221,11 +250,22 @@ button.ghost{background:transparent;color:var(--accent);border:1px solid var(--l
 .src a{color:var(--accent);word-break:break-all}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
 ul{padding-left:0;list-style:none;margin:0}li{border-top:1px solid var(--line);padding:8px 0;display:flex;justify-content:space-between;gap:8px;align-items:center}
 li small{color:var(--muted)}li button{margin:0;padding:4px 10px;font-size:13px}.legend span{margin-right:12px}
+.msg{border-top:1px solid var(--line);padding:10px 0}.msg .qq{color:var(--muted);font-size:14px}
+.msg .aa{font-size:17px;margin:4px 0}.msg .idk{font-size:17px;margin:4px 0;color:var(--bad)}
+.msg details{font-size:14px;color:var(--muted)}.msg details div{margin:6px 0}
 .cand{display:flex;justify-content:space-between;font-family:ui-monospace,Menlo,monospace;font-size:13px;border-top:1px solid var(--line);padding:3px 0}
 </style></head><body>
-<header><h1>ENGRAMM</h1><p>Schreibt Englisch nur durch Lesen und Zählen · zeigt die Quelle jedes Worts · lernt und vergisst auf Befehl</p></header>
+<header><h1>ENGRAMM</h1><p>Antwortet und schreibt Englisch nur durch Lesen und Zählen · zeigt jede Quelle · lernt und vergisst auf Befehl</p></header>
 <main>
 <section>
+ <div class="card">
+  <h2>Fragen</h2>
+  <label for="q">Frage (Englisch) – ENGRAMM sucht den passendsten Satz in allem, was es gelesen oder gelernt hat</label>
+  <div class="row"><div style="flex:5"><input id="q" placeholder="Who invented the telephone?"></div>
+   <div style="flex:1;min-width:80px"><button id="ask" style="margin-top:0;width:100%">Fragen</button></div></div>
+  <div id="chat"></div>
+  <div id="qerr" class="err"></div>
+ </div>
  <div class="card">
   <h2>Schreiben</h2>
   <label for="prompt">Satzanfang (Englisch)</label>
@@ -285,6 +325,17 @@ $('go').onclick=async()=>{$('werr').textContent='';$('go').disabled=true;$('out'
 $('nx').onclick=async()=>{$('werr').textContent='';try{const r=await api('/api/next',{prompt:$('prompt').value});
  let h='<h2>Wahrscheinlichste nächste Wörter</h2>';for(const c of r.candidates)h+='<div class="cand"><span>'+esc(JSON.stringify(c.text))+'</span><span>'+(100*c.probability).toFixed(1)+' %</span></div>';
  $('srcbox').innerHTML=h}catch(e){$('werr').textContent=e.message}};
+$('ask').onclick=async()=>{const q=$('q').value.trim();if(!q)return;$('qerr').textContent='';$('ask').disabled=true;
+ try{const r=await api('/api/ask',{question:q});const box=document.createElement('div');box.className='msg';
+  let h='<div class="qq">Du: '+esc(r.question)+'</div>';
+  if(r.answer)h+='<div class="aa">'+esc(r.answer)+'</div><div class="meta">'+link(r.source)+' · Sicherheit '+r.confidence.toFixed(2)+' (Schwelle '+r.threshold.toFixed(2)+') · '+(1000*r.seconds).toFixed(0)+' ms</div>';
+  else h+='<div class="idk">Weiß ich nicht.</div><div class="meta">Sicherheit '+r.confidence.toFixed(2)+' liegt unter der Schwelle '+r.threshold.toFixed(2)+'.</div>';
+  const alt=r.answer?r.candidates.slice(1):r.candidates;
+  if(alt.length){h+='<details><summary>'+(r.answer?'Weitere Fundstellen':'Das Nächste, was ich gefunden habe')+'</summary>';
+   for(const c of alt)h+='<div>„'+esc(c.text)+'“<br>'+link(c.source)+'</div>';h+='</details>'}
+  box.innerHTML=h;$('chat').prepend(box);$('q').value=''}
+ catch(e){$('qerr').textContent=e.message}finally{$('ask').disabled=false}};
+$('q').addEventListener('keydown',e=>{if(e.key==='Enter')$('ask').click()});
 async function refresh(){const s=await api('/api/status');const ul=$('learned');ul.innerHTML='';
  if(!s.learned.length)ul.innerHTML='<li><small>Nichts. Alles, was ENGRAMM weiß, stammt aus '+s.train_documents.toLocaleString('de')+' gelesenen Dokumenten.</small></li>';
  for(const l of s.learned){const li=document.createElement('li');li.innerHTML='<div><b>'+esc(l.source)+'</b><br><small>'+l.tokens+' Tokens · '+esc(l.preview)+'</small></div>';

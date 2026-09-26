@@ -5,6 +5,7 @@
     python -m engramm.lm forget my-notes
     python -m engramm.lm why "The capital of France is" " Paris"
     python -m engramm.lm status
+    python -m engramm.lm ask "Who invented the telephone?"   (needs python -m experiments.chat_build)
 
 The model directory (default ``models/lm/main/model``) holds the base model;
 what you teach or forget is kept in ``user.log`` next to it and replayed on
@@ -38,6 +39,12 @@ def _load(directory: Path) -> LoggedModel:
     return LoggedModel(model, log)
 
 
+def _where(src: dict) -> str:
+    if src.get("kind") == "user":
+        return f"your text {src['source']!r}"
+    return f"{src.get('source')}: {src.get('key', '')}"
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m engramm.lm", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -64,6 +71,9 @@ def main(argv: list[str] | None = None) -> int:
     wy.add_argument("prompt")
     wy.add_argument("continuation")
     sub.add_parser("status")
+    ak = sub.add_parser("ask")
+    ak.add_argument("question")
+    ak.add_argument("--alternatives", type=int, default=3)
     args = ap.parse_args(argv)
 
     if not (args.model / "meta.json").exists():
@@ -101,6 +111,23 @@ def main(argv: list[str] | None = None) -> int:
         hist = np.concatenate([[0], ids]).astype(np.uint16)
         out = m.why(hist, int(cont[0]))
         print(json.dumps(out, indent=2, ensure_ascii=False))
+    elif args.cmd == "ask":
+        from engramm.lm.chat import FROZEN_ALPHA, FROZEN_THETA, ChatEngine, SentenceIndex
+        chat_dir = args.model.parent / "chat"
+        if not (chat_dir / "info.json").exists():
+            print(f"no sentence index at {chat_dir} — build it with python -m experiments.chat_build",
+                  file=sys.stderr)
+            lm.log.close()
+            return 2
+        engine = ChatEngine(m, SentenceIndex.load(chat_dir), alpha=FROZEN_ALPHA, theta=FROZEN_THETA)
+        a = engine.answer(args.question, n_alternatives=args.alternatives)
+        print(a.text if a.text else "I don't know.")
+        if a.source:
+            print(f"  source: {_where(a.source)}")
+        print(f"  [confidence {a.confidence:.3f}, threshold {engine.theta:.3f}, {1000 * a.seconds:.0f} ms]",
+              file=sys.stderr)
+        for c in a.candidates[1 if a.text else 0:]:
+            print(f"  - {c['text']}  ({_where(c['source'])})")
     elif args.cmd == "status":
         print(json.dumps({"state_digest": m.state_digest(), "epoch": m.epoch, "user_texts": list(m.user.sources),
                           "tombstones": len(m.tombstones), "train_tokens": int(len(m.tokens))}, indent=2))
