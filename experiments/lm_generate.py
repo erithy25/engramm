@@ -29,7 +29,7 @@ from experiments.lm_mix import dedup_keep
 N_PROMPTS, PROMPT_TOKENS, GEN_TOKENS, PANEL = 200, 16, 100, 60
 
 
-def prompts(tok, split: str = "test"):
+def prompts(tok, split: str = "test", limit: int = 1000):
     test = load_split(split)
     keep = dedup_keep(split, test.n_docs)
     order = sorted((i for i in range(test.n_docs) if keep[i]),
@@ -40,7 +40,7 @@ def prompts(tok, split: str = "test"):
         if len(ids) < PROMPT_TOKENS + 20:
             continue
         out.append({"doc": test.doc_keys[i], "prompt": tok.decode(ids[:PROMPT_TOKENS])})
-        if len(out) == N_PROMPTS:
+        if len(out) == limit:
             break
     return out
 
@@ -53,6 +53,7 @@ def main() -> None:
     ap.add_argument("--beta-index", type=int, required=True)
     ap.add_argument("--n", type=int, default=N_PROMPTS)
     ap.add_argument("--split", default="test")
+    ap.add_argument("--skip", type=int, default=0, help="skip the first N prompts of the ordered list")
     ap.add_argument("--cache", default="document", help="exploratory: document | prompt | off")
     ap.add_argument("--top-p", type=float, default=0.95)
     ap.add_argument("--tag", default="", help="exploratory runs: suffix for all output files")
@@ -64,7 +65,7 @@ def main() -> None:
     full = assemble(args.scale, args.seed, fitted_mixture(args.scale, args.seed, args.tau_index, args.beta_index))
     kn = kn_only(full) if args.baseline == "kn5" else null_only(full, args.scale)
     dec = Decoding(top_p=args.top_p, cache=args.cache)
-    ps = prompts(full.tok, args.split)[:args.n]
+    ps = prompts(full.tok, args.split)[args.skip:args.skip + args.n]
     rows, speed = [], {"engramm": [], "kn5": []}
     for j, p in enumerate(ps):
         row = dict(p)
@@ -107,7 +108,7 @@ def main() -> None:
     if not args.tag:
         (RESULTS_DIR / "p6_panel_form.md").write_text("\n".join(lines) + "\n")
     tps = {k: sum(n for n, _ in v) / sum(t for _, t in v) for k, v in speed.items()}
-    out = {"scale": args.scale, "n_prompts": len(rows), "split": args.split, "tag": args.tag,
+    out = {"scale": args.scale, "n_prompts": len(rows), "split": args.split, "tag": args.tag, "skip": args.skip,
            "baseline": args.baseline,
            "decoding": {"temperature": dec.temperature, "top_p": dec.top_p, "cache": dec.cache,
                         "exploratory": bool(args.tag)}, "tokens_per_second": tps,
