@@ -55,6 +55,14 @@ places, and writes new text word by word from those counts. It uses no
 gradients, no neural network and no pretrained model. It rebuilds from scratch
 in about 9 minutes on a MacBook Air M4 (544 s, measured).
 
+**Easiest way to use it: the local dashboard.** Run
+`python -m engramm.lm.dashboard` and open http://127.0.0.1:8765. In the page you can:
+- write from a prompt, then click any word to see where it came from;
+- ask for the most likely next words;
+- teach it a text and forget it again.
+
+It runs only on your machine and shares its state with the command line.
+
 What it can do:
 
 | Capability | Command | Measured (container unless marked M4) |
@@ -268,6 +276,7 @@ done
 .venv/bin/python -m experiments.lm_eval && .venv/bin/python -m experiments.lm_verdict
 .venv/bin/python -m experiments.lm_final_model --scale main --tau-index 1 --beta-index 1 --save
 .venv/bin/python -m engramm.lm write "The history of the city" --explain
+.venv/bin/python -m engramm.lm.dashboard                    # web dashboard on http://127.0.0.1:8765
 .venv/bin/python -m experiments.lm_p5 --scale main          # device criterion (official only on the M4)
 
 # M5 baselines run in their own environment:
@@ -282,7 +291,8 @@ python3.12 -m venv .venv_b1
 engramm/                 the rebuilt core: item memory, encoders, prototypes, episodic
                          memory and fusion, T2/T3, L2 event log, determinism helpers
 engramm/lm/              ENGRAMM-LM: tokenizer, KN-5, suffix array, meaning vectors, KNN,
-                         topic, mixture, learn/forget/why, sampler, CLI (python -m engramm.lm)
+                         topic, mixture, learn/forget/why, sampler, CLI (python -m engramm.lm),
+                         local web dashboard (python -m engramm.lm.dashboard)
 data/                    checksummed loaders (WiLI-2018, MNIST, Banking77, CLINC150,
                          Blog Authorship Corpus, C4 + WikiText-103 for the LM); train-only
                          feature fitting; the pinned LM tokenizer and the invented facts

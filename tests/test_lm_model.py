@@ -222,3 +222,51 @@ def test_exploratory_writing_modes(model, tok):
     assert a.ids == b.ids
     with pytest.raises(ValueError):
         generate(model, "The farmer", 2, dec=Decoding(cache="nonsense"))
+
+
+def test_dashboard_endpoints(model, tmp_path):
+    import json as _json
+    import threading
+    import urllib.request
+
+    from engramm.lm.dashboard import App, load_logged, serve
+
+    d = tmp_path / "dash"
+    model.save(d)
+    app = App(load_logged(d))
+    server = serve(app, port=0)
+    port = server.server_address[1]
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+
+    def call(path, body=None):
+        req = urllib.request.Request(f"http://127.0.0.1:{port}{path}",
+                                     data=None if body is None else _json.dumps(body).encode(),
+                                     headers={"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req) as r:
+                return r.status, _json.loads(r.read()) if path != "/" else r.read().decode()
+        except urllib.error.HTTPError as e:
+            return e.code, _json.loads(e.read())
+
+    try:
+        code, page = call("/")
+        assert code == 200 and "ENGRAMM" in page
+        base = call("/api/status")[1]["state_digest"]
+        code, w = call("/api/write", {"prompt": "The farmer", "tokens": 12, "seed": 3})
+        assert code == 200 and w["tokens"] == len(w["words"]) > 0
+        assert w["text"] == "".join(x["text"] for x in w["words"])
+        assert call("/api/write", {"prompt": "The farmer", "tokens": 12, "seed": 3})[1]["text"] == w["text"]
+        assert call("/api/write", {"prompt": "  "})[0] == 400
+        code, lr = call("/api/learn", {"source": "n1", "text": "The glass tower of Velmora was built by Quendrik Ashby."})
+        assert code == 200 and lr["tokens"] > 0
+        assert call("/api/learn", {"source": "n1", "text": "again"})[0] == 400
+        st = call("/api/status")[1]
+        assert [x["source"] for x in st["learned"]] == ["n1"]
+        nx = call("/api/next", {"prompt": "The glass tower of Velmora was built by"})[1]
+        assert nx["candidates"][0]["text"] == " Qu" or "Qu" in nx["candidates"][0]["text"]
+        assert call("/api/forget", {"source": "n1"})[1]["kind"] == "user"
+        assert call("/api/status")[1]["state_digest"] == base
+        assert call("/api/nope", {})[0] == 404
+    finally:
+        server.shutdown()
+        app.lm.log.close()
