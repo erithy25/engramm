@@ -107,3 +107,26 @@ def test_answer_normalisation():
     assert not contains_answer("It was built in 18899.", ["1889"])
     assert contains_answer("the answer is An Apple", ["apple"])
     assert not math.isnan(0.0)
+
+
+def test_eval_helpers_follow_the_registration():
+    from experiments.chat_eval import at_theta, bootstrap_diff, choose_theta, ordered, split
+    # α re-scoring: score = bm25 + α·soft·Σidf, ties by sentence id
+    c = [(2.0, 0.0, 7), (1.0, 1.0, 3), (2.0, 0.0, 5)]
+    assert [s for _, s in ordered(c, 2.0, 0.0)] == [5, 7, 3]
+    assert [s for _, s in ordered(c, 2.0, 1.0)] == [3, 5, 7]
+    # θ: smallest value with precision ≥ 60 %
+    ev = {"hit1": np.array([1, 0, 1, 0, 1], bool), "conf": np.array([0.9, 0.1, 0.5, 0.4, 0.8]),
+          "has": np.ones(5, bool)}
+    th = choose_theta(ev)
+    assert th == 0.0                                   # 3/5 = 60 % already at θ = 0
+    ev["hit1"] = np.array([1, 0, 1, 0, 0], bool)
+    th = choose_theta(ev)
+    assert th == 0.5 and at_theta(ev, th) == {"theta": 0.5, "answered": 3, "coverage": 0.6, "precision": 2 / 3}
+    # split: disjoint, hash-bit separated, deterministic
+    pool = [{"id": f"q{i}"} for i in range(4000)]
+    dev, test = split(pool)
+    assert len(dev) == 500 and len(test) == 1000 and not {q["id"] for q in dev} & {q["id"] for q in test}
+    assert split(list(reversed(pool))) == (dev, test)
+    d = bootstrap_diff(np.array([1.0, 1, 0, 1]), np.array([0.0, 1, 0, 0]))
+    assert d["diff"] == 0.5 and d["ci95"][0] <= 0.5 <= d["ci95"][1]
