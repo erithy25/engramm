@@ -563,6 +563,10 @@ decided before the measurement it affects, except where stated.
 - **Transformer baseline.** Trained with 2 threads on a container that was busy with the
   other runs, so the load average was 5–6 on 4 cores. It therefore saw far fewer tokens in
   12 h than an idle machine would have (about 1,000 tokens/s). It is reported, not judged.
+  **The 12 h checkpoint does not exist.** A container restart killed the run after
+  9.8 h (42.6 M tokens seen); the trainer keeps no optimizer state, so it could not be
+  resumed faithfully. The last checkpoint, 6 h, is the one reported, alongside 1 h and 3 h.
+  The GPT-2 reference run died in the same restart and was repeated with 4 threads.
 - **Not measurable here.** P5 is valid only on the M4, and the container figures are
   reported. The human panel for P6 is prepared (`results/lm/p6_panel_form.md`) but was not
   run.

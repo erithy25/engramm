@@ -40,6 +40,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", default="test")
     ap.add_argument("--threads", type=int, default=2)
+    ap.add_argument("--limit", type=int, default=None, help="smoke test: only the first N documents")
     args = ap.parse_args()
     os.environ.setdefault("HF_HOME", str(HF_HOME))
     import torch
@@ -56,7 +57,7 @@ def main():
     eot = tok.eos_token_id
     bits, nbytes, keys = [], [], []
     with torch.no_grad():
-        for text, key in docs(args.split):
+        for text, key in docs(args.split)[:args.limit]:
             ids = [eot] + tok.encode(text) + [eot]
             n, total, done, a = len(ids), 0.0, 0, 0
             while done < n - 1:
@@ -67,14 +68,15 @@ def main():
                 total -= lp[done - a:].sum() / math.log(2)
                 done = a + len(tgt)
                 a += STRIDE
-            bits.append(total)
+            bits.append(float(total))
             nbytes.append(len(text.encode("utf-8")) + 1)
             keys.append(key)
     OUT.mkdir(parents=True, exist_ok=True)
     out = {"model": MODEL, "revision": revision, "weights_sha256": sha, "split": args.split,
            "per_doc_bits": bits, "doc_bytes": nbytes, "keys": keys,
            "bpb": float(np.sum(bits) / np.sum(nbytes))}
-    (OUT / f"eval_{args.split}.json").write_text(json.dumps(out))
+    name = f"eval_{args.split}.json" if args.limit is None else f"smoke_{args.split}.json"
+    (OUT / name).write_text(json.dumps(out))
     print(args.split, out["bpb"], revision, sha, flush=True)
 
 
