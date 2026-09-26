@@ -1,0 +1,63 @@
+{
+  "version": "1.0",
+  "note": "Hand-written for docs/PREREG_CHAT_V2.md, fixed before any stage 1.1-5 code was written. 'dev' phrasings may be used for development; 'test' phrasings are only used in the single test run.",
+  "fact_questions": {
+    "capital":    {"dev": "What is the capital of {e}?",                          "test": "Which city is the capital of {e}?"},
+    "founder":    {"dev": "Who founded the company {e}?",                          "test": "Who is the founder of {e}?"},
+    "author":     {"dev": "Who wrote the novel {e}?",                              "test": "Who is the author of {e}?"},
+    "inventor":   {"dev": "Who invented the {e} machine?",                         "test": "Who is credited with inventing the {e} machine?"},
+    "river":      {"dev": "Which river does the town of {e} lie on?",              "test": "On which river is {e} located?"},
+    "birthplace": {"dev": "Where was the painter {e} born?",                       "test": "In which city was {e} born?"},
+    "mascot":     {"dev": "What is the mascot of the {e} team called?",            "test": "What is the name of the {e} team's mascot?"},
+    "captain":    {"dev": "Who commands the ship {e}?",                            "test": "Who is the captain of the {e}?"},
+    "language":   {"dev": "What language do people speak in the valley of {e}?",   "test": "Which language is spoken in {e}?"},
+    "currency":   {"dev": "What is the currency of {e}?",                          "test": "What money do people use in {e}?"},
+    "spouse":     {"dev": "Who is the poet {e} married to?",                       "test": "Who is the wife or husband of {e}?"},
+    "teacher":    {"dev": "Who taught music to the composer {e}?",                 "test": "Under whom did {e} study music?"},
+    "dish":       {"dev": "What is the traditional dish of {e}?",                  "test": "Which meal is traditional in {e}?"},
+    "mountain":   {"dev": "What is the highest mountain in {e}?",                  "test": "Which mountain is the tallest in {e}?"},
+    "discoverer": {"dev": "Who discovered the island of {e}?",                     "test": "Which explorer first reached {e}?"},
+    "ceo":        {"dev": "Who is the chief executive of {e} Industries?",         "test": "Who runs {e} Industries?"},
+    "owner":      {"dev": "Who owns the racehorse {e}?",                           "test": "Who is the owner of {e}?"},
+    "festival":   {"dev": "Where is the {e} festival held?",                       "test": "In which place does the {e} festival take place?"},
+    "architect":  {"dev": "Who designed the {e} bridge?",                          "test": "Who was the architect of the {e} bridge?"},
+    "anthem":     {"dev": "Who composed the anthem of {e}?",                       "test": "Who wrote the national anthem of {e}?"}
+  },
+  "dialog": {
+    "facts": {
+      "name":     {"values": "invented_person", "tell": {"dev": "My name is {v}.",              "test": "People call me {v}."},
+                   "ask": {"dev": "What is my name?",              "test": "Do you remember my name?"},        "topic": "my name"},
+      "city":     {"values": "invented_place",  "tell": {"dev": "I live in {v}.",               "test": "My home is in {v}."},
+                   "ask": {"dev": "Where do I live?",              "test": "In which city is my home?"},       "topic": "where I live"},
+      "job":      {"values": ["teacher", "baker", "pilot", "nurse", "carpenter", "lawyer", "farmer", "dentist", "plumber", "librarian", "chemist", "florist"],
+                   "tell": {"dev": "I work as a {v}.",             "test": "I am a {v} by profession."},
+                   "ask": {"dev": "What is my job?",               "test": "What is my profession?"},          "topic": "my job"},
+      "colour":   {"values": ["green", "blue", "red", "yellow", "purple", "orange", "black", "white", "pink", "grey"],
+                   "tell": {"dev": "My favourite colour is {v}.",  "test": "I like the colour {v} most."},
+                   "ask": {"dev": "What is my favourite colour?",  "test": "Which colour do I like most?"},     "topic": "my favourite colour"},
+      "pet":      {"values": "invented_person", "tell": {"dev": "My dog is called {v}.",        "test": "I have a dog named {v}."},
+                   "ask": {"dev": "What is my dog called?",        "test": "What is the name of my dog?"},     "topic": "my dog"},
+      "employer": {"values": "invented_company", "tell": {"dev": "I work at {v}.",              "test": "My employer is {v}."},
+                   "ask": {"dev": "Where do I work?",              "test": "Who is my employer?"},             "topic": "where I work"},
+      "birthday": {"values": "date",            "tell": {"dev": "My birthday is on {v}.",       "test": "I was born on {v}."},
+                   "ask": {"dev": "When is my birthday?",          "test": "On which day was I born?"},        "topic": "my birthday"},
+      "brother":  {"values": "invented_person", "tell": {"dev": "My brother's name is {v}.",    "test": "I have a brother called {v}."},
+                   "ask": {"dev": "What is my brother's name?",    "test": "What is my brother called?"},      "topic": "my brother"},
+      "food":     {"values": ["pizza", "sushi", "lasagne", "curry", "pancakes", "paella", "ramen", "goulash", "falafel", "risotto"],
+                   "tell": {"dev": "My favourite food is {v}.",    "test": "The food I love most is {v}."},
+                   "ask": {"dev": "What is my favourite food?",    "test": "What food do I love most?"},       "topic": "my favourite food"},
+      "car":      {"values": ["Volvo", "Toyota", "Fiat", "Tesla", "Skoda", "Honda", "Peugeot", "Mazda", "Renault", "Subaru"],
+                   "tell": {"dev": "I drive a {v}.",               "test": "My car is a {v}."},
+                   "ask": {"dev": "What car do I drive?",          "test": "What kind of car do I have?"},     "topic": "my car"}
+    },
+    "forget": {"dev": "Forget {topic}.", "test": "Please delete what I told you about {topic}."},
+    "chains": {
+      "person": {"relations": ["founder", "author", "inventor", "architect", "captain", "discoverer", "ceo", "owner", "teacher", "spouse"],
+                 "second": "{a} was born in {p}.",
+                 "follow": {"dev": ["Where was he born?", "Where was she born?"], "test": ["And where was this person born?", "In which town was she born?"]}},
+      "place":  {"relations": ["capital"],
+                 "second": "The city of {a} lies on the river {p}.",
+                 "follow": {"dev": ["Which river is it on?"], "test": ["Which river flows through that city?"]}}
+    }
+  }
+}
