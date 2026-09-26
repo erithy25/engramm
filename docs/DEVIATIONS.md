@@ -540,3 +540,32 @@ than assumed.
 The 6,409 MiB figure exceeded the 6 GB a 16 GB reference machine can spare
 once macOS and other processes are accounted for, which is why this change
 was made before the five-seed run rather than after it.
+
+---
+
+## CHANGED-9 — ENGRAMM-LM (E12): what ran differently from the plan
+
+Plan: `docs/PREREG_LM.md` (v1.1) and the build plan behind it. Each deviation was
+decided before the measurement it affects, except where stated.
+
+- **τ grid.** Changed from {64, 128, 256} to {256, 1,024, 4,096} (PREREG v1.1). The reason
+  was a train-only diagnostic: with the registered values every kernel would have been
+  1-NN. This was decided before any KNN measurement on val/test.
+- **Main scale = one seed.** The pilot ran 3 seeds (G2). The main model uses seed 42, the
+  first registered seed, not the best one. Its configuration (τ = 1,024, β = 8) is seed 42's
+  grid choice.
+- **KN-5 memory.** The first 285 M build was OOM-killed at the order 5 → 4 transition. The
+  construction was rewritten to sort in place and count with numba. The resulting model is
+  bit-identical, checked by digest on the pilot.
+- **P4 harness bug.** The first P4 record compared the canary against the state *before*
+  learn(A), so it reported `bit_identical: false`. The model was not at fault. The
+  corrected run compares against learn(A) and passes. Both records are kept.
+- **Transformer baseline.** Trained with 2 threads on a container that was busy with the
+  other runs, so the load average was 5–6 on 4 cores. It therefore saw far fewer tokens in
+  12 h than an idle machine would have (about 1,000 tokens/s). It is reported, not judged.
+- **Not measurable here.** P5 is valid only on the M4, and the container figures are
+  reported. The human panel for P6 is prepared (`results/lm/p6_panel_form.md`) but was not
+  run.
+- **Exploratory writing mode** (cache off while writing, top-p 0.8). This was designed
+  *after* seeing the registered P6 texts and judged on val-B prompts only. It changes no
+  registered verdict.

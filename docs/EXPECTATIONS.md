@@ -1045,6 +1045,81 @@ Nebenbefund Pruning: unbeschnittenes KN-5 erreicht im Pilot 1,719 statt 1,743 BP
 −1,4 %), braucht aber 2,0 statt 0,15 GB — bei 285 M Tokens nicht im RAM-Budget. Die
 registrierte Referenz „KN-5" ist beschnitten; P1 ist dadurch um etwa 1,4 % leichter.
 
+### Hauptlauf — 285 M Tokens, gemessen 2026-09-25/26, Container, `canonical=false`
+
+**Aufbau** (Seed 42, τ = 1.024, β = 8 aus dem Pilot-Gitter, eingefroren):
+
+| Schritt | Dauer |
+|---|---|
+| Suffix-Array | 77 s |
+| KN-5 | ≈ 7 min |
+| Bedeutungsvektoren + Klassen | ≈ 2,5 min |
+| KNN-Index | ≈ 1,7 min |
+| Segment-Signaturen | ≈ 2,4 min |
+| **gesamt** | **≈ 15 min** |
+
+Spitzenlast des Systems beim KN-Aufbau 9,0 GB (einschließlich des parallel trainierenden Transformers mit 2,6 GB). Ein erster Versuch lief in den OOM-Killer; der Aufbau wurde daraufhin speicherschonend umgebaut, der Digest bleibt identisch (Commit `71eb216`).
+
+**K2 und Ablation (val-B Hälfte 2, gefiltert):**
+
+| System | BPB |
+|---|---|
+| KN-5 | 1,6076 |
+| KN-5 + Cache | 1,5540 |
+| Null-Modell | 1,5301 |
+| Null + KNN | 1,5196 |
+| Null + TOPIC | 1,5299 |
+| **ENGRAMM-LM** | **1,5194** |
+
+- ENGRAMM-LM / Null-Modell = 0,9930 [0,9923; 0,9936]. **K2 ist nicht ausgelöst**, der HDC-Beitrag wächst mit den Daten von 0,45 % auf 0,70 %.
+- Der Beitrag kommt fast ganz aus KNN; TOPIC bleibt bei ≈ 0.
+- Explorativ: Pro Token hilft KNN am meisten, wo der 3-Gramm-Kontext unbekannt ist (0,069 Bit/Token), aber auch bei bekannten 4-Token-Kontexten noch 0,044 Bit.
+
+**KenLM-Parität:** KenLM (Commit `4cb443e`, `lmplz -o 5`, unbeschnitten) gegen unser KN-5 unbeschnitten, Pilot, val-B/2: BPB-Verhältnis **1,0000014** — gleich bis auf Rundung. Registriert war ≤ 0,3 %.
+
+**P3 (umformulierte Fakten, 400 Abfragen, Top-10):**
+
+| System | vorher | nachher B/C | Top-1 | gleiche Form A |
+|---|---|---|---|---|
+| ENGRAMM-LM | 1,0 % | 25,75 % | 6,5 % | 100 % |
+| KN-5-gelernt | 0,25 % | 26,5 % | 7,0 % | 100 % |
+| Null-Modell-gelernt | 1,0 % | 26,75 % | 7,0 % | 100 % |
+
+- **P3 verfehlt, K4 ausgelöst:** ENGRAMM-LM liegt nicht über KN-5-gelernt.
+- Treffer entstehen fast nur, wo Abfrage und gelernter Satz auf dasselbe Wort vor der Antwort enden: „Captain", „Mount" 100 %, „river"/„the" 65 %.
+- Echte Umformulierungen findet keines der Systeme (Autor, Maskottchen, Sprache: 0 %).
+- Der Themen-Term des KNN reicht nicht, um unter 200 ähnlich gebauten Fakten den richtigen zu treffen.
+
+**P4 (Vergessen):**
+- learn(A) → learn(B + Canary) → forget(B + Canary) ergibt denselben Digest wie learn(A).
+- Die Canary-Log-Wahrscheinlichkeit ist nach dem Vergessen **bitgleich** zu „nie gelernt" (−142,456184 Bit). Die Exposure fällt von 7,65 zurück auf 2,07.
+- Log-Replay (303 Ereignisse) reproduziert den Zustand.
+- Batch-Aufruf: 56 ms (lernen) / 37 ms (vergessen) je 1.000 Tokens → **P4 erfüllt** (Container).
+- Einzelaufrufe je Fakt: 54 ms pro Aufruf, also 3,6 s je 1.000 Tokens bei sehr kurzen Texten; das berichtet P4 nicht als Kriterium.
+- Ein erster P4-Lauf verglich den Canary gegen den falschen Zustand (vor learn(A)). Das war ein Fehler im Harness, nicht im Modell; er ist korrigiert, beide Records liegen vor.
+
+**P5 (nur Container, nicht offiziell):**
+- Schreiben: 128 Tokens/s, mit Quellenangabe je Token 117 Tokens/s; KN-5 allein 211 Tokens/s.
+- Spitzen-RSS 4,5 GB; Aufbau ≈ 15 min.
+- K3 nicht ausgelöst. Die offizielle Messung auf dem M4 steht aus.
+
+**P6 (Lesequalität, 200 Test-Prompts × 2 Reihenfolgen, LLM-Richter):**
+- ENGRAMM-LM wird in **19,8 %** bevorzugt (64 Siege, 30 Remis, 306 Niederlagen), in beiden Reihenfolgen gleich → **P6 klar verfehlt**.
+- Ursache, gesichtet an Beispielen: Der Dokument-Cache verstärkt beim Schreiben die eigenen, zufällig gezogenen Wörter und Wortstücke („information information", „theAs", „InIn"). Auf echtem Text ist er die stärkste Einzelhilfe (−3,3 % BPB), beim Selbstschreiben schadet er.
+- Der Bogen für das menschliche Panel liegt in `results/lm/p6_panel_form.md`; das Panel ist nicht durchgeführt.
+
+**Explorativ, nicht registriert — Schreibmodus.** Entworfen nach Sichtung der registrierten Texte, gemessen auf **val-B-Prompts** (nicht test), 100 Prompts × 2 Reihenfolgen. Einstellungen: Cache beim Schreiben aus (sein Gewicht geht an KN-5), top-p 0,8, beide Seiten gleich dekodiert.
+
+| Vergleich | ENGRAMM bevorzugt | Ø längste wörtliche Übernahme |
+|---|---|---|
+| gegen KN-5 | **78,3 %** | 24,9 gegen 11,3 Tokens |
+| gegen Null-Modell (gleicher Modus) | 53,3 % | 24,9 gegen 20,8 Tokens |
+
+Lesart:
+- Der Schreibmodus behebt die Artefakte.
+- Der Vorsprung gegen KN-5 kommt überwiegend aus dem ∞-Gramm-Teil (längere wörtliche Stücke, durch den Zitat-Deckel auf 32 Tokens begrenzt), **nicht** aus dem HDC-Teil. Gegen das Null-Modell bleibt nur ein Unterschied im Rauschbereich.
+- Das ändert kein registriertes Urteil.
+
 ---
 
 ## Offene Fragen, nicht terminiert
