@@ -28,11 +28,10 @@ NUMBER_WORDS = ("zero", "one", "two", "three", "four", "five", "six", "seven", "
                 "thousand", "million", "billion", "trillion", "dozen", "half", "first", "second", "third")
 ORDINAL_WORDS = ("first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth")
 
-DATE_NOUNS = ("year", "years", "date", "day", "month", "century", "decade", "time", "period", "era", "season",
-              "age", "dynasty")
+DATE_NOUNS = ("year", "years", "date", "day", "month", "century", "decade", "time", "period", "era", "season")
 NUMBER_HEADS = ("many", "much", "long", "old", "far", "tall", "big", "large", "high", "deep", "wide", "heavy",
                 "fast", "often", "hot", "cold", "warm", "expensive", "large")
-NUMBER_NOUNS = ("number", "percentage", "percent", "amount", "proportion", "fraction", "population", "size",
+NUMBER_NOUNS = ("number", "percentage", "percent", "amount", "proportion", "fraction", "population", "size", "age",
                 "total", "count", "rate", "distance", "length", "height", "weight", "cost", "price", "score",
                 "temperature", "speed", "capacity", "sum")
 LOCATION_NOUNS = ("city", "country", "state", "place", "region", "continent", "island", "islands", "river",
@@ -66,6 +65,9 @@ CONNECT = frozenset(("of", "de", "du", "la", "le", "van", "von", "der", "da", "d
 
 _WORD_RE = re.compile(r"[0-9]+(?:[.,][0-9]+)*(?:st|nd|rd|th|s)?(?![A-Za-z])|"
                       r"[A-Za-zÀ-ÖØ-öø-ÿ0-9]+(?:[-'’.][A-Za-zÀ-ÖØ-öø-ÿ0-9]+)*|[^\sA-Za-zÀ-ÖØ-öø-ÿ0-9]")
+NON_UNITS = frozenset(("since", "until", "till", "more", "less", "fewer", "than", "before", "after", "later",
+                       "earlier", "each", "every", "per", "or", "nor", "yet", "while", "because", "although",
+                       "though", "whereas", "including", "compared", "versus", "vs"))
 _YEAR = re.compile(r"^(1[0-9]{3}|20[0-9]{2})s?$")
 _NUM = re.compile(r"^[0-9]+(?:[.,][0-9]+)*$")
 
@@ -98,7 +100,7 @@ def analyse(question: str) -> Question:
             break
         if w == "how":
             wh = "how"
-            continue
+            break
         if w in ("when",):
             wh, atype = w, DATE
             break
@@ -219,6 +221,14 @@ def spans(sentence: str, initial_is_name=None) -> list[Span]:
                 out.append(Span(" ".join(ws[s:e]).replace(" ,", ","), "DATE", s, e))
             i = e
             continue
+        if _NUM.match(ws[i]) and len(ws[i]) <= 4 and i + 1 < n and lw[i + 1] in ("bc", "bce", "ad", "ce"):
+            out.append(Span(f"{ws[i]} {ws[i + 1]}", "DATE", i, i + 2))
+            i += 2
+            continue
+        if lw[i] == "ad" and i + 1 < n and _NUM.match(ws[i + 1]) and len(ws[i + 1]) <= 4:
+            out.append(Span(f"{ws[i]} {ws[i + 1]}", "DATE", i, i + 2))
+            i += 2
+            continue
         if _YEAR.match(ws[i]):
             out.append(Span(ws[i], "DATE", i, i + 1))
         elif w.endswith(("th", "st", "nd", "rd")) and w[:-2].isdigit() and i + 1 < n and lw[i + 1] in (
@@ -246,7 +256,7 @@ def spans(sentence: str, initial_is_name=None) -> list[Span]:
                     j += 1
             num = " ".join(ws[s:j]).replace("$ ", "$").replace("£ ", "£").replace("€ ", "€").replace(" %", "%")
             unit_end = j
-            if j < n and ws[j][0].isalpha() and lw[j] not in STOP:
+            if j < n and ws[j][0].isalpha() and lw[j] not in STOP and lw[j] not in NON_UNITS:
                 unit_end = j + 1
             in_date = any(d.start <= i < d.end for d in dates)
             if not in_date and (not _YEAR.match(ws[i]) or j - i > 1 or s != i):
@@ -275,9 +285,17 @@ def spans(sentence: str, initial_is_name=None) -> list[Span]:
                     j += 1
                 else:
                     break
+            if any(d.start < j and i < d.end for d in dates) or (j - i == 1 and lw[i] in ("bc", "bce", "ad", "ce")):
+                i = j
+                continue
             out.append(Span(" ".join(ws[i:j]), "NAME", i, j))
-            # sub-spans of long names (e.g. "Alexander Graham Bell" → "Bell") are not added;
-            # the voting step matches overlapping names instead
+            # "Alcock and Brown": two names joined by and/& also form one candidate
+            if j + 1 < n and lw[j] in ("and", "&") and ws[j + 1][0].isupper() and ws[j + 1][0].isalpha() \
+                    and lw[j + 1] not in MONTHS and lw[j + 1] not in STOP:
+                k = j + 2
+                while k < n and ws[k][0].isupper() and ws[k][0].isalpha() and lw[k] not in MONTHS:
+                    k += 1
+                out.append(Span(" ".join(ws[i:k]), "NAME", i, k))
             i = j
             continue
         i += 1

@@ -13,7 +13,6 @@ import time
 
 import numpy as np
 
-from engramm.chat.bot import CHAT_PREFIX
 from engramm.chat.extract import correct, exact_match, f1
 from experiments.chat_v2_data import chain_dialogs, fact_dialogs, fact_questions
 
@@ -21,8 +20,7 @@ from experiments.chat_v2_data import chain_dialogs, fact_dialogs, fact_questions
 def reset(bot) -> None:
     """Forget every taught text and clear the dialog context."""
     for sid in sorted(bot.user_texts()):
-        if sid.startswith(CHAT_PREFIX) or True:
-            bot.memory.forget(sid)
+        bot.memory.forget(sid)
     bot.refresh()
     bot.context = {"answer": None, "atype": None, "mention": None, "last_learned": None}
 

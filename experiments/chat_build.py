@@ -60,6 +60,9 @@ def main() -> None:
         info["doc_postings"] = int(len(dpost))
         info["digest"] = h.hexdigest()
         v2.save(out, ix, dptr, dpost, sent_doc, info)
+        from engramm.chat.question import CapStats
+        cap = CapStats.build(train.tokens, LMTokenizer()).ratio
+        (out / "capstats.json").write_text(json.dumps(cap, sort_keys=True))
     else:
         ix.save(out)
         (out / "info.json").write_text(json.dumps(info, indent=2) + "\n")

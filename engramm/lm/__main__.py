@@ -5,7 +5,8 @@
     python -m engramm.lm forget my-notes
     python -m engramm.lm why "The capital of France is" " Paris"
     python -m engramm.lm status
-    python -m engramm.lm ask "Who invented the telephone?"   (needs python -m experiments.chat_build)
+    python -m engramm.lm ask "Who invented the telephone?"   (needs python -m experiments.chat_build --v2)
+    python -m engramm.lm chat                                 (a conversation in the terminal)
 
 The model directory (default ``models/lm/main/model``) holds the base model;
 what you teach or forget is kept in ``user.log`` next to it and replayed on
@@ -74,6 +75,7 @@ def main(argv: list[str] | None = None) -> int:
     ak = sub.add_parser("ask")
     ak.add_argument("question")
     ak.add_argument("--alternatives", type=int, default=3)
+    sub.add_parser("chat")
     args = ap.parse_args(argv)
 
     if not (args.model / "meta.json").exists():
@@ -111,23 +113,38 @@ def main(argv: list[str] | None = None) -> int:
         hist = np.concatenate([[0], ids]).astype(np.uint16)
         out = m.why(hist, int(cont[0]))
         print(json.dumps(out, indent=2, ensure_ascii=False))
-    elif args.cmd == "ask":
-        from engramm.lm.chat import FROZEN_ALPHA, FROZEN_THETA, ChatEngine, SentenceIndex
-        chat_dir = args.model.parent / "chat"
-        if not (chat_dir / "info.json").exists():
-            print(f"no sentence index at {chat_dir} — build it with python -m experiments.chat_build",
+    elif args.cmd in ("ask", "chat"):
+        from engramm.lm.dashboard import chat_index_dir, make_bot
+        idx = chat_index_dir(args.model)
+        if idx is None:
+            print(f"no sentence index next to {args.model} — build it with python -m experiments.chat_build --v2",
                   file=sys.stderr)
             lm.log.close()
             return 2
-        engine = ChatEngine(m, SentenceIndex.load(chat_dir), alpha=FROZEN_ALPHA, theta=FROZEN_THETA)
-        a = engine.answer(args.question, n_alternatives=args.alternatives)
-        print(a.text if a.text else "I don't know.")
-        if a.source:
-            print(f"  source: {_where(a.source)}")
-        print(f"  [confidence {a.confidence:.3f}, threshold {engine.theta:.3f}, {1000 * a.seconds:.0f} ms]",
-              file=sys.stderr)
-        for c in a.candidates[1 if a.text else 0:]:
-            print(f"  - {c['text']}  ({_where(c['source'])})")
+        bot = make_bot(lm, idx)
+
+        def show(rep) -> None:
+            print(rep.text)
+            if rep.resolved:
+                print(f"  (understood as: {rep.resolved})")
+            if rep.evidence and rep.kind == "answer":
+                print(f"  from: “{rep.evidence}”")
+            if rep.source:
+                print(f"  source: {_where(rep.source)}")
+            print(f"  [{rep.kind}, via {rep.via or '-'}, {1000 * rep.seconds:.0f} ms]", file=sys.stderr)
+
+        if args.cmd == "ask":
+            show(bot.turn(args.question))
+        else:
+            print("ENGRAMM chat — ask, tell me something, or say 'forget …'. Empty line or Ctrl+D ends.")
+            while True:
+                try:
+                    line = input("> ")
+                except EOFError:
+                    break
+                if not line.strip():
+                    break
+                show(bot.turn(line))
     elif args.cmd == "status":
         print(json.dumps({"state_digest": m.state_digest(), "epoch": m.epoch, "user_texts": list(m.user.sources),
                           "tombstones": len(m.tombstones), "train_tokens": int(len(m.tokens))}, indent=2))

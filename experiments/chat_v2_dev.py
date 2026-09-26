@@ -124,6 +124,26 @@ def cap_stats():
     return cs
 
 
+_WV = {}
+
+
+def word_vectors(tok, kind: str = "wide"):
+    """word → its counted meaning vector (single-token words only), for the HDC anchors."""
+    if kind not in _WV:
+        from engramm.lm.semantic import Codebook
+        from experiments.chat_v2_common import MODEL_DIR
+        M = getattr(Codebook.load(MODEL_DIR / "codebook.npz"), kind)
+        cache: dict = {}
+
+        def vec(w: str):
+            if w not in cache:
+                ids = tok.encode(" " + w)
+                cache[w] = np.asarray(M[ids[0]]) if len(ids) == 1 else None
+            return cache[w]
+        _WV[kind] = vec
+    return _WV[kind]
+
+
 def extract_eval(w: Weights, params=None, sets=None, verbose: bool = True) -> dict:
     from engramm.chat.extract import ExtractParams, exact_match, extract, f1
     from engramm.chat.question import analyse
@@ -131,6 +151,7 @@ def extract_eval(w: Weights, params=None, sets=None, verbose: bool = True) -> di
     params = params or ExtractParams()
     cs, tok = cap_stats(), LMTokenizer()
     memo: dict = {}
+    wv = word_vectors(tok)
 
     def initial(word):
         if word not in memo:
@@ -152,7 +173,7 @@ def extract_eval(w: Weights, params=None, sets=None, verbose: bool = True) -> di
             texts = [r["texts"][i] for i in order[:params.k]]
             rel = sc[order[:params.k]] / max(r["idf_sum"], 1e-9)
             q = analyse(r["question"])
-            x = extract(q, texts, rel, params, initial)
+            x = extract(q, texts, rel, params, initial, wv)
             e, g = exact_match(x.text, r["answers"]), f1(x.text, r["answers"])
             em.append(e)
             fs.append(g)
@@ -164,7 +185,9 @@ def extract_eval(w: Weights, params=None, sets=None, verbose: bool = True) -> di
     return out
 
 
-BEST = Weights()
+# stage 1.1 weights chosen on dev (coordinate ascent, `tune`, 2026-09-27)
+BEST = Weights(cov=5.0, soft=0.0, pcov=1.0, kcov=2.0, type=2.0, wiki=0.25, q=1.0, short=0.5, phr=0.5, dcov=2.0,
+               prox=0.5, dfull=1.0)
 
 
 def main() -> None:

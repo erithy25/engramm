@@ -1,4 +1,4 @@
-"""ENGRAMM-LM dashboard: a local web page for writing, sources, learning and forgetting.
+"""ENGRAMM dashboard: a local web page for chatting, writing, sources, learning and forgetting.
 
     python -m engramm.lm.dashboard                 # then open http://127.0.0.1:8765
     python -m engramm.lm.dashboard --port 9000 --model models/lm/main/model
@@ -20,7 +20,9 @@ from pathlib import Path
 
 import numpy as np
 
-from engramm.lm.chat import DF_CAP, FROZEN_ALPHA, FROZEN_THETA, ChatEngine, SentenceIndex
+from engramm.chat.bot import BotConfig, ChatBot
+from engramm.chat.config import FROZEN, cap_ratio
+from engramm.chat.corpus import Corpus
 from engramm.lm.generate import Decoding, generate
 from engramm.lm.log import LoggedModel, replay_lm
 from engramm.lm.model import HDCLanguageModel
@@ -53,33 +55,42 @@ def _source(entry: dict | None) -> dict | None:
     return out
 
 
-def load_chat_index(model_dir: Path) -> SentenceIndex | None:
-    """The sentence index next to the model (``python -m experiments.chat_build``), if built."""
-    d = Path(model_dir).parent / "chat"
-    return SentenceIndex.load(d) if (d / "info.json").exists() else None
+def chat_index_dir(model_dir: Path) -> Path | None:
+    """The v2 sentence index next to the model (``python -m experiments.chat_build --v2``), if built."""
+    d = Path(model_dir).parent / "chat2"
+    return d if (d / "info.json").exists() else None
+
+
+def make_bot(lm: LoggedModel, index_dir: Path, config: BotConfig = FROZEN, df_cap: float | None = None) -> ChatBot:
+    from engramm.chat.retrieve import Retriever
+    corpus = Corpus.from_model(lm.model, index_dir)
+    r = Retriever(corpus) if df_cap is None else Retriever(corpus, df_cap=df_cap)
+    return ChatBot(lm, corpus, config, cap_ratio(index_dir), retriever=r)
 
 
 class App:
     """The model plus a lock: one request changes or reads it at a time."""
 
-    def __init__(self, lm: LoggedModel, index: SentenceIndex | None = None, alpha: float = FROZEN_ALPHA,
-                 theta: float = FROZEN_THETA, df_cap: float = DF_CAP):
+    def __init__(self, lm: LoggedModel, bot: ChatBot | None = None):
         self.lm = lm
         self.lock = threading.Lock()
-        self.chat = ChatEngine(lm.model, index, alpha=alpha, theta=theta, df_cap=df_cap) if index else None
+        self.bot = bot
 
-    def ask(self, question: str, alternatives: int = 3) -> dict:
+    def chat(self, message: str) -> dict:
+        if not message.strip():
+            raise ValueError("Bitte etwas eingeben.")
+        if self.bot is None:
+            raise ValueError("Kein Satzindex – erst bauen: python -m experiments.chat_build --v2")
+        return self.bot.turn(message).to_dict()
+
+    def ask(self, question: str) -> dict:
+        """One question, answered like in the chat (kept for scripts that used stage 1)."""
         question = question.strip()
         if not question:
             raise ValueError("Bitte eine Frage eingeben.")
-        if self.chat is None:
-            raise ValueError("Kein Satzindex – erst bauen: python -m experiments.chat_build")
-        self.chat.model = self.model
-        a = self.chat.answer(question, n_alternatives=alternatives)
-        return {"question": question, "answer": a.text, "source": _source(a.source),
-                "confidence": a.confidence, "threshold": self.chat.theta, "seconds": a.seconds,
-                "candidates": [{"text": c["text"], "source": _source(c["source"]), "score": c["score"]}
-                               for c in a.candidates]}
+        r = self.chat(question if question.endswith("?") else question + "?")
+        return {"question": question, "answer": r["answer"], "source": r["source"], "confidence": r["confidence"],
+                "evidence": r["evidence"], "seconds": r["seconds"], "candidates": r["alternatives"]}
 
     @property
     def model(self) -> HDCLanguageModel:
@@ -92,8 +103,8 @@ class App:
                 "learned": [{"source": s, "tokens": int(len(m.tok.encode(t))), "preview": t[:120]}
                             for s, t in sorted(m.user_texts.items())],
                 "tombstones": len(m.tombstones), "epoch": m.epoch,
-                "chat": None if self.chat is None else {"sentences": self.chat.index.n, "alpha": self.chat.alpha,
-                                                        "theta": self.chat.theta}}
+                "chat": None if self.bot is None else {"sentences": self.bot.c.index.n,
+                                                       "facts": len(self.bot.facts.facts)}}
 
     def write(self, prompt: str, tokens: int, seed: int, temperature: float, top_p: float, cache: str) -> dict:
         if not prompt.strip():
@@ -179,6 +190,8 @@ def make_handler(app: App):
                         out = app.forget(data.get("source", ""))
                     elif self.path == "/api/ask":
                         out = app.ask(data.get("question", ""))
+                    elif self.path == "/api/chat":
+                        out = app.chat(data.get("message", ""))
                     elif self.path == "/api/next":
                         out = app.next_words(data.get("prompt", ""))
                     else:
@@ -207,10 +220,12 @@ def main(argv: list[str] | None = None) -> int:
               "  python -m experiments.lm_final_model --scale main --tau-index 1 --beta-index 1 --save")
         return 2
     print("Lade Modell … (dauert etwa eine Minute)", flush=True)
-    index = load_chat_index(args.model)
-    if index is None:
-        print("Hinweis: kein Satzindex – Fragen ist aus. Bauen mit: python -m experiments.chat_build", flush=True)
-    app = App(load_logged(args.model), index)
+    lm = load_logged(args.model)
+    idx = chat_index_dir(args.model)
+    if idx is None:
+        print("Hinweis: kein Satzindex – der Chat ist aus. Bauen mit: python -m experiments.chat_build --v2",
+              flush=True)
+    app = App(lm, make_bot(lm, idx) if idx else None)
     server = serve(app, port=args.port)
     print(f"ENGRAMM-Dashboard läuft: http://127.0.0.1:{args.port}  (Beenden mit Ctrl+C)", flush=True)
     try:
@@ -250,20 +265,36 @@ button.ghost{background:transparent;color:var(--accent);border:1px solid var(--l
 .src a{color:var(--accent);word-break:break-all}.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
 ul{padding-left:0;list-style:none;margin:0}li{border-top:1px solid var(--line);padding:8px 0;display:flex;justify-content:space-between;gap:8px;align-items:center}
 li small{color:var(--muted)}li button{margin:0;padding:4px 10px;font-size:13px}.legend span{margin-right:12px}
-.msg{border-top:1px solid var(--line);padding:10px 0}.msg .qq{color:var(--muted);font-size:14px}
-.msg .aa{font-size:17px;margin:4px 0}.msg .idk{font-size:17px;margin:4px 0;color:var(--bad)}
-.msg details{font-size:14px;color:var(--muted)}.msg details div{margin:6px 0}
+.log{max-height:460px;overflow-y:auto;margin:10px 0;display:flex;flex-direction:column;gap:10px}
+.bub{max-width:88%;padding:9px 12px;border-radius:12px;line-height:1.45;word-wrap:break-word}
+.bub.me{align-self:flex-end;background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:4px}
+.bub.bot{align-self:flex-start;background:var(--bg);border:1px solid var(--line);border-bottom-left-radius:4px}
+.bub.bot.unknown{border-color:var(--bad)}.bub .ans{font-weight:600;font-size:16px}
+.bub .meta{margin-top:4px}.bub details{font-size:13px;color:var(--muted);margin-top:4px}.bub details div{margin:5px 0}
+.bub .ev{font-size:14px;color:var(--muted);margin-top:4px}.tag{display:inline-block;font-size:11px;padding:0 6px;
+border-radius:99px;border:1px solid var(--line);color:var(--muted);margin-right:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}.chip{background:transparent;color:var(--accent);
+border:1px solid var(--line);border-radius:99px;padding:3px 10px;font-size:13px;margin:0;font-weight:500}
+.send input{font-size:15px}
 .cand{display:flex;justify-content:space-between;font-family:ui-monospace,Menlo,monospace;font-size:13px;border-top:1px solid var(--line);padding:3px 0}
 </style></head><body>
 <header><h1>ENGRAMM</h1><p>Antwortet und schreibt Englisch nur durch Lesen und Zählen · zeigt jede Quelle · lernt und vergisst auf Befehl</p></header>
 <main>
 <section>
  <div class="card">
-  <h2>Fragen</h2>
-  <label for="q">Frage (Englisch) – ENGRAMM sucht den passendsten Satz in allem, was es gelesen oder gelernt hat</label>
-  <div class="row"><div style="flex:5"><input id="q" placeholder="Who invented the telephone?"></div>
-   <div style="flex:1;min-width:80px"><button id="ask" style="margin-top:0;width:100%">Fragen</button></div></div>
-  <div id="chat"></div>
+  <h2>Chat</h2>
+  <div class="meta">Frag etwas (Englisch), erzähl ENGRAMM etwas über dich oder die Welt, oder sag „Forget …“.
+   Jede Antwort zeigt, woher sie stammt. Kein neuronales Netz, nur Zählen und Hypervektoren.</div>
+  <div id="log" class="log" aria-live="polite"></div>
+  <div class="chips" id="chips">
+   <button class="chip" data-m="Who invented the telephone?">Who invented the telephone?</button>
+   <button class="chip" data-m="Where was he born?">Where was he born?</button>
+   <button class="chip" data-m="My name is Alex and I live in Hamburg.">My name is Alex …</button>
+   <button class="chip" data-m="What is my name?">What is my name?</button>
+   <button class="chip" data-m="Forget my name.">Forget my name.</button>
+  </div>
+  <div class="row send"><div style="flex:5"><input id="msg" placeholder="Type a message …" autocomplete="off"></div>
+   <div style="flex:1;min-width:90px"><button id="send" style="margin-top:0;width:100%">Senden</button></div></div>
   <div id="qerr" class="err"></div>
  </div>
  <div class="card">
@@ -325,17 +356,26 @@ $('go').onclick=async()=>{$('werr').textContent='';$('go').disabled=true;$('out'
 $('nx').onclick=async()=>{$('werr').textContent='';try{const r=await api('/api/next',{prompt:$('prompt').value});
  let h='<h2>Wahrscheinlichste nächste Wörter</h2>';for(const c of r.candidates)h+='<div class="cand"><span>'+esc(JSON.stringify(c.text))+'</span><span>'+(100*c.probability).toFixed(1)+' %</span></div>';
  $('srcbox').innerHTML=h}catch(e){$('werr').textContent=e.message}};
-$('ask').onclick=async()=>{const q=$('q').value.trim();if(!q)return;$('qerr').textContent='';$('ask').disabled=true;
- try{const r=await api('/api/ask',{question:q});const box=document.createElement('div');box.className='msg';
-  let h='<div class="qq">Du: '+esc(r.question)+'</div>';
-  if(r.answer)h+='<div class="aa">'+esc(r.answer)+'</div><div class="meta">'+link(r.source)+' · Sicherheit '+r.confidence.toFixed(2)+' (Schwelle '+r.threshold.toFixed(2)+') · '+(1000*r.seconds).toFixed(0)+' ms</div>';
-  else h+='<div class="idk">Weiß ich nicht.</div><div class="meta">Sicherheit '+r.confidence.toFixed(2)+' liegt unter der Schwelle '+r.threshold.toFixed(2)+'.</div>';
-  const alt=r.answer?r.candidates.slice(1):r.candidates;
-  if(alt.length){h+='<details><summary>'+(r.answer?'Weitere Fundstellen':'Das Nächste, was ich gefunden habe')+'</summary>';
-   for(const c of alt)h+='<div>„'+esc(c.text)+'“<br>'+link(c.source)+'</div>';h+='</details>'}
-  box.innerHTML=h;$('chat').prepend(box);$('q').value=''}
- catch(e){$('qerr').textContent=e.message}finally{$('ask').disabled=false}};
-$('q').addEventListener('keydown',e=>{if(e.key==='Enter')$('ask').click()});
+const VIA={facts:'aus dem Faktengedächtnis (HDC)',lookup:'nachgeschlagen',memory:'Gedächtnis'};
+function bubble(cls,html){const d=document.createElement('div');d.className='bub '+cls;d.innerHTML=html;$('log').appendChild(d);
+ $('log').scrollTop=$('log').scrollHeight;return d}
+async function send(text){text=(text||'').trim();if(!text)return;$('qerr').textContent='';$('send').disabled=true;
+ bubble('me',esc(text));$('msg').value='';
+ try{const r=await api('/api/chat',{message:text});let h='';
+  if(r.kind==='answer'){h+='<div class="ans">'+esc(r.answer)+'</div>';
+   if(r.evidence)h+='<div class="ev">„'+esc(r.evidence)+'“</div>';
+   h+='<div class="meta"><span class="tag">'+(VIA[r.via]||r.via)+'</span>'+link(r.source)+' · '+(1000*r.seconds).toFixed(0)+' ms</div>'}
+  else if(r.kind==='unknown'){h+='<div>'+esc(r.text)+'</div>';
+   if(r.evidence)h+='<div class="ev">Nächster Fund: „'+esc(r.evidence)+'“ '+link(r.source)+'</div>'}
+  else h+='<div>'+esc(r.text)+'</div>';
+  if(r.resolved)h+='<div class="meta">verstanden als: '+esc(r.resolved)+'</div>';
+  if(r.alternatives&&r.alternatives.length){h+='<details><summary>Weitere Fundstellen</summary>';
+   for(const c of r.alternatives)h+='<div>„'+esc(c.text)+'“<br>'+link(c.source)+'</div>';h+='</details>'}
+  bubble('bot'+(r.kind==='unknown'?' unknown':''),h);if(['learned','forgot'].includes(r.kind))refresh()}
+ catch(e){$('qerr').textContent=e.message}finally{$('send').disabled=false;$('msg').focus()}}
+$('send').onclick=()=>send($('msg').value);
+$('msg').addEventListener('keydown',e=>{if(e.key==='Enter')send($('msg').value)});
+document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>send(b.dataset.m));
 async function refresh(){const s=await api('/api/status');const ul=$('learned');ul.innerHTML='';
  if(!s.learned.length)ul.innerHTML='<li><small>Nichts. Alles, was ENGRAMM weiß, stammt aus '+s.train_documents.toLocaleString('de')+' gelesenen Dokumenten.</small></li>';
  for(const l of s.learned){const li=document.createElement('li');li.innerHTML='<div><b>'+esc(l.source)+'</b><br><small>'+l.tokens+' Tokens · '+esc(l.preview)+'</small></div>';

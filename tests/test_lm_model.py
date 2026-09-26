@@ -231,11 +231,15 @@ def test_dashboard_endpoints(model, tmp_path):
 
     from engramm.lm.dashboard import App, load_logged, serve
 
-    from engramm.lm.chat import SentenceIndex
+    from engramm.chat import index as v2
+    from engramm.lm.dashboard import make_bot
 
     d = tmp_path / "dash"
     model.save(d)
-    app = App(load_logged(d), SentenceIndex.build(model.tokens, model.tok), df_cap=1.0)
+    ix, dptr, dpost, sent_doc = v2.build(model.tokens, model.train.doc_starts, model.tok)
+    v2.save(tmp_path / "chat2", ix, dptr, dpost, sent_doc, {"sentences": ix.n})
+    lm = load_logged(d)
+    app = App(lm, make_bot(lm, tmp_path / "chat2", df_cap=1.0))
     server = serve(app, port=0)
     port = server.server_address[1]
     threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -273,6 +277,14 @@ def test_dashboard_endpoints(model, tmp_path):
         assert call("/api/forget", {"source": "n1"})[1]["kind"] == "user"
         after = call("/api/ask", {"question": "Who built the glass tower of Velmora?"})[1]
         assert after["source"] is None or after["source"]["kind"] != "user"
+        # the chat: learn by telling, ask back, forget by asking
+        assert call("/api/chat", {"message": "My name is Frotam."})[1]["kind"] == "learned"
+        r = call("/api/chat", {"message": "What is my name?"})[1]
+        assert r["answer"] == "Frotam" and r["via"] == "facts" and r["source"]["kind"] == "user"
+        assert call("/api/chat", {"message": "Forget my name."})[1]["kind"] == "forgot"
+        assert call("/api/chat", {"message": "What is my name?"})[1]["answer"] is None
+        assert call("/api/status")[1]["state_digest"] == base
+        assert call("/api/chat", {"message": "  "})[0] == 400
         assert call("/api/status")[1]["state_digest"] == base
         assert call("/api/nope", {})[0] == 404
     finally:

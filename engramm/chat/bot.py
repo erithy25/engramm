@@ -160,6 +160,7 @@ class ChatBot:
         self._user_sents: list[tuple[str, str, np.ndarray]] = []
         self.context = {"answer": None, "atype": None, "mention": None, "last_learned": None}
         self._name_memo: dict[str, bool] = {}
+        self.last_rows: list = []
 
     # -- helpers ---------------------------------------------------------------------------
 
@@ -328,6 +329,7 @@ class ChatBot:
 
     def _answer(self, msg: str) -> Reply:
         self.refresh()
+        self.last_rows = []
         q = self.resolve(msg)
         qa = analyse(q)
         mentions, rel = question_parts(q, self.is_name_initial)
@@ -390,6 +392,7 @@ class ChatBot:
                                 text="I don't know — I found nothing about that.")
         rows.sort(key=lambda r: (-r[0], r[1], r[2], r[3]))
         top = rows[:self.cfg.extract.k]
+        self.last_rows = top
         isum = max(query.idf_sum, 1e-9)
         texts = [r[3] for r in top]
         rel = np.array([r[0] / isum for r in top])
@@ -402,26 +405,30 @@ class ChatBot:
         row = top[x.sentence]
         src = row[4] or self.c.source(row[2])
         ok = x.confidence >= self.cfg.theta
-        if ok and self.cfg.focus_gate and not self._focus_ok(q, row):
-            ok = False
+        missing = self._focus_missing(q, row) if self.cfg.focus_gate else []
         alts = [{"text": r[3], "source": r[4] or self.c.source(r[2])} for r in top[:4] if r is not row][:3]
+        if missing:
+            return self._finish(msg, q, qa, "unknown", None, x.text, row[3], src, x.confidence, "lookup",
+                                text=f"I don't know — I have not read anything about {' or '.join(missing)}.",
+                                alternatives=alts)
         return self._finish(msg, q, qa, "answer" if ok else "unknown", x.text if ok else None, x.text, row[3], src,
                             x.confidence, "lookup", alternatives=alts)
 
-    def _focus_ok(self, q: str, row) -> bool:
-        """Every capitalised name in the question must occur in the evidence's document
-        (or taught text) — otherwise the answer is about something else."""
+    def _focus_missing(self, q: str, row) -> list[str]:
+        """The capitalised names of the question that do not occur in the evidence's document
+        (or taught text) — if any is missing, the answer would be about something else."""
         names = [sp.text for sp in spans(q, self.is_name_initial) if sp.kind == "NAME"]
         if not names:
-            return True
+            return []
         if row[2] < 0:
             hay = row[3].lower()
-            return all(n.lower() in hay for n in names)
+            return [n for n in names if n.lower() not in hay]
         d = int(self.c.sent_doc[row[2]])
         lo = int(self.c.doc_starts[d])
         hi = int(self.c.doc_starts[d + 1]) if d + 1 < self.c.n_docs else len(self.c.tokens)
         doc = np.asarray(self.c.tokens[lo:hi])
         key = " ".join(self.c.doc_keys[d][1].lower().split())
+        missing = []
         for n in names:
             if n.lower() in key:
                 continue
@@ -438,8 +445,8 @@ class ChatBot:
                 if found:
                     break
             if not found:
-                return False
-        return True
+                missing.append(n)
+        return missing
 
     def _finish(self, msg, q, qa, kind, answer, guess, evidence, source, conf, via, text=None, mention=None,
                 alternatives=None) -> Reply:

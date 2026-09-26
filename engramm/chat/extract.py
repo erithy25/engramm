@@ -21,11 +21,12 @@ confidence is its share of all votes times the best sentence's normalised score.
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass
 
 import numpy as np
 
-from engramm.chat.question import (CONNECT, OTHER, STOP, Question, Span, spans, type_matches, words)
+from engramm.chat.question import (CONNECT, DATE, OTHER, STOP, Question, Span, spans, type_matches, words)
 from engramm.lm.chat import normalize
 
 PUNCT_BREAK = frozenset(",.;:!?()[]{}\"“”‘’'—–-/")
@@ -38,6 +39,11 @@ class ExtractParams:
     lam: float = 4.0            # distance decay (words)
     other_max: int = 4          # longest chunk for untyped questions
     type_only: bool = True      # typed questions: only spans of the expected type
+    soft_min: float = 0.0       # HDC anchors: meaning similarity above which a sentence word counts as a
+                                # (weaker) match of a question word; 0 = off
+    definition: float = 2.0     # weight of the "X is <answer>" candidate for "What is X?" questions
+    head_beta: float = 0.0      # HDC type match: votes × exp(β·(sim(candidate, head noun) − 0.5)); 0 = off
+    copula: float = 0.0         # weight of the subject for "Which is the Y?" when the sentence says "X … is the Y"
 
 
 @dataclass
@@ -74,8 +80,106 @@ def _qword_positions(lw: list[str], qwords: set) -> list[int]:
     return [i for i, w in enumerate(lw) if w in qwords and w not in STOP]
 
 
+_SPAN_MEMO: dict = {}
+
+
+def _spans(text: str, initial_is_name):
+    key = (text, id(initial_is_name))
+    v = _SPAN_MEMO.get(key)
+    if v is None:
+        if len(_SPAN_MEMO) > 200_000:
+            _SPAN_MEMO.clear()
+        v = spans(text, initial_is_name)
+        _SPAN_MEMO[key] = v
+    return v
+
+
+_YEARLIKE = re.compile(r"(\d{3,4}(?:\s(?:BC|BCE|AD|CE))?|AD\s\d{1,4})$")
+
+
+def date_granularity(q: Question, sp: Span) -> str | None:
+    """Reduce a date span to what the question asks for (year / decade / century / month)."""
+    qw = set(q.words)
+    t = sp.text
+    if "year" in qw or "years" in qw:
+        m = re.search(r"(\d{3,4}\s(?:BC|BCE|AD|CE)|AD\s\d{1,4}|\d{3,4})(?!\d)", t)
+        return m.group(1) if m else None
+    if "decade" in qw:
+        return t if re.fullmatch(r"\d{3}0s", t) else None
+    if "century" in qw or "centuries" in qw:
+        return t if "century" in t.lower() else None
+    if "month" in qw:
+        m = re.search(r"(January|February|March|April|May|June|July|August|September|October|November|December)", t)
+        return m.group(1) if m else None
+    return t
+
+
+_COP_Q = re.compile(r"^(?:what|which|who)\s+(?:is|are|was|were)\s+(?:the\s+)?(?P<y>.+?)\??$", re.I)
+
+
+def copula_subject(q: Question, text: str) -> str | None:
+    """For "Which is the tallest building in X?": the sentence subject of "S …, is the tallest building"."""
+    m = _COP_Q.match(q.text.strip())
+    if not m:
+        return None
+    y = [w.lower() for w in words(m.group("y")) if w[0].isalnum() and w.lower() not in STOP]
+    if len(y) < 2:
+        return None
+    ws = words(text)
+    lw = [w.lower() for w in ws]
+    for i in range(len(lw) - 1):
+        if lw[i] in ("is", "was", "are", "were") and i + 1 < len(lw):
+            after = [w for w in lw[i + 1:i + 1 + 2 * len(y) + 2] if w not in STOP]
+            if sum(1 for w in y if w in after) >= max(2, len(y) - 1):
+                j = 0
+                while j < i and ws[j] not in (",", "(") and j < 8:
+                    j += 1
+                subj = " ".join(ws[:j])
+                return subj if subj and j < i + 1 else None
+    return None
+
+
+_DEF_Q = re.compile(r"^(?:what|who)\s+(?:is|are|was|were)\s+(?:an?\s+|the\s+)?(?P<x>.+?)\??$", re.I)
+
+
+def definition_span(q: Question, text: str) -> str | None:
+    """For "What is X?": the phrase after "X … is/are/was/were" in the sentence."""
+    m = _DEF_Q.match(q.text.strip())
+    if not m:
+        return None
+    x = [w.lower() for w in words(m.group("x")) if w[0].isalnum() and w.lower() not in STOP]
+    if not x:
+        return None
+    ws = words(text)
+    lw = [w.lower() for w in ws]
+    last = -1
+    for i, w in enumerate(lw):
+        if w == x[-1]:
+            last = i
+            break
+    if last < 0:
+        return None
+    j = last + 1
+    while j < len(ws) and (ws[j] in ("(", ")") or (j > 0 and ws[j - 1] == "(") or lw[j].isupper()):
+        j += 1
+    while j < len(ws) and lw[j] not in ("is", "are", "was", "were", "refers", "means"):
+        if ws[j] in (".", ";") or j - last > 6:
+            return None
+        j += 1
+    if j >= len(ws):
+        return None
+    j += 1
+    if j < len(ws) and lw[j] == "to":        # "refers to"
+        j += 1
+    k = j
+    while k < len(ws) and ws[k] not in (".", ";", ",", ":") and k - j < 12:
+        k += 1
+    phrase = " ".join(ws[j:k]).replace(" -", "-").replace("- ", "-")
+    return phrase or None
+
+
 def extract(q: Question, texts: list[str], rel: np.ndarray, p: ExtractParams = ExtractParams(),
-            initial_is_name=None) -> Extracted:
+            initial_is_name=None, word_vec=None) -> Extracted:
     """``texts`` best first, ``rel`` = their scores divided by Σidf (same order)."""
     if not texts:
         return Extracted(None, 0.0, -1, [])
@@ -85,31 +189,82 @@ def extract(q: Question, texts: list[str], rel: np.ndarray, p: ExtractParams = E
     sw /= sw.sum()
     qwords = set(w for w in q.words if w[0].isalnum())
     qcontent = set(q.content)
+    head_vecs = []
+    if p.head_beta > 0 and word_vec is not None:
+        heads = [q.head] if q.head and q.head not in STOP and q.head not in ("is", "was", "are", "were") else []
+        if not heads:
+            heads = {"PERSON": ["person"], "LOCATION": ["place"], "DATE": ["year"], "NUMBER": ["number"]}.get(
+                q.atype, [])
+        head_vecs = [v for v in (word_vec(h) for h in heads) if v is not None]
     votes: dict[str, float] = {}
     surface: dict[str, tuple[float, str, int]] = {}
     for si in range(k):
         text = texts[si]
         ws = words(text)
         lw = [w.lower() for w in ws]
-        qpos = _qword_positions(lw, qcontent)
+        anchors = [(x, 1.0) for x in _qword_positions(lw, qcontent)]
+        if p.soft_min > 0 and word_vec is not None:
+            qvs = [v for v in (word_vec(w) for w in qcontent) if v is not None]
+            if qvs:
+                for i, w in enumerate(lw):
+                    if w in qcontent or w in STOP or not w[0].isalpha():
+                        continue
+                    wv = word_vec(w)
+                    if wv is None:
+                        continue
+                    best = max(1.0 - int(np.bitwise_count(wv ^ qv).sum()) / (64 * len(wv)) for qv in qvs)
+                    if best > p.soft_min:
+                        anchors.append((i, (best - p.soft_min) / (1.0 - p.soft_min)))
         if q.atype != OTHER:
-            cands = [s for s in spans(text, initial_is_name) if type_matches(q.atype, s)]
+            cands = [s for s in _spans(text, initial_is_name) if type_matches(q.atype, s)]
+            if q.atype == DATE:
+                red = []
+                for s_ in cands:
+                    t = date_granularity(q, s_)
+                    if t:
+                        red.append(Span(t, s_.kind, s_.start, s_.end))
+                cands = red
             if not p.type_only and not cands:
                 cands = chunks(ws, lw, p.other_max)
         else:
             cands = chunks(ws, lw, p.other_max)
-        for sp in cands:
+        extra = []
+        dphrase = definition_span(q, text) if p.definition > 0 else None
+        if dphrase:
+            extra.append((Span(dphrase, "DEF", 0, 0), p.definition))
+        cphrase = copula_subject(q, text) if p.copula > 0 else None
+        if cphrase:
+            extra.append((Span(cphrase, "DEF", 0, 0), p.copula))
+        for sp, prior in [(c, 1.0) for c in cands] + extra:
             sw_words = [w.lower() for w in words(sp.text) if w[0].isalnum()]
             if not sw_words or all(w in qwords or w in STOP for w in sw_words):
                 continue
             # drop the question words at the edges of a span ("Paris" from "capital Paris")
-            if q.atype == OTHER and (sw_words[0] in qwords or sw_words[-1] in qwords):
+            if q.atype == OTHER and sp.kind != "DEF" and (sw_words[0] in qwords or sw_words[-1] in qwords):
                 continue
-            if qpos:
-                d = min(min(abs(sp.start - x), abs(x - (sp.end - 1))) for x in qpos)
+            # a number with the question's own noun ("eight provinces" for "how many provinces") → bare number
+            if sp.kind == "NUMBER" and len(sw_words) > 1 and sw_words[-1] in qwords:
+                continue
+            # the rest of a name the question already gives ("West" of "Kanye West")
+            if sp.kind == "NAME" and ((sp.start > 0 and lw[sp.start - 1] in qwords and ws[sp.start - 1][0].isupper())
+                                      or (sp.end < len(ws) and lw[sp.end] in qwords and ws[sp.end][0].isupper())):
+                continue
+            if sp.kind == "DEF":
+                prox = 1.0
+            elif anchors:
+                prox = max(w * math.exp(-min(abs(sp.start - x), abs(x - (sp.end - 1))) / p.lam) for x, w in anchors)
             else:
-                d = 10
-            v = float(sw[si]) * math.exp(-d / p.lam)
+                prox = math.exp(-10 / p.lam)
+            if head_vecs and sp.kind != "DEF":
+                best_t = None
+                for w in sw_words:
+                    wv = word_vec(w) if w not in qwords else None
+                    if wv is None:
+                        continue
+                    t = max(1.0 - int(np.bitwise_count(wv ^ hv).sum()) / (64 * len(wv)) for hv in head_vecs)
+                    best_t = t if best_t is None else max(best_t, t)
+                prior *= math.exp(p.head_beta * ((best_t if best_t is not None else 0.5) - 0.5))
+            v = float(sw[si]) * prox * prior
             key = normalize(sp.text)
             if not key:
                 continue
