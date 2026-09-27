@@ -13,39 +13,40 @@ from experiments.chat_v2_data import (FACTS_PER_DIALOG, REPO, TEMPLATES, _shuffl
                                       statement, value)
 
 DEV8 = REPO / "data" / "chat_dev8_paraphrases.json"
+FILES = {"dev8": DEV8, "dev9": REPO / "data" / "chat_dev9_paraphrases.json"}
 SPLIT = "dev8"
 N_DIALOGS = 400
 
 
-def _pick(options: list[str], *key) -> str:
-    return options[h64("pick", SPLIT, *key) % len(options)]
+def _pick(options: list[str], *key, split: str = SPLIT) -> str:
+    return options[h64("pick", split, *key) % len(options)]
 
 
-def fact_dialogs_dev8() -> list[dict]:
-    p = json.loads(DEV8.read_text())["dialog"]
+def fact_dialogs_dev8(split: str = SPLIT) -> list[dict]:
+    p = json.loads(FILES[split].read_text())["dialog"]
     t2 = json.loads(TEMPLATES.read_text())["dialog"]
     kinds = sorted(p["facts"])
     out = []
     for d in range(N_DIALOGS):
-        chosen = _shuffle(kinds, SPLIT, "kinds", d)[:FACTS_PER_DIALOG]
-        vals = {k: value(t2["facts"][k]["values"], k, SPLIT, d) for k in chosen}
-        tells = [_pick(p["facts"][k]["tell"], "tell", k, d).format(v=vals[k]) for k in chosen]
-        asks = _shuffle(chosen, SPLIT, "asks", d)
-        gone = asks[h64("forget", SPLIT, d) % len(asks)]
-        ask_text = {k: _pick(p["facts"][k]["ask"], "ask", k, d) for k in chosen}
+        chosen = _shuffle(kinds, split, "kinds", d)[:FACTS_PER_DIALOG]
+        vals = {k: value(t2["facts"][k]["values"], k, split, d) for k in chosen}
+        tells = [_pick(p["facts"][k]["tell"], "tell", k, d, split=split).format(v=vals[k]) for k in chosen]
+        asks = _shuffle(chosen, split, "asks", d)
+        gone = asks[h64("forget", split, d) % len(asks)]
+        ask_text = {k: _pick(p["facts"][k]["ask"], "ask", k, d, split=split) for k in chosen}
         turns = [{"user": s} for s in tells]
         turns += [{"user": ask_text[k], "check": "ask", "gold": vals[k], "kind": k} for k in asks]
-        turns.append({"user": _pick(p["forget"], "forget", d).format(topic=t2["facts"][gone]["topic"]),
+        turns.append({"user": _pick(p["forget"], "forget", d, split=split).format(topic=t2["facts"][gone]["topic"]),
                       "check": "forget", "kind": gone})
-        turns.append({"user": _pick(p["facts"][gone]["ask"], "ask2", gone, d), "check": "forgotten",
+        turns.append({"user": _pick(p["facts"][gone]["ask"], "ask2", gone, d, split=split), "check": "forgotten",
                       "gold": vals[gone], "kind": gone})
         control = [s for k, s in zip(chosen, tells) if k != gone]
-        out.append({"id": f"{SPLIT}-facts-{d}", "turns": turns, "control": control})
+        out.append({"id": f"{split}-facts-{d}", "turns": turns, "control": control})
     return out
 
 
-def chain_dialogs_dev8() -> list[dict]:
-    p = json.loads(DEV8.read_text())["dialog"]["chains"]
+def chain_dialogs_dev8(split: str = SPLIT) -> list[dict]:
+    p = json.loads(FILES[split].read_text())["dialog"]["chains"]
     t2 = json.loads(TEMPLATES.read_text())
     rel, facts = load_facts()
     out = []
@@ -53,13 +54,13 @@ def chain_dialogs_dev8() -> list[dict]:
         for f in facts:
             if f["relation"] not in c["relations"]:
                 continue
-            pl = invented("invented_place", SPLIT, h64("chain", f["id"]) % 100000)
-            follow = _pick(p[kind], "follow", f["id"])
+            pl = invented("invented_place", split, h64("chain", f["id"]) % 100000)
+            follow = _pick(p[kind], "follow", f["id"], split=split)
             ask = t2["fact_questions"][f["relation"]]["dev" if h64("q", f["id"]) & 1 else "test"]
             turns = [{"user": statement(rel, f)}, {"user": c["second"].format(a=f["answer"], p=pl)},
                      {"user": ask.format(e=f["entity"]), "check": "ask", "gold": f["answer"], "kind": kind},
                      {"user": follow, "check": "follow", "gold": pl, "kind": kind}]
-            out.append({"id": f"{SPLIT}-chain-{f['id']}", "turns": turns})
+            out.append({"id": f"{split}-chain-{f['id']}", "turns": turns})
     return out
 
 

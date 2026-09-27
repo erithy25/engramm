@@ -140,7 +140,7 @@ def _granularity_ok(q: Question, sp: Span) -> int:
 
 
 def span_features(q: Question, ws: list[str], lw: list[str], sp: Span, anchors: list[int], qdir: int, qwords: set,
-                  cls, head_sim=None) -> list[str]:
+                  cls, head_sim=None, extended: bool = False) -> list[str]:
     A = q.atype
     wh = q.wh or "none"
     n = len(ws)
@@ -180,6 +180,21 @@ def span_features(q: Question, ws: list[str], lw: list[str], sp: Span, anchors: 
             s = head_sim(span_words)
             if s is not None:
                 feats.append(f"hs|{A}|{min(9, max(0, int((s - 0.5) * 40)))}")
+    if extended:
+        # the words right next to the span that the question also uses ("founded by X" for "who founded")
+        qc = {w for w in qwords if w not in STOP}
+        left = [w for w in lw[max(0, sp.start - 3):sp.start] if w in qc]
+        right = [w for w in lw[sp.end:sp.end + 3] if w in qc]
+        feats += [f"qp|{A}|{int(prev.lower() in qc)}", f"qn|{A}|{int(nxt.lower() in qc)}",
+                  f"q3|{A}|{min(len(left), 2)}|{min(len(right), 2)}",
+                  f"kp|{A}|{sp.kind}|{next((f.split('|', 2)[2] for f in feats if f.startswith('p|')), '')}"]
+        if L <= 3:
+            feats += [f"fw|{A}|{span_words[0].lower()}", f"lw|{A}|{span_words[-1].lower()}"]
+        inside = sum(1 for i in range(sp.start) if ws[i] == "(") > sum(1 for i in range(sp.start) if ws[i] == ")")
+        feats.append(f"par|{A}|{int(inside)}")
+        feats.append(f"qhw|{wh}|{q.head or '-'}|{fc}")
+        n_anch = len(set(lw[a] for a in anchors)) if anchors else 0
+        feats.append(f"na|{A}|{min(n_anch, 4)}")
     return feats
 
 
@@ -224,6 +239,29 @@ class SpanStats:
     def load(cls, path: Path) -> SpanStats:
         d = json.loads(Path(path).read_text())
         return cls(d["pos"], d["neg"], d["n_pos"], d["n_neg"], d["alpha"])
+
+
+@dataclass
+class SpanPerceptron:
+    """Averaged perceptron over the same feature strings: each weight is a count of how often
+    the feature was on the gold span minus on the wrongly chosen one (averaged over the
+    training passes). Drop-in for SpanStats (``score``)."""
+    w: dict = field(default_factory=dict)
+    extended: bool = True
+
+    def score(self, feats: list[str]) -> float:
+        g = self.w.get
+        return sum(g(f, 0.0) for f in feats)
+
+    def save(self, path: Path) -> None:
+        Path(path).write_text(json.dumps({"extended": self.extended,
+                                          "w": {k: round(v, 6) for k, v in sorted(self.w.items()) if v != 0}},
+                                         ensure_ascii=False))
+
+    @classmethod
+    def load(cls, path: Path) -> SpanPerceptron:
+        d = json.loads(Path(path).read_text())
+        return cls(d["w"], d.get("extended", True))
 
 
 class WordInfo:
@@ -272,7 +310,8 @@ def anchors_of(lw: list[str], q: Question) -> list[int]:
     return [i for i, w in enumerate(lw) if w in qc]
 
 
-def features_for_sentence(q: Question, text: str, info: WordInfo, initial_is_name=None, max_chunk: int = 5):
+def features_for_sentence(q: Question, text: str, info: WordInfo, initial_is_name=None, max_chunk: int = 5,
+                          extended: bool = False):
     """(candidates, their feature lists) of one sentence."""
     ws, cands = candidate_spans(text, initial_is_name, max_chunk)
     lw = [w.lower() for w in ws]
@@ -285,7 +324,7 @@ def features_for_sentence(q: Question, text: str, info: WordInfo, initial_is_nam
         sw = [w.lower() for w in words(sp.text) if w[0].isalnum()]
         if not sw or all(w in qwords or w in STOP for w in sw):
             continue
-        out.append((sp, span_features(q, ws, lw, sp, anchors, qdir, qwords, info.cls, hs)))
+        out.append((sp, span_features(q, ws, lw, sp, anchors, qdir, qwords, info.cls, hs, extended)))
     return out
 
 

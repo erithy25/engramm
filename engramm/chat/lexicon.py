@@ -27,10 +27,17 @@ ANCHORS = {
     "#car": "car cars drive driving drove driver vehicle vehicles engine motor sedan models dealership",
     "#job": ("job jobs profession occupation career employed hired worked works working employer salary trained "
              "apprentice qualified"),
+    # groups used only to recognise what a question or a statement is about (never to type a value)
+    "#home": "home homes house houses apartment apartments flat neighbourhood neighborhood resident residents reside",
+    "#birth": "birthday birthdays born birth celebrate celebrated celebrating anniversary cake",
+    "#name": "name named names nickname surname called",
+    "#employer": "company companies employer employers firm corporation employees headquarters subsidiary workplace",
 }
+VALUE_GROUPS = ("#food", "#colour", "#car", "#job")
 # lift needed before a word counts as a member (food/colour/car words reach 6–30, filler words stay below 6;
 # occupations reach only 2–7, so the job group needs the sentence's own cue as well — see facts.py)
-LIFT_MIN = {"#food": 5.0, "#colour": 6.0, "#car": 8.0, "#job": 3.0}
+LIFT_MIN = {"#food": 5.0, "#colour": 6.0, "#car": 8.0, "#job": 3.0, "#home": 4.0, "#birth": 4.0, "#name": 4.0,
+            "#employer": 4.0}
 MIN_SENTENCES = 20             # fewer occurrences: unknown word, no category
 
 
@@ -128,15 +135,15 @@ class Typer:
         n, hits = c
         return {lab: (h / n) / (len(self.anchor_sets[lab]) / self.n) for lab, h in hits.items()}
 
-    def category(self, text: str) -> str | None:
-        """The category a word clearly belongs to: its co-occurrences with the category's
-        anchors exceed chance by at least 1.5 times as many as for any other category, and its
-        lift reaches the category's minimum."""
+    def category(self, text: str, groups: tuple = VALUE_GROUPS) -> str | None:
+        """The category (among ``groups``) a word clearly belongs to: its co-occurrences with the
+        category's anchors exceed chance by at least 1.5 times as many as for any other
+        category, and its lift reaches the category's minimum."""
         c = self.counts(text)
         if c is None:
             return None
         n, hits = c
-        excess = {lab: h - n * len(self.anchor_sets[lab]) / self.n for lab, h in hits.items()}
+        excess = {lab: h - n * len(self.anchor_sets[lab]) / self.n for lab, h in hits.items() if lab in groups}
         ranked = sorted(excess.items(), key=lambda kv: (-kv[1], kv[0]))
         best, val = ranked[0]
         second = max(ranked[1][1], 0.0) if len(ranked) > 1 else 0.0

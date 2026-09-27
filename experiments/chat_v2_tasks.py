@@ -20,7 +20,7 @@ from experiments.chat_v2_data import fact_questions as _questions_v2
 
 
 def fact_questions(split: str, with_typo: bool = False) -> list[dict]:
-    if split == "dev8":
+    if split in ("dev8", "dev9"):
         return _questions_v2("dev", with_typo)
     if split in ("test4", "test5", "test6", "test7"):
         import importlib
@@ -33,9 +33,9 @@ def fact_questions(split: str, with_typo: bool = False) -> list[dict]:
 
 
 def fact_dialogs(split: str) -> list[dict]:
-    if split == "dev8":
+    if split in ("dev8", "dev9"):
         from experiments.chat_dev8_data import fact_dialogs_dev8
-        return fact_dialogs_dev8()
+        return fact_dialogs_dev8(split)
     if split in ("test4", "test5", "test6", "test7"):
         import importlib
         v = split[-1]
@@ -47,9 +47,9 @@ def fact_dialogs(split: str) -> list[dict]:
 
 
 def chain_dialogs(split: str) -> list[dict]:
-    if split == "dev8":
+    if split in ("dev8", "dev9"):
         from experiments.chat_dev8_data import chain_dialogs_dev8
-        return chain_dialogs_dev8()
+        return chain_dialogs_dev8(split)
     if split in ("test4", "test5", "test6", "test7"):
         import importlib
         v = split[-1]

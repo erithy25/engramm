@@ -218,7 +218,8 @@ def extract_counted(q: Question, texts: list[str], rel: np.ndarray, p: ExtractPa
     votes: dict[str, float] = {}
     surface: dict[str, tuple[float, str, int]] = {}
     for si in range(k):
-        cands = features_for_sentence(q, texts[si], info, initial_is_name)
+        cands = features_for_sentence(q, texts[si], info, initial_is_name,
+                                      extended=getattr(stats, "extended", False))
         if not cands:
             continue
         sc = np.array([stats.score(f) for _, f in cands]) * p.nb

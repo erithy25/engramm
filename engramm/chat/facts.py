@@ -22,6 +22,7 @@ entity up by its exact normalised name.
 from __future__ import annotations
 
 import hashlib
+import math
 import re
 from dataclasses import dataclass, field
 
@@ -50,15 +51,18 @@ CONCEPTS = [
                         r"making (?:a |my )?living|for a living|do for (?:a )?(?:work|living)|by trade|trade|"
                         r"professionally|professional|make money|makes money|making money|work-wise|workwise|"
                         r"line of work|kind of work|type of work|what (?:do|does|did) (?:i|you|he|she|we) do|"
-                        r"employed as|trained as|day job)\b")),
-    ("#employer", re.compile(r"\b(employer|company|firm|workplace|works? (?:at|for)|worked (?:at|for)|"
-                             r"working (?:at|for)|employ(?:er|ers|ee|ees|s|ing|ment)?|employed(?! as)|"
+                        r"employed as|trained as|train as|training as|day job|make (?:my |his |her |our )?money|"
+                        r"earn (?:my |his |her |our )?money)\b")),
+    ("#employer", re.compile(r"\b(employer|company|firm|workplace|works? (?:over |out )?(?:at|for)|"
+                             r"worked (?:over |out )?(?:at|for)|who (?:do|did|does) (?:i|you|he|she) work for|"
+                             r"for whom (?:do|did|does) (?:i|you|he|she) work|pays? (?:my |his |her )?(?:salary|wages)|"
+                             r"working (?:over |out )?(?:at|for)|employ(?:er|ers|ee|ees|s|ing|ment)?|employed(?! as)|"
                              r"where (?:do )?i work|paycheck|payroll|"
                              r"staff of|on the staff)\b")),
     ("#work", re.compile(r"\b(work|works|worked|working)\b")),
     ("#home", re.compile(r"\b(home|hometown|residence|resident|reside|resides|residing|live|lives|lived|"
                          r"living(?! as)|moved? to|moving to|relocated to|stay|stays|staying|based|settled|flat|"
-                         r"apartment|i am (?:originally )?from|i am in|my (?:city|town|village|country))\b")),
+                         r"apartment|i am (?:originally )?from|i am in|my (?:city|town|village|country|address))\b")),
     ("#birth", re.compile(r"\b(birthday|birth|born|birthplace|birthdate|came into the world|come into the world|"
                           r"comes into the world)\b")),
     ("#car", re.compile(r"\b(car|cars|vehicle|drive|drives|driving|drove|ride|wheels)\b")),
@@ -68,16 +72,21 @@ CONCEPTS = [
                         r"enjoys|nothing beats|beats|fan|crazy about|go-to|obsessed with|choose|chose|pick|picked|"
                         r"top)\b")),
     ("#name", re.compile(r"\b(name|names|named|called|call|calls|go by|goes by|known as|know me as|answers? to|"
-                         r"speaking)\b")),
+                         r"speaking|introduce myself|introduce me|address me)\b")),
     ("#place", re.compile(r"\b(where|place|city|town|country)\b")),
+    # where someone comes from: a birthplace answers "Where is he from?"
+    ("#origin", re.compile(r"\b(born in|born at|birthplace|place of birth|come from|comes from|came from|"
+                           r"coming from|originally from|hails? from|native of|grew up in|raised in|"
+                           r"where\b.*\b(?:from|born|come into the world|came into the world)|"
+                           r"which (?:town|city|village|country|place)\b.*\b(?:from|born))\b")),
 ]
 # phrases that name the job, removed before the home group is matched ("for a living" is not a home)
 _JOB_LIVING = re.compile(r"\b(?:earns?|earning|makes?|making|do|does|did|for) (?:a |my |his |her )?living\b")
 
 
-CONCEPT_PARENTS = {"#job": "#work", "#employer": "#work", "#home": "#place"}
+CONCEPT_PARENTS = {"#job": "#work", "#employer": "#work", "#home": "#place", "#origin": "#home"}
 _CALL_HOME = re.compile(r"\bcalls? (?:[a-z]+ ){0,2}home\b")     # "I call Lyon home" names a home, not a name
-CATEGORIES = frozenset(("#food", "#colour", "#car", "#job", "#employer", "#home", "#birth", "#name"))
+CATEGORIES = frozenset(("#food", "#colour", "#car", "#job", "#employer", "#home", "#birth", "#name", "#origin"))
 
 
 def category_conflict(a, b) -> bool:
@@ -96,7 +105,8 @@ def concepts(text: str) -> list[str]:
     out = [label for label, rx in CONCEPTS
            if rx.search(_JOB_LIVING.sub(" job ", low) if label == "#home" else
                         _CALL_HOME.sub(" home ", low) if label == "#name" else low)]
-    out += [CONCEPT_PARENTS[c] for c in out if c in CONCEPT_PARENTS and CONCEPT_PARENTS[c] not in out]
+    for _ in range(2):                    # parents of parents (#origin → #home → #place)
+        out += [CONCEPT_PARENTS[c] for c in out if c in CONCEPT_PARENTS and CONCEPT_PARENTS[c] not in out]
     return out
 
 
@@ -105,7 +115,7 @@ POSSESSED = frozenset((
     "girlfriend", "boyfriend", "friend", "boss", "dog", "cat", "pet", "horse", "bird", "grandmother", "grandfather",
     "grandma", "grandpa", "uncle", "aunt", "cousin", "neighbour", "neighbor", "colleague", "baby", "child", "kid",
     "fiance", "fiancee", "roommate", "flatmate", "puppy", "pup", "doggy", "kitten", "kitty", "mommy", "daddy", "bro",
-    "sis", "hubby"))
+    "sis", "hubby", "sibling", "parent", "pet"))
 # the same entity under another word ("my puppy" is "my dog")
 POSSESSED_CANON = {"puppy": "dog", "pup": "dog", "doggy": "dog", "kitten": "cat", "kitty": "cat", "mom": "mother",
                    "mum": "mother", "mommy": "mother", "dad": "father", "daddy": "father", "bro": "brother",
@@ -313,6 +323,7 @@ def normalise_first_person(sentence: str) -> str:
     s = re.sub(r"[,!.]?\s*(?:(?:it is |it's )?(?:nice|pleased|glad|good|great) to meet you|how are you)[.!]*$", "", s,
                flags=re.I).strip()
     s = re.sub(r"^(?:the )?name(?:'s| is)\b", "my name is", s, flags=re.I)
+    s = re.sub(r"^([A-Z][\w-]*)'s the name\b", r"my name is \1", s)
     s = re.sub(r"\bour\b", "my", s, flags=re.I)
     s = re.sub(r"\bwe are\b", "I am", s, flags=re.I)
     s = re.sub(r"\bwe were\b", "I was", s, flags=re.I)
@@ -390,9 +401,15 @@ _FILLERS = frozenset(("honestly", "really", "just", "actually", "basically", "tr
                       "day", "days", "every", "whenever", "moment", "time", "while", "lately", "long", "old",
                       "here", "there", "please", "thanks", "nice", "meet", "hi", "hello", "hey", "proud", "big", "fan",
                       "crazy", "top", "go-to", "wise", "work-wise", "workwise", "professionally", "nothing", "beats",
-                      "speaking", "choose", "pick", "rather", "probably", "certainly", "surely", "simply"))
+                      "speaking", "choose", "pick", "rather", "probably", "certainly", "surely", "simply",
+                      "definitely", "obviously", "absolutely", "clearly", "hands", "down"))
 _DURATION = frozenset(("year", "years", "month", "months", "week", "weeks", "day", "days", "old", "hours", "decade",
                        "decades", "times"))
+_PREPS = frozenset(("after", "with", "for", "to", "from", "by", "like", "than", "about", "at", "in", "on"))
+_NUMBER_WORDS = frozenset(("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven",
+                           "twelve", "twenty", "thirty", "hundred", "several", "few"))
+_QUANT = frozenset(("all", "every", "each", "any", "some", "many", "few", "more", "less", "other", "another", "such",
+                    "own", "same", "whole"))
 _TRAIL = frozenset(("for", "every", "whenever", "since", "when", "because", "at", "right", "last", "recently",
                     "these", "this", "as", "ago", "and", "but", "so", "with", "from", "in", "on", "to", "of"))
 def _cue_words() -> frozenset:
@@ -451,6 +468,12 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
             for j in range(i + 1, min(i + 4, n)):
                 noun = lw[j][:-2] if lw[j].endswith("'s") else lw[j]
                 if noun in POSSESSED:
+                    nxt = lw[j + 1][:-2] if j + 1 < n and lw[j + 1].endswith("'s") else (lw[j + 1] if j + 1 < n else "")
+                    if nxt in POSSESSED:          # "my pet dog": the dog
+                        j, noun = j + 1, nxt
+                    named_next = j + 1 < n and ws[j + 1][:1].isupper() and lw[j + 1] not in STOP
+                    if i > 0 and lw[i - 1] in _PREPS and not named_next:
+                        break                     # "named after my grandfather": not about the grandfather
                     subject = possessed_key(noun)
                     owned = set(range(i, j + 1))
                     break
@@ -464,11 +487,15 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
             if i in owned or not ws[i][0].isalpha() or lw[i] in STOP or lw[i] in _FIRST or lw[i] in CATEGORY_NOUNS \
                     or lw[i] in _FILLERS or lw[i] in AUX or lw[i] in _CUE_WORDS or concepts(lw[i]):
                 continue
-            if i > 0 and lw[i - 1] in ("i", "we", "you", "they", "he", "she", "to"):
-                continue                 # "I earn", "to eat": a verb, not a value
+            if i > 0 and lw[i - 1] in ("i", "we", "you", "they", "he", "she"):
+                continue                 # "I earn": a verb, not a value
+            if i > 0 and lw[i - 1] in ("since", "until", "till", "after", "before", "during"):
+                continue                 # "since college": when, not what
             for L in (2, 1):
                 j = i + L
-                if j > n or any(not ws[x][0].isalpha() or lw[x] in STOP or lw[x] in _FILLERS for x in range(i, j)):
+                if j > n or any(not ws[x][0].isalpha() or lw[x] in STOP or lw[x] in _FILLERS or lw[x] in NON_VALUES
+                                or lw[x] in CATEGORY_NOUNS or lw[x] in _CUE_WORDS or lw[x] in _QUANT or concepts(lw[x])
+                                for x in range(i, j)):
                     continue
                 cat = typer.category(" ".join(ws[i:j]) if ws[i][0].isupper() and i > 0 else " ".join(lw[i:j]))
                 if cat:
@@ -476,17 +503,27 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
                     break
     # an opening "Work-wise," / "Honestly," is not a value; neither is an age or a duration ("three years old"),
     # when the sentence offers anything else
-    # "Work-wise, I'm a dentist.", "Honestly, I …": an opening word before an I-clause is never the value
+    # "Work-wise, I'm a dentist.", "Honestly, I …": an opening word before an I-clause is never the value;
+    # nor is a duration ("for five years", "three years old")
     cands = [x for x in cands if not (x.start == 0 and x.end + 1 < n and ws[x.end] == "," and x.kind == "NAME"
-                                      and lw[x.end + 1] in ("i", "we"))]
+                                      and lw[x.end + 1] in ("i", "we"))
+             and not (x.kind == "NUMBER" and (any(w in _DURATION for w in lw[x.start:x.end])
+                                              or (x.end < n and lw[x.end] in _DURATION)))]
     if len(cands) + len(typed) > 1:
         keep = [x for x in cands if not (x.start == 0 and x.end < n and ws[x.end] == "," and x.kind == "NAME"
                                          and x.end + 1 < n and lw[x.end + 1] in ("i", "my", "we"))
                 and not (x.kind == "NUMBER" and (any(w in _DURATION for w in lw[x.start:x.end])
-                                                 or (x.end < n and lw[x.end] in _DURATION)))]
+                                                 or (x.end < n and lw[x.end] in _DURATION)
+                                                 or lw[x.start] == "one"))
+                # "since 2019", "in 2020": when, not what
+                and not (x.kind == "DATE" and x.start > 0 and (
+                    lw[x.start - 1] in ("since", "until", "till", "after", "before") or
+                    (lw[x.start - 1] in ("in", "from") and re.fullmatch(r"\d{4}", x.text))))]
         if keep or typed:
             cands = keep
     value, vrange, kind, vcat = None, set(), "TEXT", None
+    if cands and typed and all(x.kind == "NUMBER" for x in cands):
+        cands = []                       # a counted food/colour/car word beats a bare number
     if cands:
         dates = [x for x in cands if x.kind == "DATE"]
         pick = dates[-1] if dates else [x for x in cands if x.start > 0 and lw[x.start - 1] in _VALUE_CUES][-1:] or \
@@ -497,8 +534,11 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
             if set(range(a, b)) == vrange:       # the whole value ("Toyota"), not a part ("… Motors")
                 vcat = cat
     elif typed:
-        cued = [t for t in typed if t[0] > 0 and lw[t[0] - 1] in _VALUE_CUES]
-        a, b, text, vcat = (cued or typed)[-1]
+        # the strongest member (highest lift), a word right after a value cue a little preferred
+        def strength(t):
+            lf = typer.lift(t[2] if t[2][0].isupper() and t[0] > 0 else t[2].lower()) or {}
+            return math.log(max(lf.get(t[3], 1.0), 1.0)) + (0.5 if t[0] > 0 and lw[t[0] - 1] in _VALUE_CUES else 0.0)
+        a, b, text, vcat = max(typed, key=lambda t: (strength(t), t[0]))
         value, vrange = text, set(range(a, b))
     else:
         fp = [f for f in first_person_facts(sentence, source) if f.object.lower() not in NON_VALUES]
@@ -522,7 +562,7 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
                         j += 1
                     k = j
                     while k < n and k - j < 3 and ws[k][0].isalnum() and lw[k] not in STOP \
-                            and lw[k] not in CATEGORY_NOUNS and lw[k] not in _FILLERS:
+                            and lw[k] not in CATEGORY_NOUNS and lw[k] not in _FILLERS and lw[k] not in _NUMBER_WORDS:
                         k += 1
                     if k > j and not all(lw[x] in NON_VALUES for x in range(j, k)) and lw[j] not in _VALUE_CUES:
                         value, vrange = " ".join(ws[j:k]), set(range(j, k))
@@ -531,8 +571,9 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
     if owned:
         # "My brother, Casgaiep, lives abroad.": a name right after "my <brother>," is its name
         e = max(owned) + 1
-        app = [x for x in cands if x.kind == "NAME" and x.start == e + 1 and e < n and ws[e] == ","
-               and (x.end >= n or ws[x.end] in (",", "-", "—", "–"))]
+        app = [x for x in cands if x.kind == "NAME" and (
+            (x.start == e + 1 and e < n and ws[e] == "," and (x.end >= n or ws[x.end] in (",", "-", "—", "–")))
+            or x.start == e)]
         if app:
             extra.append(Fact(subject, ("#name", "name"), app[0].text, source, sentence.strip(), "NAME"))
             if value == app[0].text:
@@ -550,14 +591,28 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
         rel = [w for w in rel if w not in ("job", "position", "post", "#job")]
     first_v = sorted(vrange)[0] if vrange else 0
     has_category = bool(set(rel) & CATEGORIES)
-    # "I am a nurse", "I have been a pilot for years": an occupation, whatever else the word may be
-    if kind == "TEXT" and not has_category and first_v >= 2 and lw[first_v - 1] in ("a", "an") and \
-            (lw[first_v - 3:first_v - 1] == ["i", "am"] or lw[first_v - 4:first_v - 1] == ["i", "have", "been"]
-             or lw[first_v - 2] in ("am", "been")):
-        rel += ["#job", "#work"]
-        has_category = True
-    if vcat and not has_category:
+    # "I am a nurse", "I have been a pilot for years", "I became a qualified baker", "I practise as a
+    # dentist": an occupation, whatever else the word may be
+    art = [j for j in range(max(0, first_v - 3), first_v) if lw[j] in ("a", "an")]
+    last_v = max(vrange) if vrange else first_v
+    np_end = last_v + 1 >= n or not ws[last_v + 1][0].isalpha() or lw[last_v + 1] in STOP or \
+        lw[last_v + 1] in _NUMBER_WORDS or lw[last_v + 1] in ("currently", "now", "professionally")
+    if kind == "TEXT" and not has_category and art and subject == USER and np_end:
+        before = lw[max(0, art[-1] - 3):art[-1]]
+        if any(w in ("am", "was", "been", "became", "become", "becoming", "as", "remain", "remained") for w in before):
+            rel += ["#job", "#work"]
+            has_category = True
+    if vcat and (not has_category or vcat in rel):
         rel.append(vcat)
+    # "My employer's name is X", "a company called X": the name of that thing, not your name
+    if "#name" in rel and set(rel) & (CATEGORIES - {"#name"}) and subject == USER and \
+            not re.search(r"\b(?:i am|call me|calls me|my name)\b", " ".join(lw)):
+        rel = [w for w in rel if w not in ("#name", "name", "called", "named")]
+    # "Dunepnix Motors", "Kavel Foods": a name ending in a word the corpus counts with companies
+    if kind == "NAME" and typer is not None and len(words(value)) >= 2 and "#employer" not in rel:
+        lf = typer.lift(words(value)[-1]) or {}
+        if lf.get("#employer", 0.0) >= 3.5:
+            rel.append("#employer")
     if kind == "NAME" and first_v >= 2 and lw[first_v - 2:first_v] == ["i", "am"]:
         rel += ["name", "#name"]               # "I'm Frotam": a name
     if kind == "NAME" and implicit and _NAME_INTRO.match(s):
@@ -597,10 +652,23 @@ _IMPLICIT_CONCEPTS = frozenset(("#fav", "#home", "#name", "#birth", "#job", "#em
 def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None, typer=None) -> list[Fact]:
     sents = splitter(text) if splitter else re.split(r"(?<=[.!?])\s+", text.strip())
     out = []
+    topic = None
     for s in sents:
         s = s.strip()
-        if not s or s.endswith("?"):
+        if not s:
             continue
+        if s.endswith("?"):
+            # "Colours? Orange, definitely.": a bare topic, answered by the next sentence
+            tw = words(s)
+            topic = s.rstrip("?").strip() if 0 < len(tw) <= 3 and tw[0].lower() not in QWORDS | AUX else None
+            continue
+        if topic is not None and not re.search(r"\b(i|my|me|we|our)\b", s.lower()):
+            fs = personal_facts(f"My {topic.lower()} is {s}", source, initial_is_name, typer)
+            out += [Fact(f.subject, f.relation, f.object, source, f"{topic}? {s}", f.kind) for f in fs]
+            topic = None
+            if fs:
+                continue
+        topic = None
         norm = _GREETING.sub("", normalise_first_person(s))
         low = norm.lower()
         if re.search(r"\b(i|my|me)\b", low):
@@ -751,6 +819,11 @@ def question_parts(question: str, initial_is_name=None) -> tuple[list[str], list
             for j in range(i + 1, min(i + 4, len(lw))):
                 noun = lw[j][:-2] if lw[j].endswith("'s") else lw[j]
                 if noun in POSSESSED:
+                    nxt = lw[j + 1][:-2] if j + 1 < len(lw) and lw[j + 1].endswith("'s") else (
+                        lw[j + 1] if j + 1 < len(lw) else "")
+                    if nxt in POSSESSED:          # "my pet dog": the dog
+                        used.add(j)
+                        j, noun = j + 1, nxt
                     mentions.append(possessed_key(noun))
                     used.add(j)
                     break
@@ -773,8 +846,21 @@ def question_parts(question: str, initial_is_name=None) -> tuple[list[str], list
     rel = [w for i, w in enumerate(lw) if i not in used]
     rest = " ".join(rel)
     joined = " ".join(w for w in lw if w[0].isalnum())
-    extra = ["name", "#name"] if re.search(r"\bwho (?:am i|i am)\b", joined) else []
+    extra = ["name", "#name"] if re.search(r"\bwho (?:am i|i am|is (?:talking|speaking|chatting|writing) (?:to|with) "
+                                           r"you)\b", joined) else []
+    if extra and USER not in mentions:
+        mentions.append(USER)
+        personal = True
     if personal and (re.search(r"\bwhere (?:am|are|is|was|were|do|does|did) (?:i|you|we)\b.* from$", joined)
-                     or re.search(r"\b(?:my|what|which) (?:city|town|village|country|hometown)\b", joined)):
+                     or re.search(r"\b(?:my|what|which) (?:city|town|village|country|hometown|place|house)\b",
+                                  joined)):
         extra += ["#home", "#place"]            # where you are from / your city: your home
-    return mentions, _rel_words(rest) + concepts(rest) + extra
+    out = _rel_words(rest) + concepts(rest) + extra
+    if personal and re.search(r"\bwhere\b", joined) and "#job" in out and not re.search(r"\bas\b", joined):
+        out = [w for w in out if w != "#job"] + ["#employer"]      # where my job is: the employer
+    if personal and re.search(r"\bwhere\b", joined) and "#work" in out and "#job" not in out:
+        out += ["#employer"]
+    cats = {w for w in out if w in CATEGORIES} - {"#name"}
+    if "#name" in out and cats and not re.search(r"\bwho\b", joined):
+        out = [w for w in out if w != "#name"]      # "what's my company called": the company, not a name
+    return mentions, out
