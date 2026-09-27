@@ -208,8 +208,23 @@ corrections.
 
 Stages 2, 3 and 5 are met; 1.1 and 4 are not.
 
+An eighth round (v9, E22) made two changes:
+- The sentence shown as best is now the sentence the answer comes from.
+- Search-box queries get their own span model.
+
+θ was also set on all 9,000 spent questions.
+- **Met:** every criterion except NQ exact answers:
+  - look-up gain on SQuAD +9.8 pp and on NQ +3.6 pp,
+  - facts about you, forgetting and follow-ups each 100 %,
+  - SQuAD EM 23.3 % and F1 30.9 %,
+  - "I don't know" at 50.2 % precision with 21.1 % coverage.
+- **Missed:** NQ exact answers, 3.4 % against 5 %. The corpus holds the answer among the top-10
+  sentences for only 13 % of NQ questions.
+
+Stages 1.1, 2, 3 and 5 are met; stage 4 misses only this criterion.
+
 All numbers, including the development history and the round-by-round table, are in
-[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E15–E21).
+[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E15–E22).
 
 ## Results — rebuild, re-measured
 

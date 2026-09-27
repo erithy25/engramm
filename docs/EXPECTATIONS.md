@@ -1683,6 +1683,42 @@ Ergebnisdatei: `results/chat/chat_test8_container_20260927T134959Z.json`. Code e
 
 ---
 
+## E22 — ENGRAMM-Chat v9 (PREREG_CHAT_V9, einmaliger Testlauf)
+
+Ergebnisdatei: `results/chat/chat_test9_container_20260927T183804Z.json`. Code eingefroren in
+`1aae5ad`; Formulierungen danach geschrieben; ein Lauf.
+
+| Kriterium | Wert | Schwelle | Ergebnis |
+|---|---|---|---|
+| R1 | +9,8 pp, KI [7,5; 12,1] | ≥ 3 pp, KI > 0 | erfüllt |
+| R2 | +3,63 pp, KI [2,9; 4,3] | ≥ 2 pp, KI > 0 | erfüllt |
+| F1 / F2 / F3 | 100 % / 97,5 % (exaktes Wörterbuch 0 %) / 100 % | 90 / 75 & +30 pp / 90 | erfüllt |
+| D1 / D2 / D3 | 100 % / 100 % (a und b) / 100 % | 90 / 100 / 80 | erfüllt |
+| A1 | EM 23,3 %, F1 30,9 % | ≥ 20 % und ≥ 30 % | erfüllt |
+| A2 | 50,2 % Präzision bei 21,1 % Abdeckung | ≥ 50 % bei ≥ 20 % | erfüllt |
+| A3 | NQ-EM 3,4 % | ≥ 5 % | verfehlt |
+| U2 / U3 | 9 ms / Transkripte gleich, Neustart gleich | ≤ 1 s / identisch | erfüllt |
+
+**Stufen:** 1.1, 2, 3 und 5 erfüllt. Stufe 4 ist verfehlt, allein wegen A3.
+
+**Einordnung:**
+- **Stufe 1.1** ist erfüllt, weil der gezeigte beste Satz jetzt der Antwortsatz ist. Das ist eine
+  Änderung dessen, *welchen* Satz ENGRAMM zeigt, nicht der Messung. Sie ist in PREREG_CHAT_V9
+  offen registriert.
+- **A1 und A2** sind knapp erfüllt: F1 um 0,9 pp über der Schwelle, Präzision um 0,2 pp. In einer
+  weiteren Runde kann jedes der beiden auch knapp verfehlt werden.
+- **Stufe 3** ist die zweite Runde in Folge mit 100 % auf frischen Formulierungen.
+- **A3 (NQ-EM ≥ 5 %)** ist nach neun Runden nie erreicht (1,3 → 3,4 %). Die Obergrenze:
+  - Bei NQ steht die Goldantwort nur bei 12,7 % der Fragen in den 10 besten Sätzen und bei 30 %
+    überhaupt unter den Kandidaten.
+  - 5 % EM verlangten also, bei 40 % der verfügbaren Fälle genau die richtige Spanne zu wählen.
+    Bei SQuAD gelingt das bei 37 %, bei NQ bei 26 %.
+
+  Mit 285 M Tokens Korpus und zählbasierter Spannenwahl ist das nach diesen Messungen nicht
+  erreichbar. Ein größerer Korpus (ganze Wikipedia) wäre der naheliegende nächste Hebel.
+
+---
+
 ## Offene Fragen, nicht terminiert
 
 **O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**
