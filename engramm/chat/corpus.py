@@ -55,6 +55,13 @@ class Corpus:
 
     @classmethod
     def with_index(cls, tokens, doc_starts, doc_keys, tok, eng, index_dir: Path, mmap: bool = True) -> Corpus:
+        index_dir = Path(index_dir)
+        if (index_dir / "corpus.u16").exists():
+            # an index over a larger corpus (the train stream plus more reading, chat3): its own token stream
+            tokens = np.memmap(index_dir / "corpus.u16", dtype=np.uint16, mode="r")
+            doc_starts = np.load(index_dir / "corpus.starts.npy")
+            with open(index_dir / "corpus.keys.jsonl", encoding="utf-8") as f:
+                doc_keys = [tuple(json.loads(line)) for line in f]
         index = SentenceIndex.load(index_dir, mmap=mmap)
         if (index_dir / "doc_ptr.npy").exists():
             from engramm.chat.index import load_docs

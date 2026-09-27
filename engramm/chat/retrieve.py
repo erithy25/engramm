@@ -335,7 +335,7 @@ class Retriever:
                 kw = c.key_words(d)
                 kcache[d] = sum(float(w) for w, st in zip(query.idf, query.strings) if st in kw) / isum
             feats[k, F["kcov"]] = kcache[d]
-            feats[k, F["wiki"]] = float(c.doc_keys[d][0] == "wiki")
+            feats[k, F["wiki"]] = float(c.doc_keys[d][0].startswith("wiki"))
         for k, s in enumerate(ids.tolist()):
             toks = c.sentence_tokens(s)
             content = toks[self.term_of[toks] >= 0].astype(np.int64)

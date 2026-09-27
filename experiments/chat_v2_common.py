@@ -14,6 +14,9 @@ from experiments.chat_v2_data import CACHE, nq_splits, squad_splits
 from experiments.lm_common import MODELS_DIR
 
 MODEL_DIR = MODELS_DIR / "main" / "model"
+# which sentence index the development scripts read (chat2 = v2–v9 corpus, chat3 = plus Wikipedia leads, v10)
+import os as _os
+CHAT_INDEX = _os.environ.get("ENGRAMM_CHAT_INDEX", "chat2")    # v10 runs set ENGRAMM_CHAT_INDEX=chat3
 
 
 def squad_v2_splits(corpus: Corpus, model_dir: Path = MODEL_DIR) -> tuple[list[dict], list[dict]]:
@@ -34,7 +37,7 @@ def squad_v2_splits(corpus: Corpus, model_dir: Path = MODEL_DIR) -> tuple[list[d
 
 
 def load_all(model_dir: Path = MODEL_DIR):
-    corpus = Corpus.load(model_dir)
+    corpus = Corpus.load(model_dir, index_name=CHAT_INDEX)
     sq_dev, sq_test = squad_v2_splits(corpus, model_dir)
     nq_dev, nq_test = nq_splits()
     return corpus, {"sq_dev": sq_dev, "sq_test": sq_test, "nq_dev": nq_dev, "nq_test": nq_test}

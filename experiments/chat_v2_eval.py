@@ -126,7 +126,8 @@ def main() -> None:
     model = HDCLanguageModel.load(args.model)
     for sid in sorted(model.user_texts):
         model.forget(sid)
-    idx2 = args.model.parent / "chat2"
+    from engramm.chat.config import INDEX_NAME
+    idx2 = args.model.parent / INDEX_NAME
     corpus = Corpus.from_model(model, idx2)
     cap = cap_ratio(idx2)
     bot = ChatBot(model, corpus, FROZEN, cap)

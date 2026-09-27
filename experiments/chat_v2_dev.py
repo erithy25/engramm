@@ -25,7 +25,8 @@ STAGE1_DEV = {"sq_dev": 0.403, "nq_dev": 0.022}
 
 
 def cache_path(name: str):
-    return CACHE / f"dev_cands_{name}.pkl"
+    from experiments.chat_v2_common import CHAT_INDEX
+    return CACHE / (f"dev_cands_{name}.pkl" if CHAT_INDEX == "chat2" else f"dev_cands_{name}_{CHAT_INDEX}.pkl")
 
 
 def build_cache() -> None:

@@ -485,7 +485,7 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
     if typer is not None:
         for i in range(n):
             if i in owned or not ws[i][0].isalpha() or lw[i] in STOP or lw[i] in _FIRST or lw[i] in CATEGORY_NOUNS \
-                    or lw[i] in _FILLERS or lw[i] in AUX or lw[i] in _CUE_WORDS or concepts(lw[i]):
+                    or lw[i] in _FILLERS or lw[i] in AUX or lw[i] in _CUE_WORDS or lw[i] in _TRAIL or concepts(lw[i]):
                 continue
             if i > 0 and lw[i - 1] in ("i", "we", "you", "they", "he", "she"):
                 continue                 # "I earn": a verb, not a value
@@ -494,7 +494,8 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
             for L in (2, 1):
                 j = i + L
                 if j > n or any(not ws[x][0].isalpha() or lw[x] in STOP or lw[x] in _FILLERS or lw[x] in NON_VALUES
-                                or lw[x] in CATEGORY_NOUNS or lw[x] in _CUE_WORDS or lw[x] in _QUANT or concepts(lw[x])
+                                or lw[x] in CATEGORY_NOUNS or lw[x] in _CUE_WORDS or lw[x] in _QUANT or lw[x] in _TRAIL
+                                or concepts(lw[x])
                                 for x in range(i, j)):
                     continue
                 cat = typer.category(" ".join(ws[i:j]) if ws[i][0].isupper() and i > 0 else " ".join(lw[i:j]))

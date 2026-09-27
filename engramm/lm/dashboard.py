@@ -56,9 +56,14 @@ def _source(entry: dict | None) -> dict | None:
 
 
 def chat_index_dir(model_dir: Path) -> Path | None:
-    """The v2 sentence index next to the model (``python -m experiments.chat_build --v2``), if built."""
-    d = Path(model_dir).parent / "chat2"
-    return d if (d / "info.json").exists() else None
+    """The configured sentence index next to the model (chat3: train stream + Wikipedia leads,
+    ``python -m experiments.chat_wiki_build``), else the v2 index (``chat_build --v2``), if built."""
+    from engramm.chat.config import INDEX_NAME
+    for name in (INDEX_NAME, "chat2"):
+        d = Path(model_dir).parent / name
+        if (d / "info.json").exists():
+            return d
+    return None
 
 
 def make_bot(lm: LoggedModel, index_dir: Path, config: BotConfig = FROZEN, df_cap: float | None = None) -> ChatBot:

@@ -58,6 +58,7 @@ class BotConfig:
     focus_gate: bool = True            # a name in the question must occur in the evidence document
     span_model: str = "spanstats.json"  # counted span statistics (naive Bayes) or "spanperc*.json" (perceptron)
     span_model_nq: str = ""            # optional second perceptron for search-box queries (lower case, no "?")
+    extract_nq: ExtractParams | None = None  # answer-cutting parameters for search-box queries (None: ``extract``)
 
 
 class TextMemory:
@@ -604,6 +605,8 @@ class ChatBot:
         qwords = set(qwords)
         rq = self.facts.rel.encode(sorted(qwords | qlabels)) if qwords or qlabels else None
         want = {PERSON: "NAME", LOCATION: "NAME", "DATE": "DATE", "NUMBER": "NUMBER"}.get(qa.atype)
+        if want is None and "#birth" in qlabels:
+            want = "DATE"                         # "What's my birthdate?": a date, whatever the question word
         scored = []
         for f in facts:
             pts = self._fact_points(f, qlabels, qwords, rq, want, qsoft)
@@ -740,17 +743,16 @@ class ChatBot:
             return self._finish(msg, q, qa, "unknown", None, None, None, None, 0.0, "lookup",
                                 text="I don't know — I found nothing about that.")
         rows.sort(key=lambda r: (-r[0], r[1], r[2], r[3]))
-        top = rows[:self.cfg.extract.k]
+        from engramm.chat.spanstats import question_form
+        search_box = question_form(qa) == "nq"
+        params = self.cfg.extract_nq if search_box and self.cfg.extract_nq is not None else self.cfg.extract
+        top = rows[:params.k]
         self.last_rows = top
         isum = max(query.idf_sum, 1e-9)
         texts = [r[3] for r in top]
         rel = np.array([r[0] / isum for r in top])
-        stats = self.span_stats
-        if self.span_stats_nq is not None:
-            from engramm.chat.spanstats import question_form
-            if question_form(qa) == "nq":
-                stats = self.span_stats_nq
-        x = extract(qa, texts, rel, self.cfg.extract, self.is_name_initial, None, stats, self.word_info)
+        stats = self.span_stats_nq if search_box and self.span_stats_nq is not None else self.span_stats
+        x = extract(qa, texts, rel, params, self.is_name_initial, None, stats, self.word_info)
         if x.text is None:
             best = top[0]
             src = best[4] or self.c.source(best[2])
