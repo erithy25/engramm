@@ -46,7 +46,8 @@ PLACE_PREPS = frozenset(("in", "at", "near", "from", "to"))
 # questions): a member word adds the group's label to the relation words.
 CONCEPTS = [
     ("#job", re.compile(r"\b(job|jobs|profession|occupation|career|works? as|worked as|working as|living as|at work|"
-                        r"earns? (?:a |my )?living|do for (?:a )?(?:work|living)|by trade|trade)\b")),
+                        r"earns? (?:a |my )?living|do for (?:a )?(?:work|living)|by trade|trade|professionally|"
+                        r"professional)\b")),
     ("#employer", re.compile(r"\b(employer|company|firm|workplace|works? (?:at|for)|worked (?:at|for)|"
                              r"working (?:at|for)|employ\w*|where (?:do )?i work)\b")),
     ("#work", re.compile(r"\b(work|works|worked|working)\b")),
@@ -55,9 +56,9 @@ CONCEPTS = [
     ("#birth", re.compile(r"\b(birthday|birth|born|birthplace|birthdate)\b")),
     ("#car", re.compile(r"\b(car|cars|vehicle|drive|drives|driving)\b")),
     ("#food", re.compile(r"\b(food|foods|eat|eating|meal|meals|dish|cuisine)\b")),
-    ("#colour", re.compile(r"\b(colou?rs?)\b")),
+    ("#colour", re.compile(r"\b(colou?rs?|shades?|hues?)\b")),
     ("#fav", re.compile(r"\b(favou?rite|love|loves|like|likes|prefer|prefers|best|most|adore|adores|enjoy|"
-                        r"enjoys)\b")),
+                        r"enjoys|nothing beats|beats)\b")),
     ("#name", re.compile(r"\b(name|names|named|called|call)\b")),
     ("#place", re.compile(r"\b(where|place|city|town|country)\b")),
 ]
@@ -339,7 +340,8 @@ def first_person_facts(sentence: str, source: str) -> list[Fact]:
     return []
 
 
-_GREETING = re.compile(r"^(?:hi|hello|hey|hiya|greetings|good (?:morning|afternoon|evening))\b[,!. ]*", re.I)
+_GREETING = re.compile(r"^(?:(?:hi|hello|hey|hiya|greetings|good (?:morning|afternoon|evening)|(?:nice|pleased|glad) "
+                       r"to meet you)\b[,!. ]*)+", re.I)
 _VALUE_CUES = frozenset(("is", "am", "are", "was", "were", "a", "an", "as", "love", "loves", "like", "likes", "own",
                          "owns", "drive", "drives", "be", "called", "named", "at", "in", "to", "on", "by", "enjoy",
                          "prefer", "adore", "adores", "eat", "eats", "drink", "drinks", "play", "plays", "wear",
@@ -628,5 +630,6 @@ def question_parts(question: str, initial_is_name=None) -> tuple[list[str], list
                 mentions.append(" ".join(ws[i] for i in idx))
     rel = [w for i, w in enumerate(lw) if i not in used]
     rest = " ".join(rel)
-    extra = ["name", "#name"] if re.fullmatch(r"who am i", " ".join(w for w in lw if w[0].isalnum())) else []
+    joined = " ".join(w for w in lw if w[0].isalnum())
+    extra = ["name", "#name"] if re.search(r"\bwho (?:am i|i am)\b", joined) else []
     return mentions, _rel_words(rest) + concepts(rest) + extra
