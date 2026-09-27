@@ -50,8 +50,8 @@ CONCEPTS = [
     ("#employer", re.compile(r"\b(employer|company|firm|workplace|works? (?:at|for)|worked (?:at|for)|"
                              r"working (?:at|for)|employ\w*|where (?:do )?i work)\b")),
     ("#work", re.compile(r"\b(work|works|worked|working)\b")),
-    ("#home", re.compile(r"\b(home|hometown|residence|live|lives|lived|living|reside|resides)\b")),
-    ("#birth", re.compile(r"\b(birthday|birth|born)\b")),
+    ("#home", re.compile(r"\b(home|hometown|residence|live|lives|lived|living in|reside|resides)\b")),
+    ("#birth", re.compile(r"\b(birthday|birth|born|birthplace|birthdate)\b")),
     ("#car", re.compile(r"\b(car|cars|vehicle|drive|drives|driving)\b")),
     ("#food", re.compile(r"\b(food|foods|eat|eating|meal|meals|dish|cuisine)\b")),
     ("#colour", re.compile(r"\b(colou?rs?)\b")),
@@ -61,9 +61,14 @@ CONCEPTS = [
 ]
 
 
+CONCEPT_PARENTS = {"#job": "#work", "#employer": "#work"}
+
+
 def concepts(text: str) -> list[str]:
     low = text.lower().replace("’", "'")
-    return [label for label, rx in CONCEPTS if rx.search(low)]
+    out = [label for label, rx in CONCEPTS if rx.search(low)]
+    out += [CONCEPT_PARENTS[c] for c in out if c in CONCEPT_PARENTS and CONCEPT_PARENTS[c] not in out]
+    return out
 
 
 POSSESSED = frozenset((
@@ -464,8 +469,10 @@ class FactMemory:
         fact = self.facts[i]
         answer = fact.subject if inv else fact.object
         typed_ok = atype in _KIND_OK
-        only = typed_ok and len(pool) == 1 and not self.entities[k].startswith(USER) and \
-            (self.facts[pool[0][1]].kind if not pool[0][2] else "NAME") in sum(_KIND_OK[atype], ())
+        mine = self.entities[k].startswith(USER)
+        only = not mine and (len(self.fillers[k]) == 1 or (
+            typed_ok and len(pool) == 1 and
+            (self.facts[pool[0][1]].kind if not pool[0][2] else "NAME") in sum(_KIND_OK[atype], ())))
         return Recall(answer, fact, self.entities[k], es, (s - 0.5) / scale, (s - second) / scale, s, only)
 
 
