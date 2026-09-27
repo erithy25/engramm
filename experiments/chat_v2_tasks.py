@@ -20,7 +20,7 @@ from experiments.chat_v2_data import fact_questions as _questions_v2
 
 
 def fact_questions(split: str, with_typo: bool = False) -> list[dict]:
-    if split in ("test4", "test5", "test6"):
+    if split in ("test4", "test5", "test6", "test7"):
         import importlib
         v = split[-1]
         return getattr(importlib.import_module(f"experiments.chat_v{v}_data"), f"fact_questions_v{v}")(with_typo)
@@ -31,7 +31,7 @@ def fact_questions(split: str, with_typo: bool = False) -> list[dict]:
 
 
 def fact_dialogs(split: str) -> list[dict]:
-    if split in ("test4", "test5", "test6"):
+    if split in ("test4", "test5", "test6", "test7"):
         import importlib
         v = split[-1]
         return getattr(importlib.import_module(f"experiments.chat_v{v}_data"), f"fact_dialogs_v{v}")()
@@ -42,7 +42,7 @@ def fact_dialogs(split: str) -> list[dict]:
 
 
 def chain_dialogs(split: str) -> list[dict]:
-    if split in ("test4", "test5", "test6"):
+    if split in ("test4", "test5", "test6", "test7"):
         import importlib
         v = split[-1]
         return getattr(importlib.import_module(f"experiments.chat_v{v}_data"), f"chain_dialogs_v{v}")()
