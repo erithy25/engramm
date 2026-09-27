@@ -20,6 +20,9 @@ from experiments.chat_v2_data import fact_questions as _questions_v2
 
 
 def fact_questions(split: str, with_typo: bool = False) -> list[dict]:
+    if split == "test4":
+        from experiments.chat_v4_data import fact_questions_v4
+        return fact_questions_v4(with_typo)
     if split == "test3":
         from experiments.chat_v3_data import fact_questions_v3
         return fact_questions_v3(with_typo)
@@ -27,6 +30,9 @@ def fact_questions(split: str, with_typo: bool = False) -> list[dict]:
 
 
 def fact_dialogs(split: str) -> list[dict]:
+    if split == "test4":
+        from experiments.chat_v4_data import fact_dialogs_v4
+        return fact_dialogs_v4()
     if split == "test3":
         from experiments.chat_v3_data import fact_dialogs_v3
         return fact_dialogs_v3()
@@ -34,6 +40,9 @@ def fact_dialogs(split: str) -> list[dict]:
 
 
 def chain_dialogs(split: str) -> list[dict]:
+    if split == "test4":
+        from experiments.chat_v4_data import chain_dialogs_v4
+        return chain_dialogs_v4()
     if split == "test3":
         from experiments.chat_v3_data import chain_dialogs_v3
         return chain_dialogs_v3()

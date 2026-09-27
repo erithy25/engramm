@@ -114,7 +114,7 @@ def main() -> None:
     ap.add_argument("--model", type=Path, default=MODEL_DIR)
     ap.add_argument("--device", default="container")
     ap.add_argument("--results-dir", type=Path, default=Path(tempfile.gettempdir()) / "engramm_chat_v2")
-    ap.add_argument("--split", choices=("test", "dev", "test3"), default="test",
+    ap.add_argument("--split", choices=("test", "dev", "test3", "test4"), default="test",
                     help="test = v2 test (PREREG_CHAT_V2), test3 = v3 test (PREREG_CHAT_V3), "
                          "dev = dry run of this script on development data (never reported)")
     ap.add_argument("--limit", type=int, default=0, help="dry run: questions per QA set")
@@ -139,18 +139,20 @@ def main() -> None:
     study = "docs/PREREG_CHAT_V2.md v1.1"
     if args.split == "dev":
         sq_test, nq_test = sq_dev[:args.limit], nq_dev[:args.limit]
-    elif args.split == "test3":
+    elif args.split in ("test3", "test4"):
+        import importlib
+
         from experiments.chat_eval import load_squad, split as split1
         from experiments.chat_v2_data import CACHE
-        from experiments.chat_v3_data import manifest as manifest3
-        from experiments.chat_v3_data import nq_v3_test, squad_v3_test
+        v = args.split[-1]
+        mod = importlib.import_module(f"experiments.chat_v{v}_data")
         pool_ids = set(json.loads((CACHE / "squad_pool_v1.json").read_text())["pool"])
         pool = [q for q in load_squad() if q["id"] in pool_ids]
         d1, t1 = split1(pool)
-        sq_test = squad_v3_test(pool, {q["id"] for q in d1 + t1})
-        nq_test = nq_v3_test()
-        data_manifest = manifest3()
-        study = "docs/PREREG_CHAT_V3.md v1.0"
+        sq_test = getattr(mod, f"squad_v{v}_test")(pool, {q["id"] for q in d1 + t1})
+        nq_test = getattr(mod, f"nq_v{v}_test")()
+        data_manifest = mod.manifest()
+        study = f"docs/PREREG_CHAT_V{v}.md v1.0"
 
     # -- stage 1.1 and 4 on SQuAD-Test2 and NQ-Test ------------------------------------------
     sq = qa(bot, stage1, sq_test, "squad")
