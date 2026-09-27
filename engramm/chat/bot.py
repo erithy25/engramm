@@ -109,9 +109,12 @@ class Reply:
 
 _QSTART = frozenset(("what", "which", "who", "whom", "whose", "when", "where", "why", "how", "is", "are", "was",
                      "were", "do", "does", "did", "can", "could", "will", "would", "should", "has", "have", "had",
-                     "tell", "name", "list", "give"))
-_FORGET = re.compile(r"^(?:please\s+|can you\s+|could you\s+)?(?:forget|delete|remove|erase|drop|unlearn)\b\s*(.*)$",
-                     re.IGNORECASE)
+                     "tell", "name", "list", "give", "say", "remind", "whats", "wheres", "whos", "hows", "whens"))
+_FORGET_VERB = (r"(?:forget|delete|remove|erase|drop|unlearn|wipe|clear|discard|purge|scrap|throw away|throw out|"
+                r"get rid of|stop remembering|do not remember|don't remember|no longer remember|dump)")
+_FORGET = re.compile(r"^(?:(?:please|kindly|now|ok|okay|and|so)\s*,?\s+)*"
+                     r"(?:(?:can|could|would|will) you\s+(?:please\s+)?|i (?:want|need|would like|'d like) you to\s+|"
+                     r"you (?:can|should|may|must)\s+|please\s+)?" + _FORGET_VERB + r"\b\s*(.*)$", re.IGNORECASE)
 _SMALLTALK = [
     (re.compile(r"^(hi|hello|hey|hallo|good (morning|afternoon|evening)|greetings)\b[\s!.,]*(engramm)?[\s!.]*$",
                 re.I), "Hello! Ask me something, or tell me something and I will remember it."),
@@ -123,8 +126,8 @@ _SMALLTALK = [
 ]
 _PERSON_PRON = ("he", "she", "him", "his", "hers", "they", "them", "their")
 _THING_PRON = ("it", "its", "there")
-_DEMONSTRATIVE = re.compile(r"\b(this|that|the same)\s+(person|man|woman|city|town|place|country|company|river|"
-                            r"island|book|novel|ship|team|one)\b", re.I)
+_DEMONSTRATIVE = re.compile(r"\b(?:(?:this|that|the same)\s+(person|man|woman|city|town|place|country|company|river|"
+                            r"island|book|novel|ship|team|one)|the\s+(person|man|woman))\b", re.I)
 _PERSONISH = frozenset(("person", "man", "woman"))
 
 
@@ -138,7 +141,12 @@ def message_type(msg: str) -> str:
         if rx.match(s):
             return "smalltalk"
     first = words(s.lower())[0] if words(s) else ""
-    if s.endswith("?") or first in _QSTART or s.lower().startswith(("do you remember", "tell me")):
+    if s.endswith("?") or s.lower().startswith(("do you remember", "tell me")):
+        return "question"
+    if first in _QSTART:
+        # "When it comes to food, I love curry." / "Where I live, it rains." — a clause first, then a statement
+        if first in ("when", "where", "while", "if") and re.search(r",\s+(?:i|my|we|our)\b", s.lower()):
+            return "statement"
         return "question"
     # an unfinished statement ("the capital of France is") asks for its end
     if re.search(r"\b(is|are|was|were|by|of|called|named)\s*$", s.lower().rstrip(".!")):
@@ -186,6 +194,10 @@ class ChatBot:
         self._name_memo: dict[str, bool] = {}
         self.last_rows: list = []
         self.span_stats, self.word_info = None, None
+        self.typer = None
+        if getattr(corpus, "index", None) is not None and getattr(corpus.index, "n", 0) > 100_000:
+            from engramm.chat.lexicon import Typer
+            self.typer = Typer(corpus)
         sp = getattr(corpus, "index_dir", None)
         if config.extract.nb > 0 and sp is not None and (sp / "spanstats.json").exists() \
                 and corpus.classes is not None:
@@ -205,6 +217,17 @@ class ChatBot:
             self._name_memo[word] = w
         return w
 
+    def is_name_initial_fact(self, word: str) -> bool:
+        """The same rule for statements and questions in a conversation, with one addition: a
+        word that the corpus writes in lower case mid-sentence more often than not
+        ("Professionally", "Honestly") is not a name."""
+        if not self.is_name_initial(word):
+            return False
+        if self.typer is None:
+            return True
+        ls = self.typer.lower_share(word)
+        return ls is None or ls < 0.5
+
     def user_texts(self) -> dict[str, str]:
         return dict(_model_of(self.memory).user_texts)
 
@@ -216,7 +239,7 @@ class ChatBot:
             return
         facts = []
         for sid, text in sorted(texts.items()):
-            facts += facts_from_text(text, sid, self.is_name_initial)
+            facts += facts_from_text(text, sid, self.is_name_initial_fact, typer=self.typer)
         self.facts.build(facts)
         self._facts_key = key
         sents = []
@@ -286,9 +309,14 @@ class ChatBot:
     def _forget(self, msg: str) -> Reply:
         topic = _FORGET.match(msg).group(1).strip().rstrip(".!?").strip()
         topic = re.sub(r",?\s*(?:please|thanks|thank you)$", "", topic, flags=re.I).strip()
-        topic = re.sub(r"^(?:(?:what|everything|all|anything) i (?:told you|said|said to you|mentioned) about|"
-                       r"everything about|the information about|about|the fact that|that)\s+", "", topic,
+        topic = re.sub(r"\s+(?:from|out of) (?:your|the) (?:memory|mind|head|records?|database|brain)\b.*$", "", topic,
                        flags=re.I).strip()
+        topic = re.sub(r"\s+(?:anymore|any more|for good|forever|completely|entirely|at once|now)$", "", topic,
+                       flags=re.I).strip()
+        topic = re.sub(r"^(?:(?:what|everything|all|anything) (?:i (?:told you|said|said to you|mentioned|shared|"
+                       r"wrote)|you (?:know|remember|have|learned|learnt|heard)) (?:about|on|regarding|of)|"
+                       r"everything (?:about|on|regarding)|all about|the (?:information|info|facts?|details?|stuff) "
+                       r"(?:about|on|regarding)|about|the fact that|that)\s+", "", topic, flags=re.I).strip()
         texts = {s: t for s, t in self.user_texts().items() if s.startswith(CHAT_PREFIX)}
         if not texts:
             return Reply(msg, "nothing", "You haven't told me anything I could forget.")
@@ -318,7 +346,7 @@ class ChatBot:
         counted meaning vector, its similarity to the category word."""
         from engramm.chat.facts import CATEGORIES, concepts
         self.refresh()
-        mentions, rel = question_parts(topic, self.is_name_initial)
+        mentions, rel = question_parts(topic, self.is_name_initial_fact)
         owned = [m for m in mentions if m.startswith(USER + ":")]
         target = owned[0] if owned else (USER if USER in mentions else None)
         tlabels = {w for w in rel if w.startswith("#")} | set(concepts(topic))
@@ -341,6 +369,7 @@ class ChatBot:
                 s = 1.0
                 s += sum(2.0 if lab in CATEGORIES else 0.5 for lab in tlabels & flabels)
                 s += 0.5 * len(twords & set(f.relation))
+                s += 0.25 * self._soft_overlap(twords, {w for w in f.relation if not w.startswith("#")})
                 if rq is not None:
                     s += 0.3 * (1.0 - int(np.bitwise_count(rq ^ self.facts.rel.encode(f.relation)).sum()) / 2048)
                 if category_conflict(tlabels, flabels):
@@ -359,6 +388,30 @@ class ChatBot:
                 scored.append((best, sid))
         scored.sort(key=lambda x: (-x[0], x[1]))
         return scored[0][1] if scored and scored[0][0] > 0.55 else None
+
+    def _soft_overlap(self, qwords: set, swords: set) -> float:
+        """Σ over question words without an exact partner of their best meaning similarity to a
+        sentence word, above chance (counted wide vectors; one-token words only)."""
+        vecs = self.c.wide
+        if vecs is None:
+            return 0.0
+        tok = self.c.tok
+        total = 0.0
+        sv = []
+        for w in swords:
+            ids = tok.encode(" " + w)
+            if len(ids) == 1:
+                sv.append(np.asarray(vecs[ids[0]]))
+        if not sv:
+            return 0.0
+        S = np.stack(sv)
+        for w in qwords - swords:
+            ids = tok.encode(" " + w)
+            if len(ids) != 1:
+                continue
+            best = 1.0 - int(np.bitwise_count(S ^ np.asarray(vecs[ids[0]])[None, :]).sum(axis=1).min()) / 2048
+            total += max(0.0, (best - 0.62) / 0.38)
+        return total
 
     def _value_similarity(self, word: str | None, value: str):
         """Meaning-vector similarity of a category word and a one-token value, else None."""
@@ -383,7 +436,8 @@ class ChatBot:
         thing = ctx["answer"] if ctx["atype"] in (LOCATION, PROPER, OTHER) and ctx["answer"] else ctx["mention"]
         m = _DEMONSTRATIVE.search(q)
         if m:
-            target = person if m.group(2).lower() in _PERSONISH else thing
+            noun = (m.group(1) or m.group(2)).lower()
+            target = person if noun in _PERSONISH else thing
             if target:
                 return q[:m.start()] + target + q[m.end():]
         ws = q.split(" ")
@@ -409,8 +463,21 @@ class ChatBot:
         self.last_rows = []
         q = self.resolve(msg)
         qa = analyse(q)
-        mentions, rel = question_parts(q, self.is_name_initial)
+        mentions, rel = question_parts(q, self.is_name_initial_fact)
         about_user = any(m.startswith(USER) for m in mentions)
+        if about_user:
+            found = self._personal_answer(qa, mentions, rel)
+            if found is not None:
+                f, score = found
+                return self._finish(msg, q, qa, "answer", f.object, f.object, f.sentence,
+                                    {"kind": "user", "source": f.source}, score, "facts")
+            found = self._user_lookup(q, qa, mentions, rel)
+            if found is not None:
+                answer, sentence, sid = found
+                return self._finish(msg, q, qa, "answer", answer, answer, sentence, {"kind": "user", "source": sid},
+                                    0.0, "memory")
+            return self._finish(msg, q, qa, "unknown", None, None, None, None, 0.0, "facts",
+                                text="I don't know — you haven't told me that (or you asked me to forget it).")
         # 1. the fact memory
         rec = self.facts.recall(mentions, rel, atype=qa.atype)
         if rec and rec.entity_sim >= self.cfg.entity_min and (
@@ -421,16 +488,95 @@ class ChatBot:
             return self._finish(msg, q, qa, "answer", rec.answer, rec.answer, rec.fact.sentence,
                                 {"kind": "user", "source": rec.fact.source}, rec.confidence, "facts",
                                 mention=rec.entity if not rec.entity.startswith(USER) else None, text=text)
-        if about_user:
-            found = self._user_lookup(q, qa, mentions, rel)
+        if rec and rec.entity_sim >= self.cfg.entity_min:
+            # the relation words differ ("come into the world" ↔ "born"): points on this entity's facts
+            found = self._entity_answer(rec.entity, qa, rel)
             if found is not None:
-                answer, sentence, sid = found
-                return self._finish(msg, q, qa, "answer", answer, answer, sentence, {"kind": "user", "source": sid},
-                                    0.0, "memory")
-            return self._finish(msg, q, qa, "unknown", None, None, None, None, 0.0, "facts",
-                                text="I don't know — you haven't told me that (or you asked me to forget it).")
+                answer, f, score = found
+                return self._finish(msg, q, qa, "answer", answer, answer, f.sentence,
+                                    {"kind": "user", "source": f.source}, score, "facts", mention=rec.entity)
         # 2. look it up and cut out a short answer
         return self._lookup(msg, q, qa, mentions)
+
+    def _fact_points(self, f, qlabels: set, qwords: set, rq, want: str | None) -> float | None:
+        """Points of a fact for a question (None: its category contradicts the question)."""
+        from engramm.chat.facts import CATEGORIES
+        flabels = {w for w in f.relation if w.startswith("#")}
+        fwords = {w for w in f.relation if not w.startswith("#")}
+        if category_conflict(qlabels, flabels):
+            return None
+        shared = qlabels & flabels
+        s = 2.0 * len(shared & CATEGORIES) + 0.5 * len(shared - CATEGORIES)
+        s += 0.5 * len(qwords & fwords)
+        s += 0.25 * self._soft_overlap(qwords - fwords, fwords)
+        if rq is not None:
+            s += 0.5 * max(0.0, (1.0 - int(np.bitwise_count(rq ^ self.facts.rel.encode(f.relation)).sum()) / 2048
+                                 - 0.5) / 0.5)
+        if want:
+            s += 0.5 if f.kind == want else -1.0
+        return s
+
+    def _personal_answer(self, qa, mentions: list[str], rel: list[str]):
+        """A question about you or something of yours, answered from the facts you told:
+        each fact of that entity gets points (shared category 2, shared weaker group 0.5,
+        shared word 0.5, meaning similarity of the words, HDC similarity of the relation
+        bundles, the kind of value the question word expects); a fact whose category
+        contradicts the question is out. The best fact answers if it has at least 1 point and
+        leads the next by 0.25 — or if it is the only thing known about your dog/brother/…"""
+        owned = [m for m in mentions if m.startswith(USER + ":")]
+        target = owned[0] if owned else USER
+        facts = [f for f in self.facts.facts if f.subject == target]
+        if not facts:
+            return None
+        qlabels = {w for w in rel if w.startswith("#")}
+        mw = {target.partition(":")[2]} if owned else set()
+        qwords = {w for w in rel if not w.startswith("#") and w not in mw}
+        rq = self.facts.rel.encode(sorted(qwords | qlabels)) if qwords or qlabels else None
+        want = {PERSON: "NAME", LOCATION: "NAME", "DATE": "DATE", "NUMBER": "NUMBER"}.get(qa.atype)
+        scored = []
+        for f in facts:
+            pts = self._fact_points(f, qlabels, qwords, rq, want)
+            if pts is not None:
+                scored.append((pts, f.source, f))
+        if not scored:
+            return None
+        scored.sort(key=lambda x: (-x[0], x[1], x[2].object))
+        best, _, f = scored[0]
+        second = scored[1][0] if len(scored) > 1 else None
+        if owned and len(facts) == 1 and best >= 0.0:
+            return f, best
+        if best >= 1.0 and (second is None or best - second >= 0.25):
+            return f, best
+        return None
+
+    def _entity_answer(self, entity: str, qa, rel: list[str]):
+        """Points (as for your own facts) on the facts about a named entity; answers only with
+        a shared category or three shared words, and a lead of 0.25 over the next fact."""
+        ew = set(entity.split())
+        qlabels = {w for w in rel if w.startswith("#")}
+        qwords = {w for w in rel if not w.startswith("#") and w not in ew}
+        rq = self.facts.rel.encode(sorted(qwords | qlabels)) if qwords or qlabels else None
+        want = {PERSON: "NAME", LOCATION: "NAME", "DATE": "DATE", "NUMBER": "NUMBER"}.get(qa.atype)
+        scored = []
+        for f in self.facts.facts:
+            if norm_entity(f.subject) == entity:
+                answer, kind = f.object, f.kind
+            elif norm_entity(f.object) == entity and not f.subject.startswith(USER):
+                answer, kind = f.subject, "NAME"
+            else:
+                continue
+            pts = self._fact_points(f.__class__(f.subject, f.relation, answer, f.source, f.sentence, kind),
+                                    qlabels, qwords, rq, want)
+            if pts is not None:
+                scored.append((pts, f.source, answer, f))
+        if not scored:
+            return None
+        scored.sort(key=lambda x: (-x[0], x[1], x[2]))
+        best, _, answer, f = scored[0]
+        second = scored[1][0] if len(scored) > 1 else None
+        if best >= 1.5 and (second is None or best - second >= 0.25):
+            return answer, f, best
+        return None
 
     def _user_lookup(self, q: str, qa, mentions: list[str], rel: list[str]):
         """A question about you that the fact memory could not answer: find the sentence you
@@ -441,7 +587,10 @@ class ChatBot:
         qwords = {w for w in rel if not w.startswith("#")}
         qconc = {w for w in rel if w.startswith("#")}
         best = None
+        with_facts = {f.source for f in self.facts.facts}
         for sid, text, _ in self._user_sents:
+            if sid in with_facts:
+                continue            # sentences with a fact were already weighed by their facts
             low = expand_contractions(text).lower()
             tw = set(_rel_words(low))
             if not any(w in tw or w in FIRST_PERSON for w in words(low)) and "my" not in low.split():
@@ -454,8 +603,8 @@ class ChatBot:
             sc = concepts(low)
             if category_conflict(qconc, sc):
                 continue
-            score = len(qwords & tw) + len(qconc & set(sc))
-            if score > 0 and (best is None or score > best[0]):
+            score = len(qwords & tw) + len(qconc & set(sc)) + 0.5 * self._soft_overlap(qwords, tw)
+            if score > 0.25 and (best is None or score > best[0]):
                 best = (score, sid, text)
         if best is None:
             return None

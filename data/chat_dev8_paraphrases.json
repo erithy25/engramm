@@ -1,0 +1,179 @@
+{
+  "version": "1.0",
+  "note": "Development paraphrases for stage 3 (written 2026-09-27 after E20, before the v8 code). Spent by design: used only to develop the dialog manager, never as a test.",
+  "dialog": {
+    "facts": {
+      "name": {
+        "tell": [
+          "My name is {v}.", "I'm {v}.", "Call me {v}.", "Everyone calls me {v}.", "You can call me {v}.",
+          "The name is {v}.", "{v} here.", "This is {v} speaking.", "I go by {v}.", "My first name is {v}.",
+          "People know me as {v}.", "Hello, my name's {v}!", "hey there, i'm {v}", "I am called {v}.",
+          "Name's {v}, nice to meet you.", "{v} is my name.", "Hi! {v} here, nice to meet you.",
+          "My friends call me {v}.", "Just so you know, I'm {v}.", "Good morning, I am {v}."
+        ],
+        "ask": [
+          "What is my name?", "What's my name?", "Who am I?", "Do you remember my name?", "Do you know my name?",
+          "What do people call me?", "What should you call me?", "Tell me my name.", "whats my name",
+          "What did I say my name was?", "Can you tell me my name?", "What name do I go by?",
+          "Any idea what my name is?", "Say my name, please."
+        ]
+      },
+      "city": {
+        "tell": [
+          "I live in {v}.", "I'm from {v}.", "My home is in {v}.", "I reside in {v}.", "I'm living in {v} now.",
+          "Home is {v}.", "{v} is where I live.", "I've lived in {v} for ten years.", "My hometown is {v}.",
+          "I moved to {v} recently.", "These days I'm in {v}.", "I stay in {v}.", "My apartment is in {v}.",
+          "I'm a resident of {v}.", "My city is {v}.", "I call {v} home.", "We live in {v}.",
+          "I have a flat in {v}.", "I'm settled in {v}.", "I'm based in {v}."
+        ],
+        "ask": [
+          "Where do I live?", "Where is my home?", "Which city do I live in?", "What city am I in?",
+          "Where am I from?", "In what city do I live?", "Do you know where I live?", "What's my hometown?",
+          "Where do I stay?", "Where's my home?", "Remind me where I live.", "What town do I live in?",
+          "What is my city?", "Where am I living?", "Where am I based?"
+        ]
+      },
+      "job": {
+        "tell": [
+          "I work as a {v}.", "I'm a {v}.", "I am a {v} by profession.", "My job is {v}.", "I'm working as a {v}.",
+          "By profession, I'm a {v}.", "My profession is {v}.", "I earn my living as a {v}.",
+          "I've been a {v} for years.", "My occupation is {v}.", "I'm employed as a {v}.",
+          "For a living I work as a {v}.", "Work-wise, I'm a {v}.", "I have a job as a {v}.", "{v} is my job.",
+          "I make money as a {v}.", "My day job: {v}.", "Professionally, I'm a {v}.", "I make a living as a {v}.",
+          "At work I'm a {v}."
+        ],
+        "ask": [
+          "What is my job?", "What do I do for a living?", "What's my profession?", "What is my occupation?",
+          "What do I work as?", "What's my job?", "How do I earn my living?", "What kind of work do I do?",
+          "What am I by profession?", "Do you remember my job?", "What is my line of work?", "What do I do?",
+          "What's my career?", "Tell me my occupation.", "What do I do professionally?"
+        ]
+      },
+      "colour": {
+        "tell": [
+          "My favourite colour is {v}.", "I like the colour {v} most.", "{v} is my favourite colour.",
+          "I love the colour {v}.", "My favorite color is {v}.", "The colour I like best is {v}.",
+          "I prefer {v} over any other colour.", "If I had to choose a colour, I'd pick {v}.",
+          "My top colour is {v}.", "I'm a big fan of the colour {v}.", "Nothing beats the colour {v}.",
+          "My favourite shade is {v}.", "Of all colours I like {v} best.", "I really like {v} as a colour.",
+          "{v} has always been my favourite colour.", "I adore the colour {v}.", "The best colour is {v}."
+        ],
+        "ask": [
+          "What is my favourite colour?", "What's my favorite color?", "Which colour do I like most?",
+          "Which colour is my favourite?", "What colour do I love?", "What colour do I prefer?",
+          "Do you know my favourite colour?", "What's my top colour?", "Which color do I like best?",
+          "What is the colour I like most?", "Remind me of my favourite colour.", "Which colour would I choose?",
+          "What's my favourite shade?"
+        ]
+      },
+      "pet": {
+        "tell": [
+          "My dog is called {v}.", "I have a dog named {v}.", "My dog's name is {v}.", "Our dog is named {v}.",
+          "I've got a dog called {v}.", "{v} is my dog.", "My dog, {v}, is three years old.",
+          "We have a dog; his name is {v}.", "My puppy is called {v}.", "I own a dog named {v}.",
+          "The name of my dog is {v}.", "My dog answers to {v}.", "My little dog {v} loves walks.",
+          "We call our dog {v}.", "I named my dog {v}.", "We named our dog {v}."
+        ],
+        "ask": [
+          "What is my dog called?", "What is the name of my dog?", "What's my dog's name?", "How is my dog called?",
+          "What did I name my dog?", "Do you remember my dog's name?", "Who is my dog?", "What do we call our dog?",
+          "What's the name of our dog?", "What is my puppy called?", "Tell me my dog's name.",
+          "What does my dog answer to?"
+        ]
+      },
+      "employer": {
+        "tell": [
+          "I work at {v}.", "My employer is {v}.", "I work for {v}.", "I'm employed at {v}.", "I'm employed by {v}.",
+          "My company is {v}.", "I have a job at {v}.", "I'm working for {v} right now.", "{v} is my employer.",
+          "The company I work for is {v}.", "I get my paycheck from {v}.", "My workplace is {v}.",
+          "{v} employs me.", "I work for a company called {v}.", "I'm at {v} these days, working in sales.",
+          "I'm working for {v} at the moment."
+        ],
+        "ask": [
+          "Where do I work?", "Who is my employer?", "Who do I work for?", "Which company do I work for?",
+          "What company do I work at?", "Where am I employed?", "What is my company?", "Who employs me?",
+          "What's my workplace?", "Which firm do I work for?", "Do you know where I work?",
+          "For which company do I work?"
+        ]
+      },
+      "birthday": {
+        "tell": [
+          "My birthday is on {v}.", "I was born on {v}.", "My birthday is {v}.", "{v} is my birthday.",
+          "I celebrate my birthday on {v}.", "My date of birth is {v}.", "My birthday falls on {v}.",
+          "I came into the world on {v}.", "My birth date is {v}.", "{v} is when I was born.",
+          "I have my birthday on {v}.", "Born on {v}, that's me.", "I was born on {v}, in a small hospital."
+        ],
+        "ask": [
+          "When is my birthday?", "When was I born?", "What is my date of birth?", "On which day was I born?",
+          "What's my birthday?", "When do I celebrate my birthday?", "What day is my birthday?",
+          "When's my birthday?", "Do you know my birthday?", "What is my birth date?", "Which date is my birthday?"
+        ]
+      },
+      "brother": {
+        "tell": [
+          "My brother's name is {v}.", "I have a brother called {v}.", "My brother is {v}.", "{v} is my brother.",
+          "My brother is called {v}.", "I've got a brother named {v}.", "My older brother is {v}.",
+          "My little brother goes by {v}.", "My brother, {v}, lives abroad.", "I have one brother, {v}.",
+          "The name of my brother is {v}.", "My younger brother is named {v}.", "I have a brother; his name is {v}."
+        ],
+        "ask": [
+          "What is my brother's name?", "What is my brother called?", "Who is my brother?",
+          "What's the name of my brother?", "What's my brother called?", "Do you remember my brother's name?",
+          "How is my brother called?", "Tell me my brother's name.", "Who's my brother?"
+        ]
+      },
+      "food": {
+        "tell": [
+          "My favourite food is {v}.", "The food I love most is {v}.", "I love {v}.", "I really like {v}.",
+          "{v} is my favourite food.", "My favorite dish is {v}.", "I could eat {v} every day.", "Nothing beats {v}.",
+          "I adore {v}.", "{v} is what I like to eat most.", "I like eating {v} most.", "My favourite meal is {v}.",
+          "My top food is {v}.", "I'm crazy about {v}.", "I eat {v} whenever I can.",
+          "When it comes to food, I love {v}.", "My go-to dish is {v}.", "Honestly, nothing beats {v}.",
+          "I really love {v}."
+        ],
+        "ask": [
+          "What is my favourite food?", "What food do I love most?", "What do I like to eat?",
+          "What's my favorite dish?", "What is my favourite meal?", "Which food do I like best?",
+          "What do I love to eat?", "What food do I prefer?", "What could I eat every day?",
+          "Do you know my favourite food?", "What's my go-to dish?", "What do I enjoy eating most?",
+          "What do I like to eat most?"
+        ]
+      },
+      "car": {
+        "tell": [
+          "I drive a {v}.", "My car is a {v}.", "I own a {v}.", "My ride is a {v}.", "I get around in a {v}.",
+          "I've been driving a {v} for two years.", "My vehicle is a {v}.", "I bought a {v} last year.",
+          "{v} is the car I drive.", "The car I drive is a {v}.", "I drive a {v} to work.",
+          "My current car is a {v}.", "I'm the proud owner of a {v}.", "I have a {v} as my car."
+        ],
+        "ask": [
+          "What car do I drive?", "What kind of car do I have?", "What is my car?", "What do I drive?",
+          "Which car do I own?", "What's my car?", "What vehicle do I drive?", "What brand is my car?",
+          "Which car do I have?", "What's my ride?", "What make is my car?", "Do you remember what car I drive?",
+          "What car do I own?"
+        ]
+      }
+    },
+    "forget": [
+      "Forget {topic}.", "Please delete what I told you about {topic}.", "Remove the information about {topic}.",
+      "Please erase {topic} from your memory.", "Delete everything I said about {topic}.",
+      "Forget about {topic}, please.", "Can you forget {topic}?", "Please forget what I said about {topic}.",
+      "Erase {topic}.", "Wipe {topic} from your memory.", "I want you to forget {topic}.",
+      "Stop remembering {topic}.", "Throw away what you know about {topic}.", "Drop {topic} from your memory.",
+      "Could you delete {topic}, please?", "Forget everything about {topic}."
+    ],
+    "chains": {
+      "person": [
+        "Where was he born?", "Where was she born?", "And where was this person born?", "In which town was she born?",
+        "Where was that person born?", "What is his birthplace?", "Where did she come into the world?",
+        "Do you know where she was born?", "And his birthplace?", "Where was the person born?",
+        "So where was he born?", "What is this person's birthplace?"
+      ],
+      "place": [
+        "Which river is it on?", "Which river flows through that city?", "What river runs through it?",
+        "And which river is there?", "Which river does it lie on?", "On which river is it?",
+        "Which river passes through there?", "What river does it lie on?"
+      ]
+    }
+  }
+}

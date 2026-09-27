@@ -46,25 +46,37 @@ PLACE_PREPS = frozenset(("in", "at", "near", "from", "to"))
 # questions): a member word adds the group's label to the relation words.
 CONCEPTS = [
     ("#job", re.compile(r"\b(job|jobs|profession|occupation|career|works? as|worked as|working as|living as|at work|"
-                        r"earns? (?:a |my )?living|do for (?:a )?(?:work|living)|by trade|trade|professionally|"
-                        r"professional)\b")),
+                        r"earns? (?:a |my |his |her )?living|earning (?:a |my )?living|makes? (?:a |my )?living|"
+                        r"making (?:a |my )?living|for a living|do for (?:a )?(?:work|living)|by trade|trade|"
+                        r"professionally|professional|make money|makes money|making money|work-wise|workwise|"
+                        r"line of work|kind of work|type of work|what (?:do|does|did) (?:i|you|he|she|we) do|"
+                        r"employed as|trained as|day job)\b")),
     ("#employer", re.compile(r"\b(employer|company|firm|workplace|works? (?:at|for)|worked (?:at|for)|"
-                             r"working (?:at|for)|employ\w*|where (?:do )?i work)\b")),
+                             r"working (?:at|for)|employ(?:er|ers|ee|ees|s|ing|ment)?|employed(?! as)|"
+                             r"where (?:do )?i work|paycheck|payroll|"
+                             r"staff of|on the staff)\b")),
     ("#work", re.compile(r"\b(work|works|worked|working)\b")),
-    ("#home", re.compile(r"\b(home|hometown|residence|live|lives|lived|living in|reside|resides|moved? to|"
-                         r"moving to|relocated to)\b")),
-    ("#birth", re.compile(r"\b(birthday|birth|born|birthplace|birthdate)\b")),
-    ("#car", re.compile(r"\b(car|cars|vehicle|drive|drives|driving)\b")),
-    ("#food", re.compile(r"\b(food|foods|eat|eating|meal|meals|dish|cuisine)\b")),
+    ("#home", re.compile(r"\b(home|hometown|residence|resident|reside|resides|residing|live|lives|lived|"
+                         r"living(?! as)|moved? to|moving to|relocated to|stay|stays|staying|based|settled|flat|"
+                         r"apartment|i am (?:originally )?from|i am in|my (?:city|town|village|country))\b")),
+    ("#birth", re.compile(r"\b(birthday|birth|born|birthplace|birthdate|came into the world|come into the world|"
+                          r"comes into the world)\b")),
+    ("#car", re.compile(r"\b(car|cars|vehicle|drive|drives|driving|drove|ride|wheels)\b")),
+    ("#food", re.compile(r"\b(food|foods|eat|eats|eating|ate|meal|meals|dish|dishes|cuisine)\b")),
     ("#colour", re.compile(r"\b(colou?rs?|shades?|hues?)\b")),
     ("#fav", re.compile(r"\b(favou?rite|love|loves|like|likes|prefer|prefers|best|most|adore|adores|enjoy|"
-                        r"enjoys|nothing beats|beats)\b")),
-    ("#name", re.compile(r"\b(name|names|named|called|call)\b")),
+                        r"enjoys|nothing beats|beats|fan|crazy about|go-to|obsessed with|choose|chose|pick|picked|"
+                        r"top)\b")),
+    ("#name", re.compile(r"\b(name|names|named|called|call|calls|go by|goes by|known as|know me as|answers? to|"
+                         r"speaking)\b")),
     ("#place", re.compile(r"\b(where|place|city|town|country)\b")),
 ]
+# phrases that name the job, removed before the home group is matched ("for a living" is not a home)
+_JOB_LIVING = re.compile(r"\b(?:earns?|earning|makes?|making|do|does|did|for) (?:a |my |his |her )?living\b")
 
 
-CONCEPT_PARENTS = {"#job": "#work", "#employer": "#work"}
+CONCEPT_PARENTS = {"#job": "#work", "#employer": "#work", "#home": "#place"}
+_CALL_HOME = re.compile(r"\bcalls? (?:[a-z]+ ){0,2}home\b")     # "I call Lyon home" names a home, not a name
 CATEGORIES = frozenset(("#food", "#colour", "#car", "#job", "#employer", "#home", "#birth", "#name"))
 
 
@@ -81,7 +93,9 @@ def concepts(text: str) -> list[str]:
     low = text.lower().replace("’", "'")
     if _JOB_AT.search(low):              # "a job at X": X is the employer, not the occupation
         low = _JOB_AT.sub(" employer ", low)
-    out = [label for label, rx in CONCEPTS if rx.search(low)]
+    out = [label for label, rx in CONCEPTS
+           if rx.search(_JOB_LIVING.sub(" job ", low) if label == "#home" else
+                        _CALL_HOME.sub(" home ", low) if label == "#name" else low)]
     out += [CONCEPT_PARENTS[c] for c in out if c in CONCEPT_PARENTS and CONCEPT_PARENTS[c] not in out]
     return out
 
@@ -90,15 +104,26 @@ POSSESSED = frozenset((
     "brother", "sister", "mother", "mom", "mum", "father", "dad", "wife", "husband", "son", "daughter", "partner",
     "girlfriend", "boyfriend", "friend", "boss", "dog", "cat", "pet", "horse", "bird", "grandmother", "grandfather",
     "grandma", "grandpa", "uncle", "aunt", "cousin", "neighbour", "neighbor", "colleague", "baby", "child", "kid",
-    "fiance", "fiancee", "roommate", "flatmate"))
+    "fiance", "fiancee", "roommate", "flatmate", "puppy", "pup", "doggy", "kitten", "kitty", "mommy", "daddy", "bro",
+    "sis", "hubby"))
+# the same entity under another word ("my puppy" is "my dog")
+POSSESSED_CANON = {"puppy": "dog", "pup": "dog", "doggy": "dog", "kitten": "cat", "kitty": "cat", "mom": "mother",
+                   "mum": "mother", "mommy": "mother", "dad": "father", "daddy": "father", "bro": "brother",
+                   "sis": "sister", "hubby": "husband", "grandma": "grandmother", "grandpa": "grandfather",
+                   "neighbor": "neighbour", "fiancee": "fiance", "flatmate": "roommate"}
 _CONTRACTIONS = [(r"\bwhat's\b", "what is"), (r"\bwho's\b", "who is"), (r"\bwhere's\b", "where is"),
                  (r"\bwhen's\b", "when is"), (r"\bhow's\b", "how is"), (r"\bthat's\b", "that is"),
                  (r"\bit's\b", "it is"), (r"\bi'm\b", "i am"), (r"\bi've\b", "i have"), (r"\bi'd\b", "i would"),
                  (r"\bi'll\b", "i will"), (r"\bdon't\b", "do not"), (r"\bdoesn't\b", "does not"),
                  (r"\bdidn't\b", "did not"), (r"\bcan't\b", "can not"), (r"\bwon't\b", "will not"),
-                 (r"\bisn't\b", "is not"), (r"\bwe're\b", "we are"), (r"\byou're\b", "you are")]
+                 (r"\bisn't\b", "is not"), (r"\bwe're\b", "we are"), (r"\byou're\b", "you are"),
+                 (r"\bwhats\b", "what is"), (r"\bwheres\b", "where is"), (r"\bwhos\b", "who is"),
+                 (r"\bwhens\b", "when is"), (r"\bim\b", "i am"), (r"\bive\b", "i have"),
+                 (r"\bdont\b", "do not"), (r"\bdoesnt\b", "does not"), (r"\bdidnt\b", "did not")]
 _LEADING = re.compile(r"^(?:(?:these days|nowadays|currently|right now|now|at the moment|actually|by the way|btw|"
-                      r"well|so|also|and|oh|anyway|just so you know|fyi|for the record)[, ]+)+", re.I)
+                      r"well|so|also|and|oh|anyway|just so you know|fyi|for the record|honestly|really|frankly|"
+                      r"truthfully|to be honest|basically|personally|ok|okay|yeah|yes|you know|in fact)[, ]+)+",
+                      re.I)
 
 
 def expand_contractions(text: str) -> str:
@@ -109,7 +134,7 @@ def expand_contractions(text: str) -> str:
 
 
 def possessed_key(noun: str) -> str:
-    return f"{USER}:{noun}"
+    return f"{USER}:{POSSESSED_CANON.get(noun, noun)}"
 
 
 def rand_vec(*parts) -> np.ndarray:
@@ -285,8 +310,13 @@ def normalise_first_person(sentence: str) -> str:
     """Contractions expanded, leading fillers dropped, 'our' → 'my' (for matching only)."""
     s = expand_contractions(sentence.strip()).rstrip(".!").strip()
     s = _LEADING.sub("", s)
+    s = re.sub(r"[,!.]?\s*(?:(?:it is |it's )?(?:nice|pleased|glad|good|great) to meet you|how are you)[.!]*$", "", s,
+               flags=re.I).strip()
     s = re.sub(r"^(?:the )?name(?:'s| is)\b", "my name is", s, flags=re.I)
     s = re.sub(r"\bour\b", "my", s, flags=re.I)
+    s = re.sub(r"\bwe are\b", "I am", s, flags=re.I)
+    s = re.sub(r"\bwe were\b", "I was", s, flags=re.I)
+    s = re.sub(r"\bwe\b", "I", s, flags=re.I)
     return s
 
 
@@ -353,23 +383,63 @@ CATEGORY_NOUNS = frozenset(("colour", "color", "colours", "colors", "food", "dis
 NON_VALUES = frozenset(("favourite", "favorite", "best", "most", "one", "thing", "stuff", "it", "that", "this"))
 
 
-def personal_facts(sentence: str, source: str, initial_is_name=None) -> list[Fact]:
+# words that are never the value of a personal statement: fillers, time phrases, evaluation cues
+_FILLERS = frozenset(("honestly", "really", "just", "actually", "basically", "truly", "totally", "absolutely",
+                      "definitely", "always", "still", "also", "too", "very", "quite", "pretty", "recently",
+                      "currently", "now", "today", "ago", "last", "year", "years", "month", "months", "week", "weeks",
+                      "day", "days", "every", "whenever", "moment", "time", "while", "lately", "long", "old",
+                      "here", "there", "please", "thanks", "nice", "meet", "hi", "hello", "hey", "proud", "big", "fan",
+                      "crazy", "top", "go-to", "wise", "work-wise", "workwise", "professionally", "nothing", "beats",
+                      "speaking", "choose", "pick", "rather", "probably", "certainly", "surely", "simply"))
+_DURATION = frozenset(("year", "years", "month", "months", "week", "weeks", "day", "days", "old", "hours", "decade",
+                       "decades", "times"))
+_TRAIL = frozenset(("for", "every", "whenever", "since", "when", "because", "at", "right", "last", "recently",
+                    "these", "this", "as", "ago", "and", "but", "so", "with", "from", "in", "on", "to", "of"))
+def _cue_words() -> frozenset:
+    from engramm.chat.lexicon import ANCHORS
+    return frozenset(w for ws in ANCHORS.values() for w in ws.split())
+
+
+_CUE_WORDS = _cue_words()          # "eat", "drive", "working": the anchors of a category are cues, never values
+_NAME_INTRO = re.compile(r"^(?:this is )?(?P<o>[A-Z][\w'-]*(?: [A-Z][\w'-]*)?)(?: here| speaking)?[.!]?$")
+
+
+def _trim_value(obj: str) -> str:
+    """"been a chemist for years" → "chemist", "crazy about paella" → "paella"."""
+    ws = words(obj)
+    lw = [w.lower() for w in ws]
+    i = 0
+    while i < len(ws) and (lw[i] in STOP or lw[i] in _FILLERS or lw[i] in ("been", "being", "about")):
+        i += 1
+    j = i
+    while j < len(ws) and ws[j][0].isalnum() and not (j > i and lw[j] in _TRAIL) and lw[j] not in _FILLERS:
+        j += 1
+    return " ".join(ws[i:j]) if j > i else obj
+
+
+def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None, implicit: bool = False
+                   ) -> list[Fact]:
     """A statement about you or something of yours, without sentence templates:
 
     * subject: you, or "my <brother/dog/…>" as its own entity;
-    * value: the name, date or number the sentence mentions; if there is none, the value
-      the templates find, else the words after the last verb/article cue, or the subject
-      of "X is my …";
-    * relation: every other content word, plus the concept groups."""
+    * value: the date or name the sentence mentions (not an opening "Honestly," nor an age
+      or a duration); else a word the corpus counts as a food, colour, car or job (lexicon);
+      else the value the templates find, the subject of "X is my …", or the words after the
+      last verb/article cue;
+    * relation: every other content word, plus the concept groups, plus the value's counted
+      category when the sentence names no category itself.
+
+    ``implicit``: the sentence has no "I"/"my" but is still about you ("Nothing beats curry.")."""
     s = _GREETING.sub("", normalise_first_person(sentence)).strip()
     ws = words(s)
     lw = [w.lower() for w in ws]
     n = len(ws)
-    if not any(w in _FIRST for w in lw):
+    if not implicit and not any(w in _FIRST for w in lw):
         return []
     subject, owned = USER, set()
     for i, w in enumerate(lw):
-        if w in ("have", "has", "got") and i + 2 < n and lw[i + 1] in ("a", "an", "one"):
+        if w in ("have", "has", "got", "own", "owns", "adopted", "keep") and i + 2 < n and \
+                lw[i + 1] in ("a", "an", "one"):
             for j in range(i + 2, min(i + 5, n)):
                 if lw[j] in POSSESSED:
                     subject = possessed_key(lw[j])
@@ -388,19 +458,55 @@ def personal_facts(sentence: str, source: str, initial_is_name=None) -> list[Fac
                 break
     cands = [x for x in spans(s, initial_is_name) if x.kind in ("NAME", "DATE", "NUMBER")
              and not (set(range(x.start, x.end)) & owned) and lw[x.start] not in _FIRST]
-    value, vrange, kind = None, set(), "TEXT"
+    typed = []                   # (start, end, text, category) — the corpus' own lexicon
+    if typer is not None:
+        for i in range(n):
+            if i in owned or not ws[i][0].isalpha() or lw[i] in STOP or lw[i] in _FIRST or lw[i] in CATEGORY_NOUNS \
+                    or lw[i] in _FILLERS or lw[i] in AUX or lw[i] in _CUE_WORDS or concepts(lw[i]):
+                continue
+            if i > 0 and lw[i - 1] in ("i", "we", "you", "they", "he", "she", "to"):
+                continue                 # "I earn", "to eat": a verb, not a value
+            for L in (2, 1):
+                j = i + L
+                if j > n or any(not ws[x][0].isalpha() or lw[x] in STOP or lw[x] in _FILLERS for x in range(i, j)):
+                    continue
+                cat = typer.category(" ".join(ws[i:j]) if ws[i][0].isupper() and i > 0 else " ".join(lw[i:j]))
+                if cat:
+                    typed.append((i, j, " ".join(ws[i:j]), cat))
+                    break
+    # an opening "Work-wise," / "Honestly," is not a value; neither is an age or a duration ("three years old"),
+    # when the sentence offers anything else
+    # "Work-wise, I'm a dentist.", "Honestly, I …": an opening word before an I-clause is never the value
+    cands = [x for x in cands if not (x.start == 0 and x.end + 1 < n and ws[x.end] == "," and x.kind == "NAME"
+                                      and lw[x.end + 1] in ("i", "we"))]
+    if len(cands) + len(typed) > 1:
+        keep = [x for x in cands if not (x.start == 0 and x.end < n and ws[x.end] == "," and x.kind == "NAME"
+                                         and x.end + 1 < n and lw[x.end + 1] in ("i", "my", "we"))
+                and not (x.kind == "NUMBER" and (any(w in _DURATION for w in lw[x.start:x.end])
+                                                 or (x.end < n and lw[x.end] in _DURATION)))]
+        if keep or typed:
+            cands = keep
+    value, vrange, kind, vcat = None, set(), "TEXT", None
     if cands:
         dates = [x for x in cands if x.kind == "DATE"]
         pick = dates[-1] if dates else [x for x in cands if x.start > 0 and lw[x.start - 1] in _VALUE_CUES][-1:] or \
             cands[-1:]
         pick = pick[-1] if isinstance(pick, list) else pick
         value, vrange, kind = pick.text, set(range(pick.start, pick.end)), pick.kind
+        for a, b, _, cat in typed:
+            if set(range(a, b)) == vrange:       # the whole value ("Toyota"), not a part ("… Motors")
+                vcat = cat
+    elif typed:
+        cued = [t for t in typed if t[0] > 0 and lw[t[0] - 1] in _VALUE_CUES]
+        a, b, text, vcat = (cued or typed)[-1]
+        value, vrange = text, set(range(a, b))
     else:
         fp = [f for f in first_person_facts(sentence, source) if f.object.lower() not in NON_VALUES]
         if fp:
             f = fp[0]
-            obj_words = set(norm_entity(f.object).split())
-            value, kind = f.object, f.kind
+            obj = f.object if f.kind != "TEXT" else _trim_value(f.object)
+            obj_words = set(norm_entity(obj).split())
+            value, kind = obj, f.kind
             vrange = {i for i, w in enumerate(lw) if w in obj_words}
         else:
             m = re.match(r"^((?:[\w'-]+ ){0,2}[\w'-]+) (?:is|are|was) (?:my|what|who|the one|the thing)\b", s,
@@ -411,30 +517,55 @@ def personal_facts(sentence: str, source: str, initial_is_name=None) -> list[Fac
             else:
                 for cue in [i for i, w in enumerate(lw) if w in _VALUE_CUES][::-1] + [-1]:
                     j = cue + 1
-                    while j < n and (lw[j] in ("a", "an", "the") or lw[j] in _FIRST or lw[j] in CATEGORY_NOUNS):
+                    while j < n and (lw[j] in ("a", "an", "the") or lw[j] in _FIRST or lw[j] in CATEGORY_NOUNS
+                                     or lw[j] in _FILLERS or not ws[j][0].isalnum()):
                         j += 1
                     k = j
                     while k < n and k - j < 3 and ws[k][0].isalnum() and lw[k] not in STOP \
-                            and lw[k] not in CATEGORY_NOUNS:
+                            and lw[k] not in CATEGORY_NOUNS and lw[k] not in _FILLERS:
                         k += 1
                     if k > j and not all(lw[x] in NON_VALUES for x in range(j, k)) and lw[j] not in _VALUE_CUES:
                         value, vrange = " ".join(ws[j:k]), set(range(j, k))
                         break
+    extra: list[Fact] = []
+    if owned:
+        # "My brother, Casgaiep, lives abroad.": a name right after "my <brother>," is its name
+        e = max(owned) + 1
+        app = [x for x in cands if x.kind == "NAME" and x.start == e + 1 and e < n and ws[e] == ","
+               and (x.end >= n or ws[x.end] in (",", "-", "—", "–"))]
+        if app:
+            extra.append(Fact(subject, ("#name", "name"), app[0].text, source, sentence.strip(), "NAME"))
+            if value == app[0].text:
+                return extra
     if not value:
-        return []
+        return extra
     rest = " ".join(w for i, w in enumerate(lw) if i not in vrange and i not in owned and w not in _FIRST)
     rel = [w for w in _rel_words(rest) if w not in ("hi", "hello", "really", "last", "year", "years", "ago",
                                                      "now", "today", "trade")]
-    rel += concepts(rest)
+    # the concept groups see the first-person words too ("people know me as", "my city")
+    rel += concepts(" ".join(w for i, w in enumerate(lw) if i not in vrange and i not in owned))
     for f in first_person_facts(sentence, source):     # the template reading adds its relation words
         rel += [w for w in f.relation if w not in POSSESSED]
     if _JOB_AT.search(rest):
         rel = [w for w in rel if w not in ("job", "position", "post", "#job")]
-    for i in sorted(vrange)[:1]:
-        if kind == "NAME" and i >= 2 and lw[i - 2:i] == ["i", "am"]:
-            rel += ["name", "#name"]           # "I'm Frotam": a name
-    return [Fact(subject, tuple(sorted(set(rel))), value, source, sentence.strip(), kind if kind != "TEXT" else
-                 object_kind(value))]
+    first_v = sorted(vrange)[0] if vrange else 0
+    has_category = bool(set(rel) & CATEGORIES)
+    # "I am a nurse", "I have been a pilot for years": an occupation, whatever else the word may be
+    if kind == "TEXT" and not has_category and first_v >= 2 and lw[first_v - 1] in ("a", "an") and \
+            (lw[first_v - 3:first_v - 1] == ["i", "am"] or lw[first_v - 4:first_v - 1] == ["i", "have", "been"]
+             or lw[first_v - 2] in ("am", "been")):
+        rel += ["#job", "#work"]
+        has_category = True
+    if vcat and not has_category:
+        rel.append(vcat)
+    if kind == "NAME" and first_v >= 2 and lw[first_v - 2:first_v] == ["i", "am"]:
+        rel += ["name", "#name"]               # "I'm Frotam": a name
+    if kind == "NAME" and implicit and _NAME_INTRO.match(s):
+        rel += ["name", "#name"]               # "Frotam here.", "This is Frotam speaking."
+    if kind == "NAME" and subject != USER and "#name" not in rel and not has_category:
+        rel += ["#name"]                        # the name of your dog / brother
+    return extra + [Fact(subject, tuple(sorted(set(rel))), value, source, sentence.strip(), kind if kind != "TEXT"
+                         else object_kind(value))]
 
 
 def third_person_facts(sentence: str, source: str, initial_is_name=None) -> list[Fact]:
@@ -460,19 +591,30 @@ def third_person_facts(sentence: str, source: str, initial_is_name=None) -> list
     return out
 
 
-def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None) -> list[Fact]:
+_IMPLICIT_CONCEPTS = frozenset(("#fav", "#home", "#name", "#birth", "#job", "#employer", "#car", "#food", "#colour"))
+
+
+def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None, typer=None) -> list[Fact]:
     sents = splitter(text) if splitter else re.split(r"(?<=[.!?])\s+", text.strip())
     out = []
     for s in sents:
         s = s.strip()
         if not s or s.endswith("?"):
             continue
-        low = _GREETING.sub("", normalise_first_person(s)).lower()
+        norm = _GREETING.sub("", normalise_first_person(s))
+        low = norm.lower()
         if re.search(r"\b(i|my|me)\b", low):
-            fp = personal_facts(s, source, initial_is_name)
+            fp = personal_facts(s, source, initial_is_name, typer)
             out += fp if fp else third_person_facts(s, source, initial_is_name)
-        else:
-            out += third_person_facts(s, source, initial_is_name)
+            continue
+        tp = third_person_facts(s, source, initial_is_name)
+        if tp:
+            out += tp
+            continue
+        # a short statement without "I"/"my" that is still about you: "Nothing beats curry.",
+        # "Home is Lyon.", "Frotam here."
+        if len(words(norm)) <= 8 and (set(concepts(low)) & _IMPLICIT_CONCEPTS or _NAME_INTRO.match(norm.strip())):
+            out += personal_facts(s, source, initial_is_name, typer, implicit=True)
     return out
 
 
@@ -632,4 +774,7 @@ def question_parts(question: str, initial_is_name=None) -> tuple[list[str], list
     rest = " ".join(rel)
     joined = " ".join(w for w in lw if w[0].isalnum())
     extra = ["name", "#name"] if re.search(r"\bwho (?:am i|i am)\b", joined) else []
+    if personal and (re.search(r"\bwhere (?:am|are|is|was|were|do|does|did) (?:i|you|we)\b.* from$", joined)
+                     or re.search(r"\b(?:my|what|which) (?:city|town|village|country|hometown)\b", joined)):
+        extra += ["#home", "#place"]            # where you are from / your city: your home
     return mentions, _rel_words(rest) + concepts(rest) + extra
