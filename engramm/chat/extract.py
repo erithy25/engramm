@@ -49,6 +49,8 @@ class ExtractParams:
     nb: float = 0.0             # > 0: choose spans with the counted statistics (spanstats), temperature 1/nb
     nb_prox: float = 0.0        # extra weight of the proximity heuristic in the counted mode
     rule_types: tuple = ()      # expected answer types that keep the rule mode even when counting is on
+    sent_beta: float = 0.0      # > 0: one softmax over the candidates of all K sentences, score + β·log(sentence
+                                # weight) (else each sentence spreads its own weight)
 
 
 @dataclass
@@ -217,6 +219,7 @@ def extract_counted(q: Question, texts: list[str], rel: np.ndarray, p: ExtractPa
     sw /= sw.sum()
     votes: dict[str, float] = {}
     surface: dict[str, tuple[float, str, int]] = {}
+    pooled = []                 # (sentence, span, score) for the global softmax
     for si in range(k):
         cands = features_for_sentence(q, texts[si], info, initial_is_name,
                                       extended=getattr(stats, "extended", False))
@@ -235,10 +238,27 @@ def extract_counted(q: Question, texts: list[str], rel: np.ndarray, p: ExtractPa
             for j, (sp, _) in enumerate(cands):
                 if sp.kind in ("DATE", "YEAR") and date_granularity(q, sp) not in (sp.text,):
                     sc[j] -= 2.0 * p.nb
+        if p.sent_beta > 0:
+            lsw = float(np.log(max(sw[si], 1e-300)))
+            pooled += [(si, sp, float(x) + p.sent_beta * lsw) for (sp, _), x in zip(cands, sc)]
+            continue
         e = np.exp(sc - sc.max())
         e /= e.sum()
         for (sp, _), pr in zip(cands, e):
             v = float(sw[si]) * float(pr)
+            key = normalize(sp.text)
+            if not key:
+                continue
+            votes[key] = votes.get(key, 0.0) + v
+            best = surface.get(key)
+            if best is None or v > best[0]:
+                surface[key] = (v, sp.text, si)
+    if pooled:
+        allsc = np.array([x for _, _, x in pooled])
+        e = np.exp(allsc - allsc.max())
+        e /= e.sum()
+        for (si, sp, _), pr in zip(pooled, e):
+            v = float(pr)
             key = normalize(sp.text)
             if not key:
                 continue

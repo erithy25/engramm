@@ -31,7 +31,7 @@ from experiments.chat_v2_data import h64
 from experiments.chat_v2_spanstats import name_initial, sentences_with_offsets, training_questions
 
 
-def build_examples(model_dir: Path):
+def build_examples(model_dir: Path, paragraph: bool = False):
     corpus = Corpus.load(model_dir)
     tok = corpus.tok
     cb = Codebook.load(model_dir / "codebook.npz")
@@ -62,6 +62,14 @@ def build_examples(model_dir: Path):
         g = normalize(gold)
         cands = features_for_sentence(qa, text.strip(), info, initial, extended=True)
         golds = [k for k, (sp, _) in enumerate(cands) if normalize(sp.text) == g]
+        if paragraph and golds:
+            # the other sentences of the paragraph compete too (their spans are wrong answers)
+            others = []
+            for _, t in sents:
+                if t is not text and t.strip():
+                    others += [c for c in features_for_sentence(qa, t.strip(), info, initial, extended=True)
+                               if normalize(c[0].text) != g]
+            cands = cands + others
         if not golds or len(cands) < 2:
             continue
         ids, offs = [], [0]
@@ -104,20 +112,23 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default=str(MODEL_DIR))
     ap.add_argument("--passes", type=int, default=5)
+    ap.add_argument("--paragraph", action="store_true", help="candidates of the whole paragraph compete")
+    ap.add_argument("--out", default="spanperc.json")
     args = ap.parse_args()
     t0 = time.time()
     model_dir = Path(args.model)
-    examples, index, n_q = build_examples(model_dir)
+    examples, index, n_q = build_examples(model_dir, args.paragraph)
     w = train(examples, len(index), args.passes)
     names = [None] * len(index)
     for f, k in index.items():
         names[k] = f
     perc = SpanPerceptron({names[k]: float(w[k]) for k in np.flatnonzero(w)}, True)
-    out = model_dir.parent / "chat2" / "spanperc.json"
+    out = model_dir.parent / "chat2" / args.out
     perc.save(out)
     meta = {"questions": n_q, "examples": len(examples), "features": len(index), "nonzero": len(perc.w),
             "passes": args.passes, "seconds": round(time.time() - t0, 1)}
-    (model_dir.parent / "chat2" / "spanperc_meta.json").write_text(json.dumps(meta, indent=2) + "\n")
+    meta["paragraph"] = args.paragraph
+    (model_dir.parent / "chat2" / args.out.replace(".json", "_meta.json")).write_text(json.dumps(meta, indent=2) + "\n")
     print(json.dumps(meta, indent=2), flush=True)
 
 

@@ -195,6 +195,13 @@ def span_features(q: Question, ws: list[str], lw: list[str], sp: Span, anchors: 
         feats.append(f"qhw|{wh}|{q.head or '-'}|{fc}")
         n_anch = len(set(lw[a] for a in anchors)) if anchors else 0
         feats.append(f"na|{A}|{min(n_anch, 4)}")
+        # conjunctions a linear model cannot build itself
+        feats.append(f"pn|{A}|{_shape(prev, cls) if prev != '<s>' else prev}|{_shape(nxt, cls) if nxt != '</s>' else nxt}")
+        qv = next((w for w in q.content if w != (q.head or "")), "-")
+        feats.append(f"qv|{qv}|{prev.lower()}")
+        feats.append(f"qvn|{qv}|{nxt.lower()}")
+        if q.head:
+            feats.append(f"hl|{q.head}|{lc}")
     return feats
 
 
@@ -325,6 +332,12 @@ def features_for_sentence(q: Question, text: str, info: WordInfo, initial_is_nam
         if not sw or all(w in qwords or w in STOP for w in sw):
             continue
         out.append((sp, span_features(q, ws, lw, sp, anchors, qdir, qwords, info.cls, hs, extended)))
+    if extended and out:
+        # how much of the question the sentence covers (the sentence's own relevance)
+        qc = set(q.content)
+        cov = len(qc & set(lw)) / max(len(qc), 1)
+        tag = f"sc|{q.atype}|{min(int(cov * 5), 4)}"
+        out = [(sp, f + [tag]) for sp, f in out]
     return out
 
 
