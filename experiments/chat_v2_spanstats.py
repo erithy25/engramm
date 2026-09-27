@@ -22,6 +22,7 @@ from engramm.chat.corpus import Corpus
 from engramm.chat.index import _segment_v2, token_flags
 from engramm.chat.question import STOP, analyse
 from engramm.chat.spanstats import SpanStats, WordInfo, features_for_sentence
+from engramm.chat.extract import f1
 from engramm.lm.chat import MAX_SENT, normalize
 from engramm.lm.semantic import Codebook
 from experiments.chat_eval import COVER, load_squad, split
@@ -30,17 +31,12 @@ from experiments.chat_v2_data import CACHE, h64
 
 
 def name_initial(tok, cap: dict):
+    from engramm.chat.bot import name_initial_rule
     memo: dict = {}
 
     def f(word: str) -> bool:
         if word not in memo:
-            if word.lower() in STOP:
-                memo[word] = False
-            else:
-                ids = tok.encode(" " + word)
-                first = tok.token_bytes()[ids[0]].decode("utf-8", errors="replace").strip().lower()
-                r = cap.get(first)
-                memo[word] = True if r is None else r > 0.5
+            memo[word] = name_initial_rule(word, tok, cap)
         return memo[word]
     return f
 
@@ -72,6 +68,7 @@ def training_questions(corpus: Corpus) -> list[dict]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default=str(MODEL_DIR))
+    ap.add_argument("--soft", action="store_true", help="label = token F1 with the gold answer (else exact match)")
     args = ap.parse_args()
     t0 = time.time()
     from pathlib import Path
@@ -108,18 +105,20 @@ def main() -> None:
         cands = features_for_sentence(qa, text.strip(), info, initial)
         hit = False
         for sp, feats in cands:
-            pos = normalize(sp.text) == g
-            hit |= pos
-            stats.add(feats, pos)
+            exact = normalize(sp.text) == g
+            hit |= exact
+            stats.add(feats, f1(sp.text, [gold]) if args.soft else exact)
         covered += hit
         if i % 5000 == 0:
             print(f"{i:,}/{len(qs):,}  coverage {covered / max(used, 1):.3f}  ({time.time() - t0:.0f} s)", flush=True)
-    out = model_dir.parent / "chat2" / "spanstats.json"
+    suffix = "_soft" if args.soft else ""
+    out = model_dir.parent / "chat2" / f"spanstats{suffix}.json"
     stats.save(out)
     meta = {"questions": len(qs), "used": used, "gold_among_candidates": covered / max(used, 1),
             "positives": stats.n_pos, "negatives": stats.n_neg, "features": len(set(stats.pos) | set(stats.neg)),
             "seconds": round(time.time() - t0, 1)}
-    (model_dir.parent / "chat2" / "spanstats_meta.json").write_text(json.dumps(meta, indent=2) + "\n")
+    meta["labels"] = "token F1" if args.soft else "exact match"
+    (model_dir.parent / "chat2" / f"spanstats{suffix}_meta.json").write_text(json.dumps(meta, indent=2) + "\n")
     print(json.dumps(meta, indent=2), flush=True)
 
 

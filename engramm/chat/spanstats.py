@@ -192,14 +192,16 @@ class SpanStats:
     alpha: float = 1.0
     _w: dict = field(default_factory=dict)
 
-    def add(self, feats: list[str], positive: bool) -> None:
-        d = self.pos if positive else self.neg
+    def add(self, feats: list[str], positive: bool | float) -> None:
+        """Count one candidate; ``positive`` may be a weight in [0, 1] (soft label)."""
+        w = float(positive)
         for f in feats:
-            d[f] = d.get(f, 0) + 1
-        if positive:
-            self.n_pos += 1
-        else:
-            self.n_neg += 1
+            if w > 0:
+                self.pos[f] = self.pos.get(f, 0) + w
+            if w < 1:
+                self.neg[f] = self.neg.get(f, 0) + (1.0 - w)
+        self.n_pos += w
+        self.n_neg += 1.0 - w
 
     def weight(self, f: str) -> float:
         w = self._w.get(f)

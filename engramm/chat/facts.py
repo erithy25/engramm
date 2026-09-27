@@ -35,7 +35,8 @@ USER = "USER"                  # the person you are talking to
 
 FIRST_PERSON = frozenset(("i", "me", "my", "mine", "myself", "i'm", "im"))
 AUX = frozenset(("is", "are", "was", "were", "be", "been", "am", "do", "does", "did", "has", "have", "had",
-                 "will", "would", "can", "could", "please", "tell", "know", "remember", "you", "your"))
+                 "will", "would", "can", "could", "please", "tell", "know", "remember", "you", "your", "again",
+                 "actually", "still", "now", "anymore", "not"))
 QWORDS = frozenset(("what", "which", "who", "whom", "whose", "when", "where", "why", "how", "kind", "type",
                     "sort"))
 REL_STOP = STOP - frozenset(("name", "named", "called", "call", "known", "most", "one", "first"))
@@ -44,9 +45,10 @@ PLACE_PREPS = frozenset(("in", "at", "near", "from"))
 # Hand-written concept groups (general English, applied the same way to statements and
 # questions): a member word adds the group's label to the relation words.
 CONCEPTS = [
-    ("#job", re.compile(r"\b(job|jobs|profession|occupation|career|works? as|worked as|working as)\b")),
+    ("#job", re.compile(r"\b(job|jobs|profession|occupation|career|works? as|worked as|working as|living as|"
+                        r"earns? (?:a |my )?living|do for (?:a )?(?:work|living))\b")),
     ("#employer", re.compile(r"\b(employer|company|firm|workplace|works? (?:at|for)|worked (?:at|for)|"
-                             r"working (?:at|for))\b")),
+                             r"working (?:at|for)|employ\w*|where (?:do )?i work)\b")),
     ("#work", re.compile(r"\b(work|works|worked|working)\b")),
     ("#home", re.compile(r"\b(home|hometown|residence|live|lives|lived|living|reside|resides)\b")),
     ("#birth", re.compile(r"\b(birthday|birth|born)\b")),
@@ -62,6 +64,32 @@ CONCEPTS = [
 def concepts(text: str) -> list[str]:
     low = text.lower().replace("’", "'")
     return [label for label, rx in CONCEPTS if rx.search(low)]
+
+
+POSSESSED = frozenset((
+    "brother", "sister", "mother", "mom", "mum", "father", "dad", "wife", "husband", "son", "daughter", "partner",
+    "girlfriend", "boyfriend", "friend", "boss", "dog", "cat", "pet", "horse", "bird", "grandmother", "grandfather",
+    "grandma", "grandpa", "uncle", "aunt", "cousin", "neighbour", "neighbor", "colleague", "baby", "child", "kid",
+    "fiance", "fiancee", "roommate", "flatmate"))
+_CONTRACTIONS = [(r"\bwhat's\b", "what is"), (r"\bwho's\b", "who is"), (r"\bwhere's\b", "where is"),
+                 (r"\bwhen's\b", "when is"), (r"\bhow's\b", "how is"), (r"\bthat's\b", "that is"),
+                 (r"\bit's\b", "it is"), (r"\bi'm\b", "i am"), (r"\bi've\b", "i have"), (r"\bi'd\b", "i would"),
+                 (r"\bi'll\b", "i will"), (r"\bdon't\b", "do not"), (r"\bdoesn't\b", "does not"),
+                 (r"\bdidn't\b", "did not"), (r"\bcan't\b", "can not"), (r"\bwon't\b", "will not"),
+                 (r"\bisn't\b", "is not"), (r"\bwe're\b", "we are"), (r"\byou're\b", "you are")]
+_LEADING = re.compile(r"^(?:(?:these days|nowadays|currently|right now|now|at the moment|actually|by the way|btw|"
+                      r"well|so|also|and|oh|anyway|just so you know|fyi|for the record)[, ]+)+", re.I)
+
+
+def expand_contractions(text: str) -> str:
+    t = text.replace("’", "'")
+    for rx, rep in _CONTRACTIONS:
+        t = re.sub(rx, lambda m, rep=rep: rep if m.group(0)[0].islower() else rep.capitalize(), t, flags=re.I)
+    return t
+
+
+def possessed_key(noun: str) -> str:
+    return f"{USER}:{noun}"
 
 
 def rand_vec(*parts) -> np.ndarray:
@@ -207,9 +235,10 @@ _KIND_OK = {"PERSON": (("NAME",), ("TEXT",)), "LOCATION": (("NAME",), ("TEXT",))
 
 
 _FP_PATTERNS = [
-    # (regex on the lower-cased sentence, relation words, object group)
-    (re.compile(r"^(?:people |everyone |friends )?call me (?P<o>.+)$"), ("name", "called"), "o"),
-    (re.compile(r"^(?:i am|i'm) (?:called|named) (?P<o>.+)$"), ("name", "called"), "o"),
+    # (regex on the lower-cased, normalised sentence, relation words, object group)
+    (re.compile(r"^(?:(?:my )?(?:friends|family|people|everyone|they|most people|colleagues|everybody) )?"
+                r"calls? me (?P<o>.+)$"), ("name", "called"), "o"),
+    (re.compile(r"^i am (?:called|named|known as) (?P<o>.+)$"), ("name", "called"), "o"),
     (re.compile(r"^my (?P<r>[a-z' ]+?)(?:'s| s)? name is (?P<o>.+)$"), ("name",), "o"),
     (re.compile(r"^my (?P<r>[a-z' ]+?) (?:is|was) (?:called|named) (?P<o>.+)$"), ("name", "called"), "o"),
     (re.compile(r"^i have (?:a|an|one) (?P<r>[a-z ]+?) (?:called|named) (?P<o>.+)$"), ("name", "called"), "o"),
@@ -221,13 +250,23 @@ _FP_PATTERNS = [
                 r"(?: most| best| more than anything)$"), ("favourite",), "o"),
     (re.compile(r"^my (?P<r>[a-z' ]+?) (?:is|was|are) (?:in|at|on) (?P<o>.+)$"), (), "o"),
     (re.compile(r"^my (?P<r>[a-z' ]+?) (?:is|was|are) (?:a |an |the )?(?P<o>.+)$"), (), "o"),
-    (re.compile(r"^(?:i am|i'm) (?:a |an )?(?P<o>[a-z0-9' -]+?) by (?P<r>[a-z]+)$"), (), "o"),
-    (re.compile(r"^i (?P<v>[a-z]+(?: [a-z]+)?) (?P<p>in|at|on|for|as|with|from|to|near|under) "
+    (re.compile(r"^i am (?:a |an )?(?P<o>[a-z0-9' -]+?) by (?P<r>[a-z]+)$"), (), "o"),
+    (re.compile(r"^i (?:am|was) (?P<v>[a-z]+ed) (?P<p>by|to|at|in|on|with|from|for) (?:a |an |the )?(?P<o>.+)$"),
+     (), "o"),
+    (re.compile(r"^i (?P<v>[a-z]+(?: [a-z]+){0,2}) (?P<p>in|at|on|for|as|with|from|to|near|under) "
                 r"(?:a |an |the )?(?P<o>.+)$"), (), "o"),
     (re.compile(r"^i was (?P<v>born|raised|married) (?P<p>in|on|at|to) (?P<o>.+)$"), (), "o"),
-    (re.compile(r"^(?:i am|i'm) (?:a |an )?(?P<o>[a-z0-9' -]+)$"), ("am",), "o"),
+    (re.compile(r"^i am (?:a |an )?(?P<o>[a-z0-9' -]+)$"), ("am",), "o"),
     (re.compile(r"^i (?P<v>drive|own|have|play|speak|study|use|ride|keep) (?:a |an |the )?(?P<o>.+)$"), (), "o"),
 ]
+
+
+def normalise_first_person(sentence: str) -> str:
+    """Contractions expanded, leading fillers dropped, 'our' → 'my' (for matching only)."""
+    s = expand_contractions(sentence.strip()).rstrip(".!").strip()
+    s = _LEADING.sub("", s)
+    s = re.sub(r"\bour\b", "my", s, flags=re.I)
+    return s
 
 
 def _clean_object(o: str, original: str) -> str:
@@ -250,8 +289,8 @@ def _rel_words(text: str) -> list[str]:
 
 
 def first_person_facts(sentence: str, source: str) -> list[Fact]:
-    s = sentence.strip().rstrip(".!").strip()
-    low = s.lower().replace("’", "'")
+    s = normalise_first_person(sentence)
+    low = s.lower()
     for rx, extra, og in _FP_PATTERNS:
         m = rx.match(low)
         if not m:
@@ -269,8 +308,14 @@ def first_person_facts(sentence: str, source: str) -> list[Fact]:
         if not obj:
             continue
         head = low[:m.start(og)] if og in gd and m.start(og) >= 0 else low
-        rel += concepts(head)
-        return [Fact(USER, tuple(sorted(set(rel))), obj, source, sentence.strip(), object_kind(obj))]
+        rel += concepts(" ".join([head] + [gd[g] for g in ("r", "v", "p") if gd.get(g)]))
+        subject = USER
+        r_words = [w for w in (gd.get("r") or "").replace("'s", "").split()]
+        owned = [w for w in r_words if w in POSSESSED]
+        if owned:                      # "my (older) brother …" is a fact about your brother, not about you
+            subject = possessed_key(owned[-1])
+            rel = [w for w in rel if w not in r_words]
+        return [Fact(subject, tuple(sorted(set(rel))), obj, source, sentence.strip(), object_kind(obj))]
     return []
 
 
@@ -304,9 +349,10 @@ def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None)
         s = s.strip()
         if not s or s.endswith("?"):
             continue
-        low = s.lower()
-        if re.match(r"^(i|my|i'm|people call me|call me|the [a-z ]+ i )\b", low):
-            out += first_person_facts(s, source)
+        low = normalise_first_person(s).lower()
+        if re.match(r"^(i|my|the [a-z ]+ i )\b", low) or re.search(r"\bcalls? me\b", low):
+            fp = first_person_facts(s, source)
+            out += fp if fp else third_person_facts(s, source, initial_is_name)
         else:
             out += third_person_facts(s, source, initial_is_name)
     return out
@@ -325,6 +371,7 @@ class Recall:
     confidence: float            # (similarity − 0.5) / (P_k − 0.5): 1 = exact relation, 0 = chance
     margin: float                # to the second-best filler, same scale
     raw: float = 0.0             # the similarity itself
+    only: bool = False           # the entity has exactly one filler of the asked type (not you / yours)
 
 
 @dataclass
@@ -344,14 +391,15 @@ class FactMemory:
         pairs: dict[str, list[tuple[np.ndarray, np.ndarray, int, bool]]] = {}
         for i, f in enumerate(self.facts):
             r = self.rel.encode(f.relation)
-            pairs.setdefault(norm_entity(f.subject) if f.subject != USER else USER, []).append(
+            pairs.setdefault(f.subject if f.subject.startswith(USER) else norm_entity(f.subject), []).append(
                 (r, rand_vec("filler", norm_entity(f.object)), i, False))
-            if f.object and f.subject != USER:
+            if f.object and not f.subject.startswith(USER):
                 pairs.setdefault(norm_entity(f.object), []).append(
                     (r ^ INV, rand_vec("filler", norm_entity(f.subject)), i, True))
         self.entities = sorted(pairs)
         self.exact = {e: k for k, e in enumerate(self.entities)}
-        self.E = (np.stack([self.ent.encode(e) if e != USER else rand_vec("entity", USER) for e in self.entities])
+        self.E = (np.stack([self.ent.encode(e) if not e.startswith(USER) else rand_vec("entity", e)
+                            for e in self.entities])
                   if self.entities else np.zeros((0, WORDS), dtype=np.uint64))
         self.records, self.fillers = [], []
         for e in self.entities:
@@ -374,11 +422,10 @@ class FactMemory:
         if not self.entities:
             return best
         for m in mentions:
-            if m == USER:
-                k = self.exact.get(USER, -1)
-                if k >= 0:
-                    return k, 1.0, m
-                continue
+            if m.startswith(USER):
+                # you, or something of yours: only an exact entry counts, never a look-alike
+                k = self.exact.get(m, -1)
+                return (k, 1.0, m) if k >= 0 else (-1, 0.0, "")
             if exact:
                 k = self.exact.get(norm_entity(m), -1)
                 if k >= 0 and best[1] < 1.0:
@@ -396,7 +443,7 @@ class FactMemory:
         k, es, m = self.find_entity(mentions, exact)
         if k < 0:
             return None
-        mw = set(norm_entity(m).split()) if m != USER else set()
+        mw = set(norm_entity(m).split()) if not m.startswith(USER) else {m.partition(":")[2]}
         rq = self.rel.encode([w for w in rel_words if w not in mw])
         u = self.records[k] ^ rq
         pool = self.fillers[k]
@@ -416,7 +463,10 @@ class FactMemory:
         scale = max(majority_agreement(len(self.fillers[k])) - 0.5, 1e-9)
         fact = self.facts[i]
         answer = fact.subject if inv else fact.object
-        return Recall(answer, fact, self.entities[k], es, (s - 0.5) / scale, (s - second) / scale, s)
+        typed_ok = atype in _KIND_OK
+        only = typed_ok and len(pool) == 1 and not self.entities[k].startswith(USER) and \
+            (self.facts[pool[0][1]].kind if not pool[0][2] else "NAME") in sum(_KIND_OK[atype], ())
+        return Recall(answer, fact, self.entities[k], es, (s - 0.5) / scale, (s - second) / scale, s, only)
 
 
 # ---------------------------------------------------------------------------
@@ -425,11 +475,20 @@ class FactMemory:
 
 def question_parts(question: str, initial_is_name=None) -> tuple[list[str], list[str]]:
     """Candidate entity mentions (names, n-grams, USER for first person) and relation words."""
-    q = question.strip().rstrip("?").strip()
+    q = expand_contractions(question.strip()).rstrip("?").strip()
+    q = re.sub(r"\bour\b", "my", q, flags=re.I)
     ws = words(q)
     lw = [w.lower().replace("’", "'") for w in ws]
     mentions: list[str] = []
     used: set[int] = set()
+    for i, w in enumerate(lw):
+        if w == "my":
+            for j in range(i + 1, min(i + 4, len(lw))):
+                noun = lw[j][:-2] if lw[j].endswith("'s") else lw[j]
+                if noun in POSSESSED:
+                    mentions.append(possessed_key(noun))
+                    used.add(j)
+                    break
     if any(w in FIRST_PERSON for w in lw):
         mentions.append(USER)
     for sp in spans(q, initial_is_name):

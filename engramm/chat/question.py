@@ -274,7 +274,7 @@ def spans(sentence: str, initial_is_name=None) -> list[Span]:
         if cap and (i == 0 or ws[i - 1] in (".", "!", "?", ":", '"', "“", "(")):
             if lw[i] in STOP or (initial_is_name is not None and not initial_is_name(w)):
                 cap = False
-        if cap and (lw[i] in MONTHS or lw[i] in NUMBER_WORDS):
+        if cap and (lw[i] in MONTHS or lw[i] in NUMBER_WORDS or lw[i] in ("i", "i'm", "i've", "i'd", "i'll")):
             cap = False
         if cap:
             j = i + 1

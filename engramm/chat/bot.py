@@ -49,6 +49,8 @@ class BotConfig:
     theta: float = 0.0                 # answer confidence below → "I don't know"
     entity_min: float = 0.60           # fact memory: entity similarity needed
     fact_min: float = 0.30             # fact memory: normalised filler similarity needed
+    only_fact: bool = False            # answer with the one known fact of the asked type even if the relation
+                                       # words differ (never for facts about you)
     focus_gate: bool = True            # a name in the question must occur in the evidence document
 
 
@@ -140,6 +142,17 @@ def message_type(msg: str) -> str:
     return "statement"
 
 
+def name_initial_rule(word: str, tok, cap: dict) -> bool:
+    if word.lower() in STOP:
+        return False
+    ids = tok.encode(" " + word.lower())
+    if len(ids) != 1:
+        return True
+    first = tok.token_bytes()[ids[0]].decode("utf-8", errors="replace").strip().lower()
+    r = cap.get(first)
+    return True if r is None else r > 0.5
+
+
 def source_id(text: str) -> str:
     """Content-derived id: the same text always gets the same id (exact forgetting)."""
     return CHAT_PREFIX + hashlib.sha256(" ".join(text.split()).encode("utf-8")).hexdigest()[:16]
@@ -175,15 +188,12 @@ class ChatBot:
     # -- helpers ---------------------------------------------------------------------------
 
     def is_name_initial(self, word: str) -> bool:
+        """Is a capitalised sentence-initial word a name? Known words: only if the corpus
+        writes them capitalised mid-sentence more often than not; unknown words (not a
+        single vocabulary token): yes."""
         w = self._name_memo.get(word)
         if w is None:
-            if word.lower() in STOP:
-                w = False
-            else:
-                ids = self.c.tok.encode(" " + word)
-                first = self.c.tok.token_bytes()[ids[0]].decode("utf-8", errors="replace").strip().lower()
-                r = self.cap.get(first)
-                w = True if r is None else r > 0.5
+            w = name_initial_rule(word, self.c.tok, self.cap)
             self._name_memo[word] = w
         return w
 
@@ -254,8 +264,10 @@ class ChatBot:
         self.refresh()
         self.context["last_learned"] = sid
         fs = [f for f in self.facts.facts if f.source == sid]
-        if fs and fs[0].subject == USER:
-            rel = " ".join(fs[0].relation) or "fact"
+        if fs and fs[0].subject.startswith(USER + ":"):
+            text = f"Got it — your {fs[0].subject.partition(':')[2]}: {fs[0].object}."
+        elif fs and fs[0].subject == USER:
+            rel = " ".join(w for w in fs[0].relation if not w.startswith("#")) or "fact"
             text = f"Got it — I'll remember that ({rel}: {fs[0].object})."
         elif fs:
             text = f"Got it — I'll remember that about {fs[0].subject}."
@@ -264,7 +276,8 @@ class ChatBot:
         return Reply(msg, "learned", text, source={"kind": "user", "source": sid}, via="memory")
 
     def _forget(self, msg: str) -> Reply:
-        topic = _FORGET.match(msg).group(1).strip().rstrip(".!").strip()
+        topic = _FORGET.match(msg).group(1).strip().rstrip(".!?").strip()
+        topic = re.sub(r",?\s*(?:please|thanks|thank you)$", "", topic, flags=re.I).strip()
         topic = re.sub(r"^(?:what i (?:told|said to) you about|everything (?:i told you )?about|about|the fact that|"
                        r"that)\s+", "", topic, flags=re.I).strip()
         texts = {s: t for s, t in self.user_texts().items() if s.startswith(CHAT_PREFIX)}
@@ -287,28 +300,36 @@ class ChatBot:
                      via="memory")
 
     def _match_topic(self, topic: str, texts: dict[str, str]) -> str | None:
-        """The taught text that best matches the topic of a forget request."""
+        """The taught text that best matches the topic of a forget request: first by the
+        entity (you, something of yours, or a name), then by the relation words."""
         self.refresh()
         mentions, rel = question_parts(topic, self.is_name_initial)
-        first_person = USER in mentions or not rel
+        owned = [m for m in mentions if m.startswith(USER + ":")]
+        target = owned[0] if owned else (USER if USER in mentions else None)
         rq = self.facts.rel.encode(rel) if rel else None
         tw = set(w for w in _rel_words(topic))
+        topic_words = set(norm_entity(topic).split())
         scored = []
         for sid, text in texts.items():
             fs = [f for f in self.facts.facts if f.source == sid]
             best = 0.0
             for f in fs:
                 s = 0.0
+                if target is not None:
+                    if f.subject != target:
+                        continue
+                    s += 1.0
+                else:
+                    ent = set(norm_entity(f.subject).split()) | set(norm_entity(f.object).split())
+                    if not ent & topic_words:
+                        continue
+                    s += 1.0
                 if rq is not None:
-                    s = 1.0 - int(np.bitwise_count(rq ^ self.facts.rel.encode(f.relation)).sum()) / 2048
+                    s += 1.0 - int(np.bitwise_count(rq ^ self.facts.rel.encode(f.relation)).sum()) / 2048
                     s += 0.5 * len(tw & set(f.relation))
-                if (f.subject == USER) == first_person:
-                    s += 0.05
-                ent_words = set(norm_entity(f.subject).split()) | set(norm_entity(f.object).split())
-                s += 0.5 * len(ent_words & set(norm_entity(topic).split()))
                 best = max(best, s)
-            ow = set(_rel_words(text))
-            best = max(best, 0.5 * len(tw & ow))
+            if not fs and target is None:
+                best = 0.5 * len(tw & set(_rel_words(text)))
             scored.append((best, sid))
         scored.sort(key=lambda x: (-x[0], x[1]))
         return scored[0][1] if scored and scored[0][0] > 0.55 else None
@@ -351,13 +372,17 @@ class ChatBot:
         q = self.resolve(msg)
         qa = analyse(q)
         mentions, rel = question_parts(q, self.is_name_initial)
-        about_user = USER in mentions
+        about_user = any(m.startswith(USER) for m in mentions)
         # 1. the fact memory
         rec = self.facts.recall(mentions, rel, atype=qa.atype)
-        if rec and rec.entity_sim >= self.cfg.entity_min and rec.confidence >= self.cfg.fact_min:
+        if rec and rec.entity_sim >= self.cfg.entity_min and (
+                rec.confidence >= self.cfg.fact_min or (self.cfg.only_fact and rec.only)):
+            weak = rec.confidence < self.cfg.fact_min
+            text = (f"{rec.answer} — the only thing I know about {rec.fact.subject if rec.fact.object == rec.answer else rec.fact.object} "
+                    f"is: “{rec.fact.sentence}”") if weak else None
             return self._finish(msg, q, qa, "answer", rec.answer, rec.answer, rec.fact.sentence,
                                 {"kind": "user", "source": rec.fact.source}, rec.confidence, "facts",
-                                mention=rec.entity if rec.entity != USER else None)
+                                mention=rec.entity if not rec.entity.startswith(USER) else None, text=text)
         if about_user:
             return self._finish(msg, q, qa, "unknown", None, None, None, None, 0.0, "facts",
                                 text="I don't know — you haven't told me that (or you asked me to forget it).")

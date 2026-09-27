@@ -144,14 +144,18 @@ def word_vectors(tok, kind: str = "wide"):
     return _WV[kind]
 
 
+SPAN_FILE = "spanstats.json"
+
+
 def span_model(tok):
     from engramm.chat.spanstats import SpanStats, WordInfo
     from engramm.lm.semantic import Codebook
     from experiments.chat_v2_common import MODEL_DIR
-    if "span" not in _WV:
+    key = "span:" + SPAN_FILE
+    if key not in _WV:
         cb = Codebook.load(MODEL_DIR / "codebook.npz")
-        _WV["span"] = (SpanStats.load(MODEL_DIR.parent / "chat2" / "spanstats.json"), WordInfo(tok, cb.classes, cb.wide))
-    return _WV["span"]
+        _WV[key] = (SpanStats.load(MODEL_DIR.parent / "chat2" / SPAN_FILE), WordInfo(tok, cb.classes, cb.wide))
+    return _WV[key]
 
 
 def extract_eval(w: Weights, params=None, sets=None, verbose: bool = True) -> dict:
@@ -164,9 +168,11 @@ def extract_eval(w: Weights, params=None, sets=None, verbose: bool = True) -> di
     wv = word_vectors(tok)
     stats, info = span_model(tok) if params.nb > 0 else (None, None)
 
+    from engramm.chat.bot import name_initial_rule
+
     def initial(word):
         if word not in memo:
-            memo[word] = cs.is_name_initial(word, tok)
+            memo[word] = name_initial_rule(word, tok, cs.ratio)
         return memo[word]
 
     out = {}
@@ -201,7 +207,7 @@ BEST = Weights(cov=5.0, soft=0.0, pcov=1.0, kcov=2.0, type=2.0, wiki=0.25, q=1.0
                prox=0.5, dfull=1.0)
 
 
-def pipeline(n_sq: int | None = None, n_nq: int | None = None) -> dict:
+def pipeline(n_sq: int | None = None, n_nq: int | None = None, v3: bool = False) -> dict:
     """The complete bot (frozen config, θ = 0) on SQuAD-dev2 and NQ-dev: Hit@1, EM, F1, and θ
     for A2 by the registered rule (smallest θ with dev precision ≥ 55 %)."""
     import dataclasses
@@ -210,11 +216,16 @@ def pipeline(n_sq: int | None = None, n_nq: int | None = None) -> dict:
     from engramm.chat.config import FROZEN, cap_ratio
     from engramm.chat.extract import exact_match, f1
     corpus, data = load_all()
+    if v3:      # v3 development may use the spent v2 test data as well (PREREG_CHAT_V3 §2)
+        data["sq_dev"] = data["sq_dev"] + data["sq_test"]
+        data["nq_dev"] = data["nq_dev"][:0]
     cfg = dataclasses.replace(FROZEN, theta=0.0)
     bot = ChatBot(TextMemory(), corpus, cfg, cap_ratio(corpus.index_dir))
     out = {}
     for name, n in (("sq_dev", n_sq), ("nq_dev", n_nq)):
         qs = data[name][:n] if n else data[name]
+        if not qs:
+            continue
         rows = []
         t0 = time.time()
         for q in qs:
@@ -246,7 +257,7 @@ def pipeline(n_sq: int | None = None, n_nq: int | None = None) -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=("cache", "tune", "extract", "pipeline"))
+    ap.add_argument("cmd", choices=("cache", "tune", "extract", "pipeline", "pipeline3"))
     args = ap.parse_args()
     if args.cmd == "cache":
         build_cache()
@@ -254,6 +265,8 @@ def main() -> None:
         tune()
     elif args.cmd == "pipeline":
         pipeline()
+    elif args.cmd == "pipeline3":
+        pipeline(v3=True)
     else:
         extract_eval(BEST)
 

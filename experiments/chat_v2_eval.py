@@ -30,8 +30,8 @@ from engramm.lm.log import LoggedModel, replay_lm
 from engramm.lm.model import HDCLanguageModel
 from engramm.repro import collect_environment, git_revision, peak_rss_mb
 from experiments.chat_v2_common import MODEL_DIR, squad_v2_splits
-from experiments.chat_v2_data import fact_dialogs, manifest, nq_splits
-from experiments.chat_v2_tasks import dialog_task, facts_task, reset
+from experiments.chat_v2_data import manifest, nq_splits
+from experiments.chat_v2_tasks import dialog_task, facts_task, fact_dialogs, reset
 
 BOOT, SEED = 2000, 42
 FRESH = {"answer": None, "atype": None, "mention": None, "last_learned": None}
@@ -114,8 +114,9 @@ def main() -> None:
     ap.add_argument("--model", type=Path, default=MODEL_DIR)
     ap.add_argument("--device", default="container")
     ap.add_argument("--results-dir", type=Path, default=Path(tempfile.gettempdir()) / "engramm_chat_v2")
-    ap.add_argument("--split", choices=("test", "dev"), default="test",
-                    help="dev = dry run of this script on development data (never reported)")
+    ap.add_argument("--split", choices=("test", "dev", "test3"), default="test",
+                    help="test = v2 test (PREREG_CHAT_V2), test3 = v3 test (PREREG_CHAT_V3), "
+                         "dev = dry run of this script on development data (never reported)")
     ap.add_argument("--limit", type=int, default=0, help="dry run: questions per QA set")
     args = ap.parse_args()
     if args.split == "dev" and not args.limit:
@@ -134,9 +135,22 @@ def main() -> None:
 
     sq_dev, sq_test = squad_v2_splits(corpus, args.model)
     nq_dev, nq_test = nq_splits()
+    data_manifest = manifest()
+    study = "docs/PREREG_CHAT_V2.md v1.1"
     if args.split == "dev":
         sq_test, nq_test = sq_dev[:args.limit], nq_dev[:args.limit]
-    data_manifest = manifest()
+    elif args.split == "test3":
+        from experiments.chat_eval import load_squad, split as split1
+        from experiments.chat_v2_data import CACHE
+        from experiments.chat_v3_data import manifest as manifest3
+        from experiments.chat_v3_data import nq_v3_test, squad_v3_test
+        pool_ids = set(json.loads((CACHE / "squad_pool_v1.json").read_text())["pool"])
+        pool = [q for q in load_squad() if q["id"] in pool_ids]
+        d1, t1 = split1(pool)
+        sq_test = squad_v3_test(pool, {q["id"] for q in d1 + t1})
+        nq_test = nq_v3_test()
+        data_manifest = manifest3()
+        study = "docs/PREREG_CHAT_V3.md v1.0"
 
     # -- stage 1.1 and 4 on SQuAD-Test2 and NQ-Test ------------------------------------------
     sq = qa(bot, stage1, sq_test, "squad")
@@ -201,7 +215,7 @@ def main() -> None:
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     now = git_revision()
     record = {
-        "schema": "engramm-chat/2", "name": f"chat_v2_{args.split}", "study": "docs/PREREG_CHAT_V2.md v1.1",
+        "schema": "engramm-chat/2", "name": f"chat_{args.split}", "study": study,
         "split": args.split,
         "timestamp_utc": ts, "config": repr(FROZEN), "data_manifest": data_manifest,
         "index": json.loads((idx2 / "info.json").read_text()),
@@ -214,7 +228,7 @@ def main() -> None:
         "runtime": {"wall_seconds": time.time() - t0, "peak_rss_mb": peak_rss_mb()},
     }
     args.results_dir.mkdir(parents=True, exist_ok=True)
-    path = args.results_dir / f"chat_v2_{args.split}_{args.device}_{ts}.json"
+    path = args.results_dir / f"chat_{args.split}_{args.device}_{ts}.json"
     path.write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str) + "\n")
     for k, v in crit.items():
         print(f"{k}: {'ERFÜLLT' if v['pass'] else 'VERFEHLT'}", flush=True)

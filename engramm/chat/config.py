@@ -17,8 +17,10 @@ WEIGHTS = Weights(cov=5.0, soft=0.0, pcov=1.0, kcov=2.0, type=2.0, wiki=0.25, q=
                   prox=0.5, dfull=1.0)
 EXTRACT = ExtractParams(k=10, tau=0.15, lam=4.0, other_max=4, type_only=True, soft_min=0.0, definition=2.0,
                         head_beta=0.0, copula=1.0, direction=1.0, nb=0.5, nb_prox=2.0, rule_types=("DATE",))
-# θ: the A2 rule on SQuAD-dev2 (smallest θ with ≥ 55 % precision) gave 7.0293 (rounded down, 4 decimals)
-FROZEN = BotConfig(weights=WEIGHTS, extract=EXTRACT, text_k=120, theta=7.0293, entity_min=0.60, fact_min=0.30,
+# θ: the A2 rule (smallest θ with ≥ 55 % dev precision). v2: SQuAD-dev2 → 7.0293. v3 (PREREG_CHAT_V3): SQuAD-dev2
+# plus the spent v2 test, 3,000 questions → 6.9512 (rounded down, 4 decimals).
+FROZEN = BotConfig(weights=WEIGHTS, extract=EXTRACT, text_k=120, theta=6.9512, entity_min=0.60, fact_min=0.30,
+                   only_fact=True,
                    focus_gate=True)
 
 

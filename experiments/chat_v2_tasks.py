@@ -14,7 +14,30 @@ import time
 import numpy as np
 
 from engramm.chat.extract import correct, exact_match, f1
-from experiments.chat_v2_data import chain_dialogs, fact_dialogs, fact_questions
+from experiments.chat_v2_data import chain_dialogs as _chain_v2
+from experiments.chat_v2_data import fact_dialogs as _dialogs_v2
+from experiments.chat_v2_data import fact_questions as _questions_v2
+
+
+def fact_questions(split: str, with_typo: bool = False) -> list[dict]:
+    if split == "test3":
+        from experiments.chat_v3_data import fact_questions_v3
+        return fact_questions_v3(with_typo)
+    return _questions_v2(split, with_typo)
+
+
+def fact_dialogs(split: str) -> list[dict]:
+    if split == "test3":
+        from experiments.chat_v3_data import fact_dialogs_v3
+        return fact_dialogs_v3()
+    return _dialogs_v2(split)
+
+
+def chain_dialogs(split: str) -> list[dict]:
+    if split == "test3":
+        from experiments.chat_v3_data import chain_dialogs_v3
+        return chain_dialogs_v3()
+    return _chain_v2(split)
 
 
 def reset(bot) -> None:
