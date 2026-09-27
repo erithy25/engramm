@@ -105,7 +105,7 @@ class Reply:
 
 _QSTART = frozenset(("what", "which", "who", "whom", "whose", "when", "where", "why", "how", "is", "are", "was",
                      "were", "do", "does", "did", "can", "could", "will", "would", "should", "has", "have", "had",
-                     "tell", "name", "list", "give", "in", "on", "at", "during", "from"))
+                     "tell", "name", "list", "give"))
 _FORGET = re.compile(r"^(?:please\s+|can you\s+|could you\s+)?(?:forget|delete|remove|erase|drop|unlearn)\b\s*(.*)$",
                      re.IGNORECASE)
 _SMALLTALK = [
@@ -140,6 +140,10 @@ def message_type(msg: str) -> str:
     if re.search(r"\b(is|are|was|were|by|of|called|named)\s*$", s.lower().rstrip(".!")):
         return "question"
     return "statement"
+
+
+def normalize_value(v: str) -> str:
+    return " ".join(v.lower().split())
 
 
 def name_initial_rule(word: str, tok, cap: dict) -> bool:
@@ -386,10 +390,56 @@ class ChatBot:
                                 {"kind": "user", "source": rec.fact.source}, rec.confidence, "facts",
                                 mention=rec.entity if not rec.entity.startswith(USER) else None, text=text)
         if about_user:
+            found = self._user_lookup(q, qa, mentions, rel)
+            if found is not None:
+                answer, sentence, sid = found
+                return self._finish(msg, q, qa, "answer", answer, answer, sentence, {"kind": "user", "source": sid},
+                                    0.0, "memory")
             return self._finish(msg, q, qa, "unknown", None, None, None, None, 0.0, "facts",
                                 text="I don't know — you haven't told me that (or you asked me to forget it).")
         # 2. look it up and cut out a short answer
         return self._lookup(msg, q, qa, mentions)
+
+    def _user_lookup(self, q: str, qa, mentions: list[str], rel: list[str]):
+        """A question about you that the fact memory could not answer: find the sentence you
+        told that fits best (shared words and concept groups, no category conflict) and cut
+        the answer out of it, as in the corpus look-up. Independent of how you phrased it."""
+        from engramm.chat.facts import FIRST_PERSON, concepts, expand_contractions
+        owned = [m.partition(":")[2] for m in mentions if m.startswith(USER + ":")]
+        qwords = {w for w in rel if not w.startswith("#")}
+        qconc = {w for w in rel if w.startswith("#")}
+        best = None
+        for sid, text, _ in self._user_sents:
+            low = expand_contractions(text).lower()
+            tw = set(_rel_words(low))
+            if not any(w in tw or w in FIRST_PERSON for w in words(low)) and "my" not in low.split():
+                pass
+            if owned and not all(o in words(low) for o in owned):
+                continue
+            if not owned and any(w in words(low) for w in ("brother", "sister", "dog", "cat", "mother", "father",
+                                                          "wife", "husband", "son", "daughter", "friend")) \
+                    and re.search(r"\bmy (?:\w+ )?(?:brother|sister|dog|cat|mother|father|wife|husband|son|daughter|"
+                                  r"friend)", low):
+                continue           # a sentence about your brother does not answer a question about you
+            sc = concepts(low)
+            if category_conflict(qconc, sc):
+                continue
+            score = len(qwords & tw) + len(qconc & set(sc))
+            if score > 0 and (best is None or score > best[0]):
+                best = (score, sid, text)
+        if best is None:
+            return None
+        _, sid, text = best
+        from engramm.chat.question import Question
+        strip_q = Question(qa.text, qa.wh, qa.atype, qa.words + ["i", "my", "me"], qa.content, qa.head)
+        x = extract(strip_q, [text], np.array([1.0]), self.cfg.extract, self.is_name_initial, None, self.span_stats,
+                    self.word_info)
+        fact_vals = [f.object for f in self.facts.facts if f.source == sid
+                     and normalize_value(f.object) not in qwords and f.object.lower() not in ("favourite", "favorite")]
+        answer = fact_vals[0] if fact_vals else x.text
+        if not answer:
+            return None
+        return answer, text, sid
 
     def _user_candidates(self, query) -> list[tuple[float, str, str, dict]]:
         """Taught sentences scored with the same features (no document features)."""

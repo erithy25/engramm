@@ -45,7 +45,7 @@ PLACE_PREPS = frozenset(("in", "at", "near", "from", "to"))
 # Hand-written concept groups (general English, applied the same way to statements and
 # questions): a member word adds the group's label to the relation words.
 CONCEPTS = [
-    ("#job", re.compile(r"\b(job|jobs|profession|occupation|career|works? as|worked as|working as|living as|"
+    ("#job", re.compile(r"\b(job|jobs|profession|occupation|career|works? as|worked as|working as|living as|at work|"
                         r"earns? (?:a |my )?living|do for (?:a )?(?:work|living)|by trade|trade)\b")),
     ("#employer", re.compile(r"\b(employer|company|firm|workplace|works? (?:at|for)|worked (?:at|for)|"
                              r"working (?:at|for)|employ\w*|where (?:do )?i work)\b")),
@@ -56,7 +56,8 @@ CONCEPTS = [
     ("#car", re.compile(r"\b(car|cars|vehicle|drive|drives|driving)\b")),
     ("#food", re.compile(r"\b(food|foods|eat|eating|meal|meals|dish|cuisine)\b")),
     ("#colour", re.compile(r"\b(colou?rs?)\b")),
-    ("#fav", re.compile(r"\b(favou?rite|love|loves|like|likes|prefer|prefers|best|most)\b")),
+    ("#fav", re.compile(r"\b(favou?rite|love|loves|like|likes|prefer|prefers|best|most|adore|adores|enjoy|"
+                        r"enjoys)\b")),
     ("#name", re.compile(r"\b(name|names|named|called|call)\b")),
     ("#place", re.compile(r"\b(where|place|city|town|country)\b")),
 ]
@@ -340,8 +341,13 @@ def first_person_facts(sentence: str, source: str) -> list[Fact]:
 _GREETING = re.compile(r"^(?:hi|hello|hey|hiya|greetings|good (?:morning|afternoon|evening))\b[,!. ]*", re.I)
 _VALUE_CUES = frozenset(("is", "am", "are", "was", "were", "a", "an", "as", "love", "loves", "like", "likes", "own",
                          "owns", "drive", "drives", "be", "called", "named", "at", "in", "to", "on", "by", "enjoy",
-                         "prefer", "adore"))
+                         "prefer", "adore", "adores", "eat", "eats", "drink", "drinks", "play", "plays", "wear",
+                         "wears"))
 _FIRST = frozenset(("i", "my", "me", "mine", "myself"))
+CATEGORY_NOUNS = frozenset(("colour", "color", "colours", "colors", "food", "dish", "meal", "car", "vehicle", "job",
+                            "city", "town", "name", "company", "employer", "work", "profession", "occupation",
+                            "birthday", "place", "home", "favourite", "favorite", "best"))
+NON_VALUES = frozenset(("favourite", "favorite", "best", "most", "one", "thing", "stuff", "it", "that", "this"))
 
 
 def personal_facts(sentence: str, source: str, initial_is_name=None) -> list[Fact]:
@@ -387,7 +393,7 @@ def personal_facts(sentence: str, source: str, initial_is_name=None) -> list[Fac
         pick = pick[-1] if isinstance(pick, list) else pick
         value, vrange, kind = pick.text, set(range(pick.start, pick.end)), pick.kind
     else:
-        fp = first_person_facts(sentence, source)
+        fp = [f for f in first_person_facts(sentence, source) if f.object.lower() not in NON_VALUES]
         if fp:
             f = fp[0]
             obj_words = set(norm_entity(f.object).split())
@@ -399,15 +405,17 @@ def personal_facts(sentence: str, source: str, initial_is_name=None) -> list[Fac
                 value = m.group(1)
                 vrange = set(range(0, len(words(value))))
             else:
-                last = max((i for i, w in enumerate(lw) if w in _VALUE_CUES), default=-1)
-                j = last + 1
-                while j < n and (lw[j] in ("a", "an", "the") or lw[j] in _FIRST):
-                    j += 1
-                k = j
-                while k < n and k - j < 3 and ws[k][0].isalnum() and lw[k] not in STOP:
-                    k += 1
-                if k > j:
-                    value, vrange = " ".join(ws[j:k]), set(range(j, k))
+                for cue in [i for i, w in enumerate(lw) if w in _VALUE_CUES][::-1] + [-1]:
+                    j = cue + 1
+                    while j < n and (lw[j] in ("a", "an", "the") or lw[j] in _FIRST or lw[j] in CATEGORY_NOUNS):
+                        j += 1
+                    k = j
+                    while k < n and k - j < 3 and ws[k][0].isalnum() and lw[k] not in STOP \
+                            and lw[k] not in CATEGORY_NOUNS:
+                        k += 1
+                    if k > j and not all(lw[x] in NON_VALUES for x in range(j, k)):
+                        value, vrange = " ".join(ws[j:k]), set(range(j, k))
+                        break
     if not value:
         return []
     rest = " ".join(w for i, w in enumerate(lw) if i not in vrange and i not in owned and w not in _FIRST)
