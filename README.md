@@ -183,16 +183,19 @@ Plainly:
 - HDC helps where similarity matters (typo-tolerant facts: +85 pp over exact lookup), not in
   ranking or answer choice.
 
-A second round (registered in [`docs/PREREG_CHAT_V3.md`](docs/PREREG_CHAT_V3.md)) used new,
-unseen test data and unchanged thresholds.
-- **Met:** fact memory 95 % (with typo 94 %), pronoun follow-ups 100 %, calibrated
-  "I don't know" (55 % precision at 21 % coverage), UI, speed and determinism.
-- **Improved but missed:** forgetting reached 96 %/90 % (needed 100 %), exact short answers
-  19.8 % (needed 20 %), and the NQ look-up gain was +1.5 pp (needed 2).
-- **Out of reach:** NQ exact answers (1.3 %).
+Six preregistered test rounds followed (v2–v7, each on fresh unseen data with unchanged
+thresholds):
+- **Met in every round:** the fact memory (93–100 %, 85–99.5 % with a typo, where an exact
+  dictionary gets 0 %), pronoun follow-ups (86–100 %), the UI, speed and determinism.
+- **Met in some rounds:** the look-up gain on real search queries (NQ +1.5 to +2.3 pp around the
+  2 pp threshold) and calibrated "I don't know" (twice).
+- **Never met:**
+  - Facts about *you* on new phrasings (38–93 %) and exact forgetting on new phrasings
+    (needs 100 %).
+  - SQuAD F1 ≥ 30 % (23–27 %) and NQ exact answers ≥ 5 % (1.3–1.9 %).
 
-All numbers, including the development history, are in [`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md)
-(E15, E16).
+All numbers, including the development history and the round-by-round table, are in
+[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E15–E20).
 
 ## Results — rebuild, re-measured
 

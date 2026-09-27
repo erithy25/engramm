@@ -1590,6 +1590,60 @@ Record: `results/chat/chat_test6_container_20260927T070342Z.json` (Commit `a0fbf
 
 ---
 
+## E20 — ENGRAMM-Chat v7, und Bilanz über sechs Testrunden
+
+**Registrierung: `docs/PREREG_CHAT_V7.md`**, Code eingefroren vor der Registrierung (`2725824`).
+Record: `results/chat/chat_test7_container_20260927T075745Z.json` (Commit `a621ad9`, sauber).
+
+v7-Ergebnis:
+- R1 +6,2 pp [4,0; 8,4] und **R2 +2,33 pp** [1,72; 2,96]: beide erfüllt.
+- F1/F2/F3 100 / 97,5 / 100 %: erfüllt.
+- D1 77,0 %: verfehlt. D2 96,0 / 85,0 %: verfehlt. D3 100 %: erfüllt.
+- A1 19,2 / 26,6 %: verfehlt. **A2 54,7 % bei 20,1 %**: erfüllt. A3 1,9 %: verfehlt.
+- U1–U3: erfüllt.
+- **Stufen erfüllt: 1.1, 2, 5.** Nicht erfüllt: 3, 4.
+
+### Alle registrierten Testläufe (jeweils frische Daten, gleiche Schwellen)
+
+| Kriterium | v2 | v3 | v4 | v5 | v6 | v7 | Schwelle |
+|---|---|---|---|---|---|---|---|
+| R1 SQuAD +pp | 7,9 ✅ | 7,7 ✅ | 7,3 ✅ | 7,1 ✅ | 5,0 ✅ | 6,2 ✅ | ≥ 3 |
+| R2 NQ +pp | 2,02 ✅ | 1,52 | 1,61 | 1,69 | 1,97 | 2,33 ✅ | ≥ 2 |
+| F1 Fakten | 93 ✅ | 95 ✅ | 95 ✅ | 100 ✅ | 100 ✅ | 100 ✅ | ≥ 90 |
+| F2 Tippfehler | 85 ✅ | 93,5 ✅ | 93 ✅ | 99,5 ✅ | 99 ✅ | 97,5 ✅ | ≥ 75 |
+| F3 Enthaltung | 100 ✅ | 100 ✅ | 100 ✅ | 100 ✅ | 100 ✅ | 100 ✅ | ≥ 90 |
+| D1 Dialogfakten | 93,2 ✅ | 92,1 ✅ | 38,1 | 67,9 | 86,5 | 77,0 | ≥ 90 |
+| D2 Vergessen a/b | 76,5/75 | 96/90 | 97,5/47,5 | 100/87,5 | 89/85,5 | 96/85 | je 100 |
+| D3 Pronomen | 85,5 ✅ | 100 ✅ | 90,9 ✅ | 100 ✅ | 100 ✅ | 100 ✅ | ≥ 80 |
+| A1 EM/F1 | 18,8/25,3 | 19,8/26,7 | 20,9/26,7 | 18,5/25,3 | 16,6/23,3 | 19,2/26,6 | 20/30 |
+| A2 Präz.@Abd. | 58,6@17,4 | 54,6@20,7 ✅ | 55,9@18,8 | 48,6@18,3 | 48,4@18,8 | 54,7@20,1 ✅ | 50@20 |
+| A3 NQ EM | 1,9 | 1,3 | 1,7 | 1,7 | 1,8 | 1,9 | ≥ 5 |
+| U1–U3 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | |
+
+### Bilanz
+
+- **Stufe 2 (HDC-Faktengedächtnis) und Stufe 5 (Oberfläche, Tempo, Determinismus)** sind in allen
+  sechs Runden erfüllt. Der Vorsprung vor einem exakten Wörterbuch bei Tippfehlern beträgt
+  85–99,5 pp. Das ist der klarste Nutzen von HDC in ENGRAMM.
+- **Stufe 1.1** ist in 2 von 6 Runden erfüllt. R1 gelingt immer. R2 schwankt mit der Stichprobe
+  um die 2-pp-Schwelle (+1,5 bis +2,3 pp), der Gewinn selbst ist in jeder Runde signifikant > 0.
+- **Stufe 3:** D3 ist immer erfüllt. D1 und D2 hängen an der Formulierung, und jede neue
+  Formulierungsrunde fand neue Lücken der Regel-Zerlegung (D1 frisch: 38 → 68 → 86,5 → 77 %).
+  Das Vergessen selbst ist immer exakt, wenn der richtige Satz getroffen wird (U3, D2b bei
+  richtiger Zuordnung). Die Schwierigkeit ist das Verstehen, *welcher* Satz gemeint ist.
+  100 % auf beliebigen neuen Formulierungen erreicht ein handgeschriebenes Regelsystem nach
+  diesen Messungen nicht.
+- **Stufe 4:** A2 ist zweimal erfüllt, A1-EM liegt an der Schwelle (16,6–20,9 %). F1 ≥ 30 % und
+  NQ-EM ≥ 5 % wurden nie erreicht. Das sind Grenzen der regel- und zählbasierten Antwortwahl
+  sowie des Korpus (285 M Tokens: bei NQ steht die Antwort nur in ~30 % der Fälle überhaupt
+  unter den Kandidaten).
+- **Methodisch:** Jede Runde war vorregistriert. Der Code war vor dem Schreiben der
+  Testformulierungen eingefroren, und jeder Testlauf lief genau einmal. Die Formulierungen
+  schrieb dieselbe Instanz, die das System baute. Das ist ein bekanntes Risiko, das die
+  schwankenden D1-Werte eher unterschätzt als überschätzt.
+
+---
+
 ## Offene Fragen, nicht terminiert
 
 **O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**
