@@ -35,13 +35,24 @@ from experiments.chat_v2_spanstats import name_initial, training_questions
 N_QUESTIONS = 12000
 K = 10
 CTX = CACHE / "train_ctx.pkl"
+CTX_NQ = CACHE / "train_ctx_nq.pkl"
+NQ_RANGE = (40000, 48000)       # NQ-open train positions in SHAKE-256 order; dev is 0–1,999, tests < 24,000
 
 
-def retrieve() -> None:
+def nq_training_questions() -> list[dict]:
+    from experiments.chat_v2_data import load_nq
+    train = load_nq("train")
+    return sorted(train, key=lambda q: (h64("nq", q["question"]), q["id"]))[NQ_RANGE[0]:NQ_RANGE[1]]
+
+
+def retrieve(nq: bool = False) -> None:
     corpus = Corpus.load(MODEL_DIR)
     r = Retriever(corpus)
-    qs = sorted(training_questions(corpus), key=lambda q: (h64("ctx", q["id"]), q["id"]))[:N_QUESTIONS]
-    done = pickle.loads(CTX.read_bytes()) if CTX.exists() else {}
+    if nq:
+        qs, path = nq_training_questions(), CTX_NQ
+    else:
+        qs, path = sorted(training_questions(corpus), key=lambda q: (h64("ctx", q["id"]), q["id"]))[:N_QUESTIONS], CTX
+    done = pickle.loads(path.read_bytes()) if path.exists() else {}
     t0 = time.time()
     for i, q in enumerate(qs):
         if q["id"] in done:
@@ -55,13 +66,13 @@ def retrieve() -> None:
         isum = max(c.query.idf_sum, 1e-9)
         done[q["id"]] = ([c.texts[j] for j in order], [float(sc[j] / isum) for j in order])
         if i % 250 == 0:
-            CTX.write_bytes(pickle.dumps(done))
+            path.write_bytes(pickle.dumps(done))
             print(f"{i:,}/{len(qs):,} ({time.time() - t0:.0f} s)", flush=True)
-    CTX.write_bytes(pickle.dumps(done))
+    path.write_bytes(pickle.dumps(done))
     print("done", len(done), flush=True)
 
 
-def train(passes: int, beta: float, out: str) -> None:
+def train(passes: int, beta: float, out: str, use_nq: bool = False) -> None:
     t0 = time.time()
     examples, index, n_q = build_examples(MODEL_DIR, paragraph=True)
     offsets = [np.zeros(len(e[2]) - 1) for e in examples]
@@ -72,6 +83,9 @@ def train(passes: int, beta: float, out: str) -> None:
     initial = name_initial(corpus.tok, cap_ratio(MODEL_DIR.parent / "chat2") or {})
     ctx = pickle.loads(CTX.read_bytes())
     byid = {q["id"]: q for q in training_questions(corpus)}
+    if use_nq and CTX_NQ.exists():
+        ctx.update(pickle.loads(CTX_NQ.read_bytes()))
+        byid.update({q["id"]: q for q in nq_training_questions()})
     n_ctx = 0
     for qid, (texts, rel) in sorted(ctx.items()):
         if not texts:
@@ -138,11 +152,12 @@ def main() -> None:
     ap.add_argument("--passes", type=int, default=8)
     ap.add_argument("--beta", type=float, default=1.0)
     ap.add_argument("--out", default="spanperc_ctx.json")
+    ap.add_argument("--nq", action="store_true", help="retrieve / also train on NQ-open train questions")
     args = ap.parse_args()
     if args.cmd == "retrieve":
-        retrieve()
+        retrieve(args.nq)
     else:
-        train(args.passes, args.beta, args.out)
+        train(args.passes, args.beta, args.out, args.nq)
 
 
 if __name__ == "__main__":

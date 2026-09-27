@@ -49,6 +49,7 @@ class ExtractParams:
     nb: float = 0.0             # > 0: choose spans with the counted statistics (spanstats), temperature 1/nb
     nb_prox: float = 0.0        # extra weight of the proximity heuristic in the counted mode
     rule_types: tuple = ()      # expected answer types that keep the rule mode even when counting is on
+    conf_power: float = 1.0     # confidence = (vote share)^power × best sentence score (counted mode)
     sent_beta: float = 0.0      # > 0: one softmax over the candidates of all K sentences, score + β·log(sentence
                                 # weight) (else each sentence spreads its own weight)
 
@@ -277,7 +278,7 @@ def extract_counted(q: Question, texts: list[str], rel: np.ndarray, p: ExtractPa
     order = sorted(merged, key=lambda x: (-merged[x], -len(x.split()), x))
     total = sum(votes.values())
     top = order[0]
-    conf = min(1.0, merged[top] / total) * float(r[0])
+    conf = min(1.0, merged[top] / total) ** p.conf_power * float(r[0])
     return Extracted(surface[top][1], conf, surface[top][2], [(x, merged[x]) for x in order[:5]])
 
 

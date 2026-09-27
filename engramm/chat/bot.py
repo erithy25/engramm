@@ -56,6 +56,7 @@ class BotConfig:
     only_fact: bool = False            # answer with the one known fact of the asked type even if the relation
                                        # words differ (never for facts about you)
     focus_gate: bool = True            # a name in the question must occur in the evidence document
+    span_model: str = "spanstats.json"  # counted span statistics (naive Bayes) or "spanperc*.json" (perceptron)
 
 
 class TextMemory:
@@ -220,10 +221,11 @@ class ChatBot:
             from engramm.chat.lexicon import Typer
             self.typer = Typer(corpus)
         sp = getattr(corpus, "index_dir", None)
-        if config.extract.nb > 0 and sp is not None and (sp / "spanstats.json").exists() \
+        if config.extract.nb > 0 and sp is not None and (sp / config.span_model).exists() \
                 and corpus.classes is not None:
-            from engramm.chat.spanstats import SpanStats, WordInfo
-            self.span_stats = SpanStats.load(sp / "spanstats.json")
+            from engramm.chat.spanstats import SpanPerceptron, SpanStats, WordInfo
+            self.span_stats = (SpanPerceptron.load(sp / config.span_model) if config.span_model.startswith("spanperc")
+                               else SpanStats.load(sp / config.span_model))
             self.word_info = WordInfo(corpus.tok, corpus.classes, corpus.wide)
 
     # -- helpers ---------------------------------------------------------------------------
