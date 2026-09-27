@@ -183,8 +183,16 @@ Plainly:
 - HDC helps where similarity matters (typo-tolerant facts: +85 pp over exact lookup), not in
   ranking or answer choice.
 
+A second round (registered in [`docs/PREREG_CHAT_V3.md`](docs/PREREG_CHAT_V3.md)) used new,
+unseen test data and unchanged thresholds.
+- **Met:** fact memory 95 % (with typo 94 %), pronoun follow-ups 100 %, calibrated
+  "I don't know" (55 % precision at 21 % coverage), UI, speed and determinism.
+- **Improved but missed:** forgetting reached 96 %/90 % (needed 100 %), exact short answers
+  19.8 % (needed 20 %), and the NQ look-up gain was +1.5 pp (needed 2).
+- **Out of reach:** NQ exact answers (1.3 %).
+
 All numbers, including the development history, are in [`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md)
-(E15).
+(E15, E16).
 
 ## Results — rebuild, re-measured
 

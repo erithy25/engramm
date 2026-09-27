@@ -1,0 +1,10 @@
+{
+  "questions": 39433,
+  "used": 39184,
+  "gold_among_candidates": 0.7273376888525929,
+  "positives": 30215.0,
+  "negatives": 982292.0,
+  "features": 382935,
+  "seconds": 93.4,
+  "labels": "exact match"
+}

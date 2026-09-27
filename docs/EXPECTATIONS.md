@@ -1400,6 +1400,87 @@ Stufe **4 verfehlt** (A1, A2, A3), Stufe **5 erfüllt**.
 
 ---
 
+## E16 — ENGRAMM-Chat v3: zweite Runde der Stufen 1.1 bis 5
+
+**Registrierung: `docs/PREREG_CHAT_V3.md`** (2026-09-27, nach E15 und vor jeder v3-Änderung).
+Die Testdaten sind neu und ungesehen:
+- SQuAD: die nächsten 1.000 Fragen der Test-Artikel.
+- NQ: 3.610 Fragen aus `train`, Positionen 2.000–5.609.
+- Neue Formulierungen, Namen und Werte (Manifest `8c0fbfa8…`).
+
+Schwellen unverändert aus v2.
+
+### Änderungen (nur auf Entwicklungsdaten entschieden: v2-Dev und die verbrauchten v2-Testdaten)
+
+- **Besitz-Entitäten:** „my brother“ oder „my dog“ ist eine eigene Entität (`USER:brother`),
+  kein Attribut von dir. Das behebt die E15-Ursache von D2.
+- **Robustere Grammatik:** Kurzformen („What's“), einleitende Floskeln („These days …“), „our“,
+  „I'm employed by“, „…, please?“, bis zu drei Verbwörter („earn my living as“). Die
+  Begriffsgruppen gelten für die ganze Beziehung.
+- **Namensregel:** Ein unbekanntes Wort am Satzanfang ist ein Name („Shosrifaer was born …“).
+- **Ein-Fakt-Regel:** Weiß ENGRAMM über ein Ding (nicht über dich) genau eine Sache vom
+  erfragten Typ, antwortet es damit und sagt, dass es das Einzige ist, was es weiß.
+- **θ nach der A2-Regel** auf 3.000 Dev-Fragen: 6,9512.
+- Auf den verbrauchten v2-Testdaten stieg D2 damit von 76,5/75,0 % auf 100/100 %, die Fakten
+  von 93/85 % auf 100/100 %. Weiche F1-Labels für die Spannenwahl wurden geprüft und
+  verworfen (EM 16,2 % gegen 19,75 %).
+
+### Testmessung — einmalig, 2026-09-27, Container, `canonical=false`
+
+Record: `results/chat/chat_test3_container_20260927T042240Z.json` (Commit `8d8dfe3`, sauber,
+unverändert während des Laufs; 30 min, 8,3 GB Spitze).
+
+| | Kriterium | v2 (E15) | **v3-Test** | Schwelle | |
+|---|---|---|---|---|---|
+| **R1** | SQuAD Hit@1 − Stufe 1 | +7,9 pp | **+7,7 pp** [5,6; 9,9] (39,0 → 46,7 %) | ≥ 3 pp, KI > 0 | **erfüllt** |
+| **R2** | NQ Hit@1 − Stufe 1 | +2,02 pp | **+1,52 pp** [0,94; 2,13] (2,08 → 3,60 %) | ≥ 2 pp, KI > 0 | **verfehlt** |
+| **F1** | Fakten, neue Frageform | 93,0 % | **95,0 %** | ≥ 90 % | **erfüllt** |
+| **F2** | mit Tippfehler; Wörterbuch | 85,0 %; 0 % | **93,5 %; 0 %** | ≥ 75 %, ≥ 30 pp | **erfüllt** |
+| **F3** | Enthaltung vorher | 100 % | **100 %** | ≥ 90 % | **erfüllt** |
+| **D1** | Dialogfakten | 93,2 % | **92,1 %** | ≥ 90 % | **erfüllt** |
+| **D2** | Vergessen a / b | 76,5 / 75,0 % | **96,0 / 90,0 %** | je 100 % | **verfehlt** |
+| **D3** | Pronomen-Rückfrage | 85,5 % | **100 %** | ≥ 80 % | **erfüllt** |
+| **A1** | SQuAD EM / F1 | 18,8 / 25,3 % | **19,8 / 26,7 %** | ≥ 20 / ≥ 30 % | **verfehlt** |
+| **A2** | Präzision @ Abdeckung | 58,6 @ 17,4 % | **54,6 @ 20,7 %** | ≥ 50 @ ≥ 20 % | **erfüllt** |
+| **A3** | NQ EM | 1,9 % | **1,3 %** | ≥ 5 % | **verfehlt** |
+| **U1–U3** | Browser, Zeit, Determinismus | erfüllt | **erfüllt** (Median 8 ms, p90 0,36 s; Replay identisch) | | **erfüllt** |
+
+**Ausgang:**
+- Stufe **2** und **5** zum zweiten Mal erfüllt.
+- Stufe **3** verfehlt, aber knapp: D1 und D3 erfüllt, D2 bei 96/90 % statt je 100 %.
+- Stufe **1.1** verfehlt: R2 liegt diesmal unter der 2-pp-Linie; in v2 lag es knapp darüber.
+- Stufe **4** verfehlt: A2 ist jetzt erfüllt, A1 und A3 nicht.
+
+### Analyse nach dem Test (ändert das Ergebnis nicht)
+
+- **D1/D2:**
+  - „I earn my living as a nurse“ bekam die Begriffsgruppe `#home`, weil „living“ in meiner
+    Wohn-Liste stand. Dadurch wurde „What do I do for work?“ nicht beantwortet (alle 40
+    gespeicherten D1-Fehler).
+  - Beim Vergessen konkurrierte der Job-Fakt mit dem Wohnort.
+  - Das ist ein Fehler in der handgeschriebenen Tabelle, kein Rauschen.
+- **F1/F2:** „What is the birthplace of X?“ teilt kein Wort mit „was born in“, und die Frage
+  hat keinen erkannten Antworttyp. Die Ein-Fakt-Regel greift deshalb nicht, und ENGRAMM
+  enthält sich.
+- **R2:** Der Gewinn auf NQ schwankt mit der Stichprobe um die Schwelle: +2,0 pp auf der
+  NQ-Validierung, +1,5 pp auf NQ-train-Fragen. Die Konfidenzintervalle überlappen.
+- **A1:** EM 19,8 % [17,3; 22,3] liegt an der Schwelle. F1 30 % ist mit der regelbasierten und
+  gezählten Spannenwahl nicht in Reichweite (Dev ≈ 26 %).
+- **A3:** NQ-EM ≥ 5 % ist mit diesem Korpus strukturell nicht erreichbar. Nur in 30 % der
+  Fälle steht die Antwort überhaupt unter den Kandidaten, und die Satz-Trefferquote liegt bei
+  3,6–4,7 %.
+
+### Was man daraus mitnimmt
+
+- Jede Runde mit neuen Formulierungen deckt neue Lücken einer handgeschriebenen Grammatik auf
+  und schließt die alten. Die Werte steigen: D2 von 76 auf 96 %, F2 von 85 auf 94 %.
+- 100 % auf *ungesehenen* Formulierungen erreicht so ein Regelsystem nicht zuverlässig. Das
+  ist der ehrliche Preis dafür, ohne gelerntes Sprachmodell zu arbeiten.
+- Die Stärken sind stabil: exaktes Vergessen mit bitgleichem Replay, Tippfehler-Toleranz
+  durch HDC und Antworten mit Quelle in unter einer Sekunde.
+
+---
+
 ## Offene Fragen, nicht terminiert
 
 **O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**

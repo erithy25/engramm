@@ -1,0 +1,595 @@
+{
+  "schema": "engramm-chat/2",
+  "name": "chat_test3",
+  "study": "docs/PREREG_CHAT_V3.md v1.0",
+  "split": "test3",
+  "timestamp_utc": "20260927T042240Z",
+  "config": "BotConfig(weights=Weights(cov=5.0, soft=0.0, pcov=1.0, kcov=2.0, type=2.0, wiki=0.25, q=1.0, short=0.5, phr=0.5, dcov=2.0, prox=0.5, dfull=1.0), extract=ExtractParams(k=10, tau=0.15, lam=4.0, other_max=4, type_only=True, soft_min=0.0, definition=2.0, head_beta=0.0, copula=1.0, direction=1.0, nb=0.5, nb_prox=2.0, rule_types=('DATE',)), text_k=120, theta=6.9512, entity_min=0.6, fact_min=0.3, only_fact=True, focus_gate=True)",
+  "data_manifest": {
+    "generated_sha256": "8c0fbfa859f00905df377657c4ed05dfc00441d047497178434732e7f734b2ab",
+    "templates_sha256": "5e038a5a009911f18229f8aeef8059e0afa8276f56048e1cbdf762168a7b8af9"
+  },
+  "index": {
+    "version": 2,
+    "sentences": 14785257,
+    "terms": 23258,
+    "postings": 222188200,
+    "mean_terms_per_sentence": 16.8137780763635,
+    "build_seconds": 30.1,
+    "peak_rss_mb": 5468.7,
+    "digest": "53b739bc7a096c96786f38d74c3ac004b45023495c6316c858dad11684a0b5ba",
+    "doc_postings": 96848950
+  },
+  "n": {
+    "squad_test": 1000,
+    "nq_test": 3610
+  },
+  "criteria": {
+    "R1": {
+      "diff": 0.07700000000000001,
+      "ci95": [
+        0.055999999999999994,
+        0.09899999999999998
+      ],
+      "stage1": 0.39,
+      "v2": 0.467,
+      "pass": true
+    },
+    "R2": {
+      "diff": 0.015235457063711915,
+      "ci95": [
+        0.009418282548476459,
+        0.021329639889196676
+      ],
+      "stage1": 0.02077562326869806,
+      "v2": 0.036011080332409975,
+      "pass": false
+    },
+    "F1": {
+      "value": 0.95,
+      "pass": true
+    },
+    "F2": {
+      "value": 0.935,
+      "exact_dict": 0.0,
+      "lead": 0.935,
+      "pass": true
+    },
+    "F3": {
+      "value": 1.0,
+      "pass": true
+    },
+    "D1": {
+      "value": 0.92125,
+      "n": 800,
+      "pass": true
+    },
+    "D2": {
+      "a": 0.96,
+      "b": 0.9,
+      "n": 200,
+      "pass": false
+    },
+    "D3": {
+      "value": 1.0,
+      "n": 55,
+      "pass": true
+    },
+    "A1": {
+      "em": 0.198,
+      "f1": 0.2666202141005739,
+      "em_ci95": [
+        0.173,
+        0.223
+      ],
+      "pass": "False"
+    },
+    "A2": {
+      "precision": 0.5458937198067633,
+      "coverage": 0.207,
+      "theta": 6.9512,
+      "pass": true
+    },
+    "A3": {
+      "em": 0.013296398891966758,
+      "em_ci95": [
+        0.009695290858725761,
+        0.017174515235457065
+      ],
+      "f1": 0.03402875210354435,
+      "pass": "False"
+    },
+    "U2": {
+      "median_seconds": 0.008191347122192383,
+      "p90_seconds": 0.36217801570892333,
+      "device": "container",
+      "official": false,
+      "pass": true
+    },
+    "U3": {
+      "transcripts_equal": true,
+      "transcript_sha256": "caa1ac4d4627293d7b69069f2bed0aaa19834665afa7220937b0d5ea231225e9",
+      "digest_equal": true,
+      "answers_equal": true,
+      "events": 70,
+      "discarded_bytes": 0,
+      "questions": 80,
+      "pass": true
+    }
+  },
+  "stages_met": {
+    "1.1": false,
+    "2": true,
+    "3": false,
+    "4": "False",
+    "5 (U2, U3; U1 = browser test)": true
+  },
+  "facts_misses": {
+    "clean": [
+      {
+        "q": "What is the birthplace of Shelstur?",
+        "gold": "Domae",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Klaelgux?",
+        "gold": "Gorfu",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Daeldrim?",
+        "gold": "Daenrath",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Sothdum?",
+        "gold": "Kloumstaexdu",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Raernuth?",
+        "gold": "Zasklounti",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Binstous?",
+        "gold": "Sibros",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Quixnol?",
+        "gold": "Zousgaexgaes",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Shoxdammuth?",
+        "gold": "Brelgour",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Shixlim?",
+        "gold": "Stethdirdou",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Briolkaem?",
+        "gold": "Klurstaethsioth",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      }
+    ],
+    "typo": [
+      {
+        "q": "What is the birthplace of Shelytur?",
+        "gold": "Domae",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Klaeegux?",
+        "gold": "Gorfu",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Dkeldrim?",
+        "gold": "Daenrath",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Sotheum?",
+        "gold": "Kloumstaexdu",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Raernkth?",
+        "gold": "Zasklounti",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Binszous?",
+        "gold": "Sibros",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Quicnol?",
+        "gold": "Zousgaexgaes",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Shoidammuth?",
+        "gold": "Brelgour",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Shixlrm?",
+        "gold": "Stethdirdou",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "What is the birthplace of Brioukaem?",
+        "gold": "Klurstaethsioth",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which creature is the mascot of the Dukio team?",
+        "gold": "Nandoul",
+        "answer": "Drumtonlor",
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Who found the island of Doume?",
+        "gold": "Drutaelzol",
+        "answer": "Grourolpa",
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Who wrote the music of the anthem of Quiomkhn?",
+        "gold": "Nussiox",
+        "answer": "Soundrae",
+        "via": "facts",
+        "hit": false
+      }
+    ]
+  },
+  "dialog_misses": [
+    {
+      "dialog": "test3-facts-2",
+      "user": "What do I do for work?",
+      "gold": "nurse",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-7",
+      "user": "What do I do for work?",
+      "gold": "nurse",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-9",
+      "user": "What do I do for work?",
+      "gold": "chemist",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-10",
+      "user": "What do I do for work?",
+      "gold": "teacher",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-11",
+      "user": "What do I do for work?",
+      "gold": "dentist",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-16",
+      "user": "What do I do for work?",
+      "gold": "baker",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-18",
+      "user": "What do I do for work?",
+      "gold": "plumber",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-30",
+      "user": "What do I do for work?",
+      "gold": "baker",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-35",
+      "user": "What do I do for work?",
+      "gold": "lawyer",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-39",
+      "user": "What do I do for work?",
+      "gold": "baker",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-40",
+      "user": "What do I do for work?",
+      "gold": "dentist",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-49",
+      "user": "What do I do for work?",
+      "gold": "chemist",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-52",
+      "user": "What do I do for work?",
+      "gold": "librarian",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-53",
+      "user": "What do I do for work?",
+      "gold": "dentist",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-56",
+      "user": "What do I do for work?",
+      "gold": "carpenter",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-57",
+      "user": "What do I do for work?",
+      "gold": "lawyer",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-58",
+      "user": "What do I do for work?",
+      "gold": "farmer",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-59",
+      "user": "What do I do for work?",
+      "gold": "carpenter",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-63",
+      "user": "What do I do for work?",
+      "gold": "pilot",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-66",
+      "user": "What do I do for work?",
+      "gold": "dentist",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-71",
+      "user": "What do I do for work?",
+      "gold": "nurse",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-72",
+      "user": "What do I do for work?",
+      "gold": "pilot",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-79",
+      "user": "What do I do for work?",
+      "gold": "chemist",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-82",
+      "user": "What do I do for work?",
+      "gold": "dentist",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-86",
+      "user": "What do I do for work?",
+      "gold": "teacher",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-89",
+      "user": "What do I do for work?",
+      "gold": "baker",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-90",
+      "user": "What do I do for work?",
+      "gold": "lawyer",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-98",
+      "user": "What do I do for work?",
+      "gold": "lawyer",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-102",
+      "user": "What do I do for work?",
+      "gold": "plumber",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-103",
+      "user": "What do I do for work?",
+      "gold": "lawyer",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-106",
+      "user": "What do I do for work?",
+      "gold": "lawyer",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-109",
+      "user": "What do I do for work?",
+      "gold": "farmer",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-110",
+      "user": "What do I do for work?",
+      "gold": "pilot",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-113",
+      "user": "What do I do for work?",
+      "gold": "lawyer",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-115",
+      "user": "What do I do for work?",
+      "gold": "chemist",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-120",
+      "user": "What do I do for work?",
+      "gold": "lawyer",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-121",
+      "user": "What do I do for work?",
+      "gold": "carpenter",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-122",
+      "user": "What do I do for work?",
+      "gold": "farmer",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-123",
+      "user": "What do I do for work?",
+      "gold": "pilot",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test3-facts-130",
+      "user": "What do I do for work?",
+      "gold": "librarian",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    }
+  ],
+  "git": {
+    "commit": "8d8dfe3f9bc9e894ff7b5aec4e1a158e0556f8a1",
+    "dirty": false,
+    "untracked": 0,
+    "changed_during_run": false
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 1827.2782456874847,
+    "peak_rss_mb": 8269.45703125
+  }
+}
