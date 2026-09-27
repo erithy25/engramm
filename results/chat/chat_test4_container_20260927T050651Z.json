@@ -1,0 +1,602 @@
+{
+  "schema": "engramm-chat/2",
+  "name": "chat_test4",
+  "study": "docs/PREREG_CHAT_V4.md v1.0",
+  "split": "test4",
+  "timestamp_utc": "20260927T050651Z",
+  "config": "BotConfig(weights=Weights(cov=5.0, soft=0.0, pcov=1.0, kcov=2.0, type=2.0, wiki=0.25, q=1.0, short=0.5, phr=0.5, dcov=2.0, prox=0.5, dfull=1.0), extract=ExtractParams(k=10, tau=0.15, lam=4.0, other_max=4, type_only=True, soft_min=0.0, definition=2.0, head_beta=0.0, copula=1.0, direction=1.0, nb=0.5, nb_prox=2.0, rule_types=('DATE',)), text_k=120, theta=6.9512, entity_min=0.6, fact_min=0.3, only_fact=True, focus_gate=True)",
+  "data_manifest": {
+    "generated_sha256": "49346e20e01d1bb5ddf94b55b98569d58bd13fd4cb0e495de247f4bf934afb2d",
+    "templates_sha256": "f53ecea1914807ae6659688346d625ae15a3baaca8ee2b8e38d1b30d65678646"
+  },
+  "index": {
+    "version": 2,
+    "sentences": 14785257,
+    "terms": 23258,
+    "postings": 222188200,
+    "mean_terms_per_sentence": 16.8137780763635,
+    "build_seconds": 30.1,
+    "peak_rss_mb": 5468.7,
+    "digest": "53b739bc7a096c96786f38d74c3ac004b45023495c6316c858dad11684a0b5ba",
+    "doc_postings": 96848950
+  },
+  "n": {
+    "squad_test": 1000,
+    "nq_test": 3610
+  },
+  "criteria": {
+    "R1": {
+      "diff": 0.07299999999999995,
+      "ci95": [
+        0.05099999999999999,
+        0.09602499999999989
+      ],
+      "stage1": 0.405,
+      "v2": 0.478,
+      "pass": true
+    },
+    "R2": {
+      "diff": 0.01606648199445983,
+      "ci95": [
+        0.010249307479224378,
+        0.02188365650969529
+      ],
+      "stage1": 0.021329639889196676,
+      "v2": 0.037396121883656507,
+      "pass": false
+    },
+    "F1": {
+      "value": 0.95,
+      "pass": true
+    },
+    "F2": {
+      "value": 0.93,
+      "exact_dict": 0.0,
+      "lead": 0.93,
+      "pass": true
+    },
+    "F3": {
+      "value": 1.0,
+      "pass": true
+    },
+    "D1": {
+      "value": 0.38125,
+      "n": 800,
+      "pass": false
+    },
+    "D2": {
+      "a": 0.975,
+      "b": 0.475,
+      "n": 200,
+      "pass": false
+    },
+    "D3": {
+      "value": 0.9090909090909091,
+      "n": 55,
+      "pass": true
+    },
+    "A1": {
+      "em": 0.209,
+      "f1": 0.26655335801453445,
+      "em_ci95": [
+        0.184,
+        0.236
+      ],
+      "pass": "False"
+    },
+    "A2": {
+      "precision": 0.5585106382978723,
+      "coverage": 0.188,
+      "theta": 6.9512,
+      "pass": false
+    },
+    "A3": {
+      "em": 0.017174515235457065,
+      "em_ci95": [
+        0.01301939058171745,
+        0.021329639889196676
+      ],
+      "f1": 0.0343927801961043,
+      "pass": "False"
+    },
+    "U2": {
+      "median_seconds": 0.008170366287231445,
+      "p90_seconds": 0.3575755596160889,
+      "device": "container",
+      "official": false,
+      "pass": true
+    },
+    "U3": {
+      "transcripts_equal": true,
+      "transcript_sha256": "4523de4e7e4a2d60138a1cb94a1044010cb78ecb6effa84640db33ef0215148d",
+      "digest_equal": true,
+      "answers_equal": true,
+      "events": 72,
+      "discarded_bytes": 0,
+      "questions": 80,
+      "pass": true
+    }
+  },
+  "stages_met": {
+    "1.1": false,
+    "2": true,
+    "3": false,
+    "4": "False",
+    "5 (U2, U3; U1 = browser test)": true
+  },
+  "facts_misses": {
+    "clean": [
+      {
+        "q": "Tell me the capital of Gunpolris.",
+        "gold": "Nandoun",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Shasaer.",
+        "gold": "Mensexdum",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Broumaex.",
+        "gold": "Drousklithzis",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Loundous.",
+        "gold": "Klilsomstath",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Sharshion.",
+        "gold": "Gusde",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Burrum.",
+        "gold": "Thathnalzioth",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Daxnith.",
+        "gold": "Milgax",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Griothouxrir.",
+        "gold": "Klourfaem",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Baenkarsta.",
+        "gold": "Gakorlae",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Vetix.",
+        "gold": "Shaexbam",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      }
+    ],
+    "typo": [
+      {
+        "q": "Tell me the capital of Guzpolris.",
+        "gold": "Nandoun",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Scasaer.",
+        "gold": "Mensexdum",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Broumayx.",
+        "gold": "Drousklithzis",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Loundoys.",
+        "gold": "Klilsomstath",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Sharsvion.",
+        "gold": "Gusde",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Burgum.",
+        "gold": "Thathnalzioth",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Daxndth.",
+        "gold": "Milgax",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Griothouxwir.",
+        "gold": "Klourfaem",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Blenkarsta.",
+        "gold": "Gakorlae",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Tell me the capital of Vetux.",
+        "gold": "Shaexbam",
+        "answer": null,
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Who was the first to reach the island of Dalme?",
+        "gold": "Drutaelzol",
+        "answer": "Grourolpa",
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Who is the composer of Quahsho's anthem?",
+        "gold": "Daquamneth",
+        "answer": "Konzou",
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Who is the composer of Shemlun's anthem?",
+        "gold": "Kostes",
+        "answer": "Konzou",
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Who is the composer of Quixmkin's anthem?",
+        "gold": "Nussiox",
+        "answer": "Konzou",
+        "via": "facts",
+        "hit": false
+      }
+    ]
+  },
+  "dialog_misses": [
+    {
+      "dialog": "test4-facts-0",
+      "user": "Which colour is my favourite?",
+      "gold": "pink",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-0",
+      "user": "What's my occupation?",
+      "gold": "chemist",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-1",
+      "user": "Where do I live now?",
+      "gold": "Caslocas",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-1",
+      "user": "What do I love to eat?",
+      "gold": "sushi",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-1",
+      "user": "Who am I?",
+      "gold": "Shawo",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-2",
+      "user": "Where do I live now?",
+      "gold": "Gaibrulo",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-2",
+      "user": "What's my occupation?",
+      "gold": "nurse",
+      "answer": "Bruyelfro Textiles",
+      "text": "Bruyelfro Textiles."
+    },
+    {
+      "dialog": "test4-facts-2",
+      "user": "What do I love to eat?",
+      "gold": "falafel",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-3",
+      "user": "Where am I employed?",
+      "gold": "Fenran Works",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-3",
+      "user": "Who is my brother?",
+      "gold": "Dorzarjul",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-4",
+      "user": "Who am I?",
+      "gold": "Rismi",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-4",
+      "user": "Which colour is my favourite?",
+      "gold": "black",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-4",
+      "user": "What's my occupation?",
+      "gold": "florist",
+      "answer": "Torwo Foods",
+      "text": "Torwo Foods."
+    },
+    {
+      "dialog": "test4-facts-5",
+      "user": "Who is my brother?",
+      "gold": "Juldor",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-5",
+      "user": "What's my occupation?",
+      "gold": "lawyer",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-6",
+      "user": "Which colour is my favourite?",
+      "gold": "blue",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-7",
+      "user": "What's my occupation?",
+      "gold": "lawyer",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-7",
+      "user": "Where do I live now?",
+      "gold": "Casvel",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-7",
+      "user": "Who am I?",
+      "gold": "Pemcas",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-8",
+      "user": "Who am I?",
+      "gold": "Torvel",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-8",
+      "user": "What do I love to eat?",
+      "gold": "ramen",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-9",
+      "user": "Which colour is my favourite?",
+      "gold": "red",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-9",
+      "user": "Where do I live now?",
+      "gold": "Kajulbru",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-9",
+      "user": "What's my occupation?",
+      "gold": "teacher",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-9",
+      "user": "Who am I?",
+      "gold": "Krowonix",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-10",
+      "user": "Where am I employed?",
+      "gold": "Gaiepcas Textiles",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-10",
+      "user": "What do I love to eat?",
+      "gold": "pancakes",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-10",
+      "user": "Who am I?",
+      "gold": "Belwo",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-11",
+      "user": "Who am I?",
+      "gold": "Ranhor",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-11",
+      "user": "Who is my brother?",
+      "gold": "Yelwo",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-11",
+      "user": "Where do I live now?",
+      "gold": "Tamka",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-11",
+      "user": "Which colour is my favourite?",
+      "gold": "yellow",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-12",
+      "user": "What do I love to eat?",
+      "gold": "risotto",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-12",
+      "user": "Where do I live now?",
+      "gold": "Torwohor",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-12",
+      "user": "Which colour is my favourite?",
+      "gold": "black",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-13",
+      "user": "Who am I?",
+      "gold": "Tamtordun",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-13",
+      "user": "What's my occupation?",
+      "gold": "plumber",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-13",
+      "user": "What do I love to eat?",
+      "gold": "pancakes",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-14",
+      "user": "Who is my brother?",
+      "gold": "Riskaka",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    },
+    {
+      "dialog": "test4-facts-14",
+      "user": "What do I love to eat?",
+      "gold": "pizza",
+      "answer": null,
+      "text": "I don't know — you haven't told me that (or you asked me to forget it)."
+    }
+  ],
+  "git": {
+    "commit": "56c178fd1ccae66312f59f6eb906a05ff5575e64",
+    "dirty": false,
+    "untracked": 0,
+    "changed_during_run": false
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 1842.7097148895264,
+    "peak_rss_mb": 8725.0
+  }
+}

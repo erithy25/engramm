@@ -1481,6 +1481,51 @@ unverändert während des Laufs; 30 min, 8,3 GB Spitze).
 
 ---
 
+## E17 — ENGRAMM-Chat v4: dritte Runde, frische Formulierungen
+
+**Registrierung: `docs/PREREG_CHAT_V4.md`.** Der Code war vor der Registrierung eingefroren
+(`c4a3c29`), die Testformulierungen entstanden danach. Record:
+`results/chat/chat_test4_container_20260927T050651Z.json` (Commit `56c178f`, sauber).
+
+| | v2 | v3 | **v4** | Schwelle | |
+|---|---|---|---|---|---|
+| R1 SQuAD Hit@1 +pp | +7,9 | +7,7 | **+7,3** [5,1; 9,6] | ≥ 3 | **erfüllt** |
+| R2 NQ Hit@1 +pp | +2,02 | +1,52 | **+1,61** [1,02; 2,19] | ≥ 2 | **verfehlt** |
+| F1 / F2 / F3 | 93 / 85 / 100 % | 95 / 93,5 / 100 % | **95 / 93 / 100 %** | 90 / 75 / 90 | **erfüllt** |
+| D1 | 93,2 % | 92,1 % | **38,1 %** | ≥ 90 % | **verfehlt** |
+| D2 a / b | 76,5 / 75,0 % | 96 / 90 % | **97,5 / 47,5 %** | je 100 % | **verfehlt** |
+| D3 | 85,5 % | 100 % | **90,9 %** | ≥ 80 % | **erfüllt** |
+| A1 EM / F1 | 18,8 / 25,3 % | 19,8 / 26,7 % | **20,9 / 26,7 %** | 20 / 30 % | **verfehlt** (F1) |
+| A2 | 58,6 @ 17,4 % | 54,6 @ 20,7 % | **55,9 @ 18,8 %** | 50 @ 20 % | **verfehlt** (Abdeckung) |
+| A3 | 1,9 % | 1,3 % | **1,7 %** | 5 % | **verfehlt** |
+| U1–U3 | erfüllt | erfüllt | **erfüllt** | | **erfüllt** |
+
+**Ausgang:** Stufen 2 und 5 zum dritten Mal erfüllt; 1.1, 3 und 4 verfehlt.
+
+**Lesart:**
+- Die Ich-Grammatik war eine Liste von Satzmustern. Sie verallgemeinert nicht. Auf die neuen
+  Formen
+  - „Hi, I'm X.“,
+  - „X is my brother.“,
+  - „I moved to X last year.“,
+  - „By trade I'm a X.“,
+  - „I really love X.“
+
+  passt keines der Muster, und D1 fällt von 92 auf 38 %.
+- Die Fehler häufen sich genau bei diesen Formen („Who am I?“, „What's my occupation?“, „What
+  do I love to eat?“, „Which colour is my favourite?“).
+- Das Vergessen selbst bleibt exakt: Der Wert ist in 97,5 % der Fälle weg. Nur der Digest
+  weicht ab, weil nicht verstandene Sätze bei Kontrolle und Dialog unterschiedlich zerlegt
+  werden.
+- **A1:** Die EM-Schwelle ist erstmals erreicht (20,9 %). F1 bleibt bei 26,7 %; die 30 % sind mit
+  dieser Spannenwahl nicht erreichbar.
+- **Konsequenz:** Weitere Runden mit neuen Mustern jagen nur den eigenen Formulierungen
+  hinterher. Nötig ist eine Zerlegung ohne Satzmuster. Die nächste Runde (v5) ersetzt die
+  Mustertabelle deshalb durch eine allgemeine Regel: Wert = die genannte Angabe; Beziehung =
+  die übrigen Inhaltswörter; Besitz aus „my …“.
+
+---
+
 ## Offene Fragen, nicht terminiert
 
 **O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**
