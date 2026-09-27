@@ -35,6 +35,10 @@ from engramm.chat.retrieve import FEATURES, Retriever, Weights
 from engramm.lm.chat import B, K1, _soft_match
 
 CHAT_PREFIX = "chat:"
+CATEGORY_KIND = {"#car": "NAME", "#food": "TEXT", "#colour": "TEXT", "#job": "TEXT", "#home": "NAME",
+                 "#birth": "DATE", "#employer": "NAME", "#name": "NAME"}
+CATEGORY_WORD = {"#car": "car", "#food": "food", "#colour": "colour", "#job": "job", "#home": "city",
+                 "#employer": "company", "#name": "name"}
 
 
 # ---------------------------------------------------------------------------
@@ -282,8 +286,9 @@ class ChatBot:
     def _forget(self, msg: str) -> Reply:
         topic = _FORGET.match(msg).group(1).strip().rstrip(".!?").strip()
         topic = re.sub(r",?\s*(?:please|thanks|thank you)$", "", topic, flags=re.I).strip()
-        topic = re.sub(r"^(?:what i (?:told|said to) you about|everything (?:i told you )?about|about|the fact that|"
-                       r"that)\s+", "", topic, flags=re.I).strip()
+        topic = re.sub(r"^(?:(?:what|everything|all|anything) i (?:told you|said|said to you|mentioned) about|"
+                       r"everything about|the information about|about|the fact that|that)\s+", "", topic,
+                       flags=re.I).strip()
         texts = {s: t for s, t in self.user_texts().items() if s.startswith(CHAT_PREFIX)}
         if not texts:
             return Reply(msg, "nothing", "You haven't told me anything I could forget.")
@@ -304,41 +309,68 @@ class ChatBot:
                      via="memory")
 
     def _match_topic(self, topic: str, texts: dict[str, str]) -> str | None:
-        """The taught text that best matches the topic of a forget request: first by the
-        entity (you, something of yours, or a name), then by the relation words."""
+        """The taught text that best matches the topic of a forget request.
+
+        Points: the entity (you, something of yours, or a name) must fit; shared category
+        groups (colour, food, car, …) weigh 2, weaker groups 0.5, shared words 0.5; a
+        category conflict costs 3; the kind of value a category expects (cars and cities are
+        names, food and jobs ordinary words, birthdays dates) ±0.5; and, where a value has a
+        counted meaning vector, its similarity to the category word."""
+        from engramm.chat.facts import CATEGORIES, concepts
         self.refresh()
         mentions, rel = question_parts(topic, self.is_name_initial)
         owned = [m for m in mentions if m.startswith(USER + ":")]
         target = owned[0] if owned else (USER if USER in mentions else None)
-        rq = self.facts.rel.encode(rel) if rel else None
-        tw = set(w for w in _rel_words(topic))
+        tlabels = {w for w in rel if w.startswith("#")} | set(concepts(topic))
+        twords = {w for w in rel if not w.startswith("#")}
         topic_words = set(norm_entity(topic).split())
+        rq = self.facts.rel.encode(rel) if rel else None
         scored = []
         for sid, text in texts.items():
             fs = [f for f in self.facts.facts if f.source == sid]
-            best = 0.0
+            best = None
             for f in fs:
-                s = 0.0
                 if target is not None:
                     if f.subject != target:
                         continue
-                    s += 1.0
                 else:
                     ent = set(norm_entity(f.subject).split()) | set(norm_entity(f.object).split())
                     if not ent & topic_words:
                         continue
-                    s += 1.0
+                flabels = {w for w in f.relation if w.startswith("#")}
+                s = 1.0
+                s += sum(2.0 if lab in CATEGORIES else 0.5 for lab in tlabels & flabels)
+                s += 0.5 * len(twords & set(f.relation))
                 if rq is not None:
-                    s += 1.0 - int(np.bitwise_count(rq ^ self.facts.rel.encode(f.relation)).sum()) / 2048
-                    s += 0.5 * len(tw & set(f.relation))
-                    if category_conflict(rel, f.relation):
-                        s -= 1.0
-                best = max(best, s)
-            if not fs and target is None:
-                best = 0.5 * len(tw & set(_rel_words(text)))
-            scored.append((best, sid))
+                    s += 0.3 * (1.0 - int(np.bitwise_count(rq ^ self.facts.rel.encode(f.relation)).sum()) / 2048)
+                if category_conflict(tlabels, flabels):
+                    s -= 3.0
+                for lab in tlabels & CATEGORIES:
+                    want = CATEGORY_KIND.get(lab)
+                    if want:
+                        s += 0.5 if f.kind == want else -0.5
+                    vs = self._value_similarity(CATEGORY_WORD.get(lab), f.object)
+                    if vs is not None:
+                        s += 5.0 * (vs - 0.6)
+                best = s if best is None else max(best, s)
+            if best is None and not fs and target is None:
+                best = 0.5 * len(twords & set(_rel_words(text)))
+            if best is not None:
+                scored.append((best, sid))
         scored.sort(key=lambda x: (-x[0], x[1]))
         return scored[0][1] if scored and scored[0][0] > 0.55 else None
+
+    def _value_similarity(self, word: str | None, value: str):
+        """Meaning-vector similarity of a category word and a one-token value, else None."""
+        vecs = self.c.wide if self.c.wide is not None else None
+        if vecs is None or not word:
+            return None
+        tok = self.c.tok
+        a = tok.encode(" " + word)
+        b = tok.encode(" " + value.strip())
+        if len(a) != 1 or len(b) != 1:
+            return None
+        return 1.0 - int(np.bitwise_count(np.asarray(vecs[a[0]]) ^ np.asarray(vecs[b[0]])).sum()) / 2048
 
     # -- questions --------------------------------------------------------------------------
 
@@ -416,10 +448,8 @@ class ChatBot:
                 pass
             if owned and not all(o in words(low) for o in owned):
                 continue
-            if not owned and any(w in words(low) for w in ("brother", "sister", "dog", "cat", "mother", "father",
-                                                          "wife", "husband", "son", "daughter", "friend")) \
-                    and re.search(r"\bmy (?:\w+ )?(?:brother|sister|dog|cat|mother|father|wife|husband|son|daughter|"
-                                  r"friend)", low):
+            subjects = {f.subject for f in self.facts.facts if f.source == sid}
+            if not owned and subjects and all(x.startswith(USER + ":") for x in subjects):
                 continue           # a sentence about your brother does not answer a question about you
             sc = concepts(low)
             if category_conflict(qconc, sc):

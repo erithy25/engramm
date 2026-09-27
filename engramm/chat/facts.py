@@ -284,6 +284,7 @@ def normalise_first_person(sentence: str) -> str:
     """Contractions expanded, leading fillers dropped, 'our' → 'my' (for matching only)."""
     s = expand_contractions(sentence.strip()).rstrip(".!").strip()
     s = _LEADING.sub("", s)
+    s = re.sub(r"^(?:the )?name(?:'s| is)\b", "my name is", s, flags=re.I)
     s = re.sub(r"\bour\b", "my", s, flags=re.I)
     return s
 
@@ -400,7 +401,8 @@ def personal_facts(sentence: str, source: str, initial_is_name=None) -> list[Fac
             value, kind = f.object, f.kind
             vrange = {i for i, w in enumerate(lw) if w in obj_words}
         else:
-            m = re.match(r"^((?:[\w'-]+ ){0,2}[\w'-]+) (?:is|are|was) my\b", s, flags=re.I)
+            m = re.match(r"^((?:[\w'-]+ ){0,2}[\w'-]+) (?:is|are|was) (?:my|what|who|the one|the thing)\b", s,
+                         flags=re.I)
             if m and m.group(1).lower() not in _FIRST:
                 value = m.group(1)
                 vrange = set(range(0, len(words(value))))
@@ -413,7 +415,7 @@ def personal_facts(sentence: str, source: str, initial_is_name=None) -> list[Fac
                     while k < n and k - j < 3 and ws[k][0].isalnum() and lw[k] not in STOP \
                             and lw[k] not in CATEGORY_NOUNS:
                         k += 1
-                    if k > j and not all(lw[x] in NON_VALUES for x in range(j, k)):
+                    if k > j and not all(lw[x] in NON_VALUES for x in range(j, k)) and lw[j] not in _VALUE_CUES:
                         value, vrange = " ".join(ws[j:k]), set(range(j, k))
                         break
     if not value:
