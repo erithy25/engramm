@@ -1526,6 +1526,40 @@ unverändert während des Laufs; 30 min, 8,3 GB Spitze).
 
 ---
 
+## E18 — ENGRAMM-Chat v5: Zerlegung ohne Satzmuster, frische Formulierungen
+
+**Registrierung: `docs/PREREG_CHAT_V5.md`**. Code vor der Registrierung eingefroren (`70b7646`).
+Record: `results/chat/chat_test5_container_20260927T060624Z.json` (Commit `d3b314a`, sauber).
+
+| | v2 | v3 | v4 | **v5** | Schwelle | |
+|---|---|---|---|---|---|---|
+| R1 +pp | +7,9 | +7,7 | +7,3 | **+7,1** [5,1; 9,3] | ≥ 3 | **erfüllt** |
+| R2 +pp | +2,02 | +1,52 | +1,61 | **+1,69** [1,08; 2,30] | ≥ 2 | **verfehlt** |
+| F1 / F2 / F3 | 93 / 85 / 100 | 95 / 93,5 / 100 | 95 / 93 / 100 | **100 / 99,5 / 100 %** | 90 / 75 / 90 | **erfüllt** |
+| D1 | 93,2 | 92,1 | 38,1 | **67,9 %** | ≥ 90 % | **verfehlt** |
+| D2 a / b | 76,5 / 75 | 96 / 90 | 97,5 / 47,5 | **100 / 87,5 %** | je 100 % | **verfehlt** (b) |
+| D3 | 85,5 | 100 | 90,9 | **100 %** | ≥ 80 % | **erfüllt** |
+| A1 EM / F1 | 18,8 / 25,3 | 19,8 / 26,7 | 20,9 / 26,7 | **18,5 / 25,3 %** | 20 / 30 | **verfehlt** |
+| A2 | 58,6 @ 17,4 | 54,6 @ 20,7 | 55,9 @ 18,8 | **48,6 @ 18,3 %** | 50 @ 20 | **verfehlt** |
+| A3 | 1,9 | 1,3 | 1,7 | **1,7 %** | 5 % | **verfehlt** |
+| U1–U3 | erfüllt | erfüllt | erfüllt | **erfüllt** | | **erfüllt** |
+
+**Lesart:**
+- Die Zerlegung ohne Satzmuster hebt D1 auf frischen Formulierungen von 38 auf 68 %. Das
+  Faktengedächtnis für Dritte ist praktisch perfekt (100 / 99,5 %).
+- Die restlichen Fehler liegen bei zusammengesetzten Sätzen:
+  - „I eat X almost every week, it's my favourite“ liefert den Wert „favourite“.
+  - „I adore the colour X“.
+  - „At work I'm a X“ enthält kein Berufswort.
+- Die Werte der Stufe 4 und R2 schwanken von Runde zu Runde innerhalb ihrer
+  Konfidenzintervalle um die Schwellen (A1-EM 18,5–20,9 %, R2 +1,5 bis +2,0 pp). Das ist
+  Stichprobenrauschen, kein Fortschritt und kein Rückschritt.
+- **Konsequenz für v6:** Fragen über dich werden, wenn das Faktengedächtnis nichts Sicheres
+  findet, in deinen eigenen Sätzen nachgeschlagen und die Antwort herausgeschnitten, wie im
+  Korpus. Das hängt nicht vom Satzbau ab.
+
+---
+
 ## Offene Fragen, nicht terminiert
 
 **O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**
