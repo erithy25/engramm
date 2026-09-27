@@ -31,7 +31,7 @@ from experiments.chat_v2_data import h64
 from experiments.chat_v2_spanstats import name_initial, sentences_with_offsets, training_questions
 
 
-def build_examples(model_dir: Path, paragraph: bool = False):
+def build_examples(model_dir: Path, paragraph: bool = False, domain: bool = False):
     corpus = Corpus.load(model_dir)
     tok = corpus.tok
     cb = Codebook.load(model_dir / "codebook.npz")
@@ -60,14 +60,14 @@ def build_examples(model_dir: Path, paragraph: bool = False):
             continue
         qa = analyse(q["question"])
         g = normalize(gold)
-        cands = features_for_sentence(qa, text.strip(), info, initial, extended=True)
+        cands = features_for_sentence(qa, text.strip(), info, initial, extended=True, domain=domain)
         golds = [k for k, (sp, _) in enumerate(cands) if normalize(sp.text) == g]
         if paragraph and golds:
             # the other sentences of the paragraph compete too (their spans are wrong answers)
             others = []
             for _, t in sents:
                 if t is not text and t.strip():
-                    others += [c for c in features_for_sentence(qa, t.strip(), info, initial, extended=True)
+                    others += [c for c in features_for_sentence(qa, t.strip(), info, initial, extended=True, domain=domain)
                                if normalize(c[0].text) != g]
             cands = cands + others
         if not golds or len(cands) < 2:

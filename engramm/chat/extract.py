@@ -223,7 +223,8 @@ def extract_counted(q: Question, texts: list[str], rel: np.ndarray, p: ExtractPa
     pooled = []                 # (sentence, span, score) for the global softmax
     for si in range(k):
         cands = features_for_sentence(q, texts[si], info, initial_is_name,
-                                      extended=getattr(stats, "extended", False))
+                                      extended=getattr(stats, "extended", False),
+                                      domain=getattr(stats, "domain", False))
         if not cands:
             continue
         sc = np.array([stats.score(f) for _, f in cands]) * p.nb

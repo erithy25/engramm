@@ -57,6 +57,7 @@ class BotConfig:
                                        # words differ (never for facts about you)
     focus_gate: bool = True            # a name in the question must occur in the evidence document
     span_model: str = "spanstats.json"  # counted span statistics (naive Bayes) or "spanperc*.json" (perceptron)
+    span_model_nq: str = ""            # optional second perceptron for search-box queries (lower case, no "?")
 
 
 class TextMemory:
@@ -215,6 +216,7 @@ class ChatBot:
         self._name_memo: dict[str, bool] = {}
         self.last_rows: list = []
         self.span_stats, self.word_info = None, None
+        self.span_stats_nq = None
         self.typer = None
         self._soft_memo: dict = {}
         if getattr(corpus, "index", None) is not None and getattr(corpus.index, "n", 0) > 100_000:
@@ -226,6 +228,8 @@ class ChatBot:
             from engramm.chat.spanstats import SpanPerceptron, SpanStats, WordInfo
             self.span_stats = (SpanPerceptron.load(sp / config.span_model) if config.span_model.startswith("spanperc")
                                else SpanStats.load(sp / config.span_model))
+            if config.span_model_nq and (sp / config.span_model_nq).exists():
+                self.span_stats_nq = SpanPerceptron.load(sp / config.span_model_nq)
             self.word_info = WordInfo(corpus.tok, corpus.classes, corpus.wide)
 
     # -- helpers ---------------------------------------------------------------------------
@@ -741,13 +745,20 @@ class ChatBot:
         isum = max(query.idf_sum, 1e-9)
         texts = [r[3] for r in top]
         rel = np.array([r[0] / isum for r in top])
-        x = extract(qa, texts, rel, self.cfg.extract, self.is_name_initial, None, self.span_stats, self.word_info)
+        stats = self.span_stats
+        if self.span_stats_nq is not None:
+            from engramm.chat.spanstats import question_form
+            if question_form(qa) == "nq":
+                stats = self.span_stats_nq
+        x = extract(qa, texts, rel, self.cfg.extract, self.is_name_initial, None, stats, self.word_info)
         if x.text is None:
             best = top[0]
             src = best[4] or self.c.source(best[2])
             return self._finish(msg, q, qa, "unknown", None, None, best[3], src, 0.0, "lookup",
                                 text="I don't know. The closest I found is below.")
         row = top[x.sentence]
+        # the sentence ENGRAMM presents as its best one is the one the answer comes from
+        self.last_rows = [row] + [r for r in top if r is not row]
         src = row[4] or self.c.source(row[2])
         ok = x.confidence >= self.cfg.theta
         missing = self._focus_missing(q, row) if self.cfg.focus_gate else []

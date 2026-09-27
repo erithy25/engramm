@@ -255,20 +255,21 @@ class SpanPerceptron:
     training passes). Drop-in for SpanStats (``score``)."""
     w: dict = field(default_factory=dict)
     extended: bool = True
+    domain: bool = False
 
     def score(self, feats: list[str]) -> float:
         g = self.w.get
         return sum(g(f, 0.0) for f in feats)
 
     def save(self, path: Path) -> None:
-        Path(path).write_text(json.dumps({"extended": self.extended,
+        Path(path).write_text(json.dumps({"extended": self.extended, "domain": self.domain,
                                           "w": {k: round(v, 6) for k, v in sorted(self.w.items()) if v != 0}},
                                          ensure_ascii=False))
 
     @classmethod
     def load(cls, path: Path) -> SpanPerceptron:
         d = json.loads(Path(path).read_text())
-        return cls(d["w"], d.get("extended", True))
+        return cls(d["w"], d.get("extended", True), d.get("domain", False))
 
 
 class WordInfo:
@@ -317,8 +318,14 @@ def anchors_of(lw: list[str], q: Question) -> list[int]:
     return [i for i, w in enumerate(lw) if w in qc]
 
 
+def question_form(q: Question) -> str:
+    """"nq" for a search-box query (lower case, no question mark), else "sq"."""
+    t = q.text.strip()
+    return "nq" if t[:1].islower() and not t.endswith("?") else "sq"
+
+
 def features_for_sentence(q: Question, text: str, info: WordInfo, initial_is_name=None, max_chunk: int = 5,
-                          extended: bool = False):
+                          extended: bool = False, domain: bool = False):
     """(candidates, their feature lists) of one sentence."""
     ws, cands = candidate_spans(text, initial_is_name, max_chunk)
     lw = [w.lower() for w in ws]
@@ -338,6 +345,10 @@ def features_for_sentence(q: Question, text: str, info: WordInfo, initial_is_nam
         cov = len(qc & set(lw)) / max(len(qc), 1)
         tag = f"sc|{q.atype}|{min(int(cov * 5), 4)}"
         out = [(sp, f + [tag]) for sp, f in out]
+    if domain and out:
+        # every feature once more, specific to the form of the question (shared + form-specific weights)
+        d = question_form(q)
+        out = [(sp, f + [f"@{d}|{x}" for x in f]) for sp, f in out]
     return out
 
 

@@ -36,7 +36,7 @@ N_QUESTIONS = 12000
 K = 10
 CTX = CACHE / "train_ctx.pkl"
 CTX_NQ = CACHE / "train_ctx_nq.pkl"
-NQ_RANGE = (40000, 48000)       # NQ-open train positions in SHAKE-256 order; dev is 0–1,999, tests < 24,000
+NQ_RANGE = (40000, 80000)       # NQ-open train positions in SHAKE-256 order; dev is 0–1,999, tests < 24,000
 
 
 def nq_training_questions() -> list[dict]:
@@ -72,16 +72,20 @@ def retrieve(nq: bool = False) -> None:
     print("done", len(done), flush=True)
 
 
-def train(passes: int, beta: float, out: str, use_nq: bool = False) -> None:
+def train(passes: int, beta: float, out: str, use_nq: bool = False, domain: bool = False, only_nq: bool = False,
+          scale: float = 1.0) -> None:
     t0 = time.time()
-    examples, index, n_q = build_examples(MODEL_DIR, paragraph=True)
+    if only_nq:
+        examples, index, n_q = [], {}, 0
+    else:
+        examples, index, n_q = build_examples(MODEL_DIR, paragraph=True, domain=domain)
     offsets = [np.zeros(len(e[2]) - 1) for e in examples]
     golds = [[e[3]] for e in examples]
     corpus = Corpus.load(MODEL_DIR)
     cb = Codebook.load(MODEL_DIR / "codebook.npz")
     info = WordInfo(corpus.tok, cb.classes, cb.wide)
     initial = name_initial(corpus.tok, cap_ratio(MODEL_DIR.parent / "chat2") or {})
-    ctx = pickle.loads(CTX.read_bytes())
+    ctx = {} if only_nq else pickle.loads(CTX.read_bytes())
     byid = {q["id"]: q for q in training_questions(corpus)}
     if use_nq and CTX_NQ.exists():
         ctx.update(pickle.loads(CTX_NQ.read_bytes()))
@@ -98,7 +102,7 @@ def train(passes: int, beta: float, out: str, use_nq: bool = False) -> None:
         sw /= sw.sum()
         ids, offs, prior, pos = [], [0], [], []
         for si, t in enumerate(texts):
-            for sp, feats in features_for_sentence(qa, t, info, initial, extended=True):
+            for sp, feats in features_for_sentence(qa, t, info, initial, extended=True, domain=domain):
                 if normalize(sp.text) in g:
                     pos.append(len(prior))
                 for f in feats:
@@ -134,11 +138,11 @@ def train(passes: int, beta: float, out: str, use_nq: bool = False) -> None:
                 np.add.at(u, bi, -float(c))
             c += 1
         print(f"pass {p + 1}: {mistakes:,} mistakes of {len(order):,}", flush=True)
-    w = w - u / c
+    w = (w - u / c) * scale
     names = [None] * len(index)
     for f, k in index.items():
         names[k] = f
-    perc = SpanPerceptron({names[k]: float(w[k]) for k in np.flatnonzero(w)}, True)
+    perc = SpanPerceptron({names[k]: float(w[k]) for k in np.flatnonzero(w)}, True, domain)
     perc.save(MODEL_DIR.parent / "chat2" / out)
     meta = {"examples": len(examples), "retrieved_examples": n_ctx, "features": len(index), "passes": passes,
             "beta": beta, "seconds": round(time.time() - t0, 1)}
@@ -153,11 +157,14 @@ def main() -> None:
     ap.add_argument("--beta", type=float, default=1.0)
     ap.add_argument("--out", default="spanperc_ctx.json")
     ap.add_argument("--nq", action="store_true", help="retrieve / also train on NQ-open train questions")
+    ap.add_argument("--domain", action="store_true", help="form-specific copies of every feature")
+    ap.add_argument("--only-nq", action="store_true", help="train on the retrieved NQ questions only")
+    ap.add_argument("--scale", type=float, default=1.0, help="multiply the saved weights (temperature)")
     args = ap.parse_args()
     if args.cmd == "retrieve":
         retrieve(args.nq)
     else:
-        train(args.passes, args.beta, args.out, args.nq)
+        train(args.passes, args.beta, args.out, args.nq, args.domain, args.only_nq, args.scale)
 
 
 if __name__ == "__main__":
