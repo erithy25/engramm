@@ -194,8 +194,22 @@ thresholds):
     (needs 100 %).
   - SQuAD F1 ≥ 30 % (23–27 %) and NQ exact answers ≥ 5 % (1.3–1.9 %).
 
+A seventh round (v8, E21) followed after a rebuild of the dialog manager. The rebuild added:
+- a word lexicon counted from the corpus,
+- points-based matching,
+- broader forget recognition.
+
+The span choice switched from naive Bayes to an averaged perceptron, trained only by counting
+corrections.
+- **Met:** facts about you, forgetting and pronoun follow-ups on fresh phrasings, each
+  100 %. SQuAD exact match 22.7 % and F1 31.0 %.
+- **Missed:** calibrated "I don't know" (48.1 % precision at 23.3 % coverage, needs 50 %),
+  NQ exact answers (2.5 %) and the NQ look-up gain (+1.6 pp).
+
+Stages 2, 3 and 5 are met; 1.1 and 4 are not.
+
 All numbers, including the development history and the round-by-round table, are in
-[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E15–E20).
+[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E15–E21).
 
 ## Results — rebuild, re-measured
 

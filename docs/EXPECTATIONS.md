@@ -1644,6 +1644,45 @@ v7-Ergebnis:
 
 ---
 
+## E21 — ENGRAMM-Chat v8 (PREREG_CHAT_V8, einmaliger Testlauf)
+
+Ergebnisdatei: `results/chat/chat_test8_container_20260927T134959Z.json`. Code eingefroren in
+`2c4fb57`; Formulierungen danach geschrieben; ein Lauf.
+
+| Kriterium | Wert | Schwelle | Ergebnis |
+|---|---|---|---|
+| R1 | +6,0 pp, KI [3,9; 8,2] | ≥ 3 pp, KI > 0 | erfüllt |
+| R2 | +1,63 pp, KI [1,0; 2,2] | ≥ 2 pp, KI > 0 | verfehlt |
+| F1 / F2 / F3 | 100 % / 99,5 % (exaktes Wörterbuch 0 %) / 100 % | 90 / 75 & +30 pp / 90 | erfüllt |
+| D1 | 100 % | ≥ 90 % | erfüllt |
+| D2 | 100 % (a), 100 % (b) | je 100 % | erfüllt |
+| D3 | 100 % | ≥ 80 % | erfüllt |
+| A1 | EM 22,7 %, F1 31,0 % | ≥ 20 % und ≥ 30 % | erfüllt |
+| A2 | 48,1 % Präzision bei 23,3 % Abdeckung | ≥ 50 % bei ≥ 20 % | verfehlt |
+| A3 | NQ-EM 2,5 % | ≥ 5 % | verfehlt |
+| U2 / U3 | 9 ms / Transkripte gleich, Neustart gleich | ≤ 1 s / identisch | erfüllt |
+
+**Stufen:** 2, 3 und 5 erfüllt; 1.1 und 4 verfehlt.
+
+**Einordnung:**
+- **Stufe 3** ist zum ersten Mal auf frischen Formulierungen erfüllt, in allen drei Kriterien
+  zu 100 %. Die ehrliche Vorab-Schätzung (dev9, einmal gemessen vor Anpassung) lag bei
+  D1 67,75 %. Die Testformulierungen dieser Runde waren offenbar näher an dem, was die
+  breiteren Mechanismen abdecken:
+  - gezähltes Lexikon,
+  - weiche Kategorien aus Lift,
+  - Punktesystem,
+  - breitere Vergessen-Erkennung.
+
+  Ein einzelner Lauf mit 200 Dialogen beweist keine allgemeine Robustheit.
+- **A1** ist zum ersten Mal erfüllt, getragen vom Perzeptron (Dev F1 30,9 → Test 31,0).
+- **A2** verfehlt um 1,9 pp Präzision: Die Konfidenz der neuen Spannenwahl trennt richtig und
+  falsch auf dem Test etwas schlechter als auf Dev.
+- **A3** bleibt korpusbegrenzt.
+- **R2** schwankt wie bisher knapp unter 2 pp.
+
+---
+
 ## Offene Fragen, nicht terminiert
 
 **O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**
