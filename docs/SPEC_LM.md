@@ -133,3 +133,60 @@ Registriert in `docs/PREREG_CHAT.md`, gemessen in E14.
 - Nutzer-Texte werden bei jeder Frage in Sätze zerlegt und mit derselben Formel (Basis-idf) bewertet;
   bei Gleichstand vor Basis-Sätzen.
 - Index bauen: `python -m experiments.chat_build` → `models/lm/main/chat/` (Digest in `info.json`).
+
+## 7. ENGRAMM-Chat v2 (Stufen 1.1–5) — `engramm/chat/`
+
+Registriert in `docs/PREREG_CHAT_V2.md` (v1.1), gemessen in E15. Eingefrorene Werte:
+`engramm/chat/config.py`.
+
+- **Satzindex v2** (`index.py`, `python -m experiments.chat_build --v2` → `models/lm/main/chat2/`):
+  - Satzende nach `.`/`!`/`?` (schließende Anführungszeichen/Klammern ignoriert) nur, wenn das
+    nächste Token mit Leerraum beginnt.
+  - Bei einem bloßen `.` kein Satzende nach Einzelbuchstaben oder Abkürzungen (Liste im Code)
+    und nicht vor einem kleingeschriebenen Wort.
+  - Zusätzlich: Dokumentindex (Begriff → Dokumente, CSR), Satz → Dokument und die
+    Großschreib-Statistik `capstats.json`.
+- **Retrieval** (`retrieve.py`):
+  - Kandidaten: BM25-Top-300, dazu der Folgesatz der 30 besten und bis zu 60 Treffersätze aus
+    den 5 besten Dokumenten (Dokument-Score = Σ Dokument-idf der Fragebegriffe).
+  - Score = BM25 + Σidf · Σ w·Merkmal, mit Merkmalen und Gewichten wie in `config.WEIGHTS`
+    (cov 5, pcov 1, kcov 2, type 2, wiki 0,25, q 1, short 0,5, phr 0,5, dcov 2, prox 0,5,
+    dfull 1, soft 0).
+  - Textmerkmale (Antworttyp, Fragesatz, Länge) nur für die 120 besten nach den übrigen
+    Merkmalen.
+- **Fragenanalyse und Spannen** (`question.py`): Antworttyp aus Fragewort und Kopfnomen
+  (Wortlisten im Code). Spannen: Datum/Jahr/BC-AD/Dekade/Jahrhundert, Zahl mit Einheit, Namen
+  als Großschreib-Folgen mit Bindewörtern und „X and Y“. Ein Satzanfang zählt nur als Name,
+  wenn das Wort laut Korpus mitten im Satz meist großgeschrieben wird.
+- **Kurze Antwort** (`extract.py`, `spanstats.py`):
+  - Die 10 besten Sätze werden mit softmax(Score/Σidf / 0,15) gewichtet.
+  - Datumsfragen nutzen Regeln (Nähe exp(−d/4), Richtungsbonus ×2, Granularität). Alle
+    anderen Fragen nutzen den gezählten Modus: softmax über 0,5 · Naive-Bayes-Score − 2 · d/4
+    je Satz. Die Merkmale stehen in `span_features`, die Zählquelle ist in v1.1 festgelegt.
+  - Gleiche Spannen addieren ihre Stimmen, kurze Namen geben die Hälfte ihrer Stimmen an
+    längere, die sie enthalten.
+  - Konfidenz = Anteil × Score/Σidf des besten Satzes; unter θ = 7,0293 lautet die Antwort
+    „I don't know“.
+  - Kommt ein großgeschriebener Name der Frage im Dokument des Belegs nicht vor, lautet die
+    Antwort „I don't know — I have not read anything about …“.
+- **Faktengedächtnis** (`facts.py`):
+  - Aussagen → (Subjekt, Beziehungswörter, Objekt). Dafür gibt es Ich-Muster für Aussagen über
+    dich, zwei Namen/Werte pro Satz für Aussagen über Dritte und handgeschriebene
+    Begriffsgruppen.
+  - Entität = Bündel der Buchstaben-Trigramme (2.048 Bit, SHAKE-256); führende Titel zählen
+    nicht zur Identität.
+  - Beziehung = Bündel der *weiten* Bedeutungsvektoren; Objekt = Zufallsvektor.
+  - Gespeichert wird pro Entität M = majority(R ⊕ F), inverse Fakten mit R ⊕ INV. Abfrage:
+    nächste Entität, U = M ⊕ R_Frage, Cleanup gegen die Füller der Entität, bevorzugt nach
+    Antworttyp.
+  - Konfidenz = (Ähnlichkeit − ½)/(P_k − ½) mit der erwarteten Majority-Übereinstimmung P_k.
+    Angenommen wird ab Entitäts-Ähnlichkeit ≥ 0,60 und Konfidenz ≥ 0,30.
+- **Gespräch** (`bot.py`):
+  - Nachrichtentyp per Regeln: vergessen, Small Talk, Frage, Aussage.
+  - Aussagen werden mit der Quelle `chat:` + SHA-256(Text)[:16] gelernt; gleicher Text ergibt
+    also dieselbe Quelle.
+  - Faktengedächtnis und Nutzersätze sind reine Funktionen der lebenden Texte; Vergessen ist
+    darum exakt.
+  - Pronomen und „this person/that city“ werden durch die letzte Antwort (Typ Person bzw.
+    Ort/Sache) oder das letzte Thema ersetzt.
+  - Fragen über dich werden nur aus dem Gesagten beantwortet.

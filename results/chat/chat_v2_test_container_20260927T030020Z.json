@@ -1,0 +1,638 @@
+{
+  "schema": "engramm-chat/2",
+  "name": "chat_v2_test",
+  "study": "docs/PREREG_CHAT_V2.md v1.1",
+  "split": "test",
+  "timestamp_utc": "20260927T030020Z",
+  "config": "BotConfig(weights=Weights(cov=5.0, soft=0.0, pcov=1.0, kcov=2.0, type=2.0, wiki=0.25, q=1.0, short=0.5, phr=0.5, dcov=2.0, prox=0.5, dfull=1.0), extract=ExtractParams(k=10, tau=0.15, lam=4.0, other_max=4, type_only=True, soft_min=0.0, definition=2.0, head_beta=0.0, copula=1.0, direction=1.0, nb=0.5, nb_prox=2.0, rule_types=('DATE',)), text_k=120, theta=7.0293, entity_min=0.6, fact_min=0.3, focus_gate=True)",
+  "data_manifest": {
+    "generated_sha256": "6f31deb6c8a6b7b9b2a0a58cf761dcfeaffe4e871e35adb0c6b79de6db252f64",
+    "templates_sha256": "1d8fcf0d82c6626c52d89a984af7290c587189cd6806b09f87321b0fc1e7b0f7",
+    "facts_sha256": "6a67a1ae5afc4ba43ccb0baa10d051e5eb6b1510cb0c53e7422ecc4bd337961c"
+  },
+  "index": {
+    "version": 2,
+    "sentences": 14785257,
+    "terms": 23258,
+    "postings": 222188200,
+    "mean_terms_per_sentence": 16.8137780763635,
+    "build_seconds": 30.1,
+    "peak_rss_mb": 5468.7,
+    "digest": "53b739bc7a096c96786f38d74c3ac004b45023495c6316c858dad11684a0b5ba",
+    "doc_postings": 96848950
+  },
+  "n": {
+    "squad_test": 1000,
+    "nq_test": 3610
+  },
+  "criteria": {
+    "R1": {
+      "diff": 0.07900000000000001,
+      "ci95": [
+        0.056975,
+        0.10199999999999998
+      ],
+      "stage1": 0.363,
+      "v2": 0.442,
+      "pass": true
+    },
+    "R2": {
+      "diff": 0.02022160664819945,
+      "ci95": [
+        0.01357340720221607,
+        0.026869806094182824
+      ],
+      "stage1": 0.026869806094182824,
+      "v2": 0.04709141274238227,
+      "pass": true
+    },
+    "F1": {
+      "value": 0.93,
+      "pass": true
+    },
+    "F2": {
+      "value": 0.85,
+      "exact_dict": 0.0,
+      "lead": 0.85,
+      "pass": true
+    },
+    "F3": {
+      "value": 1.0,
+      "pass": true
+    },
+    "D1": {
+      "value": 0.9325,
+      "n": 800,
+      "pass": true
+    },
+    "D2": {
+      "a": 0.765,
+      "b": 0.75,
+      "n": 200,
+      "pass": false
+    },
+    "D3": {
+      "value": 0.8545454545454545,
+      "n": 55,
+      "pass": true
+    },
+    "A1": {
+      "em": 0.188,
+      "f1": 0.25340259155876804,
+      "em_ci95": [
+        0.165,
+        0.213
+      ],
+      "pass": "False"
+    },
+    "A2": {
+      "precision": 0.5862068965517241,
+      "coverage": 0.174,
+      "theta": 7.0293,
+      "pass": false
+    },
+    "A3": {
+      "em": 0.019390581717451522,
+      "em_ci95": [
+        0.015235457063711912,
+        0.02409972299168975
+      ],
+      "f1": 0.0407506005843956,
+      "pass": "False"
+    },
+    "U2": {
+      "median_seconds": 0.008189082145690918,
+      "p90_seconds": 0.43595745563507077,
+      "device": "container",
+      "official": false,
+      "pass": true
+    },
+    "U3": {
+      "transcripts_equal": true,
+      "transcript_sha256": "6cd684403534080d98bc22bd340d70b8b7744c6605448d392e98f7959d191ca2",
+      "digest_equal": true,
+      "answers_equal": true,
+      "events": 73,
+      "discarded_bytes": 0,
+      "questions": 80,
+      "pass": true
+    }
+  },
+  "stages_met": {
+    "1.1": true,
+    "2": true,
+    "3": false,
+    "4": "False",
+    "5 (U2, U3; U1 = browser test)": true
+  },
+  "facts_misses": {
+    "clean": [
+      {
+        "q": "Which explorer first reached Lexkul?",
+        "gold": "Selkispa",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Thergiozan?",
+        "gold": "Nolgrulvaen",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Tiosfithzox?",
+        "gold": "Zeththu",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Stirdi?",
+        "gold": "Naesquon",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Dolme?",
+        "gold": "Drutaelzol",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Shifousque?",
+        "gold": "Grolshae",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Klathmosfe?",
+        "gold": "Maelgiosnuth",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Gamquonklom?",
+        "gold": "Kliorkluthbim",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Who runs Laersur Industries?",
+        "gold": "Mathshon",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Who is the owner of Thesdirter?",
+        "gold": "Pethfouldrel",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Who is the owner of Viorfel?",
+        "gold": "Belgrom",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Who is the owner of Surpa?",
+        "gold": "Girpaelbaes",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Who is the owner of Vomtun?",
+        "gold": "Luxdiltiox",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Who is the owner of Brosbrox?",
+        "gold": "Driothgrios",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      }
+    ],
+    "typo": [
+      {
+        "q": "Which explorer first reached Lexknl?",
+        "gold": "Selkispa",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Thergsozan?",
+        "gold": "Nolgrulvaen",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Titsfithzox?",
+        "gold": "Zeththu",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Raethvklquaer?",
+        "gold": "Fosfamlu",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Stikdi?",
+        "gold": "Naesquon",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Briothgrumpios?",
+        "gold": "Thannor",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Dvlme?",
+        "gold": "Drutaelzol",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Shilousque?",
+        "gold": "Grolshae",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Klathmosge?",
+        "gold": "Maelgiosnuth",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Which explorer first reached Gamtuonklom?",
+        "gold": "Kliorkluthbim",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Who runs Biosoassath Industries?",
+        "gold": "Sabridus",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Who runs Laersxr Industries?",
+        "gold": "Mathshon",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Who runs Mzsthios Industries?",
+        "gold": "Foumson",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Who runs Vuththounshaar Industries?",
+        "gold": "Kousquaeth",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      },
+      {
+        "q": "Who runs Blpomgith Industries?",
+        "gold": "Verbrexquem",
+        "answer": null,
+        "via": "lookup",
+        "hit": false
+      }
+    ]
+  },
+  "dialog_misses": [
+    {
+      "dialog": "test-facts-2",
+      "user": "Do you remember my name?",
+      "gold": "Fenka",
+      "answer": "Quigul",
+      "text": "Quigul."
+    },
+    {
+      "dialog": "test-facts-6",
+      "user": "Do you remember my name?",
+      "gold": "Epjul",
+      "answer": "Frotor",
+      "text": "Frotor."
+    },
+    {
+      "dialog": "test-facts-11",
+      "user": "Do you remember my name?",
+      "gold": "Dunfennix",
+      "answer": "Bruvel",
+      "text": "Bruvel."
+    },
+    {
+      "dialog": "test-facts-12",
+      "user": "Do you remember my name?",
+      "gold": "Mihorep",
+      "answer": "Dunyel",
+      "text": "Dunyel."
+    },
+    {
+      "dialog": "test-facts-14",
+      "user": "What is my brother called?",
+      "gold": "Pemloka",
+      "answer": "Quicas",
+      "text": "Quicas."
+    },
+    {
+      "dialog": "test-facts-14",
+      "user": "Do you remember my name?",
+      "gold": "Quicas",
+      "answer": "Pemloka",
+      "text": "Pemloka."
+    },
+    {
+      "dialog": "test-facts-15",
+      "user": "Do you remember my name?",
+      "gold": "Kajul",
+      "answer": "Tamgul",
+      "text": "Tamgul."
+    },
+    {
+      "dialog": "test-facts-21",
+      "user": "Do you remember my name?",
+      "gold": "Julpem",
+      "answer": "Krovelfen",
+      "text": "Krovelfen."
+    },
+    {
+      "dialog": "test-facts-22",
+      "user": "Do you remember my name?",
+      "gold": "Shajul",
+      "answer": "Migultor",
+      "text": "Migultor."
+    },
+    {
+      "dialog": "test-facts-24",
+      "user": "Do you remember my name?",
+      "gold": "Gaigultam",
+      "answer": "Kacas",
+      "text": "Kacas."
+    },
+    {
+      "dialog": "test-facts-30",
+      "user": "Do you remember my name?",
+      "gold": "Ranzar",
+      "answer": "Tamepka",
+      "text": "Tamepka."
+    },
+    {
+      "dialog": "test-facts-36",
+      "user": "Do you remember my name?",
+      "gold": "Cascas",
+      "answer": "Zargaisha",
+      "text": "Zargaisha."
+    },
+    {
+      "dialog": "test-facts-37",
+      "user": "Do you remember my name?",
+      "gold": "Shayelep",
+      "answer": "Torvel",
+      "text": "Torvel."
+    },
+    {
+      "dialog": "test-facts-48",
+      "user": "Do you remember my name?",
+      "gold": "Belveldun",
+      "answer": "Pemhor",
+      "text": "Pemhor."
+    },
+    {
+      "dialog": "test-facts-51",
+      "user": "Do you remember my name?",
+      "gold": "Brudun",
+      "answer": "Epnixwo",
+      "text": "Epnixwo."
+    },
+    {
+      "dialog": "test-facts-52",
+      "user": "Do you remember my name?",
+      "gold": "Zarrancas",
+      "answer": "Quisha",
+      "text": "Quisha."
+    },
+    {
+      "dialog": "test-facts-56",
+      "user": "Do you remember my name?",
+      "gold": "Nixnixep",
+      "answer": "Yelloqui",
+      "text": "Yelloqui."
+    },
+    {
+      "dialog": "test-facts-58",
+      "user": "Do you remember my name?",
+      "gold": "Zarhor",
+      "answer": "Belepfro",
+      "text": "Belepfro."
+    },
+    {
+      "dialog": "test-facts-63",
+      "user": "Do you remember my name?",
+      "gold": "Gaika",
+      "answer": "Rannix",
+      "text": "Rannix."
+    },
+    {
+      "dialog": "test-facts-82",
+      "user": "Do you remember my name?",
+      "gold": "Loris",
+      "answer": "Torgul",
+      "text": "Torgul."
+    },
+    {
+      "dialog": "test-facts-90",
+      "user": "Do you remember my name?",
+      "gold": "Epjul",
+      "answer": "Shapem",
+      "text": "Shapem."
+    },
+    {
+      "dialog": "test-facts-90",
+      "user": "What is my brother called?",
+      "gold": "Shapem",
+      "answer": "Epjul",
+      "text": "Epjul."
+    },
+    {
+      "dialog": "test-facts-95",
+      "user": "Do you remember my name?",
+      "gold": "Torcaskro",
+      "answer": "Dorshalo",
+      "text": "Dorshalo."
+    },
+    {
+      "dialog": "test-facts-97",
+      "user": "Do you remember my name?",
+      "gold": "Risfen",
+      "answer": "Kalo",
+      "text": "Kalo."
+    },
+    {
+      "dialog": "test-facts-98",
+      "user": "Do you remember my name?",
+      "gold": "Mikroran",
+      "answer": "Tamvel",
+      "text": "Tamvel."
+    },
+    {
+      "dialog": "test-facts-99",
+      "user": "Do you remember my name?",
+      "gold": "Krotorbru",
+      "answer": "Kahorran",
+      "text": "Kahorran."
+    },
+    {
+      "dialog": "test-facts-100",
+      "user": "Do you remember my name?",
+      "gold": "Rankafro",
+      "answer": "Krojulgai",
+      "text": "Krojulgai."
+    },
+    {
+      "dialog": "test-facts-102",
+      "user": "Do you remember my name?",
+      "gold": "Gaiqui",
+      "answer": "Zarranlo",
+      "text": "Zarranlo."
+    },
+    {
+      "dialog": "test-facts-104",
+      "user": "Do you remember my name?",
+      "gold": "Dunlo",
+      "answer": "Lobelka",
+      "text": "Lobelka."
+    },
+    {
+      "dialog": "test-facts-110",
+      "user": "Do you remember my name?",
+      "gold": "Hortam",
+      "answer": "Nixfenyel",
+      "text": "Nixfenyel."
+    },
+    {
+      "dialog": "test-facts-117",
+      "user": "What is the name of my dog?",
+      "gold": "Casfro",
+      "answer": "Tamtor",
+      "text": "Tamtor."
+    },
+    {
+      "dialog": "test-facts-118",
+      "user": "Do you remember my name?",
+      "gold": "Pemnixmi",
+      "answer": "Fennix",
+      "text": "Fennix."
+    },
+    {
+      "dialog": "test-facts-123",
+      "user": "Do you remember my name?",
+      "gold": "Pemfrocas",
+      "answer": "Vello",
+      "text": "Vello."
+    },
+    {
+      "dialog": "test-facts-126",
+      "user": "Do you remember my name?",
+      "gold": "Horhor",
+      "answer": "Quisha",
+      "text": "Quisha."
+    },
+    {
+      "dialog": "test-facts-129",
+      "user": "Do you remember my name?",
+      "gold": "Woranlo",
+      "answer": "Julran",
+      "text": "Julran."
+    },
+    {
+      "dialog": "test-facts-135",
+      "user": "Do you remember my name?",
+      "gold": "Bruyel",
+      "answer": "Brurisdun",
+      "text": "Brurisdun."
+    },
+    {
+      "dialog": "test-facts-135",
+      "user": "What is my brother called?",
+      "gold": "Brurisdun",
+      "answer": "Bruyel",
+      "text": "Bruyel."
+    },
+    {
+      "dialog": "test-facts-136",
+      "user": "Do you remember my name?",
+      "gold": "Belepbru",
+      "answer": "Gulhormi",
+      "text": "Gulhormi."
+    },
+    {
+      "dialog": "test-facts-138",
+      "user": "Do you remember my name?",
+      "gold": "Hortorris",
+      "answer": "Epcashor",
+      "text": "Epcashor."
+    },
+    {
+      "dialog": "test-facts-140",
+      "user": "Do you remember my name?",
+      "gold": "Shajul",
+      "answer": "Julyel",
+      "text": "Julyel."
+    }
+  ],
+  "git": {
+    "commit": "8f25f67afb3f6e31137b7264422d69ef894f3966",
+    "dirty": false,
+    "untracked": 0,
+    "changed_during_run": false
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 2217.2291872501373,
+    "peak_rss_mb": 8739.43359375
+  }
+}

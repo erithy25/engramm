@@ -1310,6 +1310,96 @@ Das ist eine idf-gewichtete Wortabdeckung **ohne** Bedeutungsvektoren. α mit de
 
 ---
 
+## E15 — ENGRAMM-Chat v2: Stufen 1.1 bis 5
+
+**Registrierung: `docs/PREREG_CHAT_V2.md`** (v1.0 vor dem Bau; v1.1 vor der Testmessung erlaubt
+zusätzlich Zählstatistik aus SQuAD-Fragen fremder Artikel). Testdaten sind mit der Registrierung
+eingefroren (Manifest `6f31deb6…`). Kein fremdes KI-Modell, weder im System noch in der Bewertung.
+
+### Entwicklung auf Dev (alles vor dem Testlauf, Werte der eingefrorenen Pipeline)
+
+| Schritt | SQuAD-Dev2 | NQ-Dev |
+|---|---|---|
+| Stufe 1 (eingefroren, v1-Index) | Hit@1 40,3 % | Hit@1 2,2 % |
+| + Abdeckung, Vorsatz, Titel/URL, Antworttyp, Fragesätze, Phrasen, Dokument-Abdeckung | 46,5 % | 4,3 % |
+| + Satzgrenzen v2 („12.5“, „U.S.“, „Mr.“ trennen nicht mehr), Dokumentindex | **47,0 %** | **4,55 %** |
+| Kurze Antwort, nur Regeln | EM 12,9 %, F1 21,7 % | EM 1,5 % |
+| + Datums-Granularität, Einheiten, „X and Y“, Definitionen, Richtungsregel | EM 16,0 %, F1 23,6 % | – |
+| + gezählte Spannenwahl (Nachtrag v1.1) und Nähe | **EM 19,65 %, F1 26,1 %** | EM 1,75 % |
+
+- **HDC im Retrieval:** Das weiche Bedeutungs-Match aus Stufe 1 erhält auf Dev das Gewicht 0.
+  Sobald die exakte Abdeckung im Modell ist, trägt es nichts mehr bei (Ablation: 47,0 % mit
+  und ohne). Auch der HDC-Typabgleich bei der Extraktion bringt +0,1 pp, also Rauschen.
+- **HDC im Faktengedächtnis:** Dort trägt es. Mit Tippfehler findet das Trigramm-Gedächtnis
+  auf Dev 99,5 % der Fakten, ein exaktes Wörterbuch 0 %.
+- **Fehler, die der Dev-Lauf gefunden hat:**
+  - Der schnelle Pfad lief anfangs über `turn()`. NQ-Anfragen ohne Fragesatz („the current
+    central bank of the united states is“) wurden deshalb *gelernt* statt beantwortet.
+    Behoben mit `ask()` und der Regel für unvollständige Aussagen.
+  - Die Definitionsregel zerstörte „What was X called?“. Behoben.
+- θ nach der A2-Regel: 7,0293. Auf Dev ergibt das 55,0 % Präzision bei 18,35 % Abdeckung;
+  die Abdeckungsschwelle von A2 (20 %) ist also schon auf Dev knapp verfehlt.
+
+### Testmessung — einmalig, 2026-09-27, Container, `canonical=false`
+
+Record: `results/chat/chat_v2_test_container_20260927T030020Z.json` (Commit `8f25f67`, sauber,
+unverändert während des Laufs; 37 min, 8,7 GB Spitze). Gedächtnis ist das volle ENGRAMM-LM, wie
+im Dashboard.
+
+| | Kriterium | Test | Schwelle | Erwartung | |
+|---|---|---|---|---|---|
+| **R1** | SQuAD-Test2 Hit@1 v2 − Stufe 1 | **+7,9 pp** [5,7; 10,2] (36,3 → 44,2 %) | ≥ 3 pp, KI > 0 | ~60 % | **erfüllt** |
+| **R2** | NQ-Test Hit@1 v2 − Stufe 1 | **+2,02 pp** [1,36; 2,69] (2,69 → 4,71 %) | ≥ 2 pp, KI > 0 | ~50 % | **erfüllt** (knapp) |
+| **F1** | erfundene Fakten, Test-Frageform | **93,0 %** | ≥ 90 % | ~85 % | **erfüllt** |
+| **F2** | mit Tippfehler; Vorsprung vor exaktem Wörterbuch | **85,0 %**; Wörterbuch 0 % → +85 pp | ≥ 75 %, ≥ 30 pp | ~70 % | **erfüllt** |
+| **F3** | Enthaltung vor dem Lernen | **100 %** | ≥ 90 % | ~70 % | **erfüllt** |
+| **D1** | Dialoge: Fakten zurück | **93,2 %** (800 Fragen) | ≥ 90 % | ~75 % | **erfüllt** |
+| **D2** | nach „vergiss“: Wert weg (a); Digest = Kontrolle (b) | **76,5 % / 75,0 %** | je 100 % | ~95/99 % | **verfehlt** |
+| **D3** | Rückfrage mit Pronomen | **85,5 %** (55) | ≥ 80 % | ~70 % | **erfüllt** |
+| **A1** | SQuAD-Test2 EM / F1 | 18,8 % [16,5; 21,3] / 25,3 % | ≥ 20 % / ≥ 30 % | ~40 % | **verfehlt** |
+| **A2** | mit θ von Dev: Präzision bei Abdeckung | 58,6 % bei 17,4 % | ≥ 50 % bei ≥ 20 % | ~50 % | **verfehlt** (Abdeckung) |
+| **A3** | NQ-Test EM | 1,9 % [1,5; 2,4] | ≥ 5 % | ~35 % | **verfehlt** |
+| **U1** | Browsertest (Playwright, `tests/test_chat_ui.py`) | 8/8 Schritte | besteht | ~90 % | **erfüllt** |
+| **U2** | Median-Zeit pro Chat-Runde | 8 ms (p90 0,44 s; Fragen mit Nachschlagen ≈ 0,37 s) | ≤ 1 s | ~90 % | **erfüllt** (Container) |
+| **U3** | Determinismus, Neustart aus dem Log | Transkripte identisch; Digest und 80 Antworten nach Replay identisch | identisch | ~90 % | **erfüllt** |
+
+**Ausgang nach §5:** Stufe **1.1 erfüllt**, Stufe **2 erfüllt**, Stufe **3 verfehlt** (D2),
+Stufe **4 verfehlt** (A1, A2, A3), Stufe **5 erfüllt**.
+
+### Warum D2 fällt (Analyse nach dem Test, ändert das Ergebnis nicht)
+
+- Die Test-Formulierungen „People call me X.“, „I have a brother called X.“ und „I have a dog
+  named X.“ werden alle als Fakt über **USER** mit fast gleichen Beziehungswörtern
+  (`called`, `name`, `#name`) gespeichert. Nur `brother` bzw. `dog` unterscheidet sie.
+- „Please delete what I told you about my name“ trifft deshalb oft den Bruder oder den Hund.
+  Ebenso betreffen alle 40 im Record gespeicherten D1-Fehler (von insgesamt 54) Name, Bruder
+  oder Hund.
+- Auf Dev lief das fehlerfrei, weil „My name is X“ und „My brother's name is X“ verschiedene
+  Muster trafen. Ein Strukturfehler: „mein Bruder“ ist eine eigene Entität, kein Attribut von
+  USER.
+- F1/F2-Fehler: „Which explorer first reached X?“ zu „was discovered by“, „Who runs X
+  Industries?“ zu „chief executive“, „Who is the owner of X?“ zu „is owned by“. Die Entität wird
+  gefunden, aber die Beziehung teilt kein Wort und kaum Bedeutung, sodass die Konfidenz unter
+  der Schwelle liegt. Das System enthält sich dann; es rät nicht falsch.
+
+### Was man daraus mitnimmt
+
+- ENGRAMM ist jetzt ein Gesprächspartner, der drei Dinge kann:
+  - Antworten nachschlagen, mit Quelle.
+  - Sich merken, was man ihm erzählt, auch bei Tippfehlern.
+  - Auf Befehl bitgenau vergessen: Digest und Antworten sind nach einem Neustart aus dem Log
+    identisch.
+- Die gemessenen Grenzen sind klar: Kurze Antworten stimmen bei SQuAD in 19 % der Fälle genau.
+  Bei echten Suchanfragen (NQ) fehlt dem 285-M-Token-Korpus meist das Wissen; nur in 30 % der
+  Fälle steht die Antwort überhaupt unter den Kandidaten.
+- HDC trägt dort, wo Ähnlichkeit statt Gleichheit zählt: beim tippfehlertoleranten
+  Faktengedächtnis (+85 pp gegenüber einem exakten Wörterbuch). Im Retrieval und bei der
+  Antwortwahl bringt es nichts Messbares; das ist dasselbe Muster wie in E12–E14.
+- Offene Punkte führen zu einer neuen Registrierung mit neuen Testdaten, nicht zu einer
+  Nachbesserung dieses Tests.
+
+---
+
 ## Offene Fragen, nicht terminiert
 
 **O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**

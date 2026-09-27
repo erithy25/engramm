@@ -57,8 +57,9 @@ in about 9 minutes on a MacBook Air M4 (544 s, measured).
 
 **Easiest way to use it: the local dashboard.** Run
 `python -m engramm.lm.dashboard` and open http://127.0.0.1:8765. In the page you can:
-- ask a question and get the best-matching sentence it has read, with its source, or "I don't know"
-  (needs the sentence index: `python -m experiments.chat_build`, 12 s);
+- **chat**: ask questions (short answer plus the sentence and source it comes from, or "I don't know"),
+  tell it things about you or the world, ask them back, follow up with "he"/"it", and say
+  "forget …" (needs the index: `python -m experiments.chat_build --v2`, 30 s);
 - write from a prompt, then click any word to see where it came from;
 - ask for the most likely next words;
 - teach it a text and forget it again.
@@ -69,7 +70,7 @@ What it can do:
 
 | Capability | Command | Measured (container unless marked M4) |
 |---|---|---|
-| **Answer** a question with the best-matching sentence and its source, or "I don't know" | `python -m engramm.lm ask "Who invented the telephone?"` | 41.7 % of SQuAD questions answered by the first sentence, 26 ms median |
+| **Chat**: short answers with sources, remembers what you tell it, forgets on request, follows up on "he"/"it" | `python -m engramm.lm chat` or the dashboard | SQuAD: right sentence 44 %, exact short answer 19 %; facts you taught: 93 % (85 % with a typo); ~0.4 s per question |
 | **Write** English continuations | `python -m engramm.lm write "The history of the city"` | M4: 118.9 tokens/s including sources, 6.2 GB peak (container: 109–128 tokens/s) |
 | **Cite** the source of every written token: the longest verbatim match and the most similar contexts | `… write … --explain` or `python -m engramm.lm why "<prompt>" "<word>"` | 117 tokens/s with sources |
 | **Learn** a new text instantly | `python -m engramm.lm learn --source notes --file notes.txt` | 56 ms per 1,000 tokens |
@@ -152,6 +153,38 @@ Plainly: it finds the right sentence for about four in ten knowledge questions a
 always finds what you taught it, even when you ask in other words. It returns whole
 sentences, not phrased answers. The registered "useful" verdict needs C1 and C3, so it is
 not reached. Details are in [`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E14).
+
+### ENGRAMM-Chat v2: a conversation (preregistered in [`docs/PREREG_CHAT_V2.md`](docs/PREREG_CHAT_V2.md))
+
+`python -m engramm.lm chat` (or the dashboard) turns the look-up into a conversation. It does four things:
+- It gives a **short answer** with the sentence and source it comes from, or "I don't know".
+- It **remembers what you tell it** in an HDC fact memory. Names are letter-trigram hypervectors,
+  so a misspelt name still finds its fact.
+- It **forgets exactly** on "forget …".
+- It understands **follow-ups** with "he", "it" or "that city".
+
+Everything is rules, counting and ENGRAMM's own hypervectors.
+
+| Registered criterion (single test run) | Result |
+|---|---|
+| 1.1 Better look-up: SQuAD / real search queries (NQ-open), Hit@1 vs. stage 1 | **met**: +7.9 pp (44.2 %) / +2.0 pp (4.7 %) |
+| 2 Fact memory: 200 invented facts asked in new wording; with a typo; abstain before learning | **met**: 93 %; 85 % (exact dictionary: 0 %); 100 % |
+| 3 Conversation memory: facts about you asked back; forgotten exactly; pronoun follow-ups | **missed**: 93 % and 86 % met, but forgetting hit the right fact only 76 % of the time (see below) |
+| 4 Short answers: SQuAD EM ≥ 20 % and F1 ≥ 30 %; calibrated "I don't know"; NQ EM ≥ 5 % | **missed**: 18.8 % / 25.3 %; 58.6 % precision at 17.4 % coverage; 1.9 % |
+| 5 Chat UI: browser test, ≤ 1 s per turn, deterministic incl. restart from the log | **met** |
+
+Plainly:
+- It is a working chat partner: answers with sources, a memory for what you say, and exact
+  forgetting.
+- It is not a knowledge oracle. Short answers are exactly right for about one SQuAD question in
+  five, and for real web queries the 285 M-token corpus rarely holds the answer.
+- The stage-3 miss has a clear cause. "call me X" and "I have a brother called X" were stored
+  as nearly the same relation of *you*, so "forget my name" often removed the brother.
+- HDC helps where similarity matters (typo-tolerant facts: +85 pp over exact lookup), not in
+  ranking or answer choice.
+
+All numbers, including the development history, are in [`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md)
+(E15).
 
 ## Results — rebuild, re-measured
 
@@ -301,9 +334,13 @@ done
 .venv/bin/python -m experiments.lm_eval && .venv/bin/python -m experiments.lm_verdict
 .venv/bin/python -m experiments.lm_final_model --scale main --tau-index 1 --beta-index 1 --save
 .venv/bin/python -m engramm.lm write "The history of the city" --explain
-.venv/bin/python -m experiments.chat_build                  # sentence index for questions (12 s)
+.venv/bin/python -m experiments.chat_build                  # stage-1 sentence index (12 s)
 .venv/bin/python -m experiments.chat_eval                   # ENGRAMM-Chat stage 1 criteria C1–C5
+.venv/bin/python -m experiments.chat_build --v2             # chat v2 index + document index (30 s)
+.venv/bin/python -m experiments.chat_v2_spanstats           # counted answer-span statistics (3 min)
+.venv/bin/python -m experiments.chat_v2_eval                # chat v2 criteria (single test run, ~40 min)
 .venv/bin/python -m engramm.lm ask "Who invented the telephone?"
+.venv/bin/python -m engramm.lm chat                         # conversation in the terminal
 .venv/bin/python -m engramm.lm.dashboard                    # web dashboard on http://127.0.0.1:8765
 .venv/bin/python -m experiments.lm_p5 --scale main          # device criterion (official only on the M4)
 
