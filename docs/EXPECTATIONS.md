@@ -1560,6 +1560,36 @@ Record: `results/chat/chat_test5_container_20260927T060624Z.json` (Commit `d3b31
 
 ---
 
+## E19 — ENGRAMM-Chat v6: Nachschlagen in den eigenen Sätzen
+
+**Registrierung: `docs/PREREG_CHAT_V6.md`**, Code eingefroren vor der Registrierung (`e5fd108`).
+Record: `results/chat/chat_test6_container_20260927T070342Z.json` (Commit `a0fbfc0`, sauber).
+
+| | v4 | v5 | **v6** | Schwelle | |
+|---|---|---|---|---|---|
+| R1 +pp | +7,3 | +7,1 | **+5,0** [3,0; 7,1] | ≥ 3 | **erfüllt** |
+| R2 +pp | +1,61 | +1,69 | **+1,97** [1,41; 2,55] | ≥ 2 | **verfehlt** (um 0,03 pp) |
+| F1 / F2 / F3 | 95 / 93 / 100 | 100 / 99,5 / 100 | **100 / 99 / 100 %** | 90 / 75 / 90 | **erfüllt** |
+| D1 | 38,1 | 67,9 | **86,5 %** | ≥ 90 % | **verfehlt** |
+| D2 a / b | 97,5 / 47,5 | 100 / 87,5 | **89,0 / 85,5 %** | je 100 % | **verfehlt** |
+| D3 | 90,9 | 100 | **100 %** | ≥ 80 % | **erfüllt** |
+| A1 EM / F1 | 20,9 / 26,7 | 18,5 / 25,3 | **16,6 / 23,3 %** | 20 / 30 | **verfehlt** |
+| A2 | 55,9 @ 18,8 | 48,6 @ 18,3 | **48,4 @ 18,8 %** | 50 @ 20 | **verfehlt** |
+| A3 | 1,7 | 1,7 | **1,8 %** | 5 % | **verfehlt** |
+| U1–U3 | erfüllt | erfüllt | **erfüllt** | | **erfüllt** |
+
+**Lesart:**
+- D1 auf frischen Formulierungen steigt weiter (38 → 68 → 86,5 %). Die restlichen Fehler:
+  - „risotto is what I like **to eat** most“: „to“ galt als Hinweiswort, und das Verb „eat“
+    wurde zum Wert.
+  - „The name's X“ wurde nicht als Ich-Aussage erkannt.
+- Beim Vergessen fehlten gemeinsame Kategorien („my car“ gegen „I own a Toyota“). Der Zufall
+  der Superposition entschied.
+- Die Werte für SQuAD und NQ schwanken mit der Stichprobe: SQuAD-Test6 liegt für beide Systeme
+  niedriger, der Stufe-1-Bezug ebenfalls.
+
+---
+
 ## Offene Fragen, nicht terminiert
 
 **O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**
