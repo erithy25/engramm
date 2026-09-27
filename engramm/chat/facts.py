@@ -40,17 +40,18 @@ AUX = frozenset(("is", "are", "was", "were", "be", "been", "am", "do", "does", "
 QWORDS = frozenset(("what", "which", "who", "whom", "whose", "when", "where", "why", "how", "kind", "type",
                     "sort"))
 REL_STOP = STOP - frozenset(("name", "named", "called", "call", "known", "most", "one", "first"))
-PLACE_PREPS = frozenset(("in", "at", "near", "from"))
+PLACE_PREPS = frozenset(("in", "at", "near", "from", "to"))
 
 # Hand-written concept groups (general English, applied the same way to statements and
 # questions): a member word adds the group's label to the relation words.
 CONCEPTS = [
     ("#job", re.compile(r"\b(job|jobs|profession|occupation|career|works? as|worked as|working as|living as|"
-                        r"earns? (?:a |my )?living|do for (?:a )?(?:work|living))\b")),
+                        r"earns? (?:a |my )?living|do for (?:a )?(?:work|living)|by trade|trade)\b")),
     ("#employer", re.compile(r"\b(employer|company|firm|workplace|works? (?:at|for)|worked (?:at|for)|"
                              r"working (?:at|for)|employ\w*|where (?:do )?i work)\b")),
     ("#work", re.compile(r"\b(work|works|worked|working)\b")),
-    ("#home", re.compile(r"\b(home|hometown|residence|live|lives|lived|living in|reside|resides)\b")),
+    ("#home", re.compile(r"\b(home|hometown|residence|live|lives|lived|living in|reside|resides|moved? to|"
+                         r"moving to|relocated to)\b")),
     ("#birth", re.compile(r"\b(birthday|birth|born|birthplace|birthdate)\b")),
     ("#car", re.compile(r"\b(car|cars|vehicle|drive|drives|driving)\b")),
     ("#food", re.compile(r"\b(food|foods|eat|eating|meal|meals|dish|cuisine)\b")),
@@ -62,10 +63,22 @@ CONCEPTS = [
 
 
 CONCEPT_PARENTS = {"#job": "#work", "#employer": "#work"}
+CATEGORIES = frozenset(("#food", "#colour", "#car", "#job", "#employer", "#home", "#birth", "#name"))
+
+
+def category_conflict(a, b) -> bool:
+    """Both relation word sets name a category, and no category is shared."""
+    ca, cb = set(a) & CATEGORIES, set(b) & CATEGORIES
+    return bool(ca and cb and not ca & cb)
+
+
+_JOB_AT = re.compile(r"\b(?:a |the |my )?(?:job|position|post) (?:at|with|for)\b")
 
 
 def concepts(text: str) -> list[str]:
     low = text.lower().replace("’", "'")
+    if _JOB_AT.search(low):              # "a job at X": X is the employer, not the occupation
+        low = _JOB_AT.sub(" employer ", low)
     out = [label for label, rx in CONCEPTS if rx.search(low)]
     out += [CONCEPT_PARENTS[c] for c in out if c in CONCEPT_PARENTS and CONCEPT_PARENTS[c] not in out]
     return out
@@ -324,6 +337,94 @@ def first_person_facts(sentence: str, source: str) -> list[Fact]:
     return []
 
 
+_GREETING = re.compile(r"^(?:hi|hello|hey|hiya|greetings|good (?:morning|afternoon|evening))\b[,!. ]*", re.I)
+_VALUE_CUES = frozenset(("is", "am", "are", "was", "were", "a", "an", "as", "love", "loves", "like", "likes", "own",
+                         "owns", "drive", "drives", "be", "called", "named", "at", "in", "to", "on", "by", "enjoy",
+                         "prefer", "adore"))
+_FIRST = frozenset(("i", "my", "me", "mine", "myself"))
+
+
+def personal_facts(sentence: str, source: str, initial_is_name=None) -> list[Fact]:
+    """A statement about you or something of yours, without sentence templates:
+
+    * subject: you, or "my <brother/dog/…>" as its own entity;
+    * value: the name, date or number the sentence mentions; if there is none, the value
+      the templates find, else the words after the last verb/article cue, or the subject
+      of "X is my …";
+    * relation: every other content word, plus the concept groups."""
+    s = _GREETING.sub("", normalise_first_person(sentence)).strip()
+    ws = words(s)
+    lw = [w.lower() for w in ws]
+    n = len(ws)
+    if not any(w in _FIRST for w in lw):
+        return []
+    subject, owned = USER, set()
+    for i, w in enumerate(lw):
+        if w in ("have", "has", "got") and i + 2 < n and lw[i + 1] in ("a", "an", "one"):
+            for j in range(i + 2, min(i + 5, n)):
+                if lw[j] in POSSESSED:
+                    subject = possessed_key(lw[j])
+                    owned = set(range(i, j + 1))
+                    break
+            if owned:
+                break
+        if w == "my":
+            for j in range(i + 1, min(i + 4, n)):
+                noun = lw[j][:-2] if lw[j].endswith("'s") else lw[j]
+                if noun in POSSESSED:
+                    subject = possessed_key(noun)
+                    owned = set(range(i, j + 1))
+                    break
+            if owned:
+                break
+    cands = [x for x in spans(s, initial_is_name) if x.kind in ("NAME", "DATE", "NUMBER")
+             and not (set(range(x.start, x.end)) & owned) and lw[x.start] not in _FIRST]
+    value, vrange, kind = None, set(), "TEXT"
+    if cands:
+        dates = [x for x in cands if x.kind == "DATE"]
+        pick = dates[-1] if dates else [x for x in cands if x.start > 0 and lw[x.start - 1] in _VALUE_CUES][-1:] or \
+            cands[-1:]
+        pick = pick[-1] if isinstance(pick, list) else pick
+        value, vrange, kind = pick.text, set(range(pick.start, pick.end)), pick.kind
+    else:
+        fp = first_person_facts(sentence, source)
+        if fp:
+            f = fp[0]
+            obj_words = set(norm_entity(f.object).split())
+            value, kind = f.object, f.kind
+            vrange = {i for i, w in enumerate(lw) if w in obj_words}
+        else:
+            m = re.match(r"^((?:[\w'-]+ ){0,2}[\w'-]+) (?:is|are|was) my\b", s, flags=re.I)
+            if m and m.group(1).lower() not in _FIRST:
+                value = m.group(1)
+                vrange = set(range(0, len(words(value))))
+            else:
+                last = max((i for i, w in enumerate(lw) if w in _VALUE_CUES), default=-1)
+                j = last + 1
+                while j < n and (lw[j] in ("a", "an", "the") or lw[j] in _FIRST):
+                    j += 1
+                k = j
+                while k < n and k - j < 3 and ws[k][0].isalnum() and lw[k] not in STOP:
+                    k += 1
+                if k > j:
+                    value, vrange = " ".join(ws[j:k]), set(range(j, k))
+    if not value:
+        return []
+    rest = " ".join(w for i, w in enumerate(lw) if i not in vrange and i not in owned and w not in _FIRST)
+    rel = [w for w in _rel_words(rest) if w not in ("hi", "hello", "really", "last", "year", "years", "ago",
+                                                     "now", "today", "trade")]
+    rel += concepts(rest)
+    for f in first_person_facts(sentence, source):     # the template reading adds its relation words
+        rel += [w for w in f.relation if w not in POSSESSED]
+    if _JOB_AT.search(rest):
+        rel = [w for w in rel if w not in ("job", "position", "post", "#job")]
+    for i in sorted(vrange)[:1]:
+        if kind == "NAME" and i >= 2 and lw[i - 2:i] == ["i", "am"]:
+            rel += ["name", "#name"]           # "I'm Frotam": a name
+    return [Fact(subject, tuple(sorted(set(rel))), value, source, sentence.strip(), kind if kind != "TEXT" else
+                 object_kind(value))]
+
+
 def third_person_facts(sentence: str, source: str, initial_is_name=None) -> list[Fact]:
     """Two or more names (or a name and a date/number) → one fact per (first name, later
     argument); relation = the other content words."""
@@ -354,9 +455,9 @@ def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None)
         s = s.strip()
         if not s or s.endswith("?"):
             continue
-        low = normalise_first_person(s).lower()
-        if re.match(r"^(i|my|the [a-z ]+ i )\b", low) or re.search(r"\bcalls? me\b", low):
-            fp = first_person_facts(s, source)
+        low = _GREETING.sub("", normalise_first_person(s)).lower()
+        if re.search(r"\b(i|my|me)\b", low):
+            fp = personal_facts(s, source, initial_is_name)
             out += fp if fp else third_person_facts(s, source, initial_is_name)
         else:
             out += third_person_facts(s, source, initial_is_name)
@@ -452,6 +553,9 @@ class FactMemory:
         rq = self.rel.encode([w for w in rel_words if w not in mw])
         u = self.records[k] ^ rq
         pool = self.fillers[k]
+        qwords = [w for w in rel_words if w not in mw]
+        fitting = [(f, i, inv) for f, i, inv in pool if not category_conflict(qwords, self.facts[i].relation)]
+        pool = fitting or pool
         for ok_kinds in _KIND_OK.get(atype, ()):
             typed = [(f, i, inv) for f, i, inv in pool
                      if (self.facts[i].kind if not inv else "NAME") in ok_kinds]
@@ -469,7 +573,7 @@ class FactMemory:
         fact = self.facts[i]
         answer = fact.subject if inv else fact.object
         typed_ok = atype in _KIND_OK
-        mine = self.entities[k].startswith(USER)
+        mine = self.entities[k] == USER
         only = not mine and (len(self.fillers[k]) == 1 or (
             typed_ok and len(pool) == 1 and
             (self.facts[pool[0][1]].kind if not pool[0][2] else "NAME") in sum(_KIND_OK[atype], ())))
@@ -496,7 +600,10 @@ def question_parts(question: str, initial_is_name=None) -> tuple[list[str], list
                     mentions.append(possessed_key(noun))
                     used.add(j)
                     break
-    if any(w in FIRST_PERSON for w in lw):
+    personal = any(w in FIRST_PERSON and w != "me" for w in lw) or any(
+        w == "me" and (i == 0 or lw[i - 1] not in ("tell", "show", "give", "remind", "let", "help", "explain",
+                                                    "teach", "send", "find")) for i, w in enumerate(lw))
+    if personal:
         mentions.append(USER)
     for sp in spans(q, initial_is_name):
         if sp.kind == "NAME" and sp.text.lower() not in QWORDS:
@@ -511,4 +618,5 @@ def question_parts(question: str, initial_is_name=None) -> tuple[list[str], list
                 mentions.append(" ".join(ws[i] for i in idx))
     rel = [w for i, w in enumerate(lw) if i not in used]
     rest = " ".join(rel)
-    return mentions, _rel_words(rest) + concepts(rest)
+    extra = ["name", "#name"] if re.fullmatch(r"who am i", " ".join(w for w in lw if w[0].isalnum())) else []
+    return mentions, _rel_words(rest) + concepts(rest) + extra

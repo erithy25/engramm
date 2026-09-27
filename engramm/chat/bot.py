@@ -28,8 +28,8 @@ from dataclasses import asdict, dataclass, field
 import numpy as np
 
 from engramm.chat.extract import ExtractParams, extract
-from engramm.chat.facts import (USER, FactMemory, RelationCoder, facts_from_text, norm_entity, question_parts,
-                                _rel_words)
+from engramm.chat.facts import (USER, FactMemory, RelationCoder, category_conflict, facts_from_text, norm_entity,
+                                question_parts, _rel_words)
 from engramm.chat.question import LOCATION, OTHER, PERSON, PROPER, STOP, analyse, spans, type_matches, words
 from engramm.chat.retrieve import FEATURES, Retriever, Weights
 from engramm.lm.chat import B, K1, _soft_match
@@ -327,6 +327,8 @@ class ChatBot:
                 if rq is not None:
                     s += 1.0 - int(np.bitwise_count(rq ^ self.facts.rel.encode(f.relation)).sum()) / 2048
                     s += 0.5 * len(tw & set(f.relation))
+                    if category_conflict(rel, f.relation):
+                        s -= 1.0
                 best = max(best, s)
             if not fs and target is None:
                 best = 0.5 * len(tw & set(_rel_words(text)))
