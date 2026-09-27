@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "note": "Hand-written for docs/PREREG_CHAT_V5.md after the v5 code was frozen (commit 70b7646). Only used in the single v5 test run.",
+  "fact_questions": {
+    "capital":    "Do you know the capital of {e}?",
+    "founder":    "Who created the company {e}?",
+    "author":     "Who is the novelist behind {e}?",
+    "inventor":   "Who came up with the {e} machine?",
+    "river":      "{e} sits on which river?",
+    "birthplace": "Where is the painter {e} originally from?",
+    "mascot":     "The {e} team has which mascot?",
+    "captain":    "Who is the skipper of the ship {e}?",
+    "language":   "Which tongue do people speak in the valley of {e}?",
+    "currency":   "What is the money of {e} called?",
+    "spouse":     "Who is the partner of the poet {e}?",
+    "teacher":    "Who instructed the composer {e} in music?",
+    "dish":       "What do people eat traditionally in {e}?",
+    "mountain":   "Which is the highest summit in {e}?",
+    "discoverer": "Who discovered {e} island?",
+    "ceo":        "Who is the boss of {e} Industries?",
+    "owner":      "Which person owns the racehorse {e}?",
+    "festival":   "In what town is the {e} festival celebrated?",
+    "architect":  "Who built the {e} bridge?",
+    "anthem":     "Who created the national anthem of {e}?"
+  },
+  "dialog": {
+    "facts": {
+      "name":     {"tell": "Just call me {v}.",                                  "ask": "What's my name?"},
+      "city":     {"tell": "I've been living in {v} for years.",                 "ask": "What city do I live in?"},
+      "job":      {"tell": "At work I'm a {v}.",                                 "ask": "What is my job?"},
+      "colour":   {"tell": "I adore the colour {v}.",                            "ask": "What's my favourite colour?"},
+      "pet":      {"tell": "I've got a dog called {v}.",                         "ask": "What's my dog's name?"},
+      "employer": {"tell": "I'm working for {v} at the moment.",                 "ask": "Who do I work for?"},
+      "birthday": {"tell": "I was born on {v}.",                                 "ask": "When was I born?"},
+      "brother":  {"tell": "My little brother goes by {v}.",                     "ask": "Who's my brother?"},
+      "food":     {"tell": "I eat {v} almost every week, it's my favourite.",    "ask": "What's my favourite food?"},
+      "car":      {"tell": "I've been driving a {v} for two years.",             "ask": "What do I drive?"}
+    },
+    "forget": "Please erase {topic} from your memory.",
+    "chains": {
+      "person": ["So where was he born?", "Where was that person born?"],
+      "place":  ["Which river is there?"]
+    }
+  }
+}
