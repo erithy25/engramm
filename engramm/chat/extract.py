@@ -44,6 +44,11 @@ class ExtractParams:
     definition: float = 2.0     # weight of the "X is <answer>" candidate for "What is X?" questions
     head_beta: float = 0.0      # HDC type match: votes × exp(β·(sim(candidate, head noun) − 0.5)); 0 = off
     copula: float = 0.0         # weight of the subject for "Which is the Y?" when the sentence says "X … is the Y"
+    direction: float = 0.0      # bonus for candidates on the answer side of the anchors (before them for
+                                # subject questions "Who wrote …", after them for "What did X …")
+    nb: float = 0.0             # > 0: choose spans with the counted statistics (spanstats), temperature 1/nb
+    nb_prox: float = 0.0        # extra weight of the proximity heuristic in the counted mode
+    rule_types: tuple = ()      # expected answer types that keep the rule mode even when counting is on
 
 
 @dataclass
@@ -114,6 +119,24 @@ def date_granularity(q: Question, sp: Span) -> str | None:
     return t
 
 
+_AUX = frozenset(("did", "does", "do", "was", "were", "is", "are", "has", "have", "had", "can", "could", "will",
+                  "would", "should", "may", "might"))
+
+
+def question_direction(q: Question) -> int:
+    """−1: the answer is the subject ("Who wrote X?"), +1: it follows the verb ("What did X write?"), 0: unknown."""
+    ws = [w for w in q.words if w[0].isalnum()]
+    for i, w in enumerate(ws):
+        if w in ("what", "which", "who", "whom", "whose"):
+            j = i + 1
+            if w in ("what", "which", "whose") and j < len(ws) and ws[j] not in _AUX and ws[j] not in STOP:
+                j += 1
+            if j < len(ws):
+                return 1 if ws[j] in _AUX else -1
+            return 0
+    return 0
+
+
 _COP_Q = re.compile(r"^(?:what|which|who)\s+(?:is|are|was|were)\s+(?:the\s+)?(?P<y>.+?)\??$", re.I)
 
 
@@ -145,9 +168,14 @@ _DEF_Q = re.compile(r"^(?:what|who)\s+(?:is|are|was|were)\s+(?:an?\s+|the\s+)?(?
 def definition_span(q: Question, text: str) -> str | None:
     """For "What is X?": the phrase after "X … is/are/was/were" in the sentence."""
     m = _DEF_Q.match(q.text.strip())
-    if not m:
+    if not m or q.atype != OTHER:
         return None
-    x = [w.lower() for w in words(m.group("x")) if w[0].isalnum() and w.lower() not in STOP]
+    xw = [w.lower() for w in words(m.group("x")) if w[0].isalnum()]
+    # "What was X called / used for / based on?" are not definitions
+    if not xw or xw[-1].endswith("ed") or xw[-1] in ("for", "on", "in", "of", "to", "by", "from", "with", "as") \
+            or len(xw) > 6:
+        return None
+    x = [w for w in xw if w not in STOP]
     if not x:
         return None
     ws = words(text)
@@ -172,14 +200,70 @@ def definition_span(q: Question, text: str) -> str | None:
     if j < len(ws) and lw[j] == "to":        # "refers to"
         j += 1
     k = j
-    while k < len(ws) and ws[k] not in (".", ";", ",", ":") and k - j < 12:
+    while k < len(ws) and ws[k] not in (".", ";", ",", ":", "(", ")") and k - j < 12:
         k += 1
     phrase = " ".join(ws[j:k]).replace(" -", "-").replace("- ", "-")
     return phrase or None
 
 
+def extract_counted(q: Question, texts: list[str], rel: np.ndarray, p: ExtractParams, stats, info,
+                    initial_is_name=None) -> Extracted:
+    """The counted mode: each sentence spreads its weight over its candidates by
+    softmax(nb · naive-Bayes score); votes of equal spans add up across sentences."""
+    from engramm.chat.spanstats import features_for_sentence
+    k = min(p.k, len(texts))
+    r = np.asarray(rel[:k], dtype=np.float64)
+    sw = np.exp((r - r.max()) / p.tau)
+    sw /= sw.sum()
+    votes: dict[str, float] = {}
+    surface: dict[str, tuple[float, str, int]] = {}
+    for si in range(k):
+        cands = features_for_sentence(q, texts[si], info, initial_is_name)
+        if not cands:
+            continue
+        sc = np.array([stats.score(f) for _, f in cands]) * p.nb
+        if p.nb_prox > 0:
+            lw = [w.lower() for w in words(texts[si])]
+            qc = set(q.content)
+            anchors = [i for i, w in enumerate(lw) if w in qc]
+            if anchors:
+                for j, (sp, _) in enumerate(cands):
+                    d = min(min(abs(sp.start - x), abs(x - (sp.end - 1))) for x in anchors)
+                    sc[j] -= p.nb_prox * d / p.lam
+        if q.atype == DATE:
+            for j, (sp, _) in enumerate(cands):
+                if sp.kind in ("DATE", "YEAR") and date_granularity(q, sp) not in (sp.text,):
+                    sc[j] -= 2.0 * p.nb
+        e = np.exp(sc - sc.max())
+        e /= e.sum()
+        for (sp, _), pr in zip(cands, e):
+            v = float(sw[si]) * float(pr)
+            key = normalize(sp.text)
+            if not key:
+                continue
+            votes[key] = votes.get(key, 0.0) + v
+            best = surface.get(key)
+            if best is None or v > best[0]:
+                surface[key] = (v, sp.text, si)
+    if not votes:
+        return Extracted(None, 0.0, -1, [])
+    keys = sorted(votes, key=lambda x: (-votes[x], x))
+    merged = dict(votes)
+    for a in keys[:30]:
+        for b in keys[:30]:
+            if a != b and len(b.split()) > len(a.split()) and f" {a} " in f" {b} ":
+                merged[b] += votes[a] * 0.5
+    order = sorted(merged, key=lambda x: (-merged[x], -len(x.split()), x))
+    total = sum(votes.values())
+    top = order[0]
+    conf = min(1.0, merged[top] / total) * float(r[0])
+    return Extracted(surface[top][1], conf, surface[top][2], [(x, merged[x]) for x in order[:5]])
+
+
 def extract(q: Question, texts: list[str], rel: np.ndarray, p: ExtractParams = ExtractParams(),
-            initial_is_name=None, word_vec=None) -> Extracted:
+            initial_is_name=None, word_vec=None, stats=None, info=None) -> Extracted:
+    if p.nb > 0 and stats is not None and info is not None and q.atype not in p.rule_types:
+        return extract_counted(q, texts, rel, p, stats, info, initial_is_name)
     """``texts`` best first, ``rel`` = their scores divided by Σidf (same order)."""
     if not texts:
         return Extracted(None, 0.0, -1, [])
@@ -189,6 +273,7 @@ def extract(q: Question, texts: list[str], rel: np.ndarray, p: ExtractParams = E
     sw /= sw.sum()
     qwords = set(w for w in q.words if w[0].isalnum())
     qcontent = set(q.content)
+    qdir = question_direction(q) if p.direction > 0 else 0
     head_vecs = []
     if p.head_beta > 0 and word_vec is not None:
         heads = [q.head] if q.head and q.head not in STOP and q.head not in ("is", "was", "are", "were") else []
@@ -253,6 +338,11 @@ def extract(q: Question, texts: list[str], rel: np.ndarray, p: ExtractParams = E
                 prox = 1.0
             elif anchors:
                 prox = max(w * math.exp(-min(abs(sp.start - x), abs(x - (sp.end - 1))) / p.lam) for x, w in anchors)
+                if qdir:
+                    first = min(x for x, _ in anchors)
+                    last = max(x for x, _ in anchors)
+                    if (qdir < 0 and sp.end <= first) or (qdir > 0 and sp.start > last):
+                        prox *= 1.0 + p.direction
             else:
                 prox = math.exp(-10 / p.lam)
             if head_vecs and sp.kind != "DEF":

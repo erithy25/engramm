@@ -58,7 +58,7 @@ def qa(bot: ChatBot, stage1: ChatEngine, questions: list[dict], label: str) -> d
         s1, _, _ = stage1.rank(q["question"])
         h1 = bool(s1) and contains_answer(stage1.sentence_text(s1[0]), q["answers"])
         bot.context = dict(FRESH)
-        rep = bot.turn(q["question"])
+        rep = bot.ask(q["question"])
         top = getattr(bot, "last_rows", None) or []
         h2 = bool(top) and contains_answer(top[0][3], q["answers"])
         guess = rep.guess if rep.guess is not None else rep.answer
@@ -71,7 +71,7 @@ def qa(bot: ChatBot, stage1: ChatEngine, questions: list[dict], label: str) -> d
     return {k: np.array([r[k] for r in rows]) for k in rows[0]}
 
 
-def restart_check(model, corpus, cap, n_dialogs: int = 20) -> dict:
+def restart_check(model, corpus, cap, n_dialogs: int = 20, split: str = "test") -> dict:
     """Tell the facts of some test dialogs through a logged memory, then 'restart':
     clear the memory, replay the log onto the base model and compare state and answers."""
     tmp = Path(tempfile.mkdtemp()) / "chat.log"
@@ -79,7 +79,7 @@ def restart_check(model, corpus, cap, n_dialogs: int = 20) -> dict:
     bot = ChatBot(lm, corpus, FROZEN, cap)
     reset(bot)
     asks = []
-    for dlg in fact_dialogs("test")[:n_dialogs]:
+    for dlg in fact_dialogs(split)[:n_dialogs]:
         for t in dlg["turns"]:
             if "check" not in t:
                 bot.turn(t["user"])
@@ -114,7 +114,12 @@ def main() -> None:
     ap.add_argument("--model", type=Path, default=MODEL_DIR)
     ap.add_argument("--device", default="container")
     ap.add_argument("--results-dir", type=Path, default=Path(tempfile.gettempdir()) / "engramm_chat_v2")
+    ap.add_argument("--split", choices=("test", "dev"), default="test",
+                    help="dev = dry run of this script on development data (never reported)")
+    ap.add_argument("--limit", type=int, default=0, help="dry run: questions per QA set")
     args = ap.parse_args()
+    if args.split == "dev" and not args.limit:
+        args.limit = 50
     git_state, t0 = git_revision(), time.time()
 
     model = HDCLanguageModel.load(args.model)
@@ -127,8 +132,10 @@ def main() -> None:
     stage1 = ChatEngine(model, SentenceIndex.load(args.model.parent / "chat"), alpha=2.0)
     print(f"loaded in {time.time() - t0:.0f} s; index v2 {corpus.index.n:,} sentences", flush=True)
 
-    _, sq_test = squad_v2_splits(corpus, args.model)
-    _, nq_test = nq_splits()
+    sq_dev, sq_test = squad_v2_splits(corpus, args.model)
+    nq_dev, nq_test = nq_splits()
+    if args.split == "dev":
+        sq_test, nq_test = sq_dev[:args.limit], nq_dev[:args.limit]
     data_manifest = manifest()
 
     # -- stage 1.1 and 4 on SQuAD-Test2 and NQ-Test ------------------------------------------
@@ -144,21 +151,21 @@ def main() -> None:
 
     # -- stage 2: invented facts -----------------------------------------------------------------
     tf = time.time()
-    facts = facts_task(bot, "test")
+    facts = facts_task(bot, args.split)
     print(f"facts ({time.time() - tf:.0f} s): clean {facts['clean']['correct']:.3f} typo {facts['typo']['correct']:.3f} "
           f"exact-dict {facts['typo']['exact_dict']:.3f} before-abstain {facts['before_abstain']:.3f}", flush=True)
 
     # -- stage 3: dialogs --------------------------------------------------------------------------
     td = time.time()
-    dia = dialog_task(bot, "test")
+    dia = dialog_task(bot, args.split)
     print(f"dialogs ({time.time() - td:.0f} s): D1 {dia['D1']:.3f} D2a {dia['D2a']:.3f} D2b {dia['D2b']:.3f} "
           f"D3 {dia['D3']:.3f}", flush=True)
 
     # -- stage 5: time and determinism ----------------------------------------------------------------
     times = np.concatenate([np.asarray(dia["times"]), sq["seconds"]])
-    second = dialog_task(ChatBot(model, corpus, FROZEN, cap), "test")
+    second = dialog_task(ChatBot(model, corpus, FROZEN, cap), args.split)
     t1, t2 = transcript_digest(dia["transcript"]), transcript_digest(second["transcript"])
-    restart = restart_check(model, corpus, cap)
+    restart = restart_check(model, corpus, cap, split=args.split)
     print(f"U2 median {np.median(times) * 1000:.0f} ms; U3 transcripts equal {t1 == t2}, restart {restart}", flush=True)
 
     ft = facts["typo"]
@@ -194,7 +201,8 @@ def main() -> None:
     ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     now = git_revision()
     record = {
-        "schema": "engramm-chat/2", "name": "chat_v2_test", "study": "docs/PREREG_CHAT_V2.md v1.0",
+        "schema": "engramm-chat/2", "name": f"chat_v2_{args.split}", "study": "docs/PREREG_CHAT_V2.md v1.1",
+        "split": args.split,
         "timestamp_utc": ts, "config": repr(FROZEN), "data_manifest": data_manifest,
         "index": json.loads((idx2 / "info.json").read_text()),
         "n": {"squad_test": len(sq_test), "nq_test": len(nq_test)},
@@ -206,7 +214,7 @@ def main() -> None:
         "runtime": {"wall_seconds": time.time() - t0, "peak_rss_mb": peak_rss_mb()},
     }
     args.results_dir.mkdir(parents=True, exist_ok=True)
-    path = args.results_dir / f"chat_v2_test_{args.device}_{ts}.json"
+    path = args.results_dir / f"chat_v2_{args.split}_{args.device}_{ts}.json"
     path.write_text(json.dumps(record, indent=2, ensure_ascii=False, default=str) + "\n")
     for k, v in crit.items():
         print(f"{k}: {'ERFÜLLT' if v['pass'] else 'VERFEHLT'}", flush=True)

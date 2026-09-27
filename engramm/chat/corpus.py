@@ -34,6 +34,8 @@ class Corpus:
     doc_ptr: np.ndarray | None = None       # term → documents (v2 index)
     doc_post: np.ndarray | None = None
     wide: np.ndarray | None = None          # uint64 (V, 32) topical meaning vectors (±16 words)
+    classes: np.ndarray | None = None       # HDC word class per token (512 classes)
+    index_dir: Path | None = None
     _key_words: dict = field(default_factory=dict)
 
     def __post_init__(self):
@@ -48,7 +50,7 @@ class Corpus:
         cb = Codebook.load(model_dir / "codebook.npz")
         c = cls.with_index(train.tokens, train.doc_starts, train.doc_keys, tok or LMTokenizer(), cb.eng,
                            model_dir.parent / index_name, mmap)
-        c.wide = cb.wide
+        c.wide, c.classes = cb.wide, cb.classes
         return c
 
     @classmethod
@@ -57,14 +59,17 @@ class Corpus:
         if (index_dir / "doc_ptr.npy").exists():
             from engramm.chat.index import load_docs
             dptr, dpost, sent_doc = load_docs(index_dir, mmap)
-            return cls(tokens, doc_starts, doc_keys, tok, eng, index, np.asarray(sent_doc), dptr, dpost)
-        return cls(tokens, doc_starts, doc_keys, tok, eng, index)
+            c = cls(tokens, doc_starts, doc_keys, tok, eng, index, np.asarray(sent_doc), dptr, dpost)
+        else:
+            c = cls(tokens, doc_starts, doc_keys, tok, eng, index)
+        c.index_dir = Path(index_dir)
+        return c
 
     @classmethod
     def from_model(cls, model, index_dir: Path, mmap: bool = True) -> Corpus:
         c = cls.with_index(model.tokens, model.train.doc_starts, model.train.doc_keys, model.tok, model.cb.eng,
                            Path(index_dir), mmap)
-        c.wide = model.cb.wide
+        c.wide, c.classes = model.cb.wide, model.cb.classes
         return c
 
     @property

@@ -41,7 +41,7 @@ def corpus():
     ix, dptr, dpost, sent_doc = v2index.build(model.tokens, model.train.doc_starts, tok)
     c = Corpus(model.tokens, model.train.doc_starts, model.train.doc_keys, tok, model.cb.eng, ix, sent_doc, dptr,
                dpost)
-    c.wide = model.cb.wide
+    c.wide, c.classes = model.cb.wide, model.cb.classes
     return c
 
 
@@ -214,3 +214,29 @@ def test_conversation_is_deterministic(corpus):
         bot = _bot(corpus, weights=Weights(cov=3, type=2))
         return [(r.kind, r.answer, r.text) for r in (bot.turn(m) for m in script)]
     assert run() == run()
+
+
+def test_counted_span_choice(tmp_path, corpus):
+    from engramm.chat.extract import ExtractParams, extract
+    from engramm.chat.spanstats import SpanStats, WordInfo, candidate_spans, features_for_sentence, question_direction
+    ws, cands = candidate_spans("Boston attracts more than 350,000 college students and 80% or more stay.")
+    texts = [c.text for c in cands]
+    assert "more than 350,000" in texts and "80% or more" in texts and "350,000" in texts
+    assert question_direction(analyse("Who wrote Hamlet?")) == -1
+    assert question_direction(analyse("What did Kanye record?")) == 1
+    info = WordInfo(corpus.tok, corpus.classes if corpus.classes is not None else np.zeros(40000, dtype=np.int16),
+                    corpus.wide)
+    q = analyse("Who invented the telephone?")
+    feats = features_for_sentence(q, "The telephone was invented by Alexander Graham Bell.", info)
+    assert feats == features_for_sentence(q, "The telephone was invented by Alexander Graham Bell.", info)
+    # count: the name after "by" is the answer
+    st = SpanStats()
+    for sp, f in feats:
+        st.add(f, sp.text == "Alexander Graham Bell")
+    st.save(tmp_path / "s.json")
+    st2 = SpanStats.load(tmp_path / "s.json")
+    best = max(feats, key=lambda x: st2.score(x[1]))[0]
+    assert best.text == "Alexander Graham Bell"
+    x = extract(q, ["The telephone was invented by Alexander Graham Bell."], np.array([1.0]),
+                ExtractParams(nb=0.5), None, None, st2, info)
+    assert x.text == "Alexander Graham Bell"

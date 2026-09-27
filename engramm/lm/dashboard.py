@@ -88,7 +88,9 @@ class App:
         question = question.strip()
         if not question:
             raise ValueError("Bitte eine Frage eingeben.")
-        r = self.chat(question if question.endswith("?") else question + "?")
+        if self.bot is None:
+            raise ValueError("Kein Satzindex – erst bauen: python -m experiments.chat_build --v2")
+        r = self.bot.ask(question).to_dict()
         return {"question": question, "answer": r["answer"], "source": r["source"], "confidence": r["confidence"],
                 "evidence": r["evidence"], "seconds": r["seconds"], "candidates": r["alternatives"]}
 

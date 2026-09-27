@@ -74,6 +74,7 @@ def load_squad() -> list[dict]:
                 for qa in para["qas"]:
                     out.append({"id": qa["id"], "question": qa["question"],
                                 "answers": [a["text"] for a in qa["answers"]],
+                                "answer_starts": [a["answer_start"] for a in qa["answers"]],
                                 "context": para["context"], "title": art["title"], "file": name})
     return out
 

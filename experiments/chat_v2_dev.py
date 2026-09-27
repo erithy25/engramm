@@ -144,6 +144,16 @@ def word_vectors(tok, kind: str = "wide"):
     return _WV[kind]
 
 
+def span_model(tok):
+    from engramm.chat.spanstats import SpanStats, WordInfo
+    from engramm.lm.semantic import Codebook
+    from experiments.chat_v2_common import MODEL_DIR
+    if "span" not in _WV:
+        cb = Codebook.load(MODEL_DIR / "codebook.npz")
+        _WV["span"] = (SpanStats.load(MODEL_DIR.parent / "chat2" / "spanstats.json"), WordInfo(tok, cb.classes, cb.wide))
+    return _WV["span"]
+
+
 def extract_eval(w: Weights, params=None, sets=None, verbose: bool = True) -> dict:
     from engramm.chat.extract import ExtractParams, exact_match, extract, f1
     from engramm.chat.question import analyse
@@ -152,6 +162,7 @@ def extract_eval(w: Weights, params=None, sets=None, verbose: bool = True) -> di
     cs, tok = cap_stats(), LMTokenizer()
     memo: dict = {}
     wv = word_vectors(tok)
+    stats, info = span_model(tok) if params.nb > 0 else (None, None)
 
     def initial(word):
         if word not in memo:
@@ -173,7 +184,7 @@ def extract_eval(w: Weights, params=None, sets=None, verbose: bool = True) -> di
             texts = [r["texts"][i] for i in order[:params.k]]
             rel = sc[order[:params.k]] / max(r["idf_sum"], 1e-9)
             q = analyse(r["question"])
-            x = extract(q, texts, rel, params, initial, wv)
+            x = extract(q, texts, rel, params, initial, wv, stats, info)
             e, g = exact_match(x.text, r["answers"]), f1(x.text, r["answers"])
             em.append(e)
             fs.append(g)
@@ -190,14 +201,59 @@ BEST = Weights(cov=5.0, soft=0.0, pcov=1.0, kcov=2.0, type=2.0, wiki=0.25, q=1.0
                prox=0.5, dfull=1.0)
 
 
+def pipeline(n_sq: int | None = None, n_nq: int | None = None) -> dict:
+    """The complete bot (frozen config, θ = 0) on SQuAD-dev2 and NQ-dev: Hit@1, EM, F1, and θ
+    for A2 by the registered rule (smallest θ with dev precision ≥ 55 %)."""
+    import dataclasses
+
+    from engramm.chat.bot import ChatBot, TextMemory
+    from engramm.chat.config import FROZEN, cap_ratio
+    from engramm.chat.extract import exact_match, f1
+    corpus, data = load_all()
+    cfg = dataclasses.replace(FROZEN, theta=0.0)
+    bot = ChatBot(TextMemory(), corpus, cfg, cap_ratio(corpus.index_dir))
+    out = {}
+    for name, n in (("sq_dev", n_sq), ("nq_dev", n_nq)):
+        qs = data[name][:n] if n else data[name]
+        rows = []
+        t0 = time.time()
+        for q in qs:
+            bot.context = {"answer": None, "atype": None, "mention": None, "last_learned": None}
+            rep = bot.ask(q["question"])
+            top = bot.last_rows
+            guess = rep.guess if rep.guess is not None else rep.answer
+            rows.append((bool(top) and contains_answer(top[0][3], q["answers"]), exact_match(guess, q["answers"]),
+                         f1(guess, q["answers"]), rep.answer is not None, rep.confidence, rep.seconds))
+        a = np.array(rows, dtype=float)
+        hit, em, fs, ans, conf, sec = a.T
+        res = {"n": len(qs), "hit1": hit.mean(), "em": em.mean(), "f1": fs.mean(), "median_s": float(np.median(sec)),
+               "answerable": ans.mean()}
+        if name == "sq_dev":
+            theta = None
+            for t in [0.0] + sorted(set(conf[ans == 1])):
+                m = (ans == 1) & (conf >= t)
+                if m.any() and em[m].mean() >= 0.55:
+                    theta = float(t)
+                    break
+            m = (ans == 1) & (conf >= (theta if theta is not None else np.inf))
+            res.update({"theta": theta, "coverage_at_theta": float(m.mean()),
+                        "precision_at_theta": float(em[m].mean()) if m.any() else 0.0})
+        out[name] = res
+        print(name, {k: (round(v, 4) if isinstance(v, float) else v) for k, v in res.items()},
+              f"({time.time() - t0:.0f} s)", flush=True)
+    return out
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=("cache", "tune", "extract"))
+    ap.add_argument("cmd", choices=("cache", "tune", "extract", "pipeline"))
     args = ap.parse_args()
     if args.cmd == "cache":
         build_cache()
     elif args.cmd == "tune":
         tune()
+    elif args.cmd == "pipeline":
+        pipeline()
     else:
         extract_eval(BEST)
 

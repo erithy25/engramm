@@ -134,6 +134,9 @@ def message_type(msg: str) -> str:
     first = words(s.lower())[0] if words(s) else ""
     if s.endswith("?") or first in _QSTART or s.lower().startswith(("do you remember", "tell me")):
         return "question"
+    # an unfinished statement ("the capital of France is") asks for its end
+    if re.search(r"\b(is|are|was|were|by|of|called|named)\s*$", s.lower().rstrip(".!")):
+        return "question"
     return "statement"
 
 
@@ -161,6 +164,13 @@ class ChatBot:
         self.context = {"answer": None, "atype": None, "mention": None, "last_learned": None}
         self._name_memo: dict[str, bool] = {}
         self.last_rows: list = []
+        self.span_stats, self.word_info = None, None
+        sp = getattr(corpus, "index_dir", None)
+        if config.extract.nb > 0 and sp is not None and (sp / "spanstats.json").exists() \
+                and corpus.classes is not None:
+            from engramm.chat.spanstats import SpanStats, WordInfo
+            self.span_stats = SpanStats.load(sp / "spanstats.json")
+            self.word_info = WordInfo(corpus.tok, corpus.classes, corpus.wide)
 
     # -- helpers ---------------------------------------------------------------------------
 
@@ -223,6 +233,14 @@ class ChatBot:
         else:
             rep = self._learn(msg)
         rep.message = message
+        rep.seconds = time.time() - t0
+        return rep
+
+    def ask(self, question: str) -> Reply:
+        """Answer ``question`` as a question whatever its form (evaluation, the /api/ask route)."""
+        t0 = time.time()
+        rep = self._answer(" ".join(question.strip().split()))
+        rep.message = question
         rep.seconds = time.time() - t0
         return rep
 
@@ -396,7 +414,7 @@ class ChatBot:
         isum = max(query.idf_sum, 1e-9)
         texts = [r[3] for r in top]
         rel = np.array([r[0] / isum for r in top])
-        x = extract(qa, texts, rel, self.cfg.extract, self.is_name_initial)
+        x = extract(qa, texts, rel, self.cfg.extract, self.is_name_initial, None, self.span_stats, self.word_info)
         if x.text is None:
             best = top[0]
             src = best[4] or self.c.source(best[2])

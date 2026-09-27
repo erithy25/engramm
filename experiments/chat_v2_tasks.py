@@ -110,7 +110,7 @@ def qa_task(bot, questions: list[dict]) -> dict:
     rows = []
     for q in questions:
         bot.context = {"answer": None, "atype": None, "mention": None, "last_learned": None}
-        rep = bot.turn(q["question"] if q["question"].strip().endswith("?") or True else q["question"])
+        rep = bot.ask(q["question"])
         guess = rep.guess if rep.guess is not None else rep.answer
         rows.append({"id": q["id"], "em": exact_match(guess, q["answers"]), "f1": f1(guess, q["answers"]),
                      "answered": rep.answer is not None, "conf": rep.confidence, "seconds": rep.seconds,
