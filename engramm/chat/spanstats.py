@@ -202,6 +202,10 @@ def span_features(q: Question, ws: list[str], lw: list[str], sp: Span, anchors: 
         feats.append(f"qvn|{qv}|{nxt.lower()}")
         if q.head:
             feats.append(f"hl|{q.head}|{lc}")
+        if extended == 2:
+            feats += [f"fl|{wh}|{fc}|{lc}", f"pf|{A}|{_shape(prev, cls) if prev != '<s>' else prev}|{fc}",
+                      f"ln|{A}|{lc}|{_shape(nxt, cls) if nxt != '</s>' else nxt}",
+                      f"kl|{wh}|{sp.kind}|{L}|{next((f.split('|', 2)[2] for f in feats if f.startswith('p|')), '')}"]
     return feats
 
 

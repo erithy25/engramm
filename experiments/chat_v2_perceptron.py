@@ -31,7 +31,8 @@ from experiments.chat_v2_data import h64
 from experiments.chat_v2_spanstats import name_initial, sentences_with_offsets, training_questions
 
 
-def build_examples(model_dir: Path, paragraph: bool = False, domain: bool = False):
+def build_examples(model_dir: Path, paragraph: bool = False, domain: bool = False, soft: bool = False,
+                   ext=True):
     corpus = Corpus.load(model_dir)
     tok = corpus.tok
     cb = Codebook.load(model_dir / "codebook.npz")
@@ -60,14 +61,21 @@ def build_examples(model_dir: Path, paragraph: bool = False, domain: bool = Fals
             continue
         qa = analyse(q["question"])
         g = normalize(gold)
-        cands = features_for_sentence(qa, text.strip(), info, initial, extended=True, domain=domain)
+        cands = features_for_sentence(qa, text.strip(), info, initial, extended=ext, domain=domain)
         golds = [k for k, (sp, _) in enumerate(cands) if normalize(sp.text) == g]
+        if soft and not golds:
+            # no exact span: the candidates with the best token F1 (at least 0.5) count as right
+            from engramm.chat.extract import f1 as tok_f1
+            fs = [tok_f1(sp.text, [gold]) for sp, _ in cands]
+            best_f = max(fs) if fs else 0.0
+            if best_f >= 0.5:
+                golds = [k for k, v in enumerate(fs) if v == best_f]
         if paragraph and golds:
             # the other sentences of the paragraph compete too (their spans are wrong answers)
             others = []
             for _, t in sents:
                 if t is not text and t.strip():
-                    others += [c for c in features_for_sentence(qa, t.strip(), info, initial, extended=True, domain=domain)
+                    others += [c for c in features_for_sentence(qa, t.strip(), info, initial, extended=ext, domain=domain)
                                if normalize(c[0].text) != g]
             cands = cands + others
         if not golds or len(cands) < 2:
@@ -77,7 +85,8 @@ def build_examples(model_dir: Path, paragraph: bool = False, domain: bool = Fals
             for f in feats:
                 ids.append(index.setdefault(f, len(index)))
             offs.append(len(ids))
-        examples.append((q["id"], np.asarray(ids, dtype=np.int32), np.asarray(offs, dtype=np.int64), golds[0]))
+        examples.append((q["id"], np.asarray(ids, dtype=np.int32), np.asarray(offs, dtype=np.int64),
+                         golds[0] if not soft else tuple(golds)))
         if i % 5000 == 0:
             print(f"{i:,}/{len(qs):,} examples {len(examples):,} features {len(index):,} ({time.time() - t0:.0f} s)",
                   flush=True)
@@ -95,6 +104,11 @@ def train(examples, n_features: int, passes: int = 5):
             _, ids, offs, gold = examples[k]
             sc = np.add.reduceat(w[ids], offs[:-1])
             best = int(np.argmax(sc))
+            if isinstance(gold, tuple):
+                if best in gold:
+                    c += 1
+                    continue
+                gold = max(gold, key=lambda j: (sc[j], -j))
             if best != gold and sc[best] >= sc[gold]:
                 mistakes += 1
                 gi = ids[offs[gold]:offs[gold + 1]]
@@ -114,15 +128,17 @@ def main() -> None:
     ap.add_argument("--passes", type=int, default=5)
     ap.add_argument("--paragraph", action="store_true", help="candidates of the whole paragraph compete")
     ap.add_argument("--out", default="spanperc.json")
+    ap.add_argument("--ext2", action="store_true", help="second set of conjunction features")
+    ap.add_argument("--soft", action="store_true", help="best-F1 candidates are right when no exact span exists")
     args = ap.parse_args()
     t0 = time.time()
     model_dir = Path(args.model)
-    examples, index, n_q = build_examples(model_dir, args.paragraph)
+    examples, index, n_q = build_examples(model_dir, args.paragraph, soft=args.soft, ext=2 if args.ext2 else True)
     w = train(examples, len(index), args.passes)
     names = [None] * len(index)
     for f, k in index.items():
         names[k] = f
-    perc = SpanPerceptron({names[k]: float(w[k]) for k in np.flatnonzero(w)}, True)
+    perc = SpanPerceptron({names[k]: float(w[k]) for k in np.flatnonzero(w)}, 2 if args.ext2 else True)
     out = model_dir.parent / "chat2" / args.out
     perc.save(out)
     meta = {"questions": n_q, "examples": len(examples), "features": len(index), "nonzero": len(perc.w),

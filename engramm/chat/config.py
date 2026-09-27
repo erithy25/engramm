@@ -22,12 +22,17 @@ EXTRACT = ExtractParams(k=10, tau=0.15, lam=4.0, other_max=4, type_only=True, so
 # (``python -m experiments.chat_v2_perceptron --paragraph --passes 8 --out spanperc_p2.json``); dev SQuAD
 # EM 25.3 / F1 32.1 against 19.8 / 26.2 for the naive-Bayes statistics.
 SPAN_MODEL = "spanperc_p2.json"
-# θ: the A2 rule (smallest θ with ≥ 55 % dev precision). v2: SQuAD-dev2 → 7.0293. v8 (perceptron, share³): 3,000
-# questions → 6.6824 (coverage 22.6 %). v3 (PREREG_CHAT_V3): SQuAD-dev2
-# plus the spent v2 test, 3,000 questions → 6.9512 (rounded down, 4 decimals).
-FROZEN = BotConfig(weights=WEIGHTS, extract=EXTRACT, text_k=120, theta=6.6824, entity_min=0.60, fact_min=0.30,
+# v9: search-box queries (lower case, no "?") use a second perceptron trained on the same SQuAD paragraphs plus
+# 40,000 retrieved NQ-open train questions (positions 40,000–79,999), weights × 2 (``chat_v2_perceptron_ctx
+# train --nq --out spanperc_nqmix.json``); dev NQ EM 3.4 % against 2.5 %.
+SPAN_MODEL_NQ = "spanperc_nq.json"
+# θ: the A2 rule (smallest θ with ≥ 55 % dev precision). v2: SQuAD-dev2 → 7.0293. v3 (PREREG_CHAT_V3): SQuAD-dev2
+# plus the spent v2 test, 3,000 questions → 6.9512. v8 (perceptron, share³): 3,000 questions → 6.6824 (coverage
+# 22.6 %). v9: all 9,000 spent SQuAD questions (dev2, v2 test, test3–test8) → 6.7847 (coverage 22.2 %).
+# (rounded down, 4 decimals)
+FROZEN = BotConfig(weights=WEIGHTS, extract=EXTRACT, text_k=120, theta=6.7847, entity_min=0.60, fact_min=0.30,
                    only_fact=True,
-                   focus_gate=True, span_model=SPAN_MODEL)
+                   focus_gate=True, span_model=SPAN_MODEL, span_model_nq=SPAN_MODEL_NQ)
 
 
 def cap_ratio(index_dir: Path) -> dict | None:

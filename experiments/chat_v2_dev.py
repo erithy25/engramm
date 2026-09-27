@@ -207,7 +207,25 @@ BEST = Weights(cov=5.0, soft=0.0, pcov=1.0, kcov=2.0, type=2.0, wiki=0.25, q=1.0
                prox=0.5, dfull=1.0)
 
 
-def pipeline(n_sq: int | None = None, n_nq: int | None = None, v3: bool = False) -> dict:
+def spent_squad() -> list[dict]:
+    """The SQuAD questions of every spent test round (v2 test, test3–test8)."""
+    import importlib
+    import json as _json
+
+    from experiments.chat_eval import load_squad, split as split1
+    from experiments.chat_v2_data import CACHE as _C
+    pool_ids = set(_json.loads((_C / "squad_pool_v1.json").read_text())["pool"])
+    pool = [q for q in load_squad() if q["id"] in pool_ids]
+    d1, t1 = split1(pool)
+    ex = {q["id"] for q in d1 + t1}
+    out = []
+    for v in range(3, 9):
+        mod = importlib.import_module(f"experiments.chat_v{v}_data")
+        out += getattr(mod, f"squad_v{v}_test")(pool, ex)
+    return out
+
+
+def pipeline(n_sq: int | None = None, n_nq: int | None = None, v3: bool = False, v9: bool = False) -> dict:
     """The complete bot (frozen config, θ = 0) on SQuAD-dev2 and NQ-dev: Hit@1, EM, F1, and θ
     for A2 by the registered rule (smallest θ with dev precision ≥ 55 %)."""
     import dataclasses
@@ -218,6 +236,9 @@ def pipeline(n_sq: int | None = None, n_nq: int | None = None, v3: bool = False)
     corpus, data = load_all()
     if v3:      # v3 development may use the spent v2 test data as well (PREREG_CHAT_V3 §2)
         data["sq_dev"] = data["sq_dev"] + data["sq_test"]
+        data["nq_dev"] = data["nq_dev"][:0]
+    if v9:      # v9: θ on every spent SQuAD question (dev2, v2 test, test3–test8; PREREG_CHAT_V9)
+        data["sq_dev"] = data["sq_dev"] + data["sq_test"] + spent_squad()
         data["nq_dev"] = data["nq_dev"][:0]
     cfg = dataclasses.replace(FROZEN, theta=0.0)
     bot = ChatBot(TextMemory(), corpus, cfg, cap_ratio(corpus.index_dir))
@@ -257,7 +278,7 @@ def pipeline(n_sq: int | None = None, n_nq: int | None = None, v3: bool = False)
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=("cache", "tune", "extract", "pipeline", "pipeline3"))
+    ap.add_argument("cmd", choices=("cache", "tune", "extract", "pipeline", "pipeline3", "pipeline9"))
     args = ap.parse_args()
     if args.cmd == "cache":
         build_cache()
@@ -267,6 +288,8 @@ def main() -> None:
         pipeline()
     elif args.cmd == "pipeline3":
         pipeline(v3=True)
+    elif args.cmd == "pipeline9":
+        pipeline(v9=True)
     else:
         extract_eval(BEST)
 
