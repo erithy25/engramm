@@ -39,6 +39,16 @@ def build_cache(names=DEV_SETS) -> None:
     if "sq_test12" in names:    # the spent v12 test (newly read paragraphs of the test articles)
         from experiments.chat_v12_data import squad_v12_test
         data["sq_test12"] = squad_v12_test()
+    if "sq_train" in names:     # 8,000 training questions (title bit 0, not a dev article, not stage 1): ranker training
+        from engramm.chat.corpus import Corpus as _C
+        from experiments.chat_v2_common import MODEL_DIR
+        from experiments.chat_v2_perceptron import training_questions
+        from experiments.chat_v2_data import h64 as _h
+        tq = training_questions(_C.load(MODEL_DIR, index_name="chat3"))
+        data["sq_train"] = sorted(tq, key=lambda q: (_h("rank", q["id"]), q["id"]))[:8000]
+    if "sq_test13" in names:    # the spent v13 test
+        from experiments.chat_v13_data import squad_v13_test
+        data["sq_test13"] = squad_v13_test()
     if "sq_dev12" in names:     # v12 dev: newly read paragraphs of the dev articles
         from experiments.chat_v12_data import squad_v12_dev
         data["sq_dev12"] = squad_v12_dev()
@@ -238,7 +248,7 @@ def spent_squad(upto: int = 8) -> list[dict]:
 
 
 def pipeline(n_sq: int | None = None, n_nq: int | None = None, v3: bool = False, v9: bool = False,
-             v12: bool = False, v13: bool = False, dump: str | None = None) -> dict:
+             v12: bool = False, v13: bool = False, v14: bool = False, dump: str | None = None) -> dict:
     """The complete bot (frozen config, θ = 0) on SQuAD-dev2 and NQ-dev: Hit@1, EM, F1, and θ
     for A2 by the registered rule (smallest θ with dev precision ≥ 55 %)."""
     import dataclasses
@@ -260,6 +270,11 @@ def pipeline(n_sq: int | None = None, n_nq: int | None = None, v3: bool = False,
     if v13:     # v13: θ on the spent Test12 (newly read paragraphs of the test articles, the distribution of Test13)
         from experiments.chat_v12_data import squad_v12_test
         data["sq_dev"] = squad_v12_test()
+        data["nq_dev"] = data["nq_dev"][:0]
+    if v14:     # v14: θ on the spent Test12 + Test13 (10,000 newly read test-article questions)
+        from experiments.chat_v12_data import squad_v12_test
+        from experiments.chat_v13_data import squad_v13_test
+        data["sq_dev"] = squad_v12_test() + squad_v13_test()
         data["nq_dev"] = data["nq_dev"][:0]
     cfg = dataclasses.replace(FROZEN, theta=-np.inf)    # every answer; θ is chosen below
     bot = ChatBot(TextMemory(), corpus, cfg, cap_ratio(corpus.index_dir))
@@ -301,7 +316,7 @@ def pipeline(n_sq: int | None = None, n_nq: int | None = None, v3: bool = False,
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=("cache", "cache_spent", "cache_dev12", "cache_test12", "tune", "extract", "pipeline", "pipeline3", "pipeline9", "pipeline12", "pipeline13"))
+    ap.add_argument("cmd", choices=("cache", "cache_spent", "cache_dev12", "cache_test12", "cache_test13", "cache_train", "tune", "extract", "pipeline", "pipeline3", "pipeline9", "pipeline12", "pipeline13", "pipeline14"))
     args = ap.parse_args()
     if args.cmd == "cache":
         build_cache()
@@ -311,6 +326,10 @@ def main() -> None:
         build_cache(("sq_dev12",))
     elif args.cmd == "cache_test12":
         build_cache(("sq_test12",))
+    elif args.cmd == "cache_test13":
+        build_cache(("sq_test13",))
+    elif args.cmd == "cache_train":
+        build_cache(("sq_train",))
     elif args.cmd == "tune":
         tune()
     elif args.cmd == "pipeline":
@@ -323,6 +342,8 @@ def main() -> None:
         pipeline(v12=True)
     elif args.cmd == "pipeline13":
         pipeline(v13=True, dump="/dev/shm/engramm/pipe13")
+    elif args.cmd == "pipeline14":
+        pipeline(v14=True, dump="/dev/shm/engramm/pipe14")
     else:
         extract_eval(BEST)
 

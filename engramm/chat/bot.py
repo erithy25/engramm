@@ -61,6 +61,7 @@ class BotConfig:
     span_model_nq: str = ""            # optional second perceptron for search-box queries (lower case, no "?")
     extract_nq: ExtractParams | None = None  # answer-cutting parameters for search-box queries (None: ``extract``)
     calibrator: str = ""               # optional counted confidence model for question-form lookups (calib.py)
+    weights_nq: Weights | None = None  # search weights for search-box queries (None: ``weights``)
 
 
 class TextMemory:
@@ -746,12 +747,15 @@ class ChatBot:
         return out
 
     def _lookup(self, msg: str, q: str, qa, mentions: list[str]) -> Reply:
-        cands = self.r.candidates(q, self.cfg.weights, self.cfg.text_k)
+        from engramm.chat.spanstats import question_form
+        search_box = question_form(qa) == "nq"
+        weights = self.cfg.weights_nq if search_box and self.cfg.weights_nq is not None else self.cfg.weights
+        cands = self.r.candidates(q, weights, self.cfg.text_k)
         query = cands.query
         rows = []
         sent_feats = {}
         if len(cands.ids):
-            sc = cands.scores(self.cfg.weights)
+            sc = cands.scores(weights)
             for k in range(len(cands.ids)):
                 rows.append((float(sc[k]), 1, int(cands.ids[k]), cands.texts[k], None))
                 sent_feats[int(cands.ids[k])] = cands.feats[k]
@@ -761,8 +765,6 @@ class ChatBot:
             return self._finish(msg, q, qa, "unknown", None, None, None, None, 0.0, "lookup",
                                 text="I don't know — I found nothing about that.")
         rows.sort(key=lambda r: (-r[0], r[1], r[2], r[3]))
-        from engramm.chat.spanstats import question_form
-        search_box = question_form(qa) == "nq"
         params = self.cfg.extract_nq if search_box and self.cfg.extract_nq is not None else self.cfg.extract
         top = rows[:params.k]
         self.last_rows = top

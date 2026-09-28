@@ -15,6 +15,7 @@ Test12 (spent in v12) is held out: it sets θ, so it must not also train the mod
 from __future__ import annotations
 
 import json
+import os
 import time
 
 import numpy as np
@@ -25,13 +26,12 @@ from engramm.chat.extract import exact_match, extract
 from engramm.chat.question import analyse
 from experiments.chat_v2_common import MODEL_DIR
 
-OUT = MODEL_DIR.parent / "chat4" / "confperc.json"
+OUT = MODEL_DIR.parent / "chat4" / os.environ.get("ENGRAMM_CALIB_OUT", "confperc.json")
 SETS = (("sq_spent", "chat3"), ("sq_dev12", "chat4"))
 PASSES = 10
 
 
 def records(name: str, index: str) -> list[tuple[dict, str, object, np.ndarray | None, int, bool]]:
-    import os
     os.environ["ENGRAMM_CHAT_INDEX"] = index
     import experiments.chat_v2_common as common
     common.CHAT_INDEX = index
@@ -43,7 +43,8 @@ def records(name: str, index: str) -> list[tuple[dict, str, object, np.ndarray |
     tok = LMTokenizer()
     cs = D.cap_stats()
     _, info = D.span_model(tok)
-    stats = SpanPerceptron.load(MODEL_DIR.parent / "chat2" / SPAN_MODEL)
+    span_dir = MODEL_DIR.parent / "chat4" if (MODEL_DIR.parent / "chat4" / SPAN_MODEL).exists() else MODEL_DIR.parent / "chat2"
+    stats = SpanPerceptron.load(span_dir / SPAN_MODEL)
     memo: dict = {}
 
     def initial(w):
@@ -86,7 +87,7 @@ def main() -> None:
     ConfCalibrator(w, bins).save(OUT)
     meta = {"examples": len(examples), "right": int(sum(y for _, y in examples)), "features": len(w),
             "passes": PASSES, "r0_bins": bins, "seconds": round(time.time() - t0, 1)}
-    OUT.with_name("confperc_meta.json").write_text(json.dumps(meta, indent=2) + "\n")
+    OUT.with_name(OUT.stem + "_meta.json").write_text(json.dumps(meta, indent=2) + "\n")
     print(json.dumps(meta, indent=2), flush=True)
 
 

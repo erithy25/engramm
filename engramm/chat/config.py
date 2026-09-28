@@ -19,17 +19,22 @@ from engramm.chat.retrieve import Weights
 # v12: plus every SQuAD v1.1 paragraph not read yet (17,555 paragraphs, 2.75 M tokens; ``experiments/
 # chat_squad_read.py``), as a segment appended to chat3 when loaded (index "chat4")
 INDEX_NAME = "chat4"
-WEIGHTS = Weights(cov=5.0, soft=0.0, pcov=2.0, kcov=4.0, type=1.0, wiki=1.0, q=1.0, short=0.5, phr=4.0, dcov=0.0,
+# v14: pcov 2 → 4 (end-to-end F1 on the spent Test12; checked on Test13)
+WEIGHTS = Weights(cov=5.0, soft=0.0, pcov=4.0, kcov=4.0, type=1.0, wiki=1.0, q=1.0, short=0.5, phr=4.0, dcov=0.0,
                   prox=0.0, dfull=4.0)
 # v12: dates through the perceptron too, "X or Y?" choices, span by expected F1 (MBR), and a confidence that
 # also counts how many of the best sentences hold the answer (dev12: precision 59.6 % vs 54.0 % at 21 % coverage)
 EXTRACT = ExtractParams(k=10, tau=0.15, lam=4.0, other_max=4, type_only=True, soft_min=0.0, definition=2.0,
                         head_beta=0.0, copula=1.0, direction=1.0, nb=0.5, nb_prox=0.0, rule_types=(),
                         sent_beta=1.0, conf_power=4.0, conf_r0=0.5, conf_ns=0.2, choice=True, mbr=1.0, mbr_temp=0.5)
+# search-box queries keep the v10 weights (pcov 2): pcov 4 was tuned on SQuAD only
+WEIGHTS_NQ = Weights(cov=5.0, soft=0.0, pcov=2.0, kcov=4.0, type=1.0, wiki=1.0, q=1.0, short=0.5, phr=4.0, dcov=0.0,
+                     prox=0.0, dfull=4.0)
 # v8: the span model is the averaged perceptron trained on whole SQuAD paragraphs
 # (``python -m experiments.chat_v2_perceptron --paragraph --passes 8 --out spanperc_p2.json``); dev SQuAD
 # EM 25.3 / F1 32.1 against 19.8 / 26.2 for the naive-Bayes statistics.
-SPAN_MODEL = "spanperc_p2.json"
+# v14: the average of seven counted perceptrons (``experiments/chat_v14_ensemble.py``), stored next to index chat4
+SPAN_MODEL = "spanperc_ens7.json"
 # v9: search-box queries (lower case, no "?") use a second perceptron trained on the same SQuAD paragraphs plus
 # 40,000 retrieved NQ-open train questions (positions 40,000–79,999), weights × 2 (``chat_v2_perceptron_ctx
 # train --nq --out spanperc_nqmix.json``); dev NQ EM 3.4 % against 2.5 %.
@@ -40,19 +45,20 @@ EXTRACT_NQ = ExtractParams(k=20, tau=0.15, lam=4.0, other_max=4, type_only=True,
                            sent_beta=1.0, conf_power=3.0)
 # v13: the confidence of question-form lookups is a counted model (averaged perceptron over the evidence of the
 # answer, ``engramm/chat/calib.py``), trained on spent development data only (``experiments/chat_v13_calib.py``)
-CALIBRATOR = "confperc.json"
+CALIBRATOR = "confperc14.json"     # v13: confperc.json; v14: retrained for the ensemble and pcov 4
 # θ: the A2 rule (smallest θ with ≥ 55 % dev precision). v2: SQuAD-dev2 → 7.0293. v3 (PREREG_CHAT_V3): SQuAD-dev2
 # plus the spent v2 test, 3,000 questions → 6.9512. v8 (perceptron, share³): 3,000 questions → 6.6824 (coverage
 # 22.6 %). v9: all 9,000 spent SQuAD questions (dev2, v2 test, test3–test8) → 6.7847 (coverage 22.2 %). v10 (index
 # chat3, new weights): the same 9,000 questions → 9.2123 (coverage 20.9 %). v12 (index chat4, new confidence): Dev12,
 # the 3,084 questions of the newly read dev-article paragraphs (the distribution of Test12) → 3.6543 (coverage 23.6 %;
 # on Test12 only 18.2 %, E25). v13 (counted confidence model): the spent Test12, 5,000 newly read test-article
-# questions, held out from the model's training → −5.7467 (coverage 23.0 %)
+# questions, held out from the model's training → −5.7467 (coverage 23.0 %). v14 (ensemble span model, pcov 4, the
+# confidence model retrained): the spent Test12 + Test13, 10,000 questions → −5.0005 (coverage 22.3 %)
 # (rounded down, 4 decimals)
-FROZEN = BotConfig(weights=WEIGHTS, extract=EXTRACT, text_k=120, theta=-5.7467, entity_min=0.60, fact_min=0.30,
+FROZEN = BotConfig(weights=WEIGHTS, extract=EXTRACT, text_k=120, theta=-5.0005, entity_min=0.60, fact_min=0.30,
                    only_fact=True,
                    focus_gate=True, span_model=SPAN_MODEL, span_model_nq=SPAN_MODEL_NQ,
-                   extract_nq=EXTRACT_NQ, calibrator=CALIBRATOR)
+                   extract_nq=EXTRACT_NQ, calibrator=CALIBRATOR, weights_nq=WEIGHTS_NQ)
 
 
 def cap_ratio(index_dir: Path) -> dict | None:

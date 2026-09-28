@@ -85,7 +85,9 @@ def train(passes: int, beta: float, out: str, use_nq: bool = False, domain: bool
     cb = Codebook.load(MODEL_DIR / "codebook.npz")
     info = WordInfo(corpus.tok, cb.classes, cb.wide)
     initial = name_initial(corpus.tok, cap_ratio(MODEL_DIR.parent / "chat2") or {})
-    ctx = {} if only_nq else pickle.loads(CTX.read_bytes())
+    import os
+    ctx_path = Path(os.environ["ENGRAMM_TRAIN_CTX"]) if os.environ.get("ENGRAMM_TRAIN_CTX") else CTX
+    ctx = {} if only_nq else pickle.loads(ctx_path.read_bytes())
     byid = {q["id"]: q for q in training_questions(corpus)}
     if use_nq and CTX_NQ.exists():
         ctx.update(pickle.loads(CTX_NQ.read_bytes()))
