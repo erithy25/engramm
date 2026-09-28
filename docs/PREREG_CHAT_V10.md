@@ -75,3 +75,5 @@ Alle Kriterien zugleich: ~30 %.
 ## 5. Änderungsprotokoll
 
 * v1.0 (2026-09-28): Erstregistrierung.
+* Nachtrag nach dem Lauf (keine Änderung am Lauf): SQuAD-Test10 hatte nur 521 Fragen
+  (Pool-Ende bei Position 8.520), siehe E23.

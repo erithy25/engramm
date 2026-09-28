@@ -1724,6 +1724,11 @@ Ergebnisdatei: `results/chat/chat_test9_container_20260927T183804Z.json`. Code e
 Ergebnisdatei: `results/chat/chat_test10_container_20260928T023046Z.json`. Code eingefroren in
 `2abf2b1`; ein Lauf.
 
+**Abweichung von der Registrierung:** SQuAD-Test10 umfasste nur **521** statt 1.000 Fragen. Der
+Pool der Test-Artikel hat 8.521 Fragen, Positionen 8.000–8.999 reichen also nur bis 8.520. Das
+wurde vor dem Lauf nicht bemerkt. Der Standardfehler von A1/A2 ist dadurch etwa 1,4-mal so groß.
+Damit ist der SQuAD-Pool der Test-Artikel vollständig verbraucht.
+
 | Kriterium | Wert | Schwelle | Ergebnis |
 |---|---|---|---|
 | R1 | +7,1 pp, KI [3,5; 10,9] | ≥ 3 pp, KI > 0 | erfüllt |
