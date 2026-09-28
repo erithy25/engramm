@@ -1719,6 +1719,37 @@ Ergebnisdatei: `results/chat/chat_test9_container_20260927T183804Z.json`. Code e
 
 ---
 
+## E23 — ENGRAMM-Chat v10 mit Wikipedia-Lesekorpus (PREREG_CHAT_V10, einmaliger Testlauf)
+
+Ergebnisdatei: `results/chat/chat_test10_container_20260928T023046Z.json`. Code eingefroren in
+`2abf2b1`; ein Lauf.
+
+| Kriterium | Wert | Schwelle | Ergebnis |
+|---|---|---|---|
+| R1 | +7,1 pp, KI [3,5; 10,9] | ≥ 3 pp, KI > 0 | erfüllt |
+| R2 | +7,1 pp, KI [6,2; 8,1] | ≥ 2 pp, KI > 0 | erfüllt |
+| F1 / F2 / F3 | 100 % / 99,0 % / 100 % | | erfüllt |
+| D1 / D2 / D3 | 100 % / 100 % / 100 % | | erfüllt |
+| A1 | EM 18,4 %, F1 28,2 % | ≥ 20 % und ≥ 30 % | verfehlt |
+| A2 | 47,2 % Präzision bei 20,3 % Abdeckung | ≥ 50 % bei ≥ 20 % | verfehlt |
+| A3 | NQ-EM 5,2 % | ≥ 5 % | **erfüllt** (erstmals) |
+| U2 / U3 | 8 ms / identisch | | erfüllt |
+
+**Stufen:** 1.1, 2, 3 und 5 erfüllt. Stufe 4 ist verfehlt, diesmal wegen A1 und A2.
+
+**Einordnung:**
+- **Mehr Lesen hilft offenen Fragen.** Mit 614.464 Wikipedia-Anfängen steigt NQ-EM von
+  3,4 % (v9) auf 5,2 %, NQ-Hit@1 gegenüber Stufe 1 um +7,1 pp. Das bestätigt, dass A3 am Korpus
+  hing.
+- **SQuAD fiel unter die Schwelle.** F1 28,2 % liegt 2,4 pp unter dem Mittel der 9.000
+  verbrauchten Fragen auf demselben System (30,6 %), also etwa 1,8 Standardfehler. A1 und A2
+  hatten schon vorher nur 0,6 pp bzw. 0,9 pp Abstand im Mittel; eine schwächere Stichprobe kippt
+  sie.
+- **Bilanz über v8–v10:** Jedes Kriterium ist in mindestens einer Runde erfüllt, aber nicht alle
+  in derselben. Für A1 und A2 fehlt der Abstand zur Schwelle, nicht die Fähigkeit.
+
+---
+
 ## Offene Fragen, nicht terminiert
 
 **O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**
