@@ -132,9 +132,17 @@ _SMALLTALK = [
 ]
 _PERSON_PRON = ("he", "she", "him", "his", "hers", "they", "them", "their")
 _THING_PRON = ("it", "its", "there")
-_DEMONSTRATIVE = re.compile(r"\b(?:(?:this|that|the same)\s+(person|man|woman|city|town|place|country|company|river|"
-                            r"island|book|novel|ship|team|one)|the\s+(person|man|woman|city|town))\b", re.I)
-_PERSONISH = frozenset(("person", "man", "woman"))
+_PERSON_NOUNS = ("person", "man", "woman", "guy", "individual", "fellow", "lady", "gentleman", "author", "writer",
+                 "founder", "inventor", "painter", "poet", "composer", "captain", "architect", "owner", "explorer",
+                 "discoverer", "teacher", "leader", "chief", "king", "queen", "player", "artist", "scientist")
+_THING_NOUNS = ("city", "town", "village", "place", "country", "region", "area", "state", "nation", "company", "firm",
+                "river", "island", "book", "novel", "ship", "team", "film", "movie", "band", "album", "song",
+                "building", "bridge", "festival", "horse", "organisation", "organization")
+# "that one", "this guy", "said person", "the latter": a demonstrative before a kind of noun points back; the bare
+# "the" only before a few safe nouns ("Who is the author of …?" must stay a new question)
+_DEMONSTRATIVE = re.compile(r"\b(?:(?:this|that|the same|said|the aforementioned)\s+(" + "|".join(_PERSON_NOUNS
+                            + _THING_NOUNS) + r"|one)|the\s+(person|man|woman|city|town|latter(?!\s+(?:half|part|stage|years?|case|one)\b)))\b", re.I)
+_PERSONISH = frozenset(_PERSON_NOUNS)
 # a question about "my sibling" may be answered by what you said about your brother or sister
 _RELATED = {"sibling": ("brother", "sister"), "pet": ("dog", "cat"), "parent": ("mother", "father"),
             "child": ("son", "daughter"), "kid": ("son", "daughter"), "dog": ("pet",), "cat": ("pet",),
@@ -471,7 +479,9 @@ class ChatBot:
         m = _DEMONSTRATIVE.search(q)
         if m:
             noun = (m.group(1) or m.group(2)).lower()
-            target = person if noun in _PERSONISH else thing
+            # "that one" names no kind: it points at the last answer, whatever its type
+            target = ((ctx["answer"] or ctx["mention"]) if noun in ("one", "latter")
+                      else (person if noun in _PERSONISH else thing))
             if target:
                 return q[:m.start()] + target + q[m.end():]
         ws = q.split(" ")
