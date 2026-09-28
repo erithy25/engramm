@@ -1,0 +1,321 @@
+{
+  "schema": "engramm-chat/2",
+  "name": "chat_test13",
+  "study": "docs/PREREG_CHAT_V13.md v1.0",
+  "split": "test13",
+  "timestamp_utc": "20260928T190344Z",
+  "config": "BotConfig(weights=Weights(cov=5.0, soft=0.0, pcov=2.0, kcov=4.0, type=1.0, wiki=1.0, q=1.0, short=0.5, phr=4.0, dcov=0.0, prox=0.0, dfull=4.0), extract=ExtractParams(k=10, tau=0.15, lam=4.0, other_max=4, type_only=True, soft_min=0.0, definition=2.0, head_beta=0.0, copula=1.0, direction=1.0, nb=0.5, nb_prox=0.0, rule_types=(), merge=0.5, conf_power=4.0, sent_beta=1.0, mbr=1.0, mbr_n=10, mbr_temp=0.5, choice=True, len_bonus=0.0, conf_r0=0.5, conf_ns=0.2), text_k=120, theta=-5.7467, entity_min=0.6, fact_min=0.3, only_fact=True, focus_gate=True, span_model='spanperc_p2.json', span_model_nq='spanperc_nq.json', extract_nq=ExtractParams(k=20, tau=0.15, lam=4.0, other_max=4, type_only=True, soft_min=0.0, definition=2.0, head_beta=0.0, copula=1.0, direction=1.0, nb=0.5, nb_prox=0.0, rule_types=(), merge=0.5, conf_power=3.0, sent_beta=1.0, mbr=0.0, mbr_n=10, mbr_temp=1.0, choice=False, len_bonus=0.0, conf_r0=1.0, conf_ns=0.0), calibrator='confperc.json')",
+  "data_manifest": {
+    "generated_sha256": "8d6a1f7db163202282b63cc08cfc25aa8370f7c75edef6ff049e3cfd5228bb59",
+    "templates_sha256": "23e3e9dc538e8af9cb33767b5de63808cb29e6acd66272f35ee3a265e5694b9d"
+  },
+  "index": {
+    "version": 4,
+    "base": "chat3",
+    "segment": "SQuAD v1.1 paragraphs not read yet (2016 Wikipedia)",
+    "paragraphs": 17555,
+    "paragraphs_sha256": "c95a099c5d5794962b0189dbffb3f64ca52055b2db320cfc376a73eeebb56e4b",
+    "documents": 488,
+    "tokens": 2748035,
+    "sentences": 103432,
+    "build_seconds": 6.5
+  },
+  "n": {
+    "squad_test": 5000,
+    "nq_test": 3610
+  },
+  "criteria": {
+    "R1": {
+      "diff": 0.4186,
+      "ci95": [
+        0.4046,
+        0.4324
+      ],
+      "stage1": 0.04,
+      "v2": 0.4586,
+      "pass": true
+    },
+    "R2": {
+      "diff": 0.06925207756232687,
+      "ci95": [
+        0.060110803324099724,
+        0.07894736842105263
+      ],
+      "stage1": 0.02326869806094183,
+      "v2": 0.0925207756232687,
+      "pass": true
+    },
+    "F1": {
+      "value": 1.0,
+      "pass": true
+    },
+    "F2": {
+      "value": 0.98,
+      "exact_dict": 0.0,
+      "lead": 0.98,
+      "pass": true
+    },
+    "F3": {
+      "value": 1.0,
+      "pass": true
+    },
+    "D1": {
+      "value": 1.0,
+      "n": 800,
+      "pass": true
+    },
+    "D2": {
+      "a": 1.0,
+      "b": 1.0,
+      "n": 200,
+      "pass": true
+    },
+    "D3": {
+      "value": 0.6363636363636364,
+      "n": 55,
+      "pass": false
+    },
+    "A1": {
+      "em": 0.216,
+      "f1": 0.29448139047055455,
+      "em_ci95": [
+        0.2048,
+        0.2274
+      ],
+      "pass": "False"
+    },
+    "A2": {
+      "precision": 0.5267175572519084,
+      "coverage": 0.2358,
+      "theta": -5.7467,
+      "pass": true
+    },
+    "A3": {
+      "em": 0.06509695290858726,
+      "em_ci95": [
+        0.05706371191135734,
+        0.07340720221606649
+      ],
+      "f1": 0.09204172712482961,
+      "pass": "True"
+    },
+    "U2": {
+      "median_seconds": 0.20171773433685303,
+      "p90_seconds": 0.39092440605163575,
+      "device": "container",
+      "official": false,
+      "pass": true
+    },
+    "U3": {
+      "transcripts_equal": true,
+      "transcript_sha256": "e6926203a9ecfd9a35161c2417a766ba60dfff98f0b143b2c72de6e53739bd92",
+      "digest_equal": true,
+      "answers_equal": true,
+      "events": 72,
+      "discarded_bytes": 0,
+      "questions": 80,
+      "pass": true
+    }
+  },
+  "stages_met": {
+    "1.1": true,
+    "2": true,
+    "3": false,
+    "4": "False",
+    "5 (U2, U3; U1 = browser test)": true
+  },
+  "facts_misses": {
+    "clean": [],
+    "typo": [
+      {
+        "q": "The Duroo team has which mascot?",
+        "gold": "Nandoul",
+        "answer": "Drumtonlor",
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Who found the island of Dklme?",
+        "gold": "Drutaelzol",
+        "answer": "Grourolpa",
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Who wrote the music of Quaqsho's national anthem?",
+        "gold": "Daquamneth",
+        "answer": "Konzou",
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Who wrote the music of Quioukin's national anthem?",
+        "gold": "Nussiox",
+        "answer": "Konzou",
+        "via": "facts",
+        "hit": false
+      }
+    ]
+  },
+  "dialog_misses": [
+    {
+      "dialog": "test13-chain-founder-5",
+      "user": "Where was that one born?",
+      "resolved": "Where was nouldaeldun born?",
+      "gold": "Brucas",
+      "answer": "Draexgioxruth"
+    },
+    {
+      "dialog": "test13-chain-founder-7",
+      "user": "Where was that one born?",
+      "resolved": "Where was kounklas born?",
+      "gold": "Wodunvel",
+      "answer": "Drongruxstio"
+    },
+    {
+      "dialog": "test13-chain-author-7",
+      "user": "Where was that one born?",
+      "resolved": "Where was shiospion born?",
+      "gold": "Casrislo",
+      "answer": "Laethlaex"
+    },
+    {
+      "dialog": "test13-chain-inventor-5",
+      "user": "Where was that one born?",
+      "resolved": "Where was faergaervuth born?",
+      "gold": "Miran",
+      "answer": "Piosquioxnor"
+    },
+    {
+      "dialog": "test13-chain-inventor-6",
+      "user": "Where was that one born?",
+      "resolved": "Where was brallamdoum born?",
+      "gold": "Yelwo",
+      "answer": "Quilvael"
+    },
+    {
+      "dialog": "test13-chain-inventor-8",
+      "user": "Where was that one born?",
+      "resolved": "Where was lospir born?",
+      "gold": "Horran",
+      "answer": "Palnu"
+    },
+    {
+      "dialog": "test13-chain-inventor-9",
+      "user": "Where was that one born?",
+      "resolved": "Where was goumdim born?",
+      "gold": "Gaikro",
+      "answer": "Brousloupu"
+    },
+    {
+      "dialog": "test13-chain-captain-8",
+      "user": "Where was that one born?",
+      "resolved": "Where was staerbrurras born?",
+      "gold": "Frotam",
+      "answer": "Captain Gioxboxlom"
+    },
+    {
+      "dialog": "test13-chain-spouse-6",
+      "user": "Where was that one born?",
+      "resolved": "Where was virshiltur born?",
+      "gold": "Frodorvel",
+      "answer": "Sounkosmio"
+    },
+    {
+      "dialog": "test13-chain-spouse-9",
+      "user": "Where was that one born?",
+      "resolved": "Where was sisratul born?",
+      "gold": "Julvelzar",
+      "answer": "Zorgaxklex"
+    },
+    {
+      "dialog": "test13-chain-teacher-9",
+      "user": "Where was that one born?",
+      "resolved": "Where was grourstaexshol born?",
+      "gold": "Risvelfro",
+      "answer": "Dothshe"
+    },
+    {
+      "dialog": "test13-chain-discoverer-6",
+      "user": "Where was that one born?",
+      "resolved": "Where was dolme born?",
+      "gold": "Dunran",
+      "answer": "Drutaelzol"
+    },
+    {
+      "dialog": "test13-chain-discoverer-9",
+      "user": "Where was that one born?",
+      "resolved": "Where was gamquonklom born?",
+      "gold": "Epdun",
+      "answer": "Kliorkluthbim"
+    },
+    {
+      "dialog": "test13-chain-ceo-6",
+      "user": "Where was that one born?",
+      "resolved": "Where was grastaemthaem industries born?",
+      "gold": "Torka",
+      "answer": "Moumkaeszael"
+    },
+    {
+      "dialog": "test13-chain-ceo-9",
+      "user": "Where was that one born?",
+      "resolved": "Where was misdros industries born?",
+      "gold": "Loris",
+      "answer": "Paelam"
+    },
+    {
+      "dialog": "test13-chain-owner-8",
+      "user": "Where was that one born?",
+      "resolved": "Where was voulgrountun born?",
+      "gold": "Yeldun",
+      "answer": "Klathbriothmax"
+    },
+    {
+      "dialog": "test13-chain-architect-5",
+      "user": "Where was that one born?",
+      "resolved": "Where was drasklaxsun born?",
+      "gold": "Krodun",
+      "answer": "Vimzaethtus"
+    },
+    {
+      "dialog": "test13-chain-architect-6",
+      "user": "Where was that one born?",
+      "resolved": "Where was gruthler born?",
+      "gold": "Froriswo",
+      "answer": "Kithtal"
+    },
+    {
+      "dialog": "test13-chain-architect-8",
+      "user": "Where was that one born?",
+      "resolved": "Where was laenroszol born?",
+      "gold": "Gulbelmi",
+      "answer": "Grithso"
+    },
+    {
+      "dialog": "test13-chain-architect-9",
+      "user": "Where was that one born?",
+      "resolved": "Where was zaesgrumquaex born?",
+      "gold": "Dundun",
+      "answer": "Quaethgavul"
+    }
+  ],
+  "git": {
+    "commit": "697aba18e712f5a033b029c32de9076a42250b24",
+    "dirty": false,
+    "untracked": 0,
+    "changed_during_run": false
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 2990.7793674468994,
+    "peak_rss_mb": 12507.0703125
+  }
+}

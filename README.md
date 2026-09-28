@@ -247,8 +247,15 @@ confidence now counts how many of the best sentences hold the answer.
 - **Missed:** calibrated "I don't know". Precision was 57.8 %, well above 50 %, but the coverage of
   18.2 % fell short of 20 %: θ, set on the development articles, was too strict for the test articles.
 
+A twelfth round (v13, E26) replaced that confidence with a counted one: an averaged perceptron over
+the evidence behind the answer, trained on spent questions only. It also fixed two speed bugs, which
+cut the median time per turn from 953 ms to 202 ms.
+- **Met:** calibrated "I don't know" (52.7 % precision at 23.6 % coverage) and NQ exact answers (6.5 %).
+- **Missed:** SQuAD F1 at 29.4 %, and pronoun follow-ups (63.6 %). All the follow-up misses read
+  "that one" as the question's topic instead of the last answer.
+
 All numbers, including the development history and the round-by-round table, are in
-[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E15–E25).
+[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E15–E26).
 
 ## Results — rebuild, re-measured
 

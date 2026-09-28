@@ -1817,6 +1817,36 @@ bestanden.
 - **R1** vergleicht mit Stufe 1 auf deren Korpus ohne die Test-Absätze. Die +42 pp messen das Lesen,
   nicht das Verfahren (registrierter Vorbehalt).
 
+
+## E26 — ENGRAMM-Chat v13: gezählte Konfidenz (PREREG_CHAT_V13, einmaliger Testlauf)
+
+Ergebnisdatei: `results/chat/chat_test13_container_20260928T190344Z.json`. Code eingefroren in
+`08de49c`, Registrierung `697aba1`; ein Lauf. U1 danach bestanden.
+
+| Kriterium | Wert | Schwelle | Ergebnis |
+|---|---|---|---|
+| R1 / R2 | +41,9 pp (trivial, s. Vorbehalt) / +6,9 pp, KI [6,0; 7,9] | | erfüllt |
+| F1 / F2 / F3 | 100 % / 98,0 % / 100 % | | erfüllt |
+| D1 / D2 | 100 % / 100 % | | erfüllt |
+| D3 | **63,6 %** | ≥ 80 % | **verfehlt** |
+| A1 | EM 21,6 %, **F1 29,4 %** | ≥ 20 % und ≥ 30 % | **verfehlt** |
+| A2 | 52,7 % Präzision bei 23,6 % Abdeckung | ≥ 50 % bei ≥ 20 % | **erfüllt** |
+| A3 | NQ-EM 6,5 %, KI [5,7; 7,3] | ≥ 5 % | erfüllt |
+| U1 / U2 / U3 | bestanden / **202 ms** / identisch | | erfüllt |
+
+**Stufen:** 1.1, 2 und 5 erfüllt. Stufe 3 wegen D3 verfehlt, Stufe 4 wegen A1-F1.
+
+**Einordnung:**
+- **A2 gelöst.** Die gezählte Konfidenz und θ aus der Testverteilung treffen die Vorhersage
+  (Test12: 55,0 % bei 23,0 %; Test13: 52,7 % bei 23,6 %).
+- **A1 liegt auf Test-Artikeln genau auf der Schwelle.** Test12 kam auf 30,6 %, Test13 auf 29,4 %, im
+  Mittel 30,0 %. Das ist kein Pech mehr, sondern fehlender Abstand. Nötig ist ein echter F1-Zuwachs auf
+  dieser Verteilung.
+- **D3:** Alle 20 Fehler betreffen „Where was that one born?“. Die Regel löste „that one“ auf das
+  Fragethema auf statt auf die letzte Antwort. Das ist eine Lücke der Pronomenregel („that person“
+  wurde richtig behandelt).
+- **U2** fiel nach der Tempo-Korrektur von 953 ms auf 202 ms.
+
 ---
 
 ## Offene Fragen, nicht terminiert
