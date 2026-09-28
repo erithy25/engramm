@@ -231,7 +231,8 @@ def spent_squad(upto: int = 8) -> list[dict]:
     return out
 
 
-def pipeline(n_sq: int | None = None, n_nq: int | None = None, v3: bool = False, v9: bool = False) -> dict:
+def pipeline(n_sq: int | None = None, n_nq: int | None = None, v3: bool = False, v9: bool = False,
+             v12: bool = False) -> dict:
     """The complete bot (frozen config, θ = 0) on SQuAD-dev2 and NQ-dev: Hit@1, EM, F1, and θ
     for A2 by the registered rule (smallest θ with dev precision ≥ 55 %)."""
     import dataclasses
@@ -245,6 +246,10 @@ def pipeline(n_sq: int | None = None, n_nq: int | None = None, v3: bool = False,
         data["nq_dev"] = data["nq_dev"][:0]
     if v9:      # v9: θ on every spent SQuAD question (dev2, v2 test, test3–test8; PREREG_CHAT_V9)
         data["sq_dev"] = data["sq_dev"] + data["sq_test"] + spent_squad()
+        data["nq_dev"] = data["nq_dev"][:0]
+    if v12:     # v12: θ on Dev12 (newly read paragraphs of the dev articles, the distribution of Test12)
+        from experiments.chat_v12_data import squad_v12_dev
+        data["sq_dev"] = squad_v12_dev()
         data["nq_dev"] = data["nq_dev"][:0]
     cfg = dataclasses.replace(FROZEN, theta=0.0)
     bot = ChatBot(TextMemory(), corpus, cfg, cap_ratio(corpus.index_dir))
@@ -284,7 +289,7 @@ def pipeline(n_sq: int | None = None, n_nq: int | None = None, v3: bool = False,
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=("cache", "cache_spent", "cache_dev12", "tune", "extract", "pipeline", "pipeline3", "pipeline9"))
+    ap.add_argument("cmd", choices=("cache", "cache_spent", "cache_dev12", "tune", "extract", "pipeline", "pipeline3", "pipeline9", "pipeline12"))
     args = ap.parse_args()
     if args.cmd == "cache":
         build_cache()
@@ -300,6 +305,8 @@ def main() -> None:
         pipeline(v3=True)
     elif args.cmd == "pipeline9":
         pipeline(v9=True)
+    elif args.cmd == "pipeline12":
+        pipeline(v12=True)
     else:
         extract_eval(BEST)
 

@@ -47,7 +47,8 @@ def squad_v12_dev() -> list[dict]:
     return sorted((q for q in pool_v3() if q["title"] in titles), key=lambda q: (h64(q["id"]), q["id"]))
 
 
-def squad_v12_test() -> list[dict]:
+def squad_v12_test(pool=None, exclude=None) -> list[dict]:
+    """Test12 (the arguments of the older rounds' signature are ignored: pool v3 has no used question)."""
     test = [q for q in pool_v3() if h64("article", q["title"]) & 1 == 1]
     return sorted(test, key=lambda q: (h64(q["id"]), q["id"]))[:N_SQ]
 

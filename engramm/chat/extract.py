@@ -58,6 +58,8 @@ class ExtractParams:
     mbr_temp: float = 1.0       # the expectation uses vote^mbr_temp (renormalised); < 1 flattens it
     choice: bool = False        # "X or Y?" questions: answer with the option the best sentences contain
     len_bonus: float = 0.0      # counted mode: + len_bonus × (words − 1) on a candidate's score (max 5 words)
+    conf_r0: float = 1.0        # confidence = share^conf_power × r0^conf_r0 × (1 + conf_ns × sentences whose
+    conf_ns: float = 0.0        # candidates include the answer)
 
 
 @dataclass
@@ -226,6 +228,7 @@ def extract_counted(q: Question, texts: list[str], rel: np.ndarray, p: ExtractPa
     sw /= sw.sum()
     votes: dict[str, float] = {}
     surface: dict[str, tuple[float, str, int]] = {}
+    sent_keys: list[set] = []   # normalised candidates of each sentence (redundancy for the confidence)
     pooled = []                 # (sentence, span, score) for the global softmax
     for si in range(k):
         cands = features_for_sentence(q, texts[si], info, initial_is_name,
@@ -234,6 +237,7 @@ def extract_counted(q: Question, texts: list[str], rel: np.ndarray, p: ExtractPa
                                       max_chunk=getattr(stats, "max_chunk", 5))
         if not cands:
             continue
+        sent_keys.append({normalize(sp.text) for sp, _ in cands})
         sc = np.array([stats.score(f) for _, f in cands]) * p.nb
         if p.len_bonus:
             sc += p.len_bonus * np.array([min(sp.end - sp.start, 6) - 1 for sp, _ in cands], dtype=np.float64)
@@ -290,7 +294,9 @@ def extract_counted(q: Question, texts: list[str], rel: np.ndarray, p: ExtractPa
     top = order[0]
     if p.mbr > 0:
         top = mbr_choice(order[:p.mbr_n], votes, merged, total, p.mbr, p.mbr_temp)
-    conf = min(1.0, merged[top] / total) ** p.conf_power * float(r[0])
+    conf = min(1.0, merged[top] / total) ** p.conf_power * max(float(r[0]), 0.0) ** p.conf_r0
+    if p.conf_ns:
+        conf *= 1.0 + p.conf_ns * sum(1 for ks in sent_keys if top in ks)
     return Extracted(surface[top][1], conf, surface[top][2], [(x, merged[x]) for x in order[:5]])
 
 
@@ -397,7 +403,8 @@ def extract_choice(q: Question, texts: list[str], rel: np.ndarray, p: ExtractPar
     rivals = [o for o in opts if o != best and o not in best and best not in o]
     if any(ev[o] >= ev[best] for o in rivals):
         return None
-    return Extracted(best, ev[best] * float(r[0]), first[best], [(o, ev[o]) for o in opts])
+    conf = ev[best] * max(float(r[0]), 0.0) ** p.conf_r0 * (1.0 + p.conf_ns)
+    return Extracted(best, conf, first[best], [(o, ev[o]) for o in opts])
 
 
 def extract(q: Question, texts: list[str], rel: np.ndarray, p: ExtractParams = ExtractParams(),
