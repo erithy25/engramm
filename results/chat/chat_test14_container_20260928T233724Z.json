@@ -1,0 +1,166 @@
+{
+  "schema": "engramm-chat/2",
+  "name": "chat_test14",
+  "study": "docs/PREREG_CHAT_V14.md v1.0",
+  "split": "test14",
+  "timestamp_utc": "20260928T233724Z",
+  "config": "BotConfig(weights=Weights(cov=5.0, soft=0.0, pcov=4.0, kcov=4.0, type=1.0, wiki=1.0, q=1.0, short=0.5, phr=4.0, dcov=0.0, prox=0.0, dfull=4.0), extract=ExtractParams(k=10, tau=0.15, lam=4.0, other_max=4, type_only=True, soft_min=0.0, definition=2.0, head_beta=0.0, copula=1.0, direction=1.0, nb=0.5, nb_prox=0.0, rule_types=(), merge=0.5, conf_power=4.0, sent_beta=1.0, mbr=1.0, mbr_n=10, mbr_temp=0.5, choice=True, len_bonus=0.0, conf_r0=0.5, conf_ns=0.2), text_k=120, theta=-5.0005, entity_min=0.6, fact_min=0.3, only_fact=True, focus_gate=True, span_model='spanperc_ens7.json', span_model_nq='spanperc_nq.json', extract_nq=ExtractParams(k=20, tau=0.15, lam=4.0, other_max=4, type_only=True, soft_min=0.0, definition=2.0, head_beta=0.0, copula=1.0, direction=1.0, nb=0.5, nb_prox=0.0, rule_types=(), merge=0.5, conf_power=3.0, sent_beta=1.0, mbr=0.0, mbr_n=10, mbr_temp=1.0, choice=False, len_bonus=0.0, conf_r0=1.0, conf_ns=0.0), calibrator='confperc14.json', weights_nq=Weights(cov=5.0, soft=0.0, pcov=2.0, kcov=4.0, type=1.0, wiki=1.0, q=1.0, short=0.5, phr=4.0, dcov=0.0, prox=0.0, dfull=4.0))",
+  "data_manifest": {
+    "generated_sha256": "7cf7fc48c726b88cb0b844f91fcd4daf17406abcc752a4fbeab5e73ac289772a",
+    "templates_sha256": "e84ac045b414d6599e6c355b1ec3f5ed08227649328b2d696ce9ee661ceb2832"
+  },
+  "index": {
+    "version": 4,
+    "base": "chat3",
+    "segment": "SQuAD v1.1 paragraphs not read yet (2016 Wikipedia)",
+    "paragraphs": 17555,
+    "paragraphs_sha256": "c95a099c5d5794962b0189dbffb3f64ca52055b2db320cfc376a73eeebb56e4b",
+    "documents": 488,
+    "tokens": 2748035,
+    "sentences": 103432,
+    "build_seconds": 6.5
+  },
+  "n": {
+    "squad_test": 5000,
+    "nq_test": 3610
+  },
+  "criteria": {
+    "R1": {
+      "diff": 0.4394,
+      "ci95": [
+        0.425995,
+        0.4542
+      ],
+      "stage1": 0.043,
+      "v2": 0.4824,
+      "pass": true
+    },
+    "R2": {
+      "diff": 0.0850415512465374,
+      "ci95": [
+        0.07562326869806095,
+        0.09501385041551247
+      ],
+      "stage1": 0.019113573407202215,
+      "v2": 0.1041551246537396,
+      "pass": true
+    },
+    "F1": {
+      "value": 1.0,
+      "pass": true
+    },
+    "F2": {
+      "value": 0.99,
+      "exact_dict": 0.0,
+      "lead": 0.99,
+      "pass": true
+    },
+    "F3": {
+      "value": 1.0,
+      "pass": true
+    },
+    "D1": {
+      "value": 1.0,
+      "n": 800,
+      "pass": true
+    },
+    "D2": {
+      "a": 1.0,
+      "b": 1.0,
+      "n": 200,
+      "pass": true
+    },
+    "D3": {
+      "value": 1.0,
+      "n": 55,
+      "pass": true
+    },
+    "A1": {
+      "em": 0.2422,
+      "f1": 0.318196254665542,
+      "em_ci95": [
+        0.2304,
+        0.2542
+      ],
+      "pass": "True"
+    },
+    "A2": {
+      "precision": 0.5670194003527337,
+      "coverage": 0.2268,
+      "theta": -5.0005,
+      "pass": true
+    },
+    "A3": {
+      "em": 0.07728531855955678,
+      "em_ci95": [
+        0.06896814404432133,
+        0.08614958448753463
+      ],
+      "f1": 0.10265862023479752,
+      "pass": "True"
+    },
+    "U2": {
+      "median_seconds": 0.19060111045837402,
+      "p90_seconds": 0.3777791261672974,
+      "device": "container",
+      "official": false,
+      "pass": true
+    },
+    "U3": {
+      "transcripts_equal": true,
+      "transcript_sha256": "7c57e6a973f1a3e106e17abbff6272079a8705746f560b005432a99cc0eec707",
+      "digest_equal": true,
+      "answers_equal": true,
+      "events": 68,
+      "discarded_bytes": 0,
+      "questions": 80,
+      "pass": true
+    }
+  },
+  "stages_met": {
+    "1.1": true,
+    "2": true,
+    "3": true,
+    "4": "True",
+    "5 (U2, U3; U1 = browser test)": true
+  },
+  "facts_misses": {
+    "clean": [],
+    "typo": [
+      {
+        "q": "Who first discovered the island of Doume?",
+        "gold": "Drutaelzol",
+        "answer": "Grourolpa",
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Who is the composer of Qyassho's national anthem?",
+        "gold": "Daquamneth",
+        "answer": "Konzou",
+        "via": "facts",
+        "hit": false
+      }
+    ]
+  },
+  "dialog_misses": [],
+  "git": {
+    "commit": "b13af0252585418af90324f2f11121872e9b13dd",
+    "dirty": false,
+    "untracked": 0,
+    "changed_during_run": false
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 2808.5883281230927,
+    "peak_rss_mb": 12698.90234375
+  }
+}

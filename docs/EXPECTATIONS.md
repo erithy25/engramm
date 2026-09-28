@@ -1847,6 +1847,46 @@ Ergebnisdatei: `results/chat/chat_test13_container_20260928T190344Z.json`. Code 
   wurde richtig behandelt).
 - **U2** fiel nach der Tempo-Korrektur von 953 ms auf 202 ms.
 
+
+## E27 — ENGRAMM-Chat v14: alle Kriterien erfüllt (PREREG_CHAT_V14, einmaliger Testlauf)
+
+Ergebnisdatei: `results/chat/chat_test14_container_20260928T233724Z.json`. Code eingefroren in
+`44c0bbc`, Registrierung `b13af02`. U1 (Browser-Test) danach auf demselben Stand bestanden.
+
+**Abweichung beim Lauf:** Der erste Start wurde bei 3.000/5.000 SQuAD-Fragen vom Kernel beendet
+(Speichermangel, Kernel-Log: 11 GB belegt, Grenze der Speichergruppe erreicht). Ursache waren
+~3,8 GB eigener Zwischendateien im RAM-Speicher `/dev/shm`. Der Lauf hatte keine Kennzahl ausgegeben,
+nur Fortschrittszeilen. Nach dem Entfernen dieser Zwischendateien wurde derselbe Lauf unverändert neu
+gestartet. Er ist der einzige abgeschlossene Lauf.
+
+| Kriterium | Wert | Schwelle | Ergebnis |
+|---|---|---|---|
+| R1 | +43,9 pp (48,2 % gegen 4,3 %; trivial, s. Vorbehalt) | ≥ 3 pp, KI > 0 | erfüllt |
+| R2 | +8,5 pp, KI [7,6; 9,5] | ≥ 2 pp, KI > 0 | erfüllt |
+| F1 / F2 / F3 | 100 % / 99,0 % (exaktes Wörterbuch 0 %) / 100 % | | erfüllt |
+| D1 / D2 / D3 | 100 % / 100 % / **100 %** | | erfüllt |
+| A1 | EM **24,2 %** (KI [23,0; 25,4]), F1 **31,8 %** | ≥ 20 % und ≥ 30 % | **erfüllt** |
+| A2 | 56,7 % Präzision bei 22,7 % Abdeckung | ≥ 50 % bei ≥ 20 % | **erfüllt** |
+| A3 | NQ-EM **7,7 %**, KI [6,9; 8,6] | ≥ 5 % | **erfüllt** |
+| U1 / U2 / U3 | bestanden / 191 ms / identisch nach Neustart aus dem Log | | erfüllt |
+
+**Stufen 1.1, 2, 3, 4 und 5 sind alle in derselben registrierten Runde erfüllt.**
+
+**Einordnung:**
+- **A1** hat erstmals Abstand zur Schwelle: F1 31,8 % gegen erwartete 30,7 ± 0,6. Beigetragen haben das
+  Ensemble aus sieben gezählten Perzeptrons (Varianz der Spannenwahl sinkt) und pcov 4. Die Stichprobe
+  lag zudem eher günstig.
+- **A2** ist zum zweiten Mal in Folge erfüllt, seit θ aus der Testverteilung kommt und die Konfidenz
+  gezählt wird.
+- **A3** mit 7,7 % ist der beste NQ-Wert aller Runden.
+- **D3** nach der Verallgemeinerung der Demonstrativa 100 %, auch auf den neuen Formulierungen
+  („that individual“, „the latter“).
+- **Vorbehalte (registriert):**
+  - Die Test-Absätze wurden gelesen (Pool-Bedingung). R1 misst daher vor allem das Lesen.
+  - Test14 stammt aus denselben Test-Artikeln wie die verbrauchten Test12/Test13, an denen pcov und θ
+    bestimmt wurden. Auf keinem Test-Artikel wurde trainiert.
+  - U2 ist ein Container-Wert. Offiziell wäre das M4.
+
 ---
 
 ## Offene Fragen, nicht terminiert

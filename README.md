@@ -70,7 +70,7 @@ What it can do:
 
 | Capability | Command | Measured (container unless marked M4) |
 |---|---|---|
-| **Chat**: short answers with sources, remembers what you tell it, forgets on request, follows up on "he"/"it" | `python -m engramm.lm chat` or the dashboard | SQuAD: right sentence 44 %, exact short answer 19 %; facts you taught: 93 % (85 % with a typo); ~0.4 s per question |
+| **Chat**: short answers with sources, remembers what you tell it, forgets on request, follows up on "he"/"it" | `python -m engramm.lm chat` or the dashboard | Latest registered round (v14, E27): all criteria of stages 1.1–5 met. SQuAD right sentence 48 %, exact short answer 24 %, F1 32 %; facts you taught 100 % (99 % with a typo); ~0.2 s per turn |
 | **Write** English continuations | `python -m engramm.lm write "The history of the city"` | M4: 118.9 tokens/s including sources, 6.2 GB peak (container: 109–128 tokens/s) |
 | **Cite** the source of every written token: the longest verbatim match and the most similar contexts | `… write … --explain` or `python -m engramm.lm why "<prompt>" "<word>"` | 117 tokens/s with sources |
 | **Learn** a new text instantly | `python -m engramm.lm learn --source notes --file notes.txt` | 56 ms per 1,000 tokens |
@@ -165,7 +165,11 @@ not reached. Details are in [`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E14)
 
 Everything is rules, counting and ENGRAMM's own hypervectors.
 
-| Registered criterion (single test run) | Result |
+**Current status:** in the thirteenth registered test round (v14, E27), every criterion of stages 1.1,
+2, 3, 4 and 5 was met in the same single run. The table below is the first v2 round; the rounds in
+between follow it.
+
+| Registered criterion (single test run, first v2 round) | Result |
 |---|---|
 | 1.1 Better look-up: SQuAD / real search queries (NQ-open), Hit@1 vs. stage 1 | **met**: +7.9 pp (44.2 %) / +2.0 pp (4.7 %) |
 | 2 Fact memory: 200 invented facts asked in new wording; with a typo; abstain before learning | **met**: 93 %; 85 % (exact dictionary: 0 %); 100 % |
@@ -254,8 +258,20 @@ cut the median time per turn from 953 ms to 202 ms.
 - **Missed:** SQuAD F1 at 29.4 %, and pronoun follow-ups (63.6 %). All the follow-up misses read
   "that one" as the question's topic instead of the last answer.
 
+A thirteenth round (v14, E27) fixed the follow-ups ("that one", "the latter", "that individual"). The
+span choice became the average of seven counted perceptrons.
+- **Met, all at once:** every criterion of stages 1.1–5:
+  - SQuAD EM 24.2 % and F1 31.8 %;
+  - "I don't know" at 56.7 % precision with 22.7 % coverage;
+  - NQ exact answers 7.7 %;
+  - facts, conversation memory, forgetting and follow-ups 99–100 %;
+  - browser test, 191 ms per turn, identical transcripts after a restart from the log.
+- **Caveats:** the test paragraphs had been read (the pool condition since stage 1), so the stage-1
+  comparison R1 mostly measures that reading. The first start of this run was killed for lack of
+  memory before it printed any result, and was restarted unchanged.
+
 All numbers, including the development history and the round-by-round table, are in
-[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E15–E26).
+[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E15–E27).
 
 ## Results — rebuild, re-measured
 
