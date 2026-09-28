@@ -53,6 +53,9 @@ class ExtractParams:
     conf_power: float = 1.0     # confidence = (vote share)^power × best sentence score (counted mode)
     sent_beta: float = 0.0      # > 0: one softmax over the candidates of all K sentences, score + β·log(sentence
                                 # weight) (else each sentence spreads its own weight)
+    mbr: float = 0.0            # > 0: choose among the top `mbr_n` spans by (1 − mbr)·vote share + mbr·expected
+    mbr_n: int = 10             # token F1 against all voted spans (minimum Bayes risk for the F1 measure)
+    mbr_temp: float = 1.0       # the expectation uses vote^mbr_temp (renormalised); < 1 flattens it
 
 
 @dataclass
@@ -281,8 +284,45 @@ def extract_counted(q: Question, texts: list[str], rel: np.ndarray, p: ExtractPa
     order = sorted(merged, key=lambda x: (-merged[x], -len(x.split()), x))
     total = sum(votes.values())
     top = order[0]
+    if p.mbr > 0:
+        top = mbr_choice(order[:p.mbr_n], votes, merged, total, p.mbr, p.mbr_temp)
     conf = min(1.0, merged[top] / total) ** p.conf_power * float(r[0])
     return Extracted(surface[top][1], conf, surface[top][2], [(x, merged[x]) for x in order[:5]])
+
+
+def token_f1(a: list[str], b: list[str]) -> float:
+    """SQuAD token F1 of two normalised token lists."""
+    if not a or not b:
+        return 0.0
+    rest: dict[str, int] = {}
+    for w in b:
+        rest[w] = rest.get(w, 0) + 1
+    same = 0
+    for w in a:
+        if rest.get(w, 0) > 0:
+            same += 1
+            rest[w] -= 1
+    if same == 0:
+        return 0.0
+    prec, rec = same / len(a), same / len(b)
+    return 2 * prec * rec / (prec + rec)
+
+
+def mbr_choice(cands: list[str], votes: dict[str, float], merged: dict[str, float], total: float,
+               weight: float, temp: float = 1.0) -> str:
+    """The candidate with the highest (1 − weight)·vote share + weight·expected F1, where the expectation
+    runs over every voted span with its vote share. Ties keep the vote order of ``cands``."""
+    toks = {k: k.split() for k in votes}
+    dist = {k: v ** temp for k, v in votes.items()} if temp != 1.0 else votes
+    dsum = sum(dist.values())
+    best, best_s = cands[0], -1.0
+    for a in cands:
+        ta = toks.get(a) or a.split()
+        ef1 = sum(v * token_f1(ta, toks[b]) for b, v in dist.items()) / dsum
+        s = (1.0 - weight) * min(1.0, merged[a] / total) + weight * ef1
+        if s > best_s + 1e-12:
+            best, best_s = a, s
+    return best
 
 
 def extract(q: Question, texts: list[str], rel: np.ndarray, p: ExtractParams = ExtractParams(),

@@ -8,6 +8,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import numba
 import numpy as np
 
 from engramm.lm.chat import SentenceIndex
@@ -56,6 +57,8 @@ class Corpus:
     @classmethod
     def with_index(cls, tokens, doc_starts, doc_keys, tok, eng, index_dir: Path, mmap: bool = True) -> Corpus:
         index_dir = Path(index_dir)
+        if (index_dir / "segment.json").exists():
+            return cls.with_segment(tokens, doc_starts, doc_keys, tok, eng, index_dir, mmap)
         if (index_dir / "corpus.u16").exists():
             # an index over a larger corpus (the train stream plus more reading, chat3): its own token stream
             tokens = np.memmap(index_dir / "corpus.u16", dtype=np.uint16, mode="r")
@@ -70,6 +73,47 @@ class Corpus:
         else:
             c = cls(tokens, doc_starts, doc_keys, tok, eng, index)
         c.index_dir = Path(index_dir)
+        return c
+
+    @classmethod
+    def with_segment(cls, tokens, doc_starts, doc_keys, tok, eng, index_dir: Path, mmap: bool = True) -> Corpus:
+        """A base index plus one more read segment (``segment.json``: {"base": <index name>}).
+
+        The segment is indexed on its own (sentence ids, token positions and documents relative
+        to the segment). Loading appends it to the base in memory: tokens, documents and
+        sentences follow those of the base, and every term's postings list is the base list
+        followed by the segment list. The result equals an index built over the concatenated
+        stream, as long as the base ends with a document end."""
+        from engramm.chat.index import load_docs
+        index_dir = Path(index_dir)
+        meta = json.loads((index_dir / "segment.json").read_text())
+        base = cls.with_index(tokens, doc_starts, doc_keys, tok, eng, index_dir.parent / meta["base"], mmap=True)
+        seg_tokens = np.fromfile(index_dir / "segment.u16", dtype=np.uint16)
+        seg_starts = np.load(index_dir / "segment.starts.npy")
+        with open(index_dir / "segment.keys.jsonl", encoding="utf-8") as f:
+            seg_keys = [tuple(json.loads(line)) for line in f]
+        six = SentenceIndex.load(index_dir, mmap=False)
+        sdptr, sdpost, ssent_doc = load_docs(index_dir, mmap=False)
+        bix = base.index
+        if not np.array_equal(np.asarray(bix.term_of), six.term_of) or list(bix.terms) != list(six.terms):
+            raise ValueError("segment and base use different term tables")
+        n_tok, n_sent, n_doc = len(base.tokens), bix.n, base.n_docs
+        if n_tok and int(base.tokens[n_tok - 1]) != 0:
+            raise ValueError("the base stream must end with a document end")
+        index = SentenceIndex(
+            starts=np.concatenate([np.asarray(bix.starts), six.starts.astype(np.int64) + n_tok]),
+            lens=np.concatenate([np.asarray(bix.lens), six.lens]),
+            ptr=np.asarray(bix.ptr) + six.ptr,
+            post=merge_postings(np.asarray(bix.ptr), bix.post, six.ptr, six.post, n_sent),
+            sent_terms=np.concatenate([np.asarray(bix.sent_terms), six.sent_terms]),
+            term_of=np.asarray(bix.term_of), terms=list(bix.terms))
+        c = cls(np.concatenate([np.asarray(base.tokens), seg_tokens]),
+                np.concatenate([np.asarray(base.doc_starts), seg_starts.astype(np.int64) + n_tok]),
+                list(base.doc_keys) + seg_keys, tok, eng, index,
+                np.concatenate([np.asarray(base.sent_doc), np.asarray(ssent_doc, dtype=np.int32) + n_doc]),
+                np.asarray(base.doc_ptr) + sdptr,
+                merge_postings(np.asarray(base.doc_ptr), base.doc_post, sdptr, sdpost, n_doc))
+        c.index_dir = index_dir
         return c
 
     @classmethod
@@ -118,6 +162,26 @@ class Corpus:
             w = frozenset(_WORD.findall(key.lower()))
             self._key_words[d] = w
         return w
+
+
+@numba.njit(cache=True)
+def _merge_postings(pa, qa, pb, qb, offset, out):
+    k = 0
+    for t in range(len(pa) - 1):
+        for i in range(pa[t], pa[t + 1]):
+            out[k] = qa[i]
+            k += 1
+        for i in range(pb[t], pb[t + 1]):
+            out[k] = qb[i] + offset
+            k += 1
+
+
+def merge_postings(pa: np.ndarray, qa: np.ndarray, pb: np.ndarray, qb: np.ndarray, offset: int) -> np.ndarray:
+    """CSR postings of two indexes over the same terms: per term, list a, then list b + offset."""
+    out = np.empty(len(qa) + len(qb), dtype=np.int32)
+    _merge_postings(np.asarray(pa, dtype=np.int64), np.asarray(qa), np.asarray(pb, dtype=np.int64),
+                    np.asarray(qb), np.int64(offset), out)
+    return out
 
 
 def load_json(path: Path) -> dict:

@@ -29,10 +29,12 @@ def cache_path(name: str):
     return CACHE / (f"dev_cands_{name}.pkl" if CHAT_INDEX == "chat2" else f"dev_cands_{name}_{CHAT_INDEX}.pkl")
 
 
-def build_cache() -> None:
+def build_cache(names=DEV_SETS) -> None:
     corpus, data = load_all()
+    if "sq_spent" in names:     # every spent SQuAD test question (v2 test, test3–test11)
+        data["sq_spent"] = data["sq_test"] + spent_squad(upto=11)
     r = Retriever(corpus)
-    for name in DEV_SETS:
+    for name in names:
         t0 = time.time()
         rows = []
         for i, q in enumerate(data[name]):
@@ -208,8 +210,8 @@ BEST = Weights(cov=5.0, soft=0.0, pcov=1.0, kcov=2.0, type=2.0, wiki=0.25, q=1.0
                prox=0.5, dfull=1.0)
 
 
-def spent_squad() -> list[dict]:
-    """The SQuAD questions of every spent test round (v2 test, test3–test8)."""
+def spent_squad(upto: int = 8) -> list[dict]:
+    """The SQuAD questions of the spent test rounds test3–test<upto> (default test3–test8, the v9 θ set)."""
     import importlib
     import json as _json
 
@@ -220,7 +222,7 @@ def spent_squad() -> list[dict]:
     d1, t1 = split1(pool)
     ex = {q["id"] for q in d1 + t1}
     out = []
-    for v in range(3, 9):
+    for v in range(3, upto + 1):
         mod = importlib.import_module(f"experiments.chat_v{v}_data")
         out += getattr(mod, f"squad_v{v}_test")(pool, ex)
     return out
@@ -279,10 +281,12 @@ def pipeline(n_sq: int | None = None, n_nq: int | None = None, v3: bool = False,
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=("cache", "tune", "extract", "pipeline", "pipeline3", "pipeline9"))
+    ap.add_argument("cmd", choices=("cache", "cache_spent", "tune", "extract", "pipeline", "pipeline3", "pipeline9"))
     args = ap.parse_args()
     if args.cmd == "cache":
         build_cache()
+    elif args.cmd == "cache_spent":
+        build_cache(("sq_spent",))
     elif args.cmd == "tune":
         tune()
     elif args.cmd == "pipeline":
