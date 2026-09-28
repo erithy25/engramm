@@ -129,8 +129,9 @@ class Corpus:
 
     def doc_sentences(self, d: int) -> tuple[int, int]:
         """[first, last + 1) sentence ids of document d."""
-        lo = int(np.searchsorted(self.sent_doc, d, side="left"))
-        hi = int(np.searchsorted(self.sent_doc, d, side="right"))
+        v = np.asarray(d, dtype=self.sent_doc.dtype)    # same dtype: no conversion of the whole array
+        lo = int(np.searchsorted(self.sent_doc, v, side="left"))
+        hi = int(np.searchsorted(self.sent_doc, v, side="right"))
         return lo, hi
 
     # -- sentences ------------------------------------------------------------------------

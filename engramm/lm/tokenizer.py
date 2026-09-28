@@ -85,7 +85,14 @@ class LMTokenizer:
         return self._tok.decode(ids, skip_special_tokens=False)
 
     def token_bytes(self) -> list[bytes]:
-        """The raw byte string of every token id (``<|eos|>`` -> b"")."""
+        """The raw byte string of every token id (``<|eos|>`` -> b""); computed once per tokenizer
+        (the returned list is a copy, so callers may change it)."""
+        cached = getattr(self, "_token_bytes", None)
+        if cached is None:
+            cached = self._token_bytes = self._compute_token_bytes()
+        return list(cached)
+
+    def _compute_token_bytes(self) -> list[bytes]:
         from tokenizers import pre_tokenizers  # noqa: F401  (alphabet mapping below)
 
         byte_decoder = {c: b for b, c in _bytes_to_unicode().items()}

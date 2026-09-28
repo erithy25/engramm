@@ -68,6 +68,7 @@ class Extracted:
     confidence: float
     sentence: int               # candidate position of the sentence the answer was taken from
     votes: list[tuple[str, float]]
+    info: dict | None = None    # what the confidence rests on (vote share, sentences holding the answer, …)
 
 
 def chunks(ws: list[str], lw: list[str], max_len: int) -> list[Span]:
@@ -297,7 +298,9 @@ def extract_counted(q: Question, texts: list[str], rel: np.ndarray, p: ExtractPa
     conf = min(1.0, merged[top] / total) ** p.conf_power * max(float(r[0]), 0.0) ** p.conf_r0
     if p.conf_ns:
         conf *= 1.0 + p.conf_ns * sum(1 for ks in sent_keys if top in ks)
-    return Extracted(surface[top][1], conf, surface[top][2], [(x, merged[x]) for x in order[:5]])
+    info = {"share": min(1.0, merged[top] / total), "r0": float(r[0]), "len": len(top.split()),
+            "nsent": sum(1 for ks in sent_keys if top in ks), "choice": False}
+    return Extracted(surface[top][1], conf, surface[top][2], [(x, merged[x]) for x in order[:5]], info)
 
 
 def token_f1(a: list[str], b: list[str]) -> float:
@@ -404,7 +407,7 @@ def extract_choice(q: Question, texts: list[str], rel: np.ndarray, p: ExtractPar
     if any(ev[o] >= ev[best] for o in rivals):
         return None
     conf = ev[best] * max(float(r[0]), 0.0) ** p.conf_r0 * (1.0 + p.conf_ns)
-    return Extracted(best, conf, first[best], [(o, ev[o]) for o in opts])
+    return Extracted(best, conf, first[best], [(o, ev[o]) for o in opts], {"choice": True})
 
 
 def extract(q: Question, texts: list[str], rel: np.ndarray, p: ExtractParams = ExtractParams(),

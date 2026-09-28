@@ -20,6 +20,7 @@ logged wrapper) or ``TextMemory`` for tests; both expose ``user_texts``, ``learn
 
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import re
 import time
@@ -59,6 +60,7 @@ class BotConfig:
     span_model: str = "spanstats.json"  # counted span statistics (naive Bayes) or "spanperc*.json" (perceptron)
     span_model_nq: str = ""            # optional second perceptron for search-box queries (lower case, no "?")
     extract_nq: ExtractParams | None = None  # answer-cutting parameters for search-box queries (None: ``extract``)
+    calibrator: str = ""               # optional counted confidence model for question-form lookups (calib.py)
 
 
 class TextMemory:
@@ -232,6 +234,10 @@ class ChatBot:
             if config.span_model_nq and (sp / config.span_model_nq).exists():
                 self.span_stats_nq = SpanPerceptron.load(sp / config.span_model_nq)
             self.word_info = WordInfo(corpus.tok, corpus.classes, corpus.wide)
+        self.calib = None
+        if config.calibrator and sp is not None and (sp / config.calibrator).exists():
+            from engramm.chat.calib import ConfCalibrator
+            self.calib = ConfCalibrator.load(sp / config.calibrator)
 
     # -- helpers ---------------------------------------------------------------------------
 
@@ -733,10 +739,12 @@ class ChatBot:
         cands = self.r.candidates(q, self.cfg.weights, self.cfg.text_k)
         query = cands.query
         rows = []
+        sent_feats = {}
         if len(cands.ids):
             sc = cands.scores(self.cfg.weights)
             for k in range(len(cands.ids)):
                 rows.append((float(sc[k]), 1, int(cands.ids[k]), cands.texts[k], None))
+                sent_feats[int(cands.ids[k])] = cands.feats[k]
         for score, sid, text, src in self._user_candidates(query):
             rows.append((score, 0, -1, text, src))
         if not rows:
@@ -759,6 +767,12 @@ class ChatBot:
             return self._finish(msg, q, qa, "unknown", None, None, best[3], src, 0.0, "lookup",
                                 text="I don't know. The closest I found is below.")
         row = top[x.sentence]
+        if self.calib is not None and not search_box and x.info is not None:
+            from engramm.chat.calib import features as calib_features
+            feats = calib_features(x.info, x.text, qa.atype, qa.wh, len(qa.content),
+                                   sent_feats.get(row[2]) if row[4] is None else None, x.sentence,
+                                   self.calib.r0_bins)
+            x = dataclasses.replace(x, confidence=self.calib.score(feats))
         # the sentence ENGRAMM presents as its best one is the one the answer comes from
         self.last_rows = [row] + [r for r in top if r is not row]
         src = row[4] or self.c.source(row[2])
