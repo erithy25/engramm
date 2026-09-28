@@ -36,9 +36,10 @@ EXTRACT_NQ = ExtractParams(k=20, tau=0.15, lam=4.0, other_max=4, type_only=True,
                            sent_beta=1.0, conf_power=3.0)
 # θ: the A2 rule (smallest θ with ≥ 55 % dev precision). v2: SQuAD-dev2 → 7.0293. v3 (PREREG_CHAT_V3): SQuAD-dev2
 # plus the spent v2 test, 3,000 questions → 6.9512. v8 (perceptron, share³): 3,000 questions → 6.6824 (coverage
-# 22.6 %). v9: all 9,000 spent SQuAD questions (dev2, v2 test, test3–test8) → 6.7847 (coverage 22.2 %).
+# 22.6 %). v9: all 9,000 spent SQuAD questions (dev2, v2 test, test3–test8) → 6.7847 (coverage 22.2 %). v10 (index
+# chat3, new weights): the same 9,000 questions → 9.2123 (coverage 20.9 %).
 # (rounded down, 4 decimals)
-FROZEN = BotConfig(weights=WEIGHTS, extract=EXTRACT, text_k=120, theta=6.7847, entity_min=0.60, fact_min=0.30,
+FROZEN = BotConfig(weights=WEIGHTS, extract=EXTRACT, text_k=120, theta=9.2123, entity_min=0.60, fact_min=0.30,
                    only_fact=True,
                    focus_gate=True, span_model=SPAN_MODEL, span_model_nq=SPAN_MODEL_NQ,
                    extract_nq=EXTRACT_NQ)

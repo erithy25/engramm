@@ -32,7 +32,7 @@ from experiments.chat_v2_spanstats import name_initial, sentences_with_offsets, 
 
 
 def build_examples(model_dir: Path, paragraph: bool = False, domain: bool = False, soft: bool = False,
-                   ext=True):
+                   ext=True, max_chunk: int = 5):
     corpus = Corpus.load(model_dir)
     tok = corpus.tok
     cb = Codebook.load(model_dir / "codebook.npz")
@@ -61,7 +61,8 @@ def build_examples(model_dir: Path, paragraph: bool = False, domain: bool = Fals
             continue
         qa = analyse(q["question"])
         g = normalize(gold)
-        cands = features_for_sentence(qa, text.strip(), info, initial, extended=ext, domain=domain)
+        cands = features_for_sentence(qa, text.strip(), info, initial, extended=ext, domain=domain,
+                                      max_chunk=max_chunk)
         golds = [k for k, (sp, _) in enumerate(cands) if normalize(sp.text) == g]
         if soft and not golds:
             # no exact span: the candidates with the best token F1 (at least 0.5) count as right
@@ -75,7 +76,8 @@ def build_examples(model_dir: Path, paragraph: bool = False, domain: bool = Fals
             others = []
             for _, t in sents:
                 if t is not text and t.strip():
-                    others += [c for c in features_for_sentence(qa, t.strip(), info, initial, extended=ext, domain=domain)
+                    others += [c for c in features_for_sentence(qa, t.strip(), info, initial, extended=ext, domain=domain,
+                                                              max_chunk=max_chunk)
                                if normalize(c[0].text) != g]
             cands = cands + others
         if not golds or len(cands) < 2:
@@ -128,17 +130,20 @@ def main() -> None:
     ap.add_argument("--passes", type=int, default=5)
     ap.add_argument("--paragraph", action="store_true", help="candidates of the whole paragraph compete")
     ap.add_argument("--out", default="spanperc.json")
+    ap.add_argument("--max-chunk", type=int, default=5)
     ap.add_argument("--ext2", action="store_true", help="second set of conjunction features")
     ap.add_argument("--soft", action="store_true", help="best-F1 candidates are right when no exact span exists")
     args = ap.parse_args()
     t0 = time.time()
     model_dir = Path(args.model)
-    examples, index, n_q = build_examples(model_dir, args.paragraph, soft=args.soft, ext=2 if args.ext2 else True)
+    examples, index, n_q = build_examples(model_dir, args.paragraph, soft=args.soft, ext=2 if args.ext2 else True,
+                                         max_chunk=args.max_chunk)
     w = train(examples, len(index), args.passes)
     names = [None] * len(index)
     for f, k in index.items():
         names[k] = f
-    perc = SpanPerceptron({names[k]: float(w[k]) for k in np.flatnonzero(w)}, 2 if args.ext2 else True)
+    perc = SpanPerceptron({names[k]: float(w[k]) for k in np.flatnonzero(w)}, 2 if args.ext2 else True, False,
+                          args.max_chunk)
     out = model_dir.parent / "chat2" / args.out
     perc.save(out)
     meta = {"questions": n_q, "examples": len(examples), "features": len(index), "nonzero": len(perc.w),

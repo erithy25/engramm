@@ -260,6 +260,7 @@ class SpanPerceptron:
     w: dict = field(default_factory=dict)
     extended: bool = True
     domain: bool = False
+    max_chunk: int = 5
 
     def score(self, feats: list[str]) -> float:
         g = self.w.get
@@ -267,13 +268,14 @@ class SpanPerceptron:
 
     def save(self, path: Path) -> None:
         Path(path).write_text(json.dumps({"extended": self.extended, "domain": self.domain,
+                                          "max_chunk": self.max_chunk,
                                           "w": {k: round(v, 6) for k, v in sorted(self.w.items()) if v != 0}},
                                          ensure_ascii=False))
 
     @classmethod
     def load(cls, path: Path) -> SpanPerceptron:
         d = json.loads(Path(path).read_text())
-        return cls(d["w"], d.get("extended", True), d.get("domain", False))
+        return cls(d["w"], d.get("extended", True), d.get("domain", False), d.get("max_chunk", 5))
 
 
 class WordInfo:

@@ -225,7 +225,8 @@ def extract_counted(q: Question, texts: list[str], rel: np.ndarray, p: ExtractPa
     for si in range(k):
         cands = features_for_sentence(q, texts[si], info, initial_is_name,
                                       extended=getattr(stats, "extended", False),
-                                      domain=getattr(stats, "domain", False))
+                                      domain=getattr(stats, "domain", False),
+                                      max_chunk=getattr(stats, "max_chunk", 5))
         if not cands:
             continue
         sc = np.array([stats.score(f) for _, f in cands]) * p.nb

@@ -114,7 +114,7 @@ def main() -> None:
     ap.add_argument("--model", type=Path, default=MODEL_DIR)
     ap.add_argument("--device", default="container")
     ap.add_argument("--results-dir", type=Path, default=Path(tempfile.gettempdir()) / "engramm_chat_v2")
-    ap.add_argument("--split", choices=("test", "dev", "test3", "test4", "test5", "test6", "test7", "test8", "test9"), default="test",
+    ap.add_argument("--split", choices=("test", "dev", "test3", "test4", "test5", "test6", "test7", "test8", "test9", "test10"), default="test",
                     help="test = v2 test (PREREG_CHAT_V2), test3 = v3 test (PREREG_CHAT_V3), "
                          "dev = dry run of this script on development data (never reported)")
     ap.add_argument("--limit", type=int, default=0, help="dry run: questions per QA set")
@@ -140,12 +140,12 @@ def main() -> None:
     study = "docs/PREREG_CHAT_V2.md v1.1"
     if args.split == "dev":
         sq_test, nq_test = sq_dev[:args.limit], nq_dev[:args.limit]
-    elif args.split in ("test3", "test4", "test5", "test6", "test7", "test8", "test9"):
+    elif args.split in ("test3", "test4", "test5", "test6", "test7", "test8", "test9", "test10"):
         import importlib
 
         from experiments.chat_eval import load_squad, split as split1
         from experiments.chat_v2_data import CACHE
-        v = args.split[-1]
+        v = args.split[4:]
         mod = importlib.import_module(f"experiments.chat_v{v}_data")
         pool_ids = set(json.loads((CACHE / "squad_pool_v1.json").read_text())["pool"])
         pool = [q for q in load_squad() if q["id"] in pool_ids]

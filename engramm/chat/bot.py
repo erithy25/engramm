@@ -818,6 +818,8 @@ class ChatBot:
         if m is None:
             names = [sp.text for sp in spans(q, self.is_name_initial) if sp.kind == "NAME"]
             m = names[0] if names else self.context["mention"]
-        self.context.update({"answer": answer, "atype": qa.atype if answer else None, "mention": m})
+        # a pronoun in the next question may also point to the best guess shown ("My best guess would be X")
+        ref = answer or guess
+        self.context.update({"answer": ref, "atype": qa.atype if ref else None, "mention": m})
         return Reply(msg, kind, text, answer, guess, evidence, source, float(conf), via,
                      q if q != msg else None, alternatives or [])
