@@ -56,6 +56,8 @@ class ExtractParams:
     mbr: float = 0.0            # > 0: choose among the top `mbr_n` spans by (1 − mbr)·vote share + mbr·expected
     mbr_n: int = 10             # token F1 against all voted spans (minimum Bayes risk for the F1 measure)
     mbr_temp: float = 1.0       # the expectation uses vote^mbr_temp (renormalised); < 1 flattens it
+    choice: bool = False        # "X or Y?" questions: answer with the option the best sentences contain
+    len_bonus: float = 0.0      # counted mode: + len_bonus × (words − 1) on a candidate's score (max 5 words)
 
 
 @dataclass
@@ -233,6 +235,8 @@ def extract_counted(q: Question, texts: list[str], rel: np.ndarray, p: ExtractPa
         if not cands:
             continue
         sc = np.array([stats.score(f) for _, f in cands]) * p.nb
+        if p.len_bonus:
+            sc += p.len_bonus * np.array([min(sp.end - sp.start, 6) - 1 for sp, _ in cands], dtype=np.float64)
         if p.nb_prox > 0:
             lw = [w.lower() for w in words(texts[si])]
             qc = set(q.content)
@@ -325,8 +329,83 @@ def mbr_choice(cands: list[str], votes: dict[str, float], merged: dict[str, floa
     return best
 
 
+_AUX = frozenset(("is", "are", "was", "were", "do", "does", "did", "has", "have", "had", "can", "could", "would",
+                  "will", "should", "may", "might", "must"))
+_CUT = frozenset(("since", "than", "relative", "compared", "according", "when", "while", "because", "if"))
+
+
+def choice_options(q: Question) -> list[str]:
+    """The options of a question "… X or Y …?" (normalised), longest first: the words right after
+    "or" up to a stop word or punctuation (at least one word, at most four), the same number of words
+    before "or" (not across punctuation), and the single words next to "or"."""
+    ws = words(q.text)
+    lw = [w.lower() for w in ws]
+    ors = [i for i, w in enumerate(lw) if w == "or"]
+    if len(ors) != 1:
+        return []
+    k = ors[0]
+    alpha = [w for w in lw if w[0].isalnum()]
+    # a choice: a yes/no-form question ("Is it X or Y?"), or options after a colon ("…: X or Y?"),
+    # or "which … X or Y?" ending with the options
+    aux = bool(alpha) and alpha[0] in _AUX
+    colon = ":" in ws[:k]
+    ends = all(not w[0].isalnum() for w in ws[k + 1:][4:]) and "which" in alpha
+    if not (aux or colon or ends):
+        return []
+    right = []
+    for j in range(k + 1, min(len(ws), k + 5)):
+        if not ws[j][0].isalnum() or (right and (lw[j] in STOP or lw[j] in _CUT)):
+            break
+        right.append(lw[j])
+    left = []
+    for j in range(k - 1, -1, -1):
+        if len(left) == len(right) or not ws[j][0].isalnum() or (left and lw[j] in STOP):
+            break
+        left.insert(0, lw[j])
+    if not left or not right:
+        return []
+    opts = [normalize(" ".join(left)), normalize(" ".join(right)), normalize(left[-1]), normalize(right[0])]
+    out = []
+    for o in opts:
+        if o and o not in out:
+            out.append(o)
+    return sorted(out, key=lambda o: -len(o.split()))
+
+
+def extract_choice(q: Question, texts: list[str], rel: np.ndarray, p: ExtractParams) -> Extracted | None:
+    """For "X or Y?": the option contained in the most sentence weight (softmax over the K best
+    sentences); ties go to the longer option. None when no option occurs or both occur equally."""
+    opts = choice_options(q)
+    if not opts:
+        return None
+    k = min(p.k, len(texts))
+    r = np.asarray(rel[:k], dtype=np.float64)
+    sw = np.exp((r - r.max()) / p.tau)
+    sw /= sw.sum()
+    ev = {o: 0.0 for o in opts}
+    first = {o: -1 for o in opts}
+    for si in range(k):
+        t = f" {normalize(texts[si])} "
+        for o in opts:
+            if f" {o} " in t:
+                ev[o] += float(sw[si])
+                if first[o] < 0:
+                    first[o] = si
+    best = max(opts, key=lambda o: (ev[o], len(o.split())))
+    if ev[best] <= 0:
+        return None
+    rivals = [o for o in opts if o != best and o not in best and best not in o]
+    if any(ev[o] >= ev[best] for o in rivals):
+        return None
+    return Extracted(best, ev[best] * float(r[0]), first[best], [(o, ev[o]) for o in opts])
+
+
 def extract(q: Question, texts: list[str], rel: np.ndarray, p: ExtractParams = ExtractParams(),
             initial_is_name=None, word_vec=None, stats=None, info=None) -> Extracted:
+    if p.choice and texts:
+        x = extract_choice(q, texts, rel, p)
+        if x is not None:
+            return x
     if p.nb > 0 and stats is not None and info is not None and q.atype not in p.rule_types:
         return extract_counted(q, texts, rel, p, stats, info, initial_is_name)
     """``texts`` best first, ``rel`` = their scores divided by Σidf (same order)."""

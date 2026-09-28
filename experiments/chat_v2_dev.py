@@ -33,6 +33,9 @@ def build_cache(names=DEV_SETS) -> None:
     corpus, data = load_all()
     if "sq_spent" in names:     # every spent SQuAD test question (v2 test, test3–test11)
         data["sq_spent"] = data["sq_test"] + spent_squad(upto=11)
+    if "sq_dev12" in names:     # v12 dev: newly read paragraphs of the dev articles
+        from experiments.chat_v12_data import squad_v12_dev
+        data["sq_dev12"] = squad_v12_dev()
     r = Retriever(corpus)
     for name in names:
         t0 = time.time()
@@ -281,12 +284,14 @@ def pipeline(n_sq: int | None = None, n_nq: int | None = None, v3: bool = False,
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=("cache", "cache_spent", "tune", "extract", "pipeline", "pipeline3", "pipeline9"))
+    ap.add_argument("cmd", choices=("cache", "cache_spent", "cache_dev12", "tune", "extract", "pipeline", "pipeline3", "pipeline9"))
     args = ap.parse_args()
     if args.cmd == "cache":
         build_cache()
     elif args.cmd == "cache_spent":
         build_cache(("sq_spent",))
+    elif args.cmd == "cache_dev12":
+        build_cache(("sq_dev12",))
     elif args.cmd == "tune":
         tune()
     elif args.cmd == "pipeline":

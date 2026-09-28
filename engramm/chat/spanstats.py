@@ -319,9 +319,32 @@ class WordInfo:
         return f
 
 
+def stem(w: str) -> str:
+    """A light suffix rule so that "revenues", "founded" and "founding" meet "revenue" and "found"."""
+    if w.endswith(("'s", "’s")):
+        w = w[:-2]
+    if len(w) > 4 and w.endswith("ies"):
+        return w[:-3] + "y"
+    if len(w) > 5 and w.endswith("ing"):
+        return w[:-3]
+    if len(w) > 4 and w.endswith("ed"):
+        return w[:-2]
+    if len(w) > 4 and w.endswith("es") and w[-3] in "sxz":
+        return w[:-2]
+    if len(w) > 3 and w.endswith("s") and not w.endswith("ss"):
+        return w[:-1]
+    return w
+
+
+ANCHOR_STEMS = False       # tried in v12 development: no gain (dev12 F1 32.36 vs 32.43)
+
+
 def anchors_of(lw: list[str], q: Question) -> list[int]:
     qc = set(q.content)
-    return [i for i, w in enumerate(lw) if w in qc]
+    if not ANCHOR_STEMS:
+        return [i for i, w in enumerate(lw) if w in qc]
+    qs = {stem(w) for w in qc}
+    return [i for i, w in enumerate(lw) if w in qc or (w[0].isalnum() and stem(w) in qs)]
 
 
 def question_form(q: Question) -> str:

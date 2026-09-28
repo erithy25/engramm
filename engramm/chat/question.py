@@ -63,7 +63,10 @@ STOP = frozenset((
 CONNECT = frozenset(("of", "de", "du", "la", "le", "van", "von", "der", "da", "di", "del", "the", "&", "y",
                      "bin", "al", "el"))
 
-_WORD_RE = re.compile(r"[0-9]+(?:[.,][0-9]+)*(?:st|nd|rd|th|s)?(?![A-Za-z])|"
+# an initial or a title abbreviation keeps its dot when a word follows ("St. John's", "M. canetti",
+# "Dr. Donda West"); month abbreviations do not (the date rules read "Jan ." as two words)
+_ABBR = r"(?:[A-Z]|St|Dr|Mr|Mrs|Ms|Mt|Ft|Jr|Sr|Gen|Col|Lt|Capt|Prof|Rev|Hon|Gov|Sen|Adm|Maj|Brig|Sgt|Bros)\.(?=\s+\w)"
+_WORD_RE = re.compile(_ABBR + r"|[0-9]+(?:[.,][0-9]+)*(?:st|nd|rd|th|s)?(?![A-Za-z0-9]|-[A-Za-zÀ-ÖØ-öø-ÿ])|"
                       r"[A-Za-zÀ-ÖØ-öø-ÿ0-9]+(?:[-'’.][A-Za-zÀ-ÖØ-öø-ÿ0-9]+)*|[^\sA-Za-zÀ-ÖØ-öø-ÿ0-9]")
 NON_UNITS = frozenset(("since", "until", "till", "more", "less", "fewer", "than", "before", "after", "later",
                        "earlier", "each", "every", "per", "or", "nor", "yet", "while", "because", "although",
