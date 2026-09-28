@@ -1786,6 +1786,37 @@ selbst waren ungesehen, andere Fragen derselben Artikel dienten aber der Entwick
 - **Folgerung:** Die nächste Runde braucht einen echten F1-Zuwachs bei den Spannengrenzen, nicht
   eine weitere Wiederholung.
 
+
+## E25 — ENGRAMM-Chat v12: SQuAD-Absätze gelesen, neue Konfidenz (PREREG_CHAT_V12, einmaliger Testlauf)
+
+Ergebnisdatei: `results/chat/chat_test12_container_20260928T160955Z.json`. Code eingefroren in
+`9c2c482`, Registrierung `d1c7894`; ein Lauf. U1 (Browser-Test) danach auf demselben Stand
+bestanden.
+
+| Kriterium | Wert | Schwelle | Ergebnis |
+|---|---|---|---|
+| R1 | +42,2 pp (46,4 % gegen 4,2 %) | ≥ 3 pp, KI > 0 | erfüllt (trivial, siehe Vorbehalt) |
+| R2 | +6,8 pp, KI [5,9; 7,7] | ≥ 2 pp, KI > 0 | erfüllt |
+| F1 / F2 / F3 | 100 % / 99,0 % / 100 % | | erfüllt |
+| D1 / D2 / D3 | 100 % / 100 % / 100 % | | erfüllt |
+| A1 | EM 22,7 % (KI [21,6; 23,8]), F1 30,6 % | ≥ 20 % und ≥ 30 % | **erfüllt** |
+| A2 | 57,8 % Präzision bei **18,2 %** Abdeckung | ≥ 50 % bei ≥ 20 % | **verfehlt** (Abdeckung) |
+| A3 | NQ-EM 5,2 %, KI [4,5; 6,0] | ≥ 5 % | erfüllt |
+| U1 / U2 / U3 | bestanden / 953 ms / identisch | | erfüllt |
+
+**Stufen:** 1.1, 2, 3 und 5 erfüllt. Stufe 4 ist verfehlt, allein wegen der A2-Abdeckung.
+
+**Einordnung:**
+- **A1 erstmals mit Abstand und zusammen mit A3.** F1 30,6 % liegt aber 1,8 pp unter Dev12 (32,4 %).
+  Die Test-Artikel sind schwerer als die Dev-Artikel; auf den verbrauchten Test-Artikel-Fragen lag F1
+  bei 30,7 %.
+- **A2 kippt diesmal zur anderen Seite.** θ kam aus Dev12 (Abdeckung dort 23,6 %). Auf den Test-Artikeln
+  ist die Konfidenz niedriger: Die Präzision hat 7,8 pp Luft, die Abdeckung fehlt 1,8 pp. Das Problem
+  ist die Übertragung von θ zwischen Artikelgruppen, nicht die Rangfolge.
+- **U2 wird knapp.** Der Median stieg von 766 ms (v11) auf 953 ms.
+- **R1** vergleicht mit Stufe 1 auf deren Korpus ohne die Test-Absätze. Die +42 pp messen das Lesen,
+  nicht das Verfahren (registrierter Vorbehalt).
+
 ---
 
 ## Offene Fragen, nicht terminiert

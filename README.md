@@ -239,8 +239,16 @@ from the development articles.
 
 The threshold is not rounded. Stage 4 therefore remains open.
 
+An eleventh round (v12, E25) let ENGRAMM read every SQuAD paragraph it had not read yet (17,555
+paragraphs of 2016 Wikipedia, chosen by the text alone). That gave 38,609 unseen test questions. It
+also changed how answers are cut (dates, "X or Y?" questions, spans chosen by expected F1). The
+confidence now counts how many of the best sentences hold the answer.
+- **Met:** SQuAD EM 22.7 % and F1 30.6 %, NQ exact answers 5.2 %, and everything outside stage 4.
+- **Missed:** calibrated "I don't know". Precision was 57.8 %, well above 50 %, but the coverage of
+  18.2 % fell short of 20 %: θ, set on the development articles, was too strict for the test articles.
+
 All numbers, including the development history and the round-by-round table, are in
-[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E15–E24).
+[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E15–E25).
 
 ## Results — rebuild, re-measured
 
