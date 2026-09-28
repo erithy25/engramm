@@ -1753,6 +1753,39 @@ Damit ist der SQuAD-Pool der Test-Artikel vollständig verbraucht.
 - **Bilanz über v8–v10:** Jedes Kriterium ist in mindestens einer Runde erfüllt, aber nicht alle
   in derselben. Für A1 und A2 fehlt der Abstand zur Schwelle, nicht die Fähigkeit.
 
+
+## E24 — ENGRAMM-Chat v11: v10 auf größerer Stichprobe (PREREG_CHAT_V11, einmaliger Testlauf)
+
+Ergebnisdatei: `results/chat/chat_test11_container_20260928T045756Z.json`. Das System ist
+unverändert gegenüber v10 (`2abf2b1`); Registrierung `6970c7c`; ein Lauf. U1 (Browser-Test)
+danach auf demselben Stand bestanden.
+
+**Vorbehalt (registriert):** Die 4.956 SQuAD-Fragen stammen aus den 46 Dev-Artikeln. Die Fragen
+selbst waren ungesehen, andere Fragen derselben Artikel dienten aber der Entwicklung.
+
+| Kriterium | Wert | Schwelle | Ergebnis |
+|---|---|---|---|
+| R1 | +8,2 pp, KI [7,1; 9,4] | ≥ 3 pp, KI > 0 | erfüllt |
+| R2 | +7,5 pp, KI [6,6; 8,4] | ≥ 2 pp, KI > 0 | erfüllt |
+| F1 / F2 / F3 | 100 % / 97,5 % / 100 % | | erfüllt |
+| D1 / D2 / D3 | 100 % / 100 % / 100 % | | erfüllt |
+| A1 | EM 22,5 % (KI [21,3; 23,6]), **F1 29,95 %** | ≥ 20 % und ≥ 30 % | **verfehlt** (F1 um 0,05 pp) |
+| A2 | 51,2 % Präzision bei 21,5 % Abdeckung | ≥ 50 % bei ≥ 20 % | erfüllt |
+| A3 | NQ-EM 6,0 %, KI [5,2; 6,7] | ≥ 5 % | erfüllt |
+| U1 / U2 / U3 | bestanden / 766 ms / identisch | | erfüllt |
+
+**Stufen:** 1.1, 2, 3 und 5 erfüllt. Stufe 4 ist verfehlt, allein wegen A1-F1.
+
+**Einordnung:**
+- **A3 hält auf der Wiederholung.** NQ-EM 6,0 % entspricht dem Dev-Wert; die untere KI-Grenze
+  liegt über 5 %.
+- **A2 ist diesmal erfüllt**, knapp: 51,2 % bei 21,5 % Abdeckung.
+- **A1-F1 fehlt um 0,05 pp.** Die Schwelle steht fest und wird nicht gerundet. Der Befund zeigt
+  aber, dass das System genau auf der F1-Schwelle liegt, nicht darunter oder darüber. Ohne mehr
+  Abstand bleibt A1 ein Münzwurf.
+- **Folgerung:** Die nächste Runde braucht einen echten F1-Zuwachs bei den Spannengrenzen, nicht
+  eine weitere Wiederholung.
+
 ---
 
 ## Offene Fragen, nicht terminiert

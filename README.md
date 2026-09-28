@@ -223,8 +223,24 @@ An eighth round (v9, E22) made two changes:
 
 Stages 1.1, 2, 3 and 5 are met; stage 4 misses only this criterion.
 
+A ninth round (v10, E23) let ENGRAMM **read more**: the first 2,000 characters of every English
+Wikipedia article with at least 7,000 characters (614,464 articles, 262 M tokens). The sentence
+index now covers 547 M tokens.
+- **Met:** NQ exact answers for the first time (5.2 %), and everything outside stage 4.
+- **Missed:** SQuAD (EM 18.4 %, F1 28.2 %) and calibrated "I don't know" (47.2 %). Both came from
+  a small, hard sample of 521 questions. That sample used up the last unseen test-article
+  questions.
+
+A tenth round (v11, E24) re-ran the same system on 4,956 questions. They were unseen, but came
+from the development articles.
+- **Met:** NQ exact answers 6.0 %, "I don't know" at 51.2 % precision with 21.5 % coverage,
+  SQuAD EM 22.5 %, and everything outside stage 4.
+- **Missed:** SQuAD F1 by 0.05 pp (29.95 % against 30 %).
+
+The threshold is not rounded. Stage 4 therefore remains open.
+
 All numbers, including the development history and the round-by-round table, are in
-[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E15–E22).
+[`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E15–E24).
 
 ## Results — rebuild, re-measured
 

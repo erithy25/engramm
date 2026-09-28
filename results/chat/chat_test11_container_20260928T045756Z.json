@@ -1,0 +1,188 @@
+{
+  "schema": "engramm-chat/2",
+  "name": "chat_test11",
+  "study": "docs/PREREG_CHAT_V11.md v1.0",
+  "split": "test11",
+  "timestamp_utc": "20260928T045756Z",
+  "config": "BotConfig(weights=Weights(cov=5.0, soft=0.0, pcov=2.0, kcov=4.0, type=1.0, wiki=1.0, q=1.0, short=0.5, phr=4.0, dcov=0.0, prox=0.0, dfull=4.0), extract=ExtractParams(k=10, tau=0.15, lam=4.0, other_max=4, type_only=True, soft_min=0.0, definition=2.0, head_beta=0.0, copula=1.0, direction=1.0, nb=0.5, nb_prox=0.0, rule_types=('DATE',), merge=0.5, conf_power=3.0, sent_beta=1.0), text_k=120, theta=9.2123, entity_min=0.6, fact_min=0.3, only_fact=True, focus_gate=True, span_model='spanperc_p2.json', span_model_nq='spanperc_nq.json', extract_nq=ExtractParams(k=20, tau=0.15, lam=4.0, other_max=4, type_only=True, soft_min=0.0, definition=2.0, head_beta=0.0, copula=1.0, direction=1.0, nb=0.5, nb_prox=0.0, rule_types=(), merge=0.5, conf_power=3.0, sent_beta=1.0))",
+  "data_manifest": {
+    "generated_sha256": "805fab94cd18bdf33a7399b37736c7333d3b760503876b6c161b5ffdfa71ec90",
+    "templates_sha256": "a234b8b900ed8c3d81349c4df373227027d229cc50a64c40ed8a0f1c801f44ad"
+  },
+  "index": {
+    "version": 3,
+    "wikipedia_skipped_known_titles": 14354,
+    "sentences": 29910027,
+    "terms": 23258,
+    "postings": 418492670,
+    "documents": 983195,
+    "tokens": 546945795,
+    "wikipedia_min_chars": 7000,
+    "wikipedia_lead_chars": 2000,
+    "build_seconds": 50.9
+  },
+  "n": {
+    "squad_test": 4956,
+    "nq_test": 3610
+  },
+  "criteria": {
+    "R1": {
+      "diff": 0.08232445520581116,
+      "ci95": [
+        0.07101997578692495,
+        0.09382566585956414
+      ],
+      "stage1": 0.3930589184826473,
+      "v2": 0.47538337368845845,
+      "pass": true
+    },
+    "R2": {
+      "diff": 0.07534626038781164,
+      "ci95": [
+        0.06565096952908588,
+        0.08449445983379497
+      ],
+      "stage1": 0.0260387811634349,
+      "v2": 0.10138504155124654,
+      "pass": true
+    },
+    "F1": {
+      "value": 1.0,
+      "pass": true
+    },
+    "F2": {
+      "value": 0.975,
+      "exact_dict": 0.0,
+      "lead": 0.975,
+      "pass": true
+    },
+    "F3": {
+      "value": 1.0,
+      "pass": true
+    },
+    "D1": {
+      "value": 1.0,
+      "n": 800,
+      "pass": true
+    },
+    "D2": {
+      "a": 1.0,
+      "b": 1.0,
+      "n": 200,
+      "pass": true
+    },
+    "D3": {
+      "value": 1.0,
+      "n": 55,
+      "pass": true
+    },
+    "A1": {
+      "em": 0.2245762711864407,
+      "f1": 0.29949811157617495,
+      "em_ci95": [
+        0.2132768361581921,
+        0.23627925746569814
+      ],
+      "pass": "False"
+    },
+    "A2": {
+      "precision": 0.5121722846441947,
+      "coverage": 0.21549636803874092,
+      "theta": 9.2123,
+      "pass": true
+    },
+    "A3": {
+      "em": 0.05955678670360111,
+      "em_ci95": [
+        0.05235457063711911,
+        0.06731301939058172
+      ],
+      "f1": 0.0896214219759926,
+      "pass": "True"
+    },
+    "U2": {
+      "median_seconds": 0.7663459777832031,
+      "p90_seconds": 1.032994031906128,
+      "device": "container",
+      "official": false,
+      "pass": true
+    },
+    "U3": {
+      "transcripts_equal": true,
+      "transcript_sha256": "ba457b50413e2e2300d3418b2293902053847b31822abdd0e5d63360cca00b42",
+      "digest_equal": true,
+      "answers_equal": true,
+      "events": 71,
+      "discarded_bytes": 0,
+      "questions": 80,
+      "pass": true
+    }
+  },
+  "stages_met": {
+    "1.1": true,
+    "2": true,
+    "3": true,
+    "4": "False",
+    "5 (U2, U3; U1 = browser test)": true
+  },
+  "facts_misses": {
+    "clean": [],
+    "typo": [
+      {
+        "q": "Which city is Vmtix's capital?",
+        "gold": "Shaexbam",
+        "answer": "Gruthler",
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "What mascot does the Dirio team have?",
+        "gold": "Nandoul",
+        "answer": "Drumtonlor",
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Who was the discoverer of the island of Dnlme?",
+        "gold": "Drutaelzol",
+        "answer": "Grourolpa",
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Who created Quasrho's national anthem?",
+        "gold": "Daquamneth",
+        "answer": "Konzou",
+        "via": "facts",
+        "hit": false
+      },
+      {
+        "q": "Who created Sheldun's national anthem?",
+        "gold": "Kostes",
+        "answer": "Konzou",
+        "via": "facts",
+        "hit": false
+      }
+    ]
+  },
+  "dialog_misses": [],
+  "git": {
+    "commit": "6970c7c229d79a828e20b8eb8f97f56ac34d7d4a",
+    "dirty": false,
+    "untracked": 0,
+    "changed_during_run": false
+  },
+  "environment": {
+    "canonical": false,
+    "python": "3.11.15",
+    "numpy": "2.4.1",
+    "platform": "Linux-6.18.44-fc-v37-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 4,
+    "pythonhashseed": null
+  },
+  "runtime": {
+    "wall_seconds": 8075.314718961716,
+    "peak_rss_mb": 11844.55078125
+  }
+}
