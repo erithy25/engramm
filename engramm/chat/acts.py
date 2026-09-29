@@ -203,6 +203,10 @@ def classify(message: str, bank: Bank | None = None, now=None) -> list[Unit]:
     if rule is not None:
         return [Unit("safety", text, normalise(text), data={"rule": rule.id, "kind": rule.kind,
                                                             "response": rule.response})]
+    from engramm.chat.writing import writing_request
+    task = writing_request(text)
+    if task is not None:
+        return [Unit("writing", text, normalise(text), data={"task": task})]
     sents = split_sentences(text)
     # a whole-message forget request keeps its full wording ("Scratch my dog. Forget it.")
     if forget_topic(text) is not None and len(sents) > 1 and all(forget_topic(s) is None for s in sents[:-1]) \

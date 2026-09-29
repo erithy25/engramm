@@ -24,7 +24,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "data" / "conv"
-FILES = ("smalltalk", "empathy", "safety", "fun", "replies")
+FILES = ("smalltalk", "empathy", "safety", "fun", "replies", "writing")
 PLACEHOLDERS = {"name", "x", "noun", "subject", "title", "topic", "category", "evidence", "last", "more", "bot"}
 
 
@@ -105,6 +105,15 @@ def check(data: dict) -> tuple[list[str], list[str]]:
     for q in data["fun"]["quotes"]:
         if not q.get("by"):
             errors.append(f"quote without author: {q.get('text', '')[:50]!r}")
+    for name, pp in data["writing"]["purposes"].items():
+        for key in pp.get("keys", []):
+            try:
+                re.compile(key)
+            except re.error as e:
+                errors.append(f"writing {name}: bad key {key!r}: {e}")
+        for tone in ("formal", "casual"):
+            if tone not in pp or not pp[tone].get("body"):
+                errors.append(f"writing {name}: no {tone} body")
     for key in data["fun"]["ask_order"]:
         if key not in data["fun"]["questions"]:
             errors.append(f"ask_order names unknown question {key!r}")
@@ -135,7 +144,7 @@ def build(out: Path | None = None) -> Path:
             print("ERROR:", e)
         raise SystemExit(f"{len(errors)} error(s); nothing written")
     compiled = {"version": 1, "smalltalk": data["smalltalk"], "empathy": data["empathy"],
-                "safety": data["safety"], "fun": data["fun"], "replies": data["replies"]}
+                "safety": data["safety"], "fun": data["fun"], "replies": data["replies"], "writing": data["writing"]}
     out = Path(out or BANK_PATH)
     out.write_text(json.dumps(compiled, ensure_ascii=False, indent=1, sort_keys=False) + "\n", encoding="utf-8")
     n_int = len(data["smalltalk"]["intents"])
@@ -166,7 +175,7 @@ def main(argv: list[str] | None = None) -> int:
     from engramm.chat.acts import classify
     from engramm.chat.bank import Bank
     bank = Bank({"smalltalk": data["smalltalk"], "empathy": data["empathy"], "safety": data["safety"],
-                 "fun": data["fun"], "replies": data["replies"]})
+                 "fun": data["fun"], "replies": data["replies"], "writing": data["writing"]})
     msgs = args.messages
     if args.command == "coverage" and not msgs:
         msgs = [ex for it in data["smalltalk"]["intents"] for ex in it.get("examples", [])]

@@ -104,6 +104,8 @@ class Bank:
                           for r in saf.get("refuse", [])])
         self.fun = data["fun"]
         self.replies = data["replies"]
+        self.writing = data.get("writing", {"purposes": {"generic": {}}, "greetings": {}, "closings": {},
+                                            "poems": []})
         self._grams = [(it.id, ex, _grams(ex)) for it in self.intents for ex in it.examples]
 
     # -- matching ----------------------------------------------------------------------------

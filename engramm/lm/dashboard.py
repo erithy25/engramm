@@ -57,9 +57,10 @@ def _source(entry: dict | None) -> dict | None:
 
 def chat_index_dir(model_dir: Path, prefer: str | None = None) -> Path | None:
     """The configured sentence index next to the model (chat4: train stream + Wikipedia leads + SQuAD
-    paragraphs), else the v2 index (``chat_build --v2``), if built. ``prefer`` names one to try first."""
+    paragraphs; chat4m: the same written as one index, loaded without merging), else the v2 index
+    (``chat_build --v2``), if built. ``prefer`` names one to try first."""
     from engramm.chat.config import INDEX_NAME, QUICK_INDEX
-    for name in ([prefer] if prefer else []) + [INDEX_NAME, QUICK_INDEX]:
+    for name in ([prefer] if prefer else []) + [INDEX_NAME + "m", INDEX_NAME, QUICK_INDEX]:
         d = Path(model_dir).parent / name
         if (d / "info.json").exists():
             return d

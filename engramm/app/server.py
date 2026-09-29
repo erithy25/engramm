@@ -38,7 +38,7 @@ WEB = Path(__file__).resolve().parent / "web"
 mimetypes.add_type("application/manifest+json", ".webmanifest")
 mimetypes.add_type("text/javascript", ".js")
 DEFAULT_MODEL = Path(__file__).resolve().parents[2] / "models" / "lm" / "main" / "model"
-MAX_MESSAGE = 2000
+MAX_MESSAGE = 12000
 MAX_CONVERSATIONS = 500
 
 
@@ -49,6 +49,9 @@ def source_view(src: dict | None) -> dict | None:
     if src.get("kind") == "user":
         return {"kind": "user", "title": "You told me", "url": None}
     origin, key = src.get("source"), src.get("key") or ""
+    if src.get("kind") == "kb":
+        return {"kind": "wikipedia", "title": key + " (infobox)",
+                "url": "https://en.wikipedia.org/wiki/" + urllib.parse.quote(key.replace(" ", "_"))}
     if origin in ("wiki", "wikipedia"):
         return {"kind": "wikipedia", "title": key,
                 "url": "https://en.wikipedia.org/wiki/" + urllib.parse.quote(key.replace(" ", "_"))}

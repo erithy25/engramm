@@ -20,10 +20,12 @@ conversation with the same messages gets the same replies.
 
 from __future__ import annotations
 
+import datetime as dt
 import hashlib
 import re
 import time
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
 
 from engramm.chat.about import About, AboutFinder
 from engramm.chat.acts import Unit, classify
@@ -65,6 +67,8 @@ class DialogState:
     last_about: dict | None = None            # for "tell me more"
     asked: list = field(default_factory=list)  # questions ENGRAMM asked in this conversation
     rps: bool = False                         # waiting for rock / paper / scissors
+    last_draft: dict | None = None            # the last written draft (WritingRequest), for edits
+    draft_turn: int = -1
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -81,11 +85,20 @@ class _Part:
 
 
 class Assistant:
-    def __init__(self, bot, bank: Bank | None = None, clock=None):
+    def __init__(self, bot, bank: Bank | None = None, clock=None, kb_path=None):
         self.bot = bot
         self.bank = bank or load_bank()
         self.clock = clock                      # callable → datetime (tests fix the date)
         self.about = AboutFinder(bot.c, getattr(bot, "r", None))
+        self.kgqa = None
+        path = kb_path
+        if path is None and getattr(bot.c, "index_dir", None) is not None:
+            path = bot.c.index_dir.parent / "kb.sqlite"
+        if path is not None and Path(path).exists():
+            from engramm.kb.kgqa import KGQA
+            from engramm.kb.store import FactBank
+            today = clock().date() if clock else None
+            self.kgqa = KGQA(FactBank(path), today=today)
 
     # -- helpers ------------------------------------------------------------------------------
 
@@ -140,6 +153,11 @@ class Assistant:
             filled = self._fill_pending(st, pending, msg, units)
             if filled is not None:
                 return filled
+        if st.last_draft is not None and st.turn - st.draft_turn <= 4:
+            from engramm.chat.writing import edit_command, writing_request
+            cmd = edit_command(msg) if writing_request(msg) is None else None
+            if cmd is not None:
+                return self._edit_draft(st, msg, *cmd)
         if st.rps:
             st.rps = False
             m = re.fullmatch(r"(?:i (?:choose|pick|take) )?(rock|paper|scissors)", normalise(msg))
@@ -331,7 +349,96 @@ class Assistant:
 
     # -- content ------------------------------------------------------------------------------
 
+    # -- writing ------------------------------------------------------------------------------
+
+    def _today(self):
+        return self.clock().date() if self.clock else dt.date.today()
+
+    def _writing(self, st: DialogState, u: Unit) -> Reply:
+        from engramm.chat import writing as w
+        task = u.data["task"]
+        spec = self.bank.writing
+        text = u.text
+        if task == "draft":
+            req = w.parse_request(text, spec["purposes"])
+            if req is None:
+                return Reply(text, "smalltalk", self._reply(st, "fallback"), via="writing")
+            return self._show_draft(st, text, req, intro=True)
+        if task == "poem":
+            m = w._POEM.match(re.sub(r"^(?:hey|hi|ok|okay|so)[,!]?\s+", "", text.strip(), flags=re.I).rstrip("?.!"))
+            topic = (m.group("topic") if m else None) or "the day"
+            n = st.uses.get("poem", 0)
+            st.uses["poem"] = n + 1
+            body = w.poem(topic, spec, f"{st.conversation}|poem|{n}")
+            return Reply(text, "writing", f"Here's a short poem about {topic.strip(' ?.!')}:\n\n{body}", via="writing")
+        if task == "story":
+            m = w._STORY.match(text.strip().rstrip("?.!"))
+            topic = m.group("topic") if m else "a curious robot"
+            n = st.uses.get("story", 0)
+            st.uses["story"] = n + 1
+            stories = self.bank.fun["stories"]
+            base = stories[_order(len(stories), st.conversation + "|stories")[n % len(stories)]]
+            about = self.about.find(topic)
+            intro = f"Here's a little story — and since you mentioned {topic}: " if about else "Here's a little story:"
+            fact = f"\n\n(By the way: {about.sentences[0]})" if about else ""
+            return Reply(text, "writing", f"{intro}\n\n{base}{fact}", via="writing",
+                         source=about.source if about else None)
+        if task == "summary":
+            m = w._SUMMARY.match(re.sub(r"^(?:hey|hi|ok|okay|so)[,!]?\s+", "", text.strip(), flags=re.I))
+            body = (m.group("text") if m else "").strip()
+            if len(body.split()) <= 8:
+                topic = re.sub(r"^(?:the (?:article|text|page) (?:about|on)\s+)", "", body, flags=re.I).strip(" ?.!")
+                found = self.about.find(topic) if topic else None
+                if not found:
+                    return Reply(text, "smalltalk", "Paste the text you'd like me to summarise after “Summarize:” — "
+                                                    "or name a topic, like “Summarize the article about volcanoes”.",
+                                 via="writing")
+                long = self.about.find(topic, n=30)
+                sents = w.summarize(" ".join(long.sentences), max_sentences=3)
+                out = "Here's a short summary of “" + found.title + "”:\n\n" + " ".join(sents)
+                return Reply(text, "writing", out, source=found.source, evidence=found.sentences[0], via="writing")
+            sents = w.summarize(body)
+            return Reply(text, "writing", "Here's a summary:\n\n" + " ".join(sents), via="writing")
+        if task == "rephrase":
+            m = w._REPHRASE.match(text.strip())
+            if not m:
+                return Reply(text, "smalltalk", self._reply(st, "fallback"), via="writing")
+            tone = (m.group("tone") or m.group("tone2") or "").lower()
+            verb = (m.group("verb") or "").lower()
+            if not tone:
+                tone = "fix" if verb.startswith(("fix", "correct", "proofread")) else "formal" \
+                    if verb in ("polish", "improve") else "plain"
+            out = w.fix_text(m.group("text")) if tone in ("fix", "plain") else w.rephrase(m.group("text"), tone)
+            label = {"fix": "Here's the corrected text:", "plain": "Here's a cleaned-up version:"}.get(
+                tone, f"Here's a {'more ' if tone not in ('simpler', 'shorter') else ''}{tone} version:")
+            return Reply(text, "writing", f"{label}\n\n{out}", via="writing")
+        return Reply(text, "smalltalk", self._reply(st, "fallback"), via="writing")
+
+    def _show_draft(self, st: DialogState, text: str, req, intro: bool = False, note: str = "") -> Reply:
+        from engramm.chat import writing as w
+        body = w.draft(req, self.bank.writing, self.user_name(), self._today(), st.conversation)
+        st.last_draft = req.to_dict()
+        st.draft_turn = st.turn
+        what = {"email": "an email", "letter": "a letter", "message": "a message", "note": "a note"}.get(req.genre,
+                                                                                                        "a draft")
+        head = note or (f"Here's {what} you can use:" if intro else "Here's the updated version:")
+        tail = ("\n\nWant changes? Say “make it shorter”, “more formal”, “add that …” or “sign it with …”."
+                if intro else "")
+        return Reply(text, "writing", f"{head}\n\n{body}{tail}", via="writing")
+
+    def _edit_draft(self, st: DialogState, text: str, cmd: str, x: str | None) -> Reply:
+        from engramm.chat.writing import WritingRequest, apply_edit
+        req = apply_edit(WritingRequest.from_dict(st.last_draft), cmd, x)
+        notes = {"shorter": "Here's a shorter version:", "longer": "Here's a more detailed version:",
+                 "formal": "Here's a more formal version:", "casual": "Here's a more casual version:",
+                 "again": "Here's another version:", "add": "Done — I've added that:",
+                 "sign": "Signed:", "date": "I've changed the date:", "to": "Addressed to the new recipient:",
+                 "nosubject": "Without the subject line:"}
+        return self._show_draft(st, text, req, note=notes.get(cmd, ""))
+
     def _content(self, st: DialogState, u: Unit) -> Reply:
+        if u.act == "writing":
+            return self._writing(st, u)
         if u.act == "forget":
             r = self.bot._forget(u.text)
             if r.kind == "forgot":
@@ -349,6 +456,9 @@ class Assistant:
 
     def _question(self, st: DialogState, text: str) -> Reply:
         bot = self.bot
+        kb = self._kb_answer(st, text)
+        if kb is not None:
+            return kb
         rep = bot._answer(" ".join(text.split()))
         q = rep.resolved or text
         if rep.kind == "answer" and rep.via in ("facts", "memory") and rep.source and rep.source.get("kind") == "user":
@@ -400,6 +510,26 @@ class Assistant:
         st.last_fact = ({"evidence": rep.evidence, "source": rep.source, "answer": rep.guess, "question": q,
                          "sure": False} if rep.evidence else None)
         return rep
+
+    def _kb_answer(self, st: DialogState, text: str) -> Reply | None:
+        """A question about a named thing, answered from the fact bank (exact infobox facts)."""
+        if self.kgqa is None or re.search(r"\b(?:i|me|my|mine|i'm)\b", text.lower()):
+            return None
+        q = self.bot.resolve(" ".join(text.split()))
+        try:
+            ans = self.kgqa.answer(q)
+        except Exception:                       # a damaged fact bank must not break the chat
+            return None
+        if ans is None:
+            return None
+        value = _join_values(ans.values)
+        src = {"kind": "kb", "source": "dbpedia", "key": ans.entity.title}
+        atype = _atype(q)
+        self.bot.context.update({"answer": ans.values[0] if len(ans.values) == 1 else None, "atype": atype,
+                                 "mention": ans.entity.name})
+        st.last_fact = {"evidence": ans.evidence, "source": src, "answer": value, "question": q, "sure": True}
+        return Reply(text, "answer", ans.text, answer=value, guess=value, evidence=ans.evidence, source=src,
+                     confidence=1.0, via="kb", resolved=q if q != text else None)
 
     def _latest_fact(self, cat: str):
         """Your most recent fact of a category (the later statement corrects the earlier one)."""
@@ -465,6 +595,8 @@ class Assistant:
         src = lf.get("source") or {}
         if src.get("kind") == "user":
             out = self._reply(st, "why.user", evidence=lf["evidence"])
+        elif src.get("kind") == "kb":
+            out = self._reply(st, "why.kb", title=src.get("key"), evidence=lf["evidence"])
         else:
             out = self._reply(st, "why.base", title=src.get("key") or "a text I read", evidence=lf["evidence"])
         if not lf.get("sure", True):
@@ -722,6 +854,13 @@ def resolve_statement(text: str) -> str:
             sent += "."
         out.append(sent[:1].upper() + sent[1:])
     return " ".join(x for x in out if x)
+
+
+def _join_values(values: list[str]) -> str:
+    values = list(dict.fromkeys(values))
+    if len(values) <= 2:
+        return " and ".join(values)
+    return ", ".join(values[:-1]) + " and " + values[-1]
 
 
 def _join(intro: str, text: str) -> str:

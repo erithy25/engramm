@@ -129,6 +129,8 @@ why:
     - "You told me: “{evidence}”"
   base:
     - "I found it in “{title}”: “{evidence}”"
+  kb:
+    - "It's in my fact bank, taken from the Wikipedia infobox of “{title}”: {evidence}"
   unsure: " I'm not completely sure, though."
 
 clarify:

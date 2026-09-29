@@ -185,5 +185,91 @@ def merge_postings(pa: np.ndarray, qa: np.ndarray, pb: np.ndarray, qb: np.ndarra
     return out
 
 
+def materialize(index_dir: Path, out_dir: Path, chunk: int = 1 << 24) -> Path:
+    """Write a base index plus its segment (``segment.json``) as one index on disk, so loading
+    it maps the files instead of building the merged arrays in memory (chat4: ~4 GB less RAM).
+
+    Array by array the result equals ``Corpus.with_segment`` (tests/test_chat_segment.py), and
+    it is written through memory maps, so building it needs little memory as well. The small
+    model files next to the index (span models, calibrator, statistics) are copied."""
+    import shutil
+
+    from engramm.chat.index import load_docs
+    index_dir, out_dir = Path(index_dir), Path(out_dir)
+    meta = json.loads((index_dir / "segment.json").read_text())
+    base_dir = index_dir.parent / meta["base"]
+    out_dir.mkdir(parents=True, exist_ok=True)
+    fmt = np.lib.format
+
+    def put(name: str, parts: list, dtype) -> None:
+        total = sum(len(p) for p in parts)
+        arr = fmt.open_memmap(out_dir / name, mode="w+", dtype=dtype, shape=(total,))
+        k = 0
+        for p in parts:
+            for a in range(0, len(p), chunk):
+                piece = np.asarray(p[a:a + chunk])
+                arr[k:k + len(piece)] = piece
+                k += len(piece)
+        arr.flush()
+        del arr
+
+    # the token stream and its documents
+    if (base_dir / "corpus.u16").exists():
+        b_tokens = np.memmap(base_dir / "corpus.u16", dtype=np.uint16, mode="r")
+        b_starts = np.load(base_dir / "corpus.starts.npy")
+        b_keys = (base_dir / "corpus.keys.jsonl").read_text(encoding="utf-8").splitlines()
+    else:
+        raise ValueError("materialize needs a base index with its own stream (corpus.u16)")
+    s_tokens = np.fromfile(index_dir / "segment.u16", dtype=np.uint16)
+    s_starts = np.load(index_dir / "segment.starts.npy")
+    s_keys = (index_dir / "segment.keys.jsonl").read_text(encoding="utf-8").splitlines()
+    n_tok = len(b_tokens)
+    if n_tok and int(b_tokens[n_tok - 1]) != 0:
+        raise ValueError("the base stream must end with a document end")
+    with open(out_dir / "corpus.u16", "wb") as f:
+        for a in range(0, n_tok, chunk):
+            f.write(np.asarray(b_tokens[a:a + chunk]).tobytes())
+        f.write(s_tokens.tobytes())
+    np.save(out_dir / "corpus.starts.npy", np.concatenate([b_starts, s_starts.astype(np.int64) + n_tok]))
+    (out_dir / "corpus.keys.jsonl").write_text("\n".join(b_keys + s_keys) + "\n", encoding="utf-8")
+    # the sentence index
+    bix = SentenceIndex.load(base_dir, mmap=True)
+    six = SentenceIndex.load(index_dir, mmap=False)
+    if not np.array_equal(np.asarray(bix.term_of), six.term_of) or list(bix.terms) != list(six.terms):
+        raise ValueError("segment and base use different term tables")
+    n_sent = bix.n
+    put("starts.npy", [bix.starts, six.starts.astype(np.int64) + n_tok], np.int64)
+    put("lens.npy", [bix.lens, six.lens], bix.lens.dtype)
+    put("sent_terms.npy", [bix.sent_terms, six.sent_terms], bix.sent_terms.dtype)
+    np.save(out_dir / "ptr.npy", np.asarray(bix.ptr) + six.ptr)
+    np.save(out_dir / "term_of.npy", np.asarray(bix.term_of))
+    (out_dir / "terms.txt").write_text("\n".join(bix.terms) + "\n", encoding="utf-8")
+    post = fmt.open_memmap(out_dir / "post.npy", mode="w+", dtype=np.int32, shape=(len(bix.post) + len(six.post),))
+    _merge_postings(np.asarray(bix.ptr, dtype=np.int64), bix.post, np.asarray(six.ptr, dtype=np.int64), six.post,
+                    np.int64(n_sent), post)
+    post.flush()
+    del post
+    # documents
+    bdptr, bdpost, bsent_doc = load_docs(base_dir, True)
+    sdptr, sdpost, ssent_doc = load_docs(index_dir, False)
+    n_doc = len(b_starts)
+    put("sent_doc.npy", [bsent_doc, np.asarray(ssent_doc, dtype=np.int32) + n_doc], np.int32)
+    np.save(out_dir / "doc_ptr.npy", np.asarray(bdptr) + sdptr)
+    dpost = fmt.open_memmap(out_dir / "doc_post.npy", mode="w+", dtype=np.int32,
+                            shape=(len(bdpost) + len(sdpost),))
+    _merge_postings(np.asarray(bdptr, dtype=np.int64), bdpost, np.asarray(sdptr, dtype=np.int64), sdpost,
+                    np.int64(n_doc), dpost)
+    dpost.flush()
+    del dpost
+    # models and statistics next to the index
+    for p in index_dir.iterdir():
+        if p.suffix == ".json" and p.name not in ("segment.json", "info.json"):
+            shutil.copy2(p, out_dir / p.name)
+    info = json.loads((index_dir / "info.json").read_text()) if (index_dir / "info.json").exists() else {}
+    info.update({"materialized_from": index_dir.name, "base": meta["base"], "sentences": int(n_sent + six.n)})
+    (out_dir / "info.json").write_text(json.dumps(info, indent=2) + "\n")
+    return out_dir
+
+
 def load_json(path: Path) -> dict:
     return json.loads(Path(path).read_text())

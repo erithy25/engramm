@@ -127,7 +127,7 @@ def test_memory_list_and_forget(running):
 def test_bad_requests(running):
     base, svc = running
     assert _call(base, "/api/chat", {"conversation": "a", "message": "   "})[0] == 400
-    assert _call(base, "/api/chat", {"conversation": "a", "message": "x" * 2001})[0] == 400
+    assert _call(base, "/api/chat", {"conversation": "a", "message": "x" * 12001})[0] == 400
     svc.bot = svc.assistant = None
     svc.error = None
     code, _, body = _call(base, "/api/chat", {"conversation": "a", "message": "hi"})

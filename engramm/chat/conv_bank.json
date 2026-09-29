@@ -2064,6 +2064,9 @@
    "base": [
     "I found it in “{title}”: “{evidence}”"
    ],
+   "kb": [
+    "It's in my fact bank, taken from the Wikipedia infobox of “{title}”: {evidence}"
+   ],
    "unsure": " I'm not completely sure, though."
   },
   "clarify": {
@@ -2115,6 +2118,1197 @@
   ],
   "fallback": [
    "I'm not sure how to answer that. You can ask me a question, tell me something about you, or say “help”."
+  ]
+ },
+ "writing": {
+  "greetings": {
+   "formal_named": [
+    "Dear {recipient_name},"
+   ],
+   "formal_role": [
+    "Dear {recipient_title},",
+    "Hello {recipient_title},"
+   ],
+   "formal_unknown": [
+    "Dear Sir or Madam,",
+    "To whom it may concern,",
+    "Hello,"
+   ],
+   "casual_named": [
+    "Hi {recipient_name},",
+    "Hey {recipient_name},"
+   ],
+   "casual_role": [
+    "Hi {recipient_title},",
+    "Hey {recipient_title},"
+   ],
+   "casual_unknown": [
+    "Hi,",
+    "Hey there,"
+   ]
+  },
+  "closings": {
+   "formal": [
+    "Kind regards,",
+    "Best regards,",
+    "Sincerely,",
+    "Many thanks,"
+   ],
+   "casual": [
+    "Cheers,",
+    "Love,",
+    "Talk soon,",
+    "Best,"
+   ],
+   "casual_family": [
+    "Love,",
+    "Hugs,"
+   ]
+  },
+  "purposes": {
+   "say": {
+    "keys": [
+     "^ (?:saying|to say|telling|to tell|letting|to let)\\b"
+    ],
+    "subject": [
+     "Quick Update",
+     "A Short Note"
+    ],
+    "formal": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I wanted to let you know that {content}.",
+      "I am writing to let you know that {content}."
+     ],
+     "extra": [
+      "Please let me know if you have any questions."
+     ],
+     "close": [
+      "Thank you for your understanding.",
+      "Thank you."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "just wanted to let you know that {content}.",
+      "quick heads-up: {content}."
+     ],
+     "extra": [
+      ""
+     ],
+     "close": [
+      "See you soon!",
+      "Talk later!"
+     ]
+    }
+   },
+   "late": {
+    "keys": [
+     "running late",
+     "be late",
+     "i'll be late",
+     "i will be late",
+     "delayed",
+     "stuck in traffic",
+     "missed (?:my|the) (?:train|bus|flight)"
+    ],
+    "subject": [
+     "Running Late"
+    ],
+    "formal": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I wanted to let you know that I am running late{reason} and will arrive a little later than planned.",
+      "Unfortunately, I will be late {date_phrase_or_today}{reason}."
+     ],
+     "extra": [
+      "I apologize for the inconvenience and will be there as soon as possible."
+     ],
+     "close": [
+      "Thank you for your patience."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I'm running a bit late{reason} — sorry!",
+      "heads up: I'll be late{reason}."
+     ],
+     "extra": [
+      "Be there as soon as I can!"
+     ],
+     "close": [
+      "See you soon!"
+     ]
+    }
+   },
+   "extension": {
+    "keys": [
+     "extension",
+     "more time",
+     "extra time",
+     "extend the deadline",
+     "deadline extension",
+     "later deadline"
+    ],
+    "subject": [
+     "Request for an Extension{about_title}"
+    ],
+    "formal": {
+     "open": [
+      "I hope you are well."
+     ],
+     "body": [
+      "I would like to ask for a short extension{about}{reason}.",
+      "I am writing to ask whether I could have a little more time{about}{reason}."
+     ],
+     "extra": [
+      "I am making good progress and would be able to submit it within a few days. I apologize for any inconvenience."
+     ],
+     "close": [
+      "Thank you for considering my request.",
+      "Thank you very much for your understanding."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "could I get a bit more time{about}{reason}?"
+     ],
+     "extra": [
+      "I'm almost done, I just need a few more days."
+     ],
+     "close": [
+      "Thanks a lot!"
+     ]
+    }
+   },
+   "day_off": {
+    "keys": [
+     "day off",
+     "days off",
+     "time off",
+     "vacation",
+     "holiday",
+     "annual leave",
+     "leave of absence",
+     "personal day",
+     "take (?:a |the )?(?:day|week|afternoon|morning) off",
+     "take leave"
+    ],
+    "subject": [
+     "Request for a Day Off {date_title}",
+     "Time-Off Request {date_title}"
+    ],
+    "formal": {
+     "open": [
+      "I hope you are well.",
+      "I hope this message finds you well."
+     ],
+     "body": [
+      "I would like to request a day off {date_phrase}{reason}.",
+      "I am writing to ask whether I could take a day off {date_phrase}{reason}."
+     ],
+     "extra": [
+      "I will make sure that my current tasks are up to date before then, and I can hand over anything urgent to a colleague.",
+      "I will finish my open tasks beforehand, and I will be reachable by e-mail if anything urgent comes up."
+     ],
+     "close": [
+      "Please let me know if this works for you.",
+      "Thank you for considering my request."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "would it be okay if I took {date_phrase} off{reason}?",
+      "I was wondering if I could take {date_phrase} off{reason}."
+     ],
+     "extra": [
+      "I'll make sure everything important is done before then."
+     ],
+     "close": [
+      "Let me know what you think!",
+      "Thanks a lot!"
+     ]
+    }
+   },
+   "sick": {
+    "keys": [
+     "sick",
+     "\\bill\\b",
+     "unwell",
+     "not feeling well",
+     "can't come (?:in|to work)",
+     "cannot come (?:in|to work)",
+     "won't (?:be able to )?(?:come|make it)",
+     "sick leave",
+     "call in sick",
+     "fever",
+     "flu",
+     "doctor"
+    ],
+    "subject": [
+     "Sick Leave {date_title}",
+     "Unable to Work {date_title}"
+    ],
+    "formal": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "Unfortunately, I am not feeling well and will not be able to come to work {date_phrase}.",
+      "I am writing to let you know that I am unwell and need to take sick leave {date_phrase}."
+     ],
+     "extra": [
+      "I will keep an eye on my e-mails for anything urgent and let you know as soon as I am feeling better.",
+      "If necessary, I can provide a doctor's note."
+     ],
+     "close": [
+      "Thank you for your understanding.",
+      "I apologize for any inconvenience."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I'm feeling pretty sick, so I won't make it {date_phrase}.",
+      "unfortunately I'm ill and have to stay home {date_phrase}."
+     ],
+     "extra": [
+      "I'll let you know when I'm feeling better."
+     ],
+     "close": [
+      "Sorry about that!",
+      "Thanks for understanding!"
+     ]
+    }
+   },
+   "meeting": {
+    "keys": [
+     "(?:schedule|set up|arrange|book|request|ask for|have|plan|organi[sz]e) (?:a |an |some )?(?:short |quick )?(?:meeting|call|appointment|time)",
+     "meet (?:up|with)",
+     "(?:if|whether) (?:we|i) (?:can|could) meet",
+     "get together",
+     "catch up",
+     "find a time"
+    ],
+    "subject": [
+     "Meeting Request{about_title}",
+     "Could We Schedule a Meeting{about_title}?"
+    ],
+    "formal": {
+     "open": [
+      "I hope you are doing well."
+     ],
+     "body": [
+      "I would like to schedule a meeting{about} {date_phrase_or_soon}.",
+      "Would you have time for a short meeting{about} {date_phrase_or_soon}?"
+     ],
+     "extra": [
+      "Please let me know which time suits you best, and I will send a calendar invitation.",
+      "Thirty minutes should be enough; I am flexible with the time."
+     ],
+     "close": [
+      "Looking forward to hearing from you.",
+      "Thank you in advance."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "do you have time to meet{about} {date_phrase_or_soon}?",
+      "shall we catch up{about} {date_phrase_or_soon}?"
+     ],
+     "extra": [
+      "Just let me know what time works for you."
+     ],
+     "close": [
+      "Talk soon!",
+      "Looking forward to it!"
+     ]
+    }
+   },
+   "reschedule": {
+    "keys": [
+     "reschedule",
+     "postpone",
+     "move (?:the|our) (?:meeting|appointment|call)",
+     "push back",
+     "change the (?:date|time) of"
+    ],
+    "subject": [
+     "Request to Reschedule{about_title}"
+    ],
+    "formal": {
+     "open": [
+      "I hope you are well."
+     ],
+     "body": [
+      "Unfortunately, I need to reschedule our {item_or_meeting}{date_from}. Would another time {date_phrase_or_soon} work for you?",
+      "I am afraid I have to ask whether we could move our {item_or_meeting} to a different time{date_to}."
+     ],
+     "extra": [
+      "I apologize for the short notice and any inconvenience this may cause."
+     ],
+     "close": [
+      "Thank you for your understanding.",
+      "Please let me know what works best for you."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "can we move our {item_or_meeting}? Something came up{date_from}.",
+      "I need to reschedule our {item_or_meeting} — would another day work?"
+     ],
+     "extra": [
+      "Sorry for the short notice!"
+     ],
+     "close": [
+      "Thanks!",
+      "Let me know!"
+     ]
+    }
+   },
+   "cancel": {
+    "keys": [
+     "cancel",
+     "cancellation",
+     "terminate",
+     "end my (?:subscription|membership|contract)",
+     "unsubscribe",
+     "quit my (?:gym|membership|subscription)"
+    ],
+    "subject": [
+     "Cancellation of {item_or_subscription}",
+     "Request to Cancel {item_or_subscription}"
+    ],
+    "formal": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I would like to cancel {item_or_subscription}{effective}.",
+      "I am writing to request the cancellation of {item_or_subscription}{effective}."
+     ],
+     "extra": [
+      "Please confirm the cancellation in writing and let me know if you need any further information from me.",
+      "I would appreciate a short written confirmation, including the date on which the cancellation takes effect."
+     ],
+     "close": [
+      "Thank you for your assistance.",
+      "Thank you in advance."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I'd like to cancel {item_or_subscription}{effective}.",
+      "unfortunately I have to cancel {item_or_subscription}{effective}."
+     ],
+     "extra": [
+      "Could you confirm once it's done?"
+     ],
+     "close": [
+      "Thanks!"
+     ]
+    }
+   },
+   "complaint": {
+    "keys": [
+     "complain",
+     "complaint",
+     "broken",
+     "damaged",
+     "defective",
+     "faulty",
+     "doesn't work",
+     "does not work",
+     "not working",
+     "late delivery",
+     "never arrived",
+     "hasn't arrived",
+     "poor service",
+     "bad service",
+     "unhappy with",
+     "disappointed with",
+     "wrong (?:item|order|product)"
+    ],
+    "subject": [
+     "Complaint{about_title}",
+     "Problem{about_title}"
+    ],
+    "formal": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I am writing to complain{about}.",
+      "I am contacting you because I am unhappy{about}."
+     ],
+     "extra": [
+      "I would appreciate it if you could look into this matter and let me know how you intend to resolve it.",
+      "Please let me know how this can be resolved — for example by a replacement or a refund."
+     ],
+     "close": [
+      "I look forward to your prompt reply.",
+      "Thank you for your attention to this matter."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I'm not happy{about}.",
+      "I have a problem{about}."
+     ],
+     "extra": [
+      "Could you please sort this out?"
+     ],
+     "close": [
+      "Thanks."
+     ]
+    }
+   },
+   "refund": {
+    "keys": [
+     "refund",
+     "money back",
+     "reimburse",
+     "reimbursement",
+     "return (?:an|the|my) (?:item|order|product)",
+     "chargeback"
+    ],
+    "subject": [
+     "Refund Request{about_title}"
+    ],
+    "formal": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I would like to request a refund{about}.",
+      "I am writing to ask for a refund{about}."
+     ],
+     "extra": [
+      "I have kept the receipt and order details and can send them to you if needed.",
+      "Please let me know how you would like me to return the item, if necessary."
+     ],
+     "close": [
+      "Thank you for your help.",
+      "I look forward to hearing from you."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I'd like to get a refund{about}."
+     ],
+     "extra": [
+      "Let me know if you need the receipt."
+     ],
+     "close": [
+      "Thanks!"
+     ]
+    }
+   },
+   "thanks": {
+    "keys": [
+     "thank",
+     "thanking",
+     "gratitude",
+     "grateful",
+     "appreciation",
+     "appreciate"
+    ],
+    "subject": [
+     "Thank You{about_title}",
+     "Many Thanks{about_title}"
+    ],
+    "formal": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I wanted to take a moment to thank you{about}.",
+      "Thank you very much{about}."
+     ],
+     "extra": [
+      "It meant a great deal to me, and I truly appreciate your time and support.",
+      "Your help made a real difference."
+     ],
+     "close": [
+      "With sincere thanks,",
+      "Thank you again."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "thank you so much{about}!",
+      "just wanted to say a big thank you{about}!"
+     ],
+     "extra": [
+      "It really meant a lot to me."
+     ],
+     "close": [
+      "You're the best!",
+      "Thanks again!"
+     ]
+    }
+   },
+   "apology": {
+    "keys": [
+     "apolog",
+     "sorry",
+     "make amends",
+     "my mistake",
+     "i messed up"
+    ],
+    "subject": [
+     "My Apologies{about_title}",
+     "Apology{about_title}"
+    ],
+    "formal": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I would like to apologize{about}.",
+      "Please accept my sincere apologies{about}."
+     ],
+     "extra": [
+      "It was not my intention to cause any inconvenience, and I will make sure it does not happen again.",
+      "I take full responsibility and have taken steps to prevent this in the future."
+     ],
+     "close": [
+      "Thank you for your understanding.",
+      "Once again, I apologize."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I'm really sorry{about}.",
+      "I owe you an apology{about}."
+     ],
+     "extra": [
+      "I didn't mean to upset you, and it won't happen again."
+     ],
+     "close": [
+      "I hope you can forgive me.",
+      "Sorry again!"
+     ]
+    }
+   },
+   "invitation": {
+    "keys": [
+     "invite",
+     "inviting",
+     "invitation",
+     "\\bparty\\b",
+     "dinner",
+     "barbecue",
+     "bbq",
+     "celebration",
+     "join (?:me|us)"
+    ],
+    "subject": [
+     "Invitation{about_title}",
+     "You're Invited{about_title}!"
+    ],
+    "formal": {
+     "open": [
+      "I hope you are well."
+     ],
+     "body": [
+      "I would like to invite you{about} {date_phrase_or_blank}.",
+      "It would be a pleasure to welcome you{about} {date_phrase_or_blank}."
+     ],
+     "extra": [
+      "Please let me know by the end of the week whether you will be able to attend."
+     ],
+     "close": [
+      "I hope you will be able to join us.",
+      "Looking forward to seeing you."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I'd love to invite you{about} {date_phrase_or_blank}!",
+      "want to come{about} {date_phrase_or_blank}?"
+     ],
+     "extra": [
+      "Let me know if you can make it!"
+     ],
+     "close": [
+      "Hope to see you there!",
+      "It'll be fun!"
+     ]
+    }
+   },
+   "follow_up": {
+    "keys": [
+     "follow(?:ing)? up",
+     "check(?:ing)? in",
+     "haven't heard back",
+     "have not heard back",
+     "no (?:reply|response)",
+     "any update",
+     "status update"
+    ],
+    "subject": [
+     "Following Up{about_title}",
+     "Quick Follow-Up{about_title}"
+    ],
+    "formal": {
+     "open": [
+      "I hope you are well."
+     ],
+     "body": [
+      "I am following up{about}.",
+      "I wanted to briefly follow up{about}."
+     ],
+     "extra": [
+      "I understand you are busy, but I would be grateful for a short update when you have a moment."
+     ],
+     "close": [
+      "Thank you in advance.",
+      "I look forward to hearing from you."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "just checking in{about}.",
+      "any news{about}?"
+     ],
+     "extra": [
+      "No rush — just let me know when you can."
+     ],
+     "close": [
+      "Thanks!"
+     ]
+    }
+   },
+   "application": {
+    "keys": [
+     "apply",
+     "application",
+     "cover letter",
+     "job (?:opening|offer|position|posting)",
+     "position as",
+     "role as",
+     "internship",
+     "applying"
+    ],
+    "subject": [
+     "Application{about_title}"
+    ],
+    "formal": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I am writing to apply{about}.",
+      "I would like to express my interest{about}."
+     ],
+     "extra": [
+      "I believe my experience and my motivation make me a good fit, and I would welcome the opportunity to contribute to your team.",
+      "I have attached my CV, which describes my background in more detail."
+     ],
+     "close": [
+      "I would be glad to discuss my application in an interview.",
+      "Thank you for considering my application."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I'd love to apply{about}."
+     ],
+     "extra": [
+      "I've attached my CV."
+     ],
+     "close": [
+      "Hope to hear from you!"
+     ]
+    }
+   },
+   "resignation": {
+    "keys": [
+     "resign",
+     "resignation",
+     "quit (?:my )?job",
+     "handing in my notice",
+     "give (?:my )?notice",
+     "leaving the company",
+     "last day"
+    ],
+    "subject": [
+     "Resignation",
+     "Letter of Resignation"
+    ],
+    "formal": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "Please accept this letter as formal notice of my resignation{effective}.",
+      "I am writing to inform you that I have decided to resign from my position{effective}."
+     ],
+     "extra": [
+      "I am grateful for the opportunities I have had here, and I will do everything I can to ensure a smooth handover.",
+      "Thank you for your support and guidance during my time with the company."
+     ],
+     "close": [
+      "I wish you and the team all the best.",
+      "Please let me know how I can help during the transition."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I wanted to let you know that I've decided to leave{effective}."
+     ],
+     "extra": [
+      "Thanks for everything — I've really enjoyed working with you."
+     ],
+     "close": [
+      "Let's stay in touch!"
+     ]
+    }
+   },
+   "introduction": {
+    "keys": [
+     "introduce myself",
+     "introducing myself",
+     "introduction",
+     "introduce (?:you|him|her|them)"
+    ],
+    "subject": [
+     "Introduction"
+    ],
+    "formal": {
+     "open": [
+      "I hope this message finds you well."
+     ],
+     "body": [
+      "I would like to briefly introduce myself: my name is {name}{about}.",
+      "Allow me to introduce myself — I am {name}{about}."
+     ],
+     "extra": [
+      "I would be happy to connect and learn more about your work."
+     ],
+     "close": [
+      "Looking forward to getting to know you.",
+      "Best wishes."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I'm {name}{about} — nice to e-meet you!"
+     ],
+     "extra": [
+      "Would love to chat sometime."
+     ],
+     "close": [
+      "Cheers!"
+     ]
+    }
+   },
+   "reminder": {
+    "keys": [
+     "remind",
+     "reminder",
+     "overdue",
+     "outstanding (?:payment|invoice)",
+     "unpaid",
+     "payment",
+     "invoice",
+     "deadline"
+    ],
+    "subject": [
+     "Friendly Reminder{about_title}"
+    ],
+    "formal": {
+     "open": [
+      "I hope you are well."
+     ],
+     "body": [
+      "I would like to kindly remind you{about}.",
+      "This is a friendly reminder{about}."
+     ],
+     "extra": [
+      "If you have already taken care of this, please disregard this message."
+     ],
+     "close": [
+      "Thank you.",
+      "Many thanks in advance."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "just a quick reminder{about}!"
+     ],
+     "extra": [
+      "If you've already done it, ignore this :)"
+     ],
+     "close": [
+      "Thanks!"
+     ]
+    }
+   },
+   "congratulations": {
+    "keys": [
+     "congratulat",
+     "promotion",
+     "new job",
+     "graduation",
+     "graduat",
+     "engagement",
+     "wedding",
+     "new baby",
+     "well done"
+    ],
+    "subject": [
+     "Congratulations!"
+    ],
+    "formal": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "Congratulations{about}! This is a wonderful achievement.",
+      "I would like to warmly congratulate you{about}."
+     ],
+     "extra": [
+      "You have worked very hard for this, and it is well deserved."
+     ],
+     "close": [
+      "I wish you every success.",
+      "All the best for what comes next."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "congratulations{about}! 🎉",
+      "huge congrats{about}!"
+     ],
+     "extra": [
+      "You totally deserve it."
+     ],
+     "close": [
+      "So happy for you!",
+      "Let's celebrate soon!"
+     ]
+    }
+   },
+   "condolence": {
+    "keys": [
+     "condolence",
+     "sympathy",
+     "passed away",
+     "died",
+     "loss of",
+     "funeral",
+     "grief",
+     "mourning"
+    ],
+    "subject": [
+     "With Deepest Sympathy"
+    ],
+    "formal": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I was deeply saddened to hear{about}. Please accept my heartfelt condolences.",
+      "I am so sorry{about}. My thoughts are with you and your family."
+     ],
+     "extra": [
+      "If there is anything I can do to help, please do not hesitate to let me know."
+     ],
+     "close": [
+      "With deepest sympathy,",
+      "Thinking of you,"
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I'm so sorry{about}. I'm thinking of you."
+     ],
+     "extra": [
+      "If you need anything at all, I'm here."
+     ],
+     "close": [
+      "Sending you a big hug,"
+     ]
+    }
+   },
+   "birthday": {
+    "keys": [
+     "birthday",
+     "bday",
+     "b-day"
+    ],
+    "subject": [
+     "Happy Birthday!"
+    ],
+    "formal": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "Happy birthday! I wish you a wonderful day and a healthy, successful year ahead.",
+      "Warmest wishes on your birthday."
+     ],
+     "extra": [
+      "I hope you get to celebrate with the people who matter most to you."
+     ],
+     "close": [
+      "All the best,"
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "happy birthday! 🎂 Hope you have an amazing day!",
+      "happy birthday to you! 🎉"
+     ],
+     "extra": [
+      "Wishing you lots of fun, cake and everything you're hoping for this year."
+     ],
+     "close": [
+      "Enjoy your day!",
+      "Big hugs!"
+     ]
+    }
+   },
+   "information": {
+    "keys": [
+     "more information",
+     "information about",
+     "inquire",
+     "enquire",
+     "inquiry",
+     "enquiry",
+     "question about",
+     "ask about",
+     "details (?:about|on)",
+     "find out"
+    ],
+    "subject": [
+     "Inquiry{about_title}",
+     "Question{about_title}"
+    ],
+    "formal": {
+     "open": [
+      "I hope you are well."
+     ],
+     "body": [
+      "I would like to ask for some information{about}.",
+      "I am writing with a question{about}."
+     ],
+     "extra": [
+      "I would be grateful if you could send me the relevant details or point me to the right person."
+     ],
+     "close": [
+      "Thank you in advance for your help.",
+      "I look forward to your reply."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "quick question{about}:"
+     ],
+     "extra": [
+      "Could you let me know?"
+     ],
+     "close": [
+      "Thanks!"
+     ]
+    }
+   },
+   "raise": {
+    "keys": [
+     "raise",
+     "salary increase",
+     "pay rise",
+     "pay increase",
+     "higher salary",
+     "compensation"
+    ],
+    "subject": [
+     "Request for a Salary Review"
+    ],
+    "formal": {
+     "open": [
+      "I hope you are well."
+     ],
+     "body": [
+      "I would like to request a meeting to discuss my salary.",
+      "I am writing to ask whether we could review my compensation."
+     ],
+     "extra": [
+      "Over the past year I have taken on additional responsibilities, and I would welcome the chance to discuss how my role and pay have developed."
+     ],
+     "close": [
+      "Thank you for considering my request.",
+      "I look forward to our conversation."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "could we talk about my salary sometime soon?"
+     ],
+     "extra": [
+      "I think it's a good time to look at it again."
+     ],
+     "close": [
+      "Thanks!"
+     ]
+    }
+   },
+   "welcome": {
+    "keys": [
+     "welcome"
+    ],
+    "subject": [
+     "Welcome!"
+    ],
+    "formal": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I would like to warmly welcome you{about}.",
+      "Welcome{about}! We are delighted to have you."
+     ],
+     "extra": [
+      "Please do not hesitate to reach out if you have any questions."
+     ],
+     "close": [
+      "Best wishes for your start.",
+      "We look forward to working with you."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "welcome{about}! 🎉 So glad you're here."
+     ],
+     "extra": [
+      "Let me know if you need anything."
+     ],
+     "close": [
+      "See you around!"
+     ]
+    }
+   },
+   "generic": {
+    "keys": [],
+    "subject": [
+     "{topic_title}"
+    ],
+    "formal": {
+     "open": [
+      "I hope you are well."
+     ],
+     "body": [
+      "I am writing {topic_clause}{reason}.",
+      "I wanted to get in touch {topic_clause}{reason}."
+     ],
+     "extra": [
+      "Please let me know if you have any questions."
+     ],
+     "close": [
+      "Thank you for your time.",
+      "I look forward to hearing from you."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I'm writing {topic_clause}{reason}.",
+      "just wanted to reach out {topic_clause}{reason}."
+     ],
+     "extra": [
+      "Let me know what you think!"
+     ],
+     "close": [
+      "Talk soon!"
+     ]
+    }
+   }
+  },
+  "poems": [
+   "{Topic}, you quiet wonder of the day,\nyou find a way to brighten every grey;\nin every thought, in every word I write,\nyou are a spark that keeps the world in light.",
+   "I asked the wind to tell me about {topic},\nit whispered softly through the trees;\nsome things are best not said, but felt —\nlike {topic}, carried on the breeze.",
+   "Of all the things I've read and known,\nof all the words I've learned to weigh,\nthere's something about {topic}\nthat makes me want to stay.",
+   "Morning comes, and {topic} is there,\nas steady as the rising sun;\nit asks for nothing, gives its share,\nand stays when all the day is done."
   ]
  }
 }

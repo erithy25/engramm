@@ -86,6 +86,10 @@ def config_for(index_dir: Path) -> tuple[BotConfig, str]:
     """(configuration, mode) for an index folder: the full v14 configuration when its models are there,
     else the quick v9 configuration."""
     d = Path(index_dir)
-    if d.name == INDEX_NAME and (d / SPAN_MODEL).exists() and (d / CALIBRATOR).exists():
+    name = d.name
+    if (d / "info.json").exists():
+        import json
+        name = json.loads((d / "info.json").read_text()).get("materialized_from", name)
+    if name == INDEX_NAME and (d / SPAN_MODEL).exists() and (d / CALIBRATOR).exists():
         return FROZEN, "full"
     return QUICK, "quick"

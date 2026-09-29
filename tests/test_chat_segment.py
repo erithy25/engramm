@@ -68,3 +68,30 @@ def test_segment_equals_full_build(tmp_path):
     assert np.array_equal(a.doc_ptr, np.asarray(b.doc_ptr))
     assert np.array_equal(a.doc_post, np.asarray(b.doc_post))
     assert a.sentence_text(a.index.n - 1) == b.sentence_text(b.index.n - 1)
+
+
+def test_materialized_equals_segment_merge(tmp_path):
+    """chat4m: base + segment written as one index on disk equals the in-memory merge."""
+    from engramm.chat.corpus import materialize
+    tok = LMTokenizer()
+    bt, bs = _stream(tok, BASE_TEXT)
+    st, ss = _stream(tok, SEG_TEXT)
+    _write(tmp_path / "base", bt, bs, BASE_DOCS, tok, "corpus")
+    _write(tmp_path / "seg", st, ss, SEG_DOCS, tok, "segment")
+    (tmp_path / "seg" / "segment.json").write_text(json.dumps({"base": "base"}))
+    (tmp_path / "seg" / "spanperc_x.json").write_text("{}")
+    out = materialize(tmp_path / "seg", tmp_path / "segm", chunk=7)
+    eng = np.zeros((1, 1), dtype=np.uint64)
+    a = Corpus.with_index(None, None, None, tok, eng, tmp_path / "seg", mmap=False)
+    b = Corpus.with_index(None, None, None, tok, eng, out, mmap=True)
+    assert isinstance(b.index.post, np.memmap) and isinstance(b.tokens, np.memmap)
+    assert np.array_equal(np.asarray(a.tokens), np.asarray(b.tokens))
+    assert np.array_equal(a.doc_starts, b.doc_starts)
+    assert [tuple(k) for k in a.doc_keys] == [tuple(k) for k in b.doc_keys]
+    for name in ("starts", "lens", "ptr", "post", "sent_terms", "term_of"):
+        assert np.array_equal(np.asarray(getattr(a.index, name)), np.asarray(getattr(b.index, name))), name
+    assert np.array_equal(a.sent_doc, np.asarray(b.sent_doc))
+    assert np.array_equal(a.doc_ptr, np.asarray(b.doc_ptr))
+    assert np.array_equal(a.doc_post, np.asarray(b.doc_post))
+    assert (out / "spanperc_x.json").exists()
+    assert json.loads((out / "info.json").read_text())["materialized_from"] == "seg"

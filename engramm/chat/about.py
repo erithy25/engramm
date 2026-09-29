@@ -165,14 +165,14 @@ class AboutFinder:
                 best = d
         return best
 
-    def find(self, topic: str, n: int = 3) -> About | None:
+    def find(self, topic: str, n: int = 3, max_chars: int = 700) -> About | None:
         for v in variants(topic):
             docs = self.titles.lookup(v)
             if docs:
                 d = self._best_doc(docs, v)
                 if d is None:
                     continue
-                sents, nxt, end = self._doc_text(d, n=n)
+                sents, nxt, end = self._doc_text(d, n=n, max_chars=max(max_chars, 150 * n))
                 if not sents or "may refer to" in sents[0].lower():
                     continue          # a disambiguation page
                 src_key = self.c.doc_keys[d][1]
