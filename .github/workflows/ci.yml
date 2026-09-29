@@ -62,4 +62,8 @@ jobs:
           npm ci
           npm run build
       - name: The committed page is the built page
-        run: git diff --exit-code -- engramm/app/web || (echo "engramm/app/web is out of date: run npm run build in ui/" && exit 1)
+        run: |
+          if ! git diff --exit-code -- engramm/app/web; then
+            echo "engramm/app/web is out of date - run 'npm run build' in ui/"
+            exit 1
+          fi
