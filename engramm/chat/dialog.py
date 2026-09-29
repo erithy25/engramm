@@ -32,6 +32,7 @@ from engramm.chat.acts import Unit, classify
 from engramm.chat.bank import Bank, choose, load_bank, normalise
 from engramm.chat.bot import CHAT_PREFIX, Reply, source_id
 from engramm.chat.facts import USER, facts_from_text
+from engramm.chat.german import is_german, understand
 from engramm.chat.realize import answer_sentence, article, personal_sentence, to_second_person
 
 FRESH_CTX = {"answer": None, "atype": None, "mention": None, "last_learned": None}
@@ -125,6 +126,45 @@ class Assistant:
     def _now(self):
         return self.clock() if self.clock else None
 
+    def _german(self, st: DialogState, msg: str) -> Reply:
+        """A German message (engramm/chat/german.py): chat, feelings, crises, memory; knowledge
+        questions get an honest pointer to English."""
+        de = self.bank.de
+        u = understand(msg, de)
+        name = self.user_name()
+        if u.kind == "safety":
+            st.pending = None
+            return Reply(msg, "safety", u.data["response"], via="safety")
+        if u.kind == "remember":
+            inner = self._turn(st, u.data["english"])
+            if inner.kind != "learned":
+                return Reply(msg, "unknown", self._pick(st, "de:fallback", de["replies"]["fallback"]), via="german")
+            key = "learned_name" if u.data["what"] == "name" else "learned_fact"
+            text = self._pick(st, f"de:{key}", de["replies"][key], name=u.data["value"])
+            return Reply(msg, "learned", text, source=inner.source, via="german")
+        if u.kind == "ask_name":
+            if name:
+                return Reply(msg, "answer", _fill(de["replies"]["name_known"][0], name=name), via="german")
+            st.pending = {"slot": "name", "store": self.bank.fun["questions"]["ask_name"]["store"], "turn": st.turn}
+            return Reply(msg, "unknown", de["replies"]["name_unknown"][0], via="german")
+        if u.kind == "calc":
+            from engramm.chat.tools import calculate
+            res = calculate(u.data["expr"])
+            if res is not None and res.value is not None:
+                return Reply(msg, "tool", f"{u.data['expr']} = {res.value.replace('.', ',')}", via="tool")
+        if u.kind == "intent":
+            it = next(i for i in de["intents"] if i["id"] == u.data["id"])
+            opts = it.get("responses_named") if name and it.get("responses_named") else it["responses"]
+            return Reply(msg, "smalltalk", self._pick(st, f"de:{it['id']}", opts, name=name or ""), via="german")
+        if u.kind == "feeling":
+            fe = de["feelings"]
+            if u.data["negated"]:
+                opts = fe["negated_negative"] if u.data["valence"] == "negative" else fe["negated_positive"]
+            else:
+                opts = next(c for c in fe["categories"] if c["id"] == u.data["id"])["responses"]
+            return Reply(msg, "empathy", self._pick(st, f"de:feeling:{u.data['id']}", opts), via="german")
+        return Reply(msg, "unknown", self._pick(st, "de:fallback", de["replies"]["fallback"]), via="german")
+
     # -- the turn -----------------------------------------------------------------------------
 
     def turn(self, st: DialogState, message: str) -> Reply:
@@ -147,6 +187,9 @@ class Assistant:
     def _turn(self, st: DialogState, msg: str) -> Reply:
         if not msg:
             return Reply(msg, "nothing", "Please type something.")
+        de = self.bank.de
+        if de and is_german(msg, de) and self.bank.safety_rule(normalise(msg, fillers=False)) is None:
+            return self._german(st, msg)
         units = classify(msg, self.bank, self._now())
         if units[0].act == "safety":
             st.pending = None

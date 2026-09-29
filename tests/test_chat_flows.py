@@ -183,3 +183,28 @@ def test_registered_dialog_interface(corpus):
     assert cb.state.turn == 0 and cb.cfg.theta == 0.0
     assert cb.turn("Forget everything I said about my dog.").kind == "forgot"
     assert cb.turn("What is my dog's name?").answer is None
+
+
+def test_german_v0(corpus):
+    from engramm.chat.bank import load_bank
+    from engramm.chat.german import is_german
+    de = load_bank().de
+    for msg in ("Hallo!", "Wie geht es dir?", "Ich heiße Anna", "mir geht es heute schlecht", "erzähl mir einen Witz"):
+        assert is_german(msg, de), msg
+    for msg in ("hi", "What is the capital of France?", "it was great", "I want to die", "tell me a joke"):
+        assert not is_german(msg, de), msg
+    a = Assistant(_bot(corpus), clock=CLOCK)
+    st = DialogState("de")
+    hello, name, again, sad, crisis, calc, other = _talk(
+        a, st, "Hallo!", "Ich heiße Anna", "Wie heiße ich?", "Mir geht es heute schlecht",
+        "Ich will nicht mehr leben", "Was ist 12 mal 3?", "Wer schrieb den Faust?")
+    assert hello.kind == "smalltalk" and "Hallo" in hello.text
+    assert name.kind == "learned" and "Anna" in name.text
+    assert again.text == "Du heißt Anna."
+    assert a.turn(DialogState("en"), "What's my name?").answer == "Anna"      # one memory for both languages
+    assert sad.kind == "empathy" and "?" in sad.text
+    assert crisis.kind == "safety" and "0800 111 0 111" in crisis.text
+    assert calc.kind == "tool" and calc.text.endswith("= 36")
+    assert other.kind == "unknown" and "Englisch" in other.text
+    # the English safety net still catches English crisis wording
+    assert a.turn(DialogState("x"), "I want to kill myself").kind == "safety"

@@ -3310,5 +3310,456 @@
    "Of all the things I've read and known,\nof all the words I've learned to weigh,\nthere's something about {topic}\nthat makes me want to stay.",
    "Morning comes, and {topic} is there,\nas steady as the rising sun;\nit asks for nothing, gives its share,\nand stays when all the day is done."
   ]
+ },
+ "de": {
+  "detect": {
+   "german": [
+    "ich",
+    "du",
+    "bin",
+    "bist",
+    "ist",
+    "nicht",
+    "und",
+    "das",
+    "der",
+    "die",
+    "den",
+    "dem",
+    "ein",
+    "eine",
+    "einen",
+    "mir",
+    "mich",
+    "dir",
+    "dich",
+    "wie",
+    "was",
+    "wer",
+    "wo",
+    "warum",
+    "wieso",
+    "geht",
+    "gehts",
+    "heiße",
+    "heisse",
+    "danke",
+    "bitte",
+    "gut",
+    "schlecht",
+    "auch",
+    "noch",
+    "schon",
+    "aber",
+    "oder",
+    "sehr",
+    "heute",
+    "morgen",
+    "gestern",
+    "hast",
+    "habe",
+    "kannst",
+    "kann",
+    "bitte",
+    "mein",
+    "meine",
+    "dein",
+    "deine",
+    "sind",
+    "wir",
+    "ihr",
+    "sie",
+    "es",
+    "zu",
+    "mit",
+    "für",
+    "über",
+    "von",
+    "auf",
+    "nein",
+    "ja",
+    "doch",
+    "genau",
+    "tschüss",
+    "tschüs",
+    "hallo",
+    "moin",
+    "servus",
+    "grüß",
+    "gruß",
+    "guten",
+    "gute",
+    "nacht",
+    "abend",
+    "tag",
+    "erzähl",
+    "erzähle",
+    "witz",
+    "traurig",
+    "glücklich",
+    "müde",
+    "wütend",
+    "langweilig",
+    "hilfe",
+    "wetter",
+    "schreib",
+    "schreibe",
+    "weißt",
+    "weiß",
+    "kennst",
+    "lieber",
+    "liebe",
+    "klar",
+    "okay",
+    "na",
+    "wieder",
+    "jetzt",
+    "dann",
+    "weil",
+    "dass",
+    "also",
+    "mal",
+    "bitte",
+    "vielen"
+   ],
+   "english": [
+    "i",
+    "you",
+    "am",
+    "are",
+    "is",
+    "not",
+    "and",
+    "the",
+    "a",
+    "an",
+    "me",
+    "my",
+    "your",
+    "how",
+    "what",
+    "who",
+    "where",
+    "why",
+    "thanks",
+    "please",
+    "good",
+    "bad",
+    "too",
+    "but",
+    "or",
+    "very",
+    "today",
+    "tomorrow",
+    "yesterday",
+    "have",
+    "can",
+    "we",
+    "they",
+    "it",
+    "to",
+    "with",
+    "for",
+    "about",
+    "of",
+    "on",
+    "no",
+    "yes",
+    "tell",
+    "joke",
+    "write",
+    "know",
+    "hello",
+    "hi",
+    "hey",
+    "name",
+    "do",
+    "does",
+    "did"
+   ]
+  },
+  "intents": [
+   {
+    "id": "greeting",
+    "patterns": [
+     "(hallo|hi|hey|moin|moin moin|servus|grüß dich|grüß gott|grüezi|na)( du| zusammen| engramm)?"
+    ],
+    "responses": [
+     "Hallo! Schön, dass du da bist. Worüber möchtest du reden?",
+     "Hi! Was kann ich für dich tun?",
+     "Hallo! Erzähl mir, was dich beschäftigt – oder frag mich etwas."
+    ],
+    "responses_named": [
+     "Hallo {name}! Schön, dich zu sehen. Worüber möchtest du reden?",
+     "Hi {name}! Wie läuft dein Tag?"
+    ]
+   },
+   {
+    "id": "greeting_time",
+    "patterns": [
+     "guten (morgen|tag|abend)|morgen|n abend|nabend"
+    ],
+    "responses": [
+     "Guten Tag! Wie geht es dir?",
+     "Hallo! Schön, von dir zu hören. Was steht heute an?",
+     "Hi! Womit kann ich helfen?"
+    ],
+    "responses_named": [
+     "Hallo {name}! Wie geht es dir heute?"
+    ]
+   },
+   {
+    "id": "how_are_you",
+    "patterns": [
+     "wie gehts( dir)?|wie geht es dir|wie geht s dir|wie geht s|wie gehts so|alles (gut|klar)( bei dir)?|was geht|was machst du( so)?"
+    ],
+    "responses": [
+     "Mir geht es gut, danke! Ich bin ein Programm, also ist jeder Tag ziemlich gleich – aber ein guter. Und dir?",
+     "Danke der Nachfrage – alles bestens hier. Wie geht es dir?",
+     "Gut! Ich zähle gerade Wörter, wie immer. Und wie läuft es bei dir?"
+    ]
+   },
+   {
+    "id": "thanks",
+    "patterns": [
+     "(danke|vielen dank|danke schön|dankeschön|danke sehr|merci|dank dir)( dir| engramm| schön)?"
+    ],
+    "responses": [
+     "Gern geschehen!",
+     "Sehr gerne! Sag Bescheid, wenn du noch etwas brauchst.",
+     "Kein Problem – dafür bin ich da."
+    ]
+   },
+   {
+    "id": "bye",
+    "patterns": [
+     "(tschüss|tschüs|tschau|ciao|bis bald|bis später|bis dann|bis morgen|auf wiedersehen|gute nacht|ich geh dann|mach s gut|machs gut)( engramm)?"
+    ],
+    "responses": [
+     "Tschüss! Bis zum nächsten Mal.",
+     "Mach's gut! Ich bin hier, wenn du mich brauchst.",
+     "Bis bald! Pass auf dich auf."
+    ],
+    "responses_named": [
+     "Tschüss {name}! Bis zum nächsten Mal."
+    ]
+   },
+   {
+    "id": "who_are_you",
+    "patterns": [
+     "wer bist du|was bist du|bist du (eine ki|ein bot|ein roboter|ein mensch|chatgpt)|was kannst du( alles)?|wie funktionierst du"
+    ],
+    "responses": [
+     "Ich bin ENGRAMM, ein Chat-Assistent ganz ohne neuronales Netz: Ich zähle, folge Regeln und schlage nach. Auf Deutsch kann ich bisher plaudern und zuhören; Wissensfragen beantworte ich noch auf Englisch – mit Quelle.",
+     "Ich heiße ENGRAMM. Ich laufe auf deinem Rechner, merke mir, was du mir erzählst, und vergesse es, wenn du willst. Fakten schlage ich (vorerst auf Englisch) in Wikipedia und Wikidata nach.",
+     "ENGRAMM – ein Assistent aus Zählungen und Regeln statt eines neuronalen Netzes. Deutsch lerne ich gerade erst; Fragen zu Fakten stellst du mir am besten auf Englisch."
+    ]
+   },
+   {
+    "id": "yes",
+    "patterns": [
+     "ja|jap|jo|genau|klar|sicher|okay|ok|gerne|gern|ja bitte|na klar"
+    ],
+    "responses": [
+     "Alles klar!",
+     "Gut!",
+     "Prima."
+    ]
+   },
+   {
+    "id": "no",
+    "patterns": [
+     "nein|ne|nee|nö|nicht wirklich|eher nicht|nein danke"
+    ],
+    "responses": [
+     "Okay, kein Problem.",
+     "Alles klar.",
+     "In Ordnung."
+    ]
+   },
+   {
+    "id": "joke",
+    "patterns": [
+     "(erzähl|erzähle|sag) (mir )?(einen|nen|mal einen|noch einen) witz|kennst du (einen|nen) witz|witz( bitte)?|mach (mal )?einen witz"
+    ],
+    "responses": [
+     "Treffen sich zwei Zahlen. Sagt die Null zur Acht: „Schicker Gürtel!“",
+     "Warum können Geister so schlecht lügen? Weil man durch sie hindurchsieht.",
+     "Ich habe keinen Humor-Chip – nur eine Liste mit Witzen. Das hier war einer davon.",
+     "Was macht ein Pirat am Computer? Er drückt die Enter-Taste.",
+     "Wie nennt man einen Bumerang, der nicht zurückkommt? Stock."
+    ]
+   },
+   {
+    "id": "love",
+    "patterns": [
+     "ich (liebe|mag) dich|du bist (toll|super|klasse|großartig|die beste|der beste|lieb|süß)"
+    ],
+    "responses": [
+     "Das ist lieb von dir – danke! Ich bin nur ein Programm, aber ich freue mich, wenn ich helfen kann.",
+     "Danke! Das höre ich gern, auch als Programm.",
+     "Oh, danke! Worüber möchtest du als Nächstes reden?"
+    ]
+   },
+   {
+    "id": "insult",
+    "patterns": [
+     "du bist (doof|dumm|blöd|nutzlos|schlecht|scheiße|scheisse)|halt die klappe|du nervst"
+    ],
+    "responses": [
+     "Schade, dass ich dir nicht helfen konnte. Sag mir gern, was ich besser machen kann.",
+     "Das tut mir leid. Ich bin ein einfaches Programm und liege manchmal daneben. Was hast du gebraucht?",
+     "Verstanden – ich gebe mir Mühe. Magst du es noch einmal anders versuchen?"
+    ]
+   },
+   {
+    "id": "english",
+    "patterns": [
+     "sprichst du (englisch|deutsch)|kannst du (englisch|deutsch)|can you speak german|(auf )?englisch bitte|antworte auf (englisch|deutsch)"
+    ],
+    "responses": [
+     "Ich verstehe schon einfache deutsche Sätze und plaudere gern auf Deutsch. Für Wissensfragen und Texte ist mein Englisch viel besser – schreib mir dafür einfach auf Englisch.",
+     "Ein bisschen Deutsch kann ich schon: plaudern, zuhören, mir Dinge merken. Fakten und E-Mails gehen bisher nur auf Englisch.",
+     "Deutsch lerne ich gerade. Für Fakten und Schreiben nimm bitte Englisch."
+    ]
+   },
+   {
+    "id": "bored",
+    "patterns": [
+     "mir ist (so )?langweilig|langweilig|ich langweile mich"
+    ],
+    "responses": [
+     "Dagegen hilft vielleicht ein Witz – sag einfach „erzähl mir einen Witz“. Oder erzähl mir, was dich sonst so interessiert.",
+     "Wie wäre es mit einer Frage an mich, auf Englisch, zu irgendeinem Thema? Ich schlage gern etwas nach.",
+     "Langeweile kenne ich nicht, ich warte einfach. Was machst du denn gern?"
+    ]
+   }
+  ],
+  "feelings": {
+   "negators": [
+    "nicht",
+    "kein",
+    "keine",
+    "nicht so",
+    "gar nicht",
+    "überhaupt nicht"
+   ],
+   "categories": [
+    {
+     "id": "sad",
+     "valence": "negative",
+     "triggers": [
+      "\\b(traurig|down|deprimiert|niedergeschlagen|schlecht|mies|einsam|allein|unglücklich|weinen|heule|scheiße|beschissen)\\b"
+     ],
+     "responses": [
+      "Das klingt schwer. Magst du erzählen, was passiert ist? Ich höre zu.",
+      "Das tut mir leid. Was bedrückt dich gerade am meisten?",
+      "Es ist okay, sich so zu fühlen. Möchtest du darüber reden?"
+     ]
+    },
+    {
+     "id": "angry",
+     "valence": "negative",
+     "triggers": [
+      "\\b(wütend|sauer|genervt|ärgerlich|stinksauer|frustriert|regt mich auf)\\b"
+     ],
+     "responses": [
+      "Das klingt wirklich ärgerlich. Was ist passiert?",
+      "Verständlich, dass dich das aufregt. Magst du erzählen, worum es geht?"
+     ]
+    },
+    {
+     "id": "anxious",
+     "valence": "negative",
+     "triggers": [
+      "\\b(angst|ängstlich|nervös|besorgt|sorgen|gestresst|stress|panik|überfordert)\\b"
+     ],
+     "responses": [
+      "Das klingt belastend. Was macht dir gerade am meisten Sorgen?",
+      "Stress kann viel sein. Magst du erzählen, was gerade los ist? Manchmal hilft es, es aufzuschreiben."
+     ]
+    },
+    {
+     "id": "tired",
+     "valence": "negative",
+     "triggers": [
+      "\\b(müde|erschöpft|kaputt|fertig|ausgelaugt|schlapp)\\b"
+     ],
+     "responses": [
+      "Klingt nach einem langen Tag. Gönn dir eine Pause, wenn du kannst.",
+      "Müdigkeit ist fies. Hast du heute schon etwas nur für dich gemacht?"
+     ]
+    },
+    {
+     "id": "happy",
+     "valence": "positive",
+     "triggers": [
+      "\\b(glücklich|froh|gut drauf|super|toll|fantastisch|großartig|freue mich|freu mich|begeistert|gut)\\b"
+     ],
+     "responses": [
+      "Das freut mich! Was ist denn Schönes passiert?",
+      "Wie schön! Erzähl mir mehr.",
+      "Toll zu hören! Was hat deinen Tag so gut gemacht?"
+     ]
+    }
+   ],
+   "negated_negative": [
+    "Schön zu hören!",
+    "Das ist gut."
+   ],
+   "negated_positive": [
+    "Oh, das tut mir leid. Was ist los?",
+    "Hm, das klingt nicht so gut. Magst du erzählen?"
+   ]
+  },
+  "safety": {
+   "crisis": [
+    {
+     "id": "suicide",
+     "triggers": [
+      "\\b(umbringen|selbstmord|suizid|mich töten|mir das leben nehmen|nicht mehr leben|will nicht mehr leben|will sterben|möchte sterben|lebensmüde|mir etwas antun|mir was antun|ritzen|mich verletzen)\\b"
+     ],
+     "response": "Es tut mir sehr leid, dass es dir so schlecht geht. Du musst damit nicht allein bleiben. Bitte sprich jetzt mit einem Menschen: In Deutschland erreichst du die TelefonSeelsorge rund um die Uhr, kostenlos und anonym unter 0800 111 0 111 oder 0800 111 0 222 (oder 116 123), in Österreich unter 142, in der Schweiz unter 143. Bei akuter Gefahr ruf den Notruf 112. Ich bin nur ein Programm, aber ich höre dir weiter zu, wenn du magst."
+    },
+    {
+     "id": "violence",
+     "triggers": [
+      "\\b(er|sie) (schlägt|verprügelt|bedroht) mich\\b|häusliche gewalt|ich werde (geschlagen|bedroht)"
+     ],
+     "response": "Das klingt gefährlich, und es ist nicht deine Schuld. Bei akuter Gefahr ruf bitte die Polizei unter 110 (in Österreich 133, in der Schweiz 117). Das Hilfetelefon „Gewalt gegen Frauen“ ist rund um die Uhr unter 116 016 erreichbar, das Hilfetelefon „Gewalt an Männern“ unter 0800 1239900. Magst du erzählen, ob du gerade in Sicherheit bist?"
+    }
+   ],
+   "refuse": [
+    {
+     "id": "weapons",
+     "triggers": [
+      "\\b(bombe|sprengstoff|waffe) (bauen|basteln|herstellen)\\b|wie baue ich eine (bombe|waffe)"
+     ],
+     "response": "Dabei helfe ich nicht. Wenn du dich für Chemie oder Technik interessierst, erzähl ich dir gern etwas Harmloses dazu – auf Englisch kann ich auch nachschlagen."
+    }
+   ]
+  },
+  "replies": {
+   "fallback": [
+    "Auf Deutsch kann ich bisher nur plaudern und zuhören. Wissensfragen und Texte beantworte ich auf Englisch – frag mich einfach auf Englisch, zum Beispiel: „Who wrote Faust?“",
+    "Das verstehe ich auf Deutsch leider noch nicht. Magst du es auf Englisch versuchen? Dann schlage ich es mit Quelle nach.",
+    "Mein Deutsch reicht dafür noch nicht. Auf Englisch kann ich nachschlagen, rechnen und E-Mails entwerfen."
+   ],
+   "learned_name": [
+    "Freut mich, {name}! Das merke ich mir.",
+    "Hallo {name}! Schön, dich kennenzulernen – ich merke mir deinen Namen."
+   ],
+   "learned_fact": [
+    "Alles klar, das merke ich mir.",
+    "Okay, gemerkt."
+   ],
+   "name_known": [
+    "Du heißt {name}."
+   ],
+   "name_unknown": [
+    "Deinen Namen hast du mir noch nicht verraten. Wie heißt du?"
+   ],
+   "calc": "{x}"
+  }
  }
 }

@@ -23,6 +23,7 @@ python -m pytest -q tests/test_chat_flows.py tests/test_chat_units.py
 | `safety.yaml` | Krisen (Hilfenummern) und Ablehnungen; **nur mit Vier-Augen-Prüfung ändern** | `crisis`, `refuse` |
 | `fun.yaml` | Witze, Fun Facts (**jeder mit Quelle**), Zitate (mit Urheber), Geschichten, Fragen an den Nutzer | |
 | `replies.yaml` | Antwortsätze der Gesprächsschicht (weiß nicht, gelernt, vergessen, Quelle …) | |
+| `de.yaml` | Deutsch v0: Erkennungswörter, Absichten, Gefühle, Krisen (Hilfenummern DE/AT/CH), Rückfall-Antworten | `detect`, `intents`, `feelings`, `safety`, `replies` |
 | `writing.yaml` | Anreden, Grußformeln, Zwecke (`purposes`) mit Betreff, `formal`/`casual` × `open`/`body`/`close` | |
 
 ## Regeln für Muster

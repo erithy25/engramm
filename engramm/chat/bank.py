@@ -106,6 +106,7 @@ class Bank:
         self.replies = data["replies"]
         self.writing = data.get("writing", {"purposes": {"generic": {}}, "greetings": {}, "closings": {},
                                             "poems": []})
+        self.de = data.get("de")                 # German v0 (engramm/chat/german.py)
         self._grams = [(it.id, ex, _grams(ex)) for it in self.intents for ex in it.examples]
 
     # -- matching ----------------------------------------------------------------------------

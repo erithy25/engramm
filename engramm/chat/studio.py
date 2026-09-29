@@ -24,7 +24,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "data" / "conv"
-FILES = ("smalltalk", "empathy", "safety", "fun", "replies", "writing")
+FILES = ("smalltalk", "empathy", "safety", "fun", "replies", "writing", "de")
 PLACEHOLDERS = {"name", "x", "noun", "subject", "title", "topic", "category", "evidence", "last", "more", "bot"}
 
 
@@ -118,6 +118,27 @@ def check(data: dict) -> tuple[list[str], list[str]]:
         if key not in data["fun"]["questions"]:
             errors.append(f"ask_order names unknown question {key!r}")
 
+    de = data.get("de")
+    if de:
+        ids = set()
+        for it in de["intents"]:
+            if it["id"] in ids:
+                errors.append(f"de: intent id twice: {it['id']}")
+            ids.add(it["id"])
+            if len(it.get("responses", [])) < 3:
+                warnings.append(f"de {it['id']}: only {len(it.get('responses', []))} response(s)")
+        rxs = [p for it in de["intents"] for p in it["patterns"]]
+        rxs += [t for c in de["feelings"]["categories"] for t in c["triggers"]]
+        rxs += [t for k in ("crisis", "refuse") for r in de["safety"].get(k, []) for t in r["triggers"]]
+        for p in rxs:
+            try:
+                re.compile(p)
+            except re.error as e:
+                errors.append(f"de: bad pattern {p!r}: {e}")
+        for r in de["safety"].get("crisis", []):
+            if not re.search(r"\d{3}", r["response"]):
+                errors.append(f"de crisis {r['id']}: the response names no helpline number")
+
     def walk(node, path):
         if isinstance(node, dict):
             for k, v in node.items():
@@ -144,7 +165,7 @@ def build(out: Path | None = None) -> Path:
             print("ERROR:", e)
         raise SystemExit(f"{len(errors)} error(s); nothing written")
     compiled = {"version": 1, "smalltalk": data["smalltalk"], "empathy": data["empathy"],
-                "safety": data["safety"], "fun": data["fun"], "replies": data["replies"], "writing": data["writing"]}
+                "safety": data["safety"], "fun": data["fun"], "replies": data["replies"], "writing": data["writing"], "de": data["de"]}
     out = Path(out or BANK_PATH)
     out.write_text(json.dumps(compiled, ensure_ascii=False, indent=1, sort_keys=False) + "\n", encoding="utf-8")
     n_int = len(data["smalltalk"]["intents"])
@@ -175,7 +196,7 @@ def main(argv: list[str] | None = None) -> int:
     from engramm.chat.acts import classify
     from engramm.chat.bank import Bank
     bank = Bank({"smalltalk": data["smalltalk"], "empathy": data["empathy"], "safety": data["safety"],
-                 "fun": data["fun"], "replies": data["replies"], "writing": data["writing"]})
+                 "fun": data["fun"], "replies": data["replies"], "writing": data["writing"], "de": data["de"]})
     msgs = args.messages
     if args.command == "coverage" and not msgs:
         msgs = [ex for it in data["smalltalk"]["intents"] for ex in it.get("examples", [])]
