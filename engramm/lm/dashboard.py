@@ -55,11 +55,11 @@ def _source(entry: dict | None) -> dict | None:
     return out
 
 
-def chat_index_dir(model_dir: Path) -> Path | None:
-    """The configured sentence index next to the model (chat3: train stream + Wikipedia leads,
-    ``python -m experiments.chat_wiki_build``), else the v2 index (``chat_build --v2``), if built."""
-    from engramm.chat.config import INDEX_NAME
-    for name in (INDEX_NAME, "chat2"):
+def chat_index_dir(model_dir: Path, prefer: str | None = None) -> Path | None:
+    """The configured sentence index next to the model (chat4: train stream + Wikipedia leads + SQuAD
+    paragraphs), else the v2 index (``chat_build --v2``), if built. ``prefer`` names one to try first."""
+    from engramm.chat.config import INDEX_NAME, QUICK_INDEX
+    for name in ([prefer] if prefer else []) + [INDEX_NAME, QUICK_INDEX]:
         d = Path(model_dir).parent / name
         if (d / "info.json").exists():
             return d
@@ -232,7 +232,8 @@ def main(argv: list[str] | None = None) -> int:
     if idx is None:
         print("Hinweis: kein Satzindex – der Chat ist aus. Bauen mit: python -m experiments.chat_build --v2",
               flush=True)
-    app = App(lm, make_bot(lm, idx) if idx else None)
+    from engramm.chat.config import config_for
+    app = App(lm, make_bot(lm, idx, config_for(idx)[0]) if idx else None)
     server = serve(app, port=args.port)
     print(f"ENGRAMM-Dashboard läuft: http://127.0.0.1:{args.port}  (Beenden mit Ctrl+C)", flush=True)
     try:

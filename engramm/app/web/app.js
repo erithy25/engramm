@@ -57,7 +57,9 @@
         text.textContent = "bereit";
         const more = document.createElement("span");
         more.className = "status-more";
-        more.textContent = ` · ${(h.sentences / 1e6).toFixed(1)} Mio. Sätze gelesen`;
+        more.textContent = ` · ${(h.sentences / 1e6).toFixed(1)} Mio. Sätze gelesen`
+          + (h.mode === "quick" ? " · Schnellmodus" : "");
+        if (h.mode === "quick") box.title = "Schnellmodus: kleiner Satzindex. Volle Version: bash scripts/setup_mac.sh --full";
         text.append(more);
         updateSend();
         return;

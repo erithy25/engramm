@@ -92,7 +92,8 @@ def test_no_files_outside_the_web_folder(running):
 
 def test_health_and_each_conversation_keeps_its_context(running):
     base, _ = running
-    assert json.loads(_call(base, "/api/health")[2]) == {"ready": True, "error": None, "sentences": 42}
+    assert json.loads(_call(base, "/api/health")[2]) == {"ready": True, "error": None, "mode": None,
+                                                         "sentences": 42}
     ask = lambda conv, msg: json.loads(_call(base, "/api/chat", {"conversation": conv, "message": msg})[2])
     assert ask("a", "one")["text"] == "prev=None"
     assert ask("b", "two")["text"] == "prev=None"

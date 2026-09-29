@@ -65,3 +65,27 @@ def cap_ratio(index_dir: Path) -> dict | None:
     """Capitalisation statistics stored next to the v2 index (``capstats.json``)."""
     p = Path(index_dir) / "capstats.json"
     return json.loads(p.read_text()) if p.exists() else None
+
+
+# Quick mode ("Schnellmodus"): the measured v9 configuration (PREREG_CHAT_V9, E22) on the small index "chat2" (train
+# stream only, ``python -m experiments.chat_build --v2``) with the single span perceptron p2
+# (``python -m experiments.chat_v2_perceptron --paragraph --passes 8 --out spanperc_p2.json``). It needs minutes to
+# build instead of hours; the full configuration above needs chat3 + chat4 and the ensemble.
+QUICK_INDEX = "chat2"
+QUICK = BotConfig(
+    weights=Weights(cov=5.0, soft=0.0, pcov=1.0, kcov=2.0, type=2.0, wiki=0.25, q=1.0, short=0.5, phr=0.5, dcov=2.0,
+                    prox=0.5, dfull=1.0),
+    extract=ExtractParams(k=10, tau=0.15, lam=4.0, other_max=4, type_only=True, soft_min=0.0, definition=2.0,
+                          head_beta=0.0, copula=1.0, direction=1.0, nb=0.5, nb_prox=0.0, rule_types=("DATE",),
+                          sent_beta=1.0, conf_power=3.0),
+    text_k=120, theta=6.7847, entity_min=0.60, fact_min=0.30, only_fact=True, focus_gate=True,
+    span_model="spanperc_p2.json", span_model_nq="spanperc_nq.json")
+
+
+def config_for(index_dir: Path) -> tuple[BotConfig, str]:
+    """(configuration, mode) for an index folder: the full v14 configuration when its models are there,
+    else the quick v9 configuration."""
+    d = Path(index_dir)
+    if d.name == INDEX_NAME and (d / SPAN_MODEL).exists() and (d / CALIBRATOR).exists():
+        return FROZEN, "full"
+    return QUICK, "quick"

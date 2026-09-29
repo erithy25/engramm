@@ -12,7 +12,8 @@ in ``user.log`` next to the model like in the dashboard and the command line.
 
 API (JSON):
 
-* ``GET  /api/health``           → {"ready": bool, "error": str|None, "sentences": int|None}
+* ``GET  /api/health``           → {"ready": bool, "error": str|None, "mode": "full"|"quick"|None,
+                                    "sentences": int|None}
 * ``POST /api/chat``             {"conversation": str, "message": str} → reply
 * ``GET  /api/memory``           → {"items": [{"source", "preview", "tokens"}]}
 * ``POST /api/memory/forget``    {"source": str} → {"forgot": str}
@@ -60,8 +61,10 @@ class ChatService:
     """The model, the bot and one dialog context per conversation. One request at a time
     touches the bot (it is not thread-safe); the lock also orders learn / forget."""
 
-    def __init__(self, model_dir: Path):
+    def __init__(self, model_dir: Path, index: str | None = None):
         self.model_dir = Path(model_dir)
+        self.index = index
+        self.mode: str | None = None
         self.lock = threading.Lock()
         self.bot = None
         self.lm = None
@@ -75,11 +78,16 @@ class ChatService:
         try:
             if not (self.model_dir / "meta.json").exists():
                 raise FileNotFoundError(f"Kein Modell unter {self.model_dir}.")
+            from engramm.chat.config import QUICK_INDEX, config_for
             lm = load_logged(self.model_dir)
-            idx = chat_index_dir(self.model_dir)
+            idx = chat_index_dir(self.model_dir, self.index)
             if idx is None:
-                raise FileNotFoundError("Kein Satzindex neben dem Modell (chat4/chat3/chat2).")
-            bot = make_bot(lm, idx)
+                raise FileNotFoundError("Kein Satzindex neben dem Modell. Erst bauen: bash scripts/setup_mac.sh")
+            config, self.mode = config_for(idx)
+            if self.mode == "quick" and idx.name != QUICK_INDEX and (idx.parent / QUICK_INDEX / "info.json").exists():
+                idx = idx.parent / QUICK_INDEX     # a full index without its models: use the quick one
+                config, self.mode = config_for(idx)
+            bot = make_bot(lm, idx, config)
             with self.lock:
                 self.lm, self.bot = lm, bot
         except Exception as e:  # shown on the page instead of a silent hang
@@ -87,7 +95,7 @@ class ChatService:
             traceback.print_exc()
 
     def health(self) -> dict:
-        return {"ready": self.bot is not None, "error": self.error,
+        return {"ready": self.bot is not None, "error": self.error, "mode": self.mode,
                 "sentences": None if self.bot is None else int(self.bot.c.index.n)}
 
     # -- chat --------------------------------------------------------------------------------
@@ -222,8 +230,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--model", type=Path, default=DEFAULT_MODEL)
     ap.add_argument("--port", type=int, default=8770)
     ap.add_argument("--no-browser", action="store_true", help="do not open a browser window (desktop app)")
+    ap.add_argument("--index", default=None, help="sentence index to use (default: chat4, else chat2)")
     args = ap.parse_args(argv)
-    service = ChatService(args.model)
+    service = ChatService(args.model, args.index)
     server = serve(service, port=args.port)
     threading.Thread(target=service.load, daemon=True).start()
     url = f"http://127.0.0.1:{server.server_address[1]}"
