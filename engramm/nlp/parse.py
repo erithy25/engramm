@@ -198,8 +198,10 @@ class Parser:
     # -- training ------------------------------------------------------------------------------
 
     def train(self, sentences, epochs: int = 10, key: str = "parse", log=None, checkpoints=(),
-              on_checkpoint=None) -> None:
-        """sentences: (words, tags, heads, labels[, xtags]) with tags from the tagger."""
+              on_checkpoint=None, explore_from: int = 0) -> None:
+        """sentences: (words, tags, heads, labels[, xtags]) with tags from the tagger. Before epoch
+        ``explore_from`` the parser follows the best gold move (static training); from then on it
+        follows its own guesses and the dynamic oracle corrects it (Goldberg & Nivre 2012)."""
         labs = sorted({lab for s in sentences for lab in s[3] if lab != "root"})
         self.model.classes = ["S"] + [f"R:{lab}" for lab in labs] + [f"L:{lab}" for lab in labs]
         ids = list(range(len(sentences)))
@@ -207,7 +209,8 @@ class Parser:
             correct = total = 0
             for idx in order(ids, f"{key}|{ep}"):
                 s = sentences[idx]
-                correct += self._train_one(s[0], s[1], s[2], s[3], s[4] if len(s) > 4 else None)
+                correct += self._train_one(s[0], s[1], s[2], s[3], s[4] if len(s) > 4 else None,
+                                           explore=ep >= explore_from)
                 total += len(s[0])
             if log:
                 log(f"parse epoch {ep + 1}: train UAS {correct / max(total, 1):.4f}")
@@ -231,7 +234,7 @@ class Parser:
                 cp.model.weights[f] = d
         return cp
 
-    def _train_one(self, words, tags, heads, labels, xtags) -> int:
+    def _train_one(self, words, tags, heads, labels, xtags, explore: bool = True) -> int:
         ws, ts, xs = self._padded(words, tags, xtags)
         n = len(ws)
         gold = [None] + [h if h != 0 else n - 1 for h in heads] + [None]
@@ -255,7 +258,7 @@ class Parser:
                     gcls += [c for c in self.model.classes if c[0] == side]
             best = max(gcls, key=lambda c: sc.get(c, 0.0))
             self.model.update(best, guess, fs)
-            i = self._apply(guess, i, stack, p)
+            i = self._apply(guess if explore else best, i, stack, p)
         return sum(1 for w in range(1, n - 1) if p.heads[w] == gold[w])
 
     # -- files ---------------------------------------------------------------------------------

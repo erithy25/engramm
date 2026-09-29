@@ -73,7 +73,35 @@ def download(work: Path) -> Path:
     return path
 
 
+_IPA = re.compile(r"[ˈˌːəɔɛɪʊʌæɑɒθðʃʒŋɹɾʔɡɐɜɯɨʉøœɚɝ]|/[^/ ]{1,40}/|\bpronounced\b|\blisten\b", re.I)
+
+
+def _drop_pronunciations(text: str) -> str:
+    """Removes parentheses that hold pronunciations ("(/ˈmoʊnə ˈliːsə/; Italian: …)")."""
+    out, depth, start = [], 0, 0
+    i = 0
+    while i < len(text):
+        if text[i] == "(":
+            j, d = i, 0
+            while j < len(text):
+                d += text[j] == "("
+                d -= text[j] == ")"
+                if d == 0:
+                    break
+                j += 1
+            inner = text[i + 1:j]
+            if _IPA.search(inner):
+                out.append(text[start:i].rstrip())
+                start = j + 1
+            i = j + 1
+            continue
+        i += 1
+    out.append(text[start:])
+    return " ".join(p for p in out if p).replace(" ,", ",").replace(" .", ".")
+
+
 def clean(text: str) -> str:
+    text = _drop_pronunciations(text)
     text = re.sub(r"\s*\(\s*[;,]?\s*\)", "", text)            # "( ; )" left by removed pronunciations
     text = re.sub(r"\(\s*[;,]\s*", "(", text)
     text = re.sub(r"\s+", " ", text).strip()

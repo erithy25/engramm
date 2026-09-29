@@ -42,6 +42,7 @@ def main() -> None:
     ap.add_argument("--data", type=Path, default=Path("/dev/shm/engramm/nlp"))
     ap.add_argument("--groups", default="lab")
     ap.add_argument("--epochs", default="10")
+    ap.add_argument("--explore-from", type=int, default=0)
     args = ap.parse_args()
     train = conllu.read(args.data / "en_ewt-ud-train.conllu")
     dev = conllu.read(args.data / "en_ewt-ud-dev.conllu")
@@ -70,12 +71,13 @@ def main() -> None:
                 n += 1
                 u += h == g
                 lab += h == g and la == gl
-        print(json.dumps({"groups": args.groups, "epochs": ep, "dev_uas": round(u / n, 4), "dev_las": round(lab / n, 4),
+        print(json.dumps({"groups": args.groups, "explore_from": args.explore_from, "epochs": ep, "dev_uas": round(u / n, 4), "dev_las": round(lab / n, 4),
                           "ms_per_sentence": round((time.time() - t1) / len(dev) * 1000, 2),
                           "at_seconds": round(t1 - t0)}), flush=True)
 
     p = Parser(groups)
-    p.train(data, max(eps), log=lambda m: print(m, flush=True), checkpoints=set(eps), on_checkpoint=evaluate)
+    p.train(data, max(eps), log=lambda m: print(m, flush=True), checkpoints=set(eps), on_checkpoint=evaluate,
+            explore_from=args.explore_from)
     evaluate(max(eps), p)
 
 
