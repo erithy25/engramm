@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ENGRAMM — a chat assistant without a neural network</title>
+  <meta name="description" content="ENGRAMM answers from Wikipedia and Wikidata with a source for every fact, remembers what you tell it and forgets on command. Offline, no account, no neural network.">
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="#"><img src="logo.svg" alt="" width="28" height="28"> ENGRAMM</a>
+    <nav><a href="#download">Download</a><a href="#honest">What it can’t do</a><a href="https://github.com/erithy25/engramm">Source</a></nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <img src="logo.svg" alt="" width="96" height="96">
+      <h1>A chat assistant that shows its sources.</h1>
+      <p class="lead">ENGRAMM answers from Wikipedia and Wikidata, cites a source for every fact and says
+        “I don’t know” instead of making things up. It remembers what you tell it — and forgets it for real
+        when you ask. It runs on your computer, offline, without an account and without a neural network.</p>
+      <a class="button primary" href="#download">Download for free</a>
+    </section>
+
+    <section class="features">
+      <div><h3>Sources, not guesses</h3><p>Every fact comes with the article or database entry it is from. Same question, same answer.</p></div>
+      <div><h3>Memory you control</h3><p>See everything ENGRAMM knows about you in one list. Delete an entry and it is gone — provably.</p></div>
+      <div><h3>Private by design</h3><p>No servers, no telemetry, no account. After installing the knowledge pack it never goes online.</p></div>
+      <div><h3>Runs on modest PCs</h3><p>About 0.8 GB of memory with the lite pack. No graphics card needed.</p></div>
+    </section>
+
+    <section id="download" class="download">
+      <h2>Download</h2>
+      <p class="muted">The app is small; on first start it asks before downloading its knowledge pack (lite ≈ 0.7 GB, standard ≈ 1.4 GB), or uses a pack folder you already have.</p>
+      <div class="platforms" id="platforms">
+        <a class="platform" data-os="windows" href="https://github.com/erithy25/engramm/releases/latest"><b>Windows</b><span>10 and 11 · .msi / .exe</span></a>
+        <a class="platform" data-os="mac" href="https://github.com/erithy25/engramm/releases/latest"><b>macOS</b><span>10.15 or later · Apple Silicon and Intel · .dmg</span></a>
+        <a class="platform" data-os="linux" href="https://github.com/erithy25/engramm/releases/latest"><b>Linux</b><span>Ubuntu 22.04 or later · .deb / .AppImage</span></a>
+      </div>
+      <p class="small muted">Every release lists SHA-256 checksums (SHA256SUMS.txt). Builds are not code-signed yet: Windows SmartScreen and macOS Gatekeeper will ask you to confirm the first start.</p>
+    </section>
+
+    <section id="honest" class="honest">
+      <h2>What ENGRAMM can’t do</h2>
+      <p>ENGRAMM uses counting, rules and small linear models — no neural network. That makes it transparent and light, and it also sets hard limits:</p>
+      <ul>
+        <li>It is <b>not as good as ChatGPT</b> at open conversation, explanations or writing. We measure this in blind tests and publish the results, including the bad ones.</li>
+        <li>It only knows what is in its knowledge pack. Anything else gets an honest “I don’t know”.</li>
+        <li>Writing help covers routine texts (emails, requests, short notes, summaries), not creative work.</li>
+        <li>English first; German is in progress.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Knowledge: Wikipedia text (CC BY-SA), Wikidata (CC0), DBpedia (CC BY-SA). ENGRAMM code: MIT licence.</p>
+  </footer>
+  <script src="site.js"></script>
+</body>
+</html>

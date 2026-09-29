@@ -74,8 +74,7 @@ def main() -> None:
     parser.train(parse_train, epochs=10, log=log)
     uas_r = las_r = n = 0
     for s, tags in zip(evals, pred_tags):
-        heads = parser.parse(s.words, tags)
-        labels = parser.label(s.words, tags, heads)
+        heads, labels = parser.parse_labelled(s.words, tags)
         for h, g, lab, glab in zip(heads, s.heads, labels, s.deprels):
             n += 1
             if h == g:
@@ -100,8 +99,7 @@ def main() -> None:
     for s in dev:
         a = time.perf_counter()
         tags = tagger.tag(s.words)
-        heads = parser.parse(s.words, tags)
-        parser.label(s.words, tags, heads)
+        parser.parse_labelled(s.words, tags)
         clf.predict(" ".join(s.words))
         times.append(time.perf_counter() - a)
     med = statistics.median(times) * 1000

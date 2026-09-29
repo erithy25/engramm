@@ -1,0 +1,136 @@
+# Desktop installers (Tauri 2): Windows (.msi, .exe), macOS (.dmg, Apple Silicon and Intel),
+# Linux (.deb, .AppImage). Each job freezes the Python server with PyInstaller (the sidecar),
+# builds the chat page and bundles the app. The knowledge pack is not in the installer: the app
+# downloads it on first start (after the user agrees) or uses a pack folder.
+#
+# Runs on tags v* (and then drafts a GitHub release with the installers), when the app code
+# changes, and by hand. Unsigned builds: macOS and Windows show a warning until signing
+# certificates are configured (APPLE_* / WINDOWS_* secrets, see runtime/README.md).
+name: Desktop
+
+on:
+  push:
+    tags: ["v*"]
+    branches: ["**"]
+    paths:
+      - "runtime/**"
+      - "engramm/**"
+      - "ui/**"
+      - ".github/workflows/desktop.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: macos-14
+            target: aarch64-apple-darwin
+          - os: macos-13
+            target: x86_64-apple-darwin
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: runtime/sidecar/requirements.txt
+
+      - name: Freeze the server (PyInstaller)
+        shell: bash
+        run: |
+          pip install -r runtime/sidecar/requirements.txt
+          pyinstaller --noconfirm --log-level WARN --distpath build/sidecar --workpath build/pyi runtime/sidecar/engramm-server.spec
+          mkdir -p runtime/app/src-tauri/resources/sidecar
+          cp -R build/sidecar/engramm-server/. runtime/app/src-tauri/resources/sidecar/
+
+      - name: Smoke test of the frozen server
+        shell: bash
+        run: python runtime/sidecar/smoke_test.py runtime/app/src-tauri/resources/sidecar
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Chat page
+        working-directory: ui
+        run: |
+          npm ci
+          npm run build
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: runtime/app/src-tauri
+
+      - name: Icons
+        working-directory: runtime/app
+        shell: bash
+        run: |
+          npm install
+          npx tauri icon ../../desktop/build/icon.png
+
+      - name: App tests
+        working-directory: runtime/app/src-tauri
+        shell: bash
+        run: cargo test --release --target ${{ matrix.target }}
+
+      - name: Installers
+        working-directory: runtime/app
+        shell: bash
+        run: npx tauri build --target ${{ matrix.target }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: engramm-${{ matrix.target }}
+          if-no-files-found: error
+          path: |
+            runtime/app/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.msi
+            runtime/app/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.exe
+            runtime/app/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.dmg
+            runtime/app/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.deb
+            runtime/app/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.AppImage
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - name: Checksums
+        run: |
+          cd dist
+          find . -type f \( -name '*.msi' -o -name '*.exe' -o -name '*.dmg' -o -name '*.deb' -o -name '*.AppImage' \) -exec sha256sum {} \; > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+      - name: Draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: |
+            dist/**/*.msi
+            dist/**/*.exe
+            dist/**/*.dmg
+            dist/**/*.deb
+            dist/**/*.AppImage
+            dist/SHA256SUMS.txt

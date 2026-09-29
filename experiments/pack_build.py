@@ -3,6 +3,8 @@ chat, in one folder, with a manifest of SHA-256 checksums.
 
     python -u -m experiments.pack_build --name lite --sentences 5 --out /dev/shm/engramm/packs/lite
     python -u -m experiments.pack_build --name standard --sentences 14 --with-wiki --out …
+    python -u -m experiments.pack_build --name lite --abstracts /dev/shm/engramm/reading/abstracts.jsonl \
+        --top 400000 --out /dev/shm/engramm/packs/lite       # reading = article leads (reading_abstracts.py)
 
 Contents:
 * the reading: Wikipedia articles from the chat3 corpus (``--sentences`` first sentences of
@@ -78,6 +80,36 @@ def select_stream(src: Path, sentences: int, with_wiki: bool) -> tuple[np.ndarra
     return np.concatenate(parts), np.asarray(new_starts, dtype=np.int64), new_keys
 
 
+def abstracts_stream(path: Path, top: int, tok) -> tuple[np.ndarray, np.ndarray, list]:
+    """The token stream of the ``top`` most popular article leads (experiments/reading_abstracts.py),
+    one document per article, each ending with a document end (token 0)."""
+    parts, new_starts, keys, pos, batch = [], [], [], 0, []
+
+    def flush():
+        nonlocal pos
+        for (title, _), ids in zip(batch, tok.encode_batch([t for _, t in batch])):
+            ids = ids[ids != 0]
+            if len(ids) < 3:
+                continue
+            parts.append(ids)
+            parts.append(np.zeros(1, dtype=np.uint16))
+            new_starts.append(pos)
+            keys.append(("wikipedia", title))
+            pos += len(ids) + 1
+        batch.clear()
+
+    with open(path, encoding="utf-8") as f:
+        for i, line in enumerate(f):
+            if i >= top:
+                break
+            row = json.loads(line)
+            batch.append((row["title"], row["text"]))
+            if len(batch) >= 5000:
+                flush()
+    flush()
+    return np.concatenate(parts), np.asarray(new_starts, dtype=np.int64), keys
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--name", default="lite")
@@ -85,6 +117,8 @@ def main() -> None:
     ap.add_argument("--sentences", type=int, default=5)
     ap.add_argument("--with-wiki", action="store_true")
     ap.add_argument("--src", type=Path, default=MAIN / "chat3")
+    ap.add_argument("--abstracts", type=Path, default=None, help="article leads (reading_abstracts.py) as the reading")
+    ap.add_argument("--top", type=int, default=400_000, help="with --abstracts: this many most popular articles")
     ap.add_argument("--models", type=Path, default=MAIN / "chat4")
     ap.add_argument("--kb", type=Path, default=MAIN / "kb.sqlite")
     ap.add_argument("--nlp", type=Path, default=ROOT / "models" / "nlp")
@@ -97,16 +131,20 @@ def main() -> None:
     if out.exists():
         shutil.rmtree(out)
     out.mkdir(parents=True)
-    tokens, starts, keys = select_stream(args.src, args.sentences, args.with_wiki)
+    tok = LMTokenizer()
+    if args.abstracts:
+        tokens, starts, keys = abstracts_stream(args.abstracts, args.top, tok)
+    else:
+        tokens, starts, keys = select_stream(args.src, args.sentences, args.with_wiki)
     print(f"stream: {len(keys):,} documents, {len(tokens):,} tokens ({time.time() - t0:.0f} s)", flush=True)
     tokens.tofile(out / "corpus.u16")
     np.save(out / "corpus.starts.npy", starts)
     (out / "corpus.keys.jsonl").write_text("".join(json.dumps(list(k)) + "\n" for k in keys), encoding="utf-8")
-    tok = LMTokenizer()
     ix, dptr, dpost, sent_doc = v2index.build(tokens, starts, tok)
     info = {"pack": args.name, "version": args.version, "sentences": int(ix.n), "documents": len(keys),
-            "tokens": int(len(tokens)), "config": "chat4", "first_sentences": args.sentences,
-            "with_wiki": args.with_wiki}
+            "tokens": int(len(tokens)), "config": "chat4",
+            "reading": (f"article leads, top {args.top:,} (DBpedia 2022.12 abstracts)" if args.abstracts
+                        else f"chat3, first {args.sentences} sentences" + (" + wiki" if args.with_wiki else ""))}
     v2index.save(out, ix, dptr, dpost, sent_doc, info)
     del ix, dptr, dpost, sent_doc
     print(f"index built ({time.time() - t0:.0f} s)", flush=True)

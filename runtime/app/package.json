@@ -1,0 +1,14 @@
+{
+  "name": "engramm-desktop",
+  "private": true,
+  "version": "3.0.0",
+  "description": "ENGRAMM desktop app (Tauri 2): window, first-run pack setup and the local chat server",
+  "scripts": {
+    "tauri": "tauri",
+    "icons": "tauri icon ../../desktop/build/icon.png",
+    "build": "tauri build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.1.0"
+  }
+}

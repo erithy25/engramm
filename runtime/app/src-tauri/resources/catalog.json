@@ -1,0 +1,4 @@
+{
+  "comment": "Knowledge packs this build may download (only after the user agrees). manifest_sha256 pins the exact pack; experiments/pack_release.py writes an entry.",
+  "packs": []
+}

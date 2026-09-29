@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "The bundled setup page may call the app's commands and pick a folder. The chat page is served by the local server (a remote URL to Tauri) and gets no IPC access.",
+  "windows": ["main"],
+  "permissions": ["core:default", "dialog:allow-open"]
+}

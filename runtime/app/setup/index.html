@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ENGRAMM</title>
+  <link rel="stylesheet" href="setup.css">
+</head>
+<body>
+  <main class="card">
+    <img src="logo.svg" alt="" width="72" height="72" class="logo">
+    <h1>ENGRAMM</h1>
+    <p class="muted" id="lead">Checking your knowledge pack …</p>
+
+    <section id="error" class="box error" hidden>
+      <h2>Something went wrong</h2>
+      <pre id="errorText"></pre>
+      <button type="button" id="retry">Try again</button>
+    </section>
+
+    <section id="ready" class="box" hidden>
+      <p id="packLine"></p>
+      <button type="button" id="start" class="primary">Start chatting</button>
+      <p class="small muted" id="starting" hidden>Starting ENGRAMM … the first start can take up to a minute.</p>
+    </section>
+
+    <section id="install" class="box" hidden>
+      <h2>Install a knowledge pack</h2>
+      <p class="muted">ENGRAMM answers from a knowledge pack on this computer (Wikipedia text, facts from
+        Wikidata and DBpedia, its conversation bank). After installing it, ENGRAMM needs no internet.</p>
+      <div id="catalog"></div>
+      <p class="small muted" id="noCatalog" hidden>This build has no download address. Use a pack folder instead.</p>
+      <hr>
+      <p class="muted">Already have a pack folder (for example from a USB stick)?</p>
+      <button type="button" id="folder">Use a pack folder …</button>
+      <p class="small muted" id="checking" hidden>Checking every file (SHA-256) …</p>
+    </section>
+
+    <section id="progress" class="box" hidden>
+      <h2>Downloading</h2>
+      <div class="bar"><div id="barFill"></div></div>
+      <p class="small muted" id="progressText"></p>
+      <button type="button" id="cancel">Cancel</button>
+    </section>
+
+    <p class="small muted foot">No account, no telemetry. The only network access is a download you start.</p>
+  </main>
+  <script src="setup.js"></script>
+</body>
+</html>

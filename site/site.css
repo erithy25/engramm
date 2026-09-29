@@ -1,0 +1,33 @@
+:root { color-scheme: light dark; --bg: #f6f6f8; --card: #fff; --text: #17171c; --muted: #6b6b76; --line: #e3e3ea;
+  --accent: #5b5bd6; --accent-text: #fff; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #17171c; --card: #202027; --text: #ececf1; --muted: #9a9aa6; --line: #33333d; --accent: #8b8bf0; --accent-text: #0f0f14; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--accent); }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.brand { display: flex; gap: 8px; align-items: center; font-weight: 700; letter-spacing: 0.04em; color: var(--text); text-decoration: none; }
+nav { display: flex; gap: 18px; flex-wrap: wrap; }
+nav a { color: var(--muted); text-decoration: none; }
+nav a:hover { color: var(--text); }
+main { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+.hero { text-align: center; padding: 64px 0 40px; }
+.hero h1 { font-size: clamp(28px, 5vw, 44px); line-height: 1.15; margin: 16px 0; }
+.lead { max-width: 680px; margin: 0 auto 28px; color: var(--muted); font-size: 18px; }
+.button { display: inline-block; padding: 12px 22px; border-radius: 12px; text-decoration: none; font-weight: 600; border: 1px solid var(--line); }
+.button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; padding: 24px 0; }
+.features div, .platform, .honest { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+.features h3 { margin: 0 0 6px; font-size: 17px; }
+.features p { margin: 0; color: var(--muted); }
+.download { padding: 40px 0 16px; text-align: center; }
+.platforms { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 20px 0; text-align: left; }
+.platform { color: var(--text); text-decoration: none; display: flex; flex-direction: column; gap: 4px; }
+.platform:hover, .platform.mine { border-color: var(--accent); }
+.platform span { color: var(--muted); font-size: 14px; }
+.honest { margin: 32px 0; }
+.honest h2 { margin-top: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.foot { text-align: center; color: var(--muted); font-size: 14px; padding: 24px 16px 40px; }

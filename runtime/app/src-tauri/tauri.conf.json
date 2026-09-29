@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "ENGRAMM",
+  "version": "3.0.0",
+  "identifier": "com.engramm.chat",
+  "build": {
+    "frontendDist": "../setup"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [],
+    "security": {
+      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Productivity",
+    "shortDescription": "A chat assistant without a neural network, running offline",
+    "longDescription": "ENGRAMM answers from Wikipedia and Wikidata with a source for every fact, remembers what you tell it and forgets on command. It runs on this computer, without an account and without a neural network.",
+    "copyright": "ENGRAMM contributors",
+    "licenseFile": "../../../LICENSE",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+    "resources": {
+      "resources/catalog.json": "catalog.json",
+      "resources/sidecar/": "sidecar/"
+    },
+    "linux": {
+      "deb": { "depends": [] }
+    },
+    "macOS": {
+      "minimumSystemVersion": "10.15"
+    }
+  }
+}
