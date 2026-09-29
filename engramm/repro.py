@@ -21,7 +21,6 @@ import json
 import os
 import platform
 import random
-import resource
 import subprocess
 import sys
 from collections.abc import Iterable
@@ -315,10 +314,33 @@ def peak_rss_mb() -> float:
     ``ru_maxrss`` is reported in bytes on macOS but in kibibytes on Linux;
     both are normalized to MiB here.
     """
+    if sys.platform == "win32":
+        return _windows_peak_mib()
+    import resource                      # Unix only; imported here so Windows can import this module
     peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     if sys.platform == "darwin":
         return peak / (1024 * 1024)
     return peak / 1024
+
+
+def _windows_peak_mib() -> float:
+    """Peak working set of this process on Windows (GetProcessMemoryInfo), in MiB."""
+    import ctypes
+    from ctypes import wintypes
+
+    class Counters(ctypes.Structure):
+        _fields_ = [("cb", wintypes.DWORD), ("PageFaultCount", wintypes.DWORD),
+                    ("PeakWorkingSetSize", ctypes.c_size_t), ("WorkingSetSize", ctypes.c_size_t),
+                    ("QuotaPeakPagedPoolUsage", ctypes.c_size_t), ("QuotaPagedPoolUsage", ctypes.c_size_t),
+                    ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t), ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
+                    ("PagefileUsage", ctypes.c_size_t), ("PeakPagefileUsage", ctypes.c_size_t)]
+
+    c = Counters()
+    c.cb = ctypes.sizeof(Counters)
+    handle = ctypes.windll.kernel32.GetCurrentProcess()
+    if not ctypes.windll.psapi.GetProcessMemoryInfo(handle, ctypes.byref(c), c.cb):
+        return float("nan")
+    return c.PeakWorkingSetSize / (1024 * 1024)
 
 
 def write_result(
