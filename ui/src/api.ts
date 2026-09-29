@@ -36,4 +36,6 @@ export const api = {
   chat: (conversation: string, message: string) => call<Reply>("/api/chat", { conversation, message }),
   memory: async () => (await call<{ items: MemoryItem[] }>("/api/memory")).items,
   forget: (source: string) => call<{ forgot: string }>("/api/memory/forget", { source }),
+  /** Desktop app only: the server opens a source link in the system browser. */
+  open: (url: string) => call<{ opened: string }>("/api/open", { url }),
 };

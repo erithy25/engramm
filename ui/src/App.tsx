@@ -75,6 +75,20 @@ export function App() {
     };
   }, []);
 
+  // desktop app (loaded with ?desktop=1): source links open in the system browser, not in the app window
+  useEffect(() => {
+    if (!new URLSearchParams(window.location.search).has("desktop")) return;
+    const onClick = (e: MouseEvent) => {
+      const target = e.target instanceof Element ? e.target.closest("a[href]") : null;
+      if (!(target instanceof HTMLAnchorElement)) return;
+      if (!/^https?:\/\//.test(target.href) || target.origin === window.location.origin) return;
+      e.preventDefault();
+      api.open(target.href).catch(() => undefined);
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, []);
+
   const scrollDown = useCallback((smooth = true) => {
     const el = threadRef.current;
     if (el) el.scrollTo({ top: el.scrollHeight, behavior: smooth ? "smooth" : "auto" });

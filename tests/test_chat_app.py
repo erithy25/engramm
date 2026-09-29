@@ -145,3 +145,67 @@ def test_source_view():
     assert source_view({"kind": "user", "source": "u1"})["title"] == "You told me"
     web = source_view({"kind": "base", "source": "c4", "key": "https://www.example.org/a/b"})
     assert web == {"kind": "web", "title": "www.example.org", "url": "https://www.example.org/a/b"}
+
+
+def test_posts_need_a_json_content_type(running):
+    base, _ = running
+    req = urllib.request.Request(base + "/api/chat", data=b'{"conversation": "a", "message": "hi"}',
+                                 headers={"Content-Type": "text/plain"})
+    with pytest.raises(urllib.error.HTTPError) as e:
+        urllib.request.urlopen(req)
+    assert e.value.code == 415
+
+
+def test_openable_links():
+    from engramm.app.server import openable
+    for ok in ("https://en.wikipedia.org/wiki/Ada_Lovelace", "https://de.wikipedia.org/wiki/Berlin",
+               "https://en.m.wikipedia.org/wiki/X", "https://www.wikidata.org/wiki/Q7259"):
+        assert openable(ok), ok
+    for bad in ("http://en.wikipedia.org/wiki/X", "https://evil.org/wiki", "https://en.wikipedia.org.evil.org/",
+                "file:///etc/passwd", "javascript:alert(1)", "https://user@en.wikipedia.org/",
+                "https://en.wikipedia.org:8443/x", "https://wikipedia.org.evil/", ""):
+        assert not openable(bad), bad
+
+
+def test_open_only_in_desktop_mode(monkeypatch):
+    import engramm.app.server as server_mod
+    opened = []
+    monkeypatch.setattr(server_mod.webbrowser, "open", lambda url: opened.append(url))
+    for desktop in (False, True):
+        svc = ChatService("unused")
+        srv = serve(svc, port=0, desktop=desktop)
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        base = f"http://127.0.0.1:{srv.server_address[1]}"
+        code, _, _ = _call(base, "/api/open", {"url": "https://en.wikipedia.org/wiki/Ada_Lovelace"})
+        assert code == (200 if desktop else 404)
+        if desktop:
+            assert _call(base, "/api/open", {"url": "https://evil.org/"})[0] == 400
+        srv.shutdown()
+        srv.server_close()
+    assert opened == ["https://en.wikipedia.org/wiki/Ada_Lovelace"]
+
+
+def test_desktop_mode_prints_url_and_exits_with_stdin(tmp_path):
+    import subprocess
+    import sys
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    p = subprocess.Popen([sys.executable, "-u", "-m", "engramm.app", "--desktop", "--port", "0",
+                          "--pack", str(tmp_path / "nopack")], cwd=root, stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        first = p.stdout.readline().decode().strip()
+        assert first.startswith("ENGRAMM_URL=http://127.0.0.1:")
+        base = first.split("=", 1)[1]
+        import time
+        for _ in range(100):
+            health = json.loads(_call(base, "/api/health")[2])
+            if health["error"]:
+                break
+            time.sleep(0.1)
+        assert "No knowledge pack" in health["error"]
+        p.stdin.close()
+        assert p.wait(timeout=20) == 0
+    finally:
+        if p.poll() is None:
+            p.kill()

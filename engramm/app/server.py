@@ -19,6 +19,12 @@ API (JSON):
 * ``POST /api/chat``             {"conversation": str, "message": str} → reply
 * ``GET  /api/memory``           → {"items": [{"source", "preview", "tokens"}]}
 * ``POST /api/memory/forget``    {"source": str} → {"forgot": str}
+* ``POST /api/open``             {"url": str} → {"opened": str}   (desktop app only: opens a source
+                                    link in the system browser; Wikipedia and Wikidata links only)
+
+Desktop mode (``--desktop``, used by the Tauri app): the first output line is
+``ENGRAMM_URL=http://127.0.0.1:<port>`` (``--port 0`` picks a free port), ``/api/open`` is on, and
+the server exits when its standard input closes, so it never outlives the app.
 """
 
 from __future__ import annotations
@@ -26,6 +32,9 @@ from __future__ import annotations
 import argparse
 import json
 import mimetypes
+import os
+import re
+import sys
 import threading
 import time
 import traceback
@@ -40,6 +49,17 @@ mimetypes.add_type("text/javascript", ".js")
 DEFAULT_MODEL = Path(__file__).resolve().parents[2] / "models" / "lm" / "main" / "model"
 MAX_MESSAGE = 12000
 MAX_CONVERSATIONS = 500
+OPEN_HOSTS = re.compile(r"^([a-z]{2,3}(-[a-z]+)?\.)?(m\.)?wikipedia\.org$|^www\.wikidata\.org$")
+
+
+def openable(url: str) -> bool:
+    """Only https links to Wikipedia or Wikidata may be handed to the system browser."""
+    try:
+        u = urllib.parse.urlsplit(url)
+    except ValueError:
+        return False
+    return (u.scheme == "https" and u.username is None and u.password is None and u.port is None
+            and bool(OPEN_HOSTS.match(u.hostname or "")) and len(url) <= 2000)
 
 
 def source_view(src: dict | None) -> dict | None:
@@ -178,7 +198,7 @@ class ChatService:
         return {"forgot": source}
 
 
-def make_handler(service: ChatService):
+def make_handler(service: ChatService, desktop: bool = False):
     class Handler(BaseHTTPRequestHandler):
         server_version = "ENGRAMM"
 
@@ -218,11 +238,21 @@ def make_handler(service: ChatService):
                 n = int(self.headers.get("Content-Length") or 0)
                 if n > 64_000:
                     return self._json(413, {"error": "Request too large."})
+                if not (self.headers.get("Content-Type") or "").startswith("application/json"):
+                    # a JSON content type forces a CORS preflight, which this server never grants,
+                    # so other websites open in a browser cannot post here
+                    return self._json(415, {"error": "Expected application/json."})
                 data = json.loads(self.rfile.read(n) or b"{}")
                 if path == "/api/chat":
                     return self._json(200, service.chat(str(data.get("conversation", "")), str(data.get("message", ""))))
                 if path == "/api/memory/forget":
                     return self._json(200, service.forget(str(data.get("source", ""))))
+                if path == "/api/open" and desktop:
+                    url = str(data.get("url", ""))
+                    if not openable(url):
+                        return self._json(400, {"error": "Only Wikipedia and Wikidata links can be opened."})
+                    webbrowser.open(url)
+                    return self._json(200, {"opened": url})
                 return self._json(404, {"error": "not found"})
             except (ValueError, KeyError) as e:
                 return self._json(400, {"error": str(e).strip("'")})
@@ -246,8 +276,20 @@ class _Server(ThreadingHTTPServer):
         super().handle_error(request, client_address)
 
 
-def serve(service: ChatService, host: str = "127.0.0.1", port: int = 8770) -> ThreadingHTTPServer:
-    return _Server((host, port), make_handler(service))
+def serve(service: ChatService, host: str = "127.0.0.1", port: int = 8770,
+          desktop: bool = False) -> ThreadingHTTPServer:
+    return _Server((host, port), make_handler(service, desktop))
+
+
+def _exit_with_parent(server: ThreadingHTTPServer) -> None:
+    """Desktop mode: the app holds our standard input; when it closes (the app quit or
+    crashed), stop serving so the server never outlives the app."""
+    try:
+        while sys.stdin.buffer.read(1024):
+            pass
+    except (OSError, ValueError):
+        pass
+    threading.Thread(target=server.shutdown, daemon=True).start()
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -260,12 +302,20 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--pack", type=Path, default=None, help="run on a knowledge pack folder (desktop app)")
     ap.add_argument("--memory", type=Path, default=None, help="where to keep what you tell ENGRAMM")
     ap.add_argument("--host", default="127.0.0.1")
+    ap.add_argument("--desktop", action="store_true",
+                    help="desktop-app mode: print ENGRAMM_URL=…, allow /api/open, exit when stdin closes")
     args = ap.parse_args(argv)
     service = ChatService(args.model, args.index, pack=args.pack, memory_path=args.memory)
-    server = serve(service, host=args.host, port=args.port)
+    server = serve(service, host=args.host, port=args.port, desktop=args.desktop)
     threading.Thread(target=service.load, daemon=True).start()
     url = f"http://127.0.0.1:{server.server_address[1]}"
+    if args.desktop:
+        print(f"ENGRAMM_URL={url}", flush=True)
+        args.no_browser = True
+        threading.Thread(target=_exit_with_parent, args=(server,), daemon=True).start()
     print(f"ENGRAMM is running: {url}  (loading in the background; stop with Ctrl+C)", flush=True)
+    if os.environ.get("ENGRAMM_NO_BROWSER"):
+        args.no_browser = True
     if not args.no_browser:
         threading.Timer(0.5, lambda: webbrowser.open(url)).start()
     try:
