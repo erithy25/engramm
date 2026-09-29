@@ -208,3 +208,23 @@ def test_german_v0(corpus):
     assert other.kind == "unknown" and "Englisch" in other.text
     # the English safety net still catches English crisis wording
     assert a.turn(DialogState("x"), "I want to kill myself").kind == "safety"
+
+
+def test_events_are_followed_up(corpus, tmp_path):
+    from engramm.chat.events import event_date, find_event
+    today = dt.date(2026, 9, 29)                      # a Tuesday
+    assert find_event("I have an exam tomorrow", today) == ("exam", dt.date(2026, 9, 30))
+    assert find_event("my interview is on Friday", today) == ("interview", dt.date(2026, 10, 2))
+    assert event_date("next monday", today) == dt.date(2026, 10, 5)
+    assert find_event("I like exams", today) is None
+    day = {"now": dt.datetime(2026, 9, 29, 10, 0)}
+    bot = _bot(corpus, LoggedTextMemory(tmp_path / "chat_memory.log"))
+    a = Assistant(bot, clock=lambda: day["now"])
+    r = a.turn(DialogState("one"), "I have a big exam tomorrow")
+    assert r.kind == "learned" and "exam" in r.text
+    assert "exam" not in a.turn(DialogState("two"), "hi").text          # not yet: the exam is tomorrow
+    day["now"] = dt.datetime(2026, 10, 1, 9, 0)
+    a2 = Assistant(_bot(corpus, LoggedTextMemory(tmp_path / "chat_memory.log")), clock=lambda: day["now"])
+    hello = a2.turn(DialogState("three"), "hello")
+    assert "how" in hello.text.lower() and "exam" in hello.text           # asked after a restart, once
+    assert "exam" not in a2.turn(DialogState("four"), "hi").text

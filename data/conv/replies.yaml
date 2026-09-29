@@ -189,3 +189,13 @@ device:
     - "I don't have live information like weather, news, traffic or prices — I work offline, and my knowledge is a snapshot."
     - "That needs up-to-date information from the internet, which I don't have. My knowledge comes from a fixed copy of Wikipedia and Wikidata."
     - "I can't check live data (weather, news, stocks, tickets). I can tell you general facts from my knowledge pack, though."
+
+# memory v2: asking about an announced event after its day (engramm/chat/events.py)
+event_followup:
+  - "By the way — how did your {x} go?"
+  - "Oh, and how was your {x}? I remember you mentioned it."
+  - "How did the {x} go, by the way?"
+event_noted:
+  - "Good luck with your {x}! Tell me how it went."
+  - "Fingers crossed for your {x}!"
+  - "I'll remember your {x} — let me know how it goes."

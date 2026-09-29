@@ -109,6 +109,9 @@ class Assistant:
         model = find_model(nlp_dir, index_dir / "nlp" if index_dir is not None else None,
                            Path(__file__).resolve().parents[2] / "models" / "nlp")
         self.device = DeviceRequests(model) if model is not None else None
+        from engramm.chat.events import EventBook
+        mem_path = getattr(bot.memory, "path", None)
+        self.events = EventBook(Path(mem_path).with_suffix(".events.json") if mem_path else None)
 
     # -- helpers ------------------------------------------------------------------------------
 
@@ -263,7 +266,8 @@ class Assistant:
                 # one question per reply: the follow-up replaces the bank reply's closing question
                 cut = re.split(r"(?<=[.!])\s+(?=[^.!?]*\?$)", text.strip())
                 text = cut[0] if len(cut) > 1 else ""
-                follow = self.bank.fun["questions"][st.asked[-1]].get("text_end", follow)
+                if self._follow_key:
+                    follow = self.bank.fun["questions"][self._follow_key].get("text_end", follow)
             text = f"{text} {follow}".strip()
         if not text:
             text = self._reply(st, "fallback")
@@ -702,8 +706,13 @@ class Assistant:
         bot.refresh()
         bot.context["last_learned"] = sid
         fs = [f for f in bot.facts.facts if f.source == sid]
-        return Reply(msg, "learned", self._confirm(st, fs, name_before), source={"kind": "user", "source": sid},
-                     via="memory")
+        confirm = self._confirm(st, fs, name_before)
+        from engramm.chat.events import find_event
+        ev = find_event(text, self._today())
+        if ev is not None:
+            self.events.note(ev[0], ev[1], sid)
+            confirm = self._reply(st, "event_noted", x=ev[0])
+        return Reply(msg, "learned", confirm, source={"kind": "user", "source": sid}, via="memory")
 
     def _confirm(self, st: DialogState, fs: list, name_before: str | None) -> str:
         about_you = [f for f in fs if f.subject.startswith(USER)]
@@ -807,7 +816,9 @@ class Assistant:
         return self._learn(st, [store.format(x=value)], msg)
 
     def _follow(self, st: DialogState, units: list[Unit], text: str, main: Reply) -> str:
-        """A question back, at most one per reply: the name, once, after a greeting."""
+        """A question back, at most one per reply: how an announced event went, or the name, once,
+        after a greeting."""
+        self._follow_key = None
         if st.pending is not None:
             return ""
         wants = None
@@ -816,6 +827,12 @@ class Assistant:
                 it = self.bank.by_id.get(u.intent)
                 if it and it.follow:
                     wants = it.follow
+        greeted = any(u.act == "intent" and (u.intent or "").startswith(("greeting", "how_are_you")) for u in units)
+        if greeted:
+            due = self.events.due(self._today(), set(self.bot.user_texts()))
+            if due is not None:
+                self.events.mark_asked(due)
+                return self._reply(st, "event_followup", x=due.what)
         if wants is None or wants == "ask_mood":
             return ""
         key = wants
@@ -831,6 +848,7 @@ class Assistant:
             return ""
         st.asked.append(key)
         st.pending = {"slot": q["slot"], "store": q["store"], "turn": st.turn}
+        self._follow_key = key
         return q["text"]
 
     # -- small reactions ----------------------------------------------------------------------
