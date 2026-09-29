@@ -1,0 +1,27 @@
+{
+  "name": "engramm-desktop",
+  "productName": "ENGRAMM",
+  "version": "0.1.0",
+  "description": "ENGRAMM – ein Chat ohne neuronales Netz, als Desktop-App",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist:mac": "electron-builder --mac dmg",
+    "dist:win": "electron-builder --win nsis",
+    "dist:linux": "electron-builder --linux AppImage"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.engramm.chat",
+    "productName": "ENGRAMM",
+    "files": ["main.js", "loading.html", "build/icon.png"],
+    "directories": { "buildResources": "build", "output": "dist" },
+    "mac": { "category": "public.app-category.productivity", "icon": "build/icon.png", "target": ["dmg"] },
+    "win": { "icon": "build/icon.png", "target": ["nsis"] },
+    "linux": { "icon": "build/icon.png", "target": ["AppImage"], "category": "Utility" }
+  }
+}

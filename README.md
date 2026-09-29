@@ -154,6 +154,21 @@ always finds what you taught it, even when you ask in other words. It returns wh
 sentences, not phrased answers. The registered "useful" verdict needs C1 and C3, so it is
 not reached. Details are in [`docs/EXPECTATIONS.md`](docs/EXPECTATIONS.md) (E14).
 
+### ENGRAMM Chat app: website and desktop app
+
+A chat window in the style of ChatGPT, on top of the ENGRAMM chat system. It has:
+- conversations in a sidebar, kept in the browser;
+- answers with source chips, the evidence sentence on request, and a "sure" or "unsure" mark;
+- a memory panel that lists what you taught ENGRAMM and forgets it for real;
+- light and dark themes, and a layout for phones.
+
+```bash
+python -m engramm.app          # website: opens http://127.0.0.1:8770 (loads in the background, ~1 min)
+cd desktop && npm install && npm start     # desktop app (Electron), see desktop/README.md
+```
+
+The logo (`engramm/app/web/logo.svg`) draws the E as a memory trace. It is also the app icon.
+
 ### ENGRAMM-Chat v2: a conversation (preregistered in [`docs/PREREG_CHAT_V2.md`](docs/PREREG_CHAT_V2.md))
 
 `python -m engramm.lm chat` (or the dashboard) turns the look-up into a conversation. It does four things:

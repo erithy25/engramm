@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; img-src 'self'">
+  <title>ENGRAMM</title>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: grid; place-items: center; background: #17171c; color: #ececf1;
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-app-region: drag;
+    }
+    .box { text-align: center; }
+    img { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 10px 40px rgba(75, 43, 214, .45); animation: breathe 2.4s ease-in-out infinite; }
+    h1 { font-size: 22px; letter-spacing: .12em; margin: 22px 0 4px; }
+    p { color: #9a9aa6; margin: 0; }
+    @keyframes breathe { 50% { transform: scale(1.04); box-shadow: 0 14px 50px rgba(15, 181, 201, .45); } }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <img src="build/icon.png" alt="">
+    <h1>ENGRAMM</h1>
+    <p>startet …</p>
+  </div>
+</body>
+</html>

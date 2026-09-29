@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ENGRAMM</title>
+  <meta name="description" content="ENGRAMM – ein Chat ohne neuronales Netz. Jede Antwort mit Quelle.">
+  <meta name="theme-color" content="#1b1446">
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="sidebar" id="sidebar" aria-label="Unterhaltungen">
+      <div class="brand">
+        <img src="logo.svg" alt="" class="brand-logo" width="28" height="28">
+        <span class="brand-name">ENGRAMM</span>
+        <button class="icon-btn only-mobile" id="closeSidebar" aria-label="Seitenleiste schließen">✕</button>
+      </div>
+      <button class="new-chat" id="newChat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Neuer Chat
+      </button>
+      <nav class="conversations" id="conversations" aria-label="Verlauf"></nav>
+      <div class="sidebar-foot">
+        <button class="side-link" id="openMemory">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+          Gedächtnis
+        </button>
+        <button class="side-link" id="toggleTheme">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>
+          <span id="themeLabel">Dunkles Design</span>
+        </button>
+        <button class="side-link" id="openAbout">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>
+          Über ENGRAMM
+        </button>
+      </div>
+    </aside>
+    <div class="scrim" id="scrim" hidden></div>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn only-mobile" id="openSidebar" aria-label="Seitenleiste öffnen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <div class="model-pill" title="Antworten nur durch Zählen, Regeln und Hypervektoren – ohne neuronales Netz">
+          ENGRAMM <span class="muted">· ohne neuronales Netz</span>
+        </div>
+        <div class="status" id="status"><span class="dot"></span><span id="statusText">verbinde …</span></div>
+      </header>
+
+      <section class="thread" id="thread" aria-live="polite">
+        <div class="empty" id="empty">
+          <img src="logo.svg" alt="" class="empty-logo" width="72" height="72">
+          <h1>Wie kann ich helfen?</h1>
+          <p class="muted">ENGRAMM antwortet aus dem, was es gelesen hat, und zeigt immer die Quelle. Fragen bitte auf Englisch.</p>
+          <div class="suggestions" id="suggestions"></div>
+        </div>
+      </section>
+
+      <footer class="composer-wrap">
+        <form class="composer" id="composer" autocomplete="off">
+          <textarea id="input" rows="1" placeholder="Nachricht an ENGRAMM (auf Englisch) …" aria-label="Nachricht" maxlength="2000"></textarea>
+          <button type="submit" class="send" id="send" aria-label="Senden" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+          </button>
+        </form>
+        <p class="hint muted">ENGRAMM rechnet ohne neuronales Netz, belegt jede Antwort – und kann sich irren. Prüfe die Quelle.</p>
+      </footer>
+    </main>
+  </div>
+
+  <dialog id="memoryDialog" class="dialog">
+    <div class="dialog-head">
+      <h2>Gedächtnis</h2>
+      <button class="icon-btn" data-close aria-label="Schließen">✕</button>
+    </div>
+    <p class="muted">Was du ENGRAMM erzählt hast. „Vergessen“ löscht es wirklich – nicht nur versteckt.</p>
+    <ul class="memory-list" id="memoryList"></ul>
+  </dialog>
+
+  <dialog id="aboutDialog" class="dialog">
+    <div class="dialog-head">
+      <h2>Über ENGRAMM</h2>
+      <button class="icon-btn" data-close aria-label="Schließen">✕</button>
+    </div>
+    <p>ENGRAMM ist ein Chat, der <b>ohne neuronales Netz</b> arbeitet: nur Zählen, Regeln und Hypervektoren.</p>
+    <ul class="about-list">
+      <li>Jede Antwort mit Quelle – nichts wird erfunden.</li>
+      <li>Merkt sich, was du erzählst („My name is …“) – und vergisst es auf Befehl wirklich („Forget my name“).</li>
+      <li>Versteht Rückfragen wie „Where was he born?“.</li>
+      <li>Läuft komplett auf deinem Rechner, gleiche Frage – gleiche Antwort.</li>
+    </ul>
+    <p class="muted">Grenzen: nur Englisch, keine freien Texte oder Meinungen, kurze Faktenantworten. Bei Unsicherheit sagt ENGRAMM „I don't know“.</p>
+  </dialog>
+
+  <template id="tplAssistant">
+    <article class="msg assistant">
+      <img src="logo.svg" alt="" class="avatar" width="28" height="28">
+      <div class="bubble">
+        <div class="text"></div>
+        <div class="meta"></div>
+        <div class="actions">
+          <button class="mini" data-act="copy" title="Kopieren">Kopieren</button>
+          <button class="mini" data-act="evidence" title="Beleg anzeigen" hidden>Beleg</button>
+        </div>
+        <blockquote class="evidence" hidden></blockquote>
+      </div>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
