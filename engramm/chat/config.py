@@ -88,8 +88,8 @@ def config_for(index_dir: Path) -> tuple[BotConfig, str]:
     d = Path(index_dir)
     name = d.name
     if (d / "info.json").exists():
-        import json
-        name = json.loads((d / "info.json").read_text()).get("materialized_from", name)
+        info = json.loads((d / "info.json").read_text())
+        name = info.get("config") or info.get("materialized_from") or name
     if name == INDEX_NAME and (d / SPAN_MODEL).exists() and (d / CALIBRATOR).exists():
         return FROZEN, "full"
     return QUICK, "quick"

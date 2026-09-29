@@ -93,7 +93,10 @@ class Assistant:
         self.kgqa = None
         path = kb_path
         if path is None and getattr(bot.c, "index_dir", None) is not None:
-            path = bot.c.index_dir.parent / "kb.sqlite"
+            for cand in (bot.c.index_dir / "kb.sqlite", bot.c.index_dir.parent / "kb.sqlite"):
+                if cand.exists():
+                    path = cand
+                    break
         if path is not None and Path(path).exists():
             from engramm.kb.kgqa import KGQA
             from engramm.kb.store import FactBank

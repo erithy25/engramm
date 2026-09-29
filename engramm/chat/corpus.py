@@ -117,6 +117,17 @@ class Corpus:
         return c
 
     @classmethod
+    def from_pack(cls, pack_dir: Path, mmap: bool = True) -> Corpus:
+        """A knowledge pack (experiments/pack_build.py): its own token stream, index, codebook and
+        tokenizer — no language model, no training split."""
+        pack_dir = Path(pack_dir)
+        tok = LMTokenizer(pack_dir / "tokenizer.json") if (pack_dir / "tokenizer.json").exists() else LMTokenizer()
+        cb = Codebook.load(pack_dir / "codebook.npz")
+        c = cls.with_index(None, None, None, tok, cb.eng, pack_dir, mmap)
+        c.wide, c.classes = cb.wide, cb.classes
+        return c
+
+    @classmethod
     def from_model(cls, model, index_dir: Path, mmap: bool = True) -> Corpus:
         c = cls.with_index(model.tokens, model.train.doc_starts, model.train.doc_keys, model.tok, model.cb.eng,
                            Path(index_dir), mmap)

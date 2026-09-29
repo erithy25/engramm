@@ -65,9 +65,12 @@ class ChatService:
     """The core bot, the conversation layer and one dialog state per conversation. One request
     at a time touches the bot (it is not thread-safe); the lock also orders learn / forget."""
 
-    def __init__(self, model_dir: Path, index: str | None = None):
+    def __init__(self, model_dir: Path, index: str | None = None, pack: Path | None = None,
+                 memory_path: Path | None = None):
         self.model_dir = Path(model_dir)
         self.index = index
+        self.pack = Path(pack) if pack else None
+        self.memory_path = Path(memory_path) if memory_path else None
         self.mode: str | None = None
         self.lock = threading.Lock()
         self.bot = None
@@ -87,20 +90,32 @@ class ChatService:
             from engramm.chat.retrieve import Retriever
             from engramm.chat.textmem import LoggedTextMemory
             from engramm.lm.dashboard import cap_ratio, chat_index_dir
-            if not (self.model_dir / "meta.json").exists():
-                raise FileNotFoundError(f"No model at {self.model_dir}.")
-            idx = chat_index_dir(self.model_dir, self.index)
-            if idx is None:
-                raise FileNotFoundError("No sentence index next to the model. Build it first: bash scripts/setup_mac.sh")
-            config, self.mode = config_for(idx)
-            if self.mode == "quick" and idx.name != QUICK_INDEX and (idx.parent / QUICK_INDEX / "info.json").exists():
-                idx = idx.parent / QUICK_INDEX     # a full index without its models: use the quick one
+            if self.pack is not None:
+                if not (self.pack / "manifest.json").exists():
+                    raise FileNotFoundError(f"No knowledge pack at {self.pack}.")
+                idx = self.pack
                 config, self.mode = config_for(idx)
-            corpus = Corpus.load(self.model_dir, index_name=idx.name)
-            memory = LoggedTextMemory(self.model_dir.parent / "chat_memory.log",
-                                      import_from=self.model_dir / "user.log")
+                corpus = Corpus.from_pack(idx)
+                mem_path = self.memory_path or (self.pack.parent / "chat_memory.log")
+                memory = LoggedTextMemory(mem_path)
+            else:
+                if not (self.model_dir / "meta.json").exists():
+                    raise FileNotFoundError(f"No model at {self.model_dir}.")
+                idx = chat_index_dir(self.model_dir, self.index)
+                if idx is None:
+                    raise FileNotFoundError("No sentence index next to the model. Build it first: "
+                                            "bash scripts/setup_mac.sh")
+                config, self.mode = config_for(idx)
+                if self.mode == "quick" and idx.name != QUICK_INDEX and \
+                        (idx.parent / QUICK_INDEX / "info.json").exists():
+                    idx = idx.parent / QUICK_INDEX     # a full index without its models: use the quick one
+                    config, self.mode = config_for(idx)
+                corpus = Corpus.load(self.model_dir, index_name=idx.name)
+                memory = LoggedTextMemory(self.memory_path or (self.model_dir.parent / "chat_memory.log"),
+                                          import_from=self.model_dir / "user.log")
             bot = ChatBot(memory, corpus, config, cap_ratio(idx), retriever=Retriever(corpus))
-            assistant = Assistant(bot)
+            kb = idx / "kb.sqlite" if (idx / "kb.sqlite").exists() else None
+            assistant = Assistant(bot, kb_path=kb)
             with self.lock:
                 self.memory, self.bot, self.assistant = memory, bot, assistant
         except Exception as e:  # shown on the page instead of a silent hang
@@ -195,7 +210,7 @@ def make_handler(service: ChatService):
             ctype = mimetypes.guess_type(f.name)[0] or "application/octet-stream"
             if ctype.startswith("text/") or ctype in ("application/javascript", "image/svg+xml"):
                 ctype += "; charset=utf-8"
-            self._send(200, f.read_bytes(), ctype, cache=f.suffix in (".png", ".svg"))
+            self._send(200, f.read_bytes(), ctype, cache=f.suffix in (".png", ".svg") or "assets" in f.parts)
 
         def do_POST(self):
             path = urllib.parse.urlparse(self.path).path
@@ -241,10 +256,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--model", type=Path, default=DEFAULT_MODEL)
     ap.add_argument("--port", type=int, default=8770)
     ap.add_argument("--no-browser", action="store_true", help="do not open a browser window (desktop app)")
-    ap.add_argument("--index", default=None, help="sentence index to use (default: chat4, else chat2)")
+    ap.add_argument("--index", default=None, help="sentence index to use (default: chat4m, chat4, else chat2)")
+    ap.add_argument("--pack", type=Path, default=None, help="run on a knowledge pack folder (desktop app)")
+    ap.add_argument("--memory", type=Path, default=None, help="where to keep what you tell ENGRAMM")
+    ap.add_argument("--host", default="127.0.0.1")
     args = ap.parse_args(argv)
-    service = ChatService(args.model, args.index)
-    server = serve(service, port=args.port)
+    service = ChatService(args.model, args.index, pack=args.pack, memory_path=args.memory)
+    server = serve(service, host=args.host, port=args.port)
     threading.Thread(target=service.load, daemon=True).start()
     url = f"http://127.0.0.1:{server.server_address[1]}"
     print(f"ENGRAMM is running: {url}  (loading in the background; stop with Ctrl+C)", flush=True)
