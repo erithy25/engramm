@@ -1,0 +1,30 @@
+{
+ "split": "dev",
+ "prereg": "docs/PREREG_NLP_V0.md",
+ "device": "container",
+ "N1": {
+  "upos_accuracy": 0.9419062388166527,
+  "pass": true
+ },
+ "N2": {
+  "uas": 0.8191578193963974,
+  "las": 0.7643643882460536,
+  "pass": false
+ },
+ "N3": {
+  "macro_f1": 0.8260909953914961,
+  "accuracy": 0.8401377274963109,
+  "pass": true
+ },
+ "N4": {
+  "median_ms": 2.766518500266102,
+  "pass": true,
+  "canonical": false
+ },
+ "model_bytes": {
+  "intent.json": 4250304,
+  "parse.json": 27713202,
+  "pos.json": 3870803
+ },
+ "seconds": 570
+}
