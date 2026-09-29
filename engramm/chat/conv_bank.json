@@ -2118,7 +2118,34 @@
   ],
   "fallback": [
    "I'm not sure how to answer that. You can ask me a question, tell me something about you, or say “help”."
-  ]
+  ],
+  "device": {
+   "reminders": [
+    "I can't set alarms, timers or calendar entries — I run offline, without access to your apps. Your phone's clock or calendar can do that.",
+    "Setting alarms and reminders is outside what I can do: I have no access to your device's apps. I can help you write the note for it, though.",
+    "I'm not connected to your calendar or clock, so I can't do that one. Anything else I can help with?"
+   ],
+   "media": [
+    "I can't play music, radio or podcasts — I'm a text-only assistant without access to your media apps.",
+    "Playing audio is outside what I can do. I'm happy to tell you about a band or a song instead.",
+    "No speakers on my side, sorry! I can look up an artist or an album if you like."
+   ],
+   "smarthome": [
+    "I can't control lights or devices — I'm not connected to your smart home.",
+    "Smart-home controls are outside what I can do; I only chat and look things up offline.",
+    "I have no access to your devices, so I can't switch anything on or off."
+   ],
+   "messages": [
+    "I can't send messages or emails myself, but I can draft one for you — just say “write an email to …”.",
+    "Sending is outside what I can do (I'm offline), but I'm good at drafting: tell me who it's for and what it's about.",
+    "I can't post or send anything, but I can write the text for you to copy."
+   ],
+   "online": [
+    "I don't have live information like weather, news, traffic or prices — I work offline, and my knowledge is a snapshot.",
+    "That needs up-to-date information from the internet, which I don't have. My knowledge comes from a fixed copy of Wikipedia and Wikidata.",
+    "I can't check live data (weather, news, stocks, tickets). I can tell you general facts from my knowledge pack, though."
+   ]
+  }
  },
  "writing": {
   "greetings": {

@@ -86,7 +86,7 @@ class _Part:
 
 
 class Assistant:
-    def __init__(self, bot, bank: Bank | None = None, clock=None, kb_path=None):
+    def __init__(self, bot, bank: Bank | None = None, clock=None, kb_path=None, nlp_dir=None):
         self.bot = bot
         self.bank = bank or load_bank()
         self.clock = clock                      # callable → datetime (tests fix the date)
@@ -103,6 +103,12 @@ class Assistant:
             from engramm.kb.store import FactBank
             today = clock().date() if clock else None
             self.kgqa = KGQA(FactBank(path), today=today)
+        # requests ENGRAMM cannot carry out (alarms, music, live data): the counted intent classifier
+        from engramm.chat.device import DeviceRequests, find_model
+        index_dir = getattr(bot.c, "index_dir", None)
+        model = find_model(nlp_dir, index_dir / "nlp" if index_dir is not None else None,
+                           Path(__file__).resolve().parents[2] / "models" / "nlp")
+        self.device = DeviceRequests(model) if model is not None else None
 
     # -- helpers ------------------------------------------------------------------------------
 
@@ -209,6 +215,13 @@ class Assistant:
             m = re.fullmatch(r"(?:i (?:choose|pick|take) )?(rock|paper|scissors)", normalise(msg))
             if m:
                 return self._rps(st, msg, m.group(1))
+        if self.device is not None and len(units) == 1 and units[0].act in ("question", "statement"):
+            hit = self.device.group(msg)
+            # questions about the user ("when is my dentist appointment?") are memory questions
+            if hit is not None and units[0].act == "question" and (hit[0] != "online" or re.search(r"\bmy\b", msg, re.I)):
+                hit = None
+            if hit is not None:
+                return Reply(msg, "unknown", self._reply(st, f"device.{hit[0]}"), via="device")
         parts: list[_Part] = []
         main: Reply | None = None
         learn: list[Unit] = []

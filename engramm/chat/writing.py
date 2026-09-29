@@ -46,11 +46,15 @@ _GENRE_RX = r"e-?mail|mail|letter|message|text(?: message)?|note|card|cover lett
             r"wish(?:es)?|excuse"
 _ADJ_RX = r"(?:(?:short|quick|brief|long|longer|formal|informal|polite|friendly|professional|casual|nice|sweet|" \
           r"funny|heartfelt|warm|kind|simple|little|detailed|polished|official|firm|strong|good)\s+)*"
+# the occasion before the genre ("a birthday message", "a get-well card") becomes part of the purpose
+_OCCASION_RX = r"(?:(?:birthday|anniversary|wedding|farewell|goodbye|congratulations?|congratulatory|get[- ]well|" \
+               r"condolence|sympathy|christmas|holiday|new year(?:'s)?|welcome|good luck|thank[- ]you|" \
+               r"retirement|graduation)\s+)?"
 _REQUEST = re.compile(
     r"^(?:(?:can|could|would|will) you |please |pls |plz |help me(?: to)? |i need (?:you )?to |i want (?:you )?to |"
     r"i'd like (?:you )?to |i would like (?:you )?to |)*(?:write|draft|compose|prepare|create|make|put together|"
     r"type up|help me (?:write|draft)|help with|write up)\s+(?:me\s+|up\s+)?(?:an?\s+|the\s+|some\s+|my\s+)?"
-    rf"(?P<adj>{_ADJ_RX})(?P<genre>{_GENRE_RX})\b(?P<rest>.*)$", re.I)
+    rf"(?P<adj>{_ADJ_RX})(?P<occ>{_OCCASION_RX})(?P<genre>{_GENRE_RX})\b(?P<rest>.*)$", re.I)
 _VERB_REQUEST = re.compile(r"^(?:(?:can|could) you |please |help me )*(?P<verb>e-?mail|text|message|write to)\s+"
                            r"(?P<rest>.+)$", re.I)
 _POEM = re.compile(r"^(?:(?:can|could|would) you |please )*(?:write|compose|make|create)(?: me)?(?: an?| some)?"
@@ -122,6 +126,8 @@ def parse_request(message: str, purposes: dict) -> WritingRequest | None:
         req.genre = GENRES.get(genre, "email")
         adj = m.group("adj").lower()
         rest = m.group("rest").strip()
+        if m.group("occ"):
+            rest = f"{m.group('occ').strip()} {rest}".strip()
         if genre in ("apology", "complaint", "invitation", "reminder", "resignation letter", "cover letter",
                      "recommendation letter", "thank-you note", "thank you note"):
             rest = f"{genre} {rest}"

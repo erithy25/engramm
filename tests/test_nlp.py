@@ -39,3 +39,24 @@ def test_tagger_learns_and_is_deterministic():
     b.train(data, epochs=5)
     assert a.tag(["the", "dog", "sleeps"]) == ["DET", "NOUN", "VERB"]
     assert a.model.weights == b.model.weights
+
+
+def test_device_requests(tmp_path):
+    from engramm.chat.device import DeviceRequests
+    from engramm.nlp.intent import IntentClassifier
+    data = [("set an alarm for seven", "alarm_set"), ("wake me up at six", "alarm_set"),
+            ("play some jazz", "play_music"), ("play my rock playlist", "play_music"),
+            ("who wrote hamlet", "qa_factoid"), ("what is the capital of peru", "qa_factoid"),
+            ("turn off the lights", "iot_hue_lightoff"), ("lights off please", "iot_hue_lightoff")] * 10
+    c = IntentClassifier()
+    c.train(data, epochs=6)
+    c.save(tmp_path / "intent.json")
+    d = DeviceRequests(tmp_path / "intent.json")
+    import engramm.chat.device as dev
+    old, dev.MIN_MARGIN = dev.MIN_MARGIN, 1.0
+    try:
+        assert d.group("set an alarm for seven") == ("reminders", "alarm_set")
+        assert d.group("turn off the lights")[0] == "smarthome"
+        assert d.group("who wrote hamlet") is None           # a question ENGRAMM can answer
+    finally:
+        dev.MIN_MARGIN = old
