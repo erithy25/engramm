@@ -27,7 +27,7 @@ jobs:
           cache: pip
           cache-dependency-path: runtime/sidecar/requirements.txt
       - name: Install
-        run: pip install numpy==2.4.1 numba==0.67.0 tokenizers==0.23.2 pyyaml pytest==9.1.1
+        run: pip install numpy==2.4.1 numba==0.67.0 tokenizers==0.23.2 pydivsufsort==0.0.20 pyyaml pytest==9.1.1
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
