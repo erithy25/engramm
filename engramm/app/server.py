@@ -3,12 +3,14 @@
     python -m engramm.app                    # starts the server and opens http://127.0.0.1:8770
     python -m engramm.app --port 9000 --no-browser
 
-The server answers at once; the language model and the sentence index load in the background
-(about a minute), and the page shows a loading screen until ``/api/health`` reports ready.
+The server answers at once; the sentence index loads in the background (well under a minute),
+and the page shows a loading screen until ``/api/health`` reports ready.
 
-Only this machine can connect (127.0.0.1). Every conversation keeps its own dialog context
-(what "he", "it" or "that city" refer to); what you teach ENGRAMM is one shared memory, logged
-in ``user.log`` next to the model like in the dashboard and the command line.
+Only this machine can connect (127.0.0.1). Every conversation keeps its own dialog state (what
+"he", "it" or "that city" refer to, what ENGRAMM just asked, which replies it used); what you
+teach ENGRAMM is one shared memory. The chat does not load the language model: its memory is
+``chat_memory.log`` next to the model (engramm/chat/textmem.py), which on first start takes over
+everything you told the earlier app (``user.log``).
 
 API (JSON):
 
@@ -38,7 +40,6 @@ mimetypes.add_type("text/javascript", ".js")
 DEFAULT_MODEL = Path(__file__).resolve().parents[2] / "models" / "lm" / "main" / "model"
 MAX_MESSAGE = 2000
 MAX_CONVERSATIONS = 500
-FRESH = {"answer": None, "atype": None, "mention": None, "last_learned": None}
 
 
 def source_view(src: dict | None) -> dict | None:
@@ -46,7 +47,7 @@ def source_view(src: dict | None) -> dict | None:
     if not src:
         return None
     if src.get("kind") == "user":
-        return {"kind": "user", "title": "Von dir erzählt", "url": None}
+        return {"kind": "user", "title": "You told me", "url": None}
     origin, key = src.get("source"), src.get("key") or ""
     if origin in ("wiki", "wikipedia"):
         return {"kind": "wikipedia", "title": key,
@@ -58,8 +59,8 @@ def source_view(src: dict | None) -> dict | None:
 
 
 class ChatService:
-    """The model, the bot and one dialog context per conversation. One request at a time
-    touches the bot (it is not thread-safe); the lock also orders learn / forget."""
+    """The core bot, the conversation layer and one dialog state per conversation. One request
+    at a time touches the bot (it is not thread-safe); the lock also orders learn / forget."""
 
     def __init__(self, model_dir: Path, index: str | None = None):
         self.model_dir = Path(model_dir)
@@ -67,58 +68,65 @@ class ChatService:
         self.mode: str | None = None
         self.lock = threading.Lock()
         self.bot = None
-        self.lm = None
+        self.assistant = None
+        self.memory = None
         self.error: str | None = None
-        self.contexts: dict[str, dict] = {}
+        self.states: dict = {}
 
     # -- loading -----------------------------------------------------------------------------
 
     def load(self) -> None:
-        from engramm.lm.dashboard import chat_index_dir, load_logged, make_bot
         try:
-            if not (self.model_dir / "meta.json").exists():
-                raise FileNotFoundError(f"Kein Modell unter {self.model_dir}.")
+            from engramm.chat.bot import ChatBot
             from engramm.chat.config import QUICK_INDEX, config_for
-            lm = load_logged(self.model_dir)
+            from engramm.chat.corpus import Corpus
+            from engramm.chat.dialog import Assistant
+            from engramm.chat.retrieve import Retriever
+            from engramm.chat.textmem import LoggedTextMemory
+            from engramm.lm.dashboard import cap_ratio, chat_index_dir
+            if not (self.model_dir / "meta.json").exists():
+                raise FileNotFoundError(f"No model at {self.model_dir}.")
             idx = chat_index_dir(self.model_dir, self.index)
             if idx is None:
-                raise FileNotFoundError("Kein Satzindex neben dem Modell. Erst bauen: bash scripts/setup_mac.sh")
+                raise FileNotFoundError("No sentence index next to the model. Build it first: bash scripts/setup_mac.sh")
             config, self.mode = config_for(idx)
             if self.mode == "quick" and idx.name != QUICK_INDEX and (idx.parent / QUICK_INDEX / "info.json").exists():
                 idx = idx.parent / QUICK_INDEX     # a full index without its models: use the quick one
                 config, self.mode = config_for(idx)
-            bot = make_bot(lm, idx, config)
+            corpus = Corpus.load(self.model_dir, index_name=idx.name)
+            memory = LoggedTextMemory(self.model_dir.parent / "chat_memory.log",
+                                      import_from=self.model_dir / "user.log")
+            bot = ChatBot(memory, corpus, config, cap_ratio(idx), retriever=Retriever(corpus))
+            assistant = Assistant(bot)
             with self.lock:
-                self.lm, self.bot = lm, bot
+                self.memory, self.bot, self.assistant = memory, bot, assistant
         except Exception as e:  # shown on the page instead of a silent hang
             self.error = f"{type(e).__name__}: {e}"
             traceback.print_exc()
 
     def health(self) -> dict:
-        return {"ready": self.bot is not None, "error": self.error, "mode": self.mode,
+        return {"ready": self.assistant is not None, "error": self.error, "mode": self.mode,
                 "sentences": None if self.bot is None else int(self.bot.c.index.n)}
 
     # -- chat --------------------------------------------------------------------------------
 
     def chat(self, conversation: str, message: str) -> dict:
+        from engramm.chat.dialog import DialogState
         message = message.strip()
         if not message:
-            raise ValueError("Leere Nachricht.")
+            raise ValueError("Empty message.")
         if len(message) > MAX_MESSAGE:
-            raise ValueError(f"Nachricht zu lang (höchstens {MAX_MESSAGE} Zeichen).")
-        if self.bot is None:
-            raise RuntimeError(self.error or "ENGRAMM lädt noch.")
+            raise ValueError(f"Message too long (at most {MAX_MESSAGE} characters).")
+        if self.assistant is None:
+            raise RuntimeError(self.error or "ENGRAMM is still loading.")
         conversation = (conversation or "default")[:100]
         with self.lock:
-            bot = self.bot
-            ctx = self.contexts.get(conversation, dict(FRESH))
-            bot.context = dict(ctx)
+            st = self.states.pop(conversation, None) or DialogState(conversation=conversation)
             t0 = time.time()
-            r = bot.turn(message)
-            self.contexts[conversation] = dict(bot.context)
-            if len(self.contexts) > MAX_CONVERSATIONS:
-                self.contexts.pop(next(iter(self.contexts)))
-            bot.context = dict(FRESH)
+            r = self.assistant.turn(st, message)
+            self.states[conversation] = st              # most recently used last
+            while len(self.states) > MAX_CONVERSATIONS:
+                self.states.pop(next(iter(self.states)))
         d = r.to_dict()
         return {"kind": d["kind"], "text": d["text"], "answer": d["answer"], "guess": d["guess"],
                 "evidence": d["evidence"], "source": source_view(d["source"]), "confidence": d["confidence"],
@@ -129,26 +137,26 @@ class ChatService:
 
     # -- memory ------------------------------------------------------------------------------
 
-    def memory(self) -> dict:
+    def memory_items(self) -> dict:
         if self.bot is None:
             return {"items": []}
         with self.lock:
             texts = self.bot.user_texts()
             tok = self.bot.c.tok
             return {"items": [{"source": s, "preview": t[:200], "tokens": int(len(tok.encode(t)))}
-                              for s, t in sorted(texts.items())]}
+                              for s, t in texts.items()]}
 
     def forget(self, source: str) -> dict:
         if self.bot is None:
-            raise RuntimeError("ENGRAMM lädt noch.")
+            raise RuntimeError("ENGRAMM is still loading.")
         with self.lock:
             if source not in self.bot.user_texts():
-                raise KeyError("Unbekannter Eintrag.")
+                raise KeyError("Unknown entry.")
             self.bot.memory.forget(source)
             self.bot.refresh()
-            for ctx in self.contexts.values():
-                if ctx.get("last_learned") == source:
-                    ctx["last_learned"] = None
+            for st in self.states.values():
+                if st.ctx.get("last_learned") == source:
+                    st.ctx["last_learned"] = None
         return {"forgot": source}
 
 
@@ -176,7 +184,7 @@ def make_handler(service: ChatService):
             if path == "/api/health":
                 return self._json(200, service.health())
             if path == "/api/memory":
-                return self._json(200, service.memory())
+                return self._json(200, service.memory_items())
             name = "index.html" if path in ("/", "/index.html") else path.lstrip("/")
             f = (WEB / name).resolve()
             if WEB.resolve() not in f.parents or not f.is_file():
@@ -191,7 +199,7 @@ def make_handler(service: ChatService):
             try:
                 n = int(self.headers.get("Content-Length") or 0)
                 if n > 64_000:
-                    return self._json(413, {"error": "Anfrage zu groß."})
+                    return self._json(413, {"error": "Request too large."})
                 data = json.loads(self.rfile.read(n) or b"{}")
                 if path == "/api/chat":
                     return self._json(200, service.chat(str(data.get("conversation", "")), str(data.get("message", ""))))
@@ -204,7 +212,7 @@ def make_handler(service: ChatService):
                 return self._json(503, {"error": str(e)})
             except Exception as e:  # never leak a traceback to the page
                 traceback.print_exc()
-                return self._json(500, {"error": f"Interner Fehler: {type(e).__name__}"})
+                return self._json(500, {"error": f"Internal error: {type(e).__name__}"})
 
     return Handler
 
@@ -236,7 +244,7 @@ def main(argv: list[str] | None = None) -> int:
     server = serve(service, port=args.port)
     threading.Thread(target=service.load, daemon=True).start()
     url = f"http://127.0.0.1:{server.server_address[1]}"
-    print(f"ENGRAMM läuft: {url}  (lädt im Hintergrund; Beenden mit Ctrl+C)", flush=True)
+    print(f"ENGRAMM is running: {url}  (loading in the background; stop with Ctrl+C)", flush=True)
     if not args.no_browser:
         threading.Timer(0.5, lambda: webbrowser.open(url)).start()
     try:
@@ -245,6 +253,6 @@ def main(argv: list[str] | None = None) -> int:
         pass
     finally:
         server.server_close()
-        if service.lm is not None:
-            service.lm.log.close()
+        if service.memory is not None:
+            service.memory.close()
     return 0

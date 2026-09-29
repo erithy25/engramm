@@ -1,0 +1,188 @@
+# ENGRAMM conversation bank — feelings and events.
+#
+# A sentence where you speak about yourself ("I", "my", "me") and that matches a trigger
+# (regex, searched in the normalised sentence) gets an empathic reply instead of being stored
+# as a fact. The first matching category in this list wins (specific events before general
+# moods). "negated" words right before the trigger ("not happy") move a positive mood to
+# "low" and a negative one to "okay".
+#
+# Responses: one validating sentence, then usually an open question.
+
+negators: ["not", "never", "no longer", "hardly", "don't", "do not", "doesn't", "isn't", "wasn't", "aren't", "not really", "not very", "not so", "not that"]
+
+categories:
+
+  - id: grief
+    valence: negative
+    triggers:
+      - '\b(died|passed away|passed on|lost my (mom|mother|dad|father|mum|grandma|grandmother|grandpa|grandfather|brother|sister|son|daughter|husband|wife|partner|friend|best friend|dog|cat|pet|baby)|funeral|grieving|grief|mourning|miss (him|her|them) so much|is dead|was killed|put (my|our) (dog|cat) down|had to put down)\b'
+    responses:
+      - "I'm so sorry for your loss. That's incredibly hard. Would you like to tell me about them?"
+      - "I'm really sorry. Losing someone you love hurts deeply — be gentle with yourself. What was he or she like?"
+      - "That's heartbreaking, I'm so sorry. There's no right way to grieve. I'm here if you want to talk about it."
+
+  - id: breakup
+    valence: negative
+    triggers:
+      - '\b(broke up|break ?up|breaking up|dumped me|left me|cheated on me|cheating on me|got divorced|getting divorced|divorce|my (ex|boyfriend|girlfriend|husband|wife|partner) (left|dumped|cheated))\b'
+    responses:
+      - "I'm sorry — breakups are really painful, even when they're the right thing. How are you holding up?"
+      - "That sounds really tough. It's okay to feel whatever you're feeling right now. Do you want to talk about what happened?"
+      - "I'm sorry you're going through that. Heartbreak takes time. Is there someone close to you who can be with you right now?"
+
+  - id: job_loss
+    valence: negative
+    triggers:
+      - '\b(got fired|was fired|been fired|got laid off|was laid off|been laid off|lost my job|lost the job|laid off|got sacked|was sacked|unemployed|jobless|out of work|didn''t get the job|did not get the job|got rejected|was rejected|rejection)\b'
+    responses:
+      - "I'm sorry, that's a real blow. It doesn't say anything about your worth, though. How are you feeling about it?"
+      - "That's rough — I'm sorry. Do you want to talk it through, or would it help to think about next steps together?"
+      - "Ugh, I'm sorry. Setbacks like this are stressful. What do you think you'll do next?"
+
+  - id: conflict
+    valence: negative
+    triggers:
+      - '\b(yelled at me|shouted at me|screamed at me|was mean to me|were mean to me|insulted me|bullied|bullying|being bullied|had a fight|had an argument|got into a fight|we fought|argued with|argument with|fighting with|mad at me|angry at me|ignoring me|ignored me|betrayed me|lied to me|humiliated)\b'
+    responses:
+      - "That sounds really unpleasant — nobody deserves to be treated like that. Do you want to tell me what happened?"
+      - "I'm sorry, that must have hurt. How are you feeling now?"
+      - "That's hard. Conflicts like that can stay with you for a while. What do you think triggered it?"
+
+  - id: illness
+    valence: negative
+    triggers:
+      - '\b(i''m sick|i am sick|i feel sick|i''m ill|i am ill|i have (a |the )?(cold|flu|fever|covid|headache|migraine|stomach ache|stomachache|infection|cancer|toothache|sore throat|cough)|got (a |the )?(cold|flu|covid|fever|headache)|in pain|hurts so much|feel unwell|not feeling well|don''t feel well|in (the )?hospital|surgery|diagnosed with|i''m injured|broke my (arm|leg|wrist|ankle))\b'
+    responses:
+      - "Oh no, I'm sorry you're not feeling well. I hope you can rest — and if it gets worse, please see a doctor. Is there anything I can help you with?"
+      - "That sounds miserable, I'm sorry. Take it easy, drink enough, and get well soon!"
+      - "I'm sorry to hear that. Your health comes first — take care of yourself. Do you want some distraction, like a fun fact?"
+
+  - id: stress
+    valence: negative
+    triggers:
+      - '\b(stressed|stressed out|stressful|so much stress|under pressure|overwhelmed|too much (work|to do)|burn(ed|t)? ?out|burnout|deadline|exhausting week|swamped|drowning in work|can''t cope|cannot cope)\b'
+    responses:
+      - "That sounds like a lot. Remember to take small breaks — even five minutes helps. What's weighing on you the most?"
+      - "I'm sorry you're under so much pressure. Sometimes it helps to write down the three most important things and ignore the rest for a moment. Want to try?"
+      - "Being overwhelmed is exhausting. You don't have to do everything at once. What's the very next small step?"
+
+  - id: anxious
+    valence: negative
+    triggers:
+      - '\b(anxious|anxiety|nervous|worried|worry|scared|afraid|frightened|panic|panicking|panic attack|terrified|fear|uneasy|on edge)\b'
+    responses:
+      - "That sounds really uncomfortable. Try slowing your breathing for a moment — in for four, out for six. What's making you feel this way?"
+      - "It's completely understandable to feel nervous. Do you want to tell me what's on your mind? Saying it out loud sometimes makes it smaller."
+      - "I'm sorry you're feeling anxious. You're not alone with that feeling. What are you worried about?"
+
+  - id: lonely
+    valence: negative
+    triggers:
+      - '\b(lonely|so alone|all alone|feel alone|feeling alone|i''m alone|i am alone|no friends|no one (likes|cares about|understands|loves) me|nobody (likes|cares about|understands|loves) me|isolated|left out|miss my (friends|family|home|mom|dad|mum))\b'
+    responses:
+      - "I'm sorry you're feeling lonely. That's a hard feeling. I'm here to talk — and maybe there's someone you could reach out to today, even with a short message?"
+      - "Loneliness can be really heavy. Thank you for telling me. What would make today a little better for you?"
+      - "I'm glad you're talking to me. Feeling alone is painful — is there someone you've been meaning to call or text?"
+
+  - id: sad
+    valence: negative
+    triggers:
+      - '\b(sad|unhappy|depressed|depression|feeling down|feel down|i''m down|i am down|so down|feeling low|feel low|feeling blue|miserable|heartbroken|crying|cried|i cry|upset|i''m hurt|i am hurt|feel hurt|awful|terrible|horrible|bad day|rough day|tough day|hard day|worst day|not okay|not ok|not good|not great|not fine|not well|hopeless|disappointed|let down|ugh+|meh|sucks|feel like crap|feel like shit|feel bad|feel awful|feel terrible)\b'
+    responses:
+      - "I'm sorry you're feeling this way. Do you want to talk about what's going on?"
+      - "That sounds hard. I'm here and happy to listen — what happened?"
+      - "I'm sorry to hear that. Bad days are real, and it's okay to have them. Is there something that would help a little right now?"
+      - "That doesn't sound good at all. Want to tell me about it, or would a distraction help more?"
+
+  - id: angry
+    valence: negative
+    triggers:
+      - '\b(angry|mad|furious|pissed|pissed off|annoyed|irritated|frustrated|frustrating|fed up|sick of|hate (it|this|my job|mondays|everything)|so annoying|infuriating|livid|rage)\b'
+    responses:
+      - "That sounds really frustrating. Want to vent? I'm listening."
+      - "I get why you'd be annoyed. What happened?"
+      - "Ugh, that sounds irritating. Is it something you can change, or something you have to get through?"
+
+  - id: tired
+    valence: negative
+    triggers:
+      - '\b(tired|exhausted|sleepy|worn out|drained|no energy|can''t sleep|cannot sleep|couldn''t sleep|insomnia|didn''t sleep|barely slept|need sleep|need a nap|so tired)\b'
+    responses:
+      - "Sounds like you need some rest. Is there a chance for a break or an early night?"
+      - "Being tired makes everything harder. Be kind to yourself today — and maybe get some sleep soon."
+      - "I'm sorry you're so worn out. What's been keeping you busy?"
+
+  - id: success
+    valence: positive
+    triggers:
+      - '\b(got the job|got a job|got a new job|started a new job|new job|got promoted|promotion|got a raise|(i|we) passed|passed (my|the|an|our) ?(exam|exams|test|tests|driving test|interview|finals)|graduated|graduation|got accepted|was accepted|got into (university|college|uni)|(i|we) won|won (the|a|first|gold|my)|finished my (thesis|project|degree|marathon|exams)|finally finished|achieved|(i|we) made it|nailed it|succeeded)\b'
+    responses:
+      - "Congratulations! That's fantastic news — you should be proud. How are you going to celebrate?"
+      - "Wow, well done! 🎉 That must feel great. Tell me more!"
+      - "That's amazing — congratulations! All that effort paid off."
+
+  - id: life_event
+    valence: positive
+    triggers:
+      - '\b(got engaged|just got engaged|(i''m|i am|we''re|we are) engaged|getting married|got married|just married|having a baby|(i''m|i am|we''re|we are) pregnant|had a baby|became a (dad|mom|mother|father|parent)|new baby|moved into (a|my|our) new|bought a (house|flat|apartment|home)|got a (puppy|kitten))\b'
+    responses:
+      - "Congratulations, that's wonderful news! 🎉 How are you feeling about it?"
+      - "Oh, how exciting! Congratulations! Tell me more."
+      - "That's big news — congratulations! I'm really happy for you."
+
+  - id: birthday
+    valence: positive
+    triggers:
+      - '\b(it''s my birthday|it is my birthday|today is my birthday|my birthday is today|i turned \d+|i''m turning \d+|i am turning \d+)\b'
+    responses:
+      - "Happy birthday! 🎂 I hope you have a wonderful day. Any plans?"
+      - "Happy birthday! 🎉 Wishing you a great year ahead. How are you celebrating?"
+
+  - id: vacation
+    valence: positive
+    triggers:
+      - '\b(on vacation|on holiday|going on (vacation|holiday|a trip)|holidays? start|vacation starts|have a day off|day off (today|tomorrow)|the weekend is here|it''s the weekend|it''s friday|finally free|going on a trip)\b'
+    responses:
+      - "Nice, enjoy it! Where are you going?"
+      - "That sounds lovely — you deserve a break! Any plans?"
+
+  - id: grateful
+    valence: positive
+    triggers:
+      - '\b(grateful|thankful|blessed|lucky|appreciate)\b'
+    responses:
+      - "That's a lovely feeling to have. What are you grateful for today?"
+      - "That's really nice to hear!"
+
+  - id: excited
+    valence: positive
+    triggers:
+      - '\b(excited|can''t wait|cannot wait|looking forward|thrilled|pumped|stoked|hyped)\b'
+    responses:
+      - "That's exciting! What are you looking forward to?"
+      - "I love that energy! Tell me more."
+
+  - id: happy
+    valence: positive
+    triggers:
+      - '\b(happy|glad|joyful|cheerful|great day|good day|amazing day|wonderful day|feel(ing)? (great|good|amazing|awesome|fantastic|wonderful)|in a good mood|so good|relieved|proud of myself|proud|content|satisfied|love my life|life is good|good news)\b'
+    responses:
+      - "That's great to hear! What made your day so good?"
+      - "Love to hear that! 😊 What's the good news?"
+      - "Wonderful! It's nice when things go well. Tell me more!"
+
+  - id: calm
+    valence: neutral
+    triggers:
+      - '\b(relaxed|relaxing|chilling|calm|peaceful|lazy day|taking it easy)\b'
+    responses:
+      - "Sounds nice and relaxing. Enjoy it!"
+      - "A calm day is underrated. Anything fun planned?"
+
+# What ENGRAMM says when a positive mood is negated ("I'm not happy") or a negative one is
+# negated ("I'm not sad anymore").
+negated_positive: sad
+negated_negative:
+  responses:
+    - "Glad it's not so bad! What's on your mind?"
+    - "Good to hear! Anything I can help with?"

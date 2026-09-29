@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>ENGRAMM</title>
-  <meta name="description" content="ENGRAMM – ein Chat ohne neuronales Netz. Jede Antwort mit Quelle.">
+  <meta name="description" content="ENGRAMM – a chat assistant without a neural network. Every fact with its source.">
   <meta name="theme-color" content="#1b1446">
   <link rel="icon" type="image/svg+xml" href="logo.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
@@ -14,29 +14,33 @@
 </head>
 <body>
   <div class="app" id="app">
-    <aside class="sidebar" id="sidebar" aria-label="Unterhaltungen">
+    <aside class="sidebar" id="sidebar" data-i18n-aria="conversations">
       <div class="brand">
         <img src="logo.svg" alt="" class="brand-logo" width="28" height="28">
         <span class="brand-name">ENGRAMM</span>
-        <button class="icon-btn only-mobile" id="closeSidebar" aria-label="Seitenleiste schließen">✕</button>
+        <button class="icon-btn only-mobile" id="closeSidebar" data-i18n-aria="closeSidebar">✕</button>
       </div>
       <button class="new-chat" id="newChat">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-        Neuer Chat
+        <span data-i18n="newChat">New chat</span>
       </button>
-      <nav class="conversations" id="conversations" aria-label="Verlauf"></nav>
+      <nav class="conversations" id="conversations" data-i18n-aria="history"></nav>
       <div class="sidebar-foot">
         <button class="side-link" id="openMemory">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-          Gedächtnis
+          <span data-i18n="memory">What ENGRAMM knows</span>
         </button>
         <button class="side-link" id="toggleTheme">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>
-          <span id="themeLabel">Dunkles Design</span>
+          <span id="themeLabel">Dark mode</span>
+        </button>
+        <button class="side-link" id="toggleLang">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+          <span data-i18n="otherLanguage">Deutsch</span>
         </button>
         <button class="side-link" id="openAbout">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>
-          Über ENGRAMM
+          <span data-i18n="about">About ENGRAMM</span>
         </button>
       </div>
     </aside>
@@ -44,58 +48,58 @@
 
     <main class="main">
       <header class="topbar">
-        <button class="icon-btn only-mobile" id="openSidebar" aria-label="Seitenleiste öffnen">
+        <button class="icon-btn only-mobile" id="openSidebar" data-i18n-aria="openSidebar">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
-        <div class="model-pill" title="Antworten nur durch Zählen, Regeln und Hypervektoren – ohne neuronales Netz">
-          ENGRAMM <span class="muted">· ohne neuronales Netz</span>
+        <div class="model-pill" data-i18n-title="pillTitle">
+          ENGRAMM <span class="muted" data-i18n="pill">· no neural network</span>
         </div>
-        <div class="status" id="status"><span class="dot"></span><span id="statusText">verbinde …</span></div>
+        <div class="status" id="status"><span class="dot"></span><span id="statusText">connecting …</span></div>
       </header>
 
       <section class="thread" id="thread" aria-live="polite">
         <div class="empty" id="empty">
           <img src="logo.svg" alt="" class="empty-logo" width="72" height="72">
-          <h1>Wie kann ich helfen?</h1>
-          <p class="muted">ENGRAMM antwortet aus dem, was es gelesen hat, und zeigt immer die Quelle. Fragen bitte auf Englisch.</p>
+          <h1 data-i18n="emptyTitle">How can I help?</h1>
+          <p class="muted" data-i18n="emptySub">Ask me anything, tell me about yourself, or just chat. I show where every fact comes from.</p>
           <div class="suggestions" id="suggestions"></div>
         </div>
       </section>
 
       <footer class="composer-wrap">
         <form class="composer" id="composer" autocomplete="off">
-          <textarea id="input" rows="1" placeholder="Nachricht an ENGRAMM (auf Englisch) …" aria-label="Nachricht" maxlength="2000"></textarea>
-          <button type="submit" class="send" id="send" aria-label="Senden" disabled>
+          <textarea id="input" rows="1" data-i18n-placeholder="placeholder" placeholder="Message ENGRAMM …" data-i18n-aria="message" maxlength="2000"></textarea>
+          <button type="submit" class="send" id="send" data-i18n-aria="send" disabled>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
           </button>
         </form>
-        <p class="hint muted">ENGRAMM rechnet ohne neuronales Netz, belegt jede Antwort – und kann sich irren. Prüfe die Quelle.</p>
+        <p class="hint muted" data-i18n="hint">ENGRAMM works without a neural network and shows its sources — it can still be wrong. Check the source.</p>
       </footer>
     </main>
   </div>
 
   <dialog id="memoryDialog" class="dialog">
     <div class="dialog-head">
-      <h2>Gedächtnis</h2>
-      <button class="icon-btn" data-close aria-label="Schließen">✕</button>
+      <h2 data-i18n="memory">What ENGRAMM knows</h2>
+      <button class="icon-btn" data-close data-i18n-aria="close">✕</button>
     </div>
-    <p class="muted">Was du ENGRAMM erzählt hast. „Vergessen“ löscht es wirklich – nicht nur versteckt.</p>
+    <p class="muted" data-i18n="memorySub">What you told ENGRAMM. “Forget” deletes it for real — not just hidden.</p>
     <ul class="memory-list" id="memoryList"></ul>
   </dialog>
 
   <dialog id="aboutDialog" class="dialog">
     <div class="dialog-head">
-      <h2>Über ENGRAMM</h2>
-      <button class="icon-btn" data-close aria-label="Schließen">✕</button>
+      <h2 data-i18n="about">About ENGRAMM</h2>
+      <button class="icon-btn" data-close data-i18n-aria="close">✕</button>
     </div>
-    <p>ENGRAMM ist ein Chat, der <b>ohne neuronales Netz</b> arbeitet: nur Zählen, Regeln und Hypervektoren.</p>
+    <p data-i18n-html="aboutIntro">ENGRAMM is a chat assistant that works <b>without a neural network</b>: counting, rules and hypervectors.</p>
     <ul class="about-list">
-      <li>Jede Antwort mit Quelle – nichts wird erfunden.</li>
-      <li>Merkt sich, was du erzählst („My name is …“) – und vergisst es auf Befehl wirklich („Forget my name“).</li>
-      <li>Versteht Rückfragen wie „Where was he born?“.</li>
-      <li>Läuft komplett auf deinem Rechner, gleiche Frage – gleiche Antwort.</li>
+      <li data-i18n="about1">Facts come with their source — nothing is invented on purpose.</li>
+      <li data-i18n="about2">Remembers what you tell it (“My sister is called Anna”) — and truly forgets on request (“Forget my sister”).</li>
+      <li data-i18n="about3">Small talk, jokes, explanations (“Tell me about volcanoes”), calculations and unit conversion.</li>
+      <li data-i18n="about4">Runs entirely on your computer. Same question, same answer.</li>
     </ul>
-    <p class="muted">Grenzen: nur Englisch, keine freien Texte oder Meinungen, kurze Faktenantworten. Bei Unsicherheit sagt ENGRAMM „I don't know“.</p>
+    <p class="muted" data-i18n="aboutLimits">Limits: English only for now, no internet, weaker at long creative writing. When unsure, ENGRAMM says so.</p>
   </dialog>
 
   <template id="tplAssistant">
@@ -105,8 +109,8 @@
         <div class="text"></div>
         <div class="meta"></div>
         <div class="actions">
-          <button class="mini" data-act="copy" title="Kopieren">Kopieren</button>
-          <button class="mini" data-act="evidence" title="Beleg anzeigen" hidden>Beleg</button>
+          <button class="mini" data-act="copy"></button>
+          <button class="mini" data-act="evidence" hidden></button>
         </div>
         <blockquote class="evidence" hidden></blockquote>
       </div>

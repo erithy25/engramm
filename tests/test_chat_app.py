@@ -30,21 +30,12 @@ class _Memory:
 
 
 class _Bot:
-    """Answers with the conversation's previous message: proves each conversation keeps its context."""
+    """The core the service forgets through."""
 
     def __init__(self):
-        self.context = {}
         self.memory = _Memory()
         self.c = type("C", (), {"index": type("I", (), {"n": 42})(),
                                 "tok": type("T", (), {"encode": staticmethod(lambda t: t.split())})()})()
-
-    def turn(self, message):
-        prev = self.context.get("mention")
-        self.context["mention"] = message
-        if message.startswith("remember "):
-            self.memory.texts[f"u{len(self.memory.texts)}"] = message[9:]
-            return _Reply("Got it.", "learned")
-        return _Reply(f"prev={prev}", source={"kind": "base", "source": "wiki", "key": "Ada Lovelace"})
 
     def user_texts(self):
         return dict(self.memory.texts)
@@ -53,10 +44,29 @@ class _Bot:
         pass
 
 
+class _Assistant:
+    """Answers with the conversation's previous message: proves each conversation keeps its state."""
+
+    def __init__(self, bot):
+        self.bot = bot
+
+    def turn(self, state, message):
+        prev = state.ctx.get("mention")
+        state.ctx["mention"] = message
+        state.turn += 1
+        if message.startswith("remember "):
+            sid = f"u{len(self.bot.memory.texts)}"
+            self.bot.memory.texts[sid] = message[9:]
+            state.ctx["last_learned"] = sid
+            return _Reply("Got it.", "learned")
+        return _Reply(f"prev={prev}", source={"kind": "base", "source": "wiki", "key": "Ada Lovelace"})
+
+
 @pytest.fixture()
 def running():
     svc = ChatService("unused")
     svc.bot = _Bot()
+    svc.assistant = _Assistant(svc.bot)
     srv = serve(svc, port=0)
     t = threading.Thread(target=srv.serve_forever, daemon=True)
     t.start()
@@ -118,14 +128,14 @@ def test_bad_requests(running):
     base, svc = running
     assert _call(base, "/api/chat", {"conversation": "a", "message": "   "})[0] == 400
     assert _call(base, "/api/chat", {"conversation": "a", "message": "x" * 2001})[0] == 400
-    svc.bot = None
+    svc.bot = svc.assistant = None
     svc.error = None
     code, _, body = _call(base, "/api/chat", {"conversation": "a", "message": "hi"})
-    assert code == 503 and "lädt" in json.loads(body)["error"]
+    assert code == 503 and "loading" in json.loads(body)["error"]
 
 
 def test_source_view():
     assert source_view(None) is None
-    assert source_view({"kind": "user", "source": "u1"})["title"] == "Von dir erzählt"
+    assert source_view({"kind": "user", "source": "u1"})["title"] == "You told me"
     web = source_view({"kind": "base", "source": "c4", "key": "https://www.example.org/a/b"})
     assert web == {"kind": "web", "title": "www.example.org", "url": "https://www.example.org/a/b"}

@@ -1,0 +1,166 @@
+# ENGRAMM conversation bank — the sentences around answers, memory and look-ups.
+#
+# Placeholders: {x} value, {noun} the thing of yours ("dog"), {subject} a named entity,
+# {name} your name, {title} an article title, {topic} a topic, {category} what was asked.
+
+learned:
+  name_new:
+    - "Nice to meet you, {x}!"
+    - "Hi {x}, nice to meet you! I'll remember your name."
+    - "{x} — great name! Nice to meet you."
+  name_changed:
+    - "Got it — I'll call you {x} from now on."
+  home:
+    - "{x} — nice! I'll remember that you live there."
+    - "Got it, you live in {x}."
+  job:
+    - "Got it — you work as {x}. Sounds interesting!"
+    - "I'll remember that you work as {x}."
+  employer:
+    - "Got it — you work at {x}."
+    - "I'll remember that you work for {x}."
+  food:
+    - "{x} — good choice! I'll remember that."
+    - "Noted: {x}. Now I'm curious what it tastes like!"
+  fav:
+    - "{x} — nice! I'll remember that you like it."
+    - "Got it, you like {x}."
+  colour:
+    - "{x} — lovely colour! Noted."
+    - "Got it, your favourite colour is {x}."
+  car:
+    - "A {x}, nice! I'll remember that."
+    - "Got it — you drive a {x}."
+  birth:
+    - "Got it — I'll remember {x}."
+    - "Noted: {x}. I'll keep that in mind."
+  origin:
+    - "You're from {x} — noted!"
+    - "Got it, you come from {x}."
+  owned_name:
+    - "{x} — what a nice name! I'll remember your {noun}."
+    - "Got it, your {noun} is called {x}."
+  owned:
+    - "Got it — I'll remember that about your {noun}."
+    - "Noted, thanks for telling me about your {noun}."
+  about_you:
+    - "Got it — I'll remember that."
+    - "Thanks for telling me! I'll keep that in mind."
+    - "Noted. I'll remember that about you."
+  world:
+    - "Interesting — I'll remember that about {subject}."
+    - "Got it, I've noted that about {subject}."
+  several:
+    - "Got it!"
+    - "Noted!"
+    - "Thanks — I'll remember all of that."
+  plain:
+    - "Got it — I'll remember that."
+    - "Noted! I'll keep that in mind."
+  already:
+    - "I already know that — you told me before."
+    - "Yes, I remember — you told me that already."
+
+chitchat:
+  # a statement with nothing to remember and no feeling ENGRAMM recognises
+  - "I see. Tell me more?"
+  - "Interesting! What makes you say that?"
+  - "Okay! Is there something you'd like to know?"
+  - "Mm-hm. What's on your mind?"
+  - "Got it. Anything I can help you with?"
+
+react:
+  # a statement with a mood word that is not about you ("the weather is terrible")
+  positive:
+    - "That sounds great!"
+    - "Nice!"
+    - "Love to hear that!"
+  negative:
+    - "Oh no, that's not great."
+    - "That's a shame."
+    - "Hmm, that sounds rough."
+
+unknown_about_you:
+  name:
+    - "You haven't told me your name yet. What should I call you?"
+  other:
+    - "You haven't told me that yet. Want to tell me?"
+    - "I don't know that about you yet — you can just tell me, and I'll remember it."
+
+memory:
+  intro:
+    - "Here's what you've told me:"
+    - "This is what I know about you:"
+  others: "And about other things:"
+  outro: "You can ask me to forget any of it — for example “Forget where I live”."
+  empty:
+    - "You haven't told me anything about yourself yet. Tell me something — like your name or what you like — and I'll remember it."
+
+who_am_i:
+  known:
+    - "You're {name}! {more}"
+  unknown:
+    - "I don't know your name yet. What should I call you?"
+
+answer:
+  unsure:
+    - "I'm not sure. My best guess is {x}, but I couldn't confirm it."
+    - "I'm not certain — it might be {x}, but please double-check."
+  unknown:
+    - "I don't know, sorry. I couldn't find anything reliable about that."
+    - "I don't know — I haven't read anything that answers that."
+  unknown_named:
+    - "I don't know — I haven't read anything about {x}."
+  fallback:
+    - "The answer is {x}."
+
+about:
+  none:
+    - "I don't know much about {topic}, sorry — I haven't read an article about it."
+  more_none:
+    - "That's all I have on {title}."
+  more_nothing:
+    - "More about what? Ask me about a topic, like “Tell me about volcanoes”."
+
+why:
+  none:
+    - "I didn't give you a fact just now, so there's no source to show."
+  user:
+    - "You told me: “{evidence}”"
+  base:
+    - "I found it in “{title}”: “{evidence}”"
+  unsure: " I'm not completely sure, though."
+
+clarify:
+  none:
+    - "Sorry, I'm not sure what you mean. Could you put it another way?"
+  last:
+    - "Sorry if that was unclear. What I meant: {last}"
+
+correction:
+  ok:
+    - "Thanks — I'll remember that."
+
+repeat_none:
+  - "I haven't said anything yet!"
+
+pick_number:
+  - "{x}."
+  - "How about {x}?"
+coin:
+  - "Heads!"
+  - "Tails!"
+dice:
+  - "You rolled a {x}."
+rps:
+  win: "I picked {bot}. You win!"
+  lose: "I picked {bot}. I win!"
+  draw: "I picked {bot} too. It's a draw!"
+  ask: "Okay! Rock, paper or scissors?"
+
+joke_intro: ["", "Here's one: ", "Okay: "]
+fact_intro: ["Did you know? ", "Here's a fun fact: ", "Fun fact: "]
+quote_intro: ["", "Here's one I like: "]
+
+fallback:
+  - "I'm not sure how to answer that. You can ask me a question, tell me something about you, or say “help”."
