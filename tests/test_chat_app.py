@@ -86,9 +86,15 @@ def _call(base, path, body=None):
 
 
 def test_page_and_assets(running):
+    import re
     base, _ = running
-    for path, ctype in (("/", "text/html"), ("/app.js", "text/javascript"), ("/app.css", "text/css"),
-                        ("/logo.svg", "image/svg+xml"), ("/icons/icon-192.png", "image/png")):
+    code, ct, page = _call(base, "/")
+    assert code == 200 and ct.startswith("text/html")
+    # the built page (ui/ → engramm/app/web) names its script and stylesheet with content hashes
+    js = re.search(rb'src="\./(assets/[^"]+\.js)"', page).group(1).decode()
+    css = re.search(rb'href="\./(assets/[^"]+\.css)"', page).group(1).decode()
+    for path, ctype in (("/" + js, "text/javascript"), ("/" + css, "text/css"), ("/logo.svg", "image/svg+xml"),
+                        ("/icons/icon-192.png", "image/png"), ("/manifest.webmanifest", "application/manifest+json")):
         code, ct, body = _call(base, path)
         assert code == 200 and ct.startswith(ctype) and body, path
 

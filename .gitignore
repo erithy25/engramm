@@ -36,3 +36,8 @@ reproduction/independent/__pycache__/
 # Desktop-App (Electron): Abhängigkeiten und Build-Ausgabe
 desktop/node_modules/
 desktop/dist/
+ui/node_modules/
+ui/dist/
+runtime/target/
+runtime/app/src-tauri/target/
+site/node_modules/
