@@ -17,7 +17,11 @@ detect:
            liebe, klar, okay, na, wieder, jetzt, dann, weil, dass, also, mal, bitte, vielen]
   english: [i, you, am, are, is, not, and, the, a, an, me, my, your, how, what, who, where, why, thanks, please,
             good, bad, too, but, or, very, today, tomorrow, yesterday, have, can, we, they, it, to, with, for,
-            about, of, on, no, yes, tell, joke, write, know, hello, hi, hey, name, do, does, did]
+            about, of, on, no, yes, tell, joke, write, know, hello, hi, hey, name, do, does, did, when, he, she,
+            his, her, him, born, will, would, could, should, there, this, that, which, whom, was, were, been, be,
+            from, at, by, in, as, so, if, then, than, also, just, like, what's, it's, i'm, don't, can't, live, lives]
+  # words that are German but also English (or English-looking): they count only next to a clearly German word
+  ambiguous: [was, die, also, so, na, ja, hat, man, will, bin, gut, war, rot, arm, hand, kind, gift, fast, mist]
 
 intents:
   - id: greeting

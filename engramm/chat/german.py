@@ -4,7 +4,8 @@ ENGRAMM's reading and fact bank are English, so in German it chats, listens, rem
 answers crises, and says honestly that knowledge questions work in English for now. The texts
 are in ``data/conv/de.yaml`` (compiled into the conversation bank under ``de``).
 
-* ``is_german``: counts German and English function words (German wins only with more hits);
+* ``is_german``: counts German and English function words; German needs at least one clearly German
+  word (not "was", "die", "also" …) and more German than English hits;
 * ``understand``: safety first, then memory statements ("Ich heiße Anna" → "My name is Anna."
   for the shared memory), questions about the user's name, small talk, feelings, arithmetic;
 * everything else gets the honest fallback.
@@ -32,11 +33,13 @@ def is_german(text: str, spec: dict) -> bool:
     if not words:
         return False
     de, en = set(spec["detect"]["german"]), set(spec["detect"]["english"])
+    ambiguous = set(spec["detect"].get("ambiguous", []))
+    strict = sum(w in de and w not in ambiguous for w in words)
+    if strict == 0 and not re.search(r"[äöüß]", text.lower()):
+        return False                      # "When was he born?": no clearly German word
     n_de = sum(w in de for w in words)
-    n_en = sum(w in en for w in words)
-    if n_de > n_en:
-        return True
-    return n_de >= 1 and n_de == n_en and bool(re.search(r"[äöüß]", text.lower()))
+    n_en = sum(w in en and w not in de for w in words)
+    return n_de > n_en or (n_de == n_en and bool(re.search(r"[äöüß]", text.lower())))
 
 
 # memory statements → the English sentence the shared memory understands
