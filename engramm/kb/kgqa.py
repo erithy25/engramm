@@ -58,6 +58,10 @@ def _r(patterns, props, kinds, template, render="auto", snapshot=False) -> Rule:
 
 
 E = r"(?P<e>.+?)"
+# "when did X fall" asks about the event article "Fall of X" (also used by the conversation layer)
+EVENT_NOUNS = {"fall": ("Fall",), "collapse": ("Collapse", "Dissolution"), "sink": ("Sinking",),
+               "burn": ("Burning",), "erupt": ("Eruption",)}
+EVENT_Q = re.compile(r"^when did (?P<e>.+?) (?P<ev>fall|collapse|sink|burn|erupt)\??$", re.I)
 RULES = [
     # people
     _r([rf"when (?:was|is) {E} born", rf"what (?:is|was) {E}'s (?:date of birth|birth ?date|birthday)",
@@ -165,6 +169,8 @@ RULES = [
     _r([rf"when did {E} (?:start|begin|break out)", rf"when was the (?:start|beginning) of {E}",
         rf"what year did {E} (?:start|begin)"],
        "startDate", ("MilitaryConflict", "Event", None), "{E} began {v}."),
+    _r([rf"when did {E} (?P<ev>fall|collapse|sink|burn|erupt)"],
+       "date startDate endDate", ("MilitaryConflict", "Event", None), "{E} took place {v}."),
     _r([rf"when (?:was|did) {E}(?: happen| take place)?", rf"when did {E} happen", rf"what year was {E}"],
        "date startDate", ("MilitaryConflict", "Event", None), "{E} took place {v}."),
     _r([rf"what(?:'s| is) the (?:national )?anthem of {E}", rf"what(?:'s| is) {E}'s (?:national )?anthem"],
@@ -355,6 +361,9 @@ class KGQA:
                 if not m:
                     continue
                 phrase = m.group("e").strip(" ,\"'“”")
+                ev = m.groupdict().get("ev")
+                if ev:                          # "when did the Berlin Wall fall" → "Fall of the Berlin Wall"
+                    phrase = f"{EVENT_NOUNS[ev.lower()][0]} of {phrase}"
                 if not phrase or len(phrase.split()) > 8 or re.fullmatch(r"(?:i|me|my|you|he|she|it|they|this|that)",
                                                                         phrase, re.I):
                     continue

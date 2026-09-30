@@ -543,6 +543,9 @@ class Assistant:
         kb = self._kb_answer(st, text)
         if kb is not None:
             return kb
+        ev = self._event_answer(st, text)
+        if ev is not None:
+            return ev
         rep = bot._answer(" ".join(text.split()))
         q = rep.resolved or text
         if rep.kind == "answer" and rep.via in ("facts", "memory") and rep.source and rep.source.get("kind") == "user":
@@ -617,6 +620,20 @@ class Assistant:
         self.bot.context["kb_last"] = {"question": q, "names": [ans.entity.name, ans.entity.title]}
         return Reply(text, "answer", ans.text, answer=value, guess=value, evidence=ans.evidence, source=src,
                      confidence=1.0, via="kb", resolved=q if q != text else None)
+
+    def _event_answer(self, st: DialogState, text: str) -> Reply | None:
+        """"When did the Berlin Wall fall?": the first sentence of the article "Fall of the Berlin Wall"."""
+        from engramm.kb.kgqa import EVENT_NOUNS, EVENT_Q
+        m = EVENT_Q.match(text.strip())
+        if not m:
+            return None
+        for noun in EVENT_NOUNS[m.group("ev").lower()]:
+            found = self.about.find(f"{noun} of {m.group('e')}", n=1)
+            if found is not None and re.search(r"\b(?:1[0-9]{3}|20[0-9]{2})\b", found.sentences[0]):
+                st.last_about = found
+                return Reply(text, "answer", found.sentences[0], answer=None, evidence=found.sentences[0],
+                             source=found.source, confidence=1.0, via="about")
+        return None
 
     def _ellipsis(self, st: DialogState, msg: str) -> str | None:
         """"And of Germany?" after "What is the capital of France?" → "What is the capital of Germany?"."""
