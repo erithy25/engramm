@@ -3,6 +3,8 @@ conversation bank (authored YAML = compiled JSON, no routing conflicts) and the 
 
 from __future__ import annotations
 
+import re
+
 import datetime as dt
 import json
 
@@ -164,3 +166,23 @@ def test_text_memory_log(tmp_path):
     with open(path, "ab") as f:
         f.write(b"\x00\x00\x00\x40garbage")
     assert LoggedTextMemory(path).user_texts == {"chat:3": "I like tea."}
+
+
+def test_persona_is_consistent():
+    """Paraphrases of a question about ENGRAMM itself reach the same intent (no contradictions)."""
+    from engramm.chat.acts import classify
+    from engramm.chat.bank import load_bank
+    b = load_bank()
+    groups = {"bot_fav_color": ["what's your favourite colour?", "what is your favorite color", "which colour do you like best?"],
+              "bot_age": ["how old are you?", "what's your age?", "when were you made?"],
+              "bot_location": ["where do you live?", "where are you from?", "where are you?"],
+              "bot_name": ["what's your name?", "who are you?", "what are you called?"],
+              "bot_creator": ["who made you?", "who created you?", "who built you?"],
+              "bot_neural": ["do you use a neural network?", "are you a neural network?"]}
+    for intent, questions in groups.items():
+        for q in questions:
+            u = classify(q, b)[0]
+            assert (u.act, u.intent) == ("intent", intent), (q, u.act, u.intent)
+    for it in b.intents:                       # no variant claims a body, a family or feelings
+        for r in it.responses:
+            assert not re.search(r"\bmy (?:mother|father|wife|husband|body)\b|\bI (?:ate|slept|was born in 19)", r), (it.id, r)

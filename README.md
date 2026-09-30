@@ -14,6 +14,28 @@
 
 ---
 
+## ENGRAMM Chat v3 — an offline assistant without a neural network
+
+A chat assistant for the desktop (Windows, macOS, Linux) that **answers from Wikipedia and Wikidata with a source
+for every fact**, remembers what you tell it, forgets it for real on request, chats, listens, and drafts routine
+texts. It runs **offline**, needs **no account**, and uses **no neural network**: only counting, rules,
+hyperdimensional vectors and counted linear models (averaged perceptrons).
+
+| | |
+|---|---|
+| Download | desktop installers built by CI (`.github/workflows/desktop.yml`); the knowledge pack is downloaded on first start after you agree, or used from a folder |
+| Memory use | lite pack: **0.71 GB peak** for the whole server while chatting (container measurement, `docs/EXPECTATIONS.md` E28) |
+| Start | ~2.5 s until ready (container) |
+| Knowledge | lead sections of the 400 000 (lite) most-referenced Wikipedia articles + a fact bank from DBpedia and Wikidata |
+| Languages | English; German v0 for small talk, feelings, memory and crisis help |
+
+**Honest limits.** It is *not* as good as ChatGPT at open conversation, explanation or writing — the plan's
+own estimate for full parity is ≤ 3 %, and the blind comparison (ChatBench, `docs/PREREG_CHATBENCH.md`) needs
+human raters and has not run yet. What it does better is measurable: sources, no invented facts, provable
+forgetting, offline, deterministic.
+
+Build it yourself: `runtime/README.md`. Architecture: `docs/SPEC_CHAT_V3.md`. Data licences: `docs/DATA_LICENSES.md`.
+
 ## Status
 
 **The original implementation of this project was lost; it has been rebuilt
