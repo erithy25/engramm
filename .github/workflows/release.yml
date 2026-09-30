@@ -115,8 +115,9 @@ jobs:
             downloading the knowledge pack (lite, ~730 MB) from this release. Offline alternative:
             download `engramm-pack-lite.zip`, unzip it and choose the folder in the app.
 
-            Builds are not code-signed yet: macOS (right-click → Open) and Windows (More info → Run anyway)
-            ask for confirmation on first start. Checksums: `SHA256SUMS.txt`.
+            Builds are not signed with a developer certificate yet, so both systems ask once on first start.
+            macOS: open ENGRAMM, click "Done", then System Settings → Privacy & Security → "Open Anyway".
+            Windows: SmartScreen → "More info" → "Run anyway". Checksums: `SHA256SUMS.txt`.
           files: |
             dist/pack/**
             dist/engramm-*/**/*.dmg
