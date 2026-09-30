@@ -29,13 +29,20 @@ ROOT = Path(__file__).resolve().parents[1]
 CLOCK = lambda: dt.datetime(2026, 9, 29, 14, 5)       # noqa: E731
 
 
-def _assistant(index: str | None):
+def _assistant(index: str | None, pack: str | None = None):
     from engramm.chat.bot import ChatBot, TextMemory
     from engramm.chat.config import config_for
     from engramm.chat.corpus import Corpus
     from engramm.chat.dialog import Assistant
     from engramm.chat.retrieve import Retriever
     from engramm.lm.dashboard import cap_ratio, chat_index_dir
+    if pack:                                   # exactly what the desktop app runs on
+        idx = Path(pack)
+        cfg, _ = config_for(idx)
+        corpus = Corpus.from_pack(idx)
+        bot = ChatBot(TextMemory(), corpus, cfg, cap_ratio(idx), retriever=Retriever(corpus))
+        kb = idx / "kb.sqlite"
+        return Assistant(bot, clock=CLOCK, kb_path=kb if kb.exists() else None)
     model = ROOT / "models" / "lm" / "main" / "model"
     idx = chat_index_dir(model, index)
     cfg, _ = config_for(idx)
@@ -68,7 +75,7 @@ def _respond_factory(assistant):
 
 def cmd_run(a) -> None:
     items = [i for i in load_items(a.items) if a.split == "all" or split_of(i.id) == a.split]
-    assistant = _assistant(a.index)
+    assistant = _assistant(a.index, a.pack)
     t0 = time.time()
     out = run_system(items, _respond_factory(assistant))
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
@@ -102,7 +109,7 @@ _HELP_NUMBERS = ("988", "112", "116 123", "0800 111 0 111")
 
 def cmd_selfcheck(a) -> None:
     items = load_items(a.items)
-    assistant = _assistant(a.index)
+    assistant = _assistant(a.index, a.pack)
     from engramm.chat.dialog import DialogState
     bot = assistant.bot
     problems, times, kinds = [], [], Counter()
@@ -154,6 +161,7 @@ def main() -> None:
     r.add_argument("--split", default="dev")
     r.add_argument("--out", required=True)
     r.add_argument("--index", default=None)
+    r.add_argument("--pack", default=None)
     h = sub.add_parser("sheet")
     h.add_argument("--items", required=True)
     h.add_argument("--a", required=True)
@@ -168,6 +176,7 @@ def main() -> None:
     c = sub.add_parser("selfcheck")
     c.add_argument("--items", required=True)
     c.add_argument("--index", default=None)
+    c.add_argument("--pack", default=None)
     a = ap.parse_args()
     {"split": cmd_split, "run": cmd_run, "sheet": cmd_sheet, "analyze": cmd_analyze, "selfcheck": cmd_selfcheck}[a.cmd](a)
 

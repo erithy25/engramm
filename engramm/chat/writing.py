@@ -252,6 +252,7 @@ def _about(req: WritingRequest) -> str:
         return ""
     t = re.sub(r"^(?:(?:an?|the)\s+)?(?:apology|complaint|invitation|reminder|resignation letter|cover letter|"
                r"recommendation letter|thank[- ]you note)\s*", "", t, flags=re.I)
+    t = re.sub(r"^(?:thank(?:s| you)(?: (?:note|card|message|letter))?|a thank[- ]you)\b\s*", "", t, flags=re.I)
     t = re.sub(r"^(?:asking|to ask|requesting|to request)\s+(?:for\s+)?(?:(?:him|her|them|you)\s+)?", "about ", t,
                flags=re.I)
     t = re.sub(r"^(?:(?:to )?(?:thank|congratulate|invite|apologi[sz]e|welcome|remind|wish)|thanking|"

@@ -122,6 +122,7 @@ def main() -> None:
     ap.add_argument("--models", type=Path, default=MAIN / "chat4")
     ap.add_argument("--kb", type=Path, default=MAIN / "kb.sqlite")
     ap.add_argument("--nlp", type=Path, default=ROOT / "models" / "nlp")
+    ap.add_argument("--spell", type=Path, default=None, help="speller vocabulary (experiments/spell_build.py)")
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
     t0 = time.time()
@@ -155,6 +156,8 @@ def main() -> None:
     shutil.copy2(ROOT / "data" / "lm_tokenizer.json", out / "tokenizer.json")
     if args.kb.exists():
         shutil.copy2(args.kb, out / "kb.sqlite")
+    if args.spell and args.spell.exists():
+        shutil.copy2(args.spell, out / "spell.json")
     if args.nlp.exists():
         (out / "nlp").mkdir()
         for p in args.nlp.glob("*.json"):

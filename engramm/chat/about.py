@@ -35,6 +35,11 @@ def variants(topic: str) -> list[str]:
     """Titles to try for a topic, most specific first."""
     t = topic.strip().strip("?.!\"'“”‘’").strip()
     t = re.sub(r"\s+", " ", t)
+    # "why volcanoes erupt" → "volcanoes erupt", then its first words ("volcanoes")
+    m = re.match(r"^(?:why|how|what|when|where) (?:do |does |did |is |are |was |were )?(?:an? |the )?(.+)$", t, re.I)
+    if m:
+        words = m.group(1).split()
+        return [v for n in range(min(3, len(words)), 0, -1) for v in variants(" ".join(words[:n]))]
     out = [t]
     no_art = _ARTICLES.sub("", t)
     out.append(no_art)
@@ -58,8 +63,9 @@ def variants(topic: str) -> list[str]:
     return res
 
 
-_PAREN_JUNK = re.compile(r"\s*\((?:[^()]*?(?:/[^/()]+/|pronounced|listen|IPA|;\s*(?:born|lit\.|from)|"
-                         r"[ˈˌəɪʊʃʒθðŋɛɔæɑ])[^()]*?)\)", re.I)
+_PAREN_JUNK = re.compile(r"\s*\((?:[^()]*?(?:/[^/()]+/|pronounced|listen|IPA|;\s*(?:born|lit\.|from)|romani[sz]ed|"
+                         r"translit|Ancient Greek|Latin:|Greek:|[ˈˌəɪʊʃʒθðŋɛɔæɑ]|[\u0370-\u03ff\u0400-\u04ff\u0590-\u06ff"
+                         r"\u0900-\u0dff\u3040-\u30ff\u4e00-\u9fff\uac00-\ud7af])[^()]*?)\)", re.I)
 _BRACKETS = re.compile(r"\s*\[[^\]]*\]")
 _EMPTY_PAREN = re.compile(r"\s*\(\s*[,;]?\s*\)")
 
@@ -139,7 +145,7 @@ class AboutFinder:
             # a lead document starts with its title as a line of its own ("Black hole\nA black hole is …")
             if t.startswith(title + " ") and not out:
                 rest = t[len(title):].strip()
-                if rest[:1].isupper():
+                if re.match(r"(?:A|An|The)\s", rest) or rest.lower().startswith(title.lower()):
                     t = rest
             if t == title or len(t) < 3 or not re.search(r"[A-Za-z]", t):
                 continue

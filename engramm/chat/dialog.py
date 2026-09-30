@@ -109,6 +109,10 @@ class Assistant:
         model = find_model(nlp_dir, index_dir / "nlp" if index_dir is not None else None,
                            Path(__file__).resolve().parents[2] / "models" / "nlp")
         self.device = DeviceRequests(model) if model is not None else None
+        from engramm.nlp.spell import Speller
+        spell = next((d / "spell.json" for d in (Path(nlp_dir) if nlp_dir else None, index_dir)
+                      if d is not None and (d / "spell.json").exists()), None)
+        self.speller = Speller.load(spell) if spell is not None else None
         from engramm.chat.events import EventBook
         mem_path = getattr(bot.memory, "path", None)
         self.events = EventBook(Path(mem_path).with_suffix(".events.json") if mem_path else None)
@@ -181,8 +185,11 @@ class Assistant:
         bot = self.bot
         bot.context = dict(st.ctx)
         msg = " ".join(message.strip().split())
+        self._spelled = None
         try:
             rep = self._turn(st, msg)
+            if self._spelled and not rep.resolved:
+                rep.resolved = self._spelled          # shown as "I read this as …"
         finally:
             st.ctx = dict(bot.context)
             bot.context = dict(FRESH_CTX)
@@ -200,6 +207,11 @@ class Assistant:
         if de and is_german(msg, de) and self.bank.safety_rule(normalise(msg, fillers=False)) is None:
             return self._german(st, msg)
         units = classify(msg, self.bank, self._now())
+        if self.speller is not None and all(u.act in ("question", "about") for u in units):
+            fixed = self.speller.fix(msg)       # typos and CAPITALS, only in questions (names stay as told)
+            if fixed != msg:
+                units = classify(fixed, self.bank, self._now())
+                msg = self._spelled = fixed
         if units[0].act == "safety":
             st.pending = None
             return Reply(msg, "safety", units[0].data["response"], via="safety")

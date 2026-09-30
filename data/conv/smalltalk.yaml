@@ -10,6 +10,22 @@
 
 intents:
 
+  - id: about_what
+    patterns: ['(?:(?:can|could) you )?(?:tell me about|explain|describe|define|what is|who is|what are)( it)?']
+    examples: [tell me about, explain, what is]
+    responses:
+      - "About what? Name a topic — a person, a place, an idea — and I'll tell you what I've read about it."
+      - "Sure — about what? Give me a topic and I'll look it up."
+      - "Happy to! What would you like to know about?"
+
+  - id: gibberish
+    patterns: ['(?=[a-z]*[bcdfghjklmnpqrstvwxz]{6})[a-z]{6,}|[^a-z0-9]{1,6}']
+    examples: [asdfghjkl, qwrtzpsdfg]
+    responses:
+      - "Sorry, I didn't catch that. Could you say it another way?"
+      - "Hmm, that looks like a typo to me. What did you mean?"
+      - "I'm not sure what that means. Could you rephrase it?"
+
   - id: greeting
     patterns:
       - '(hi+|hello+|hey+|hiya|howdy|yo|heya|hallo|greetings|hey there|hi there|hello there|good day|salut|hola|ciao|moin|servus)( there| again| you| friend| buddy| everyone| all| mate)?'
@@ -243,8 +259,8 @@ intents:
       - "Of course! I'm always here to talk."
 
   - id: talk_request
-    patterns: ['(can we|can i|could we|let''s|lets|i want to|i''d like to|i would like to|do you want to|wanna|want to) (talk|chat|have a chat|have a conversation|talk to you|chat with you|ask you something|ask you a question|ask something)|talk to me|chat with me|let''s talk|i have a question|i''ve got a question|question|quick question|can you help me|could you help me|can you help|help me|i need (some )?help|i need your help|are you there|anyone there|hello\?|you there|are you awake|are you still there|testing|test|test test|just testing']
-    examples: [let's talk, can we chat, i have a question, can you help me, are you there, i need help, talk to me]
+    patterns: ['(can we|can i|could we|let''s|lets|i want to|i''d like to|i would like to|do you want to|wanna|want to) (just )?(talk|chat|have a chat|have a conversation|talk to you|chat with you|ask you something|ask you a question|ask something)|talk to me|chat with me|let''s talk|i have a question|i''ve got a question|question|quick question|can you help me|could you help me|can you help|help me|i need (some )?help|i need your help|are you there|anyone there|hello\?|you there|are you awake|are you still there|testing|test|test test|just testing|(can we|could we|let''s|lets) (just )?(talk|chat) (for a bit|for a while|a bit|a little)']
+    examples: [let's talk, can we chat, can we just chat for a bit, i have a question, can you help me, are you there, i need help, talk to me]
     responses:
       - "Sure! What's on your mind?"
       - "Of course — go ahead, I'm listening."

@@ -402,7 +402,7 @@ _TIME_Q = re.compile(r"^(?:(?:do you know |can you tell me |tell me )?(?:what(?:
                      r"what time is it(?: now| right now)?|(?:do you know |can you tell me )?what time it is|"
                      r"current time|time please|the time)$", re.I)
 _DATE_Q = re.compile(r"^(?:(?:can you tell me |tell me |do you know )?(?:what(?:'s| is)|whats) (?:the |today's |todays )?"
-                     r"(?:date|day)(?: today| it is| is it)?(?: today)?|what date is it(?: today)?|what day is (?:it|today)|"
+                     r"(?:date|day)(?: today| it is| is it)?(?: today)?|what date is it(?: today)?|what day is (?:it|today)(?: today)?|"
                      r"which day is (?:it|today)|what(?:'s| is) today|today's date|todays date|what date is today|"
                      r"(?:do you know |can you tell me )?what day it is(?: today)?|date please|the date)$", re.I)
 _YEAR_Q = re.compile(r"^(?:what|which) year is (?:it|this)(?: now)?$|^what(?:'s| is) the (?:current )?year$", re.I)

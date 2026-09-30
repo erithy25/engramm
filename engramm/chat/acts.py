@@ -92,12 +92,16 @@ _REMEMBER = re.compile(r"^(?:(?:please|pls|can you|could you|would you|i want yo
                        r"(?:remember|don't forget|do not forget|note|take note|keep in mind|memori[sz]e|save|store|"
                        r"write down|make a note)(?:\s+(?:that|this|of this|down))?\s*[:,]?\s+(?P<x>.{3,})$", re.I)
 _ABOUT = [
+    ("tell", re.compile(r"^(?:(?:can|could|would) you |please )*(?:explain|describe|tell me)(?: to me)? (?:how|why) "
+                        r"(?:do |does |did |is |are )?(?:an? |the )?(?P<x>[a-z][\w\- ]*?)s? (?:work|works|function|happen|form|exist)s?$", re.I)),
+    ("tell", re.compile(r"^how (?:do|does|did|is|are) (?:an? |the )?(?P<x>[a-z][\w\- ]*?)s? (?:work|works|function|happen|form)$", re.I)),
     ("tell", re.compile(r"^(?:(?:can|could|would) you |please |pls )*(?:tell|teach|inform) me(?: something| a (?:bit|little)"
                         r"| a few things| more| all| everything| some facts)? about (?P<x>.+)$", re.I)),
     ("tell", re.compile(r"^(?:(?:can|could|would) you |please )*talk(?: to me)? about (?P<x>.+)$", re.I)),
     ("tell", re.compile(r"^what (?:do|can) you (?:know|tell me|say) about (?P<x>.+)$", re.I)),
     ("tell", re.compile(r"^(?:(?:can|could|would) you |please )*(?:explain|describe)(?: to me)?(?: what)? (?P<x>.+?)"
                         r"(?: is| are| means| was| were)?$", re.I)),
+    ("define", re.compile(r"^what (?:does|do) (?:the (?:abbreviation|acronym) )?(?P<x>[A-Za-z0-9.\-]{2,12}) stand for$", re.I)),
     ("define", re.compile(r"^(?:(?:can|could|would) you |please )*define (?P<x>.+)$", re.I)),
     ("define", re.compile(r"^what (?:does|do) (?:the (?:word|term) )?(?P<x>.+?) mean$", re.I)),
     ("define", re.compile(r"^what(?:'s| is) (?:the )?(?:meaning|definition) of (?:the (?:word|term) )?(?P<x>.+)$", re.I)),

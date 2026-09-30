@@ -60,3 +60,15 @@ def test_device_requests(tmp_path):
         assert d.group("who wrote hamlet") is None           # a question ENGRAMM can answer
     finally:
         dev.MIN_MARGIN = old
+
+
+def test_speller():
+    from engramm.nlp.spell import Speller
+    sp = Speller({"the": 1000, "capital": 500, "capitol": 30, "of": 900, "france": 400, "what": 800, "is": 900,
+                  "who": 600, "wrote": 300, "hamlet": 200, "whats": 50},
+                 {"france": 0.99, "hamlet": 0.9}, min_count=20)
+    assert sp.fix("whats teh capitol of frnace") == "whats the capital of france"
+    assert sp.fix("WHO WROTE HAMLET") == "Who wrote Hamlet"
+    assert sp.fix("Who wrote Hamlet?") == "Who wrote Hamlet?"
+    assert sp.fix("My friend Xqzlor is here") == "My friend Xqzlor is here"      # names inside a sentence stay
+    assert sp.fix_word("zz") == "zz" and sp.fix_word("xqzwvbn") == "xqzwvbn"
