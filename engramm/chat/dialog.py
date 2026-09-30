@@ -578,8 +578,10 @@ class Assistant:
         if rep.text.startswith("I don't know — I have not read anything about"):
             missing = rep.text.split("about", 1)[1].strip(" .")
             rep.text = self._reply(st, "answer.unknown_named", x=missing)
-        elif rep.guess:
-            rep.text = self._reply(st, "answer.unsure", x=rep.guess)
+        elif rep.guess and (rep.source or {}).get("key"):
+            # unsure guesses were right only 7 of 25 times on the team prompts: say so and name the
+            # closest source instead of offering the guess (the guess stays in the reply for evals)
+            rep.text = self._reply(st, "answer.unknown_near", x=rep.source["key"])
         else:
             rep.text = self._reply(st, "answer.unknown")
         st.last_fact = ({"evidence": rep.evidence, "source": rep.source, "answer": rep.guess, "question": q,
