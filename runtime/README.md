@@ -55,6 +55,11 @@ gh release create pack-lite-3.0.0 /dev/shm/engramm/release/lite/*   # bewusster,
 ## Offen (ehrlich)
 
 - **Signatur:** Ohne Apple-Developer-Konto und Windows-Zertifikat warnen macOS und Windows beim ersten Start.
+  - macOS-Builds sind ad hoc signiert (`"signingIdentity": "-"` in `tauri.conf.json`). Ohne jede Bundle-Signatur meldet macOS
+    eine heruntergeladene App als „beschädigt“ (so bei v3.0.0-beta.1/2); mit Ad-hoc-Signatur kommt nur die Warnung
+    „nicht verifiziert“, erster Start über Systemeinstellungen → Datenschutz & Sicherheit → „Dennoch öffnen“.
+  - Alte Builds: `xattr -cr /Applications/ENGRAMM.app` im Terminal entfernt die Quarantäne-Markierung.
+  - Die CI prüft die Signatur (`codesign --verify --deep --strict`) und startet den Server aus dem signierten Bundle.
   - Nötige Secrets: `APPLE_CERTIFICATE`, `APPLE_ID`, `APPLE_PASSWORD`, `APPLE_TEAM_ID` und ein Windows-Zertifikat.
   - Die ed25519-Signatur des Katalogs ist geplant; heute schützt die festgenagelte Manifest-SHA-256.
 - **Rust-Laufzeit:** Suche, Antwortextraktion und Gesprächsschicht laufen noch in Python, also im Sidecar. Der Rust-Kern deckt bisher Pakete, Download, Antwortwahl und Normalisierung ab.

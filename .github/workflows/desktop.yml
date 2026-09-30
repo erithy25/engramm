@@ -4,8 +4,9 @@
 # downloads it on first start (after the user agrees) or uses a pack folder.
 #
 # Runs on tags v* (and then drafts a GitHub release with the installers), when the app code
-# changes, and by hand. Unsigned builds: macOS and Windows show a warning until signing
-# certificates are configured (APPLE_* / WINDOWS_* secrets, see runtime/README.md).
+# changes, and by hand. macOS builds are signed ad hoc (no Apple account): the first start needs
+# "Open Anyway" in System Settings; Windows is unsigned (SmartScreen asks once). Real signing
+# needs certificates (APPLE_* / WINDOWS_* secrets, see runtime/README.md).
 name: Desktop
 
 on:
@@ -117,6 +118,19 @@ jobs:
         shell: bash
         # Linux: .deb and .rpm (linuxdeploy cannot bundle the frozen server's numba libraries into an AppImage)
         run: npx tauri build --target ${{ matrix.target }} ${{ runner.os == 'Linux' && '--bundles deb,rpm' || '' }}
+
+      - name: Signature check (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        # without a signed bundle, macOS calls a downloaded app "damaged"; the ad-hoc signature
+        # ("signingIdentity": "-") must cover the whole bundle, the frozen server included
+        run: |
+          app="runtime/app/src-tauri/target/${{ matrix.target }}/release/bundle/macos/ENGRAMM.app"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          codesign -dv "$app" 2>&1 | grep -E "Signature=adhoc|Sealed Resources"
+          codesign -dv "$app" 2>&1 | grep -q "Sealed Resources"
+          # the frozen server still starts from inside the signed bundle
+          python runtime/sidecar/smoke_test.py "$app/Contents/Resources/sidecar"
 
       - uses: actions/upload-artifact@v4
         with:
