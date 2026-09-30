@@ -50,7 +50,7 @@ const { chromium } = require('playwright');
   await say("What's my name?", ['Your name is Erik.', 'you told me']);
   await say('Who invented the telephone?', ['Alexander Graham Bell invented the telephone.', 'Wikipedia · Telephone']);
   await say('Where was he born?', ['Alexander Graham Bell was born in Edinburgh.', 'understood as: Where was Alexander Graham Bell born?']);
-  await say('lol', ['!'], ['remembered']);
+  await say('lol', [], ['remembered', 'remember that']);   // a short reaction, nothing stored
   await say('What is 12 times 7?', ['84', 'calculated']);
   await page.click('#openMemory');
   await page.waitForSelector('#memoryList li button.forget');
