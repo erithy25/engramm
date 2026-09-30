@@ -244,6 +244,9 @@ class Assistant:
             # questions about the user ("when is my dentist appointment?") are memory questions
             if hit is not None and units[0].act == "question" and (hit[0] != "online" or re.search(r"\bmy\b", msg, re.I)):
                 hit = None
+            # "I have an exam tomorrow" tells ENGRAMM something to remember; only requests are commands
+            if hit is not None and units[0].act == "statement" and re.match(r"(?:i|i'm|im|i've|my|we|we're|our)\b", msg, re.I):
+                hit = None
             if hit is not None:
                 return Reply(msg, "unknown", self._reply(st, f"device.{hit[0]}"), via="device")
         parts: list[_Part] = []
