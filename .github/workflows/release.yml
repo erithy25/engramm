@@ -1,9 +1,12 @@
 # A complete release from scratch: the knowledge pack is built from the raw sources (DBpedia,
 # Wikidata, Wikipedia article leads), published with the release, and the desktop installers are
-# built with that pack in their download catalog. Started by hand with the release tag.
+# built with that pack in their download catalog. Started by hand with the release tag, or by a push
+# that changes release/request.json ({"tag": "...", "prerelease": true}).
 name: Release
 
 on:
+  push:
+    paths: ["release/request.json"]
   workflow_dispatch:
     inputs:
       tag:
@@ -21,7 +24,28 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  request:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.r.outputs.tag }}
+      prerelease: ${{ steps.r.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: r
+        env:
+          IN_TAG: ${{ inputs.tag }}
+          IN_PRE: ${{ inputs.prerelease }}
+        run: |
+          if [ -n "$IN_TAG" ]; then tag="$IN_TAG"; pre="$IN_PRE"; else
+            tag=$(python3 -c 'import json;print(json.load(open("release/request.json"))["tag"])')
+            pre=$(python3 -c 'import json;print(str(json.load(open("release/request.json")).get("prerelease", True)).lower())')
+          fi
+          echo "$tag" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?$' || { echo "bad tag $tag"; exit 1; }
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$pre" >> "$GITHUB_OUTPUT"
+
   pack:
+    needs: request
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:
@@ -43,7 +67,7 @@ jobs:
       - name: Release assets and download catalog
         run: |
           python -u -m experiments.pack_release --pack /dev/shm/engramm/packs/lite --out dist/pack \
-            --tag "${{ inputs.tag }}" --catalog runtime/app/src-tauri/resources/catalog.json
+            --tag "${{ needs.request.outputs.tag }}" --catalog runtime/app/src-tauri/resources/catalog.json
           # the same pack as one archive, for installing from a folder without the app's download
           (cd /dev/shm/engramm/packs && zip -r -0 -q "$GITHUB_WORKSPACE/dist/engramm-pack-lite.zip" lite)
           ls -la dist dist/pack
@@ -67,7 +91,7 @@ jobs:
       catalog_artifact: catalog
 
   publish:
-    needs: [pack, installers]
+    needs: [request, pack, installers]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -80,10 +104,10 @@ jobs:
           wc -l SHA256SUMS.txt
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ inputs.tag }}
+          tag_name: ${{ needs.request.outputs.tag }}
           target_commitish: ${{ github.sha }}
-          name: ENGRAMM ${{ inputs.tag }}
-          prerelease: ${{ inputs.prerelease }}
+          name: ENGRAMM ${{ needs.request.outputs.tag }}
+          prerelease: ${{ needs.request.outputs.prerelease == 'true' }}
           body: |
             ENGRAMM Chat v3 — an offline assistant without a neural network.
 
