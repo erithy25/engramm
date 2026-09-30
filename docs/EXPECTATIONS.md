@@ -1937,6 +1937,8 @@ Stand 2026-09-30.
 | RAM-Spitze nach 15 Zügen | **534 MB** (anonym 261 MB) | ≤ 650 MB → **erreicht** |
 | Start | 4,0 s | ≤ 15 s |
 
+Nach E29 kam der Absichts-Klassifikator ins Paket (`nlp/intent.json`, 4,3 MB, für Gerätebefehle). Das Lite-Paket misst seitdem **726,5 MB**.
+
 ---
 
 ## E29 — Chat v3, Phase 2: Sprachgrundlagen v0 (PREREG_NLP_V0, einmaliger Testlauf)
