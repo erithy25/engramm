@@ -1937,6 +1937,17 @@ Stand 2026-09-30.
 | RAM-Spitze nach 15 Zügen | **534 MB** (anonym 261 MB) | ≤ 650 MB → **erreicht** |
 | Start | 4,0 s | ≤ 15 s |
 
+**Installer (CI-Lauf 14, `.github/workflows/desktop.yml`, alle vier Builds grün, unsigniert):**
+
+| Plattform | Artefakt (gepackt, inkl. aller Formate) |
+|---|---|
+| macOS Apple Silicon (.dmg) | 72 MB |
+| macOS Intel (.dmg) | 64 MB |
+| Windows (.msi + .exe) | 130 MB |
+| Linux (.deb + .rpm) | 242 MB |
+
+Jeder Build hat den Smoke-Test des eingefrorenen Servers und die Rust-Tests der App bestanden. Download: ≤ 2 GB gesamt mit dem Lite-Paket (Installer ≤ 130 MB + Paket 727 MB).
+
 Nach E29 kam der Absichts-Klassifikator ins Paket (`nlp/intent.json`, 4,3 MB, für Gerätebefehle). Das Lite-Paket misst seitdem **726,5 MB**.
 
 ---
