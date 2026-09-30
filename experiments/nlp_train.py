@@ -28,17 +28,22 @@ def log(msg: str) -> None:
     print(msg, flush=True)
 
 
-def jackknife_tags(train, folds: int = 4, epochs: int = 8):
+PARSER_GROUPS = ("lab", "x")       # set on dev (docs/PREREG_NLP_V0.md, addendum 2)
+PARSER_EPOCHS = 10
+
+
+def jackknife_tags(train, folds: int = 4, epochs: int = 8, field: str = "upos"):
     """Predicted tags for every training sentence from a tagger that did not see it."""
     out = [None] * len(train)
+    key = "pos-jk" if field == "upos" else f"{field}-jk"
     for k in range(folds):
-        part = [(s.words, s.upos) for i, s in enumerate(train) if i % folds != k]
+        part = [(s.words, getattr(s, field)) for i, s in enumerate(train) if i % folds != k]
         t = PerceptronTagger()
-        t.train(part, epochs=epochs, key=f"pos-jk{k}")
+        t.train(part, epochs=epochs, key=f"{key}{k}")
         for i, s in enumerate(train):
             if i % folds == k:
                 out[i] = t.tag(s.words)
-        log(f"jackknife fold {k + 1}/{folds} done")
+        log(f"{field} jackknife fold {k + 1}/{folds} done")
     return out
 
 
@@ -66,15 +71,19 @@ def main() -> None:
     pos_acc = right / total
     log(f"N1 UPOS accuracy on {split}: {pos_acc:.4f} ({time.time() - t0:.0f} s)")
 
+    xtagger = PerceptronTagger()           # Penn Treebank tags: finer word classes for the parser
+    xtagger.train([(s.words, s.xpos) for s in train], epochs=8, key="xpos")
+    pred_x = [xtagger.tag(s.words) for s in evals]
     jk = jackknife_tags(train)
-    parse_train = [(s.words, jk[i], s.heads, s.deprels) for i, s in enumerate(train)
+    jkx = jackknife_tags(train, field="xpos")
+    parse_train = [(s.words, jk[i], s.heads, s.deprels, jkx[i]) for i, s in enumerate(train)
                    if conllu.is_projective(s.heads)]
     log(f"parser training on {len(parse_train):,} projective sentences")
-    parser = Parser()
-    parser.train(parse_train, epochs=10, log=log)
+    parser = Parser(PARSER_GROUPS)
+    parser.train(parse_train, epochs=PARSER_EPOCHS, log=log)
     uas_r = las_r = n = 0
-    for s, tags in zip(evals, pred_tags):
-        heads, labels = parser.parse_labelled(s.words, tags)
+    for s, tags, xt in zip(evals, pred_tags, pred_x):
+        heads, labels = parser.parse_labelled(s.words, tags, xt)
         for h, g, lab, glab in zip(heads, s.heads, labels, s.deprels):
             n += 1
             if h == g:
@@ -99,7 +108,7 @@ def main() -> None:
     for s in dev:
         a = time.perf_counter()
         tags = tagger.tag(s.words)
-        parser.parse_labelled(s.words, tags)
+        parser.parse_labelled(s.words, tags, xtagger.tag(s.words))
         clf.predict(" ".join(s.words))
         times.append(time.perf_counter() - a)
     med = statistics.median(times) * 1000
@@ -107,6 +116,7 @@ def main() -> None:
 
     args.models.mkdir(parents=True, exist_ok=True)
     tagger.save(args.models / "pos.json")
+    xtagger.save(args.models / "xpos.json")
     parser.save(args.models / "parse.json")
     clf.save(args.models / "intent.json")
     sizes = {p.name: p.stat().st_size for p in args.models.glob("*.json")}
