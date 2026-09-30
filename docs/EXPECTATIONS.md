@@ -1939,6 +1939,32 @@ Stand 2026-09-30.
 
 ---
 
+## E29 — Chat v3, Phase 2: Sprachgrundlagen v0 (PREREG_NLP_V0, einmaliger Testlauf)
+
+- **Ergebnisdatei:** `results/nlp/nlp_v0_test.json`.
+- **Stand des Codes:** `2cf7a10`, Registrierung mit Nachtrag 2. Parser lab+x+more, Goldpfad-Start, 8 Epochen.
+- **Umfang:** Genau ein Lauf auf den Testteilen (UD English EWT r2.14 `test`, MASSIVE 1.1 en-US `test`). Container, 2.336 s.
+
+| Kriterium | Wert | Schwelle | Ergebnis |
+|---|---|---|---|
+| N1 Wortarten (UPOS) | **94,90 %** | ≥ 94,0 % | erfüllt |
+| N2 Satzbau (UAS, vorhergesagte Wortarten) | **85,36 %** (LAS 82,31 %) | ≥ 84,0 % | erfüllt |
+| N3 Absichten (Makro-F1, 60 Absichten) | **0,778** (Genauigkeit 82,1 %) | ≥ 0,80 | **verfehlt** |
+| N4 Tempo (Tagger + XPOS + Parser + Absicht) | 13,4 ms Median | ≤ 50 ms | erfüllt (Container-Kandidat) |
+
+Modellgrößen: pos 8,2 MB, xpos 8,7 MB, parse 90,9 MB, intent 4,3 MB (JSON).
+
+**Einordnung:**
+- **N1 und N2 halten mit Abstand.** Auf dev lagen sie bei 94,85 % und 84,72 %; der Test fällt jeweils etwas besser aus.
+- **N3 verfehlt die Schwelle um 0,022.** Auf dev lag der Wert bei 0,826.
+  - Erwartet war vorab eine Chance von ~80 %.
+  - Das lineare Modell (Wörter, Wortpaare, Buchstaben-Trigramme) generalisiert auf seltene Absichten schlechter als auf dev. Makro-F1 gewichtet die 60 Absichten gleich, darunter mehrere mit unter 30 Trainingsbeispielen. Die Genauigkeit liegt bei 82,1 %.
+  - **Folge für das Produkt:** Die Absichten dienen nur der Erkennung von Gerätebefehlen (`engramm/chat/device.py`). Dort greift eine hohe Abstandsschwelle von 25; auf dev stimmte die Gruppe dann in ~95 % der Fälle.
+  - **Neue Runde nötig:** Eine Verbesserung (z. B. Wortklassen aus dem HDC-Codebuch, mehr Epochen, Gewichtung seltener Absichten) braucht eine neue Registrierung und frische Testdaten. MASSIVE-test ist verbraucht.
+- **Parser-Größe:** 91 MB JSON ist für das Lite-Paket zu groß. Er wird erst ausgeliefert, wenn ihn eine Laufzeit-Funktion nutzt; heute nutzt die Gesprächsschicht nur Tagger-freie Regeln und die Absichten.
+
+---
+
 ## Offene Fragen, nicht terminiert
 
 **O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**
