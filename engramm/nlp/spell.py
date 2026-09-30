@@ -18,18 +18,27 @@ from pathlib import Path
 
 _LETTERS = "abcdefghijklmnopqrstuvwxyz"
 _TOKEN = re.compile(r"[A-Za-z][A-Za-z']*|[^A-Za-z]+")
+# chat spellings the conversation layer understands as they are (engramm/chat/bank.py)
+_CHAT_FORMS = {"whats", "hows", "wheres", "whos", "thats", "theres", "lets", "im", "ive", "youre", "dont", "cant",
+               "wont", "didnt", "doesnt", "isnt", "wasnt", "gonna", "wanna", "gotta", "idk", "pls", "plz", "thx", "lol",
+               "omg", "btw", "tbh", "imo", "ok", "okay", "yeah", "yep", "nope", "hmm", "haha"}
 _CONFUSIONS = [(re.compile(r"\bcapitol of\b", re.I), "capital of"),
                (re.compile(r"\bwho's (?=book|song|painting)", re.I), "whose "),
                (re.compile(r"\bteh\b", re.I), "the")]
 
 
 def _edits1(w: str) -> set[str]:
+    return set().union(*_edits1_by_kind(w).values())
+
+
+def _edits1_by_kind(w: str) -> dict[int, set[str]]:
+    """Edits by how likely the typo is: 0 a swapped or left-out letter, 1 an extra letter, 2 a wrong one."""
     splits = [(w[:i], w[i:]) for i in range(len(w) + 1)]
-    deletes = [a + b[1:] for a, b in splits if b]
-    transposes = [a + b[1] + b[0] + b[2:] for a, b in splits if len(b) > 1]
-    replaces = [a + c + b[1:] for a, b in splits if b for c in _LETTERS]
-    inserts = [a + c + b for a, b in splits for c in _LETTERS]
-    return set(deletes + transposes + replaces + inserts)
+    transposes = {a + b[1] + b[0] + b[2:] for a, b in splits if len(b) > 1}
+    inserts = {a + c + b for a, b in splits for c in _LETTERS}
+    deletes = {a + b[1:] for a, b in splits if b}
+    replaces = {a + c + b[1:] for a, b in splits if b for c in _LETTERS}
+    return {0: transposes | inserts, 1: deletes, 2: replaces}
 
 
 class Speller:
@@ -51,7 +60,13 @@ class Speller:
         low = w.lower()
         if len(low) < 3 or low in self.counts or not low.isalpha():
             return w
-        cands = [c for c in _edits1(low) if self.counts.get(c, 0) >= self.min_count]
+        if low in _CHAT_FORMS:
+            return w
+        cands = []
+        for _, group in sorted(_edits1_by_kind(low).items()):
+            cands = [c for c in group if self.counts.get(c, 0) >= self.min_count]
+            if cands:
+                break
         if not cands and len(low) <= 8:
             cands = [c2 for c in _edits1(low) for c2 in _edits1(c) if self.counts.get(c2, 0) >= self.min_count * 10]
         if not cands:
