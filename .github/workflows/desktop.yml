@@ -23,8 +23,9 @@ permissions:
   contents: write
 
 concurrency:
+  # a newer push waits for the running build instead of cancelling it (installer builds take ~15 min)
   group: desktop-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
