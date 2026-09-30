@@ -62,11 +62,18 @@ impl From<PackError> for FetchError {
     }
 }
 
-fn agent() -> ureq::Agent {
+/// Loopback addresses never go through a proxy (a pack served from this computer).
+fn is_local(url: &str) -> bool {
+    let rest = url.split("://").nth(1).unwrap_or("");
+    let host = rest.split(['/', ':']).next().unwrap_or("");
+    matches!(host, "localhost" | "127.0.0.1" | "[")
+}
+
+fn agent_for(url: &str) -> ureq::Agent {
     ureq::AgentBuilder::new()
         .timeout_connect(Duration::from_secs(20))
         .timeout_read(Duration::from_secs(60))
-        .try_proxy_from_env(true)
+        .try_proxy_from_env(!is_local(url))
         .user_agent(concat!("engramm-core/", env!("CARGO_PKG_VERSION")))
         .build()
 }
@@ -81,7 +88,7 @@ fn join_url(base: &str, name: &str) -> String {
 
 /// Downloads the manifest and checks it against the pinned SHA-256.
 pub fn fetch_manifest(base_url: &str, expected_sha256: &str) -> Result<(Manifest, Vec<u8>), FetchError> {
-    let resp = agent()
+    let resp = agent_for(base_url)
         .get(&join_url(base_url, MANIFEST))
         .call()
         .map_err(|e| FetchError::Http(e.to_string()))?;
@@ -208,7 +215,7 @@ pub fn fetch_pack(
         bytes_total: before.bytes_to_fetch,
     };
     progress(&p);
-    let agent = agent();
+    let agent = agent_for(base_url);
     for rel in &todo {
         let entry = &manifest.files[rel];
         let path = dest.join(safe_relative(rel)?);
@@ -246,4 +253,22 @@ pub fn fetch_pack(
     let mpath = dest.join(MANIFEST);
     fs::write(&mpath, raw).map_err(|e| FetchError::Io(mpath, e))?;
     Ok(after)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn local_urls_bypass_the_proxy() {
+        assert!(is_local("http://127.0.0.1:8799/"));
+        assert!(is_local("http://localhost/pack/"));
+        assert!(!is_local("https://github.com/o/r/releases/download/t/"));
+    }
+
+    #[test]
+    fn asset_names_are_flat() {
+        assert_eq!(asset_name("nlp/pos.json"), "nlp__pos.json");
+        assert_eq!(asset_name("kb.sqlite"), "kb.sqlite");
+    }
 }
