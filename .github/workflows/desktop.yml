@@ -40,6 +40,7 @@ jobs:
             target: aarch64-apple-darwin
           - os: macos-15-intel
             target: x86_64-apple-darwin
+            requirements: runtime/sidecar/requirements-macos-x64.txt
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     steps:
@@ -60,7 +61,7 @@ jobs:
       - name: Freeze the server (PyInstaller)
         shell: bash
         run: |
-          pip install -r runtime/sidecar/requirements.txt
+          pip install -r "${{ matrix.requirements || 'runtime/sidecar/requirements.txt' }}"
           pyinstaller --noconfirm --log-level WARN --distpath build/sidecar --workpath build/pyi runtime/sidecar/engramm-server.spec
           mkdir -p runtime/app/src-tauri/resources/sidecar
           cp -R build/sidecar/engramm-server/. runtime/app/src-tauri/resources/sidecar/

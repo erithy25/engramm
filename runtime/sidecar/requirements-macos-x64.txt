@@ -1,0 +1,6 @@
+# Intel Macs: llvmlite ships no x86_64 macOS wheels after 0.44, so the sidecar uses the last numba /
+# llvmlite / numpy combination with Intel-Mac wheels. ENGRAMM uses only plain @njit, which these support.
+numpy==2.2.6
+numba==0.61.2
+tokenizers==0.23.2
+pyinstaller==6.22.3
