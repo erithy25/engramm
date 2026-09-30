@@ -18,6 +18,11 @@ on:
       - "ui/**"
       - ".github/workflows/desktop.yml"
   workflow_dispatch:
+  workflow_call:              # from release.yml, with the catalog of the pack it just published
+    inputs:
+      catalog_artifact:
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -46,6 +51,13 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+
+      - name: Catalog of the published pack (release builds)
+        if: ${{ inputs.catalog_artifact }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.catalog_artifact }}
+          path: runtime/app/src-tauri/resources
 
       - name: Linux build dependencies
         if: runner.os == 'Linux'

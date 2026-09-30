@@ -1,0 +1,103 @@
+# A complete release from scratch: the knowledge pack is built from the raw sources (DBpedia,
+# Wikidata, Wikipedia article leads), published with the release, and the desktop installers are
+# built with that pack in their download catalog. Started by hand with the release tag.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, e.g. v3.0.0-beta.1"
+        required: true
+      prerelease:
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install numpy==2.4.1 numba==0.67.0 tokenizers==0.23.2 pyyaml
+      - name: Work folder on disk (the scripts use /dev/shm/engramm)
+        run: |
+          mkdir -p "$RUNNER_TEMP/engramm"
+          ln -s "$RUNNER_TEMP/engramm" /dev/shm/engramm
+          df -h "$RUNNER_TEMP"
+      - name: Build the lite pack from the raw sources
+        env:
+          PYTHON: python
+        run: bash scripts/build_pack.sh
+      - name: Release assets and download catalog
+        run: |
+          python -u -m experiments.pack_release --pack /dev/shm/engramm/packs/lite --out dist/pack \
+            --tag "${{ inputs.tag }}" --catalog runtime/app/src-tauri/resources/catalog.json
+          # the same pack as one archive, for installing from a folder without the app's download
+          (cd /dev/shm/engramm/packs && zip -r -0 -q "$GITHUB_WORKSPACE/dist/engramm-pack-lite.zip" lite)
+          ls -la dist dist/pack
+          cat runtime/app/src-tauri/resources/catalog.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: catalog
+          path: runtime/app/src-tauri/resources/catalog.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pack
+          path: |
+            dist/pack/*
+            dist/engramm-pack-lite.zip
+          compression-level: 0
+
+  installers:
+    needs: pack
+    uses: ./.github/workflows/desktop.yml
+    with:
+      catalog_artifact: catalog
+
+  publish:
+    needs: [pack, installers]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - name: Checksums
+        run: |
+          cd dist
+          find . -type f ! -name 'catalog.json' -exec sha256sum {} \; | sort -k2 > SHA256SUMS.txt
+          wc -l SHA256SUMS.txt
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: ENGRAMM ${{ inputs.tag }}
+          prerelease: ${{ inputs.prerelease }}
+          body: |
+            ENGRAMM Chat v3 — an offline assistant without a neural network.
+
+            **Install:** pick the installer for your system below. On first start the app asks before
+            downloading the knowledge pack (lite, ~730 MB) from this release. Offline alternative:
+            download `engramm-pack-lite.zip`, unzip it and choose the folder in the app.
+
+            Builds are not code-signed yet: macOS (right-click → Open) and Windows (More info → Run anyway)
+            ask for confirmation on first start. Checksums: `SHA256SUMS.txt`.
+          files: |
+            dist/pack/**
+            dist/engramm-*/**/*.dmg
+            dist/engramm-*/**/*.msi
+            dist/engramm-*/**/*.exe
+            dist/engramm-*/**/*.deb
+            dist/engramm-*/**/*.rpm
+            dist/SHA256SUMS.txt

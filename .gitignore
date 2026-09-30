@@ -25,7 +25,8 @@ venv/
 results/*/sweep.out
 
 # Modellgewichte der M5-Baselines (nie committen; Bezugsquelle + Prüfsumme in experiments/m5_baselines.py)
-models/
+models/*
+!models/ship/
 
 # independent reproduction: outputs and data links are local
 reproduction/independent/out/

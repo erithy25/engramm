@@ -120,6 +120,7 @@ def main() -> None:
     ap.add_argument("--abstracts", type=Path, default=None, help="article leads (reading_abstracts.py) as the reading")
     ap.add_argument("--top", type=int, default=400_000, help="with --abstracts: this many most popular articles")
     ap.add_argument("--models", type=Path, default=MAIN / "chat4")
+    ap.add_argument("--codebook", type=Path, default=MAIN / "model" / "codebook.npz")
     ap.add_argument("--kb", type=Path, default=MAIN / "kb.sqlite")
     ap.add_argument("--nlp", type=Path, default=ROOT / "models" / "nlp")
     ap.add_argument("--spell", type=Path, default=None, help="speller vocabulary (experiments/spell_build.py)")
@@ -152,7 +153,7 @@ def main() -> None:
     for name in MODEL_FILES:
         if (args.models / name).exists():
             shutil.copy2(args.models / name, out / name)
-    shutil.copy2(MAIN / "model" / "codebook.npz", out / "codebook.npz")
+    shutil.copy2(args.codebook, out / "codebook.npz")
     shutil.copy2(ROOT / "data" / "lm_tokenizer.json", out / "tokenizer.json")
     if args.kb.exists():
         shutil.copy2(args.kb, out / "kb.sqlite")
