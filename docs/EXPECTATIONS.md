@@ -1889,6 +1889,45 @@ gestartet. Er ist der einzige abgeschlossene Lauf.
 
 ---
 
+## E28 — Chat v3: Lite-Wissenspaket und Desktop-Server gemessen (Container, ohne Schwelle)
+
+Stand 2026-09-30.
+
+**Charakter der Messung:** Es gibt keine vorab registrierte Schwelle, daher ist das kein Kriterium. Das Paket und die App wurden erst in dieser Sitzung gebaut. Die Zahlen sind Container-Werte (`canonical: false`), gemessen mit dem eingefrorenen Server (PyInstaller-Sidecar) auf dem Paket, so wie die Desktop-App ihn startet.
+
+**Inhalt des Lite-Pakets** (`experiments/pack_build.py --name lite --abstracts … --top 400000`):
+
+| Teil | Quelle / Werkzeug | Umfang |
+|---|---|---|
+| Lesetext | Artikelanfänge aus DBpedia 2022.12 (`reading_abstracts.py`), sortiert nach Verweisen + Weiterleitungen | 400.000 Artikel, 2,06 Mio. Sätze |
+| Faktenbank | `kb_slim.py` aus DBpedia + Wikidata | 150.000 Entitäten, 1,40 Mio. Fakten, 0,97 Mio. Namen |
+| Wörterbuch | `spell_build.py` | ca. 140.000 Wörter |
+| Übrige Dateien | Modelle (Codebuch, Spannen-Perzeptrons, Kalibrierer), Tokenizer | – |
+| **Paketgröße** | Summe laut `manifest.json` | **722 MB** |
+
+**Messwerte:**
+
+| Größe | Wert | Ziel laut Plan |
+|---|---|---|
+| Paketgröße Lite | 722 MB | ≈ 0,7 GB |
+| Programm (Server eingefroren, ein Ordner) | 275 MB unkomprimiert, davon llvmlite 171 MB | Rust-Laufzeit 10–30 MB (Phase 3/7, offen) |
+| Start bis „bereit“ | 2,2 s | ≤ 15 s |
+| RAM-Spitze nach dem Laden (VmHWM) | 453 MB (anonym 362 MB) | – |
+| RAM-Spitze nach 15 Gesprächszügen | **677 MB** (anonym 401 MB) | ≤ 650 MB für ENGRAMM; Messlatte ≤ 1,5 GB gesamt |
+| Zeit je Zug (Team-Prompts, 156 Züge) | Median 0,5 ms, p95 40 ms | Median ≤ 0,5 s |
+
+**Team-Prompts** (`data/chatbench/dev_team.jsonl`, nur Entwicklung, `results/chatbench/`):
+- 29 Faktenantworten, alle mit Quelle.
+- 14 von 156 Zügen enden mit „weiß ich nicht“.
+- Unsichere Vermutungen werden nicht mehr als Antwort ausgegeben. Auf dev waren sie nur 7 von 25 Mal richtig.
+
+**Einordnung:**
+- Das **RAM-Ziel ≤ 650 MB** reißt der Server knapp: 677 MB. Die Messlatte ≤ 1,5 GB gesamt hält er deutlich.
+- **Der größte Posten ist das Python-Programm selbst** (llvmlite/numba). Der Rust-Kern müsste Suche und Extraktion übernehmen, um Programm und RAM zu halbieren.
+- **Offen:** Messung auf W-LOW-1/2 und der 4-GB-VM. Der Container sagt über alte Zweikern-PCs nichts Verbindliches.
+
+---
+
 ## Offene Fragen, nicht terminiert
 
 **O1 — Warum fällt die WiLI-Replikation besser aus als das Original?**
