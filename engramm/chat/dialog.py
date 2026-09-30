@@ -207,8 +207,14 @@ class Assistant:
         if de and is_german(msg, de) and self.bank.safety_rule(normalise(msg, fillers=False)) is None:
             return self._german(st, msg)
         units = classify(msg, self.bank, self._now())
+        if self.speller is not None and len(units) == 1 and units[0].act == "statement":
+            first = msg.split()[0]
+            if not self.speller.known(first) and self.speller.fix_word(first).lower() in _QUESTION_WORDS:
+                units = classify(self.speller.fix(msg).rstrip(" .!") + "?", self.bank, self._now())
         if self.speller is not None and all(u.act in ("question", "about") for u in units):
             fixed = self.speller.fix(msg)       # typos and CAPITALS, only in questions (names stay as told)
+            if fixed != msg and units[0].act == "question" and not fixed.rstrip().endswith("?"):
+                fixed = fixed.rstrip(" .!") + "?"   # still a question after the fix
             if fixed != msg:
                 units = classify(fixed, self.bank, self._now())
                 msg = self._spelled = fixed
@@ -906,6 +912,10 @@ class Assistant:
 _STOP_CHAT = frozenset("the and but not just really very so too also that this there then than what with have has had "
                        "was were are is be been being for from into about some any all okay yeah yes no lol haha "
                        "i'm i've me my mine we our us".split())
+
+
+_QUESTION_WORDS = {"what", "who", "where", "when", "why", "how", "which", "whose", "is", "are", "does", "did", "can",
+                   "was", "were"}
 
 
 def _fill(text: str, **fmt) -> str:

@@ -67,7 +67,7 @@ def test_speller():
     sp = Speller({"the": 1000, "capital": 500, "capitol": 30, "of": 900, "france": 400, "what": 800, "is": 900,
                   "who": 600, "wrote": 300, "hamlet": 200, "whats": 50},
                  {"france": 0.99, "hamlet": 0.9}, min_count=20)
-    assert sp.fix("whats teh capitol of frnace") == "whats the capital of france"
+    assert sp.fix("whats teh capitol of frnace") == "what's the capital of france"
     assert sp.fix("WHO WROTE HAMLET") == "Who wrote Hamlet"
     assert sp.fix("Who wrote Hamlet?") == "Who wrote Hamlet?"
     assert sp.fix("My friend Xqzlor is here") == "My friend Xqzlor is here"      # names inside a sentence stay

@@ -140,8 +140,13 @@ class AboutFinder:
         out, chars = [], 0
         title = self.c.doc_keys[d][1]
         while s < hi and len(out) < n:
-            t = clean_sentence(self.c.sentence_text(s))
+            raw = self.c.sentence_text(s)
             s += 1
+            # a sentence split inside parentheses ("translit. Basileía …)") is joined before cleaning
+            while raw.count("(") > raw.count(")") and s < hi:
+                raw = raw + " " + self.c.sentence_text(s)
+                s += 1
+            t = clean_sentence(raw)
             # a lead document starts with its title as a line of its own ("Black hole\nA black hole is …")
             if t.startswith(title + " ") and not out:
                 rest = t[len(title):].strip()

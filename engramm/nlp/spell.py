@@ -24,7 +24,8 @@ _CHAT_FORMS = {"whats", "hows", "wheres", "whos", "thats", "theres", "lets", "im
                "omg", "btw", "tbh", "imo", "ok", "okay", "yeah", "yep", "nope", "hmm", "haha"}
 _CONFUSIONS = [(re.compile(r"\bcapitol of\b", re.I), "capital of"),
                (re.compile(r"\bwho's (?=book|song|painting)", re.I), "whose "),
-               (re.compile(r"\bteh\b", re.I), "the")]
+               (re.compile(r"\bteh\b", re.I), "the"),
+               (re.compile(r"\b(what|who|where|how|when|that|there)s\b", re.I), r"\1's")]
 
 
 def _edits1(w: str) -> set[str]:
