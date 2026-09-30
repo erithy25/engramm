@@ -1,0 +1,26 @@
+{
+ "items": 128,
+ "turns": 156,
+ "problems": [],
+ "kinds": {
+  "smalltalk": 31,
+  "unknown": 42,
+  "about": 16,
+  "learned": 21,
+  "empathy": 5,
+  "answer": 15,
+  "forgot": 1,
+  "memory": 1,
+  "tool": 2,
+  "writing": 19,
+  "safety": 2,
+  "nothing": 1
+ },
+ "fact_answers_with_source": {
+  "facts": 6,
+  "facts_with_source": 6
+ },
+ "median_ms": 1.3,
+ "p95_ms": 96.7,
+ "canonical": false
+}
