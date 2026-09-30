@@ -26,6 +26,23 @@ Zusätzlich berichtet werden, ohne Schwelle:
 - **Nachtrag vor dem Testlauf (2026-09-29):** Auf `dev` wurden die Tagger-Merkmale erweitert: Suffix 1 und 4,
   Präfix 2 und 3, Wortpaare, Ziffern, Bindestrich, Länge. Die Epochen stiegen von 6 auf 8. Auf `dev` stieg UPOS
   damit von 94,19 % auf 94,85 %. `test` war zu diesem Zeitpunkt nicht angesehen.
+- **Nachtrag 2 vor dem Testlauf (2026-09-30), nur `dev` angesehen.** Der Parser wurde umgebaut (Commits dieser Sitzung):
+  - **Beschriftung als Teil der Züge** (RIGHT:label / LEFT:label). Die Beschriftungen der bereits angehängten Kinder
+    sind Merkmale. Der getrennte Beschrifter entfällt.
+  - **Zweiter Wortart-Satz:** Penn-Treebank-Tags (XPOS) aus einem zweiten, gleich gebauten Tagger, per 4-fach-Jackknifing
+    für das Training. Auf dev erreicht er 94,17 % XPOS-Genauigkeit.
+  - **Zusätzliche Wort-Kombinationsmerkmale** (Gruppe `more`).
+  - **Training:** Die erste Epoche folgt dem Goldpfad, danach dynamisches Orakel mit Exploration.
+  - **Dev-Ergebnisse (UAS):**
+
+    | Variante | 6 Ep. | 8 Ep. | 10 Ep. | 12 Ep. | 15 Ep. |
+    |---|---|---|---|---|---|
+    | lab | 83,43 % | – | 83,64 % | – | 83,63 % |
+    | lab+x | 83,84 % | – | 84,20 % | – | 84,56 % |
+    | lab+x+more, Goldpfad-Start | – | 84,72 % | – | 84,59 % | – |
+
+  - **Gewählt** ist die beste dev-Variante, **lab+x+more, Goldpfad-Start, 8 Epochen**. Die Schwellen N1–N4 bleiben
+    unverändert. Zur N4-Zeit zählt jetzt auch der XPOS-Tagger.
 - **Nicht-projektive Trainingssätze** (in EWT unter 5 %) werden beim Parser-Training übersprungen. Gemessen wird
   auf allen Testsätzen.
 - **Determinismus:** feste Reihenfolge per SHAKE-256; zwei Läufe ergeben dieselben Gewichte.

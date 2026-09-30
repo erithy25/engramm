@@ -28,8 +28,9 @@ def log(msg: str) -> None:
     print(msg, flush=True)
 
 
-PARSER_GROUPS = ("lab", "x")       # set on dev (docs/PREREG_NLP_V0.md, addendum 2)
-PARSER_EPOCHS = 10
+PARSER_GROUPS = ("lab", "x", "more")   # set on dev (docs/PREREG_NLP_V0.md, addendum 2)
+PARSER_EPOCHS = 8
+PARSER_EXPLORE_FROM = 1
 
 
 def jackknife_tags(train, folds: int = 4, epochs: int = 8, field: str = "upos"):
@@ -80,7 +81,7 @@ def main() -> None:
                    if conllu.is_projective(s.heads)]
     log(f"parser training on {len(parse_train):,} projective sentences")
     parser = Parser(PARSER_GROUPS)
-    parser.train(parse_train, epochs=PARSER_EPOCHS, log=log)
+    parser.train(parse_train, epochs=PARSER_EPOCHS, log=log, explore_from=PARSER_EXPLORE_FROM)
     uas_r = las_r = n = 0
     for s, tags, xt in zip(evals, pred_tags, pred_x):
         heads, labels = parser.parse_labelled(s.words, tags, xt)
