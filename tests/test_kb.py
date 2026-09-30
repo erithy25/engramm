@@ -115,3 +115,14 @@ def test_assistant_prefers_the_fact_bank(kb, corpus):  # noqa: F811
     # questions the bank cannot answer still go to the reading pipeline
     r = a.turn(st, "Who invented the telephone?")
     assert r.via == "lookup" and r.answer == "Alexander Graham Bell"
+
+
+def test_elliptical_follow_up(kb, corpus):  # noqa: F811
+    from engramm.chat.dialog import Assistant, DialogState
+    from tests.test_chat_flows import CLOCK, _bot
+    a = Assistant(_bot(corpus), clock=CLOCK, kb_path=kb)
+    st = DialogState("ell")
+    assert a.turn(st, "When was Albert Einstein born?").text == "Albert Einstein was born on 14 March 1879."
+    r = a.turn(st, "And Bill Gates?")
+    assert r.resolved == "When was Bill Gates born?" and r.text == "Bill Gates was born on 28 October 1955."
+    assert a.turn(DialogState("fresh"), "And Bill Gates?").resolved != "When was Bill Gates born?"

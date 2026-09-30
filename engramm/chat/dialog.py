@@ -206,6 +206,9 @@ class Assistant:
         de = self.bank.de
         if de and is_german(msg, de) and self.bank.safety_rule(normalise(msg, fillers=False)) is None:
             return self._german(st, msg)
+        expanded = self._ellipsis(st, msg)
+        if expanded is not None:
+            msg = self._spelled = expanded      # shown as "I read this as …"
         units = classify(msg, self.bank, self._now())
         if self.speller is not None and len(units) == 1 and units[0].act == "statement":
             first = msg.split()[0]
@@ -611,8 +614,21 @@ class Assistant:
         self.bot.context.update({"answer": ans.values[0] if len(ans.values) == 1 else None, "atype": atype,
                                  "mention": ans.entity.name})
         st.last_fact = {"evidence": ans.evidence, "source": src, "answer": value, "question": q, "sure": True}
+        self.bot.context["kb_last"] = {"question": q, "names": [ans.entity.name, ans.entity.title]}
         return Reply(text, "answer", ans.text, answer=value, guess=value, evidence=ans.evidence, source=src,
                      confidence=1.0, via="kb", resolved=q if q != text else None)
+
+    def _ellipsis(self, st: DialogState, msg: str) -> str | None:
+        """"And of Germany?" after "What is the capital of France?" → "What is the capital of Germany?"."""
+        m = _ELLIPSIS.match(msg.strip())
+        last = self.bot.context.get("kb_last")
+        if not m or not last:
+            return None
+        new = m.group("x").strip()
+        for name in last["names"]:
+            if name and re.search(re.escape(name), last["question"], re.I):
+                return re.sub(re.escape(name), new, last["question"], count=1, flags=re.I)
+        return None
 
     def _latest_fact(self, cat: str):
         """Your most recent fact of a category (the later statement corrects the earlier one)."""
@@ -914,6 +930,8 @@ _STOP_CHAT = frozenset("the and but not just really very so too also that this t
                        "i'm i've me my mine we our us".split())
 
 
+_ELLIPSIS = re.compile(r"^(?:and|what about|how about)(?: (?:of|for|in|with))? (?P<x>(?:the )?[A-Z][\w'\- ]{1,40}?)\s*\??$",
+                       re.I)
 _QUESTION_WORDS = {"what", "who", "where", "when", "why", "how", "which", "whose", "is", "are", "does", "did", "can",
                    "was", "were"}
 
