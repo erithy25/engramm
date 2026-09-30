@@ -1,5 +1,5 @@
 # Desktop installers (Tauri 2): Windows (.msi, .exe), macOS (.dmg, Apple Silicon and Intel),
-# Linux (.deb, .AppImage). Each job freezes the Python server with PyInstaller (the sidecar),
+# Linux (.deb, .rpm). Each job freezes the Python server with PyInstaller (the sidecar),
 # builds the chat page and bundles the app. The knowledge pack is not in the installer: the app
 # downloads it on first start (after the user agrees) or uses a pack folder.
 #
@@ -103,7 +103,8 @@ jobs:
       - name: Installers
         working-directory: runtime/app
         shell: bash
-        run: npx tauri build --target ${{ matrix.target }}
+        # Linux: .deb and .rpm (linuxdeploy cannot bundle the frozen server's numba libraries into an AppImage)
+        run: npx tauri build --target ${{ matrix.target }} ${{ runner.os == 'Linux' && '--bundles deb,rpm' || '' }}
 
       - uses: actions/upload-artifact@v4
         with:
@@ -114,7 +115,7 @@ jobs:
             runtime/app/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.exe
             runtime/app/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.dmg
             runtime/app/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.deb
-            runtime/app/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.AppImage
+            runtime/app/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.rpm
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -127,7 +128,7 @@ jobs:
       - name: Checksums
         run: |
           cd dist
-          find . -type f \( -name '*.msi' -o -name '*.exe' -o -name '*.dmg' -o -name '*.deb' -o -name '*.AppImage' \) -exec sha256sum {} \; > SHA256SUMS.txt
+          find . -type f \( -name '*.msi' -o -name '*.exe' -o -name '*.dmg' -o -name '*.deb' -o -name '*.rpm' \) -exec sha256sum {} \; > SHA256SUMS.txt
           cat SHA256SUMS.txt
       - name: Draft release
         uses: softprops/action-gh-release@v2
@@ -138,5 +139,5 @@ jobs:
             dist/**/*.exe
             dist/**/*.dmg
             dist/**/*.deb
-            dist/**/*.AppImage
+            dist/**/*.rpm
             dist/SHA256SUMS.txt
