@@ -91,10 +91,13 @@ def understand(text: str, spec: dict) -> Understood:
             expr = re.sub(pat, rep, expr)
         if re.fullmatch(r"[\d\s.+\-*/()^%]+", expr) and re.search(r"\d", expr):
             return Understood("calc", {"expr": expr.strip()})
-    for it in spec["intents"]:
-        for p in it["patterns"]:
-            if re.fullmatch(p, s):
-                return Understood("intent", {"id": it["id"]})
+    # "hallo, wie geht es dir": the greeting and the question are one message; the question counts
+    rest = re.sub(r"^(?:hallo|hi|hey|moin|servus|na|guten (?:morgen|tag|abend))\b[ ,!.]*", "", s).strip()
+    for form in ([rest, s] if rest and rest != s else [s]):
+        for it in spec["intents"]:
+            for p in it["patterns"]:
+                if re.fullmatch(p, form):
+                    return Understood("intent", {"id": it["id"]})
     fe = spec["feelings"]
     for c in fe["categories"]:
         for t in c["triggers"]:

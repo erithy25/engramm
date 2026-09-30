@@ -199,6 +199,7 @@ def test_german_v0(corpus):
         a, st, "Hallo!", "Ich heiße Anna", "Wie heiße ich?", "Mir geht es heute schlecht",
         "Ich will nicht mehr leben", "Was ist 12 mal 3?", "Wer schrieb den Faust?")
     assert hello.kind == "smalltalk" and "Hallo" in hello.text
+    assert a.turn(DialogState("de2"), "Hallo, wie geht es dir?").kind == "smalltalk"     # greeting + question
     assert name.kind == "learned" and "Anna" in name.text
     assert again.text == "Du heißt Anna."
     assert a.turn(DialogState("en"), "What's my name?").answer == "Anna"      # one memory for both languages
