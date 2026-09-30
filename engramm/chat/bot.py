@@ -238,10 +238,10 @@ class ChatBot:
         if config.extract.nb > 0 and sp is not None and (sp / config.span_model).exists() \
                 and corpus.classes is not None:
             from engramm.chat.spanstats import SpanPerceptron, SpanStats, WordInfo
-            self.span_stats = (SpanPerceptron.load(sp / config.span_model) if config.span_model.startswith("spanperc")
+            self.span_stats = (SpanPerceptron.load(sp / config.span_model, compact=True) if config.span_model.startswith("spanperc")
                                else SpanStats.load(sp / config.span_model))
             if config.span_model_nq and (sp / config.span_model_nq).exists():
-                self.span_stats_nq = SpanPerceptron.load(sp / config.span_model_nq)
+                self.span_stats_nq = SpanPerceptron.load(sp / config.span_model_nq, compact=True)
             self.word_info = WordInfo(corpus.tok, corpus.classes, corpus.wide)
         self.calib = None
         if config.calibrator and sp is not None and (sp / config.calibrator).exists():

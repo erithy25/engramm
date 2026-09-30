@@ -1926,6 +1926,17 @@ Stand 2026-09-30.
 - **Der größte Posten ist das Python-Programm selbst** (llvmlite/numba). Der Rust-Kern müsste Suche und Extraktion übernehmen, um Programm und RAM zu halbieren.
 - **Offen:** Messung auf W-LOW-1/2 und der 4-GB-VM. Der Container sagt über alte Zweikern-PCs nichts Verbindliches.
 
+**Nachtrag (derselbe Tag): Speicher-Diät.**
+- **Änderungen:** Die Gewichte der Spannen-Perzeptrons liegen als sortierte 64-Bit-Hashes mit Gewichten in numpy statt als Python-Dict (`CompactWeights`). Die Dokumentschlüssel liegen als ein Titelpuffer mit Offsets statt als 400.000 Tupel (`DocKeys`).
+- **Antworten unverändert:** Auf allen 128 Team-Prompts sind die Antworten bit-identisch.
+- **Neu gemessen** (Python-Server, Container, parallel lief ein Trainingslauf):
+
+| Größe | Wert | Ziel |
+|---|---|---|
+| RAM-Spitze nach dem Laden | 377 MB (anonym 245 MB) | – |
+| RAM-Spitze nach 15 Zügen | **534 MB** (anonym 261 MB) | ≤ 650 MB → **erreicht** |
+| Start | 4,0 s | ≤ 15 s |
+
 ---
 
 ## Offene Fragen, nicht terminiert

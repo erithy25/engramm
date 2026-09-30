@@ -24,8 +24,8 @@ hyperdimensional vectors and counted linear models (averaged perceptrons).
 | | |
 |---|---|
 | Download | desktop installers built by CI (`.github/workflows/desktop.yml`); the knowledge pack is downloaded on first start after you agree, or used from a folder |
-| Memory use | lite pack (722 MB): **0.68 GB peak** for the whole server while chatting (container measurement, `docs/EXPECTATIONS.md` E28) |
-| Start | 2.2 s until ready (container) |
+| Memory use | lite pack (722 MB): **0.53 GB peak** for the whole server while chatting (container measurement, `docs/EXPECTATIONS.md` E28) |
+| Start | 2–4 s until ready (container) |
 | Knowledge | lead sections of the 400 000 (lite) most-referenced Wikipedia articles + a fact bank from DBpedia and Wikidata |
 | Languages | English; German v0 for small talk, feelings, memory and crisis help |
 

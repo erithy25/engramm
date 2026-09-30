@@ -19,6 +19,7 @@ is the sum of the log count ratios (naive Bayes). Nothing else is learnt.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import re
@@ -252,6 +253,36 @@ class SpanStats:
         return cls(d["pos"], d["neg"], d["n_pos"], d["n_neg"], d["alpha"])
 
 
+def _h64(key: str) -> int:
+    return int.from_bytes(hashlib.blake2b(key.encode("utf-8"), digest_size=8).digest(), "little")
+
+
+class CompactWeights:
+    """A read-only feature → weight table in two numpy arrays (64-bit key hashes, sorted, and the
+    weights): about 16 bytes per feature instead of ~90 in a dict of strings. ``get`` matches
+    ``dict.get``; a hash collision with an unseen feature has probability ~n / 2^64."""
+
+    def __init__(self, weights: dict):
+        items = sorted(((_h64(k), v) for k, v in weights.items()))
+        self.keys = np.fromiter((k for k, _ in items), dtype=np.uint64, count=len(items))
+        self.vals = np.fromiter((v for _, v in items), dtype=np.float64, count=len(items))
+        self._cache: dict[str, float] = {}
+
+    def __len__(self) -> int:
+        return len(self.keys)
+
+    def get(self, key: str, default: float = 0.0) -> float:
+        c = self._cache.get(key)
+        if c is not None:
+            return c
+        h = np.uint64(_h64(key))
+        i = int(np.searchsorted(self.keys, h))
+        v = float(self.vals[i]) if i < len(self.keys) and self.keys[i] == h else default
+        if len(self._cache) < 200_000:            # features repeat across questions (tags, classes)
+            self._cache[key] = v
+        return v
+
+
 @dataclass
 class SpanPerceptron:
     """Averaged perceptron over the same feature strings: each weight is a count of how often
@@ -273,9 +304,12 @@ class SpanPerceptron:
                                          ensure_ascii=False))
 
     @classmethod
-    def load(cls, path: Path) -> SpanPerceptron:
+    def load(cls, path: Path, compact: bool = False) -> SpanPerceptron:
+        """``compact``: the weights as a CompactWeights table (read-only, ~6x less memory; the app)."""
         d = json.loads(Path(path).read_text())
-        return cls(d["w"], d.get("extended", True), d.get("domain", False), d.get("max_chunk", 5))
+        meta = (d.get("extended", True), d.get("domain", False), d.get("max_chunk", 5))
+        w = CompactWeights(d.pop("w")) if compact else d["w"]
+        return cls(w, *meta)
 
 
 class WordInfo:

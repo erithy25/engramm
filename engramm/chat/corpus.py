@@ -23,6 +23,52 @@ def sentence_documents(starts: np.ndarray, doc_starts: np.ndarray) -> np.ndarray
     return (np.searchsorted(doc_starts, starts, side="right") - 1).astype(np.int32)
 
 
+class DocKeys:
+    """(source, key) of every document, compact: the keys in one UTF-8 buffer with offsets and the
+    few distinct sources as small integers (~25 bytes per document instead of ~190 as tuples).
+    Behaves like the list of tuples it replaces (indexing, iteration, len)."""
+
+    def __init__(self, sources: list[str], src: np.ndarray, buf: bytes, offsets: np.ndarray):
+        self.sources, self.src, self.buf, self.offsets = sources, src, buf, offsets
+
+    @classmethod
+    def load(cls, path: Path) -> DocKeys:
+        sources: list[str] = []
+        index: dict[str, int] = {}
+        src, parts, offsets, pos = [], [], [0], 0
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                s, k = json.loads(line)
+                i = index.get(s)
+                if i is None:
+                    i = index[s] = len(sources)
+                    sources.append(s)
+                b = k.encode("utf-8")
+                src.append(i)
+                parts.append(b)
+                pos += len(b)
+                offsets.append(pos)
+        dtype = np.uint8 if len(sources) < 256 else np.uint16
+        return cls(sources, np.asarray(src, dtype=dtype), b"".join(parts), np.asarray(offsets, dtype=np.int64))
+
+    def __len__(self) -> int:
+        return len(self.src)
+
+    def __getitem__(self, i):
+        if isinstance(i, slice):
+            return [self[j] for j in range(*i.indices(len(self)))]
+        if i < 0:
+            i += len(self)
+        if not 0 <= i < len(self):
+            raise IndexError(i)
+        a, b = int(self.offsets[i]), int(self.offsets[i + 1])
+        return self.sources[int(self.src[i])], self.buf[a:b].decode("utf-8")
+
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self[i]
+
+
 @dataclass
 class Corpus:
     tokens: np.ndarray                 # uint16 train stream (memory-mapped when loaded)
@@ -63,8 +109,7 @@ class Corpus:
             # an index over a larger corpus (the train stream plus more reading, chat3): its own token stream
             tokens = np.memmap(index_dir / "corpus.u16", dtype=np.uint16, mode="r")
             doc_starts = np.load(index_dir / "corpus.starts.npy")
-            with open(index_dir / "corpus.keys.jsonl", encoding="utf-8") as f:
-                doc_keys = [tuple(json.loads(line)) for line in f]
+            doc_keys = DocKeys.load(index_dir / "corpus.keys.jsonl")
         index = SentenceIndex.load(index_dir, mmap=mmap)
         if (index_dir / "doc_ptr.npy").exists():
             from engramm.chat.index import load_docs
