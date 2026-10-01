@@ -55,6 +55,7 @@ class Atlas:
         self.wayfinder = None
         self.feed_list = []
         self._seed = None
+        self.calib = load_calib()
         self._init_feeds()
         self._init_shelf()
         self._init_wayfinder()
@@ -137,7 +138,7 @@ class Atlas:
 
     # -- candidates for the answer extraction ---------------------------------------------------
 
-    def candidates(self, question: str, names: list[str], max_rows: int = 24) -> tuple[list[tuple[str, dict]], list[str]]:
+    def candidates(self, question: str, names: list[str], max_rows: int = 24) -> tuple[list[tuple], list[str]]:
         """(sentences with source, stages used) for a question, escalating feeds → shelf → messenger."""
         rows: list[tuple[str, dict]] = []
         used = []
@@ -158,10 +159,10 @@ class Atlas:
             except EgressError:
                 docs = []
             from engramm.web.shelf import best_sentences
-            got = best_sentences(question, docs, n=14)
-            for _, text, d in got:
+            got = best_sentences(question, docs, n=14, context=True)
+            for _, text, d, prev in got:
                 rows.append((text, {"kind": "shelf", "source": "wikipedia", "key": d["t"], "title": d["t"],
-                                    "as_of": d.get("d", "")}))
+                                    "as_of": d.get("d", "")}, prev))
             if got:
                 used.append("shelf")
         if not used and self.egress.enabled("messenger"):
@@ -194,8 +195,9 @@ class Atlas:
                 docs.append({"t": title, "x": text, "url": url, "host": host})
         out = []
         today = dt.date.today().isoformat()
-        for _, text, d in best_sentences(question, docs, n=14):
-            out.append((text, {"kind": "web", "source": d["host"], "key": d["url"], "title": d["t"], "as_of": today}))
+        for _, text, d, prev in best_sentences(question, docs, n=14, context=True):
+            out.append((text, {"kind": "web", "source": d["host"], "key": d["url"], "title": d["t"], "as_of": today},
+                        prev))
         return out
 
     def status(self) -> dict:
@@ -206,6 +208,18 @@ class Atlas:
                 "feed_items": self.feeds.count() if self.feeds else 0,
                 "feed_state": self.feeds.state() if self.feeds else {},
                 "shelf": getattr(self, "shelf_info", None), "wayfinder": self.wayfinder is not None}
+
+
+CALIB_PATH = Path(__file__).resolve().parent / "atlas_calib.json"
+
+
+def load_calib(path: Path = CALIB_PATH):
+    """(confidence model, θ) for answers from fetched text (experiments/atlas_calib.py), or None."""
+    if not path.exists():
+        return None
+    from engramm.chat.calib import ConfCalibrator
+    d = json.loads(path.read_text(encoding="utf-8"))
+    return ConfCalibrator(d["w"], d.get("r0_bins") or (6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.5)), float(d["theta"])
 
 
 _SPLIT = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9\"“(])")

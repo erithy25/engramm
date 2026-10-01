@@ -4,7 +4,7 @@ CC BY-SA 4.0) into JSON lines for experiments/shelf_build.py.
 
 Each shard (~630 MB bz2) is streamed and decompressed on the fly, in parallel; only articles
 ("page_type": "primary", namespace 0, not disambiguation pages) with at least ``--min-chars`` of
-text are kept, as {"t": title, "s": "wiki", "x": text, "d": last edit (YYYY-MM-DD), "r": up to 8
+text (without the trailing reference list, engramm/web/clean.py) are kept, as {"t": title, "s": "wiki", "x": text, "d": last edit (YYYY-MM-DD), "r": up to 8
 redirect titles}.
 
     python experiments/cirrus_extract.py --date 20260927 --out /mnt/cirrus --workers 4
@@ -22,6 +22,9 @@ import time
 import urllib.request
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from engramm.web.clean import strip_references  # noqa: E402
 
 BASE = "https://dumps.wikimedia.org/other/cirrus_search_index/{date}/index_name%3Denwiki_content/"
 UA = "ENGRAMM-research/0.1 (offline assistant knowledge build; github.com/erithy25/engramm)"
@@ -55,7 +58,7 @@ def _records(stream, out_path: Path, min_chars: int) -> tuple[int, int]:
                     continue
                 if o.get("page_type") != "primary" or o.get("namespace") != 0:
                     continue
-                text = (o.get("text") or "").strip()
+                text = strip_references(o.get("text") or "")
                 if len(text) < min_chars:
                     continue
                 cats = o.get("category") or []

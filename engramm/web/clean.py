@@ -26,6 +26,11 @@ _BAD_CLASS = re.compile(r"(?:^|[\s_-])(?:nav|menu|footer|header|sidebar|cookie|b
                         r"related|comment|subscribe|newsletter|breadcrumb|popup|modal)(?:$|[\s_-])", re.I)
 
 
+# footnote and edit markers ("[12]", "[a]", "[citation needed]", "[edit]") are not text
+_MARKERS = re.compile(r"\s*\[(?:\d{1,4}|[a-z]|note \d+|nb \d+|citation needed|clarification needed|edit|"
+                      r"when\?|who\?|according to whom\?|dubious – discuss|failed verification)\]", re.I)
+
+
 class _Blocks(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
@@ -103,7 +108,7 @@ def paragraphs(page: str, min_len: int = 60, max_link_density: float = 0.3, min_
     p._flush()
     out = []
     for text, links, tag in p.blocks:
-        text = html.unescape(text).strip()
+        text = _MARKERS.sub("", html.unescape(text)).strip()
         if tag in ("h1", "h2", "h3") and 15 <= len(text) <= 150 and links / max(1, len(text)) < 0.5:
             out.append(text)                # a heading keeps the reading order
             continue
@@ -130,3 +135,50 @@ def paragraphs(page: str, min_len: int = 60, max_link_density: float = 0.3, min_
 def page_title(page: str) -> str:
     m = re.search(r"<title[^>]*>(.*?)</title>", page, re.I | re.S)
     return " ".join(html.unescape(m.group(1)).split()) if m else ""
+
+
+# ---------------------------------------------------------------------------
+# the reference zone at the end of a Wikipedia article's plain text
+# ---------------------------------------------------------------------------
+
+SENTENCE = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9\"“(])")
+_REF = re.compile(
+    r"\bRetrieved\b|\bArchived from\b|\(PDF\)|\bISBN\b|\bISSN\b|\bOCLC\b|\bdoi:|\bS2CID\b|\bPMID\b|"
+    r"^\W*[\"“][^\"”]{2,300}[\"”]\.?\s*(?:\([^)]{1,40}\)\.?)?\s*$|"      # "Title". / "Title" (in German).
+    r"^\(?\d{4}\)?\.?$|"                                                     # (1863).
+    r"^[A-Z][\w'’-]+, [A-Z][\w.'’ -]{0,40}(?:\(\d{4}|;|\.$)|"               # King, B.B.; …  Nanos, Nik (2017)
+    r"\b(?:pp?|vol|ed|eds)\.\s*\d|"                                          # p. 10, vol. 3
+    r"\.(?:com|org|net|gov|edu|int|co\.uk|ac\.uk|de|fr|ca|au|in|io)\.?\s*$|"  # ends in a site name
+    r"\bWikimedia Commons has media\b", re.I)
+
+
+def is_reference(sentence: str) -> bool:
+    """A line of a reference list, bibliography or link list (not a sentence of the article)."""
+    s = sentence.strip()
+    if _REF.search(s):
+        return True
+    words = s.split()
+    return len(words) <= 3 and not any(w.islower() and w.isalpha() and len(w) > 3 for w in words)
+
+
+def strip_references(text: str, keep: int = 3, window: int = 8, need: int = 5) -> str:
+    """The article without its trailing reference zone: the text is cut where, from a sentence on,
+    at least ``need`` of the next ``window`` sentences look like references. The first ``keep``
+    sentences always stay."""
+    sents = SENTENCE.split(text.strip())
+    if len(sents) <= keep + need:
+        return text.strip()
+    # walk back from the end (the zone is at the end); stop after a long run of real sentences
+    flags: dict[int, bool] = {}
+    flag = lambda j: flags[j] if j in flags else flags.setdefault(j, is_reference(sents[j]))   # noqa: E731
+    cut, plain = None, 0
+    for i in range(len(sents) - 1, keep - 1, -1):
+        if flag(i):
+            plain = 0
+            if sum(flag(j) for j in range(i, min(i + window, len(sents)))) >= min(need, len(sents) - i):
+                cut = i
+        else:
+            plain += 1
+            if plain >= 2 * window:
+                break
+    return " ".join(sents[:cut]).strip() if cut is not None else text.strip()

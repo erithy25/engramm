@@ -23,6 +23,7 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import re
+from collections import Counter
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -850,15 +851,18 @@ class Assistant:
         if not rows:
             return None
         ctx = dict(bot.context)
-        bot.extra_rows = rows
+        bot.extra_rows, bot.extra_calib = rows, getattr(self.atlas, "calib", None)
         try:
             rep = bot._answer(q)
         finally:
-            bot.extra_rows = []
+            bot.extra_rows, bot.extra_calib = [], None
         src = rep.source or {}
         if rep.kind != "answer" or src.get("kind") not in ("shelf", "feed", "web"):
             bot.context = ctx
             return None
+        full = _full_name(rep.answer, [r[0] for r in rows if r[1].get("key") == src.get("key")])
+        if full != rep.answer:                   # "Vickers" → "Diana Vickers" (named so in the same article)
+            rep.answer = full
         sent = answer_sentence(q, rep.answer, _atype(q)) or f"{rep.answer}."
         when = src.get("as_of")
         where = {"shelf": "Wikipedia", "feed": src.get("source", "a news feed"), "web": src.get("source", "the web")}[src["kind"]]
@@ -876,7 +880,9 @@ class Assistant:
         try:
             if self.atlas.shelf is not None and self.egress_on("shelf"):
                 docs = self.atlas.shelf.documents(topic, k=1, seed=self.atlas.seed, prefer_title=topic)
-                if docs and _name_match(topic, docs[0]["t"]):
+                ix = self.atlas.shelf.index
+                named = ix.lookup(topic)                 # a title or redirect ("xHCI" → the full name)
+                if docs and (_name_match(topic, docs[0]["t"]) or (named is not None and ix.title(named) == docs[0]["t"])):
                     d = docs[0]
                     from engramm.web.shelf import _SENT
                     sents = [x.strip() for x in _SENT.split(d["x"].split("\n")[0]) if x.strip()][:3]
@@ -1404,10 +1410,40 @@ def resolve_statement(text: str) -> str:
 _CAPS_SPAN = re.compile(r"\b[A-Z][\w'’.\-]*(?:\s+(?:of|the|and|de|von|van|da|del|la|le)?\s*[A-Z][\w'’.\-]*)*")
 
 
+def _full_name(answer: str | None, texts: list[str]) -> str | None:
+    """A one-word name answer in its longer form from the same article ("Vickers" → "Diana
+    Vickers"), when exactly one longer form occurs there."""
+    if not answer or " " in answer.strip() or not answer[:1].isupper():
+        return answer
+    forms = Counter(m.group(1) for t in texts for m in re.finditer(
+        r"\b((?:[A-Z][\w'’.-]+ ){1,2})" + re.escape(answer) + r"\b", t))
+    forms = Counter({f.strip(): n for f, n in forms.items()
+                     if not any(w.lower() in _FULLNAME_STOP for w in f.split())})
+    if len(forms) == 1:
+        return f"{next(iter(forms))} {answer}"
+    return answer
+
+
+_FULLNAME_STOP = frozenset("the a an in on at of by and but when after before during since while this that these "
+                           "his her their its singer songwriter band album president king queen sir lady lord mr mrs ms "
+                           "dr saint st".split())
+
+
 def _name_match(asked: str, title: str) -> bool:
+    """The article is about what was asked: the same name (a leading article, a "(…)" qualifier
+    and a ", place" part aside) or one in a row of its words with at most one word more on
+    either side — never just a title containing the letters ("thai" is not "Thailand")."""
     a = re.sub(r"^(?:the|a|an)\s+", "", asked.strip().lower())
-    t = re.sub(r"\s*\([^)]*\)$", "", title.strip().lower())
-    return a == t or a in t.split(", ")[0] or t in a
+    t = re.sub(r"^(?:the|a|an)\s+", "", re.sub(r"\s*\([^)]*\)$", "", title.strip().lower()))
+    if not a or not t:
+        return False
+    if a == t or a == t.split(", ")[0]:
+        return True
+    aw, tw = re.findall(r"[\w'’-]+", a), re.findall(r"[\w'’-]+", t)
+    short, long_ = (aw, tw) if len(aw) <= len(tw) else (tw, aw)
+    if not short or len(long_) - len(short) > 1 or (short is aw and len(aw) == 1):
+        return False                             # one asked word must be the whole name ("Tower" ≠ "Eiffel Tower")
+    return any(long_[i:i + len(short)] == short for i in range(len(long_) - len(short) + 1))
 
 
 _ANOTHER = re.compile(r"^(?:(?:ok|okay|yes|yeah|sure|haha|lol|nice|cool|great|wow)[ ,!]+)?(?:another(?: one)?|one more"

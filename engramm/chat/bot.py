@@ -212,6 +212,11 @@ def source_id(text: str) -> str:
 # the bot
 # ---------------------------------------------------------------------------
 
+_WH_TERMS = frozenset("when where who whom whose what which why how".split())
+# the life span after the name in an article's first sentence (Wikipedia's convention)
+_LIFE_SPAN = re.compile(r"\((?:[^()]*?[;,]\s*)?(?:born\s+)?(?:c\.\s*)?[^()]*?\b\d{3,4}\s*[–—-]\s*[^()]*?\b\d{3,4}\)")
+
+
 class ChatBot:
     def __init__(self, memory, corpus, config: BotConfig = BotConfig(), cap_ratio: dict | None = None,
                  retriever: Retriever | None = None):
@@ -226,7 +231,9 @@ class ChatBot:
         self._user_sents: list[tuple[str, str, np.ndarray]] = []
         # Atlas (engramm/web): sentences fetched for this one question (shelf, feeds, web), each with
         # its source; empty unless a channel is on — then the look-up is exactly the v3 one
-        self.extra_rows: list[tuple[str, dict]] = []
+        self.extra_rows: list[tuple] = []
+        # (confidence model, θ) for answers whose sentence came from a network channel (Atlas)
+        self.extra_calib = None
         self.context = {"answer": None, "atype": None, "mention": None, "last_learned": None}
         self._name_memo: dict[str, bool] = {}
         self.last_rows: list = []
@@ -723,29 +730,85 @@ class ChatBot:
         return self._score_sents(query, [(sid, text, toks, {"kind": "user", "source": sid})
                                          for sid, text, toks in self._user_sents])
 
-    def _extra_candidates(self, query) -> list[tuple[float, str, str, dict]]:
-        """Atlas sentences (shelf, feeds, web) scored like taught sentences, with their article as
-        document context: the article title is implied in each of its sentences ("The bridge was
-        designed by …" in the article "Zorblax Bridge"), as the key words are for local documents."""
+    def _extra_candidates(self, query) -> list[tuple[float, str, str, dict, np.ndarray]]:
+        """Atlas sentences (shelf, feeds, web) with the same features local sentences get, so the
+        ranking weights and the confidence model read them alike: coverage, phrases, proximity
+        and type match of the sentence; the article as document (its title as key words, the
+        question terms anywhere in the fetched part as document coverage); question terms the
+        sentence lacks but the two sentences before it hold as context coverage. The article's title
+        counts as said in each of its sentences ("It was opened in 1931" in the article "Zorblax
+        Bridge" covers "When was the Zorblax Bridge opened?"), so the other words decide."""
         if not self.extra_rows:
             return []
+        if len(query.terms) == 0:
+            return []
         enc = lambda t: np.asarray(self.c.tok.encode(" " + t), dtype=np.int64)   # noqa: E731
+        terms_of = lambda t: [int(x) for x in self.r.term_of[enc(t)] if x >= 0]   # noqa: E731
+        # question words are no evidence in a fetched sentence ("… in Philadelphia when WHAT-FM …")
+        qw = {int(t): float(w) for t, w, st in zip(query.terms, query.idf, query.strings) if st not in _WH_TERMS}
+        if not qw:
+            return []
+        isum = query.idf_sum or 1.0
+        bigrams = {(int(a), int(b)): float(w) for (a, b), w in query.bigrams.items()}
+        life = set(terms_of("born died"))
+        qwords = set(query.q.words)
+        wv = self.cfg.weights.vector()
+        F = {n: i for i, n in enumerate(FEATURES)}
+        rows = []
         title_terms: dict[str, set[int]] = {}
         doc_terms: dict[str, set[int]] = {}
-        items = []
-        for text, src in self.extra_rows:
+        for row in self.extra_rows:
+            text, src = row[0], row[1]
+            ctx = row[2] if len(row) > 2 else ""
             key = str(src.get("key") or "")
             if key not in title_terms:
-                tt = self.r.term_of[enc(str(src.get("title") or ""))]
-                title_terms[key] = set(int(x) for x in tt if x >= 0)
+                title_terms[key] = set(terms_of(str(src.get("title") or "")))
                 doc_terms[key] = set(title_terms[key])
             toks = enc(text)
-            doc_terms[key] |= set(int(x) for x in self.r.term_of[toks] if x >= 0)
-            items.append((key, text, toks, src))
-        return self._score_sents(query, items, title_terms, doc_terms)
+            terms = [int(x) for x in self.r.term_of[toks] if x >= 0]
+            doc_terms[key] |= set(terms)
+            rows.append((text, src, ctx, key, toks, terms))
+        out = []
+        for text, src, ctx, key, toks, terms in rows:
+            own = set(terms) & qw.keys()
+            if not ctx and src.get("kind") in ("shelf", "web") and _LIFE_SPAN.search(text):
+                own |= life & qw.keys()           # "X (February 8, 1899 – June 16, 1970) was …": born, died
+            present = own | (title_terms[key] & qw.keys())     # the article's subject is implied in each sentence
+            if not present:
+                continue
+            n_terms = len(terms)
+            norm = K1 * (1.0 - B + B * n_terms / self.r.avglen)
+            bm = sum(qw[t] * (K1 + 1.0) / (1.0 + norm) for t in present)
+            phr, seen = 0.0, set()
+            for a, b in zip(terms, terms[1:]):
+                if a != b and (a, b) in bigrams and (a, b) not in seen:
+                    seen.add((a, b))
+                    phr += bigrams[(a, b)]
+            pos = [i for i, t in enumerate(terms) if t in own]
+            prox = len(set(terms[i] for i in pos)) / (pos[-1] - pos[0] + 1) if len(set(terms[i] for i in pos)) >= 2 \
+                else 0.0
+            around = set(terms_of(ctx)) if ctx else set()
+            content = toks[self.r.term_of[toks] >= 0]
+            f = np.zeros(len(FEATURES))
+            f[F["bm25"]] = bm
+            f[F["cov"]] = sum(qw[t] for t in present) / isum
+            f[F["soft"]] = _soft_match(query.toks, query.idf, content, self.c.eng) if len(content) else 0.0
+            f[F["pcov"]] = sum(w for t, w in qw.items() if t not in present and t in around) / isum
+            f[F["kcov"]] = sum(w for t, w in qw.items() if t in title_terms[key]) / isum
+            f[F["dcov"]] = f[F["dfull"]] = sum(w for t, w in qw.items() if t in doc_terms[key]) / isum
+            f[F["phr"]] = phr / isum
+            f[F["prox"]] = prox
+            f[F["wiki"]] = float(src.get("kind") == "shelf")
+            if query.q.atype != OTHER:
+                f[F["tmatch"]] = float(any(type_matches(query.q.atype, sp)
+                                           and not ({w.lower() for w in words(sp.text)} <= qwords)
+                                           for sp in spans(text, self.is_name_initial)))
+            f[F["isq"]] = float(text.rstrip('"”’\') ').endswith("?"))
+            f[F["short"]] = float(len(words(text)) < 6)
+            out.append((bm + isum * float(f @ wv), key, text, src, f))
+        return out
 
-    def _score_sents(self, query, items, title_terms: dict | None = None,
-                     doc_terms: dict | None = None) -> list[tuple[float, str, str, dict]]:
+    def _score_sents(self, query, items) -> list[tuple[float, str, str, dict]]:
         out = []
         if not items or len(query.terms) == 0:
             return out
@@ -755,8 +818,7 @@ class ChatBot:
         for sid, text, toks, src in items:
             tm = self.r.term_of[toks]
             present = set(int(x) for x in tm if x >= 0)
-            title = (title_terms or {}).get(sid, set())
-            got = [qset[t] for t in present | title if t in qset]
+            got = [qset[t] for t in present if t in qset]
             if not got:
                 continue
             n_terms = int((tm >= 0).sum())
@@ -769,12 +831,7 @@ class ChatBot:
                            ) if query.q.atype != OTHER else 0.0
             f = np.zeros(len(FEATURES))
             F = {n: i for i, n in enumerate(FEATURES)}
-            dcov = cov
-            if doc_terms is not None and sid in doc_terms:
-                dcov = sum(w for t, w in qset.items() if t in doc_terms[sid]) / isum
-                f[F["kcov"]] = sum(w for t, w in qset.items() if t in title) / isum
-                f[F["wiki"]] = float((src or {}).get("kind") == "shelf")
-            f[F["bm25"]], f[F["cov"]], f[F["soft"]], f[F["dcov"]], f[F["dfull"]] = bm, cov, soft, dcov, dcov
+            f[F["bm25"]], f[F["cov"]], f[F["soft"]], f[F["dcov"]], f[F["dfull"]] = bm, cov, soft, cov, cov
             f[F["tmatch"]] = tmatch
             f[F["short"]] = float(len(words(text)) < 6)
             score = bm + isum * float(f @ wv)
@@ -796,8 +853,10 @@ class ChatBot:
                 sent_feats[int(cands.ids[k])] = cands.feats[k]
         for score, sid, text, src in self._user_candidates(query):
             rows.append((score, 0, -1, text, src))
-        for score, sid, text, src in self._extra_candidates(query):
+        extra_feats = {}
+        for score, sid, text, src, f in self._extra_candidates(query):
             rows.append((score, 0, -2, text, src))
+            extra_feats[text] = f
         if not rows:
             return self._finish(msg, q, qa, "unknown", None, None, None, None, 0.0, "lookup",
                                 text="I don't know — I found nothing about that.")
@@ -816,16 +875,19 @@ class ChatBot:
             return self._finish(msg, q, qa, "unknown", None, None, best[3], src, 0.0, "lookup",
                                 text="I don't know. The closest I found is below.")
         row = top[x.sentence]
+        theta = self.cfg.theta
         if self.calib is not None and not search_box and x.info is not None:
             from engramm.chat.calib import features as calib_features
-            feats = calib_features(x.info, x.text, qa.atype, qa.wh, len(qa.content),
-                                   sent_feats.get(row[2]) if row[4] is None else None, x.sentence,
-                                   self.calib.r0_bins)
-            x = dataclasses.replace(x, confidence=self.calib.score(feats))
+            cal = self.calib
+            if row[2] == -2 and self.extra_calib is not None:   # a shelf/feed/web sentence: its own model
+                cal, theta = self.extra_calib
+            sent = sent_feats.get(row[2]) if row[4] is None else extra_feats.get(row[3]) if row[2] == -2 else None
+            feats = calib_features(x.info, x.text, qa.atype, qa.wh, len(qa.content), sent, x.sentence, cal.r0_bins)
+            x = dataclasses.replace(x, confidence=cal.score(feats))
         # the sentence ENGRAMM presents as its best one is the one the answer comes from
         self.last_rows = [row] + [r for r in top if r is not row]
         src = row[4] or self.c.source(row[2])
-        ok = x.confidence >= self.cfg.theta
+        ok = x.confidence >= theta
         missing = self._focus_missing(q, row) if self.cfg.focus_gate else []
         alts = [{"text": r[3], "source": r[4] or self.c.source(r[2])} for r in top[:4] if r is not row][:3]
         if missing:

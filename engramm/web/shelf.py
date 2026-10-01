@@ -288,6 +288,8 @@ class ShelfClient:
         hits = self.index.search(query, k=k, prefer_title=prefer_title)
         if not hits:
             return []
+        # only articles about as relevant as the best one: a weak match only adds noise
+        hits = [h for h in hits if h[1] >= MIN_RELATIVE * hits[0][1]]
         want = {doc: self.index.bucket_for(doc) for doc, _ in hits}
         buckets = self.fetch_buckets(list(want.values()), seed)
         out = []
@@ -308,43 +310,55 @@ class ShelfClient:
 # ---------------------------------------------------------------------------
 
 _SENT = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9\"“(])")
+MIN_RELATIVE = 0.4           # a fetched article scores at least this share of the best one
 
 
-def best_sentences(query: str, docs: list[dict], n: int = 12) -> list[tuple[float, str, dict]]:
+def best_sentences(query: str, docs: list[dict], n: int = 12, lead: int = 2,
+                   context: bool = False) -> list[tuple]:
     """The sentences of the fetched articles that share the most (idf-weighted) words with the
-    question, best first: (score, sentence, document)."""
+    question, best first: (score, sentence, document) — with ``context`` also the two sentences
+    before it. The first ``lead`` sentences of each article always come along (they define the
+    subject: "Alonzo "Lonnie" Johnson (February 8, 1899 – June 16, 1970) was …"); reference lists
+    and bibliography lines never do."""
+    from engramm.web.clean import SENTENCE, is_reference, strip_references
     qt = set(tokens(query))
     if not qt:
         return []
-    sents = []
+    sents: list[tuple[str, dict, int, str]] = []
     for d in docs:
-        for para in d.get("x", "").split("\n"):
-            for s in _SENT.split(para.strip()):
+        pos, prev = 0, []
+        for para in strip_references(d.get("x", "")).split("\n"):
+            for s in SENTENCE.split(para.strip()):
                 s = s.strip()
-                if 25 <= len(s) <= 600:
-                    sents.append((s, d))
+                if 25 <= len(s) <= 600 and not is_reference(s):
+                    sents.append((s, d, pos, " ".join(prev[-2:])))
+                    prev.append(s)
+                    pos += 1
     if not sents:
         return []
     df: dict[str, int] = {}
     toks = []
-    for s, _ in sents:
+    for s, *_ in sents:
         ts = set(tokens(s))
         toks.append(ts)
         for t in ts & qt:
             df[t] = df.get(t, 0) + 1
     N = len(sents)
-    out = []
-    for (s, d), ts in zip(sents, toks):
+    scored, leads = [], []
+    for (s, d, pos, prev), ts in zip(sents, toks):
         hit = ts & qt
-        if not hit:
-            continue
         # the article's own title words are implied in every sentence of it ("it is 330 metres tall"):
         # they count little, the other question words decide
         title = set(tokens(d.get("t", "")))
         score = sum(math.log(1 + N / df[t]) * (0.3 if t in title else 1.0) for t in hit) / math.sqrt(1 + 0.02 * len(ts))
-        out.append((score, s, d))
-    out.sort(key=lambda x: -x[0])
-    return out[:n]
+        row = (score, s, d, prev) if context else (score, s, d)
+        if pos < lead:
+            leads.append(row)
+        elif hit:
+            scored.append(row)
+    scored.sort(key=lambda x: -x[0])
+    out = sorted(leads + scored[:max(0, n - len(leads))], key=lambda x: -x[0])
+    return out
 
 
 def now_iso() -> str:

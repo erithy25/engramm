@@ -25,6 +25,10 @@ from tests.test_web_shelf import _Range, _docs
 
 CLOCK = lambda: dt.datetime(2026, 10, 1, 18, 30)          # noqa: E731
 
+PERSON = {"t": "Vorna Kell (musician)", "s": "test", "d": "2026-09-21",
+          "x": "Vorna \"Vee\" Kell (March 3, 1911 – May 9, 1980) was a Quorvian singer and violinist. "
+               "Kell grew up in Velmar and played in local bands. In 1959 she was touring the coast when a radio "
+               "host recorded her songs. Kell retired to Ostrin and taught music there."}
 ARTICLE = {"t": "Zorblax Bridge", "s": "test", "d": "2026-09-20",
            "x": "The Zorblax Bridge is a suspension bridge over the Velm river in Quorvia. It was opened in 1931 "
                 "after six years of construction. The bridge was designed by the engineer Mirela Tosk. Its main "
@@ -35,7 +39,7 @@ ARTICLE = {"t": "Zorblax Bridge", "s": "test", "d": "2026-09-20",
 def shelf_pack(tmp_path_factory):
     root = tmp_path_factory.mktemp("atlas")
     src = root / "docs.jsonl"
-    src.write_text("\n".join(json.dumps(d) for d in _docs(200) + [ARTICLE]), encoding="utf-8")
+    src.write_text("\n".join(json.dumps(d) for d in _docs(200) + [ARTICLE, PERSON]), encoding="utf-8")
     out = root / "pack"
     build([src], [], out, bucket_kb=64, sample=1000, key_terms=8, workers=2)
     srv = ThreadingHTTPServer(("127.0.0.1", 0), partial(_Range, directory=str(out)))
@@ -138,3 +142,11 @@ def test_news_from_the_feed_index(atlas_chat):
     assert "Quorvia opens new rail line" in r.text and "Storm" not in r.text
     assert r.source["kind"] == "feed" and r.source["key"] == "https://www.bbc.co.uk/news/1"
     assert eg.log.tail(100) == []                      # answering news sends nothing
+
+
+def test_life_span_in_the_first_sentence_answers_born(atlas_chat):
+    a, atlas, eg = atlas_chat
+    eg.set_channel("shelf", enabled=True)
+    r = _ask(a, DialogState("b"), "When was Vorna Kell born?")
+    # not "1959" from "… touring the coast when a radio host …": the life span after the name counts
+    assert r.kind == "answer" and "1911" in r.answer, r.text

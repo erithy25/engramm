@@ -84,7 +84,8 @@ class Speller:
 
     def fix(self, message: str) -> str:
         """The message with typos fixed and, if it was written in capitals, normal letter case.
-        Words with a capital letter inside a sentence (names) are left alone."""
+        Words with a capital letter inside a sentence (names) and words with capitals inside
+        (abbreviations such as "xHCI", "iPhone") are left alone."""
         letters = [c for c in message if c.isalpha()]
         shouting = len(letters) >= 4 and sum(c.isupper() for c in letters) / len(letters) > 0.8
         text = message.lower() if shouting else message
@@ -94,6 +95,8 @@ class Speller:
                 word = tok
                 if shouting:
                     word = self.truecase_word(self.fix_word(tok), first)
+                elif any(c.isupper() for c in tok[1:]):
+                    pass                       # xHCI, iPhone, eBay, NASA: a name or an abbreviation as written
                 elif not (tok[:1].isupper() and not first):
                     fixed = self.fix_word(tok)
                     word = fixed[:1].upper() + fixed[1:] if tok[:1].isupper() else fixed
