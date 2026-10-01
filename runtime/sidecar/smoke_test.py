@@ -19,6 +19,10 @@ from pathlib import Path
 def main() -> int:
     dist = Path(sys.argv[1])
     exe = dist / ("engramm-server.exe" if sys.platform == "win32" else "engramm-server")
+    # data files the conversation layer needs at run time (PyInstaller puts them under _internal/)
+    for name in ("conv_bank.json", "letters.json"):
+        assert any(dist.rglob(name)), f"{name} missing from the frozen server"
+
     with tempfile.TemporaryDirectory() as tmp:
         t0 = time.time()
         p = subprocess.Popen([str(exe), "--desktop", "--port", "0", "--pack", str(Path(tmp) / "nopack"),

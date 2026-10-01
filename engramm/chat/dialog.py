@@ -30,10 +30,12 @@ from pathlib import Path
 from engramm.chat.about import About, AboutFinder
 from engramm.chat.acts import Unit, classify
 from engramm.chat.bank import Bank, choose, load_bank, normalise
-from engramm.chat.bot import CHAT_PREFIX, Reply, source_id
+from engramm.chat.bot import CHAT_PREFIX, Reply, message_type, source_id
 from engramm.chat.facts import USER, facts_from_text
 from engramm.chat.german import is_german, understand
 from engramm.chat.realize import answer_sentence, article, personal_sentence, to_second_person
+from engramm.chat.smart import (bare_followup, experience, gibberish, is_discourse, offer_in, rebuild_question,
+                                short_answer, swap_person)
 
 FRESH_CTX = {"answer": None, "atype": None, "mention": None, "last_learned": None}
 RECENT = 12                                  # replies remembered to avoid repeats
@@ -70,6 +72,17 @@ class DialogState:
     rps: bool = False                         # waiting for rock / paper / scissors
     last_draft: dict | None = None            # the last written draft (WritingRequest), for edits
     draft_turn: int = -1
+    offer: dict | None = None                 # what ENGRAMM's last reply offered ("Want a joke?"), for "yes"
+    topic: dict | None = None                 # the thing being talked about: {"title", "name", "type", "turn"}
+    last_q: str | None = None                 # the last question (pronouns resolved), for "where?" / "and X?"
+    last_q_named: str | None = None           # the last question that names something, for "and X?"
+    last_exp: dict | None = None              # the last moment you told ("my boss yelled at me"), for "what should I do?"
+    last_list: dict | None = None             # the last suggestions, for "tell me about the second one"
+    game: dict | None = None                  # a quiz question or riddle waiting for your answer
+    game_score: tuple | None = None
+    gib: int = 0                              # replies to gibberish in a row
+    last_message: str = ""
+    last_kind: str = ""
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -116,6 +129,8 @@ class Assistant:
         from engramm.chat.events import EventBook
         mem_path = getattr(bot.memory, "path", None)
         self.events = EventBook(Path(mem_path).with_suffix(".events.json") if mem_path else None)
+        from engramm.chat.everyday import Everyday
+        self.everyday = Everyday(self)
 
     # -- helpers ------------------------------------------------------------------------------
 
@@ -195,10 +210,41 @@ class Assistant:
             bot.context = dict(FRESH_CTX)
         rep.message = message
         rep.seconds = time.time() - t0
+        if rep.text and rep.text == st.last_reply and normalise(message) != normalise(st.last_message or ""):
+            if rep.kind == "unknown":
+                rep.text = self._pick(st, "daily:unknown_again", self.bank.daily["unknown_again"])
+        st.last_message = message
+        st.last_kind = rep.kind
+        self._track(st, rep, msg)
+        if rep.via != "gibberish":
+            st.gib = 0
         st.turn += 1
         st.last_reply = rep.text
         st.recent = (st.recent + [rep.text])[-RECENT:]
         return rep
+
+    def _track(self, st: DialogState, rep: Reply, msg: str) -> None:
+        """Remember what the conversation is about: the topic (for "tell me more", "is it good?",
+        pronouns) and the last question (for "where?", "and Germany?"), and what the reply offers."""
+        src = rep.source or {}
+        if rep.via == "kb" and src.get("key"):
+            title = src["key"]
+            st.topic = {"title": title, "name": re.sub(r"\s*\([^)]*\)$", "", title), "turn": st.turn}
+        elif rep.via in ("about", "facts-bank") and src.get("key"):
+            st.topic = {"title": src["key"], "name": re.sub(r"\s*\([^)]*\)$", "", src["key"]), "turn": st.turn}
+        elif rep.kind == "answer" and rep.via == "lookup" and rep.answer and rep.answer[:1].isupper():
+            st.topic = {"title": rep.answer, "name": rep.answer, "turn": st.turn}
+        if rep.kind in ("answer", "unknown") and rep.via in ("kb", "lookup", "about", "facts", "memory") \
+                and message_type(rep.resolved or msg) == "question":
+            st.last_q = rep.resolved or msg
+            if re.search(r"\s[A-Z]", st.last_q):
+                st.last_q_named = st.last_q
+        if rep.kind == "unknown" and rep.via == "lookup":
+            # an unanswered question must not leave an old name behind for "he" or "it"
+            st.ctx.update({"answer": None, "atype": None})
+        if st.offer is None or st.offer.get("turn") != st.turn:
+            kind = offer_in(rep.text)
+            st.offer = {"kind": kind, "turn": st.turn} if kind else None
 
     def _turn(self, st: DialogState, msg: str) -> Reply:
         if not msg:
@@ -206,6 +252,37 @@ class Assistant:
         de = self.bank.de
         if de and is_german(msg, de) and self.bank.safety_rule(normalise(msg, fillers=False)) is None:
             return self._german(st, msg)
+        norm = normalise(msg)
+        played = self.everyday.game_answer(st, msg, norm)          # a quiz question or riddle waiting
+        if played is not None:
+            return played
+        offer = st.offer
+        st.offer = None
+        if offer and offer.get("turn") == st.turn - 1:
+            ans = short_answer(norm)
+            if ans is None and offer["kind"] in ("joke_or_fact", "joke", "fact") and \
+                    re.fullmatch(r"(?:(?:a|an|the|one|ok|okay|sure|yes|yeah)\s+)*(?:fun |interesting )?(?:joke|fact)"
+                                 r"(?:\s+please)?", norm):
+                ans = "yes"
+            if ans is not None:
+                took = self.everyday.take_offer(st, msg, norm, offer, ans)
+                if took is not None:
+                    return took
+        le = st.last_exp
+        if le and le.get("turn") == st.turn - 1 and st.last_reply.rstrip().endswith("?"):
+            ans = short_answer(norm)
+            if ans == "yes":
+                return Reply(msg, "smalltalk", self._pick(st, "daily:offer:listen", self.bank.daily["offers"]["listen"]),
+                             via="empathy")
+            if ans == "no":
+                st.offer = {"kind": "joke_or_fact", "turn": st.turn}
+                return Reply(msg, "smalltalk", self._pick(st, "daily:moment:no", self.bank.daily["moment_no"]),
+                             via="empathy")
+        wh = bare_followup(msg)
+        if wh and st.last_q:
+            rebuilt = rebuild_question(st.last_q, wh)
+            if rebuilt:
+                msg = self._spelled = rebuilt    # "where?" → "Where was William Shakespeare born?"
         expanded = self._ellipsis(st, msg)
         if expanded is not None:
             msg = self._spelled = expanded      # shown as "I read this as …"
@@ -229,6 +306,17 @@ class Assistant:
             filled = self._fill_pending(st, pending, msg, units)
             if filled is not None:
                 return filled
+        known = self.speller.known if self.speller is not None else None
+        if gibberish(msg, known) and not any(u.act in ("intent", "tool", "safety") and u.intent != "gibberish"
+                                             for u in units):
+            st.gib += 1
+            key = "first" if st.gib <= 1 else "again"
+            return Reply(msg, "unknown", self._pick(st, f"daily:gib:{key}", self.bank.daily["gibberish"][key]),
+                         via="gibberish")
+        if len(units) == 1 and units[0].act not in ("safety", "forget", "remember", "tool", "writing"):
+            req = self.everyday.request(st, msg, normalise(msg))
+            if req is not None:
+                return req
         if st.last_draft is not None and st.turn - st.draft_turn <= 4:
             from engramm.chat.writing import edit_command, writing_request
             cmd = edit_command(msg) if writing_request(msg) is None else None
@@ -252,6 +340,7 @@ class Assistant:
         parts: list[_Part] = []
         main: Reply | None = None
         learn: list[Unit] = []
+        quiet: list[Unit] = []
         content = any(u.act not in ("intent", "empty") or (u.intent and self._is_content_intent(u.intent))
                       for u in units)
         for u in units:
@@ -260,14 +349,34 @@ class Assistant:
                 if r is not None and main is None:
                     main = r
             elif u.act == "statement":
-                if self._worth_learning(u.text):
+                exp = experience(u.norm)
+                if is_discourse(u.norm):
+                    parts.append(_Part("main", self._discourse(st, u)))
+                    main = main or Reply(msg, "smalltalk", "", via="smalltalk")
+                elif exp is not None:
+                    parts.append(_Part("prefix", self.everyday.moment(st, exp, u.text)))
+                    if self._has_fact(u.text):
+                        quiet.append(u)
+                    main = main or Reply(msg, "empathy", "", via="empathy")
+                elif _PLAN.search(u.norm):
+                    parts.append(_Part("main", self._plan(st, u)))
+                    main = main or Reply(msg, "smalltalk", "", via="smalltalk")
+                elif self._worth_learning(u.text):
                     learn.append(u)
                 else:
                     self._chitchat(st, u, parts, alone=len(units) == 1)
             elif u.act == "feeling":
-                parts.append(_Part("prefix", self._feeling(st, u)))
-                if self._feeling_has_fact(u.text):
-                    learn.append(u)
+                exp = experience(u.norm)
+                if exp is not None and exp.topic and u.data.get("category") in _GENERAL_MOODS and \
+                        not u.data.get("negated"):
+                    # "my boss was so annoying": name the boss, not just the mood
+                    parts.append(_Part("prefix", self.everyday.moment(st, exp, u.text)))
+                else:
+                    parts.append(_Part("prefix", self._feeling(st, u)))
+                st.last_exp = {"valence": u.data.get("valence"), "topic": exp.topic if exp else None,
+                               "person": bool(exp and exp.person), "text": u.text, "turn": st.turn}
+                if self._has_fact(u.text):
+                    quiet.append(u)                 # a sad message gets no "I'll remember that"
                 main = main or Reply(msg, "empathy", "", via="empathy")
             elif u.act == "remember":
                 learn.append(Unit("statement", u.data["text"], normalise(u.data["text"])))
@@ -281,6 +390,8 @@ class Assistant:
             parts.append(_Part("learn", r.text))
             if main is None or main.kind in ("smalltalk", "empathy"):
                 main = r
+        if quiet and not learn:
+            self._learn(st, [u.text for u in quiet], msg)
         if main is None:
             main = Reply(msg, "smalltalk", "", via="smalltalk")
         text = _compose(parts)
@@ -392,9 +503,11 @@ class Assistant:
             text = st.last_reply or self._reply(st, "repeat_none")
             return Reply(u.text, "smalltalk", text, via="smalltalk")
         if action == "clarify":
-            if st.last_reply:
-                return Reply(u.text, "smalltalk", self._reply(st, "clarify.last", last=st.last_reply), via="smalltalk")
-            return Reply(u.text, "smalltalk", self._reply(st, "clarify.none"), via="smalltalk")
+            if st.last_reply and st.last_kind in ("answer", "about", "tool", "memory") and \
+                    not st.last_reply.startswith(("Sorry if that was unclear", "In other words")):
+                return Reply(u.text, "smalltalk", self._reply(st, "clarify.last", last=st.last_reply), via="clarify")
+            return Reply(u.text, "smalltalk", self._pick(st, "daily:disc:confused",
+                                                         self.bank.daily["discourse"]["confused"]), via="clarify")
         if action == "correction":
             if st.last_fact and st.last_fact.get("question"):
                 st.pending = {"slot": "correction", "question": st.last_fact["question"], "turn": st.turn}
@@ -543,6 +656,10 @@ class Assistant:
 
     def _question(self, st: DialogState, text: str) -> Reply:
         bot = self.bot
+        pron = re.search(r"\b(he|she|him|his|her|hers|they|them|their)\b", text, re.I)
+        if pron and not re.search(r"\b(?:i|me|my|you|your)\b", text, re.I) and bot.resolve(text) == text:
+            return Reply(text, "unknown", self._pick(st, "daily:who_mean", self.bank.daily["who_mean"],
+                                                     x=pron.group(1).lower()), via="clarify")
         kb = self._kb_answer(st, text)
         if kb is not None:
             return kb
@@ -641,13 +758,22 @@ class Assistant:
     def _ellipsis(self, st: DialogState, msg: str) -> str | None:
         """"And of Germany?" after "What is the capital of France?" → "What is the capital of Germany?"."""
         m = _ELLIPSIS.match(msg.strip())
-        last = self.bot.context.get("kb_last")
-        if not m or not last:
+        if not m:
             return None
         new = m.group("x").strip()
-        for name in last["names"]:
-            if name and re.search(re.escape(name), last["question"], re.I):
-                return re.sub(re.escape(name), new, last["question"], count=1, flags=re.I)
+        last = self.bot.context.get("kb_last")
+        if last:
+            for name in last["names"]:
+                if name and re.search(re.escape(name), last["question"], re.I):
+                    return re.sub(re.escape(name), new, last["question"], count=1, flags=re.I)
+        q = st.last_q_named or st.last_q
+        if q:
+            # the last question's named thing ("Who is the CEO of Apple?" → "Apple"), not its first word
+            names = [n for n in re.findall(r"\b[A-Z][\w'’.-]*(?:\s+(?:of|the|and|de|von|van)?\s*[A-Z][\w'’.-]*)*", q)
+                     if not q.startswith(n) or len(n.split()) > 1]
+            if names:
+                old = max(names, key=len)
+                return q.replace(old, new, 1)
         return None
 
     def _latest_fact(self, cat: str):
@@ -686,15 +812,22 @@ class Assistant:
         if kind == "opinion":
             body = "I don't have opinions of my own, but here's what I've read: " + body
         st.last_about = {"title": found.title, "doc": found.doc, "next": found.next_sentence,
-                         "end": found.end_sentence, "source": found.source}
+                         "end": found.end_sentence, "source": found.source, "turn": st.turn}
         st.last_fact = {"evidence": found.sentences[0], "source": found.source, "answer": None, "question": None,
                         "sure": True}
-        self.bot.context.update({"answer": None, "atype": None, "mention": found.title})
+        self.bot.context.update({"answer": None, "atype": None, "mention": found.title, "kb_last": None})
+        st.last_q = st.last_q_named = None        # a new topic: "where?" no longer means the old question
         return Reply(text, "about", body, evidence=found.sentences[0], source=found.source, via="about",
                      confidence=1.0)
 
     def _more(self, st: DialogState, text: str) -> Reply:
         la = st.last_about
+        topic = st.topic if st.topic and st.turn - st.topic.get("turn", -99) <= 4 else None
+        if la and topic and la.get("title") != topic.get("title") and la.get("turn", -99) < topic.get("turn", -99):
+            la = None                            # the conversation moved on to another topic
+            found = self.about.find(topic["title"]) or self.about.find(topic.get("name") or topic["title"])
+            if found:
+                return self._about_reply(st, text, found, "tell")
         if la:
             ab = self.about.more(About(la["title"], la["doc"], [], la["next"], la["end"], la["source"]))
             if ab is None:
@@ -728,7 +861,7 @@ class Assistant:
         """Remember a statement only if it carries something: a recognised fact, something about
         you, or a named thing."""
         s = sentence.strip()
-        if len(s) < 3:
+        if len(s) < 3 or is_discourse(normalise(s)):
             return False
         facts = facts_from_text(s, "probe", self.bot.is_name_initial_fact, typer=self.bot.typer)
         if facts:
@@ -743,6 +876,42 @@ class Assistant:
         names = [c for c in caps if c != first or self.bot.is_name_initial_fact(c)]
         return bool(names) and len(words) >= 3
 
+    def _discourse(self, st: DialogState, u: Unit) -> str:
+        n = u.norm
+        d = self.bank.daily["discourse"]
+        if re.search(r"\b(?:question|ask)\b", n):
+            return self._pick(st, "daily:disc:q", d["question_coming"])
+        if re.search(r"\bhelp\b", n):
+            return self._pick(st, "daily:disc:help", d["help"])
+        if re.search(r"\b(?:confused|lost)\b", n):
+            return self._pick(st, "daily:disc:confused", d["confused"])
+        if re.search(r"\b(?:agree|me too|same here|me neither|i know right|i thought so|i knew it)\b", n):
+            return self._pick(st, "daily:disc:agree", d["agree"])
+        if st.last_reply.rstrip().endswith("?") and re.search(r"\b(?:know|idk|dunno|sure|idea|guess)\b", n):
+            return self._pick(st, "daily:disc:after_q", d["after_question"])
+        return self._pick(st, "daily:disc:plain", d["plain"])
+
+    def _plan(self, st: DialogState, u: Unit) -> str:
+        """"I'm thinking about moving to Berlin" → "Moving to Berlin — exciting! What's drawing you there?"
+        A plan is not a fact (you don't live in Berlin yet), so it is answered, not stored."""
+        m = _PLAN.search(u.norm)
+        what = u.text[m.end():].strip(" .!") if m else ""
+        what = re.sub(r"^(?:to|of|about|on)\s+", "", what, flags=re.I)
+        what = swap_person(what) if what else ""
+        if what and len(what.split()) <= 8:
+            head = what[:1].upper() + what[1:]
+            return self._pick(st, "daily:plan", self.bank.daily["plan"], x=head)
+        return self._pick(st, "daily:plan_plain", self.bank.daily["plan_plain"])
+
+    def _has_fact(self, sentence: str) -> bool:
+        """A sentence with something lasting to remember (a name, a job, a home …), not just a mood:
+        "my boss Tom was so rude" keeps that your boss is called Tom; "my boss was annoying" keeps nothing."""
+        from engramm.chat.facts import CATEGORIES
+        for f in facts_from_text(sentence, "probe", self.bot.is_name_initial_fact, typer=self.bot.typer):
+            if set(f.relation) & CATEGORIES or (f.object[:1].isupper() and f.kind == "NAME"):
+                return True
+        return False
+
     def _feeling_has_fact(self, sentence: str) -> bool:
         from engramm.chat.facts import CATEGORIES
         for f in facts_from_text(sentence, "probe", self.bot.is_name_initial_fact, typer=self.bot.typer):
@@ -752,7 +921,7 @@ class Assistant:
 
     def _learn(self, st: DialogState, sentences: list[str], msg: str) -> Reply:
         bot = self.bot
-        text = resolve_statement(" ".join(s.strip() for s in sentences if s.strip()))
+        text = _job_field(resolve_statement(" ".join(s.strip() for s in sentences if s.strip())))
         sid = source_id(text)
         if sid in bot.user_texts():
             return Reply(msg, "known", self._reply(st, "learned.already"), source={"kind": "user", "source": sid},
@@ -763,6 +932,11 @@ class Assistant:
         bot.context["last_learned"] = sid
         fs = [f for f in bot.facts.facts if f.source == sid]
         confirm = self._confirm(st, fs, name_before)
+        if self._generic_confirm and self.kgqa is not None:
+            # "I watched Inception yesterday": say something about the film instead of "Noted."
+            found = self.everyday.entity_reaction(st, text)
+            if found is not None:
+                confirm = found[0]
         from engramm.chat.events import find_event
         ev = find_event(text, self._today())
         if ev is not None:
@@ -771,6 +945,7 @@ class Assistant:
         return Reply(msg, "learned", confirm, source={"kind": "user", "source": sid}, via="memory")
 
     def _confirm(self, st: DialogState, fs: list, name_before: str | None) -> str:
+        self._generic_confirm = False
         about_you = [f for f in fs if f.subject.startswith(USER)]
         if len(about_you) >= 2 and not any("#name" in f.relation and f.subject == USER for f in about_you):
             lines = list(dict.fromkeys(personal_sentence(f.subject, f.relation, f.object, f.sentence)
@@ -791,8 +966,12 @@ class Assistant:
                     if cat == "car":
                         x = f.object
                     out.append(self._reply(st, f"learned.{cat}", x=x))
+                elif f.kind == "NUMBER" and re.fullmatch(r"\d{1,3}", f.object) and 0 < int(f.object) < 120 and \
+                        re.search(r"\b(?:i'm|i am|im|age|aged|years? old)\b", f.sentence, re.I):
+                    out.append(self._reply(st, "learned.age", x=f.object))
                 elif "about_you" not in used:
                     used.add("about_you")
+                    self._generic_confirm = True
                     out.append(self._reply(st, "learned.about_you"))
             elif f.subject.startswith(USER + ":"):
                 noun = f.subject.partition(":")[2]
@@ -803,8 +982,10 @@ class Assistant:
                     out.append(self._reply(st, "learned.owned", noun=noun))
             elif "world" not in used:
                 used.add("world")
+                self._generic_confirm = True
                 out.append(self._reply(st, "learned.world", subject=f.subject))
         if not out:
+            self._generic_confirm = True
             out.append(self._reply(st, "learned.plain"))
         # "Nice to meet you" twice or "Got it — …" twice reads badly: keep distinct sentences only
         return " ".join(dict.fromkeys(out))
@@ -993,6 +1174,30 @@ def resolve_statement(text: str) -> str:
             sent += "."
         out.append(sent[:1].upper() + sent[1:])
     return " ".join(x for x in out if x)
+
+
+_GENERAL_MOODS = frozenset(("angry", "sad", "tired", "stress", "anxious", "happy", "excited", "calm", "lonely",
+                            "conflict"))
+_PLAN = re.compile(r"\b(?:i'm|i am|im|we're|we are) (?:thinking (?:about|of)|planning (?:to|on)|considering|hoping to|"
+                   r"dreaming (?:of|about)|trying to decide whether to)\b|\b(?:i|we) (?:want|would like|'d like|wanna|might|"
+                   r"may|plan|intend|hope) to (?:move|go|travel|visit|start|learn|buy|quit|try|become|study|switch|get)\b")
+_WORK_IN = re.compile(r"^(?P<lead>i (?:work|am working|'m working|have worked|worked) in) (?P<f>(?:the )?[a-z][a-z &/-]{2,40}?)"
+                      r"(?P<tail>[.!]?)$", re.I)
+
+
+def _job_field(text: str) -> str:
+    """"I work in private equity." → "I work in private equity. My job is in private equity." —
+    a field of work (lower case), so "What do I do for a living?" finds it; "I work in Berlin"
+    (a name) stays a place."""
+    m = _WORK_IN.match(text.strip())
+    if not m or re.match(r"^(?:a|an|this|that|my|our|his|her|their)\b", m.group("f"), re.I):
+        return text
+    field = m.group("f").strip()
+    if re.search(r"\b(?:office|building|city|town|village|shop|store|factory|warehouse|hospital|school|bank|restaurant|"
+                 r"cafe|café|lab|laboratory)s?$", field):
+        return text
+    body = text.strip().rstrip(".!")
+    return f"{body}. My job is in {field}."
 
 
 def _join_values(values: list[str]) -> str:

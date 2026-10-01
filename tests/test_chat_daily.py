@@ -1,0 +1,228 @@
+"""Everyday conversation (Chat v3.1): gibberish, talk that is never stored, moments answered with
+empathy that names the topic, plans, advice in context, suggestions, games, offers, follow-up
+question words, and no word-for-word repeats — on the small test corpus (no pack needed)."""
+
+from __future__ import annotations
+
+import datetime as dt
+
+import pytest
+
+from engramm.chat.dialog import Assistant, DialogState
+from engramm.chat.everyday import answer_matches
+from engramm.chat.smart import (bare_followup, experience, gibberish, is_discourse, is_mash, offer_in,
+                                rebuild_question, short_answer, swap_person)
+from engramm.chat.textmem import LoggedTextMemory
+from tests.test_chat_flows import _bot, corpus  # noqa: F401  (fixture)
+
+CLOCK = lambda: dt.datetime(2026, 10, 1, 18, 30)          # noqa: E731
+
+
+@pytest.fixture()
+def chat(corpus, tmp_path):                                # noqa: F811
+    bot = _bot(corpus, LoggedTextMemory(tmp_path / "chat_memory.log"))
+    a = Assistant(bot, clock=CLOCK)
+    return a, DialogState("daily")
+
+
+def _stored(a) -> list[str]:
+    return list(a.bot.user_texts().values())
+
+
+# -- the helpers ----------------------------------------------------------------------------------
+
+@pytest.mark.parametrize("text", ["dhdhd", "asdf", "asdfgh", "hdhdhd", "jjjj", "kjhg", "lkjlkj", "fjfjfj", "qwertz",
+                                  "sdkfj ghgh", "aaaaaaa"])
+def test_gibberish_is_recognised(text):
+    assert gibberish(text)
+
+
+@pytest.mark.parametrize("text", ["hello", "Ngozi", "Siobhan", "Wojciech", "lol", "hmm", "brb", "zzz", "haha", "nooo",
+                                  "yesss", "ugh", "meh", "okay", "photosynthesis", "Reykjavik", "helo", "thnks", "ok",
+                                  "Tamlolo", "Erik", "bruh", "ooo", "aaah"])
+def test_words_and_names_are_not_gibberish(text):
+    assert not gibberish(text)
+    assert not all(is_mash(t) for t in text.split())
+
+
+@pytest.mark.parametrize("text", ["idk", "i don't know", "i guess", "i see", "me too", "not sure", "i agree",
+                                  "i don't know lol", "i have a question"])
+def test_discourse_phrases(text):
+    assert is_discourse(text)
+
+
+@pytest.mark.parametrize("text", ["i live in berlin", "i work as a nurse", "my dog is called rex"])
+def test_facts_are_not_discourse(text):
+    assert not is_discourse(text)
+
+
+def test_moments_have_valence_and_topic():
+    e = experience("my boss was so annoying today")
+    assert e.valence == "negative" and e.topic == "your boss" and e.person
+    e = experience("i just had a long day at work")
+    assert e.valence == "negative" and e.topic == "work"
+    e = experience("my presentation went really well")
+    assert e.valence == "positive" and e.topic == "your presentation"
+    assert experience("i had a great weekend").timeword == "weekend"
+    assert experience("i failed my driving test").topic == "your driving test"
+    assert experience("the meeting was not that bad") is None
+    assert experience("i live in berlin") is None
+    assert experience("what a day?") is None
+
+
+def test_offers_and_short_answers():
+    assert offer_in("I only do text. Want a joke or a fun fact instead?") == "joke_or_fact"
+    assert offer_in("That's a fact.") is None
+    assert short_answer("sure") == "yes" and short_answer("yes please") == "yes"
+    assert short_answer("nah thanks") == "no" and short_answer("maybe later") == "no"
+    assert short_answer("paris") is None
+
+
+def test_follow_up_question_words():
+    assert bare_followup("where?") == "where" and bare_followup("and when exactly?") == "when"
+    assert bare_followup("how tall is it?") is None
+    assert rebuild_question("When was William Shakespeare born?", "where") == "Where was William Shakespeare born?"
+    assert rebuild_question("When was William Shakespeare born?", "when") is None
+
+
+def test_person_swap_and_answer_matching():
+    assert swap_person("go to my gym") == "go to your gym"
+    assert answer_matches("it's a towel", "a towel", "towel")
+    assert answer_matches("Leonardo da Vnci", "Leonardo da Vinci", "da vinci")
+    assert answer_matches("8", "eight", "8")
+    assert not answer_matches("Mars", "Jupiter")
+
+
+# -- whole turns --------------------------------------------------------------------------------
+
+def test_gibberish_turn_asks_again_and_is_not_stored(chat):
+    a, st = chat
+    r1 = a.turn(st, "dhdhd")
+    assert r1.via == "gibberish" and r1.text.rstrip().endswith(("?", "."))
+    r2 = a.turn(st, "asdfgh")
+    assert r2.via == "gibberish" and r2.text != r1.text
+    assert _stored(a) == []
+
+
+def test_idk_and_friends_are_never_stored(chat):
+    a, st = chat
+    for m in ("idk", "I don't know", "I guess", "me too", "I see"):
+        r = a.turn(st, m)
+        assert r.kind != "learned", (m, r.text)
+    assert _stored(a) == []
+
+
+def test_moment_gets_empathy_with_topic_not_memory(chat):
+    a, st = chat
+    r = a.turn(st, "My boss was so annoying today")
+    assert r.kind == "empathy" and "boss" in r.text.lower() and "remember" not in r.text.lower()
+    assert _stored(a) == []
+    adv = a.turn(st, "what should I do?")
+    assert adv.via == "everyday" and "hr" in adv.text.lower() or "conversation" in adv.text.lower() \
+        or "one-on-one" in adv.text.lower() or "talk" in adv.text.lower()
+
+
+def test_yes_after_a_moment_question_listens(chat):
+    a, st = chat
+    a.turn(st, "I just had a long day at work")
+    r = a.turn(st, "yeah")
+    assert r.via == "empathy" and "listening" in r.text.lower() or "here" in r.text.lower()
+
+
+def test_heartbreak_advice_is_not_about_work(chat):
+    a, st = chat
+    a.turn(st, "my girlfriend broke up with me")
+    r = a.turn(st, "I don't know what to do")
+    assert r.via == "everyday" and "hr" not in r.text.lower().split() and "work" not in r.text.lower()
+
+
+def test_plans_are_answered_not_stored(chat):
+    a, st = chat
+    r = a.turn(st, "I'm thinking about moving to Berlin")
+    assert "Berlin" in r.text and r.text.rstrip().endswith("?")
+    assert _stored(a) == []
+
+
+def test_recommendations_never_repeat_and_list_pick(chat):
+    a, st = chat
+    r1 = a.turn(st, "can you recommend a book?")
+    r2 = a.turn(st, "recommend a book")
+    items1 = {l for l in r1.text.splitlines() if l.startswith("•")}
+    items2 = {l for l in r2.text.splitlines() if l.startswith("•")}
+    assert len(items1) == 3 and len(items2) == 3 and not items1 & items2
+    food = a.turn(st, "what should I eat tonight?")
+    assert food.via == "everyday" and food.text.count("•") == 3
+    more = a.turn(st, "yes")                                # the offer of more ideas
+    assert more.via == "everyday" and more.text.count("•") >= 1
+
+
+def test_quiz_flow(chat):
+    a, st = chat
+    q = a.turn(st, "quiz me")
+    assert q.via == "quiz" and q.text.rstrip().endswith("?")
+    r = a.turn(st, "I don't know")
+    assert "answer is" in r.text and r.text.rstrip().endswith("?")
+    q2 = a.turn(st, "another one")
+    assert q2.via == "quiz" and q2.text != q.text
+    stop = a.turn(st, "stop")
+    assert stop.kind == "smalltalk"
+
+
+def test_riddle_hint_and_reveal(chat):
+    a, st = chat
+    a.turn(st, "tell me a riddle")
+    h = a.turn(st, "hint")
+    assert "starts with" in h.text
+    r = a.turn(st, "I give up")
+    assert r.text.startswith("The answer")
+
+
+def test_joke_offer_yes(chat):
+    a, st = chat
+    r = a.turn(st, "play some music")
+    if "joke" not in r.text.lower():
+        pytest.skip("this bank reply makes no offer")
+    j = a.turn(st, "sure")
+    assert j.kind in ("smalltalk", "about") and j.text != r.text
+
+
+def test_decide_spell_rhyme(chat):
+    a, st = chat
+    d = a.turn(st, "should I go to the gym or stay home?")
+    assert d.via == "everyday" and ("go to the gym" in d.text or "stay home" in d.text)
+    s = a.turn(st, "how do you spell necessary")
+    assert "N-E-C-E-S-S-A-R-Y" in s.text
+    rh = a.turn(st, "what rhymes with moon")
+    assert rh.via == "everyday"
+
+
+def test_softened_insult_and_repetition_complaint(chat):
+    a, st = chat
+    r = a.turn(st, "you're kind of dumb")
+    assert "sorry" in r.text.lower() or "fair" in r.text.lower() or "hear you" in r.text.lower()
+    r = a.turn(st, "you already said that")
+    assert "repeat" in r.text.lower() or "said that" in r.text.lower() or "switch" in r.text.lower()
+
+
+def test_clarify_does_not_nest(chat):
+    a, st = chat
+    a.turn(st, "lol")
+    r1 = a.turn(st, "what?")
+    r2 = a.turn(st, "huh")
+    assert "What I meant: Sorry" not in r1.text and "What I meant: Sorry" not in r2.text
+    assert r2.text.count("What I meant") <= 1
+
+
+def test_he_without_anyone_to_point_at(chat):
+    a, st = chat
+    r = a.turn(st, "how old is he?")
+    assert r.via == "clarify" and "who" in r.text.lower()
+
+
+def test_no_word_for_word_repeats_in_small_talk(chat):
+    a, st = chat
+    msgs = ["hi", "ok", "cool", "lol", "ok", "nice", "haha", "ok", "cool", "thanks", "ok", "lol", "nice", "cool",
+            "okay", "haha", "ok", "great"]
+    replies = [a.turn(st, m).text for m in msgs]
+    for i in range(1, len(replies)):
+        assert replies[i] != replies[i - 1], (msgs[i], replies[i])

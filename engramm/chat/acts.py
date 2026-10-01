@@ -120,6 +120,17 @@ _FIRST_PERSON = re.compile(r"\b(?:i|i'm|i've|i'd|i'll|me|my|mine|myself|we|we're
 _WHY_ME = re.compile(r"^(?:why|how come) (?:am|do|did|can't|cannot|don't|does|is) (?:i|my)\b")
 
 
+_SOFT = re.compile(r"\b(?:kind of|sort of|kinda|sorta|a little bit|a little|a bit|pretty|quite|really|so|very|super|"
+                   r"totally|truly|actually|honestly|literally|just|seriously|incredibly|extremely|such an?|being|"
+                   r"getting|acting|starting to be|a tad)\s+")
+
+
+def soften(n: str) -> str:
+    """"you're kind of dumb" → "you're dumb", "that's really so cool" → "that's cool": the words
+    that only shade a sentence, removed for pattern matching."""
+    return " ".join(_SOFT.sub("", n + " ").split())
+
+
 def _clean(sentence: str) -> str:
     s = sentence.strip().replace("’", "'").replace("‘", "'")
     s = re.sub(r"[\s?!.…]+$", "", s)
@@ -169,7 +180,7 @@ def classify_sentence(sentence: str, bank: Bank, now=None) -> Unit:
     tr: ToolResult | None = tool_answer(_clean(sentence), now)
     if tr is not None:
         return Unit("tool", sentence, n, data={"result": tr})
-    hit = bank.intent(n_full, n)
+    hit = bank.intent(n_full, n, soften(n))
     if hit:
         it, mm = hit
         groups = {k.rstrip("0123456789"): v for k, v in mm.groupdict().items() if v}

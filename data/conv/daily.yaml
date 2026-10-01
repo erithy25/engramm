@@ -1,0 +1,476 @@
+# ENGRAMM conversation bank — everyday conversation (Chat v3.1).
+#
+# Used by engramm/chat/dialog.py through engramm/chat/everyday.py. Placeholders:
+#   {topic}   what a moment was about, already in the second person ("your boss", "work")
+#   {timeword} "day", "week", "weekend" …
+#   {x}       a value (a suggestion, an answer)
+#   {title}   an article or work title
+#   {name}    your name
+# Every list is used without repeating its recent replies.
+
+gibberish:
+  first:
+    - "Hmm, that looks like a keyboard slip to me. What did you want to say?"
+    - "I think your fingers got ahead of you there! What did you mean?"
+    - "That one's a mystery to me — could you type it again?"
+    - "I couldn't make sense of that. Want to try again, or ask me something?"
+  again:
+    - "Still not quite getting it — try a few words, like “tell me a joke” or “who painted the Mona Lisa?”."
+    - "I'm lost, sorry! Type a question or tell me what's on your mind, and I'll do my best."
+
+discourse:
+  # "idk", "not sure" after ENGRAMM asked something
+  after_question:
+    - "No worries — it doesn't have to be anything big. Want a fun fact while you think?"
+    - "That's okay! We can talk about something else. Want a joke or a fun fact?"
+    - "Fair enough. Shall I ask you something easier, or would you like a fun fact?"
+  plain:
+    - "That's okay — not everything needs an answer."
+    - "Fair enough."
+    - "Totally fine. I'm here if anything comes to mind."
+  agree:
+    - "Glad we're on the same page!"
+    - "Great minds think alike."
+  question_coming:
+    - "Sure — go ahead and ask!"
+    - "Of course. What would you like to know?"
+    - "I'm all ears. What's your question?"
+  help:
+    - "I'm here to help. What's going on?"
+    - "Of course — tell me what you need, and we'll figure it out together."
+  confused:
+    - "Sorry — that's on me. Let's start again: what would you like to know or talk about?"
+    - "No problem, let's untangle it. What are you trying to find out?"
+
+experience:
+  negative:
+    person:
+      - "Ugh, that sounds frustrating. What did {topic} do?"
+      - "Oh no — that's not fun at all. What happened with {topic}?"
+      - "That sounds really annoying. Do you want to tell me what happened with {topic}?"
+      - "I'm sorry, that's hard. Is this the first time with {topic}, or has it happened before?"
+    thing:
+      - "Oh no — sounds like {topic} was rough. What happened?"
+      - "That sounds draining. What made {topic} so hard?"
+      - "Ugh, I'm sorry. Do you want to talk about {topic}, or would a distraction help more?"
+      - "That doesn't sound fun. What went wrong with {topic}?"
+    time:
+      - "Sounds like a long {timeword}. What made it so tough?"
+      - "Oof, that sounds like a rough {timeword}. Want to talk about it?"
+      - "I'm sorry your {timeword} was like that. What happened?"
+    plain:
+      - "I'm sorry, that sounds hard. Want to talk about it?"
+      - "That doesn't sound good. What happened?"
+      - "Oh no. Do you want to tell me about it, or would a distraction help?"
+  positive:
+    person:
+      - "That's lovely! What did {topic} do?"
+      - "Aw, that's great to hear about {topic}! Tell me more?"
+      - "That's wonderful news! How do you feel about it?"
+    thing:
+      - "That's great news about {topic}! What was the best part?"
+      - "Nice — sounds like {topic} went really well! How do you feel?"
+      - "Congratulations! You must be happy about {topic}. What happened?"
+    time:
+      - "Sounds like a great {timeword}! What did you get up to?"
+      - "Love that! What made your {timeword} so good?"
+      - "That's great to hear. What was the highlight of your {timeword}?"
+    plain:
+      - "That's great to hear! Tell me more?"
+      - "Love to hear that! What happened?"
+      - "That's wonderful — congratulations!"
+
+offers:
+  no:
+    - "No problem!"
+    - "Alright — just say the word if you change your mind."
+    - "Okay! I'm here whenever you want to chat."
+  listen:
+    - "I'm listening — go ahead."
+    - "Of course. Take your time, I'm here."
+  ideas_none:
+    - "Tell me what you'd like ideas for — food, a film, something to do — and I'll suggest a few."
+
+advice:
+  # "what should I do?" right after a moment, by what it was about
+  work_people:
+    - "If it keeps bothering you, a calm one-on-one usually helps: describe the specific thing that happened and how it affected you, rather than the person."
+    - "Write down what exactly bothered you while it's fresh — it makes a later conversation much easier, and sometimes it shows the issue is smaller than it felt."
+    - "Give it a night before reacting. If it still matters tomorrow, talk to them directly; if it keeps happening, someone you trust at work or HR can help."
+  people:
+    - "When you're both calm, try telling them how it made you feel — “I felt hurt when…” lands better than “You always…”."
+    - "Give it a little time, then talk it through face to face. Most conflicts with people we care about get smaller once both sides feel heard."
+    - "Ask yourself what you'd need from them to feel okay again — then tell them that, plainly and kindly."
+  heartbreak:
+    - "Be kind to yourself — heartbreak really hurts. Lean on friends or family, keep some routine, and give yourself time. It does get easier."
+    - "Try not to make big decisions right now. Talk to people who care about you, get outside a little each day, and let yourself feel sad when you need to."
+    - "It's okay to grieve the relationship. Maybe take a break from their social media for a while — distance helps the healing."
+  grief:
+    - "There's nothing to fix about grief — it's love with nowhere to go. Let yourself feel it, and lean on the people around you."
+    - "Take it one day at a time. Sharing memories with others who knew them can help, and so can simply resting."
+    - "Be patient with yourself. If it ever feels too heavy to carry, talking to a counsellor or your doctor can really help."
+  tired:
+    - "Honestly? Rest. Eat something proper, drink some water, and give yourself an early night — tomorrow is a fresh start."
+    - "Take a real break: twenty minutes with no screens, maybe a short walk. Then do one small thing that's easy to finish."
+    - "Don't try to fix everything tonight. Pick the one thing that can't wait, do it, and let the rest go until tomorrow."
+  stress:
+    - "Try this: write down everything on your mind, then circle the one thing you can actually do today. The list feels much smaller afterwards."
+    - "A few slow breaths help more than they sound — in for four seconds, hold four, out for four, hold four. Then tackle one small task."
+    - "Break it into the next tiny step. You don't need to solve the whole thing right now, just the next part."
+  sad:
+    - "Be gentle with yourself today. Reaching out to someone you trust — even a short message — can help more than you'd expect."
+    - "It's okay to have a bad day. Do something kind for yourself: a walk, a favourite song, a good meal. And if it keeps weighing on you, talking to someone helps."
+  failure:
+    - "One result doesn't define you. Find out where it went wrong, make a plan for next time, and give yourself credit for trying."
+    - "Take a breath first. Then look at what you can learn from it — and what you'd do differently. Most people who succeed failed first."
+  generic:
+    - "What would you tell a good friend in the same situation? That's often the best advice for yourself, too."
+    - "Break it down: what's the very next small step you could take? Start there."
+    - "If it's not urgent, sleep on it — things often look clearer in the morning."
+  none:
+    - "About what? Tell me what's going on, and I'll help you think it through."
+    - "Happy to help — what's the situation?"
+
+decide:
+  - "Both sound good! Quick trick: imagine I flipped a coin and it said “{x}”. Do you feel relieved or a little disappointed? That feeling is usually your answer."
+  - "Tough call! If you had to choose in five seconds — which one? Your gut often knows. If you're still torn, I'd go with “{x}”."
+  - "Let me pick for you: “{x}”. If that makes you want to argue for the other one, go with the other one!"
+
+recommend:
+  intro:
+    - "Here are a few ideas:"
+    - "Some suggestions:"
+    - "How about one of these:"
+  outro:
+    - "Want more, or should I tell you about one of them?"
+    - "Anything there you like? I can tell you more about any of them."
+  food:
+    intro: "A few ideas for tonight:"
+    items:
+      - "pasta aglio e olio — garlic, olive oil and chilli, done in fifteen minutes"
+      - "a quick stir-fry with whatever vegetables you have"
+      - "homemade pizza on a flatbread"
+      - "tacos with beans, salsa and whatever you like on top"
+      - "a cosy vegetable curry with rice"
+      - "shakshuka — eggs poached in a spiced tomato sauce"
+      - "fried rice, which is perfect for leftover rice"
+      - "a big salad with chickpeas, feta and a lemon dressing"
+      - "a simple omelette with cheese and herbs"
+      - "a baked potato with all the toppings"
+      - "a warming soup with crusty bread"
+      - "a risotto, if you feel like stirring for twenty minutes"
+    outro: "What are you in the mood for — something quick, healthy or comforting?"
+  book:
+    intro: "A few books people love:"
+    items:
+      - {x: "“To Kill a Mockingbird” by Harper Lee (1960)", tags: "fiction classic", title: "To Kill a Mockingbird"}
+      - {x: "“1984” by George Orwell (1949)", tags: "fiction classic dystopia", title: "Nineteen Eighty-Four"}
+      - {x: "“Pride and Prejudice” by Jane Austen (1813)", tags: "fiction classic romance", title: "Pride and Prejudice"}
+      - {x: "“The Hobbit” by J. R. R. Tolkien (1937)", tags: "fiction fantasy classic", title: "The Hobbit"}
+      - {x: "“Dune” by Frank Herbert (1965)", tags: "fiction scifi", title: "Dune (novel)"}
+      - {x: "“The Martian” by Andy Weir (2011)", tags: "fiction scifi", title: "The Martian (Weir novel)"}
+      - {x: "“Brave New World” by Aldous Huxley (1932)", tags: "fiction classic dystopia scifi", title: "Brave New World"}
+      - {x: "“The Great Gatsby” by F. Scott Fitzgerald (1925)", tags: "fiction classic", title: "The Great Gatsby"}
+      - {x: "“Sapiens” by Yuval Noah Harari (2011)", tags: "nonfiction history", title: "Sapiens: A Brief History of Humankind"}
+      - {x: "“Thinking, Fast and Slow” by Daniel Kahneman (2011)", tags: "nonfiction psychology", title: "Thinking, Fast and Slow"}
+      - {x: "“A Short History of Nearly Everything” by Bill Bryson (2003)", tags: "nonfiction science", title: "A Short History of Nearly Everything"}
+      - {x: "“The Alchemist” by Paulo Coelho (1988)", tags: "fiction", title: "The Alchemist (novel)"}
+      - {x: "“Educated” by Tara Westover (2018)", tags: "nonfiction memoir", title: "Educated (memoir)"}
+      - {x: "“The Hitchhiker's Guide to the Galaxy” by Douglas Adams (1979)", tags: "fiction scifi comedy", title: "The Hitchhiker's Guide to the Galaxy (novel)"}
+      - {x: "“Harry Potter and the Philosopher's Stone” by J. K. Rowling (1997)", tags: "fiction fantasy", title: "Harry Potter and the Philosopher's Stone"}
+    outro: "Fiction or non-fiction? I can narrow it down."
+  movie:
+    intro: "A few films worth watching:"
+    items:
+      - {x: "“The Shawshank Redemption” (1994)", tags: "drama classic", title: "The Shawshank Redemption"}
+      - {x: "“Inception” (2010) by Christopher Nolan", tags: "scifi thriller", title: "Inception"}
+      - {x: "“Spirited Away” (2001) by Hayao Miyazaki", tags: "animation fantasy", title: "Spirited Away"}
+      - {x: "“The Godfather” (1972)", tags: "drama classic crime", title: "The Godfather"}
+      - {x: "“Back to the Future” (1985)", tags: "scifi comedy classic", title: "Back to the Future"}
+      - {x: "“Parasite” (2019) by Bong Joon-ho", tags: "thriller drama", title: "Parasite (2019 film)"}
+      - {x: "“The Matrix” (1999)", tags: "scifi action", title: "The Matrix"}
+      - {x: "“Up” (2009) from Pixar", tags: "animation comedy family", title: "Up (2009 film)"}
+      - {x: "“Interstellar” (2014) by Christopher Nolan", tags: "scifi drama", title: "Interstellar (film)"}
+      - {x: "“Amélie” (2001)", tags: "comedy romance", title: "Amélie"}
+      - {x: "“Casablanca” (1942)", tags: "classic romance drama", title: "Casablanca (film)"}
+      - {x: "“The Grand Budapest Hotel” (2014) by Wes Anderson", tags: "comedy", title: "The Grand Budapest Hotel"}
+      - {x: "“Toy Story” (1995)", tags: "animation family comedy", title: "Toy Story"}
+      - {x: "“The Lord of the Rings: The Fellowship of the Ring” (2001)", tags: "fantasy action", title: "The Lord of the Rings: The Fellowship of the Ring"}
+    outro: "Are you in the mood for something light, exciting or thought-provoking?"
+  series:
+    intro: "A few series people can't stop talking about:"
+    items:
+      - {x: "“Breaking Bad”", tags: "drama crime", title: "Breaking Bad"}
+      - {x: "“The Office” (the US version)", tags: "comedy", title: "The Office (American TV series)"}
+      - {x: "“Planet Earth” with David Attenborough", tags: "documentary nature", title: "Planet Earth (2006 TV series)"}
+      - {x: "“Dark”, a German mystery series", tags: "scifi mystery", title: "Dark (TV series)"}
+      - {x: "“Sherlock”", tags: "crime mystery", title: "Sherlock (TV series)"}
+      - {x: "“Chernobyl”", tags: "drama history", title: "Chernobyl (miniseries)"}
+      - {x: "“Stranger Things”", tags: "scifi mystery", title: "Stranger Things"}
+      - {x: "“Fleabag”", tags: "comedy drama", title: "Fleabag"}
+      - {x: "“Avatar: The Last Airbender”", tags: "animation fantasy family", title: "Avatar: The Last Airbender"}
+      - {x: "“Friends”", tags: "comedy classic", title: "Friends"}
+    outro: "Want something funny, gripping or relaxing?"
+  music:
+    intro: "A few albums worth a listen:"
+    items:
+      - {x: "“Abbey Road” by the Beatles (1969)", tags: "rock classic", title: "Abbey Road"}
+      - {x: "“Kind of Blue” by Miles Davis (1959)", tags: "jazz classic", title: "Kind of Blue"}
+      - {x: "“Rumours” by Fleetwood Mac (1977)", tags: "rock pop classic", title: "Rumours (album)"}
+      - {x: "“Thriller” by Michael Jackson (1982)", tags: "pop classic", title: "Thriller (album)"}
+      - {x: "“The Dark Side of the Moon” by Pink Floyd (1973)", tags: "rock classic", title: "The Dark Side of the Moon"}
+      - {x: "“Random Access Memories” by Daft Punk (2013)", tags: "electronic", title: "Random Access Memories"}
+      - {x: "“Back to Black” by Amy Winehouse (2006)", tags: "soul pop", title: "Back to Black"}
+      - {x: "“21” by Adele (2011)", tags: "pop soul", title: "21 (Adele album)"}
+      - {x: "“Nevermind” by Nirvana (1991)", tags: "rock grunge", title: "Nevermind"}
+    outro: "What kind of music do you usually like?"
+  game:
+    intro: "A few games to try:"
+    items:
+      - {x: "Catan, a classic board game for 3–4 players", tags: "board", title: "Catan"}
+      - {x: "Codenames, perfect for a group", tags: "board party", title: "Codenames (board game)"}
+      - {x: "Ticket to Ride, easy to learn and fun", tags: "board", title: "Ticket to Ride (board game)"}
+      - {x: "chess — endless and free", tags: "board classic", title: "Chess"}
+      - {x: "Stardew Valley, a relaxing farming game", tags: "video cozy", title: "Stardew Valley"}
+      - {x: "Minecraft, if you like building", tags: "video", title: "Minecraft"}
+      - {x: "Portal 2, a brilliant puzzle game", tags: "video puzzle", title: "Portal 2"}
+      - {x: "Tetris — a classic for a reason", tags: "video classic puzzle", title: "Tetris"}
+    outro: "Board games or video games?"
+  activity:
+    intro: "A few things you could do:"
+    items:
+      - "go for a walk somewhere you've never been, even nearby"
+      - "cook something new from whatever is in the kitchen"
+      - "call or message someone you haven't talked to in a while"
+      - "start a book or a series you've been meaning to try"
+      - "learn a few words of a new language"
+      - "sort out one drawer or shelf — oddly satisfying"
+      - "draw, write or make something, just for fun"
+      - "do a short workout or some stretching"
+      - "look up a museum, park or café nearby you've never visited"
+      - "ask me to quiz you — I've got questions ready"
+    outro: "Anything there sound good?"
+  gift:
+    intro: "Some gift ideas:"
+    items:
+      - "a book by their favourite author, or one you loved"
+      - "an experience — tickets, a class or a day trip together"
+      - "something for their hobby"
+      - "a nice plant with a pot"
+      - "a photo book or a framed picture of a shared memory"
+      - "good coffee, tea or chocolate"
+      - "a handwritten letter — free and often the most treasured"
+    outro: "Who is it for? Tell me a bit about them and I'll narrow it down."
+  travel:
+    intro: "Some places people love:"
+    items:
+      - {x: "Lisbon, for its hills, trams and pastéis de nata", title: "Lisbon"}
+      - {x: "Kyoto, for temples and gardens", title: "Kyoto"}
+      - {x: "Reykjavík, as a base for Iceland's waterfalls and northern lights", title: "Reykjavík"}
+      - {x: "Edinburgh, for its old town and castle", title: "Edinburgh"}
+      - {x: "Barcelona, for Gaudí, the beach and the food", title: "Barcelona"}
+      - {x: "Vancouver, where mountains meet the sea", title: "Vancouver"}
+      - {x: "Cape Town, with Table Mountain and the coast", title: "Cape Town"}
+      - {x: "Prague, for its old town and bridges", title: "Prague"}
+      - {x: "Hanoi, for street food and Ha Long Bay nearby", title: "Hanoi"}
+    outro: "City, beach or nature? I can tell you more about any of them."
+  hobby:
+    intro: "Some hobbies that are easy to start:"
+    items:
+      - "running or cycling — cheap and great for your head"
+      - "cooking new recipes from different countries"
+      - "photography, even just with your phone"
+      - "learning an instrument"
+      - "gardening, even a few pots on a windowsill"
+      - "drawing or sketching"
+      - "chess, puzzles or board games"
+      - "learning a language"
+      - "writing — a journal, stories or a blog"
+    outro: "Something active, creative or relaxing?"
+  sleep:
+    intro: "Things that help with sleep:"
+    items:
+      - "keep the same bedtime and wake-up time, even at weekends"
+      - "no screens for the last half hour — read something on paper instead"
+      - "keep the bedroom cool, dark and quiet"
+      - "no coffee after early afternoon"
+      - "if you can't sleep after twenty minutes, get up and do something calm until you feel sleepy"
+    outro: "Is it falling asleep or staying asleep that's hard?"
+  study:
+    intro: "A few study tips that work:"
+    items:
+      - "test yourself instead of re-reading — recalling is what makes it stick"
+      - "spread it out: a little every day beats one long session"
+      - "work in blocks of 25 minutes with a 5-minute break"
+      - "explain it out loud as if you were teaching someone"
+      - "put your phone in another room"
+    outro: "What are you studying for?"
+  focus:
+    intro: "A few ways to get things done:"
+    items:
+      - "pick the three most important tasks for today and do the hardest one first"
+      - "work for 25 minutes, then take a 5-minute break"
+      - "turn off notifications and put the phone out of reach"
+      - "start with just two minutes — starting is the hardest part"
+      - "write tomorrow's to-do list before you stop today"
+    outro: "What are you trying to get done?"
+  exercise:
+    intro: "A few easy ways to move more:"
+    items:
+      - "a brisk 20-minute walk every day"
+      - "bodyweight basics: squats, push-ups and planks, ten minutes"
+      - "take the stairs whenever you can"
+      - "a beginner yoga or stretching routine"
+      - "cycling instead of driving for short trips"
+    outro: "Are you looking for something at home or outside?"
+  petname:
+    intro: "Some pet names people love:"
+    items: ["Luna", "Milo", "Bella", "Oscar", "Pepper", "Nala", "Teddy", "Mochi", "Ziggy", "Biscuit", "Olive", "Loki"]
+    outro: "Is it a dog, a cat or something else?"
+
+opinion:
+  topic:
+    - "I don't have taste of my own, but here's what I know: {x}"
+    - "I can't judge it myself — but {x}"
+  none:
+    - "Which one do you mean? Tell me the name and I'll tell you what I know."
+
+entity:
+  # a named thing in what you say ("I watched Inception yesterday"): a fact, then a question that fits
+  lead:
+    - "{title}! {fact}"
+    - "Oh, {title}. {fact}"
+    - "Nice — {title}. {fact}"
+  ask:
+    visited: ["How was it?", "What did you like most about it?", "Would you go back?"]
+    met: ["What was that like?", "How did that happen?"]
+    watched: ["Did you enjoy it?", "What did you think of it?"]
+    reading: ["How are you finding it?", "Is it any good so far?"]
+    read: ["Did you like it?", "Would you recommend it?"]
+    listening: ["What's your favourite song?", "How long have you been listening to them?"]
+    playing: ["Are you enjoying it?", "How far have you got?"]
+    like: ["What do you like most about it?", "How did you get into it?"]
+    Film: ["Have you seen it?", "Do you like it?"]
+    Book: ["Have you read it?", "Would you recommend it?"]
+    Place: ["Have you been there?", "What brings it up?"]
+    Person: ["What do you think of them?", "What made you think of them?"]
+    Music: ["Do you listen to them a lot?", "What's your favourite song?"]
+    Thing: ["What made you think of it?", "Tell me more?"]
+
+quiz:
+  intro:
+    - "Quiz time! Here's your first question:"
+    - "Let's go! First question:"
+  next:
+    - "Next one:"
+    - "Here's another:"
+    - "Try this one:"
+  right:
+    - "Correct! 🎉"
+    - "That's right — well done!"
+    - "Yes! Nicely done."
+  wrong:
+    - "Not quite — it's {x}."
+    - "Close, but the answer is {x}."
+    - "Nope — the answer is {x}."
+  giveup:
+    - "No worries — the answer is {x}."
+  again: "Another one?"
+  score: "You've got {x} so far."
+  items:
+    - {q: "What's the capital of Australia?", a: "Canberra"}
+    - {q: "What's the chemical symbol for gold?", a: "Au", also: "au"}
+    - {q: "How many planets are there in the Solar System?", a: "eight", also: "8"}
+    - {q: "Who painted the Mona Lisa?", a: "Leonardo da Vinci", also: "da vinci|leonardo|davinci"}
+    - {q: "What's the largest ocean on Earth?", a: "the Pacific Ocean", also: "pacific"}
+    - {q: "Which planet is known as the Red Planet?", a: "Mars"}
+    - {q: "What's the hardest natural substance?", a: "diamond"}
+    - {q: "How many continents are there?", a: "seven", also: "7"}
+    - {q: "At how many degrees Celsius does water boil at sea level?", a: "100 °C", also: "100|hundred|one hundred"}
+    - {q: "Who wrote “Romeo and Juliet”?", a: "William Shakespeare", also: "shakespeare"}
+    - {q: "What's the smallest prime number?", a: "two", also: "2"}
+    - {q: "In which country are the pyramids of Giza?", a: "Egypt"}
+    - {q: "What's the capital of Japan?", a: "Tokyo"}
+    - {q: "What gas do plants take in from the air to make sugar?", a: "carbon dioxide", also: "co2|carbon dioxide"}
+    - {q: "How many legs does a spider have?", a: "eight", also: "8"}
+    - {q: "What's the longest river in Africa?", a: "the Nile", also: "nile"}
+    - {q: "Which element has the chemical symbol O?", a: "oxygen"}
+    - {q: "What's the capital of Canada?", a: "Ottawa"}
+    - {q: "Who developed the theory of relativity?", a: "Albert Einstein", also: "einstein"}
+    - {q: "What's the largest planet in the Solar System?", a: "Jupiter"}
+    - {q: "How many sides does a hexagon have?", a: "six", also: "6"}
+    - {q: "What's the capital of Germany?", a: "Berlin"}
+    - {q: "What's the freezing point of water in degrees Celsius?", a: "0 °C", also: "0|zero"}
+    - {q: "Which ocean lies between Africa and Australia?", a: "the Indian Ocean", also: "indian"}
+    - {q: "What's the tallest mountain on Earth?", a: "Mount Everest", also: "everest"}
+    - {q: "Who was the first person to walk on the Moon?", a: "Neil Armstrong", also: "armstrong"}
+    - {q: "What's the capital of Italy?", a: "Rome"}
+    - {q: "How many minutes are there in a day?", a: "1,440", also: "1440"}
+    - {q: "Which animal is the largest on Earth?", a: "the blue whale", also: "blue whale"}
+    - {q: "What's the capital of Brazil?", a: "Brasília", also: "brasilia"}
+
+riddle:
+  intro:
+    - "Here's a riddle for you:"
+    - "Try this riddle:"
+  right:
+    - "Yes, you got it!"
+    - "Exactly right — nice!"
+  wrong:
+    - "Not quite! Want a hint, or shall I tell you?"
+    - "Good guess, but no. Try again, or say “tell me”."
+  reveal:
+    - "The answer: {x}."
+  again: "Want another riddle?"
+  items:
+    - {q: "What has keys but can't open locks?", a: "a piano", also: "piano|keyboard"}
+    - {q: "What gets wetter the more it dries?", a: "a towel", also: "towel"}
+    - {q: "What has hands but can't clap?", a: "a clock", also: "clock|watch"}
+    - {q: "What can you catch but not throw?", a: "a cold", also: "cold"}
+    - {q: "What has to be broken before you can use it?", a: "an egg", also: "egg"}
+    - {q: "I'm tall when I'm young and short when I'm old. What am I?", a: "a candle", also: "candle"}
+    - {q: "What has many teeth but can't bite?", a: "a comb", also: "comb|zipper|saw"}
+    - {q: "What goes up but never comes down?", a: "your age", also: "age"}
+    - {q: "What has one eye but can't see?", a: "a needle", also: "needle|storm|hurricane"}
+    - {q: "The more of this there is, the less you see. What is it?", a: "darkness", also: "dark|darkness|fog"}
+    - {q: "What has a neck but no head?", a: "a bottle", also: "bottle|shirt"}
+    - {q: "What can travel around the world while staying in a corner?", a: "a stamp", also: "stamp"}
+
+spell:
+  known:
+    - "{x}"
+  fixed:
+    - "I think you mean “{title}”: {x}"
+  unknown:
+    - "I don't know that word, sorry — I only know words from what I've read."
+
+rhyme:
+  found:
+    - "Some words that rhyme with “{title}”: {x}."
+  none:
+    - "I couldn't find a good rhyme for “{title}”, sorry."
+
+plan:
+  - "{x} — exciting! What's drawing you to it?"
+  - "{x}? Ooh! What made you think of it?"
+  - "{x} — that sounds like a big step. How do you feel about it?"
+plan_plain:
+  - "That sounds exciting! Tell me more?"
+  - "Ooh, what's the plan?"
+
+who_mean:
+  - "Who do you mean by “{x}”? Give me the name and I'll look it up."
+  - "Sorry — who's “{x}”? Tell me the name and I'll help."
+
+unknown_again:
+  - "I still don't know that one, sorry — I couldn't find it in what I've read."
+  - "That one's beyond what I've read, I'm afraid."
+  - "Sorry, I'm still drawing a blank on that."
+
+moment_no:
+  - "That's okay. Want a distraction instead — a joke or a fun fact?"
+  - "No problem. I'm here if you change your mind. Would a joke or a fun fact help?"
+
+topic_more:
+  none:
+    - "More about what? Ask me about a topic, like “Tell me about volcanoes”."

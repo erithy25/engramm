@@ -29,10 +29,10 @@ _SLANG = {"u": "you", "r": "are", "ur": "your", "pls": "please", "plz": "please"
           "lets": "let's", "gonna": "going to", "wanna": "want to", "gotta": "got to", "idk": "i don't know",
           "rn": "right now", "abt": "about", "cuz": "because", "coz": "because", "tho": "though",
           "fav": "favourite", "fave": "favourite", "favorite": "favourite", "color": "colour", "colors": "colours",
-          "b4": "before", "2day": "today", "gr8": "great", "ok.": "ok", "k.": "k"}
+          "b4": "before", "2day": "today", "gtg": "got to go", "g2g": "got to go", "gr8": "great", "ok.": "ok", "k.": "k"}
 _ADDRESS = re.compile(r"(^|[\s,])(engramm|bot|buddy)([\s,!.?]|$)", re.I)
 _FILLER = re.compile(r"^(?:(?:um+|uh+|er+|erm|well|so|oh|ah|hmm+|hey|ok|okay|alright|and|but|also|now|then|"
-                     r"please|pls|plz)\s*[,.!]?\s+)+(?=\S)")
+                     r"please|pls|plz|lo+l+|ha(?:ha)+h?|he(?:he)+|lmao+|omg|wow|aw+|haha+)\s*[,.!]?\s+)+(?=\S)")
 _END = re.compile(r"[\s.!?…,;:]+$")
 
 
@@ -107,6 +107,7 @@ class Bank:
         self.writing = data.get("writing", {"purposes": {"generic": {}}, "greetings": {}, "closings": {},
                                             "poems": []})
         self.de = data.get("de")                 # German v0 (engramm/chat/german.py)
+        self.daily = data.get("daily") or {}     # everyday conversation (engramm/chat/everyday.py)
         self._grams = [(it.id, ex, _grams(ex)) for it in self.intents for ex in it.examples]
 
     # -- matching ----------------------------------------------------------------------------
@@ -183,7 +184,9 @@ def choose(options: list[str], key: str, recent: list[str], salt: str = "") -> s
     for i in order:
         if options[i] not in recent:
             return options[i]
-    return options[order[0]]
+    # all used recently: the one used longest ago
+    last_use = {opt: k for k, opt in enumerate(recent)}
+    return options[min(order, key=lambda i: last_use.get(options[i], -1))]
 
 
 @lru_cache(maxsize=4)

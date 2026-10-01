@@ -10,6 +10,7 @@ ROOT = Path(SPECPATH).resolve().parents[1]
 # engramm is a namespace package, so its data files are listed here: the conversation bank, the
 # realizer's verb list and the built chat page
 datas = [(str(ROOT / "engramm" / "chat" / "conv_bank.json"), "engramm/chat"),
+         (str(ROOT / "engramm" / "chat" / "letters.json"), "engramm/chat"),
          (str(ROOT / "engramm" / "chat" / "data"), "engramm/chat/data"),
          (str(ROOT / "engramm" / "app" / "web"), "engramm/app/web")]
 hidden = (collect_submodules("engramm.chat") + collect_submodules("engramm.kb") + collect_submodules("engramm.nlp")

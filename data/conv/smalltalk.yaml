@@ -302,6 +302,14 @@ intents:
     responses_named:
       - "Welcome back, {name}!"
 
+  - id: you_repeat
+    patterns: ['(you (already|just) said (that|this|it)|you said (that|this|it) (already|before)|you''re repeating yourself|you are repeating yourself|you keep (saying|repeating) (that|the same thing|yourself)|same (answer|thing|reply) again|you repeated yourself|stop repeating yourself|that''s what you said before|déjà vu)']
+    examples: [you already said that, you're repeating yourself, same answer again, you keep saying that]
+    responses:
+      - "Oops, you're right — I repeated myself. Let's switch it up: ask me anything, or I can tell you a fun fact."
+      - "Good catch, sorry about that! I'll try something different — what would you like to talk about?"
+      - "Fair point, I said that already. What shall we talk about instead?"
+
   - id: repeat
     patterns: ['(what did you (just )?say|say (that|it) again|can you repeat (that|it)?|could you repeat (that|it)?|repeat (that|it|please)|repeat|come again|pardon me|sorry what|what was that|i didn''t (get|catch) that)']
     examples: [can you repeat that, say that again, what did you say, come again]

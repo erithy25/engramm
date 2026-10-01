@@ -102,6 +102,14 @@ RULES = [
     _r([rf"where did {E} (?:study|go to (?:university|college|school))", rf"what (?:university|college) did {E} "
         rf"(?:attend|go to)", rf"which university did {E} attend"],
        "almaMater education", PERSON, "{E} studied at {v}."),
+    _r([rf"what (?:else )?(?:did|has) {E} (?:write|written|compose|composed|paint|painted)",
+        rf"what (?:books|plays|novels|poems|works|songs|paintings|operas|symphonies) (?:did|has) {E} "
+        rf"(?:write|written|compose|composed|paint|painted|create|created)",
+        rf"what (?:are|were) {E}'s (?:most )?(?:famous|best[- ]known|notable|important|popular|major|greatest) "
+        rf"(?:works|books|plays|novels|poems|songs|paintings)",
+        rf"(?:name |list |tell me )?(?:some|a few) (?:of )?{E}'s (?:works|books|plays|novels|poems|songs|paintings)",
+        rf"what (?:are|were) (?:some|the) (?:famous |best[- ]known |notable )?works (?:of|by) {E}"],
+       "notableWork", PERSON, "{E}'s best-known works include {v}.", render="few"),
     _r([rf"what (?:is|was) {E} (?:known|famous) for", rf"why (?:is|was) {E} famous"],
        "knownFor notableWork", PERSON, "{E} is known for {v}."),
     _r([rf"what (?:party|political party) (?:is|was|does|did) {E}(?: belong to| in| a member of| represent)?"],
@@ -451,6 +459,8 @@ class KGQA:
                     vals.append(v)
             if phrase_dates and len(vals) > 1:
                 vals = vals[:1]                   # one date (birthDate before birthYear)
+            if rule.render == "few":
+                vals = list(dict.fromkeys(vals))[:5]   # a handful, not forty plays
         vals = [v for v in vals if v]
         own = [v for v in vals if ent.name.lower() in v.lower() and v.lower() != ent.name.lower()]
         if own and len(own) < len(vals):

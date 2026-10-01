@@ -603,6 +603,9 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
         if any(w in ("am", "was", "been", "became", "become", "becoming", "as", "remain", "remained") for w in before):
             rel += ["#job", "#work"]
             has_category = True
+    if vcat and value and value[:1].isupper() and first_v > 0 and vcat not in concepts(" ".join(lw)) and \
+            vcat in ("#food", "#colour", "#car", "#job"):
+        vcat = None             # a capitalised name with no food/colour/car/job word around it ("I watched Inception")
     if vcat and (not has_category or vcat in rel):
         rel.append(vcat)
     # "My employer's name is X", "a company called X": the name of that thing, not your name

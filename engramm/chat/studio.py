@@ -24,8 +24,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "data" / "conv"
-FILES = ("smalltalk", "empathy", "safety", "fun", "replies", "writing", "de")
-PLACEHOLDERS = {"name", "x", "noun", "subject", "title", "topic", "category", "evidence", "last", "more", "bot"}
+FILES = ("smalltalk", "empathy", "safety", "fun", "replies", "writing", "de", "daily")
+PLACEHOLDERS = {"name", "x", "noun", "subject", "title", "topic", "category", "evidence", "last", "more", "bot",
+                "timeword", "fact"}
 
 
 def load_sources(src: Path = SRC) -> dict:
@@ -151,6 +152,19 @@ def check(data: dict) -> tuple[list[str], list[str]]:
             if bad:
                 errors.append(f"replies {path}: unknown placeholder {sorted(bad)}")
     walk(data["replies"], "")
+    daily = data.get("daily") or {}
+    walk(daily, "daily")
+    for game in ("quiz", "riddle"):
+        for it in (daily.get(game) or {}).get("items", []):
+            if not it.get("q") or not it.get("a"):
+                errors.append(f"daily {game}: item without question or answer: {it!r}")
+    for kind, spec in ((daily.get("recommend") or {}).items()):
+        if isinstance(spec, dict) and "items" in spec:
+            for it in spec["items"]:
+                if isinstance(it, dict) and not it.get("x"):
+                    errors.append(f"daily recommend {kind}: item without text: {it!r}")
+            if len(spec["items"]) < 6:
+                warnings.append(f"daily recommend {kind}: only {len(spec['items'])} items")
     return errors, warnings
 
 
@@ -165,7 +179,8 @@ def build(out: Path | None = None) -> Path:
             print("ERROR:", e)
         raise SystemExit(f"{len(errors)} error(s); nothing written")
     compiled = {"version": 1, "smalltalk": data["smalltalk"], "empathy": data["empathy"],
-                "safety": data["safety"], "fun": data["fun"], "replies": data["replies"], "writing": data["writing"], "de": data["de"]}
+                "safety": data["safety"], "fun": data["fun"], "replies": data["replies"], "writing": data["writing"], "de": data["de"],
+                "daily": data["daily"]}
     out = Path(out or BANK_PATH)
     out.write_text(json.dumps(compiled, ensure_ascii=False, indent=1, sort_keys=False) + "\n", encoding="utf-8")
     n_int = len(data["smalltalk"]["intents"])
@@ -196,7 +211,8 @@ def main(argv: list[str] | None = None) -> int:
     from engramm.chat.acts import classify
     from engramm.chat.bank import Bank
     bank = Bank({"smalltalk": data["smalltalk"], "empathy": data["empathy"], "safety": data["safety"],
-                 "fun": data["fun"], "replies": data["replies"], "writing": data["writing"], "de": data["de"]})
+                 "fun": data["fun"], "replies": data["replies"], "writing": data["writing"], "de": data["de"],
+                 "daily": data["daily"]})
     msgs = args.messages
     if args.command == "coverage" and not msgs:
         msgs = [ex for it in data["smalltalk"]["intents"] for ex in it.get("examples", [])]

@@ -31,6 +31,9 @@ learned:
   car:
     - "A {x}, nice! I'll remember that."
     - "Got it — you drive a {x}."
+  age:
+    - "{x} — got it!"
+    - "Got it, you're {x}."
   birth:
     - "Got it — I'll remember {x}."
     - "Noted: {x}. I'll keep that in mind."
@@ -110,7 +113,7 @@ answer:
     - "I don't know, sorry. I couldn't find anything reliable about that."
     - "I don't know — I haven't read anything that answers that."
   unknown_named:
-    - "I don't know — I haven't read anything about {x}."
+    - "I don't know — I couldn't find anything about “{x}” in what I've read."
   unknown_near:
     - "I don't know for sure. The closest thing I read is the article “{x}”, but it doesn't answer that clearly."
     - "I couldn't find a clear answer. “{x}” came closest, but I'd rather not guess."
