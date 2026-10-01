@@ -104,7 +104,8 @@ _ADVICE = re.compile(_LEAD + r"(?:so )?(?:what (?:should|can|could|do you think|
                      r"give me (?:some |an? )?(?:advice|tip|tips)(?: (?:on|about|for) (?P<about3>.+))?|"
                      r"how (?:do|should|can) i (?:deal|cope) with (?P<about4>.+)|help me (?:with this|out|deal with (?P<about5>.+))|"
                      r"what (?:now|next)|how do i handle (?P<about6>.+)|i (?:don't|do not|dont) know what to do|i'm not sure what to do|"
-                     r"what am i supposed to do|i need (?:some )?advice|what do you think i should (?:do|say)"
+                     r"what am i supposed to do|i need (?:some )?advice|(?:so )?what do you think(?: about (?:it|that))?|"
+                     r"should i(?: do it)?|is that a good idea|what do you think i should (?:do|say)"
                      r"(?: (?:about|with) (?P<about7>.+?))?|what do i do(?: now| about (?P<about8>.+))?)$")
 _DECIDE = [re.compile(_LEAD + r"(?:should (?:i|we)|do (?:i|we)|would you|what's better[,:]?|which is better[,:]?|"
                       r"help me (?:decide|choose|pick)[,:]?) (?P<a>[^?]{2,40}?) or (?P<b>[^?]{2,40}?)$"),
@@ -213,8 +214,10 @@ class Everyday:
                 return kind, g, who
         return None
 
-    def recommend(self, st, msg: str, kind: str, genre: str | None = None, more: bool = False) -> Reply:
+    def recommend(self, st, msg: str, kind: str, genre: str | None = None, more: bool = False,
+                  lang: str = "en") -> Reply:
         spec = self.d["recommend"][kind]
+        de = (self.a.bank.de or {}).get("daily", {}).get("rec", {}) if lang == "de" else None
         items = spec["items"]
         tag = _GENRES.get((genre or "").strip()) if genre else None
         pool = list(range(len(items)))
@@ -234,12 +237,18 @@ class Everyday:
         for i in chosen:
             it = items[i]
             if isinstance(it, dict):
-                texts.append(it["x"])
+                text = it.get("de") if de is not None and it.get("de") else it["x"]
+                if de is not None and not it.get("de"):
+                    text = text.replace(" by ", " von ").replace(" from Pixar", " von Pixar").replace(
+                        ", a German mystery series", ", eine deutsche Mystery-Serie").replace(
+                        " (the US version)", " (die US-Version)").replace(" with David Attenborough", " mit David Attenborough")
+                texts.append(text)
                 titles.append(it.get("title"))
             else:
                 texts.append(it)
                 titles.append(None)
         st.last_list = {"kind": kind, "titles": titles, "texts": texts, "turn": st.turn, "genre": tag}
+        st.last_action = {"kind": f"rec:{kind}", "genre": genre, "turn": st.turn, "lang": lang}
         intro = spec.get("intro") or self.pick(st, "rec_intro", self.d["recommend"]["intro"])
         if more:
             intro = "A few more:"
@@ -248,6 +257,10 @@ class Everyday:
             outro = self.pick(st, "rec_outro", self.d["recommend"]["outro"])
         else:
             outro = spec.get("outro") if not more else "Want even more?"
+        if de is not None:
+            k = de.get(kind, {})
+            intro = de["more"] if more else k.get("intro", de["intro"])
+            outro = de["outro"] if any(titles) and not more else k.get("outro", de["outro"])
         if len(fresh) > len(chosen):
             st.offer = {"kind": "ideas", "rec": kind, "genre": genre, "turn": st.turn}
         return Reply(msg, "smalltalk", f"{intro}\n\n{body}\n\n{outro}", via="everyday")
@@ -291,6 +304,9 @@ class Everyday:
         if re.search(r"\b(?:teacher|friend|friends|mom|mum|dad|mother|father|parents|brother|sister|partner|boyfriend|"
                      r"girlfriend|husband|wife|neighbou?r|roommate|flatmate|him|her|them|people|family)\b", t):
             return "people"
+        if re.search(r"\b(?:quit|quitting|resign|resigning|leave my job|leaving my job|new job|change jobs?|"
+                     r"switch(?:ing)? jobs?|career)\b", t):
+            return "career"
         if re.search(r"\b(?:failed|fail|flunked|rejected|rejection|lost|fired|didn't get|did not get|mistake|messed up)\b", t):
             return "failure"
         if re.search(r"\b(?:stress|stressed|stressful|anxious|anxiety|worried|nervous|overwhelmed|overwhelming|panic|"
@@ -337,6 +353,7 @@ class Everyday:
         i, it = self._game_item(st, "quiz")
         lead = self.pick(st, "quiz_intro" if first else "quiz_next",
                          self.d["quiz"]["intro"] if first else self.d["quiz"]["next"])
+        st.last_action = {"kind": "quiz", "turn": st.turn}
         st.game = {"kind": "quiz", "i": i, "turn": st.turn, "tries": 0,
                    "score": (st.game or {}).get("score", 0) if not first else 0,
                    "asked": (st.game or {}).get("asked", 0) + 1 if not first else 1}
@@ -345,6 +362,7 @@ class Everyday:
     def start_riddle(self, st, msg: str) -> Reply:
         i, it = self._game_item(st, "riddle")
         lead = self.pick(st, "riddle_intro", self.d["riddle"]["intro"])
+        st.last_action = {"kind": "riddle", "turn": st.turn}
         st.game = {"kind": "riddle", "i": i, "turn": st.turn, "tries": 0}
         return Reply(msg, "smalltalk", f"{lead} {it['q']}", via="riddle")
 
@@ -468,9 +486,36 @@ class Everyday:
 
     # -- the dispatcher -----------------------------------------------------------------------
 
+    def compare(self, st, msg: str, s: str) -> Reply | None:
+        if self.a.kgqa is None:
+            return None
+        if getattr(self, "_comparer", None) is None:
+            from engramm.kb.compare import Comparer
+            self._comparer = Comparer(self.a.kgqa)
+        try:
+            c = self._comparer.answer(s)
+        except Exception:                     # a damaged fact bank must not break the chat
+            return None
+        if c is None:
+            if self._comparer.is_request(s) and not re.search(r"\bor\b", s):
+                return Reply(msg, "unknown", "I can only compare things my fact bank has numbers or facts for — "
+                                             "like countries, cities, people, companies or mountains. Try “compare "
+                                             "France and Germany” or “who is older, Einstein or Newton?”.",
+                             via="kb")
+            return None
+        a, b = c.entities
+        src_a = {"kind": "kb", "source": "dbpedia", "key": a.title}
+        src_b = {"kind": "kb", "source": "dbpedia", "key": b.title}
+        st.last_fact = {"evidence": c.evidence, "source": src_a, "answer": None, "question": msg, "sure": True}
+        return Reply(msg, "answer", c.text, evidence=c.evidence, source=src_a, confidence=1.0, via="kb",
+                     alternatives=[{"text": b.title, "source": src_b}])
+
     def request(self, st, msg: str, norm: str) -> Reply | None:
         s = norm.strip(" .!?")
         r = self.pick_from_list(st, msg, s)
+        if r is not None:
+            return r
+        r = self.compare(st, msg, s)
         if r is not None:
             return r
         m = _ADVICE.match(s)
@@ -480,8 +525,12 @@ class Everyday:
                                                "about8") if m.group(k)), None)
             if about and re.fullmatch(r"(?:it|this|that|them|him|her|life)", about):
                 about = None
-            # "what should I do?" after a moment is a request for advice; on its own, ideas for something to do
-            if about or exp or not _ACTIVITY.match(s):
+            # "what should I do?" after a moment is a request for advice; on its own, ideas for something to do;
+            # "what do you think?" / "should I?" only right after a moment or a plan
+            bare_opinion = re.match(r"^(?:so )?(?:what do you think|should i|is that a good idea)", s)
+            if bare_opinion and not exp:
+                pass
+            elif about or exp or not _ACTIVITY.match(s):
                 return self.advice(st, msg, about)
         hit = self._recommend_kind(s)
         if hit is not None:

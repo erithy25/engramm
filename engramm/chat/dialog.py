@@ -83,6 +83,8 @@ class DialogState:
     gib: int = 0                              # replies to gibberish in a row
     last_message: str = ""
     last_kind: str = ""
+    last_action: dict | None = None           # the last joke / fact / quiz / suggestions, for "another one"
+    lang: str = "en"                          # the language of the conversation ("de" after a German message)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -155,11 +157,51 @@ class Assistant:
         return self.clock() if self.clock else None
 
     def _german(self, st: DialogState, msg: str) -> Reply:
-        """A German message (engramm/chat/german.py): chat, feelings, crises, memory; knowledge
-        questions get an honest pointer to English."""
+        """A German message (engramm/chat/german.py): chat, feelings, crises, memory, suggestions,
+        advice, moments, and knowledge questions through the English fact bank
+        (engramm/chat/german_bridge.py), answered in German where the answer is a fact."""
+        from engramm.chat.german import advice_de, experience_de, neutral_de, normalise_de, rec_kind_de
         de = self.bank.de
+        dd = de.get("daily", {})
+        st.lang = "de"
+        s = normalise_de(msg)
         u = understand(msg, de)
         name = self.user_name()
+        known = self.speller.known if self.speller is not None else None
+        if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
+            return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
+        if u.kind == "fallback" or u.kind == "feeling":
+            n = neutral_de(s)
+            if n is not None:
+                return Reply(msg, "smalltalk", self._pick(st, f"de:short:{n}", dd["short"][n]), via="german")
+            if re.fullmatch(r"(?:noch )?mehr|noch (?:ein paar|einen|eine|einer|eins)|nochmal|weiter", s):
+                la = st.last_action
+                if la and la["kind"].startswith("rec:"):
+                    return self.everyday.recommend(st, msg, la["kind"][4:], la.get("genre"), more=True, lang="de")
+                if la and la["kind"] in ("joke",):
+                    return self._german(st, "erzähl mir einen witz")
+            exp_recent = st.last_exp if st.last_exp and st.turn - st.last_exp.get("turn", -99) <= 4 else None
+            kind = rec_kind_de(s)
+            if kind is not None and not (kind == "activity" and exp_recent and advice_de(s)):
+                return self.everyday.recommend(st, msg, kind, lang="de")
+            if advice_de(s):
+                exp = exp_recent
+                if not exp:
+                    return Reply(msg, "smalltalk", self._pick(st, "de:advice:none", dd["advice"]["none"]), via="german")
+                group = self.everyday._advice_group(exp.get("text_en") or exp.get("text") or "", exp)
+                group = group if group in dd["advice"] else "generic"
+                return Reply(msg, "smalltalk", self._pick(st, f"de:advice:{group}", dd["advice"][group]), via="german")
+            bridged = self._german_question(st, msg, s)
+            if bridged is not None:
+                return bridged
+            ex = experience_de(s)
+            if ex is not None:
+                val, topic, person, timeword = ex
+                shape = "person" if topic and person else "thing" if topic else "time" if timeword else "plain"
+                st.last_exp = {"valence": val, "topic": topic, "person": person, "text": msg,
+                               "text_en": _de_advice_hint(s), "turn": st.turn}
+                return Reply(msg, "empathy", self._pick(st, f"de:moment:{val}:{shape}", dd["experience"][val][shape],
+                                                         topic=topic or ""), via="german")
         if u.kind == "safety":
             st.pending = None
             return Reply(msg, "safety", u.data["response"], via="safety")
@@ -192,6 +234,50 @@ class Assistant:
                 opts = next(c for c in fe["categories"] if c["id"] == u.data["id"])["responses"]
             return Reply(msg, "empathy", self._pick(st, f"de:feeling:{u.data['id']}", opts), via="german")
         return Reply(msg, "unknown", self._pick(st, "de:fallback", de["replies"]["fallback"]), via="german")
+
+    def _german_question(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        from engramm.chat.german_bridge import de_sentence, de_value, to_english
+        hit = to_english(s)
+        if hit is None:
+            return None
+        english, kind, x_en, x_de = hit
+        dd = self.bank.de["daily"]
+        if kind == "about":
+            rep = self._about(st, Unit("about", english, english.lower(), data={"kind": "tell", "topic": x_en}))
+            if rep.kind == "about":
+                rep.text = f"{dd['english_text']} {rep.text}"
+                rep.message = msg
+                return rep
+            rep = self._question(st, english.replace("tell me about", "who is"))
+            if rep.kind != "answer":
+                return Reply(msg, "unknown", self._pick(st, "de:unknown", dd["unknown"]), via="german")
+        elif kind == "compare":
+            rep = self.everyday.compare(st, english, english.lower())
+            if rep is None or rep.kind != "answer":
+                return Reply(msg, "unknown", dd["compare_none"], via="german")
+            rep.text = _de_compare(rep.text, s)
+            rep.message = msg
+            return rep
+        else:
+            pron = re.search(r"\b(?:er|sie|ihn|ihm|ihr|sein|seine|ihre)\b", s)
+            rep = self._question(st, english + "?")
+            if rep.via == "clarify" or (pron and rep.kind != "answer"):
+                return Reply(msg, "unknown", dd["who_mean"].replace("{x}", pron.group(0) if pron else x_en), via="clarify")
+        rep.message = msg
+        if rep.kind != "answer":
+            rep.text = self._pick(st, "de:unknown", dd["unknown"])
+            return rep
+        if rep.via == "kb":
+            name = re.sub(r"\s*\([^)]*\)$", "", (rep.source or {}).get("key") or x_en)
+            if x_de and x_de.lower() != x_en.lower() and x_en.lower() == name.lower() and \
+                    x_en.lower() not in ("he", "she", "it", "him", "her"):
+                name = x_de                     # "Frankreich", as the user wrote it
+            sent = de_sentence(kind, name, rep.answer or "", rep.text)
+            if sent:
+                rep.text = sent
+                return rep
+        rep.text = f"{dd['english_text']} {rep.text}"
+        return rep
 
     # -- the turn -----------------------------------------------------------------------------
 
@@ -252,6 +338,13 @@ class Assistant:
         de = self.bank.de
         if de and is_german(msg, de) and self.bank.safety_rule(normalise(msg, fillers=False)) is None:
             return self._german(st, msg)
+        if de and st.lang == "de":
+            from engramm.chat.german import neutral_de, normalise_de
+            if neutral_de(normalise_de(msg)) is not None or re.fullmatch(r"(?:noch )?mehr|nochmal", normalise_de(msg)) \
+                    or gibberish(msg, self.speller.known if self.speller is not None else None):
+                return self._german(st, msg)      # "haha", "ok", "ja" in a German conversation stay German
+            if len(re.findall(r"[a-z]+", msg.lower())) >= 2:
+                st.lang = "en"
         norm = normalise(msg)
         played = self.everyday.game_answer(st, msg, norm)          # a quiz question or riddle waiting
         if played is not None:
@@ -278,6 +371,10 @@ class Assistant:
                 st.offer = {"kind": "joke_or_fact", "turn": st.turn}
                 return Reply(msg, "smalltalk", self._pick(st, "daily:moment:no", self.bank.daily["moment_no"]),
                              via="empathy")
+        if _ANOTHER.match(norm):
+            again = self._again(st, msg)
+            if again is not None:
+                return again
         wh = bare_followup(msg)
         if wh and st.last_q:
             rebuilt = rebuild_question(st.last_q, wh)
@@ -443,6 +540,8 @@ class Assistant:
     def _action(self, st: DialogState, action: str, u: Unit) -> Reply | None:
         fun = self.bank.fun
         seed = f"{st.conversation}|{st.turn}"
+        if action in ("joke", "fun_fact", "quote", "story"):
+            st.last_action = {"kind": action, "turn": st.turn}
         if action == "joke":
             n = st.uses.get("joke", 0)
             st.uses["joke"] = n + 1
@@ -876,6 +975,23 @@ class Assistant:
         names = [c for c in caps if c != first or self.bot.is_name_initial_fact(c)]
         return bool(names) and len(words) >= 3
 
+    def _again(self, st: DialogState, msg: str) -> Reply | None:
+        """"another one" / "one more": the same kind of thing as last time (a joke, a fact, a quote,
+        suggestions, a quiz question or a riddle)."""
+        la = st.last_action
+        if not la or st.turn - la.get("turn", -99) > 6:
+            return None
+        kind = la["kind"]
+        if kind in ("joke", "fun_fact", "quote", "story"):
+            return self._action(st, kind, Unit("intent", msg))
+        if kind == "quiz":
+            return self.everyday.start_quiz(st, msg, first=False)
+        if kind == "riddle":
+            return self.everyday.start_riddle(st, msg)
+        if kind.startswith("rec:"):
+            return self.everyday.recommend(st, msg, kind[4:], la.get("genre"), more=True)
+        return None
+
     def _discourse(self, st: DialogState, u: Unit) -> str:
         n = u.norm
         d = self.bank.daily["discourse"]
@@ -900,7 +1016,10 @@ class Assistant:
         what = swap_person(what) if what else ""
         if what and len(what.split()) <= 8:
             head = what[:1].upper() + what[1:]
-            return self._pick(st, "daily:plan", self.bank.daily["plan"], x=head)
+            big = re.match(r"(?:quit|quitting|leav|break|divorc|drop|mov|resign|sell|end|stop)", what.lower())
+            st.last_exp = {"valence": "plan", "topic": what, "person": False, "text": u.text, "turn": st.turn}
+            key = "plan_big" if big else "plan"
+            return self._pick(st, f"daily:{key}", self.bank.daily[key], x=head)
         return self._pick(st, "daily:plan_plain", self.bank.daily["plan_plain"])
 
     def _has_fact(self, sentence: str) -> bool:
@@ -1176,6 +1295,9 @@ def resolve_statement(text: str) -> str:
     return " ".join(x for x in out if x)
 
 
+_ANOTHER = re.compile(r"^(?:(?:ok|okay|yes|yeah|sure|haha|lol|nice|cool|great|wow)[ ,!]+)?(?:another(?: one)?|one more"
+                      r"(?: please)?|again|more please|next(?: one)?|give me another(?: one)?|tell me another(?: one)?|"
+                      r"do another(?: one)?|more)(?: please)?$")
 _GENERAL_MOODS = frozenset(("angry", "sad", "tired", "stress", "anxious", "happy", "excited", "calm", "lonely",
                             "conflict"))
 _PLAN = re.compile(r"\b(?:i'm|i am|im|we're|we are) (?:thinking (?:about|of)|planning (?:to|on)|considering|hoping to|"
@@ -1198,6 +1320,47 @@ def _job_field(text: str) -> str:
         return text
     body = text.strip().rstrip(".!")
     return f"{body}. My job is in {field}."
+
+
+_DE_COMPARE = [(r"^(.+?) vs (.+?):", r"\1 im Vergleich mit \2:"), (r"• Population:", "• Einwohner:"),
+               (r"• Area:", "• Fläche:"), (r"• Capital:", "• Hauptstadt:"), (r"• Official language:", "• Amtssprache:"),
+               (r"• Currency:", "• Währung:"), (r"• Elevation:", "• Höhe:"), (r"• Born:", "• Geboren:"),
+               (r"• Died:", "• Gestorben:"), (r"• Nationality:", "• Nationalität:"), (r"• Occupation:", "• Beruf:"),
+               (r"• Known for:", "• Bekannt für:"), (r"• Founded:", "• Gegründet:"), (r"• Headquarters:", "• Sitz:"),
+               (r"• Industry:", "• Branche:"), (r"• Employees:", "• Mitarbeiter:"), (r"• Height:", "• Höhe:"),
+               (r"(\S.*?) has more people\.", r"\1 hat mehr Einwohner."),
+               (r"(\S.*?) has the larger area\.", r"\1 hat die größere Fläche."),
+               (r"^(.+?) is bigger by area: (.+?), compared with (.+?) for (.+?)\.$", r"\1 ist flächenmäßig größer: \2, im Vergleich zu \3 bei \4."),
+               (r"^(.+?) is more populous: (.+?), compared with (.+?) for (.+?)\.$", r"\1 hat mehr Einwohner: \2, im Vergleich zu \3 bei \4."),
+               (r"^(.+?) is (higher|taller): (.+?), compared with (.+?) for (.+?)\.$", r"\1 ist höher: \3, im Vergleich zu \4 bei \5."),
+               (r"^(.+?) is longer: (.+?), compared with (.+?) for (.+?)\.$", r"\1 ist länger: \2, im Vergleich zu \3 bei \4."),
+               (r"^(.+?) is older: (.+?) was born (.+?), (.+?) (.+?)\.$", r"\1 ist älter: \2 wurde \3 geboren, \4 \5."),
+               (r"^(.+?) is younger: (.+?) was born (.+?), (.+?) (.+?)\.$", r"\1 ist jünger: \2 wurde \3 geboren, \4 \5."),
+               (r" million", " Millionen")]
+
+
+def _de_compare(text: str, said: str = "") -> str:
+    """An English comparison in German, with the user's own place names ("France" → "Frankreich")."""
+    from engramm.chat.german_bridge import EXONYMS, de_value
+    out = []
+    for line in text.split("\n"):
+        for pat, rep in _DE_COMPARE:
+            line = re.sub(pat, rep, line)
+        out.append(de_value(line) if line.startswith("•") or " ist " in line or " hat " in line else line)
+    text = "\n".join(out)
+    for de_name, en_name in EXONYMS.items():
+        if re.search(rf"\b{re.escape(de_name)}\b", said):
+            text = re.sub(rf"\b{re.escape(en_name)}\b", de_name[:1].upper() + de_name[1:], text)
+    return text
+
+
+def _de_advice_hint(s: str) -> str:
+    """English keywords for the advice groups ("mein Chef nervt" → "boss")."""
+    pairs = [("chef", "boss"), ("kolleg", "colleague"), ("arbeit", "work"), ("freundin", "girlfriend"),
+             ("freund", "friend"), ("mutter", "mom"), ("vater", "dad"), ("eltern", "parents"), ("schluss gemacht", "broke up"),
+             ("verlassen", "left me"), ("gestorben", "died"), ("prüfung", "failed"), ("durchgefallen", "failed"),
+             ("stress", "stressed"), ("müde", "tired"), ("erschöpft", "tired"), ("traurig", "sad"), ("kündigen", "quit")]
+    return " ".join(e for d, e in pairs if d in s)
 
 
 def _join_values(values: list[str]) -> str:

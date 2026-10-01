@@ -721,7 +721,7 @@
    {
     "id": "joke",
     "patterns": [
-     "((can you |could you |please )?(tell|give) me (a |another |one more )?(joke|pun)s?( please)?|(say|tell) (me )?something funny|make me laugh|do you know (a|any) jokes?|(another|one more) (joke|one)|joke|jokes|(tell me )?a (dad )?joke|i need a laugh|cheer me up with a joke|be funny)"
+     "((can you |could you |please )?(tell|give) me (a |another |one more )?(joke|pun)s?( please)?|(say|tell) (me )?something funny|make me laugh|do you know (a|any) jokes?|(another|one more) joke|joke|jokes|(tell me )?a (dad )?joke|i need a laugh|cheer me up with a joke|be funny)"
     ],
     "examples": [
      "tell me a joke",
@@ -3514,7 +3514,84 @@
     "also",
     "mal",
     "bitte",
-    "vielen"
+    "vielen",
+    "wann",
+    "wurde",
+    "wurden",
+    "er",
+    "geboren",
+    "gestorben",
+    "geschrieben",
+    "gemalt",
+    "erfunden",
+    "gegründet",
+    "hauptstadt",
+    "einwohner",
+    "welche",
+    "welcher",
+    "welches",
+    "hoch",
+    "groß",
+    "liegt",
+    "gibt",
+    "soll",
+    "sollte",
+    "möchte",
+    "vergleiche",
+    "empfehlen",
+    "empfiehl",
+    "essen",
+    "kochen",
+    "buch",
+    "serie",
+    "warum",
+    "wieso",
+    "weshalb",
+    "woher",
+    "wohin",
+    "viele",
+    "viel",
+    "mehr",
+    "nach",
+    "ihm",
+    "ihn",
+    "ihr",
+    "sein",
+    "seine",
+    "machen",
+    "tun",
+    "nervt",
+    "anstrengend",
+    "anstrengenden",
+    "stressig",
+    "arbeit",
+    "chef",
+    "kollege",
+    "kollegin",
+    "schule",
+    "heute",
+    "morgen",
+    "langweilig",
+    "älter",
+    "jünger",
+    "größer",
+    "kleiner",
+    "höher",
+    "länger",
+    "verheiratet",
+    "bekannt",
+    "erzähl",
+    "erzähle",
+    "erkläre",
+    "erklär",
+    "weißt",
+    "gucken",
+    "schauen",
+    "hören",
+    "spielen",
+    "lesen",
+    "schenken",
+    "reisen"
    ],
    "english": [
     "i",
@@ -3629,7 +3706,15 @@
     "kind",
     "gift",
     "fast",
-    "mist"
+    "mist",
+    "er",
+    "alt",
+    "hoch",
+    "film",
+    "morgen",
+    "nach",
+    "sein",
+    "lang"
    ]
   },
   "intents": [
@@ -3895,9 +3980,9 @@
   },
   "replies": {
    "fallback": [
-    "Auf Deutsch kann ich bisher nur plaudern und zuhören. Wissensfragen und Texte beantworte ich auf Englisch – frag mich einfach auf Englisch, zum Beispiel: „Who wrote Faust?“",
-    "Das verstehe ich auf Deutsch leider noch nicht. Magst du es auf Englisch versuchen? Dann schlage ich es mit Quelle nach.",
-    "Mein Deutsch reicht dafür noch nicht. Auf Englisch kann ich nachschlagen, rechnen und E-Mails entwerfen."
+    "Das habe ich nicht ganz verstanden. Frag mich zum Beispiel „Wer hat Faust geschrieben?“ oder „Was soll ich heute essen?“ – oder erzähl mir, wie dein Tag war.",
+    "Hm, da komme ich nicht ganz mit. Magst du es anders formulieren? Wissensfragen, Empfehlungen und Plaudern klappen auf Deutsch, ausführliche Texte schreibe ich auf Englisch.",
+    "Das verstehe ich leider nicht. Versuch es mit einer kurzen Frage – zum Beispiel „Wie hoch ist die Zugspitze?“."
    ],
    "learned_name": [
     "Freut mich, {name}! Das merke ich mir.",
@@ -3914,6 +3999,192 @@
     "Deinen Namen hast du mir noch nicht verraten. Wie heißt du?"
    ],
    "calc": "{x}"
+  },
+  "daily": {
+   "unknown": [
+    "Das weiß ich leider nicht – dazu habe ich nichts Verlässliches gelesen.",
+    "Da muss ich passen, dazu habe ich nichts gefunden."
+   ],
+   "english_text": "Dazu habe ich auf Englisch gelesen:",
+   "english_note": "(Meine Quellen sind englisch.)",
+   "compare_none": "Vergleichen kann ich nur Dinge, zu denen meine Faktenbank Zahlen oder Fakten hat – Länder, Städte, Personen, Firmen oder Berge. Probier zum Beispiel „Vergleiche Frankreich und Deutschland“.",
+   "who_mean": "Wen meinst du mit „{x}“? Sag mir den Namen, dann schlage ich nach.",
+   "gibberish": [
+    "Hm, das sieht nach einem Vertipper aus. Was wolltest du sagen?",
+    "Da sind dir wohl die Finger ausgerutscht! Was meintest du?"
+   ],
+   "rec": {
+    "intro": "Ein paar Ideen:",
+    "outro": "Gefällt dir etwas davon? Ich kann dir zu jedem mehr erzählen.",
+    "more": "Noch ein paar:",
+    "food": {
+     "intro": "Ein paar Ideen für heute:",
+     "outro": "Worauf hast du Lust – schnell, gesund oder gemütlich?"
+    },
+    "book": {
+     "intro": "Ein paar Bücher, die viele lieben:",
+     "outro": "Lieber Roman oder Sachbuch?"
+    },
+    "movie": {
+     "intro": "Ein paar Filme, die sich lohnen:",
+     "outro": "Eher leicht, spannend oder zum Nachdenken?"
+    },
+    "series": {
+     "intro": "Ein paar Serien, über die alle reden:",
+     "outro": "Lieber lustig, packend oder entspannt?"
+    },
+    "music": {
+     "intro": "Ein paar Alben zum Reinhören:",
+     "outro": "Welche Musik hörst du sonst gern?"
+    },
+    "game": {
+     "intro": "Ein paar Spiele zum Ausprobieren:",
+     "outro": "Brettspiele oder Videospiele?"
+    },
+    "activity": {
+     "intro": "Ein paar Ideen, was du machen könntest:",
+     "outro": "Klingt etwas davon gut?"
+    },
+    "gift": {
+     "intro": "Ein paar Geschenkideen:",
+     "outro": "Für wen ist es? Erzähl mir ein bisschen, dann wird's genauer."
+    },
+    "travel": {
+     "intro": "Ein paar Orte, die viele lieben:",
+     "outro": "Stadt, Strand oder Natur?"
+    },
+    "hobby": {
+     "intro": "Ein paar Hobbys für den Einstieg:",
+     "outro": "Eher aktiv, kreativ oder entspannt?"
+    },
+    "sleep": {
+     "intro": "Was beim Schlafen hilft:",
+     "outro": "Ist eher das Einschlafen oder das Durchschlafen schwer?"
+    },
+    "study": {
+     "intro": "Ein paar Lerntipps, die wirklich helfen:",
+     "outro": "Wofür lernst du gerade?"
+    },
+    "focus": {
+     "intro": "Ein paar Wege, Dinge geschafft zu bekommen:",
+     "outro": "Was willst du heute erledigen?"
+    },
+    "exercise": {
+     "intro": "Ein paar einfache Wege, mehr in Bewegung zu kommen:",
+     "outro": "Eher zu Hause oder draußen?"
+    },
+    "petname": {
+     "intro": "Ein paar Namen, die viele mögen:",
+     "outro": "Ist es ein Hund, eine Katze oder etwas anderes?"
+    }
+   },
+   "experience": {
+    "negative": {
+     "person": [
+      "Oh je, das klingt anstrengend. Was hat {topic} gemacht?",
+      "Das klingt echt nervig. Was ist mit {topic} passiert?",
+      "Das tut mir leid. Ist das mit {topic} das erste Mal, oder passiert das öfter?"
+     ],
+     "thing": [
+      "Oh nein – klingt, als wäre {topic} heftig gewesen. Was ist passiert?",
+      "Das klingt zermürbend. Was war an {topic} so schwierig?",
+      "Oh je. Magst du darüber reden, oder hilft dir eher Ablenkung?"
+     ],
+     "time": [
+      "Klingt nach einem langen Tag. Was war denn los?",
+      "Oh je, das klingt nach einer anstrengenden Zeit. Magst du erzählen?"
+     ],
+     "plain": [
+      "Das tut mir leid, das klingt schwer. Magst du darüber reden?",
+      "Das klingt nicht gut. Was ist passiert?"
+     ]
+    },
+    "positive": {
+     "person": [
+      "Wie schön! Was hat {topic} gemacht?",
+      "Das freut mich zu hören! Erzähl mehr?"
+     ],
+     "thing": [
+      "Super Neuigkeiten! Was war das Beste daran?",
+      "Klingt, als wäre es richtig gut gelaufen! Wie fühlst du dich?"
+     ],
+     "time": [
+      "Klingt nach einer tollen Zeit! Was hast du gemacht?",
+      "Wie schön! Was war das Highlight?"
+     ],
+     "plain": [
+      "Das freut mich! Erzähl mehr?",
+      "Wie toll – herzlichen Glückwunsch!"
+     ]
+    }
+   },
+   "advice": {
+    "work_people": [
+     "Wenn es dich weiter beschäftigt, hilft oft ein ruhiges Gespräch unter vier Augen: Beschreib die konkrete Situation und wie sie auf dich gewirkt hat – nicht die Person.",
+     "Schreib dir auf, was genau dich gestört hat, solange es frisch ist. Das macht ein späteres Gespräch viel leichter.",
+     "Schlaf eine Nacht drüber. Wenn es morgen noch wichtig ist, sprich es direkt an; wenn es sich wiederholt, helfen Vertrauenspersonen oder die Personalabteilung."
+    ],
+    "people": [
+     "Wenn ihr beide ruhig seid, sag, wie es sich für dich angefühlt hat – „Ich war verletzt, als …“ kommt besser an als „Du immer …“.",
+     "Gib dem Ganzen etwas Zeit und sprecht dann in Ruhe darüber. Die meisten Konflikte werden kleiner, wenn sich beide gehört fühlen."
+    ],
+    "heartbreak": [
+     "Sei gut zu dir – Liebeskummer tut wirklich weh. Lass dich von Freunden und Familie auffangen, behalte etwas Alltag bei und gib dir Zeit. Es wird leichter.",
+     "Triff gerade keine großen Entscheidungen. Rede mit Menschen, die dir guttun, geh jeden Tag ein bisschen raus und erlaub dir, traurig zu sein."
+    ],
+    "grief": [
+     "Trauer muss man nicht reparieren – sie ist Liebe, die nirgendwo hin kann. Lass sie zu und stütz dich auf die Menschen um dich herum.",
+     "Nimm dir Tag für Tag. Wenn es zu schwer wird, kann ein Gespräch mit einer Beratungsstelle oder deinem Arzt wirklich helfen."
+    ],
+    "career": [
+     "Bevor du entscheidest: Schreib auf, was du vermissen würdest und was nicht – und was du dir vom nächsten Job wünschst. Wenn möglich, such erst in Ruhe etwas Neues.",
+     "Frag dich, ob es am Job, an den Leuten oder an der Menge liegt. Manchmal hilft ein Gespräch oder ein Teamwechsel, manchmal ist es Zeit zu gehen."
+    ],
+    "failure": [
+     "Ein Ergebnis bestimmt nicht, wer du bist. Schau dir an, woran es lag, mach einen Plan für das nächste Mal – und rechne dir den Versuch an.",
+     "Erst mal durchatmen. Dann: Was kannst du daraus lernen? Die meisten, die Erfolg haben, sind vorher gescheitert."
+    ],
+    "stress": [
+     "Probier das: Schreib alles auf, was dir im Kopf herumgeht, und kreis das eine Ding ein, das du heute wirklich tun kannst. Die Liste wirkt danach viel kleiner.",
+     "Ein paar langsame Atemzüge helfen mehr, als man denkt – vier Sekunden ein, vier halten, vier aus. Dann eine kleine Aufgabe angehen."
+    ],
+    "tired": [
+     "Ehrlich? Ausruhen. Etwas Richtiges essen, Wasser trinken und heute früh ins Bett – morgen ist ein neuer Tag.",
+     "Mach eine echte Pause: zwanzig Minuten ohne Bildschirm, vielleicht ein kurzer Spaziergang."
+    ],
+    "sad": [
+     "Sei heute nachsichtig mit dir. Eine kurze Nachricht an jemanden, dem du vertraust, kann mehr helfen, als du denkst."
+    ],
+    "generic": [
+     "Was würdest du einer guten Freundin in derselben Lage raten? Das ist oft auch der beste Rat für dich selbst.",
+     "Zerleg es: Was ist der allernächste kleine Schritt? Fang dort an."
+    ],
+    "none": [
+     "Worum geht es denn? Erzähl mir, was los ist, dann denken wir zusammen nach."
+    ]
+   },
+   "short": {
+    "laugh": [
+     "Freut mich, dass ich dich zum Lachen bringe!",
+     "Haha! 😄"
+    ],
+    "ack": [
+     "Okay! Was liegt dir sonst auf dem Herzen?",
+     "Alles klar. Frag mich gern etwas."
+    ],
+    "yes": [
+     "Super! Was möchtest du machen?",
+     "Gut! Ich höre zu."
+    ],
+    "no": [
+     "Okay, kein Problem.",
+     "Alles klar – sag Bescheid, wenn du es dir anders überlegst."
+    ],
+    "positive": [
+     "Freut mich, dass es dir gefällt!",
+     "Finde ich auch!"
+    ]
+   }
   }
  },
  "daily": {
@@ -4059,6 +4330,11 @@
     "One result doesn't define you. Find out where it went wrong, make a plan for next time, and give yourself credit for trying.",
     "Take a breath first. Then look at what you can learn from it — and what you'd do differently. Most people who succeed failed first."
    ],
+   "career": [
+    "Before you decide, write down what you'd miss and what you wouldn't — and what you'd want from the next job. If the list of “wouldn't miss” is long, start looking quietly before you quit.",
+    "It's worth asking: is it the job, the people, or the workload? Sometimes a talk with your manager or a change of team fixes it; sometimes it's time to move on.",
+    "If you can, line up something new first — it takes the pressure off. And talk it through with someone who knows you well."
+   ],
    "generic": [
     "What would you tell a good friend in the same situation? That's often the best advice for yourself, too.",
     "Break it down: what's the very next small step you could take? Start there.",
@@ -4087,18 +4363,54 @@
    "food": {
     "intro": "A few ideas for tonight:",
     "items": [
-     "pasta aglio e olio — garlic, olive oil and chilli, done in fifteen minutes",
-     "a quick stir-fry with whatever vegetables you have",
-     "homemade pizza on a flatbread",
-     "tacos with beans, salsa and whatever you like on top",
-     "a cosy vegetable curry with rice",
-     "shakshuka — eggs poached in a spiced tomato sauce",
-     "fried rice, which is perfect for leftover rice",
-     "a big salad with chickpeas, feta and a lemon dressing",
-     "a simple omelette with cheese and herbs",
-     "a baked potato with all the toppings",
-     "a warming soup with crusty bread",
-     "a risotto, if you feel like stirring for twenty minutes"
+     {
+      "x": "pasta aglio e olio — garlic, olive oil and chilli, done in fifteen minutes",
+      "de": "Pasta aglio e olio – Knoblauch, Olivenöl und Chili, in fünfzehn Minuten fertig"
+     },
+     {
+      "x": "a quick stir-fry with whatever vegetables you have",
+      "de": "eine schnelle Gemüsepfanne mit allem, was du da hast"
+     },
+     {
+      "x": "homemade pizza on a flatbread",
+      "de": "selbstgemachte Pizza auf Fladenbrot"
+     },
+     {
+      "x": "tacos with beans, salsa and whatever you like on top",
+      "de": "Tacos mit Bohnen, Salsa und deinem Lieblingsbelag"
+     },
+     {
+      "x": "a cosy vegetable curry with rice",
+      "de": "ein gemütliches Gemüsecurry mit Reis"
+     },
+     {
+      "x": "shakshuka — eggs poached in a spiced tomato sauce",
+      "de": "Shakshuka – Eier in würziger Tomatensoße"
+     },
+     {
+      "x": "fried rice, which is perfect for leftover rice",
+      "de": "gebratener Reis, perfekt für Reste"
+     },
+     {
+      "x": "a big salad with chickpeas, feta and a lemon dressing",
+      "de": "ein großer Salat mit Kichererbsen, Feta und Zitronendressing"
+     },
+     {
+      "x": "a simple omelette with cheese and herbs",
+      "de": "ein einfaches Omelett mit Käse und Kräutern"
+     },
+     {
+      "x": "a baked potato with all the toppings",
+      "de": "eine Ofenkartoffel mit allem Drum und Dran"
+     },
+     {
+      "x": "a warming soup with crusty bread",
+      "de": "eine wärmende Suppe mit knusprigem Brot"
+     },
+     {
+      "x": "a risotto, if you feel like stirring for twenty minutes",
+      "de": "ein Risotto, wenn du Lust hast, zwanzig Minuten zu rühren"
+     }
     ],
     "outro": "What are you in the mood for — something quick, healthy or comforting?"
    },
@@ -4415,29 +4727,80 @@
    "activity": {
     "intro": "A few things you could do:",
     "items": [
-     "go for a walk somewhere you've never been, even nearby",
-     "cook something new from whatever is in the kitchen",
-     "call or message someone you haven't talked to in a while",
-     "start a book or a series you've been meaning to try",
-     "learn a few words of a new language",
-     "sort out one drawer or shelf — oddly satisfying",
-     "draw, write or make something, just for fun",
-     "do a short workout or some stretching",
-     "look up a museum, park or café nearby you've never visited",
-     "ask me to quiz you — I've got questions ready"
+     {
+      "x": "go for a walk somewhere you've never been, even nearby",
+      "de": "einen Spaziergang irgendwohin, wo du noch nie warst – auch in der Nähe"
+     },
+     {
+      "x": "cook something new from whatever is in the kitchen",
+      "de": "etwas Neues aus dem kochen, was in der Küche ist"
+     },
+     {
+      "x": "call or message someone you haven't talked to in a while",
+      "de": "jemanden anrufen, von dem du lange nichts gehört hast"
+     },
+     {
+      "x": "start a book or a series you've been meaning to try",
+      "de": "ein Buch oder eine Serie anfangen, die du schon lange ausprobieren wolltest"
+     },
+     {
+      "x": "learn a few words of a new language",
+      "de": "ein paar Wörter einer neuen Sprache lernen"
+     },
+     {
+      "x": "sort out one drawer or shelf — oddly satisfying",
+      "de": "eine Schublade oder ein Regal aufräumen – seltsam befriedigend"
+     },
+     {
+      "x": "draw, write or make something, just for fun",
+      "de": "einfach so etwas zeichnen, schreiben oder basteln"
+     },
+     {
+      "x": "do a short workout or some stretching",
+      "de": "ein kurzes Workout oder ein paar Dehnübungen"
+     },
+     {
+      "x": "look up a museum, park or café nearby you've never visited",
+      "de": "ein Museum, einen Park oder ein Café in der Nähe entdecken"
+     },
+     {
+      "x": "ask me to quiz you — I've got questions ready",
+      "de": "mich fragen, ob ich dich quizzen soll"
+     }
     ],
     "outro": "Anything there sound good?"
    },
    "gift": {
     "intro": "Some gift ideas:",
     "items": [
-     "a book by their favourite author, or one you loved",
-     "an experience — tickets, a class or a day trip together",
-     "something for their hobby",
-     "a nice plant with a pot",
-     "a photo book or a framed picture of a shared memory",
-     "good coffee, tea or chocolate",
-     "a handwritten letter — free and often the most treasured"
+     {
+      "x": "a book by their favourite author, or one you loved",
+      "de": "ein Buch ihres Lieblingsautors – oder eins, das du geliebt hast"
+     },
+     {
+      "x": "an experience — tickets, a class or a day trip together",
+      "de": "ein Erlebnis – Tickets, ein Kurs oder ein Ausflug zusammen"
+     },
+     {
+      "x": "something for their hobby",
+      "de": "etwas für ihr Hobby"
+     },
+     {
+      "x": "a nice plant with a pot",
+      "de": "eine schöne Pflanze mit Topf"
+     },
+     {
+      "x": "a photo book or a framed picture of a shared memory",
+      "de": "ein Fotobuch oder ein gerahmtes Bild einer gemeinsamen Erinnerung"
+     },
+     {
+      "x": "good coffee, tea or chocolate",
+      "de": "guter Kaffee, Tee oder Schokolade"
+     },
+     {
+      "x": "a handwritten letter — free and often the most treasured",
+      "de": "ein handgeschriebener Brief – kostenlos und oft am wertvollsten"
+     }
     ],
     "outro": "Who is it for? Tell me a bit about them and I'll narrow it down."
    },
@@ -4486,59 +4849,146 @@
    "hobby": {
     "intro": "Some hobbies that are easy to start:",
     "items": [
-     "running or cycling — cheap and great for your head",
-     "cooking new recipes from different countries",
-     "photography, even just with your phone",
-     "learning an instrument",
-     "gardening, even a few pots on a windowsill",
-     "drawing or sketching",
-     "chess, puzzles or board games",
-     "learning a language",
-     "writing — a journal, stories or a blog"
+     {
+      "x": "running or cycling — cheap and great for your head",
+      "de": "Laufen oder Radfahren – günstig und gut für den Kopf"
+     },
+     {
+      "x": "cooking new recipes from different countries",
+      "de": "Rezepte aus verschiedenen Ländern kochen"
+     },
+     {
+      "x": "photography, even just with your phone",
+      "de": "Fotografieren, auch nur mit dem Handy"
+     },
+     {
+      "x": "learning an instrument",
+      "de": "ein Instrument lernen"
+     },
+     {
+      "x": "gardening, even a few pots on a windowsill",
+      "de": "Gärtnern, auch nur ein paar Töpfe auf der Fensterbank"
+     },
+     {
+      "x": "drawing or sketching",
+      "de": "Zeichnen oder Skizzieren"
+     },
+     {
+      "x": "chess, puzzles or board games",
+      "de": "Schach, Puzzles oder Brettspiele"
+     },
+     {
+      "x": "learning a language",
+      "de": "eine Sprache lernen"
+     },
+     {
+      "x": "writing — a journal, stories or a blog",
+      "de": "Schreiben – Tagebuch, Geschichten oder ein Blog"
+     }
     ],
     "outro": "Something active, creative or relaxing?"
    },
    "sleep": {
     "intro": "Things that help with sleep:",
     "items": [
-     "keep the same bedtime and wake-up time, even at weekends",
-     "no screens for the last half hour — read something on paper instead",
-     "keep the bedroom cool, dark and quiet",
-     "no coffee after early afternoon",
-     "if you can't sleep after twenty minutes, get up and do something calm until you feel sleepy"
+     {
+      "x": "keep the same bedtime and wake-up time, even at weekends",
+      "de": "jeden Tag zur gleichen Zeit ins Bett gehen und aufstehen, auch am Wochenende"
+     },
+     {
+      "x": "no screens for the last half hour — read something on paper instead",
+      "de": "die letzte halbe Stunde keine Bildschirme – lieber etwas auf Papier lesen"
+     },
+     {
+      "x": "keep the bedroom cool, dark and quiet",
+      "de": "das Schlafzimmer kühl, dunkel und ruhig halten"
+     },
+     {
+      "x": "no coffee after early afternoon",
+      "de": "ab dem frühen Nachmittag keinen Kaffee mehr"
+     },
+     {
+      "x": "if you can't sleep after twenty minutes, get up and do something calm until you feel sleepy",
+      "de": "wenn du nach zwanzig Minuten nicht schläfst: aufstehen und etwas Ruhiges machen, bis du müde wirst"
+     }
     ],
     "outro": "Is it falling asleep or staying asleep that's hard?"
    },
    "study": {
     "intro": "A few study tips that work:",
     "items": [
-     "test yourself instead of re-reading — recalling is what makes it stick",
-     "spread it out: a little every day beats one long session",
-     "work in blocks of 25 minutes with a 5-minute break",
-     "explain it out loud as if you were teaching someone",
-     "put your phone in another room"
+     {
+      "x": "test yourself instead of re-reading — recalling is what makes it stick",
+      "de": "dich selbst abfragen statt nur nochmal zu lesen – Erinnern lässt es haften"
+     },
+     {
+      "x": "spread it out: a little every day beats one long session",
+      "de": "lieber jeden Tag ein bisschen als einmal sehr lange"
+     },
+     {
+      "x": "work in blocks of 25 minutes with a 5-minute break",
+      "de": "25 Minuten lernen, dann 5 Minuten Pause"
+     },
+     {
+      "x": "explain it out loud as if you were teaching someone",
+      "de": "es laut erklären, als würdest du es jemandem beibringen"
+     },
+     {
+      "x": "put your phone in another room",
+      "de": "das Handy in einen anderen Raum legen"
+     }
     ],
     "outro": "What are you studying for?"
    },
    "focus": {
     "intro": "A few ways to get things done:",
     "items": [
-     "pick the three most important tasks for today and do the hardest one first",
-     "work for 25 minutes, then take a 5-minute break",
-     "turn off notifications and put the phone out of reach",
-     "start with just two minutes — starting is the hardest part",
-     "write tomorrow's to-do list before you stop today"
+     {
+      "x": "pick the three most important tasks for today and do the hardest one first",
+      "de": "die drei wichtigsten Aufgaben des Tages auswählen und mit der schwersten anfangen"
+     },
+     {
+      "x": "work for 25 minutes, then take a 5-minute break",
+      "de": "25 Minuten arbeiten, dann 5 Minuten Pause"
+     },
+     {
+      "x": "turn off notifications and put the phone out of reach",
+      "de": "Benachrichtigungen aus und das Handy außer Reichweite"
+     },
+     {
+      "x": "start with just two minutes — starting is the hardest part",
+      "de": "nur mit zwei Minuten anfangen – Anfangen ist das Schwerste"
+     },
+     {
+      "x": "write tomorrow's to-do list before you stop today",
+      "de": "die To-do-Liste für morgen schreiben, bevor du heute aufhörst"
+     }
     ],
     "outro": "What are you trying to get done?"
    },
    "exercise": {
     "intro": "A few easy ways to move more:",
     "items": [
-     "a brisk 20-minute walk every day",
-     "bodyweight basics: squats, push-ups and planks, ten minutes",
-     "take the stairs whenever you can",
-     "a beginner yoga or stretching routine",
-     "cycling instead of driving for short trips"
+     {
+      "x": "a brisk 20-minute walk every day",
+      "de": "jeden Tag 20 Minuten zügig spazieren"
+     },
+     {
+      "x": "bodyweight basics: squats, push-ups and planks, ten minutes",
+      "de": "Grundübungen mit dem eigenen Körpergewicht: Kniebeugen, Liegestütze, Planks – zehn Minuten"
+     },
+     {
+      "x": "take the stairs whenever you can",
+      "de": "wann immer möglich die Treppe nehmen"
+     },
+     {
+      "x": "a beginner yoga or stretching routine",
+      "de": "eine Yoga- oder Dehnroutine für Einsteiger"
+     },
+     {
+      "x": "cycling instead of driving for short trips",
+      "de": "kurze Strecken mit dem Rad statt mit dem Auto"
+     }
     ],
     "outro": "Are you looking for something at home or outside?"
    },
@@ -4907,6 +5357,11 @@
    "{x} — exciting! What's drawing you to it?",
    "{x}? Ooh! What made you think of it?",
    "{x} — that sounds like a big step. How do you feel about it?"
+  ],
+  "plan_big": [
+   "{x} — that's a big decision. What's making you think about it?",
+   "{x}? That's a big step. Is it more that you want something new, or that you want to get away from something?",
+   "I hear you. {x} is a big call — what would you do instead?"
   ],
   "plan_plain": [
    "That sounds exciting! Tell me more?",

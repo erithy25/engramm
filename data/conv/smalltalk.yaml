@@ -353,7 +353,7 @@ intents:
     action: more
 
   - id: joke
-    patterns: ['((can you |could you |please )?(tell|give) me (a |another |one more )?(joke|pun)s?( please)?|(say|tell) (me )?something funny|make me laugh|do you know (a|any) jokes?|(another|one more) (joke|one)|joke|jokes|(tell me )?a (dad )?joke|i need a laugh|cheer me up with a joke|be funny)']
+    patterns: ['((can you |could you |please )?(tell|give) me (a |another |one more )?(joke|pun)s?( please)?|(say|tell) (me )?something funny|make me laugh|do you know (a|any) jokes?|(another|one more) joke|joke|jokes|(tell me )?a (dad )?joke|i need a laugh|cheer me up with a joke|be funny)']
     examples: [tell me a joke, make me laugh, another joke, say something funny, do you know any jokes]
     action: joke
 

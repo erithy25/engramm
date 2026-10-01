@@ -14,14 +14,21 @@ detect:
            deine, sind, wir, ihr, sie, es, zu, mit, für, über, von, auf, nein, ja, doch, genau, tschüss, tschüs,
            hallo, moin, servus, grüß, gruß, guten, gute, nacht, abend, tag, erzähl, erzähle, witz, traurig,
            glücklich, müde, wütend, langweilig, hilfe, wetter, schreib, schreibe, weißt, weiß, kennst, lieber,
-           liebe, klar, okay, na, wieder, jetzt, dann, weil, dass, also, mal, bitte, vielen]
+           liebe, klar, okay, na, wieder, jetzt, dann, weil, dass, also, mal, bitte, vielen, wann, wurde, wurden,
+           er, geboren, gestorben, geschrieben, gemalt, erfunden, gegründet, hauptstadt, einwohner, welche, welcher,
+           welches, hoch, groß, liegt, gibt, soll, sollte, möchte, vergleiche, empfehlen, empfiehl, essen, kochen,
+           buch, serie, warum, wieso, weshalb, woher, wohin, viele, viel, mehr, nach, ihm, ihn, ihr, sein, seine,
+           machen, tun, nervt, anstrengend, anstrengenden, stressig, arbeit, chef, kollege, kollegin, schule,
+           heute, morgen, langweilig, älter, jünger, größer, kleiner, höher, länger, verheiratet, bekannt,
+           erzähl, erzähle, erkläre, erklär, weißt, gucken, schauen, hören, spielen, lesen, schenken, reisen]
   english: [i, you, am, are, is, not, and, the, a, an, me, my, your, how, what, who, where, why, thanks, please,
             good, bad, too, but, or, very, today, tomorrow, yesterday, have, can, we, they, it, to, with, for,
             about, of, on, no, yes, tell, joke, write, know, hello, hi, hey, name, do, does, did, when, he, she,
             his, her, him, born, will, would, could, should, there, this, that, which, whom, was, were, been, be,
             from, at, by, in, as, so, if, then, than, also, just, like, what's, it's, i'm, don't, can't, live, lives]
   # words that are German but also English (or English-looking): they count only next to a clearly German word
-  ambiguous: [was, die, also, so, na, ja, hat, man, will, bin, gut, war, rot, arm, hand, kind, gift, fast, mist]
+  ambiguous: [was, die, also, so, na, ja, hat, man, will, bin, gut, war, rot, arm, hand, kind, gift, fast, mist, er, alt,
+             hoch, film, morgen, nach, sein, lang]
 
 intents:
   - id: greeting
@@ -169,9 +176,9 @@ safety:
 
 replies:
   fallback:
-    - "Auf Deutsch kann ich bisher nur plaudern und zuhören. Wissensfragen und Texte beantworte ich auf Englisch – frag mich einfach auf Englisch, zum Beispiel: „Who wrote Faust?“"
-    - "Das verstehe ich auf Deutsch leider noch nicht. Magst du es auf Englisch versuchen? Dann schlage ich es mit Quelle nach."
-    - "Mein Deutsch reicht dafür noch nicht. Auf Englisch kann ich nachschlagen, rechnen und E-Mails entwerfen."
+    - "Das habe ich nicht ganz verstanden. Frag mich zum Beispiel „Wer hat Faust geschrieben?“ oder „Was soll ich heute essen?“ – oder erzähl mir, wie dein Tag war."
+    - "Hm, da komme ich nicht ganz mit. Magst du es anders formulieren? Wissensfragen, Empfehlungen und Plaudern klappen auf Deutsch, ausführliche Texte schreibe ich auf Englisch."
+    - "Das verstehe ich leider nicht. Versuch es mit einer kurzen Frage – zum Beispiel „Wie hoch ist die Zugspitze?“."
   learned_name:
     - "Freut mich, {name}! Das merke ich mir."
     - "Hallo {name}! Schön, dich kennenzulernen – ich merke mir deinen Namen."
@@ -183,3 +190,103 @@ replies:
   name_unknown:
     - "Deinen Namen hast du mir noch nicht verraten. Wie heißt du?"
   calc: "{x}"
+
+# --- German v1 (Chat v3.1): everyday conversation and knowledge questions through the English fact bank
+daily:
+  unknown:
+    - "Das weiß ich leider nicht – dazu habe ich nichts Verlässliches gelesen."
+    - "Da muss ich passen, dazu habe ich nichts gefunden."
+  english_text: "Dazu habe ich auf Englisch gelesen:"
+  english_note: "(Meine Quellen sind englisch.)"
+  compare_none: "Vergleichen kann ich nur Dinge, zu denen meine Faktenbank Zahlen oder Fakten hat – Länder, Städte, Personen, Firmen oder Berge. Probier zum Beispiel „Vergleiche Frankreich und Deutschland“."
+  who_mean: "Wen meinst du mit „{x}“? Sag mir den Namen, dann schlage ich nach."
+  gibberish:
+    - "Hm, das sieht nach einem Vertipper aus. Was wolltest du sagen?"
+    - "Da sind dir wohl die Finger ausgerutscht! Was meintest du?"
+  rec:
+    intro: "Ein paar Ideen:"
+    outro: "Gefällt dir etwas davon? Ich kann dir zu jedem mehr erzählen."
+    more: "Noch ein paar:"
+    food: {intro: "Ein paar Ideen für heute:", outro: "Worauf hast du Lust – schnell, gesund oder gemütlich?"}
+    book: {intro: "Ein paar Bücher, die viele lieben:", outro: "Lieber Roman oder Sachbuch?"}
+    movie: {intro: "Ein paar Filme, die sich lohnen:", outro: "Eher leicht, spannend oder zum Nachdenken?"}
+    series: {intro: "Ein paar Serien, über die alle reden:", outro: "Lieber lustig, packend oder entspannt?"}
+    music: {intro: "Ein paar Alben zum Reinhören:", outro: "Welche Musik hörst du sonst gern?"}
+    game: {intro: "Ein paar Spiele zum Ausprobieren:", outro: "Brettspiele oder Videospiele?"}
+    activity: {intro: "Ein paar Ideen, was du machen könntest:", outro: "Klingt etwas davon gut?"}
+    gift: {intro: "Ein paar Geschenkideen:", outro: "Für wen ist es? Erzähl mir ein bisschen, dann wird's genauer."}
+    travel: {intro: "Ein paar Orte, die viele lieben:", outro: "Stadt, Strand oder Natur?"}
+    hobby: {intro: "Ein paar Hobbys für den Einstieg:", outro: "Eher aktiv, kreativ oder entspannt?"}
+    sleep: {intro: "Was beim Schlafen hilft:", outro: "Ist eher das Einschlafen oder das Durchschlafen schwer?"}
+    study: {intro: "Ein paar Lerntipps, die wirklich helfen:", outro: "Wofür lernst du gerade?"}
+    focus: {intro: "Ein paar Wege, Dinge geschafft zu bekommen:", outro: "Was willst du heute erledigen?"}
+    exercise: {intro: "Ein paar einfache Wege, mehr in Bewegung zu kommen:", outro: "Eher zu Hause oder draußen?"}
+    petname: {intro: "Ein paar Namen, die viele mögen:", outro: "Ist es ein Hund, eine Katze oder etwas anderes?"}
+  experience:
+    negative:
+      person:
+        - "Oh je, das klingt anstrengend. Was hat {topic} gemacht?"
+        - "Das klingt echt nervig. Was ist mit {topic} passiert?"
+        - "Das tut mir leid. Ist das mit {topic} das erste Mal, oder passiert das öfter?"
+      thing:
+        - "Oh nein – klingt, als wäre {topic} heftig gewesen. Was ist passiert?"
+        - "Das klingt zermürbend. Was war an {topic} so schwierig?"
+        - "Oh je. Magst du darüber reden, oder hilft dir eher Ablenkung?"
+      time:
+        - "Klingt nach einem langen Tag. Was war denn los?"
+        - "Oh je, das klingt nach einer anstrengenden Zeit. Magst du erzählen?"
+      plain:
+        - "Das tut mir leid, das klingt schwer. Magst du darüber reden?"
+        - "Das klingt nicht gut. Was ist passiert?"
+    positive:
+      person:
+        - "Wie schön! Was hat {topic} gemacht?"
+        - "Das freut mich zu hören! Erzähl mehr?"
+      thing:
+        - "Super Neuigkeiten! Was war das Beste daran?"
+        - "Klingt, als wäre es richtig gut gelaufen! Wie fühlst du dich?"
+      time:
+        - "Klingt nach einer tollen Zeit! Was hast du gemacht?"
+        - "Wie schön! Was war das Highlight?"
+      plain:
+        - "Das freut mich! Erzähl mehr?"
+        - "Wie toll – herzlichen Glückwunsch!"
+  advice:
+    work_people:
+      - "Wenn es dich weiter beschäftigt, hilft oft ein ruhiges Gespräch unter vier Augen: Beschreib die konkrete Situation und wie sie auf dich gewirkt hat – nicht die Person."
+      - "Schreib dir auf, was genau dich gestört hat, solange es frisch ist. Das macht ein späteres Gespräch viel leichter."
+      - "Schlaf eine Nacht drüber. Wenn es morgen noch wichtig ist, sprich es direkt an; wenn es sich wiederholt, helfen Vertrauenspersonen oder die Personalabteilung."
+    people:
+      - "Wenn ihr beide ruhig seid, sag, wie es sich für dich angefühlt hat – „Ich war verletzt, als …“ kommt besser an als „Du immer …“."
+      - "Gib dem Ganzen etwas Zeit und sprecht dann in Ruhe darüber. Die meisten Konflikte werden kleiner, wenn sich beide gehört fühlen."
+    heartbreak:
+      - "Sei gut zu dir – Liebeskummer tut wirklich weh. Lass dich von Freunden und Familie auffangen, behalte etwas Alltag bei und gib dir Zeit. Es wird leichter."
+      - "Triff gerade keine großen Entscheidungen. Rede mit Menschen, die dir guttun, geh jeden Tag ein bisschen raus und erlaub dir, traurig zu sein."
+    grief:
+      - "Trauer muss man nicht reparieren – sie ist Liebe, die nirgendwo hin kann. Lass sie zu und stütz dich auf die Menschen um dich herum."
+      - "Nimm dir Tag für Tag. Wenn es zu schwer wird, kann ein Gespräch mit einer Beratungsstelle oder deinem Arzt wirklich helfen."
+    career:
+      - "Bevor du entscheidest: Schreib auf, was du vermissen würdest und was nicht – und was du dir vom nächsten Job wünschst. Wenn möglich, such erst in Ruhe etwas Neues."
+      - "Frag dich, ob es am Job, an den Leuten oder an der Menge liegt. Manchmal hilft ein Gespräch oder ein Teamwechsel, manchmal ist es Zeit zu gehen."
+    failure:
+      - "Ein Ergebnis bestimmt nicht, wer du bist. Schau dir an, woran es lag, mach einen Plan für das nächste Mal – und rechne dir den Versuch an."
+      - "Erst mal durchatmen. Dann: Was kannst du daraus lernen? Die meisten, die Erfolg haben, sind vorher gescheitert."
+    stress:
+      - "Probier das: Schreib alles auf, was dir im Kopf herumgeht, und kreis das eine Ding ein, das du heute wirklich tun kannst. Die Liste wirkt danach viel kleiner."
+      - "Ein paar langsame Atemzüge helfen mehr, als man denkt – vier Sekunden ein, vier halten, vier aus. Dann eine kleine Aufgabe angehen."
+    tired:
+      - "Ehrlich? Ausruhen. Etwas Richtiges essen, Wasser trinken und heute früh ins Bett – morgen ist ein neuer Tag."
+      - "Mach eine echte Pause: zwanzig Minuten ohne Bildschirm, vielleicht ein kurzer Spaziergang."
+    sad:
+      - "Sei heute nachsichtig mit dir. Eine kurze Nachricht an jemanden, dem du vertraust, kann mehr helfen, als du denkst."
+    generic:
+      - "Was würdest du einer guten Freundin in derselben Lage raten? Das ist oft auch der beste Rat für dich selbst."
+      - "Zerleg es: Was ist der allernächste kleine Schritt? Fang dort an."
+    none:
+      - "Worum geht es denn? Erzähl mir, was los ist, dann denken wir zusammen nach."
+  short:
+    laugh: ["Freut mich, dass ich dich zum Lachen bringe!", "Haha! 😄"]
+    ack: ["Okay! Was liegt dir sonst auf dem Herzen?", "Alles klar. Frag mich gern etwas."]
+    yes: ["Super! Was möchtest du machen?", "Gut! Ich höre zu."]
+    no: ["Okay, kein Problem.", "Alles klar – sag Bescheid, wenn du es dir anders überlegst."]
+    positive: ["Freut mich, dass es dir gefällt!", "Finde ich auch!"]

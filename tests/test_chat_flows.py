@@ -206,7 +206,8 @@ def test_german_v0(corpus):
     assert sad.kind == "empathy" and "?" in sad.text
     assert crisis.kind == "safety" and "0800 111 0 111" in crisis.text
     assert calc.kind == "tool" and calc.text.endswith("= 36")
-    assert other.kind == "unknown" and "Englisch" in other.text
+    # v1: a German knowledge question goes through the (English) fact bank; this test corpus has none
+    assert other.kind == "unknown" and ("passen" in other.text or "weiß" in other.text)
     # the English safety net still catches English crisis wording
     assert a.turn(DialogState("x"), "I want to kill myself").kind == "safety"
 
@@ -229,3 +230,31 @@ def test_events_are_followed_up(corpus, tmp_path):
     hello = a2.turn(DialogState("three"), "hello")
     assert "how" in hello.text.lower() and "exam" in hello.text           # asked after a restart, once
     assert "exam" not in a2.turn(DialogState("four"), "hi").text
+
+
+def test_german_bridge_rules():
+    from engramm.chat.german_bridge import de_sentence, de_value, to_english
+    assert to_english("wer hat hamlet geschrieben")[:2] == ("who wrote Hamlet", "wrote")
+    assert to_english("was ist die hauptstadt von frankreich")[0] == "what is the capital of France"
+    assert to_english("wann wurde er geboren")[0] == "when was he born"
+    assert to_english("was ist größer, frankreich oder deutschland")[0] == "which is bigger, France or Germany"
+    assert to_english("wie geht es dir") is None
+    assert de_value("24 April 1452") == "24. April 1452" and de_value("68,605,616") == "68.605.616"
+    assert de_sentence("wrote", "Hamlet", "William Shakespeare") == "Hamlet wurde von William Shakespeare geschrieben."
+    assert de_sentence("born_when", "Leonardo da Vinci", "on 24 April 1452") == "Leonardo da Vinci wurde am 24. April 1452 geboren."
+    assert de_sentence("age", "Angela Merkel", "72", "Angela Merkel was born on 17 July 1954, so Angela Merkel is 72 years old.") \
+        == "Angela Merkel ist 72 Jahre alt."
+
+
+def test_german_everyday(corpus):
+    a = Assistant(_bot(corpus), clock=CLOCK)
+    st = DialogState("de3")
+    food = a.turn(st, "Was soll ich heute essen?")
+    assert food.via == "everyday" and "Ideen" in food.text and food.text.count("•") == 3
+    assert a.turn(st, "haha").via == "german"                    # a German conversation stays German
+    moment = a.turn(st, "Mein Chef nervt total")
+    assert moment.kind == "empathy" and "Chef" in moment.text
+    advice = a.turn(st, "Was soll ich tun?")
+    assert advice.via == "german" and "•" not in advice.text
+    gib = a.turn(st, "dhdhd")
+    assert gib.via == "gibberish" and "?" in gib.text and "Want" not in gib.text

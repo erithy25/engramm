@@ -147,14 +147,15 @@ _NEG = {
     "annoying": 2, "annoyed": 2, "frustrating": 2, "frustrated": 2, "exhausting": 2, "exhausted": 2,
     "stressful": 2, "stressed": 2, "terrible": 3, "awful": 3, "horrible": 3, "bad": 1, "boring": 1, "rude": 2,
     "mean": 1, "unfair": 2, "difficult": 1, "hard": 1, "tough": 1, "rough": 2, "sucks": 2, "sucked": 2, "sick": 2,
-    "painful": 2, "hurts": 2, "hurt": 2, "broke": 1, "broken": 2, "failed": 3, "fail": 2, "flunked": 3,
+    "painful": 2, "hurts": 2, "hurt": 2, "broken": 2, "failed": 3, "fail": 2, "flunked": 3,
     "lost": 2, "missed": 1, "cancelled": 1, "canceled": 1, "crashed": 2, "stuck": 1, "overwhelmed": 3,
+    "broke": 2,
     "overwhelming": 3, "angry": 2, "mad": 2, "upset": 2, "sad": 2, "disappointed": 2, "disappointing": 2,
     "worried": 2, "nervous": 2, "scared": 2, "lonely": 2, "tired": 2, "hate": 2, "hated": 2, "ugh": 2,
     "yelled": 2, "shouted": 2, "screamed": 2, "argued": 2, "fight": 2, "fought": 2, "cried": 2, "crying": 2,
     "sore": 1, "freezing": 1, "miserable": 3, "nightmare": 3, "disaster": 3, "worst": 3, "worse": 2, "late": 1,
     "ignored": 2, "criticized": 2, "criticised": 2, "embarrassing": 2, "embarrassed": 2, "awkward": 1,
-    "rejected": 3, "dumped": 3, "fired": 3, "unbearable": 3, "insane": 1, "crazy": 1, "hectic": 2, "busy": 1,
+    "rejected": 3, "dumped": 3, "fired": 3, "unbearable": 3, "insane": 2, "crazy": 2, "hectic": 2, "busy": 1,
     "long": 0, "sleepless": 2, "jetlagged": 1, "ruined": 3, "lied": 2, "stole": 3, "stolen": 3, "robbed": 3,
     "toxic": 3, "micromanaging": 2, "micromanages": 2, "blamed": 2, "bullied": 3, "drained": 2, "burnt": 2,
 }
@@ -190,7 +191,7 @@ ex friend friends bestie roommate flatmate neighbour neighbor neighbours neighbo
 grandmother grandfather aunt uncle cousin family doctor dentist driver classmate classmates students student
 in-laws mother-in-law father-in-law dog cat puppy kitten""".split())
 _TIME_NOUNS = frozenset("day week night morning afternoon evening weekend shift month year time".split())
-_SKIP_ADJ = frozenset("new old little big best whole entire stupid dumb annoying lovely sweet own first last "
+_SKIP_ADJ = frozenset("new old little big whole entire stupid dumb annoying lovely sweet own first last "
                       "current former".split())
 _NOT_NOUN = frozenset("""is was are were be been went goes go got gets get has had have keeps kept just always never
 did didn't does doesn't don't won't can't couldn't wouldn't will would said says told tells called calls gave gives made makes
