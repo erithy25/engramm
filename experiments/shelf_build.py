@@ -137,6 +137,44 @@ def _compress_partition(args) -> list[tuple[int, str, int, int]]:
     return results
 
 
+def write_index(ix: Path, titles: list[str], buckets: np.ndarray, name_h: np.ndarray, name_d: np.ndarray,
+                term_h: np.ndarray, term_d: np.ndarray, n_buckets: int, info: dict) -> dict:
+    """The local index in its compact form (all memory-mapped at run time): titles as one UTF-8
+    blob + offsets, each article's bucket, name forms (titles, redirects) as sorted 64-bit hashes,
+    key terms as sorted low 32 bits of their hashes with postings and idf."""
+    ix.mkdir(parents=True, exist_ok=True)
+    enc = [t.replace("\n", " ").encode("utf-8") for t in titles]
+    total = sum(len(x) for x in enc)
+    off = np.zeros(len(enc) + 1, dtype=np.uint32 if total < 2**32 else np.uint64)
+    np.cumsum([len(x) for x in enc], out=off[1:])
+    (ix / "titles.bin").write_bytes(b"".join(enc))
+    np.save(ix / "title_off.npy", off)
+    del enc
+    np.save(ix / "bucket.npy", buckets.astype(np.uint16 if n_buckets <= 65536 else np.uint32))
+    o = np.lexsort((name_d, name_h))
+    np.save(ix / "name_hash.npy", name_h[o].astype(np.uint64))
+    np.save(ix / "name_doc.npy", name_d[o].astype(np.uint32))
+    h32 = (term_h & np.uint64(0xFFFFFFFF)).astype(np.uint32)
+    order = np.lexsort((term_d, h32))
+    h32, d = h32[order], term_d[order].astype(np.uint32)
+    if len(h32):                                     # one posting per (term, article)
+        keep = np.ones(len(h32), dtype=bool)
+        keep[1:] = (h32[1:] != h32[:-1]) | (d[1:] != d[:-1])
+        h32, d = h32[keep], d[keep]
+    uniq, starts = np.unique(h32, return_index=True)
+    ptr = np.append(starts, len(h32)).astype(np.uint32 if len(h32) < 2**32 else np.uint64)
+    dfs = np.diff(ptr).astype(np.float64)
+    idf = np.log(1.0 + len(titles) / np.maximum(dfs, 1.0)).astype(np.float16)
+    np.save(ix / "term_hash.npy", uniq)
+    np.save(ix / "ptr.npy", ptr)
+    np.save(ix / "post.npy", d)
+    np.save(ix / "idf.npy", idf)
+    info = {"kind": "shelf_index", "format": 2, "docs": len(titles), "terms": int(len(uniq)), "postings": int(len(d)),
+            "names": int(len(name_h)), **info}
+    (ix / "info.json").write_text(json.dumps(info, indent=1), encoding="utf-8")
+    return info
+
+
 def build(jsonl: list[Path], parquet: list[Path], out: Path, bucket_kb: int = 1024, sample: int = 200000,
           key_terms: int = 8, workers: int = 4, preset: int = 6, limit: int | None = None, fill: float = 0.86,
           total_hint: int | None = None, with_aliases: bool = True) -> dict:
@@ -251,45 +289,22 @@ def build(jsonl: list[Path], parquet: list[Path], out: Path, bucket_kb: int = 10
         with open(p, "rb") as f:
             for chunk in iter(lambda: f.read(8 << 20), b""):
                 h.update(chunk)
-        volumes.append({"name": p.name, "bytes": p.stat().st_size, "sha256": h.hexdigest()})
+        volumes.append({"name": p.name, "bytes": p.stat().st_size, "sha256": h.hexdigest(), "first": v * per_volume,
+                        "buckets": p.stat().st_size // bucket_bytes})
     manifest = {"version": 1, "built": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "bucket_bytes": bucket_bytes,
                 "per_volume": per_volume, "buckets": n_buckets, "volumes": volumes, "bucket_sha256": sha,
                 "licenses": ["Wikipedia text: CC BY-SA 4.0 / GFDL (wikimedia/wikipedia)"],
                 "docs": len(titles), "truncated_to_fit": truncated}
     (out / "shelf.json").write_text(json.dumps(manifest, indent=0), encoding="utf-8")
     # the local index
-    ix = out / "shelf_index"
-    ix.mkdir(exist_ok=True)
-    # titles as one UTF-8 blob + offsets (memory-mapped at run time, no Python list of millions of strings)
-    enc = [t.replace("\n", " ").encode("utf-8") for t in titles]
-    off = np.zeros(len(enc) + 1, dtype=np.uint64)
-    np.cumsum([len(x) for x in enc], out=off[1:])
-    (ix / "titles.bin").write_bytes(b"".join(enc))
-    np.save(ix / "title_off.npy", off)
-    del enc
-    np.save(ix / "bucket.npy", np.array(buckets, dtype=np.uint32))
-    # name forms (titles and, if wanted, redirects) → article, as sorted 64-bit hashes
-    nh = np.array([term_hash(name_key(t)) for t in titles] + alias_h, dtype=np.uint64)
-    nd = np.concatenate([np.arange(len(titles), dtype=np.uint32), np.array(alias_d, dtype=np.uint32)])
-    o = np.lexsort((nd, nh))
-    np.save(ix / "name_hash.npy", nh[o])
-    np.save(ix / "name_doc.npy", nd[o])
-    del nh, nd
     H = np.concatenate(pairs_h) if pairs_h else np.zeros(0, np.uint64)
     D = np.concatenate(pairs_d) if pairs_d else np.zeros(0, np.uint32)
-    order = np.lexsort((D, H))
-    H, D = H[order], D[order]
-    uniq, starts = np.unique(H, return_index=True)
-    ptr = np.append(starts, len(H)).astype(np.uint32 if len(H) < 2**32 else np.uint64)
-    dfs = np.diff(ptr).astype(np.float64)
-    idf = np.log(1.0 + len(titles) / np.maximum(dfs, 1.0)).astype(np.float32)
-    np.save(ix / "term_hash.npy", uniq.astype(np.uint64))
-    np.save(ix / "ptr.npy", ptr)
-    np.save(ix / "post.npy", D.astype(np.uint32))
-    np.save(ix / "idf.npy", idf)
-    info = {"kind": "shelf_index", "docs": len(titles), "terms": int(len(uniq)), "postings": int(len(D)),
-            "key_terms": key_terms, "manifest_sha256": hashlib.sha256((out / "shelf.json").read_bytes()).hexdigest()}
-    (ix / "info.json").write_text(json.dumps(info, indent=1), encoding="utf-8")
+    nh = np.array([term_hash(name_key(t)) for t in titles] + alias_h, dtype=np.uint64)
+    nd = np.concatenate([np.arange(len(titles), dtype=np.uint32), np.array(alias_d, dtype=np.uint32)])
+    info = write_index(out / "shelf_index", titles, np.array(buckets, dtype=np.int64), nh, nd, H, D, n_buckets,
+                       {"key_terms": key_terms,
+                        "manifest_sha256": hashlib.sha256((out / "shelf.json").read_bytes()).hexdigest()})
+    ix = out / "shelf_index"
     ix_bytes = sum(p.stat().st_size for p in ix.iterdir())
     print(f"[shelf] done in {time.time() - t0:.0f}s: {len(titles)} docs, {n_buckets} buckets, "
           f"{comp_total / 1e9:.2f} GB compressed, {truncated} truncations, index {ix_bytes / 1e6:.1f} MB", flush=True)

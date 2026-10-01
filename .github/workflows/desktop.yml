@@ -99,7 +99,21 @@ jobs:
           targets: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: runtime/app/src-tauri
+          workspaces: |
+            runtime/app/src-tauri
+            runtime/core
+
+      - name: Network core (engramm-core with Tor) next to the frozen server
+        # all network access of the app goes through this binary (docs/SPEC_ATLAS.md); without it
+        # the server would fall back to Python sockets and the messenger would have no Tor
+        working-directory: runtime/core
+        shell: bash
+        run: |
+          cargo build --release --features tor --target ${{ matrix.target }}
+          exe=engramm-core; if [ "$RUNNER_OS" = "Windows" ]; then exe=engramm-core.exe; fi
+          cp "target/${{ matrix.target }}/release/$exe" ../app/src-tauri/resources/sidecar/
+          echo '{"op":"status","id":1}' | "../app/src-tauri/resources/sidecar/$exe" egress | tee status.json
+          grep -q '"tor":true' status.json
 
       - name: Icons
         working-directory: runtime/app

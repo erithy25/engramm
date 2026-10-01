@@ -20,8 +20,14 @@ def main() -> int:
     dist = Path(sys.argv[1])
     exe = dist / ("engramm-server.exe" if sys.platform == "win32" else "engramm-server")
     # data files the conversation layer needs at run time (PyInstaller puts them under _internal/)
-    for name in ("conv_bank.json", "letters.json"):
+    for name in ("conv_bank.json", "letters.json", "feeds.json"):
         assert any(dist.rglob(name)), f"{name} missing from the frozen server"
+    # the network core beside the server (desktop builds): it must answer and have Tor
+    core = dist / ("engramm-core.exe" if sys.platform == "win32" else "engramm-core")
+    if core.exists():
+        out = subprocess.run([str(core), "egress"], input=b'{"op":"status","id":1}\n', capture_output=True, timeout=30)
+        status = json.loads(out.stdout.decode().splitlines()[0])
+        assert status.get("ok") and status.get("tor") is True, status
 
     with tempfile.TemporaryDirectory() as tmp:
         t0 = time.time()

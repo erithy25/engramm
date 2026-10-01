@@ -37,6 +37,12 @@ jobs:
         run: |
           cargo test --release --all-features
           cargo build --release --features fetch
+      - name: Tor live check (informational - depends on the public Tor network)
+        continue-on-error: true
+        timeout-minutes: 15
+        run: |
+          (cd runtime/core && CARGO_TARGET_DIR=target-tor cargo build --release --features tor)
+          python scripts/tor_smoke.py runtime/core/target-tor/release/engramm-core
       - name: Conversation bank is compiled from data/conv
         run: python -m engramm.chat.studio check
       - name: Python tests

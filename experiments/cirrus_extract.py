@@ -96,6 +96,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--shards", type=int, help="only the first N shards")
+    ap.add_argument("--first", type=int, default=0, help="start at this shard (parallel builds)")
+    ap.add_argument("--plan", action="store_true", help="print the dump date and its number of shards as JSON")
     ap.add_argument("--min-chars", type=int, default=300)
     a = ap.parse_args(argv)
     a.out.mkdir(parents=True, exist_ok=True)
@@ -109,9 +111,13 @@ def main(argv: list[str] | None = None) -> int:
             total += kept
         return 0
     date = a.date or latest_date()
-    names = shard_names(date)[: a.shards or None]
+    names = shard_names(date)
+    if a.plan:
+        print(json.dumps({"date": date, "shards": len(names)}))
+        return 0
+    names = names[a.first:][: a.shards or None]
     base = BASE.format(date=date)
-    jobs = [(base + n, str(a.out / f"docs-{i:05d}.jsonl"), a.min_chars) for i, n in enumerate(names)]
+    jobs = [(base + n, str(a.out / f"docs-{a.first + i:05d}.jsonl"), a.min_chars) for i, n in enumerate(names)]
     print(f"[cirrus] {date}: {len(jobs)} shards", flush=True)
     kept = 0
     with ProcessPoolExecutor(max_workers=a.workers) as ex:

@@ -93,16 +93,20 @@ class ShelfManifest:
     built: str = ""
     licenses: list[str] = field(default_factory=list)
     signature: str | None = None
+    extra: dict = field(default_factory=dict)  # other fields of the file (kept, and covered by the signature)
+
+    _KNOWN = ("version", "built", "bucket_bytes", "per_volume", "buckets", "volumes", "bucket_sha256", "licenses",
+              "signature")
 
     @classmethod
     def load(cls, path: Path) -> ShelfManifest:
         d = json.loads(Path(path).read_text(encoding="utf-8"))
         return cls(**{k: d[k] for k in ("bucket_bytes", "per_volume", "buckets", "volumes", "bucket_sha256")},
                    version=d.get("version", 1), built=d.get("built", ""), licenses=d.get("licenses", []),
-                   signature=d.get("signature"))
+                   signature=d.get("signature"), extra={k: v for k, v in d.items() if k not in cls._KNOWN})
 
     def to_dict(self) -> dict:
-        d = {"version": self.version, "built": self.built, "bucket_bytes": self.bucket_bytes,
+        d = {**self.extra, "version": self.version, "built": self.built, "bucket_bytes": self.bucket_bytes,
              "per_volume": self.per_volume, "buckets": self.buckets, "volumes": self.volumes,
              "bucket_sha256": self.bucket_sha256, "licenses": self.licenses}
         if self.signature:
@@ -115,10 +119,57 @@ class ShelfManifest:
         d.pop("signature", None)
         return json.dumps(d, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
 
+    def verify(self, public_keys: list[bytes]) -> bool:
+        """Is the manifest signed (Ed25519) by one of these release keys?"""
+        if not self.signature:
+            return False
+        from engramm.web.ed25519 import verify
+        try:
+            sig = bytes.fromhex(self.signature)
+        except ValueError:
+            return False
+        return any(verify(k, self.canonical(), sig) for k in public_keys)
+
+    def sign(self, seed: bytes) -> None:
+        from engramm.web.ed25519 import sign
+        self.signature = None
+        self.signature = sign(seed, self.canonical()).hex()
+
     def locate(self, b: int) -> tuple[str, int]:
+        """(volume file, byte offset) of bucket b. Volumes may say which buckets they hold
+        ("first", "buckets": a merged shelf of several builds); otherwise every volume holds
+        ``per_volume`` buckets."""
         if not 0 <= b < self.buckets:
             raise ValueError(f"bucket {b} out of range")
+        if self.volumes and "first" in self.volumes[0]:
+            lo, hi = 0, len(self.volumes) - 1
+            while lo < hi:                               # the last volume whose first bucket is ≤ b
+                mid = (lo + hi + 1) // 2
+                if self.volumes[mid]["first"] <= b:
+                    lo = mid
+                else:
+                    hi = mid - 1
+            v = self.volumes[lo]
+            if not v["first"] <= b < v["first"] + v["buckets"]:
+                raise ValueError(f"bucket {b} is in no volume")
+            return v["name"], (b - v["first"]) * self.bucket_bytes
         return self.volumes[b // self.per_volume]["name"], (b % self.per_volume) * self.bucket_bytes
+
+
+RELEASE_KEYS_PATH = Path(__file__).resolve().parent / "release_keys.txt"
+
+
+def release_keys(path: Path = RELEASE_KEYS_PATH) -> list[bytes]:
+    """The Ed25519 public keys release manifests are signed with (hex, one per line; '#' comments).
+    Empty until the project has a signing key (see docs/SPEC_ATLAS.md)."""
+    if not path.exists():
+        return []
+    out = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.split("#", 1)[0].strip()
+        if len(line) == 64:
+            out.append(bytes.fromhex(line))
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -177,7 +228,9 @@ class ShelfIndex:
         return sorted(scores.items(), key=lambda x: (-x[1], x[0]))[:k]
 
     def _term(self, t: str) -> int | None:
-        h = np.uint64(term_hash(t))
+        h = term_hash(t)
+        # compact indexes keep the low 32 bits of each term hash (a rare collision only adds noise)
+        h = np.uint32(h & 0xFFFFFFFF) if self.term_hash.dtype == np.uint32 else np.uint64(h)
         i = int(np.searchsorted(self.term_hash, h))
         return i if i < len(self.term_hash) and self.term_hash[i] == h else None
 

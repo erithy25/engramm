@@ -1,0 +1,5 @@
+# Ed25519 public keys (hex) that sign release manifests (the shelf's shelf.json).
+# Empty until the project owner creates a key:
+#     python scripts/sign_manifest.py --keygen
+# puts the public key here and the secret into the repository secret ENGRAMM_SIGNING_KEY;
+# release.yml then signs every shelf manifest, and the app refuses unsigned or wrongly signed ones.

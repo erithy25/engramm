@@ -1,0 +1,125 @@
+# The shelf (Atlas channel K1, docs/SPEC_ATLAS.md): the full English Wikipedia from the weekly
+# CirrusSearch dump, as fixed-size buckets on a GitHub release — no server of our own.
+#
+# plan    the dump date and its shards; creates the (pre)release "shelf-<date>"
+# part    one job per group of shards: extract (references cut), build one shelf per shard,
+#         upload its volumes (s<NN>-shelf-<v>.bin), manifest and index part as release assets
+# merge   the index parts only (the volumes stay where they are): one manifest, the compact
+#         index (with redirects) and the Lite index (without), signed when ENGRAMM_SIGNING_KEY
+#         exists; experiments/pack_build.py takes shelf_index + shelf.json from this release.
+name: Shelf
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "CirrusSearch dump date (YYYYMMDD); empty = the latest"
+        default: ""
+      groups:
+        description: "parallel jobs"
+        default: "16"
+
+permissions:
+  contents: write
+
+jobs:
+  plan:
+    runs-on: ubuntu-22.04
+    outputs:
+      date: ${{ steps.plan.outputs.date }}
+      groups: ${{ steps.plan.outputs.groups }}
+      shards: ${{ steps.plan.outputs.shards }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python experiments/cirrus_extract.py --plan --out /tmp/plan ${{ inputs.date && format('--date {0}', inputs.date) || '' }} > plan.json
+          cat plan.json
+          date=$(python -c "import json; print(json.load(open('plan.json'))['date'])")
+          shards=$(python -c "import json; print(json.load(open('plan.json'))['shards'])")
+          groups=$(python -c "import json; print(json.dumps(list(range(int('${{ inputs.groups }}')))))")
+          echo "date=$date" >> "$GITHUB_OUTPUT"
+          echo "shards=$shards" >> "$GITHUB_OUTPUT"
+          echo "groups=$groups" >> "$GITHUB_OUTPUT"
+          gh release view "shelf-$date" >/dev/null 2>&1 || gh release create "shelf-$date" --prerelease \
+            --title "Shelf $date (Wikipedia, CirrusSearch dump)" \
+            --notes "Wikipedia text (CC BY-SA 4.0 / GFDL) as fixed-size LZMA buckets for ENGRAMM's shelf channel. Built by .github/workflows/shelf.yml."
+
+  part:
+    needs: plan
+    runs-on: ubuntu-22.04
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        group: ${{ fromJSON(needs.plan.outputs.groups) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy==2.4.1
+      - name: Extract, build and publish this group's shards
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DATE: ${{ needs.plan.outputs.date }}
+          SHARDS: ${{ needs.plan.outputs.shards }}
+          GROUP: ${{ matrix.group }}
+          GROUPS: ${{ inputs.groups }}
+        run: |
+          set -euo pipefail
+          for ((s = GROUP; s < SHARDS; s += GROUPS)); do
+            nn=$(printf "s%02d" "$s")
+            if gh release view "shelf-$DATE" --json assets -q '.assets[].name' | grep -qx "$nn-index.tar"; then
+              echo "$nn already published"; continue
+            fi
+            python experiments/cirrus_extract.py --date "$DATE" --first "$s" --shards 1 --workers 1 --out "work/$nn"
+            python experiments/shelf_build.py --jsonl "work/$nn"/docs-*.jsonl --out "parts/$nn" --workers 4
+            rm -rf "work/$nn"
+            for v in parts/$nn/shelf-*.bin; do mv "$v" "parts/$nn/$nn-$(basename "$v")"; done
+            cp "parts/$nn/shelf.json" "parts/$nn/$nn-shelf.json"
+            tar -C "parts/$nn" -cf "parts/$nn/$nn-index.tar" shelf_index
+            gh release upload "shelf-$DATE" --clobber parts/$nn/$nn-shelf-*.bin "parts/$nn/$nn-shelf.json"
+            gh release upload "shelf-$DATE" --clobber "parts/$nn/$nn-index.tar"   # last: marks the part done
+            rm -rf "parts/$nn"
+          done
+
+  merge:
+    needs: [plan, part]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy==2.4.1
+      - name: Merge the index parts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DATE: ${{ needs.plan.outputs.date }}
+          SIGNING_KEY: ${{ secrets.ENGRAMM_SIGNING_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p dl parts
+          gh release download "shelf-$DATE" --dir dl --pattern 's*-index.tar' --pattern 's*-shelf.json'
+          args=()
+          for t in dl/s*-index.tar; do
+            nn=$(basename "$t" -index.tar)
+            mkdir -p "parts/$nn"; tar -C "parts/$nn" -xf "$t"; cp "dl/$nn-shelf.json" "parts/$nn/shelf.json"
+            args+=(--part "parts/$nn")
+          done
+          python experiments/shelf_merge.py --index-only "${args[@]}" --out shelf
+          if [ -n "$SIGNING_KEY" ]; then ENGRAMM_SIGNING_KEY="$SIGNING_KEY" python scripts/sign_manifest.py shelf/shelf.json; fi
+          python experiments/shelf_merge.py --index-only --part shelf --out lite --no-aliases
+          cp shelf/shelf.json lite/shelf.json
+          tar -C shelf -cf shelf_index.tar shelf_index
+          tar -C lite -cf shelf_index_lite.tar shelf_index
+          du -sh shelf/shelf_index lite/shelf_index
+          gh release upload "shelf-$DATE" --clobber shelf/shelf.json shelf_index.tar shelf_index_lite.tar

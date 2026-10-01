@@ -132,3 +132,78 @@ def test_shelf_off_means_no_traffic(shelf, tmp_path):
     from engramm.web.egress import EgressError
     with pytest.raises(EgressError):
         client.documents("How tall is the Eiffel Tower?", k=1, seed="s")
+
+
+def test_ed25519_matches_rfc8032():
+    from engramm.web import ed25519
+    sk = bytes.fromhex("4ccd089b28ff96da9db6c346ec114e0f5b8a319f35aba624da8cf6ed4fb8a6fb")
+    pk = bytes.fromhex("3d4017c3e843895a92b70aa74d1b7ebc9c982ccf2ec4968cc0cd55f12af4660c")
+    sig = bytes.fromhex("92a009a9f0d4cab8720e820b5f642540a2b27b5416503f8fb3762223ebdb69da"
+                        "085ac1e43e15996e458f3613d0f11d8c387b2eaeb4302aeeb00d291612bb0c00")
+    assert ed25519.public_key(sk) == pk and ed25519.sign(sk, b"\x72") == sig
+    assert ed25519.verify(pk, b"\x72", sig) and not ed25519.verify(pk, b"\x73", sig)
+
+
+def test_signed_manifest_and_a_refused_unsigned_one(shelf, tmp_path, monkeypatch):
+    import shutil
+
+    import engramm.web.shelf as shelf_mod
+    from engramm.web.atlas import Atlas
+    from engramm.web.ed25519 import public_key
+    out, _, url = shelf
+    seed = bytes(range(32))
+    m = ShelfManifest.load(out / "shelf.json")
+    m.sign(seed)
+    assert m.verify([public_key(seed)]) and not m.verify([public_key(bytes(32))])
+    m.bucket_sha256[0] = "0" * 64                       # a changed bucket hash breaks the signature
+    assert not m.verify([public_key(seed)])
+    # an app with a release key uses only a manifest signed by it
+    pack = tmp_path / "pack"
+    shutil.copytree(out / "shelf_index", pack / "shelf_index")
+    (pack / "shelf_source.json").write_text(json.dumps({"base_url": url + "/", "hosts": ["127.0.0.1"],
+                                                        "allow_loopback": True}))
+    keys = tmp_path / "keys.txt"
+    keys.write_text(public_key(seed).hex() + "\n")
+    monkeypatch.setattr(shelf_mod, "RELEASE_KEYS_PATH", keys)
+    monkeypatch.setattr(shelf_mod.release_keys, "__defaults__", (keys,))
+    eg = Egress(settings_path=tmp_path / "network.json", log=NetworkLog(None), backend=PythonBackend())
+    shutil.copy(out / "shelf.json", pack / "shelf.json")              # unsigned
+    a = Atlas(eg, pack, tmp_path / "state")
+    assert a.shelf is None and "not signed" in a.status()["shelf_error"]
+    good = ShelfManifest.load(out / "shelf.json")
+    good.sign(seed)
+    (pack / "shelf.json").write_text(json.dumps(good.to_dict()))
+    a = Atlas(eg, pack, tmp_path / "state2")
+    assert a.shelf is not None and a.status()["shelf"]["signed"] is True
+
+
+def test_merged_shelf_of_two_builds(tmp_path):
+    from experiments.shelf_merge import merge
+    docs = _docs(300)
+    a, b = tmp_path / "a.jsonl", tmp_path / "b.jsonl"
+    a.write_text("\n".join(json.dumps(d) for d in docs[:150]), encoding="utf-8")
+    b.write_text("\n".join(json.dumps(d) for d in docs[150:]), encoding="utf-8")
+    build([a], [], tmp_path / "pa", bucket_kb=64, sample=1000, key_terms=8, workers=2)
+    build([b], [], tmp_path / "pb", bucket_kb=64, sample=1000, key_terms=8, workers=2)
+    info = merge([tmp_path / "pa", tmp_path / "pb"], tmp_path / "m")
+    m = ShelfManifest.load(tmp_path / "m" / "shelf.json")
+    assert info["docs"] == len(docs) and m.buckets == len(m.bucket_sha256)
+    assert all((tmp_path / "m" / v["name"]).exists() for v in m.volumes)
+    ix = ShelfIndex(tmp_path / "m" / "shelf_index")
+    assert ix.term_hash.dtype == np.uint32 and ix.idf.dtype == np.float16
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), partial(_Range, directory=str(tmp_path / "m")))
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        client, eg = _client(tmp_path / "m", f"http://127.0.0.1:{srv.server_address[1]}", tmp_path)
+        for q, want in (("Which rare word is article 12 known for?", "zq12x"),
+                        ("Which rare word is article 287 known for?", "zq287x")):     # one from each part
+            got = client.documents(q, k=1, seed="s")
+            assert got and want in got[0]["x"], (q, [d["t"] for d in got])
+        assert ix.lookup("Eiffel Tower") is not None
+    finally:
+        srv.shutdown()
+    lite = merge([tmp_path / "m"], tmp_path / "lite", aliases=False, index_only=True)
+    assert lite["docs"] == len(docs) and not any((tmp_path / "lite").glob("*.bin"))
+
+
+import numpy as np  # noqa: E402

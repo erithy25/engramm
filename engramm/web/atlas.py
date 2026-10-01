@@ -54,6 +54,8 @@ class Atlas:
         self.shelf = None
         self.wayfinder = None
         self.feed_list = []
+        self.shelf_signed: bool | None = None
+        self.shelf_error: str | None = None
         self._seed = None
         self.calib = load_calib()
         self._init_feeds()
@@ -77,15 +79,23 @@ class Atlas:
         ix, man, src = self.pack / "shelf_index", self.pack / "shelf.json", self.pack / "shelf_source.json"
         if not (ix / "name_hash.npy").exists() or not man.exists() or not src.exists():
             return
-        from engramm.web.shelf import SHELF_HOSTS, ShelfClient, ShelfIndex, ShelfManifest
+        from engramm.web.shelf import SHELF_HOSTS, ShelfClient, ShelfIndex, ShelfManifest, release_keys
         try:
             source = json.loads(src.read_text(encoding="utf-8"))
             hosts = tuple(source.get("hosts") or SHELF_HOSTS)
-            self.shelf = ShelfClient(ShelfManifest.load(man), source["base_url"], ShelfIndex(ix), self.egress,
+            manifest = ShelfManifest.load(man)
+            keys = release_keys()
+            # with a release key in the app, only a manifest signed by it is used (the bucket hashes
+            # inside protect every bucket); without one, the pack's pinned hash is the protection
+            self.shelf_signed = manifest.verify(keys) if keys else None
+            if keys and not self.shelf_signed:
+                self.shelf_error = "the shelf manifest is not signed by the release key"
+                return
+            self.shelf = ShelfClient(manifest, source["base_url"], ShelfIndex(ix), self.egress,
                                      (self.state or self.pack) / "shelf_cache", allow_hosts=hosts,
                                      allow_loopback=bool(source.get("allow_loopback")))
             self.shelf_info = {"docs": len(self.shelf.index), "date": source.get("date", ""),
-                               "buckets": self.shelf.m.buckets}
+                               "buckets": self.shelf.m.buckets, "signed": self.shelf_signed}
         except (OSError, KeyError, ValueError, json.JSONDecodeError):
             self.shelf = None
 
@@ -207,7 +217,8 @@ class Atlas:
                 "feeds": [{"id": f.id, "title": f.title, "lang": f.lang, "selected": f.id in sel} for f in self.feed_list],
                 "feed_items": self.feeds.count() if self.feeds else 0,
                 "feed_state": self.feeds.state() if self.feeds else {},
-                "shelf": getattr(self, "shelf_info", None), "wayfinder": self.wayfinder is not None}
+                "shelf": getattr(self, "shelf_info", None), "shelf_error": self.shelf_error,
+                "wayfinder": self.wayfinder is not None}
 
 
 CALIB_PATH = Path(__file__).resolve().parent / "atlas_calib.json"
