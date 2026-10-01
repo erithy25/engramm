@@ -2,11 +2,12 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { api } from "./api";
 import { AssistantMessage } from "./components/AssistantMessage";
 import { AboutDialog, MemoryDialog } from "./components/Dialogs";
+import { NetworkDialog } from "./components/NetworkDialog";
 import { MenuIcon, SendIcon } from "./components/Icons";
 import { Sidebar } from "./components/Sidebar";
 import { isLang, type Lang, TEXTS } from "./i18n";
 import { load, save, uid } from "./storage";
-import type { Conversation, Health, Message, StoredReply } from "./types";
+import type { Conversation, Health, Message, NetworkStatus, StoredReply } from "./types";
 
 const STORE = "engramm.conversations.v1";
 const THEME = "engramm.theme";
@@ -33,6 +34,8 @@ export function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [memoryOpen, setMemoryOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [networkOpen, setNetworkOpen] = useState(false);
+  const [network, setNetwork] = useState<NetworkStatus | null>(null);
   const threadRef = useRef<HTMLElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const t = TEXTS[lang];
@@ -74,6 +77,15 @@ export function App() {
       window.clearTimeout(timer);
     };
   }, []);
+
+  // network channels: shown in the sidebar once the server is ready (hidden when it has none)
+  useEffect(() => {
+    if (!ready) return;
+    api.network().then(setNetwork, () => setNetwork(null));
+  }, [ready]);
+  const netOn =
+    network !== null && network.available && Object.values(network.channels).some((c) => c.enabled);
+  const netLabel = network !== null && network.available ? (netOn ? t.netOn : t.netOff) : null;
 
   // desktop app (loaded with ?desktop=1): source links open in the system browser, not in the app window
   useEffect(() => {
@@ -194,6 +206,9 @@ export function App() {
         onDelete={deleteChat}
         onClose={() => setSidebarOpen(false)}
         onMemory={() => setMemoryOpen(true)}
+        netLabel={netLabel}
+        netOn={netOn}
+        onNetwork={() => setNetworkOpen(true)}
         onAbout={() => setAboutOpen(true)}
         onTheme={() => {
           const next = dark ? "light" : "dark";
@@ -297,6 +312,7 @@ export function App() {
 
       <MemoryDialog open={memoryOpen} onClose={() => setMemoryOpen(false)} t={t} />
       <AboutDialog open={aboutOpen} onClose={() => setAboutOpen(false)} t={t} />
+      <NetworkDialog open={networkOpen} onClose={() => setNetworkOpen(false)} t={t} onStatus={setNetwork} />
     </div>
   );
 }

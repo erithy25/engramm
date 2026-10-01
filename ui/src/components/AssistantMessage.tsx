@@ -104,7 +104,9 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
   }
   const k = reply.kind;
   const chips: ReactElement[] = [];
-  if (k === "answer" && reply.via === "lookup") chips.push(<Chip key="s" text={t.sure} cls="sure" title={t.sureTitle} />);
+  if (k === "answer" && (reply.via === "lookup" || reply.via === "atlas")) {
+    chips.push(<Chip key="s" text={t.sure} cls="sure" title={t.sureTitle} />);
+  }
   if (k === "unknown" && reply.guess) chips.push(<Chip key="u" text={t.unsure} cls="unsure" title={t.unsureTitle} />);
   if (k === "learned") chips.push(<Chip key="l" text={t.learned} cls="memory" />);
   if (k === "forgot") chips.push(<Chip key="f" text={t.forgot} cls="memory" />);
@@ -112,11 +114,24 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
   if (k === "tool") chips.push(<Chip key="t" text={t.tool} cls="sure" />);
   if (k === "safety") chips.push(<Chip key="h" text={t.safety} cls="unsure" />);
   if (k === "writing") chips.push(<Chip key="w" text={t.writing} cls="memory" />);
-  if (reply.source?.kind === "user") {
+  const src = reply.source;
+  if (src?.kind === "user") {
     chips.push(<Chip key="src" text={t.toldMe} cls="memory" />);
-  } else if (reply.source?.title) {
-    const prefix = reply.source.kind === "wikipedia" ? t.wikipedia : reply.source.kind === "web" ? t.web : "";
-    chips.push(<Chip key="src" text={prefix + reply.source.title} href={reply.source.url} title={t.openSource} />);
+  } else if (src?.title) {
+    const prefix =
+      src.kind === "wikipedia" || src.kind === "shelf"
+        ? t.wikipedia
+        : src.kind === "web"
+          ? t.web
+          : src.kind === "feed"
+            ? t.news
+            : "";
+    const name = src.kind === "web" && src.site ? `${src.title} (${src.site})` : src.title;
+    const when = src.as_of ? ` · ${t.asOf}${src.as_of}` : "";
+    chips.push(<Chip key="src" text={prefix + name + when} href={src.url} title={t.openSource} />);
+    if (src.kind === "shelf" || src.kind === "feed" || src.kind === "web") {
+      chips.push(<Chip key="via" text={t.via[src.kind]} cls="net" />);
+    }
   }
   if (reply.resolved) chips.push(<Chip key="r" text={t.understoodAs + reply.resolved} />);
   if (typeof reply.seconds === "number") {

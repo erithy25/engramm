@@ -1,6 +1,6 @@
 import type { Texts } from "../i18n";
 import type { Conversation } from "../types";
-import { GlobeIcon, InfoIcon, ListIcon, MoonIcon, PlusIcon } from "./Icons";
+import { GlobeIcon, InfoIcon, ListIcon, MoonIcon, NetworkIcon, PlusIcon } from "./Icons";
 
 interface Props {
   t: Texts;
@@ -13,6 +13,10 @@ interface Props {
   onDelete: (id: string) => void;
   onClose: () => void;
   onMemory: () => void;
+  /** "on"/"off" when the server has network channels; null hides the entry */
+  netLabel: string | null;
+  netOn: boolean;
+  onNetwork: () => void;
   onAbout: () => void;
   onTheme: () => void;
   onLanguage: () => void;
@@ -78,6 +82,14 @@ export function Sidebar(p: Props) {
           <ListIcon />
           <span>{p.t.memory}</span>
         </button>
+        {p.netLabel !== null && (
+          <button className="side-link" id="openNetwork" type="button" onClick={p.onNetwork}>
+            <NetworkIcon />
+            <span>
+              {p.t.network} · <span className={p.netOn ? "net-on" : "muted"} id="netLabel">{p.netLabel}</span>
+            </span>
+          </button>
+        )}
         <button className="side-link" id="toggleTheme" type="button" onClick={p.onTheme}>
           <MoonIcon />
           <span id="themeLabel">{p.dark ? p.t.lightMode : p.t.darkMode}</span>

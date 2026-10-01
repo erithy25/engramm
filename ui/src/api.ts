@@ -1,4 +1,4 @@
-import type { Health, MemoryItem, Reply } from "./types";
+import type { ChannelChange, Health, MemoryItem, NetworkStatus, Reply } from "./types";
 
 export class ApiError extends Error {
   readonly status: number;
@@ -36,6 +36,10 @@ export const api = {
   chat: (conversation: string, message: string) => call<Reply>("/api/chat", { conversation, message }),
   memory: async () => (await call<{ items: MemoryItem[] }>("/api/memory")).items,
   forget: (source: string) => call<{ forgot: string }>("/api/memory/forget", { source }),
+  /** The network channels (all off until switched on), their state and the network log. */
+  network: () => call<NetworkStatus>("/api/network"),
+  setNetwork: (change: ChannelChange) => call<NetworkStatus>("/api/network", change),
+  refreshFeeds: () => call<NetworkStatus>("/api/network/refresh", {}),
   /** Desktop app only: the server opens a source link in the system browser. */
   open: (url: string) => call<{ opened: string }>("/api/open", { url }),
 };

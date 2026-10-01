@@ -3,8 +3,8 @@ import { api } from "../api";
 import type { Texts } from "../i18n";
 import type { MemoryItem } from "../types";
 
-function Modal(props: { id: string; open: boolean; onClose: () => void; title: string; closeLabel: string;
-                        children: ReactNode }) {
+export function Modal(props: { id: string; open: boolean; onClose: () => void; title: string; closeLabel: string;
+                               children: ReactNode; wide?: boolean }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = ref.current;
@@ -16,7 +16,7 @@ function Modal(props: { id: string; open: boolean; onClose: () => void; title: s
     <dialog
       id={props.id}
       ref={ref}
-      className="dialog"
+      className={"dialog" + (props.wide ? " wide" : "")}
       onClose={props.onClose}
       onClick={(e) => {
         if (e.target === ref.current) props.onClose();

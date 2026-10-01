@@ -267,11 +267,13 @@ class ShelfClient:
             return got
         order = missing + self.decoy_buckets(seed, set(missing))
         order.sort(key=lambda b: hashlib.shake_256(f"{seed}|order|{self.n}|{b}".encode()).digest(4))
+        tor = bool(self.egress.settings["channels"]["shelf"].get("tor"))     # optional: the host sees no IP
         for b in order:
             name, off = self.m.locate(b)
             res = self.egress.fetch(Request("shelf", self.base + name, f"bucket {b}", self.allow_hosts,
                                             range=(off, off + self.m.bucket_bytes - 1),
-                                            max_bytes=self.m.bucket_bytes, allow_loopback=self.allow_loopback))
+                                            max_bytes=self.m.bucket_bytes, tor=tor,
+                                            allow_loopback=self.allow_loopback))
             if not res.ok or len(res.body) != self.m.bucket_bytes:
                 continue
             if hashlib.sha256(res.body).hexdigest() != self.m.bucket_sha256[b]:

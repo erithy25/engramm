@@ -34,6 +34,7 @@ DEFAULT_SETTINGS = {"version": 1, "channels": {"shelf": {"enabled": False, "tor"
                                                "messenger": {"enabled": False, "tor": True}}}
 MAX_BYTES = {"shelf": 4 << 20, "feeds": 2 << 20, "messenger": 2 << 20}
 TIMEOUT = {"shelf": 30.0, "feeds": 20.0, "messenger": 45.0}
+LOG_MAX_BYTES = 2 << 20
 
 
 class EgressError(Exception):
@@ -128,6 +129,19 @@ class NetworkLog:
                 self.path.parent.mkdir(parents=True, exist_ok=True)
                 with self.path.open("a", encoding="utf-8") as f:
                     f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+                self._trim()
+
+    def _trim(self, limit: int = LOG_MAX_BYTES) -> None:
+        """Keep network.log bounded: past ``limit`` bytes, the newest half of the lines stays."""
+        try:
+            if self.path.stat().st_size <= limit:
+                return
+            lines = self.path.read_text(encoding="utf-8").splitlines()
+            tmp = self.path.with_suffix(".tmp")
+            tmp.write_text("\n".join(lines[len(lines) // 2:]) + "\n", encoding="utf-8")
+            tmp.replace(self.path)
+        except OSError:
+            pass
 
     def tail(self, n: int = 100) -> list[dict]:
         if self.path is not None and self.path.exists():

@@ -155,3 +155,14 @@ def test_fetch_range_redirect_limits_and_log(server, tmp_path, kind):
     assert any(x["ok"] and x["bytes"] == 10 for x in log)
     if kind == "rust":
         e.backend.close()
+
+
+def test_network_log_stays_bounded(tmp_path):
+    log = NetworkLog(tmp_path / "network.log")
+    for i in range(400):
+        log.write({"channel": "feeds", "host": "example.org", "what": f"feed {i}", "bytes": 1, "status": 200,
+                   "via": "direct", "ok": True})
+        log._trim(limit=8_000)
+    assert (tmp_path / "network.log").stat().st_size <= 8_000 + 200
+    tail = log.tail(1000)
+    assert tail[-1]["what"] == "feed 399" and len(tail) < 400          # the newest lines survive

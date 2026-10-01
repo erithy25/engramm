@@ -118,7 +118,9 @@ class Atlas:
             threading.Thread(target=self.refresher.refresh_now, daemon=True).start()
         else:
             self.refresher.stop()
-        if self.egress.enabled("messenger") and self.egress.settings["channels"]["messenger"].get("tor", True):
+        ch = self.egress.settings["channels"]
+        if (self.egress.enabled("messenger") and ch["messenger"].get("tor", True)) or \
+                (self.egress.enabled("shelf") and ch["shelf"].get("tor")):
             self.egress.warm_tor()
 
     # -- news ---------------------------------------------------------------------------------

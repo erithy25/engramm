@@ -55,3 +55,12 @@ export function SendIcon() {
     </svg>
   );
 }
+
+export function NetworkIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.5 16a5 5 0 0 1 7 0" />
+      <circle cx="12" cy="19.5" r="1" />
+    </svg>
+  );
+}

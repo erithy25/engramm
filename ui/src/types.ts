@@ -19,6 +19,10 @@ export interface SourceView {
   kind: string;
   title: string;
   url: string | null;
+  /** Atlas sources (shelf, feed, web): the date of the text. */
+  as_of?: string | null;
+  /** feed id or host of a web page */
+  site?: string | null;
 }
 
 export interface Alternative {
@@ -73,4 +77,67 @@ export interface Conversation {
 
 export function isError(r: StoredReply): r is ErrorReply {
   return (r as ErrorReply).error !== undefined;
+}
+
+/** One network channel's settings (engramm/web/egress.py DEFAULT_SETTINGS). */
+export interface ChannelSettings {
+  enabled: boolean;
+  tor?: boolean;
+  feeds?: string[];
+}
+
+export type ChannelName = "shelf" | "feeds" | "messenger";
+
+export interface FeedInfo {
+  id: string;
+  title: string;
+  lang: string;
+  selected: boolean;
+}
+
+export interface FeedState {
+  last: number;
+  ok: boolean;
+  error: string;
+}
+
+/** One line of the network log: what was fetched, never why. */
+export interface NetworkLogEntry {
+  ts: string;
+  channel: string;
+  host: string;
+  what: string;
+  bytes: number;
+  status: number;
+  via: string;
+  ok: boolean;
+  error?: string;
+}
+
+export interface ShelfInfo {
+  docs: number;
+  date: string;
+  buckets: number;
+}
+
+export type NetworkStatus =
+  | { available: false }
+  | {
+      available: true;
+      backend: string | null;
+      channels: Record<ChannelName, ChannelSettings>;
+      tor: string;
+      feeds: FeedInfo[];
+      feed_items: number;
+      feed_state: Record<string, FeedState>;
+      shelf: ShelfInfo | null;
+      wayfinder: boolean;
+      log: NetworkLogEntry[];
+    };
+
+export interface ChannelChange {
+  channel: ChannelName;
+  enabled?: boolean;
+  tor?: boolean;
+  feeds?: string[];
 }
