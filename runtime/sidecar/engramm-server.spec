@@ -11,10 +11,11 @@ ROOT = Path(SPECPATH).resolve().parents[1]
 # realizer's verb list and the built chat page
 datas = [(str(ROOT / "engramm" / "chat" / "conv_bank.json"), "engramm/chat"),
          (str(ROOT / "engramm" / "chat" / "letters.json"), "engramm/chat"),
+         (str(ROOT / "engramm" / "web" / "feeds.json"), "engramm/web"),
          (str(ROOT / "engramm" / "chat" / "data"), "engramm/chat/data"),
          (str(ROOT / "engramm" / "app" / "web"), "engramm/app/web")]
 hidden = (collect_submodules("engramm.chat") + collect_submodules("engramm.kb") + collect_submodules("engramm.nlp")
-          + collect_submodules("engramm.app") + ["engramm.lm.chat", "engramm.lm.semantic", "engramm.lm.stream",
+          + collect_submodules("engramm.app") + collect_submodules("engramm.web") + ["engramm.lm.chat", "engramm.lm.semantic", "engramm.lm.stream",
                                                  "engramm.lm.tokenizer", "engramm.lm.dashboard"])
 
 a = Analysis(

@@ -1,0 +1,19 @@
+# Feeds for the subscription channel (Atlas K2, docs/SPEC_ATLAS.md).
+#
+# ENGRAMM fetches the feeds you select on a fixed schedule (every few hours, with random jitter),
+# never because of a question, and keeps the items on your computer for 30 days, like a feed
+# reader. Headlines and summaries belong to their publishers; they are shown with source and link
+# and never redistributed. Only https feeds.
+default: [bbc-world, guardian-world, dw-en]
+feeds:
+  - {id: bbc-world, title: "BBC News — World", url: "https://feeds.bbci.co.uk/news/world/rss.xml", lang: en, topic: news}
+  - {id: bbc-tech, title: "BBC News — Technology", url: "https://feeds.bbci.co.uk/news/technology/rss.xml", lang: en, topic: tech}
+  - {id: bbc-science, title: "BBC News — Science", url: "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml", lang: en, topic: science}
+  - {id: bbc-business, title: "BBC News — Business", url: "https://feeds.bbci.co.uk/news/business/rss.xml", lang: en, topic: business}
+  - {id: guardian-world, title: "The Guardian — World", url: "https://www.theguardian.com/world/rss", lang: en, topic: news}
+  - {id: aljazeera, title: "Al Jazeera", url: "https://www.aljazeera.com/xml/rss/all.xml", lang: en, topic: news}
+  - {id: dw-en, title: "DW (English)", url: "https://rss.dw.com/rdf/rss-en-all", lang: en, topic: news}
+  - {id: nasa, title: "NASA News Releases", url: "https://www.nasa.gov/news-release/feed/", lang: en, topic: science}
+  - {id: ars, title: "Ars Technica", url: "https://feeds.arstechnica.com/arstechnica/index", lang: en, topic: tech}
+  - {id: tagesschau, title: "tagesschau.de", url: "https://www.tagesschau.de/index~rss2.xml", lang: de, topic: news}
+  - {id: spiegel, title: "DER SPIEGEL — Schlagzeilen", url: "https://www.spiegel.de/schlagzeilen/index.rss", lang: de, topic: news}
