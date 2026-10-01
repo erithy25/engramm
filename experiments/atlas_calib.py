@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import string
 import sys
@@ -42,6 +43,7 @@ sys.path.insert(0, str(ROOT))
 CACHE = ROOT / "data" / "cache" / "atlas"
 SQUAD = ROOT / "data" / "cache" / "chat" / "train-v1.1.json"
 OUT = ROOT / "engramm" / "web" / "atlas_calib.json"
+WORK = Path(os.environ.get("ATLAS_WORK", "/dev/shm/engramm/atlas_work"))
 UA = "ENGRAMM-research/0.1 (offline assistant knowledge build; github.com/erithy25/engramm)"
 
 
@@ -56,6 +58,18 @@ def normalize_answer(s: str) -> str:
 
 def exact(pred: str | None, golds: list[str]) -> bool:
     return pred is not None and any(normalize_answer(pred) == normalize_answer(g) for g in golds)
+
+
+def token_f1(pred: str | None, golds: list[str]) -> float:
+    """The official SQuAD token F1 (best over the gold answers)."""
+    best = 0.0
+    pt = normalize_answer(pred or "").split()
+    for g in golds:
+        gt = normalize_answer(g).split()
+        common = sum((Counter(pt) & Counter(gt)).values())
+        if common:
+            best = max(best, 2 * common / (len(pt) + len(gt)))
+    return best
 
 
 def squad_articles() -> list[dict]:
@@ -124,7 +138,7 @@ def shelf(articles: Path, distractors: Path, out: Path, workers: int) -> None:
                 if json.loads(line)["t"] not in titles:
                     f.write(line)
                     n += 1
-    build([mixed], [], out, workers=workers, total=n)
+    build([mixed], [], out, workers=workers, total_hint=n)
     mixed.unlink()
 
 
@@ -172,7 +186,7 @@ def examples_worker(pack: Path, shelf_dir: Path, per_article: int, part: int, pa
     import engramm.chat.bot as botmod
     from engramm.app.server import ChatService
     from engramm.chat import calib
-    work = out.parent / f"work{part}"
+    work = WORK / f"work{part}"            # bucket cache and settings: on a RAM disk, not next to the repo
     work.mkdir(parents=True, exist_ok=True)
     srv = ThreadingHTTPServer(("127.0.0.1", 0), partial(_Range, directory=str(shelf_dir)))
     threading.Thread(target=srv.serve_forever, daemon=True).start()
@@ -252,11 +266,18 @@ def examples(pack: Path, shelf_dir: Path, per_article: int, workers: int) -> Non
 
 # -- train ----------------------------------------------------------------------------------------
 
-def train(target: float, holdout_share: float = 0.2) -> dict:
+def train(target: float, holdout_share: float = 0.2, label: str = "f1") -> dict:
+    """``label``: "f1" counts an answer right at token F1 ≥ 0.5 against a SQuAD answer (closer to
+    a person's judgement: "7 April 1986" for "April 7, 1986"), "em" only an exact match."""
     from engramm.chat.calib import train as perceptron
     recs = []
     for f in sorted(CACHE.glob("examples-*.jsonl")):
         recs += [json.loads(line) for line in f.read_text(encoding="utf-8").splitlines()]
+    gold = {qa["id"]: [x["text"] for x in qa["answers"]] for a in squad_articles() for p in a["paragraphs"]
+            for qa in p["qas"]}
+    for r in recs:
+        if r.get("feats"):
+            r["right"] = exact(r["pred"], gold[r["id"]]) if label == "em" else token_f1(r["pred"], gold[r["id"]]) >= 0.5
     usable = [r for r in recs if r.get("feats") and r.get("atlas")]
     arts = sorted({r["article"] for r in recs})
     hold = set(arts[::round(1 / holdout_share)])
@@ -272,15 +293,14 @@ def train(target: float, holdout_share: float = 0.2) -> dict:
         if right / k >= target and (k == len(scored) or scored[k][0] < s):
             theta, best = s, (k, right)
     n_ho_q = sum(1 for r in recs if r["article"] in hold)
-    rep = {"examples": len(recs), "with_shelf_answer": len(usable), "train": len(tr), "holdout": len(ho),
+    rep = {"label": label, "examples": len(recs), "with_shelf_answer": len(usable), "train": len(tr), "holdout": len(ho),
            "holdout_questions": n_ho_q, "target": target, "theta": theta,
            "holdout_answered": best[0] if best else 0, "holdout_right": best[1] if best else 0,
            "holdout_exactness": round(best[1] / best[0], 3) if best else None,
            "holdout_coverage": round(best[0] / n_ho_q, 3) if best else 0.0,
            "article_found": round(sum(r.get("article_hit", False) for r in recs) / max(1, len(recs)), 3),
            "right_anywhere": round(sum(r.get("right", False) for r in recs) / max(1, len(recs)), 3),
-           "features": Counter(x for f, _ in tr for x in f).most_common(0)}
-    rep.pop("features")
+           }
     if theta is None:
         raise SystemExit(f"no θ reaches exactness {target}: {rep}")
     OUT.write_text(json.dumps({"kind": "conf-perceptron", "theta": theta, "trained_on": "SQuAD v1.1 train (spent), "
@@ -301,6 +321,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--parts", type=int, default=1)
     ap.add_argument("--out", type=Path)
     ap.add_argument("--target", type=float, default=0.9)
+    ap.add_argument("--label", choices=["f1", "em"], default="f1")
     a = ap.parse_args(argv)
     CACHE.mkdir(parents=True, exist_ok=True)
     if a.cmd == "fetch":
@@ -312,7 +333,7 @@ def main(argv: list[str] | None = None) -> int:
     elif a.cmd == "_worker":
         examples_worker(a.pack, a.shelf, a.per_article, a.part, a.parts, a.out)
     else:
-        print(json.dumps(train(a.target), indent=1))
+        print(json.dumps(train(a.target, label=a.label), indent=1))
     return 0
 
 

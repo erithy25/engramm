@@ -858,8 +858,10 @@ class Assistant:
             bot.extra_rows, bot.extra_calib = [], None
         src = rep.source or {}
         if rep.kind != "answer" or src.get("kind") not in ("shelf", "feed", "web"):
-            bot.context = ctx
-            return None
+            quote = self._atlas_quote(st, text, q, rep, names)
+            if quote is None:
+                bot.context = ctx
+            return quote
         full = _full_name(rep.answer, [r[0] for r in rows if r[1].get("key") == src.get("key")])
         if full != rep.answer:                   # "Vickers" → "Diana Vickers" (named so in the same article)
             rep.answer = full
@@ -872,6 +874,43 @@ class Assistant:
         rep.message = text
         st.last_fact = {"evidence": rep.evidence, "source": src, "answer": rep.answer, "question": q, "sure": True}
         return rep
+
+    def _atlas_quote(self, st: DialogState, text: str, q: str, rep: Reply, names: list[str]) -> Reply | None:
+        """Not sure of the short answer, but the best sentence comes from the article the question
+        names and shares its other words: say so and quote it with its source, as a person would —
+        never a guessed short answer."""
+        src = rep.source or {}
+        if not rep.evidence or src.get("kind") not in ("shelf", "web"):
+            return None
+        title = str(src.get("title") or "")
+        shelf = getattr(self.atlas, "shelf", None)
+        bare = re.sub(r"\s*\([^)]*\)$", "", title).lower()
+        named = bool(bare) and bare in q.lower() or any(
+            _name_match(n, title) or (shelf is not None and shelf.index.lookup(n) is not None
+                                      and shelf.index.title(shelf.index.lookup(n)) == title) for n in names)
+        if not named:
+            return None
+        rest = _stems(q) - _stems(title) - _QUOTE_STOP
+        if not rest:
+            return None
+        # the best candidate sentence of that article that has the question's other words
+        ev = None
+        for row in [(None, None, None, rep.evidence, src)] + list(getattr(self.bot, "last_rows", []) or []):
+            text_, rsrc = row[3], row[4] or {}
+            if rsrc.get("key") != src.get("key"):
+                continue
+            have = _stems(text_) | ({"born", "die"} if _LIFE_SPAN_RE.search(text_) else set())
+            if rest & have:
+                ev = text_
+                break
+        if ev is None:
+            return None
+        when = src.get("as_of")
+        where = f"Wikipedia's article “{title}”" if src["kind"] == "shelf" else f"the page “{title}” ({src.get('source')})"
+        say = self._pick(st, "daily:atlas_quote", self.bank.daily["atlas_quote"], title=where, evidence=ev)
+        say = say[:1].upper() + say[1:] + (f" (as of {when})." if when else "")
+        st.last_fact = {"evidence": ev, "source": src, "answer": None, "question": q, "sure": False}
+        return Reply(text, "about", say, None, rep.guess, ev, src, 0.0, "atlas", rep.resolved, rep.alternatives)
 
     def _atlas_about(self, st: DialogState, text: str, topic: str) -> Reply | None:
         """"Tell me about X" when the local reading has no article: the shelf (or the live page)."""
@@ -1410,6 +1449,18 @@ def resolve_statement(text: str) -> str:
 _CAPS_SPAN = re.compile(r"\b[A-Z][\w'’.\-]*(?:\s+(?:of|the|and|de|von|van|da|del|la|le)?\s*[A-Z][\w'’.\-]*)*")
 
 
+def _stems(text: str) -> set[str]:
+    """Lower-case words with a plain English ending removed ("died" → "die", "formed" → "form")."""
+    out = set()
+    for w in re.findall(r"[a-z0-9]+", text.lower()):
+        for suf in ("ing", "ed", "es", "s", "d"):
+            if len(w) > len(suf) + 2 and w.endswith(suf):
+                w = w[: -len(suf)]
+                break
+        out.add(w)
+    return out
+
+
 def _full_name(answer: str | None, texts: list[str]) -> str | None:
     """A one-word name answer in its longer form from the same article ("Vickers" → "Diana
     Vickers"), when exactly one longer form occurs there."""
@@ -1424,6 +1475,9 @@ def _full_name(answer: str | None, texts: list[str]) -> str | None:
     return answer
 
 
+_LIFE_SPAN_RE = re.compile(r"\([^()]*\b\d{3,4}\s*[–—-]\s*[^()]*?\b\d{3,4}\)")
+_QUOTE_STOP = frozenset("when where who whom whose what which why how did doe do is are was were has had the a an of in on "
+                        "at to for from by with and or".split())
 _FULLNAME_STOP = frozenset("the a an in on at of by and but when after before during since while this that these "
                            "his her their its singer songwriter band album president king queen sir lady lord mr mrs ms "
                            "dr saint st".split())

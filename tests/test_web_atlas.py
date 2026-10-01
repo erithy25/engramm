@@ -150,3 +150,18 @@ def test_life_span_in_the_first_sentence_answers_born(atlas_chat):
     r = _ask(a, DialogState("b"), "When was Vorna Kell born?")
     # not "1959" from "… touring the coast when a radio host …": the life span after the name counts
     assert r.kind == "answer" and "1911" in r.answer, r.text
+
+
+def test_unsure_shelf_answer_quotes_the_named_article(atlas_chat):
+    import dataclasses
+    a, atlas, eg = atlas_chat
+    eg.set_channel("shelf", enabled=True)
+    a.bot.cfg = dataclasses.replace(a.bot.cfg, theta=1e9)      # never sure enough for a short answer
+    st = DialogState("q")
+    r = _ask(a, st, "When was the Zorblax Bridge opened?")
+    assert r.kind == "about" and r.via == "atlas" and r.answer is None
+    assert "Zorblax Bridge" in r.text and "opened in 1931" in r.text and "2026-09-20" in r.text
+    r2 = _ask(a, st, "Who designed the Zorblax Bridge?")
+    assert "Mirela Tosk" in r2.text and r2.text.split("“")[0] != r.text.split("“")[0]   # worded differently
+    r3 = _ask(a, DialogState("q2"), "When was the Velmar Tower opened?")                 # not the named article
+    assert r3.via != "atlas"

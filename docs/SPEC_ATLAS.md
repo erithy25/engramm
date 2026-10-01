@@ -56,27 +56,44 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
 
 ## Regal (K1)
 
-- **Volumes:** `shelf-<n>.bin`, jedes < 2 GiB, aus festen Fächern zu je `bucket_bytes` (Standard 1 MiB).
-- **Fach:** zstd-komprimiertes JSON-Lines-Dokument (`{"t": Titel, "s": Quelle, "x": Text}` je Zeile), mit Nullbytes auf die volle Fachgröße aufgefüllt.
-  - Fach `b` liegt in Volume `b // per_volume` am Offset `(b % per_volume) · bucket_bytes`.
-- **Zuordnung:** Artikel → Fach per SHAKE-256(Titel), bei Überlauf das nächste Fach mit Platz.
-  - Artikel, die größer als ein Fach sind, werden auf ihre ersten `bucket_bytes` gekürzt.
-  - Die Zuordnung steht im lokalen Regal-Index, nicht im Fach.
-- **Manifest** `shelf.json` legt fest: `version`, `bucket_bytes`, `per_volume`, `buckets`, `volumes` (Name, Bytes, SHA-256), `bucket_sha256` (Liste), `licenses`, `built`, optional `signature` (ed25519, siehe unten).
-  - Der Katalog der App pinnt die SHA-256 des Manifests, wie beim Wissenspaket.
-- **Lokaler Regal-Index** (im Paket, `shelf_index/`):
-  - `titles.txt` mit `bucket.npy`;
-  - Schlüsselterme je Artikel als invertierte Liste (`terms.txt`, `ptr.npy`, `post.npy`);
-  - BM25 über Titel und Schlüsselterme.
+- **Quelle:** der wöchentliche CirrusSearch-Dump der englischen Wikipedia (Klartext, Weiterleitungen;
+  `experiments/cirrus_extract.py`). Nur Artikel (Namensraum 0, keine Begriffsklärungen) mit ≥ 300 Zeichen;
+  die Literatur- und Linkzone am Artikelende wird regelbasiert abgeschnitten (`engramm/web/clean.py`,
+  `strip_references`; Shard 0: 31 % weniger Text).
+- **Volumes:** `shelf-<n>.bin` (bzw. `s<NN>-shelf-<n>.bin` beim Teilbau), jedes < 2 GiB, aus festen Fächern
+  zu je `bucket_bytes` (Standard 1 MiB).
+- **Fach:** `EGB1` | u32 Länge | LZMA(JSON-Lines `{"t","s","x","d"}`) | Nullbytes bis zur vollen Fachgröße.
+  - Ohne `first`/`buckets` je Volume liegt Fach `b` in Volume `b // per_volume` am Offset
+    `(b % per_volume) · bucket_bytes`; mit ihnen (zusammengeführtes Regal) im Volume, dessen Bereich `b` enthält.
+- **Zuordnung:** Artikel → Fach per SHAKE-256(Titel), bei Überlauf das nächste Fach mit Platz; ein Fach, das
+  komprimiert nicht passt, kürzt seinen längsten Artikel (gezählt im Manifest). Die Zuordnung steht nur im
+  lokalen Index.
+- **Manifest** `shelf.json`: `version`, `bucket_bytes`, `per_volume`, `buckets`, `volumes` (Name, Bytes,
+  SHA-256, `first`, `buckets`), `bucket_sha256`, `licenses`, `built`, `docs`, optional `signature`.
+  - Das Manifest kommt mit dem Wissenspaket, dessen Manifest-SHA-256 der Katalog im Installer pinnt.
+- **Lokaler Index** (im Paket, `shelf_index/`, alles speicherabgebildet, Format 2):
+  `titles.bin` + `title_off.npy` (u32), `bucket.npy` (u16), Namensformen `name_hash.npy` (u64, Titel und
+  Weiterleitungen; Lite: nur Titel) + `name_doc.npy`, Schlüsselterme `term_hash.npy` (untere 32 Bit des
+  BLAKE2b-Hashes) + `ptr.npy` + `post.npy` + `idf.npy` (float16). Je Artikel die Titelwörter und 8
+  Schlüsselterme (tf·idf, die ersten 600 Zeichen dreifach).
+  - Gemessen an Shard 0 (96.648 Artikel): 11,7 MB. Hochrechnung ganz Wikipedia (Untergrenze): ≈ 0,55 GB
+    ohne, ≈ 0,67 GB mit Weiterleitungen.
+- **Bau in der CI** (`.github/workflows/shelf.yml`): ein Teil-Regal je Dump-Shard in parallelen Jobs, Volumes
+  direkt als Assets des Releases `shelf-<Datum>`; danach führt `experiments/shelf_merge.py --index-only` nur die
+  Index-Teile zusammen (globale idf). Gemessen je Shard: Extraktion 232 s (ein Kern), Bau 172–348 s.
 - **Client** (`engramm/web/shelf.py`):
-  1. die Top-k-Artikel wählen;
-  2. deren Fächer plus 2 Tarn-Fächer (SHAKE-256 aus Gesprächs-ID und Zähler, nicht aus der Frage) in zufälliger Reihenfolge laden;
+  1. Artikel wählen: Namensformen aus der Frage (auch Weiterleitungen wie „xHCI“) zählen stark, dazu
+     Schlüsselterme; nur Artikel mit ≥ 40 % des besten Treffers;
+  2. deren Fächer plus 2 Tarn-Fächer (aus einem Geheimnis je Installation und einem Zähler, nie aus der
+     Frage) in zufälliger Reihenfolge laden, optional über Tor;
   3. jede SHA-256 prüfen, Fehlschläge verwerfen;
   4. alles im LRU-Cache `shelf_cache/` behalten (Standard 500 MB).
-- **Signatur** (für spätere Paket-Updates): ed25519 über die kanonische JSON-Form des Manifests ohne `signature`.
-  - Der öffentliche Schlüssel liegt in `runtime/keys/release.pub`.
-  - CI signiert nur, wenn das Secret `ENGRAMM_SIGNING_KEY` gesetzt ist.
-  - Ohne Signatur gilt allein die gepinnte SHA-256 aus dem Installer-Katalog, und Updates werden nicht angeboten.
+- **Signatur:** Ed25519 (RFC 8032, `engramm/web/ed25519.py`, reines Python) über die kanonische JSON-Form
+  des Manifests ohne `signature`. Öffentliche Schlüssel in `engramm/web/release_keys.txt`;
+  `scripts/sign_manifest.py` erzeugt Schlüssel und signiert; die CI signiert nur mit dem Secret
+  `ENGRAMM_SIGNING_KEY`. Steht ein Schlüssel in der App, nutzt sie nur ein von ihm signiertes Manifest.
+  **Stand:** noch kein Schlüssel hinterlegt; bis dahin schützt allein die gepinnte Paket-Prüfsumme
+  (Kette: Installer-Katalog → Paket-Manifest → `shelf.json` → SHA-256 je Fach).
 
 ## Abo (K2)
 
@@ -97,11 +114,33 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
 
 ## Antworten (A4)
 
-- **Eskalation:** lokal (Faktenbank, Abo, Artikelanfänge) → Regal → Bote.
-- **Kriterium:** Die nächste Stufe läuft nur, wenn die Konfidenz unter θ liegt oder die Frage nach Aktuellem fragt (current/latest/now/today/2025+).
-- Alle Kandidatensätze laufen durch `ChatBot._lookup`. Quellen-Art: `shelf` | `feed` | `web`, mit `as_of`.
-- **Quellen-Abgleich:** Stimmen zwei unabhängige Quellen überein, steigt die Konfidenz. Bei Widerspruch nennt ENGRAMM beide mit Datum.
-- **Bei ausgeschalteten Kanälen** sind die Antworten identisch mit v3 (Digest-Test).
+- **Eskalation:** lokal (Faktenbank, Artikelanfänge) → Feeds → Regal → Bote. Fragen nach Aktuellem
+  (current/latest/now/today/2023+) gehen zuerst an die Kanäle; persönliche Fragen (I/me/my) nie.
+- Die Sätze der Kanäle laufen als zusätzliche Kandidaten durch `ChatBot._lookup` (`extra_rows`), mit
+  denselben Merkmalen wie lokale Sätze: Abdeckung (der Artikeltitel gilt in jedem seiner Sätze als genannt),
+  Phrasen, Nähe, Titel als Schlüsselwörter, Dokument- und Kontextabdeckung (zwei Sätze davor). Fragewörter
+  zählen nicht; die Lebensdaten nach dem Namen im ersten Satz gelten als „born/died“. Die ersten zwei Sätze
+  jedes Artikels sind immer Kandidaten, Literaturzeilen nie.
+- **Konfidenz:** eigenes Modell für Netz-Sätze (`engramm/web/atlas_calib.json`, gemitteltes Perzeptron
+  wie `engramm/chat/calib.py`, `experiments/atlas_calib.py`). Entwicklungsmessung (verbrauchte Daten,
+  kein Testlauf): 11.046 SQuAD-train-Fragen (25 je Artikel, 442 Artikel in ihrer heutigen Fassung unter
+  96.648 Ablenkern aus Shard 0) durch den echten Pfad (lokaler Server, Tarn-Fächer).
+  - Gefragter Artikel unter den Kandidaten: 41 % aller Fragen, 88 % der Fragen, die ihren Artikel nennen.
+  - Das lokale Modell beantwortete Regal-Sätze mit nur 59,7 % exakter Präzision → nicht brauchbar.
+  - Neues Modell, Label „Token-F1 ≥ 0,5“, θ = 13,45 für ≥ 90 % auf 20 % zurückgehaltenen Artikeln:
+    22 von 24 kurzen Antworten richtig (91,7 %), Abdeckung 1,1 %. Exakte Übereinstimmung erreicht auch
+    oben nur ≈ 60–65 % — die kurze Spanne ist die Grenze, nicht die Suche.
+- **Zitat statt Raten:** ist das Modell unsicher, stammt der beste Satz aber aus dem Artikel, den die Frage
+  nennt, und enthält er ihre übrigen Wörter, antwortet ENGRAMM mit diesem Satz, Quelle und Stand
+  („Here's what Wikipedia's article “Nik Nanos” says: “… (born 1964) …” (as of 2026-09-11)“), in
+  wechselnden Formulierungen (`daily.atlas_quote`). Ende-zu-Ende-Batterie (12 Fragen, Lite-Paket + echtes
+  Regal aus Shard 0): vorher 5 richtig, 2 falsch; jetzt 2 kurz und sicher, 7 belegte Zitate, 1 aus der
+  Faktenbank, 2 ehrlich „weiß nicht“, 0 falsch.
+- Quelle `shelf` | `feed` | `web` mit `as_of`; die Antwort nennt Quelle und Stand, die Oberfläche den Kanal.
+- **Quellen-Abgleich (offen):** Übereinstimmung mehrerer unabhängiger Quellen und Widerspruchsanzeige sind
+  noch nicht gebaut; heute zählt nur die Stimmenverteilung über die besten Sätze.
+- **Bei ausgeschalteten Kanälen** sind die Antworten identisch mit v3 und es gibt 0 Abrufe
+  (`tests/test_web_atlas.py`).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 

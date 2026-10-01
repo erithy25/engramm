@@ -467,7 +467,7 @@ plan_plain:
   - "Ooh, what's the plan?"
 
 news_off:
-  - "I don't follow the news on my own — I'm offline by default. If you like, switch on news feeds under Settings → Network: I'll fetch the headlines of the feeds you pick every few hours, never with your questions."
+  - "I don't follow the news on my own — I'm offline by default. If you like, switch on news feeds under “Internet access” in the sidebar: I'll fetch the headlines of the feeds you pick every few hours, never with your questions."
 news_none:
   - "My news feeds haven't brought anything in yet. They update every few hours — try again a little later."
 news_none_topic:
@@ -490,3 +490,11 @@ moment_no:
 topic_more:
   none:
     - "More about what? Ask me about a topic, like “Tell me about volcanoes”."
+# an answer from a fetched article that ENGRAMM is not sure enough to shorten: the sentence itself
+# ({title}: "Wikipedia's article “X”" or "the page “X” (host)", {evidence}: the sentence)
+atlas_quote:
+  - "I'm not sure of the exact answer, but {title} says: “{evidence}”"
+  - "Here's what {title} says: “{evidence}”"
+  - "I can't pin it down to a short answer — this is from {title}: “{evidence}”"
+  - "{title} puts it like this: “{evidence}”"
+  - "Rather than guess, I'll quote {title}: “{evidence}”"
