@@ -5367,6 +5367,16 @@
    "That sounds exciting! Tell me more?",
    "Ooh, what's the plan?"
   ],
+  "news_off": [
+   "I don't follow the news on my own — I'm offline by default. If you like, switch on news feeds under Settings → Network: I'll fetch the headlines of the feeds you pick every few hours, never with your questions."
+  ],
+  "news_none": [
+   "My news feeds haven't brought anything in yet. They update every few hours — try again a little later."
+  ],
+  "news_none_topic": [
+   "Nothing about {x} in my news feeds from the last 30 days.",
+   "My feeds have nothing on {x} right now."
+  ],
   "who_mean": [
    "Who do you mean by “{x}”? Give me the name and I'll look it up.",
    "Sorry — who's “{x}”? Tell me the name and I'll help."

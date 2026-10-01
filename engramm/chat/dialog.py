@@ -133,6 +133,7 @@ class Assistant:
         self.events = EventBook(Path(mem_path).with_suffix(".events.json") if mem_path else None)
         from engramm.chat.everyday import Everyday
         self.everyday = Everyday(self)
+        self.atlas = None                       # engramm/web/atlas.py, set by the server when channels exist
 
     # -- helpers ------------------------------------------------------------------------------
 
@@ -383,6 +384,10 @@ class Assistant:
         expanded = self._ellipsis(st, msg)
         if expanded is not None:
             msg = self._spelled = expanded      # shown as "I read this as …"
+        from engramm.web.atlas import news_request
+        is_news, news_topic = news_request(msg)
+        if is_news:
+            return self._news(st, msg, news_topic)
         units = classify(msg, self.bank, self._now())
         if self.speller is not None and len(units) == 1 and units[0].act == "statement":
             first = msg.split()[0]
@@ -759,6 +764,13 @@ class Assistant:
         if pron and not re.search(r"\b(?:i|me|my|you|your)\b", text, re.I) and bot.resolve(text) == text:
             return Reply(text, "unknown", self._pick(st, "daily:who_mean", self.bank.daily["who_mean"],
                                                      x=pron.group(1).lower()), via="clarify")
+        atlas_on = self.atlas is not None and self.atlas.any_on() and not re.search(r"\b(?:i|me|my|mine)\b", text, re.I)
+        if atlas_on:
+            from engramm.web.atlas import is_fresh
+            if is_fresh(text):
+                fresh = self._atlas_answer(st, text)       # "who is the current …": newer sources first
+                if fresh is not None:
+                    return fresh
         kb = self._kb_answer(st, text)
         if kb is not None:
             return kb
@@ -766,6 +778,10 @@ class Assistant:
         if ev is not None:
             return ev
         rep = bot._answer(" ".join(text.split()))
+        if atlas_on and rep.kind != "answer":
+            later = self._atlas_answer(st, text)
+            if later is not None:
+                return later
         q = rep.resolved or text
         if rep.kind == "answer" and rep.via in ("facts", "memory") and rep.source and rep.source.get("kind") == "user":
             fact = self._fact_for(rep)
@@ -818,6 +834,93 @@ class Assistant:
         st.last_fact = ({"evidence": rep.evidence, "source": rep.source, "answer": rep.guess, "question": q,
                          "sure": False} if rep.evidence else None)
         return rep
+
+    def _atlas_answer(self, st: DialogState, text: str) -> Reply | None:
+        """The question again, with sentences from the switched-on channels (feeds, shelf,
+        messenger) as extra candidates; None when they do not lead to a confident answer."""
+        bot = self.bot
+        q = bot.resolve(" ".join(text.split()))
+        names = [m.group(0) for m in _CAPS_SPAN.finditer(q) if not q.startswith(m.group(0)) or " " in m.group(0)]
+        if st.topic and st.topic.get("name") and st.turn - st.topic.get("turn", -99) <= 3:
+            names.append(st.topic["name"])
+        try:
+            rows, used = self.atlas.candidates(q, list(dict.fromkeys(names)))
+        except Exception:                        # the network must never break the chat
+            return None
+        if not rows:
+            return None
+        ctx = dict(bot.context)
+        bot.extra_rows = rows
+        try:
+            rep = bot._answer(q)
+        finally:
+            bot.extra_rows = []
+        src = rep.source or {}
+        if rep.kind != "answer" or src.get("kind") not in ("shelf", "feed", "web"):
+            bot.context = ctx
+            return None
+        sent = answer_sentence(q, rep.answer, _atype(q)) or f"{rep.answer}."
+        when = src.get("as_of")
+        where = {"shelf": "Wikipedia", "feed": src.get("source", "a news feed"), "web": src.get("source", "the web")}[src["kind"]]
+        note = f" (from {where}{', as of ' + when if when else ''})"
+        rep.text = sent.rstrip(".") + note + "."
+        rep.via = "atlas"
+        rep.message = text
+        st.last_fact = {"evidence": rep.evidence, "source": src, "answer": rep.answer, "question": q, "sure": True}
+        return rep
+
+    def _atlas_about(self, st: DialogState, text: str, topic: str) -> Reply | None:
+        """"Tell me about X" when the local reading has no article: the shelf (or the live page)."""
+        if self.atlas is None or not self.atlas.any_on():
+            return None
+        try:
+            if self.atlas.shelf is not None and self.egress_on("shelf"):
+                docs = self.atlas.shelf.documents(topic, k=1, seed=self.atlas.seed, prefer_title=topic)
+                if docs and _name_match(topic, docs[0]["t"]):
+                    d = docs[0]
+                    from engramm.web.shelf import _SENT
+                    sents = [x.strip() for x in _SENT.split(d["x"].split("\n")[0]) if x.strip()][:3]
+                    if sents:
+                        src = {"kind": "shelf", "source": "wikipedia", "key": d["t"], "title": d["t"], "as_of": d.get("d", "")}
+                        st.last_fact = {"evidence": sents[0], "source": src, "answer": None, "question": None, "sure": True}
+                        self.bot.context.update({"answer": None, "atype": None, "mention": d["t"], "kb_last": None})
+                        st.topic = {"title": d["t"], "name": d["t"], "turn": st.turn}
+                        return Reply(text, "about", " ".join(sents), evidence=sents[0], source=src, via="atlas",
+                                     confidence=1.0)
+            if self.egress_on("messenger"):
+                rows = self.atlas._messenger(f"what is {topic}", [topic])
+                if rows:
+                    first = [r for r in rows if r[1]["kind"] == "web"][:3]
+                    if first:
+                        src = first[0][1]
+                        return Reply(text, "about", " ".join(r[0] for r in first), evidence=first[0][0], source=src,
+                                     via="atlas", confidence=1.0)
+        except Exception:
+            return None
+        return None
+
+    def egress_on(self, channel: str) -> bool:
+        return self.atlas is not None and self.atlas.egress.enabled(channel)
+
+    def _news(self, st: DialogState, msg: str, topic: str | None) -> Reply:
+        if self.atlas is None or not self.egress_on("feeds"):
+            return Reply(msg, "unknown", self._pick(st, "daily:news_off", self.bank.daily["news_off"]), via="news")
+        items = self.atlas.news(topic, k=5)
+        if not items:
+            key = "news_none_topic" if topic else "news_none"
+            return Reply(msg, "unknown", self._pick(st, f"daily:{key}", self.bank.daily[key], x=topic or ""),
+                         via="news")
+        lines = []
+        for it in items:
+            when = dt.datetime.fromtimestamp(it["published"]).strftime("%d %b, %H:%M")
+            lines.append(f"• {it['title']} — {it['feed_title']}, {when}")
+        head = f"Here's what my news feeds say about {topic}:" if topic else "The latest from your news feeds:"
+        src = {"kind": "feed", "source": items[0]["feed"], "key": items[0]["link"] or items[0]["title"],
+               "title": items[0]["title"]}
+        return Reply(msg, "about", head + "\n" + "\n".join(lines), source=src, evidence=items[0]["title"],
+                     via="news", confidence=1.0, alternatives=[{"text": it["title"], "source": {
+                         "kind": "feed", "source": it["feed"], "key": it["link"] or it["title"], "title": it["title"]}}
+                         for it in items[1:4]])
 
     def _kb_answer(self, st: DialogState, text: str) -> Reply | None:
         """A question about a named thing, answered from the fact bank (exact infobox facts)."""
@@ -897,6 +1000,9 @@ class Assistant:
         if found is None and kind in ("what", "tell", "define") and not _CAPS_NAME.search(resolved):
             found = self.about.find(resolved.title()) if resolved.islower() else None
         if found is None:
+            shelf = self._atlas_about(st, u.text, resolved)
+            if shelf is not None:
+                return shelf
             if kind == "what" or kind == "tell" and re.match(r"^(?:who|what|when|where|why|how)\b", topic, re.I):
                 return self._question(st, u.text)
             if kind == "opinion":
@@ -1293,6 +1399,15 @@ def resolve_statement(text: str) -> str:
             sent += "."
         out.append(sent[:1].upper() + sent[1:])
     return " ".join(x for x in out if x)
+
+
+_CAPS_SPAN = re.compile(r"\b[A-Z][\w'’.\-]*(?:\s+(?:of|the|and|de|von|van|da|del|la|le)?\s*[A-Z][\w'’.\-]*)*")
+
+
+def _name_match(asked: str, title: str) -> bool:
+    a = re.sub(r"^(?:the|a|an)\s+", "", asked.strip().lower())
+    t = re.sub(r"\s*\([^)]*\)$", "", title.strip().lower())
+    return a == t or a in t.split(", ")[0] or t in a
 
 
 _ANOTHER = re.compile(r"^(?:(?:ok|okay|yes|yeah|sure|haha|lol|nice|cool|great|wow)[ ,!]+)?(?:another(?: one)?|one more"

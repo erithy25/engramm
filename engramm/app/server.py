@@ -69,6 +69,14 @@ def source_view(src: dict | None) -> dict | None:
     if src.get("kind") == "user":
         return {"kind": "user", "title": "You told me", "url": None}
     origin, key = src.get("source"), src.get("key") or ""
+    if src.get("kind") == "shelf":                 # Atlas: a full Wikipedia article from the shelf
+        title = src.get("title") or key
+        return {"kind": "shelf", "title": title, "as_of": src.get("as_of") or None,
+                "url": "https://en.wikipedia.org/wiki/" + urllib.parse.quote(title.replace(" ", "_"))}
+    if src.get("kind") in ("feed", "web"):         # Atlas: a news feed item or a page the messenger read
+        url = key if key.startswith("https://") else None
+        return {"kind": src["kind"], "title": src.get("title") or key, "site": origin, "url": url,
+                "as_of": src.get("as_of") or None}
     if src.get("kind") == "kb":
         return {"kind": "wikipedia", "title": key + " (infobox)",
                 "url": "https://en.wikipedia.org/wiki/" + urllib.parse.quote(key.replace(" ", "_"))}
@@ -98,6 +106,9 @@ class ChatService:
         self.memory = None
         self.error: str | None = None
         self.states: dict = {}
+        self.egress = None
+        self.atlas = None
+        self.shown_urls: set[str] = set()          # links this server put into replies (may be opened)
 
     # -- loading -----------------------------------------------------------------------------
 
@@ -136,6 +147,16 @@ class ChatService:
             bot = ChatBot(memory, corpus, config, cap_ratio(idx), retriever=Retriever(corpus))
             kb = idx / "kb.sqlite" if (idx / "kb.sqlite").exists() else None
             assistant = Assistant(bot, kb_path=kb)
+            try:                                     # Atlas: network channels, all off until switched on
+                from engramm.web.atlas import Atlas
+                from engramm.web.egress import Egress
+                mem_file = getattr(memory, "path", None)
+                self.egress = Egress.beside(Path(mem_file) if mem_file else None)
+                self.atlas = Atlas(self.egress, self.pack, Path(mem_file).parent if mem_file else None)
+                assistant.atlas = self.atlas
+            except Exception:                        # the offline chat works without it
+                traceback.print_exc()
+                self.egress = self.atlas = None
             with self.lock:
                 self.memory, self.bot, self.assistant = memory, bot, assistant
         except Exception as e:  # shown on the page instead of a silent hang
@@ -166,12 +187,49 @@ class ChatService:
             while len(self.states) > MAX_CONVERSATIONS:
                 self.states.pop(next(iter(self.states)))
         d = r.to_dict()
+        for src in [d.get("source")] + [a.get("source") for a in (d.get("alternatives") or [])]:
+            if src and str(src.get("key", "")).startswith("https://"):
+                self.shown_urls.add(src["key"])
         return {"kind": d["kind"], "text": d["text"], "answer": d["answer"], "guess": d["guess"],
                 "evidence": d["evidence"], "source": source_view(d["source"]), "confidence": d["confidence"],
                 "via": d["via"], "resolved": d["resolved"] if d["resolved"] != message else None,
                 "alternatives": [{"text": a.get("text"), "source": source_view(a.get("source"))}
                                  for a in (d.get("alternatives") or [])][:3],
                 "seconds": round(time.time() - t0, 3)}
+
+    # -- network (Atlas) ---------------------------------------------------------------------
+
+    def network(self) -> dict:
+        if self.atlas is None:
+            return {"available": False}
+        return {"available": True, **self.atlas.status(), "log": self.egress.log.tail(100)[::-1]}
+
+    def set_network(self, data: dict) -> dict:
+        if self.atlas is None:
+            raise RuntimeError("The network channels are not available.")
+        channel = str(data.get("channel", ""))
+        unknown = sorted(set(data) - {"channel", "enabled", "tor", "feeds"})
+        if unknown:
+            raise ValueError(f"Unknown setting: {unknown[0]}")
+        conf = {k: data[k] for k in ("enabled", "tor", "feeds") if k in data}
+        if not conf:
+            raise ValueError("Nothing to change.")
+        if "feeds" in conf:
+            known = {f.id for f in self.atlas.feed_list}
+            conf["feeds"] = [str(x) for x in conf["feeds"] if str(x) in known]
+        from engramm.web.egress import EgressError
+        try:
+            with self.lock:
+                self.egress.set_channel(channel, **conf)
+        except EgressError as e:
+            raise ValueError(str(e)) from e
+        self.atlas.on_settings_changed()
+        return self.network()
+
+    def refresh_feeds(self) -> dict:
+        if self.atlas is None:
+            raise RuntimeError("The network channels are not available.")
+        return {"result": self.atlas.refresher.refresh_now(), **self.network()}
 
     # -- memory ------------------------------------------------------------------------------
 
@@ -223,6 +281,8 @@ def make_handler(service: ChatService, desktop: bool = False):
                 return self._json(200, service.health())
             if path == "/api/memory":
                 return self._json(200, service.memory_items())
+            if path == "/api/network":
+                return self._json(200, service.network())
             name = "index.html" if path in ("/", "/index.html") else path.lstrip("/")
             f = (WEB / name).resolve()
             if WEB.resolve() not in f.parents or not f.is_file():
@@ -247,10 +307,14 @@ def make_handler(service: ChatService, desktop: bool = False):
                     return self._json(200, service.chat(str(data.get("conversation", "")), str(data.get("message", ""))))
                 if path == "/api/memory/forget":
                     return self._json(200, service.forget(str(data.get("source", ""))))
+                if path == "/api/network":
+                    return self._json(200, service.set_network(data))
+                if path == "/api/network/refresh":
+                    return self._json(200, service.refresh_feeds())
                 if path == "/api/open" and desktop:
                     url = str(data.get("url", ""))
-                    if not openable(url):
-                        return self._json(400, {"error": "Only Wikipedia and Wikidata links can be opened."})
+                    if not openable(url) and url not in service.shown_urls:
+                        return self._json(400, {"error": "Only links ENGRAMM showed you can be opened."})
                     webbrowser.open(url)
                     return self._json(200, {"opened": url})
                 return self._json(404, {"error": "not found"})

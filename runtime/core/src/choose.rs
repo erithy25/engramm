@@ -24,7 +24,8 @@ pub fn order(n: usize, key: &str, salt: &str) -> Vec<usize> {
 }
 
 /// The variant for `key`: the first one in SHAKE-256 order that is not among `recent`;
-/// if every variant was used recently, the first in that order. Empty input gives "".
+/// if every variant was used recently, the one used longest ago (ties: the first in that
+/// order). Empty input gives "".
 pub fn choose<'a>(options: &'a [String], key: &str, recent: &[String], salt: &str) -> &'a str {
     match options.len() {
         0 => "",
@@ -36,7 +37,17 @@ pub fn choose<'a>(options: &'a [String], key: &str, recent: &[String], salt: &st
                     return options[i].as_str();
                 }
             }
-            options[ord[0]].as_str()
+            // the last position of each option in `recent` (more recent = larger)
+            let last_use = |i: usize| -> i64 {
+                recent.iter().rposition(|r| r == &options[i]).map_or(-1, |k| k as i64)
+            };
+            let mut best = ord[0];
+            for &i in &ord[1..] {
+                if last_use(i) < last_use(best) {
+                    best = i;
+                }
+            }
+            options[best].as_str()
         }
     }
 }
@@ -62,8 +73,12 @@ mod tests {
         assert_eq!(first, choose(&o, "conv|greet|0", &[], ""));
         let second = choose(&o, "conv|greet|0", &[first.to_string()], "");
         assert_ne!(first, second);
-        let all = opts(&["a", "b", "c", "d"]);
-        assert_eq!(choose(&o, "conv|greet|0", &all, ""), first);
+        // every variant used: the one used longest ago
+        let ord = order(4, "conv|greet|0", "");
+        let used: Vec<String> = ord.iter().rev().map(|&i| o[i].clone()).collect();
+        assert_eq!(choose(&o, "conv|greet|0", &used, ""), o[ord[3]]);
+        let used: Vec<String> = ord.iter().map(|&i| o[i].clone()).collect();
+        assert_eq!(choose(&o, "conv|greet|0", &used, ""), first);
     }
 
     #[test]

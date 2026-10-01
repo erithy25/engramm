@@ -22,7 +22,7 @@ const SLANG: &[(&str, &str)] = &[
     ("lets", "let's"), ("gonna", "going to"), ("wanna", "want to"), ("gotta", "got to"), ("idk", "i don't know"),
     ("rn", "right now"), ("abt", "about"), ("cuz", "because"), ("coz", "because"), ("tho", "though"),
     ("fav", "favourite"), ("fave", "favourite"), ("favorite", "favourite"), ("color", "colour"), ("colors", "colours"),
-    ("b4", "before"), ("2day", "today"), ("gr8", "great"), ("ok.", "ok"), ("k.", "k"),
+    ("b4", "before"), ("2day", "today"), ("gtg", "got to go"), ("g2g", "got to go"), ("gr8", "great"), ("ok.", "ok"), ("k.", "k"),
 ];
 
 fn rules() -> &'static Rules {
@@ -34,7 +34,7 @@ fn rules() -> &'static Rules {
         // Python adds the lookahead (?=\S); the input never ends in white space at this point,
         // so a match that ends in \s+ is always followed by a non-space character.
         filler: Regex::new(
-            r"^(?:(?:um+|uh+|er+|erm|well|so|oh|ah|hmm+|hey|ok|okay|alright|and|but|also|now|then|please|pls|plz)\s*[,.!]?\s+)+",
+            r"^(?:(?:um+|uh+|er+|erm|well|so|oh|ah|hmm+|hey|ok|okay|alright|and|but|also|now|then|please|pls|plz|lo+l+|ha(?:ha)+h?|he(?:he)+|lmao+|omg|wow|aw+|haha+)\s*[,.!]?\s+)+",
         )
         .expect("filler pattern"),
         slang: SLANG.iter().copied().collect(),

@@ -74,9 +74,10 @@ def test_choose_matches_python():
     lines, want = [], []
     lists = [it.responses for it in bank.intents if len(it.responses) > 1][:60]
     for k, opts in enumerate(lists):
-        for n in range(4):
+        # n = 4, 5: every option used recently (in two orders): the one used longest ago wins
+        for n in range(6):
             key = f"conv{k}|list{k}|{n}"
-            recent = opts[:n]
+            recent = opts[:n] if n < 4 else (list(reversed(opts)) if n == 4 else opts[1:] + opts[:2])
             salt = "s" if n % 2 else ""
             lines.append(json.dumps({"options": opts, "key": key, "recent": recent, "salt": salt}))
             want.append(choose(opts, key, recent, salt))

@@ -209,3 +209,99 @@ def test_desktop_mode_prints_url_and_exits_with_stdin(tmp_path):
     finally:
         if p.poll() is None:
             p.kill()
+
+
+def test_source_view_atlas_kinds():
+    shelf = source_view({"kind": "shelf", "source": "wikipedia", "key": "Ada Lovelace", "title": "Ada Lovelace",
+                         "as_of": "2026-09-20"})
+    assert shelf == {"kind": "shelf", "title": "Ada Lovelace", "as_of": "2026-09-20",
+                     "url": "https://en.wikipedia.org/wiki/Ada_Lovelace"}
+    feed = source_view({"kind": "feed", "source": "bbc-world", "key": "https://www.bbc.co.uk/news/x", "title": "Headline",
+                        "as_of": "2026-10-01"})
+    assert feed["kind"] == "feed" and feed["url"] == "https://www.bbc.co.uk/news/x" and feed["as_of"] == "2026-10-01"
+    assert feed["site"] == "bbc-world"
+    web = source_view({"kind": "web", "source": "www.siemens.com", "key": "http://www.siemens.com/", "title": "Siemens"})
+    assert web["kind"] == "web" and web["url"] is None          # only https links are offered
+
+
+def _atlas_service(tmp_path, monkeypatch):
+    from engramm.web.atlas import Atlas
+    from engramm.web.egress import Egress, NetworkLog, PythonBackend
+    from engramm.web.feeds import FeedRefresher
+    calls = []
+    monkeypatch.setattr(FeedRefresher, "refresh_now", lambda self: calls.append("refresh") or {"fetched": 0})
+    monkeypatch.setattr(FeedRefresher, "start", lambda self: calls.append("start"))
+    monkeypatch.setattr(FeedRefresher, "stop", lambda self: calls.append("stop"))
+    svc = ChatService("unused")
+    svc.bot = _Bot()
+    svc.assistant = _Assistant(svc.bot)
+    svc.egress = Egress(settings_path=tmp_path / "network.json", log=NetworkLog(tmp_path / "network.log"),
+                        backend=PythonBackend())
+    svc.atlas = Atlas(svc.egress, None, tmp_path)
+    return svc, calls
+
+
+def test_network_api_is_off_by_default_and_switches_channels(tmp_path, monkeypatch):
+    svc, calls = _atlas_service(tmp_path, monkeypatch)
+    srv = serve(svc, port=0)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        code, _, body = _call(base, "/api/network")
+        net = json.loads(body)
+        assert code == 200 and net["available"] and net["backend"] == "python"
+        assert not any(c["enabled"] for c in net["channels"].values())          # offline until switched on
+        assert net["feeds"] and not any(f["selected"] for f in net["feeds"]) and net["log"] == []
+        code, _, body = _call(base, "/api/network", {"channel": "feeds", "enabled": True})
+        net = json.loads(body)
+        assert code == 200 and net["channels"]["feeds"]["enabled"]
+        assert net["channels"]["feeds"]["feeds"] == svc.atlas.default_feeds  # defaults picked when none chosen
+        assert calls[:1] == ["start"]
+        code, _, body = _call(base, "/api/network", {"channel": "feeds", "feeds": ["dw-en", "no-such-feed"]})
+        assert json.loads(body)["channels"]["feeds"]["feeds"] == ["dw-en"]     # unknown ids are dropped
+        assert _call(base, "/api/network", {"channel": "nope", "enabled": True})[0] == 400
+        assert _call(base, "/api/network", {"channel": "shelf", "enabled": "yes"})[0] == 400
+        assert _call(base, "/api/network", {"channel": "shelf", "colour": "red"})[0] == 400
+        code, _, body = _call(base, "/api/network/refresh", {})
+        assert code == 200 and "refresh" in calls
+        _call(base, "/api/network", {"channel": "feeds", "enabled": False})
+        assert calls[-1] == "stop"
+        saved = json.loads((tmp_path / "network.json").read_text())
+        assert saved["channels"]["feeds"] == {"enabled": False, "feeds": ["dw-en"]}
+    finally:
+        srv.shutdown()
+        srv.server_close()
+
+
+def test_network_api_without_atlas(running):
+    base, _ = running
+    assert json.loads(_call(base, "/api/network")[2]) == {"available": False}
+    assert _call(base, "/api/network", {"channel": "feeds", "enabled": True})[0] == 503
+
+
+def test_open_allows_links_shown_in_replies(monkeypatch):
+    import engramm.app.server as server_mod
+    opened = []
+    monkeypatch.setattr(server_mod.webbrowser, "open", lambda url: opened.append(url))
+
+    class _NewsAssistant(_Assistant):
+        def turn(self, state, message):
+            return _Reply("A headline.", source={"kind": "feed", "source": "bbc-world",
+                                                 "key": "https://www.bbc.co.uk/news/world-1", "title": "A headline"})
+    svc = ChatService("unused")
+    svc.bot = _Bot()
+    svc.assistant = _NewsAssistant(svc.bot)
+    srv = serve(svc, port=0, desktop=True)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        url = "https://www.bbc.co.uk/news/world-1"
+        assert _call(base, "/api/open", {"url": url})[0] == 400                  # not shown yet
+        reply = json.loads(_call(base, "/api/chat", {"conversation": "c", "message": "news"})[2])
+        assert reply["source"]["kind"] == "feed" and reply["source"]["url"] == url
+        assert _call(base, "/api/open", {"url": url})[0] == 200
+        assert _call(base, "/api/open", {"url": "https://www.bbc.co.uk/news/other"})[0] == 400
+    finally:
+        srv.shutdown()
+        srv.server_close()
+    assert opened == [url]

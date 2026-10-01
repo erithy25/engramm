@@ -153,6 +153,8 @@ class FeedStore:
     def __init__(self, path: Path | None):
         self.path = Path(path) if path else None
         self.lock = threading.Lock()
+        if self.path is not None:
+            self.path.parent.mkdir(parents=True, exist_ok=True)
         self.db = sqlite3.connect(str(self.path) if self.path else ":memory:", check_same_thread=False)
         self.db.executescript("""
             CREATE TABLE IF NOT EXISTS item(id INTEGER PRIMARY KEY, feed TEXT, guid TEXT UNIQUE, title TEXT,

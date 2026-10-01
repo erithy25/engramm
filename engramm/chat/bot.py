@@ -224,6 +224,9 @@ class ChatBot:
         self._facts_key = None
         self._user_sents_key = None
         self._user_sents: list[tuple[str, str, np.ndarray]] = []
+        # Atlas (engramm/web): sentences fetched for this one question (shelf, feeds, web), each with
+        # its source; empty unless a channel is on — then the look-up is exactly the v3 one
+        self.extra_rows: list[tuple[str, dict]] = []
         self.context = {"answer": None, "atype": None, "mention": None, "last_learned": None}
         self._name_memo: dict[str, bool] = {}
         self.last_rows: list = []
@@ -717,16 +720,43 @@ class ChatBot:
 
     def _user_candidates(self, query) -> list[tuple[float, str, str, dict]]:
         """Taught sentences scored with the same features (no document features)."""
+        return self._score_sents(query, [(sid, text, toks, {"kind": "user", "source": sid})
+                                         for sid, text, toks in self._user_sents])
+
+    def _extra_candidates(self, query) -> list[tuple[float, str, str, dict]]:
+        """Atlas sentences (shelf, feeds, web) scored like taught sentences, with their article as
+        document context: the article title is implied in each of its sentences ("The bridge was
+        designed by …" in the article "Zorblax Bridge"), as the key words are for local documents."""
+        if not self.extra_rows:
+            return []
+        enc = lambda t: np.asarray(self.c.tok.encode(" " + t), dtype=np.int64)   # noqa: E731
+        title_terms: dict[str, set[int]] = {}
+        doc_terms: dict[str, set[int]] = {}
+        items = []
+        for text, src in self.extra_rows:
+            key = str(src.get("key") or "")
+            if key not in title_terms:
+                tt = self.r.term_of[enc(str(src.get("title") or ""))]
+                title_terms[key] = set(int(x) for x in tt if x >= 0)
+                doc_terms[key] = set(title_terms[key])
+            toks = enc(text)
+            doc_terms[key] |= set(int(x) for x in self.r.term_of[toks] if x >= 0)
+            items.append((key, text, toks, src))
+        return self._score_sents(query, items, title_terms, doc_terms)
+
+    def _score_sents(self, query, items, title_terms: dict | None = None,
+                     doc_terms: dict | None = None) -> list[tuple[float, str, str, dict]]:
         out = []
-        if not self._user_sents or len(query.terms) == 0:
+        if not items or len(query.terms) == 0:
             return out
         qset = {int(t): float(w) for t, w in zip(query.terms, query.idf)}
         isum = query.idf_sum or 1.0
         wv = self.cfg.weights.vector()
-        for sid, text, toks in self._user_sents:
+        for sid, text, toks, src in items:
             tm = self.r.term_of[toks]
             present = set(int(x) for x in tm if x >= 0)
-            got = [qset[t] for t in present if t in qset]
+            title = (title_terms or {}).get(sid, set())
+            got = [qset[t] for t in present | title if t in qset]
             if not got:
                 continue
             n_terms = int((tm >= 0).sum())
@@ -739,11 +769,16 @@ class ChatBot:
                            ) if query.q.atype != OTHER else 0.0
             f = np.zeros(len(FEATURES))
             F = {n: i for i, n in enumerate(FEATURES)}
-            f[F["bm25"]], f[F["cov"]], f[F["soft"]], f[F["dcov"]], f[F["dfull"]] = bm, cov, soft, cov, cov
+            dcov = cov
+            if doc_terms is not None and sid in doc_terms:
+                dcov = sum(w for t, w in qset.items() if t in doc_terms[sid]) / isum
+                f[F["kcov"]] = sum(w for t, w in qset.items() if t in title) / isum
+                f[F["wiki"]] = float((src or {}).get("kind") == "shelf")
+            f[F["bm25"]], f[F["cov"]], f[F["soft"]], f[F["dcov"]], f[F["dfull"]] = bm, cov, soft, dcov, dcov
             f[F["tmatch"]] = tmatch
             f[F["short"]] = float(len(words(text)) < 6)
             score = bm + isum * float(f @ wv)
-            out.append((score, sid, text, {"kind": "user", "source": sid}))
+            out.append((score, sid, text, src))
         return out
 
     def _lookup(self, msg: str, q: str, qa, mentions: list[str]) -> Reply:
@@ -761,6 +796,8 @@ class ChatBot:
                 sent_feats[int(cands.ids[k])] = cands.feats[k]
         for score, sid, text, src in self._user_candidates(query):
             rows.append((score, 0, -1, text, src))
+        for score, sid, text, src in self._extra_candidates(query):
+            rows.append((score, 0, -2, text, src))
         if not rows:
             return self._finish(msg, q, qa, "unknown", None, None, None, None, 0.0, "lookup",
                                 text="I don't know — I found nothing about that.")
@@ -806,6 +843,8 @@ class ChatBot:
             return []
         if row[2] < 0:
             hay = row[3].lower()
+            if row[2] == -2 and row[4]:             # an Atlas sentence: its article title counts as context
+                hay += " " + str(row[4].get("title") or row[4].get("source") or "").lower()
             return [n for n in names if n.lower() not in hay]
         d = int(self.c.sent_doc[row[2]])
         lo = int(self.c.doc_starts[d])
