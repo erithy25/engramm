@@ -1187,3 +1187,58 @@ def test_battery36_names_birthdays_slang_friends_and_learning(chat):
     st6 = DialogState("de")
     r = a.turn(st6, "danke dir, bis morgen")
     assert "Bis morgen" in r.text, r.text
+
+
+def test_battery37_typos_email_travel_corrections_and_world_time(chat):
+    a, st = chat
+    r = a.turn(st, "how r u doin")
+    assert "couldn't find" not in r.text, r.text
+    r = a.turn(st, "can u help me write an email")
+    assert r.text.startswith(("Sure! Who's", "Happy to help!")), r.text
+    r = a.turn(st, "to my landlord, the heating is broken")
+    assert "heating is broken" in r.text and "Landlord" in r.text, r.text
+    r = a.turn(st, "what's my favourite food?")
+    assert "heating" not in r.text, r.text
+    st2 = DialogState("daily")
+    a.turn(st2, "i'm going to paris next week")
+    r = a.turn(st2, "what should i see there?")
+    assert "Eiffel Tower" in r.text, r.text
+    a.turn(st2, "how do i say thank you in french")
+    r = a.turn(st2, "and good morning?")
+    assert "bonjour" in r.text, r.text
+    r = a.turn(st2, "what about goodbye")
+    assert "au revoir" in r.text, r.text
+    st3 = DialogState("daily")
+    a.turn(st3, "i got promoted today!!")
+    r = a.turn(st3, "thanks! i worked so hard for it")
+    assert "oh no" not in r.text.lower(), r.text
+    r = a.turn(st3, "any restaurant ideas?")
+    assert "•" in r.text, r.text
+    st4 = DialogState("daily")
+    r = a.turn(st4, "what time is it in tokyo")
+    assert "Tokyo" in r.text and ":" in r.text, r.text
+    r = a.turn(st4, "and in new york?")
+    assert "New York" in r.text and "Wikipedia" not in r.text, r.text
+    st5 = DialogState("de")
+    r = a.turn(st5, "wie spät ist es in tokio?")
+    assert "In Tokio ist es gerade" in r.text, r.text
+
+
+def test_world_time_daylight_saving_rules():
+    import datetime as dt
+    from engramm.chat.worldtime import time_in
+    u = dt.datetime(2026, 10, 2, 6, 0, tzinfo=dt.timezone.utc)
+    assert time_in("tokyo", u)[1].strftime("%H:%M") == "15:00"
+    assert time_in("berlin", u)[1].strftime("%H:%M") == "08:00"           # summer time
+    assert time_in("new york", u)[1].strftime("%H:%M") == "02:00"
+    assert time_in("sydney", u)[1].strftime("%H:%M") == "16:00"           # before the first Sunday of October
+    w = dt.datetime(2026, 1, 15, 12, 0, tzinfo=dt.timezone.utc)
+    assert time_in("berlin", w)[1].strftime("%H:%M") == "13:00"
+    assert time_in("sydney", w)[1].strftime("%H:%M") == "23:00"
+    assert time_in("auckland", w)[1].strftime("%H:%M") == "01:00"
+    assert time_in("narnia", w) is None
+
+
+def test_a_described_subject_is_not_a_favourite():
+    from engramm.chat.facts import personal_facts
+    assert not any("#food" in f.relation for f in personal_facts("to my landlord, the heating is broken", "u"))

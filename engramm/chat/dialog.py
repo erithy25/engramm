@@ -320,7 +320,18 @@ _PLACE_REL_Q = re.compile(r"(?i)^(?:and |so |ok |okay |wait,? )?(?:what'?s|what 
                           r"official language|language|time zone|president|prime minister|king|queen|largest city)"
                           r"(?: again| there| of it)?\??$")
 # "what should I eat there / in Japan?"
-_EAT_THERE = re.compile(r"^(?:and |so |ok )?what (?:should|can|do|could|would) (?:i|we|people|you) (?:eat|try|order)"
+_WORLD_TIME = re.compile(r"^(?:and |so |hey )?(?:what(?:'s| is) the (?:current )?time|what time is it|what time(?:'s| is) it|"
+                         r"time|how late is it)(?: (?:right )?now)? in (?P<p>[a-z][a-z .'-]{1,30}?)(?: (?:right )?now)?\??$|"
+                         r"^(?:and |so )?what(?:'s| is) the time(?: (?:right )?now)? (?:over )?(?:in|there in) (?P<p2>[a-z][a-z .'-]{1,30}?)\??$")
+_SEE_THERE = re.compile(r"^(?:and |so |ok |okay )?(?:what (?:should|can|could|must|do) (?:i|we|you) (?:see|visit|do|check out)|"
+                        r"what(?:'s| is) there to (?:see|do)|what (?:are|r) the (?:best |main |top |must[- ]see )?(?:sights|attractions|"
+                        r"things to do|places to visit)|(?:any |some )?(?:sights|attractions|must[- ]sees|places to visit|things to do|"
+                        r"sightseeing tips)(?: i should see)?|where should (?:i|we) go|what should i not miss)"
+                        r"(?: there| in (?P<p>[a-z][a-z ]+?))?(?: then)?\??$")
+_EAT_THERE = re.compile(r"^(?:and |so |ok )?(?:what (?:should|can|do|could|would) (?:i|we|people|you) (?:eat|try|order)|"
+                        r"(?:any|what|which) (?:local |typical |traditional |good )?(?:food|foods|dishes|dish|specialties|specialities|"
+                        r"food specialties) (?:should |must |do )?(?:i|we|you) (?:should |must |have to )?(?:try|eat|taste|order)|"
+                        r"what(?:'s| is) the (?:local |typical )?food like)"
                         r"(?: there| in (?P<p>[a-z][a-z ]+?))?\??$")
 _CUISINE_ADJ = {"japan": "Japanese", "china": "Chinese", "korea": "Korean", "south korea": "Korean", "thailand": "Thai",
                 "vietnam": "Vietnamese", "india": "Indian", "italy": "Italian", "france": "French", "spain": "Spanish",
@@ -685,6 +696,22 @@ class Assistant:
             key = next((k for k, forms in fav["keys"].items() if any(word.startswith(f) for f in forms)), "other")
             st.uses["de_bot_fav"] = [key, st.turn]
             return Reply(msg, "smalltalk", self._pick(st, f"de:life:bot_fav:{key}", fav[key]), via="german")
+        wde = re.fullmatch(r"(?:und )?(?:wie spät ist es|wie viel uhr ist es|wieviel uhr ist es|welche uhrzeit ist es)(?: gerade| jetzt)? in "
+                           r"(?P<p>[a-zäöüß .-]{2,30}?)(?: gerade| jetzt)?|(?:und )?in (?P<p2>[a-zäöüß .-]{2,30}?)\??", s)
+        if wde and (wde.group("p") or (la.get("kind") == "worldtime" and st.turn - la.get("turn", -99) <= 2)):
+            from engramm.chat.worldtime import time_in
+            place = wde.group("p") or wde.group("p2")
+            hit = time_in(place)
+            st.last_action = {"kind": "worldtime", "turn": st.turn, "lang": "de"}
+            if hit is not None:
+                days = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]
+                shown, local = hit
+                return Reply(msg, "tool", f"In {shown} ist es gerade {local.strftime('%H:%M')} Uhr ({days[local.weekday()]}).",
+                             via="tool")
+            if wde.group("p"):
+                return Reply(msg, "tool", f"Die Zeitzone von {place[:1].upper() + place[1:]} kenne ich leider nicht. "
+                                          "Frag mich nach einer großen Stadt in der Nähe, z. B. „Wie spät ist es in Tokio?“",
+                             via="tool")
         tb = re.fullmatch(r"(?:ok(?:ay)?,? )?(?:danke|vielen dank|dank dir|danke dir|danke schön|merci)(?: dir| schön| sehr| für alles)?,? (?:und )?"
                           r"(tschüss|tschüs|ciao|bis morgen|bis später|bis dann|bis bald|gute nacht|schönen abend(?: noch)?|"
                           r"schönen tag(?: noch)?|mach'?s gut)", s)
@@ -1041,6 +1068,10 @@ class Assistant:
                                       de_again or self.bank.daily["unknown_again"])
         if rep.via == "facts" and rep.text:
             rep.text = _MONTH_LOW.sub(lambda m: m.group(0)[:1].upper() + m.group(0)[1:], rep.text)  # "on june 5" → "June 5"
+        trm = re.search(r"\b(?:say|translate|what(?:'s| is))\b.*\b(?:in|to|into) (spanish|french|german|italian|portuguese)\b",
+                        message.lower())
+        if rep.via == "tool" and trm:
+            st.uses["tr_lang"] = [trm.group(1), st.turn]      # "and good morning?" may follow
         if rep.kind != "safety" and _NEW_JOB.search(normalise(message)):
             st.uses["new_job"] = st.turn                 # "it's at a bank" / "I start monday" may follow
         st.last_message = message
@@ -1323,6 +1354,8 @@ class Assistant:
             mt = _MEASURE_TOPIC.match(msg.strip())
             if hit is not None and mt and not re.fullmatch(r"(?:it|outside|today|the weather|out)", mt.group("t").strip(), re.I):
                 hit = None
+            if hit is not None and (_SEE_THERE.match(normalise(msg).strip()) or _EAT_THERE.match(normalise(msg).strip())):
+                hit = None                                # "what should I see in Tokyo?": travel tips, not live data
             # "I have an exam tomorrow" tells ENGRAMM something to remember; only requests are commands
             if hit is not None and units[0].act == "statement" and re.match(r"(?:i|i'm|im|i've|my|we|we're|our)\b", msg, re.I):
                 hit = None
@@ -1577,6 +1610,12 @@ class Assistant:
             req = w.parse_request(text, spec["purposes"])
             if req is None:
                 return Reply(text, "smalltalk", self._reply(st, "fallback"), via="writing")
+            if req.recipient is None and req.recipient_name is None and req.purpose == "generic" and not req.purpose_text \
+                    and not req.item and not req.reason:
+                # "can you help me write an email": ask who it's for and what about, like a person would
+                st.pending = {"slot": "draft_detail", "genre": req.genre, "turn": st.turn}
+                return Reply(text, "smalltalk", self._pick(st, "daily:draft_ask", self.bank.daily["draft_ask"], x=req.genre),
+                             via="writing")
             return self._show_draft(st, text, req, intro=True)
         if task == "poem":
             m = w._POEM.match(re.sub(r"^(?:hey|hi|ok|okay|so)[,!]?\s+", "", text.strip(), flags=re.I).rstrip("?.!"))
@@ -1740,6 +1779,25 @@ class Assistant:
         ment = self.bot.context.get("mention")
         if el and ment:                                 # "how tall?" right after Mount Everest
             text = f"how {el.group(1)} is {ment}?"
+        wtq = self._world_time(st, text)
+        if wtq is not None:
+            return wtq
+        see = _SEE_THERE.match(normalise(text).strip())
+        if see:                                         # "what should I see there?" during a trip to Paris
+            pt = st.uses.get("place_topic")
+            place = see.group("p") or (pt[0] if pt and st.turn - pt[1] <= 10 else None)
+            if place:
+                d = self.bank.daily
+                key = place.lower().strip()
+                shown = _place_case(key)
+                if key in d.get("sights", {}):
+                    st.uses["place_topic"] = [shown, st.turn]
+                    lead = self._pick(st, "daily:sights_lead", d["sights_lead"], x=shown, y=d["sights"][key])
+                    tail = self._pick(st, "daily:sights_tail", d["sights_tail"], x=shown)
+                    st.uses["food_offer"] = [shown, st.turn]
+                    return Reply(text, "smalltalk", f"{lead} {tail}", via="everyday",
+                                 source={"kind": "common", "source": "everyday facts", "key": ""})
+                return Reply(text, "smalltalk", self._pick(st, "daily:sights_none", d["sights_none"], x=shown), via="everyday")
         food = _EAT_THERE.match(normalise(text))
         pt = st.uses.get("place_topic")
         place = (food.group("p") if food and food.group("p") else (pt[0] if pt and st.turn - pt[1] <= 8 else None)) if food else None
@@ -2141,6 +2199,40 @@ class Assistant:
         if dc:
             return Reply(msg, "smalltalk", self._pick(st, "daily:decided", d["decided"], x=dc.group("x").strip()),
                          via="everyday")
+        rs = st.uses.get("resto")
+        if re.fullmatch(r"(?:so |ok |and )?(?:any |some |got any |do you have any )?(?:good )?(?:restaurant|place to eat|dinner place|places to eat)s? "
+                        r"(?:ideas?|suggestions?|recommendations?|tips?)\??|where should (?:we|i) (?:go|eat|go out)(?: for dinner| tonight| to celebrate| to eat)?\??|"
+                        r"(?:can you )?recommend (?:a|some) restaurants?\??", norm.strip()) or \
+                (rs is not None and st.turn - rs <= 2 and re.fullmatch(r"(?:something |somewhere |a )?(?:fancy|special|nice|upscale|romantic|classy)(?: place| restaurant)?(?: please| then| maybe)?",
+                                                                       norm.strip(" .!"))):
+            st.uses["resto"] = st.turn                    # "any restaurant ideas?" for a celebration dinner
+            return Reply(msg, "smalltalk", self._pick(st, "daily:celebrate_food", d["celebrate_food"]), via="everyday")
+        lpos = st.last_exp or {}
+        if lpos.get("valence") == "positive" and st.turn - lpos.get("turn", -99) <= 3 and re.search(
+                r"\b(?:worked (?:so |really |very |super )?hard|so much (?:work|effort)|(?:it was|so) worth it|paid off|"
+                r"deserved (?:it|this)|earned (?:it|this)|been waiting (?:so long|for this|forever)|years of work|months of work)\b",
+                norm):                                    # "thanks! i worked so hard for it" after a promotion: pride, not pity
+            st.last_exp = dict(lpos, turn=st.turn)
+            return Reply(msg, "empathy", self._pick(st, "daily:proud", d["proud"]), via="empathy")
+        wtr = self._world_time(st, msg)
+        if wtr is not None:
+            return wtr
+        from engramm.chat.tools import _PHRASES, translate
+        trl = st.uses.get("tr_lang")
+        if trl and st.turn - trl[1] <= 3:
+            fp = re.fullmatch(r"(?:and |what about |how about )?(?:how do (?:you|i) say )?[\"“']?(?P<p>[a-z' ]{2,30}?)[\"”']?\??", norm.strip())
+            if fp and fp.group("p").strip() in _PHRASES:  # "and good morning?" after "thank you in French"
+                res = translate(f"how do you say {fp.group('p').strip()} in {trl[0]}")
+                if res is not None:
+                    trl[1] = st.turn
+                    return Reply(msg, "tool", res.text, answer=res.value, via="tool")
+        fo = st.uses.get("food_offer")
+        if fo and st.turn - fo[1] <= 1 and re.fullmatch(r"(?:yes|yeah|yep|sure|ok|okay|please|yes please|go on|sure why not|"
+                                                         r"why not|definitely|absolutely|of course)[!. ]*", norm.strip()):
+            st.uses.pop("food_offer", None)               # "yes" after "want some food tips for Paris too?"
+            rep = self._cuisine(st, msg, fo[0])
+            if rep is not None:
+                return rep
         so = st.uses.get("sleep_offer")
         if so is not None and st.turn - so <= 1 and re.fullmatch(r"(?:yes|yeah|yep|sure|ok|okay|please|yes please|go on|"
                                                                   r"sure why not|why not|tips please|ok tell me)[!. ]*", norm.strip()):
@@ -2424,6 +2516,28 @@ class Assistant:
         st.last_action = {"kind": "howto", "turn": st.turn, "title": best["title"]}
         return Reply(text, "smalltalk", f"{best['title']}:\n\n{body}", via="everyday")
 
+    def _world_time(self, st: DialogState, text: str) -> Reply | None:
+        """"What time is it in Tokyo?" and "and in New York?" right after (engramm/chat/worldtime.py)."""
+        norm = normalise(text).strip()
+        la = st.last_action or {}
+        wt = _WORLD_TIME.match(norm)
+        follow = re.fullmatch(r"(?:(?:and |what about |how about )(?:in )?|in )(?P<p>[a-z][a-z .'-]{1,30}?)\??", norm)
+        from engramm.chat.worldtime import time_in
+        recent = la.get("kind") == "worldtime" and st.turn - la.get("turn", -99) <= 2
+        bare = recent and not wt and not follow and time_in(norm.strip(" ?")) is not None    # "and london"
+        if not wt and not (follow and recent) and not bare:
+            return None
+        place = (wt.group("p") or wt.group("p2")) if wt else follow.group("p") if follow else norm.strip(" ?")
+        hit = time_in(place)
+        st.last_action = {"kind": "worldtime", "turn": st.turn}
+        d = self.bank.daily
+        if hit is None:
+            return Reply(text, "tool", self._pick(st, "daily:worldtime_none", d["worldtime_none"], x=_place_case(place)),
+                         via="tool")
+        shown, local = hit
+        return Reply(text, "tool", self._pick(st, "daily:worldtime", d["worldtime"], x=shown, y=local.strftime("%H:%M"),
+                                              z=local.strftime("%A")), via="tool")
+
     def _howto_follow(self, st: DialogState, text: str) -> Reply | None:
         """A question right after a guide ("how long do I cook them?", "do I need baking powder?"):
         answered from the guide's own steps, never from unrelated advice."""
@@ -2641,6 +2755,15 @@ class Assistant:
     def _cuisine(self, st: DialogState, text: str, place: str) -> Reply | None:
         """"What should I eat in Japan?": the opening of the article on that cuisine."""
         adj = _CUISINE_ADJ.get(place.lower())
+        if adj is None and self.kgqa is not None:         # "what should I eat in Paris?": the country's cuisine
+            try:
+                row = self.kgqa.kb.db.execute(
+                    "SELECT f.value FROM entity e JOIN fact f ON f.entity = e.id WHERE e.title = ? AND f.prop = 'country' "
+                    "AND f.value != '' LIMIT 1", (_place_case(place),)).fetchone()
+            except Exception:                           # a damaged fact bank must not break the chat
+                row = None
+            if row:
+                adj = _CUISINE_ADJ.get(str(row[0]).lower())
         names = ([f"{adj} cuisine"] if adj else []) + [f"Cuisine of {place}"]
         for name in names:
             found = self.about.find(name, n=2)
@@ -3517,13 +3640,42 @@ class Assistant:
             # "berlin" → "Berlin", "new york" → "New York", "frankfurt am main" keeps "am"
             value = " ".join(w if w in ("am", "an", "der", "de", "la", "le", "of", "on", "upon", "del", "da", "di")
                              else w[:1].upper() + w[1:] for w in value.split())
+        if slot == "draft_detail":                       # "to my landlord, the heating is broken" after "who's it for?"
+            from engramm.chat import writing as w
+            g = pending.get("genre") or "email"
+            art = "an" if g[:1] in "aeiou" else "a"
+            v = re.sub(r"^(?:it'?s |its |it is |the (?:email|message|letter) is )", "", msg.strip().rstrip(".!"), flags=re.I)
+            m = re.match(r"(?i)^(?:for|to) (?P<r>.+?)(?:,| about| that| saying| because| -|:) +(?P<p>.+)$", v)
+            if m:
+                req_text = f"write {art} {g} to {m.group('r')} that {m.group('p')}"
+            elif re.match(r"(?i)^(?:for|to) ", v):
+                req_text = f"write {art} {g} {'to ' + v[3:].strip() if v.lower().startswith('for ') else v}"
+            else:
+                req_text = f"write {art} {g} about {v}"
+            req = w.parse_request(req_text, self.bank.writing["purposes"])
+            if req is not None:
+                return self._show_draft(st, msg, req, intro=True)
+            return None
+        if slot == "correction" and pending.get("force"):
+            if re.fullmatch(r"(?:yes|yeah|yep|sure|please|yes please|do it|remember it|ok|okay)[!. ]*", value.strip().lower()):
+                value = pending.get("value") or value
+            else:
+                return None                               # "no, you're right": nothing to store
         if slot == "correction":
             q = pending.get("question") or ""
             value = re.sub(r"^(?:no,? |nope,? |actually,? |well,? )?(?:it's|its|it is|it was|that's|thats|that is|"
                            r"the (?:right |correct )?answer is|the ceo is|he is|she is|they are)\s+", "", value.strip(),
                            flags=re.I).strip(" .!")
-            if value.islower() and re.match(r"^\s*(?:who|where|in which (?:city|country|town))\b", q, re.I):
+            if value.islower() and (re.match(r"^\s*(?:who|where|in which (?:city|country|town))\b", q, re.I) or
+                                    re.search(r"\b(?:capital|city|country|president|author|ceo|founder)\b", q, re.I)):
                 value = " ".join(w[:1].upper() + w[1:] for w in value.split())
+            lf = st.last_fact or {}
+            if lf.get("sure") and lf.get("answer") and lf.get("question") == q and not pending.get("force") and \
+                    value.lower() != str(lf["answer"]).lower():
+                # a "correction" of a sourced fact ("it's sydney" after Canberra): say so kindly, store only on "yes"
+                st.pending = {"slot": "correction", "question": q, "force": True, "value": value, "turn": st.turn}
+                return Reply(msg, "smalltalk", self._pick(st, "daily:correction_doubt", self.bank.daily["correction_doubt"],
+                                                          x=value, y=lf["answer"]), via="smalltalk")
             sent = answer_sentence(q, value, _atype(q)) or f"The answer to “{q}” is {value}."
             r = self._learn(st, [sent], msg)
             r.text = self._reply(st, "correction.ok") + (f" ({sent})" if sent else "")

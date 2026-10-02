@@ -523,6 +523,9 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
                     continue
                 if j < n and lw[j] in _HEAD_NOUNS:
                     continue             # "a dentist appointment", "my driving lesson": the word only describes the noun
+                if i > 0 and lw[i - 1] in ("the", "my", "our", "this", "that", "his", "her", "their") and j < n and \
+                        lw[j] in ("is", "are", "was", "were", "keeps", "isn't", "won't", "doesn't", "broke", "stopped", "has", "needs"):
+                    continue             # "the heating is broken": what the sentence is about, not a favourite
                 cat = typer.category(" ".join(ws[i:j]) if ws[i][0].isupper() and i > 0 else " ".join(lw[i:j]))
                 if cat:
                     typed.append((i, j, " ".join(ws[i:j]), cat))

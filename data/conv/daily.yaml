@@ -1314,3 +1314,83 @@ learning:
     hard: ["Every learner hits that wall — it usually means you're about to improve. Keep sessions short and daily, and don't be afraid of mistakes."]
     how_long: ["For everyday conversations, most people need roughly 6–12 months of regular practice. Languages close to English (Spanish, French, Italian) are usually quicker than Japanese or Arabic."]
     tips: ["Learn a few words every day, listen to podcasts or shows in {x}, speak out loud even if it feels silly, and try a language exchange partner."]
+# "what should I see in Paris?": the classic sights, checked by hand (the Lite pack has no tourism articles)
+sights:
+  paris: "the Eiffel Tower, the Louvre, Notre-Dame, Montmartre with the Sacré-Cœur, and a walk along the Seine"
+  london: "the British Museum, the Tower of London and Tower Bridge, Westminster with Big Ben, Buckingham Palace, and a walk along the South Bank"
+  rome: "the Colosseum and the Roman Forum, the Pantheon, the Trevi Fountain, Vatican City with St Peter's and the Sistine Chapel"
+  barcelona: "the Sagrada Família, Park Güell, the Gothic Quarter, La Rambla and Barceloneta beach"
+  madrid: "the Prado, the Royal Palace, Retiro Park, Plaza Mayor and the Reina Sofía museum"
+  berlin: "the Brandenburg Gate, the Reichstag dome, Museum Island, the East Side Gallery and the Holocaust Memorial"
+  munich: "Marienplatz, the English Garden, Nymphenburg Palace, the Deutsches Museum and a beer garden"
+  hamburg: "the Elbphilharmonie, the Speicherstadt, Miniatur Wunderland, the harbour and the Sunday fish market"
+  amsterdam: "the canals (a boat tour is great), the Rijksmuseum, the Van Gogh Museum, the Anne Frank House and the Jordaan"
+  vienna: "Schönbrunn Palace, St Stephen's Cathedral, the Hofburg, the Belvedere and a classic coffee house"
+  prague: "Prague Castle, Charles Bridge, the Old Town Square with its astronomical clock, and the Jewish Quarter"
+  budapest: "the Parliament building, Buda Castle, the Chain Bridge, the thermal baths and the ruin bars"
+  lisbon: "the Alfama district, Belém Tower, the Jerónimos Monastery, tram 28 and the viewpoints over the city"
+  venice: "St Mark's Square and Basilica, the Doge's Palace, the Rialto Bridge, a gondola ride and the islands of Murano and Burano"
+  florence: "the Duomo, the Uffizi Gallery, Michelangelo's David at the Accademia, the Ponte Vecchio and Piazzale Michelangelo"
+  milan: "the Duomo, Leonardo's Last Supper, the Galleria Vittorio Emanuele II, La Scala and the Navigli canals"
+  athens: "the Acropolis with the Parthenon, the Acropolis Museum, the Plaka district and the Ancient Agora"
+  istanbul: "the Hagia Sophia, the Blue Mosque, Topkapı Palace, the Grand Bazaar and a boat trip on the Bosphorus"
+  dubai: "the Burj Khalifa, the Dubai Mall and fountain, the old souks, the desert and the Palm Jumeirah"
+  new york: "Central Park, the Statue of Liberty, Times Square, the Metropolitan Museum of Art, the Brooklyn Bridge and the view from the Empire State Building"
+  new york city: "Central Park, the Statue of Liberty, Times Square, the Metropolitan Museum of Art, the Brooklyn Bridge and the view from the Empire State Building"
+  san francisco: "the Golden Gate Bridge, Alcatraz, the cable cars, Fisherman's Wharf and Golden Gate Park"
+  los angeles: "Hollywood and the Walk of Fame, the Griffith Observatory, Santa Monica and Venice Beach, and the Getty Center"
+  washington: "the National Mall, the Lincoln Memorial, the Capitol, the White House and the free Smithsonian museums"
+  chicago: "Millennium Park and the Bean, the Art Institute, a river architecture cruise and the Willis Tower skydeck"
+  tokyo: "Shibuya Crossing, the Sensō-ji temple in Asakusa, the Meiji Shrine, Shinjuku at night and the Tsukiji outer market"
+  kyoto: "Fushimi Inari's thousands of red gates, Kinkaku-ji (the Golden Pavilion), the Arashiyama bamboo grove and the Gion district"
+  seoul: "Gyeongbokgung Palace, Bukchon Hanok Village, Myeongdong, N Seoul Tower and a night market"
+  beijing: "the Great Wall, the Forbidden City, Tiananmen Square, the Temple of Heaven and the Summer Palace"
+  hong kong: "Victoria Peak, the Star Ferry, the harbour skyline at night, Tian Tan Buddha and the night markets"
+  singapore: "Gardens by the Bay, Marina Bay Sands, the hawker centres, Sentosa and Chinatown"
+  bangkok: "the Grand Palace, Wat Pho with the reclining Buddha, Wat Arun, the floating markets and Chatuchak market"
+  sydney: "the Opera House, the Harbour Bridge, Bondi Beach, the coastal walk to Coogee and a ferry to Manly"
+  cairo: "the Pyramids of Giza and the Sphinx, the Egyptian Museum, Khan el-Khalili bazaar and a Nile cruise"
+  marrakech: "Jemaa el-Fnaa square, the souks, the Majorelle Garden, the Bahia Palace and the Koutoubia Mosque"
+  cape town: "Table Mountain, the V&A Waterfront, Robben Island, Cape Point and the penguins at Boulders Beach"
+  rio de janeiro: "Christ the Redeemer, Sugarloaf Mountain, Copacabana and Ipanema beaches, and the Selarón Steps"
+  mexico city: "the Zócalo, the National Museum of Anthropology, Frida Kahlo's Blue House, Chapultepec and the pyramids of Teotihuacán nearby"
+  toronto: "the CN Tower, the Distillery District, Kensington Market, the Royal Ontario Museum and a day trip to Niagara Falls"
+  copenhagen: "Nyhavn, Tivoli Gardens, the Little Mermaid, Christiansborg Palace and a bike ride around the city"
+  stockholm: "Gamla Stan (the old town), the Vasa Museum, the Royal Palace, Skansen and a boat trip through the archipelago"
+  edinburgh: "Edinburgh Castle, the Royal Mile, Arthur's Seat, Holyrood Palace and the Old Town closes"
+  dublin: "Trinity College and the Book of Kells, the Guinness Storehouse, Temple Bar, St Patrick's Cathedral and a walk in Phoenix Park"
+  japan: "Tokyo, the temples of Kyoto, Mount Fuji, the deer park in Nara, Hiroshima's Peace Memorial and the street food of Osaka"
+  italy: "Rome's ancient sites, Florence's art, the canals of Venice, the Amalfi Coast and Lake Como"
+  france: "Paris, the castles of the Loire Valley, Mont-Saint-Michel, Provence and the Côte d'Azur"
+  spain: "Barcelona's Gaudí buildings, Madrid's museums, the Alhambra in Granada, Seville and the beaches of the south"
+  greece: "the Acropolis in Athens, Santorini, Mykonos, Delphi and the monasteries of Meteora"
+  portugal: "Lisbon, Porto and the Douro Valley, Sintra's palaces and the beaches of the Algarve"
+  germany: "Berlin, Munich and the Bavarian Alps, Neuschwanstein Castle, the Rhine Valley and Hamburg"
+  thailand: "Bangkok's temples, Chiang Mai, the islands like Koh Phi Phi and Koh Samui, and the beaches of Krabi"
+  egypt: "the Pyramids of Giza, Luxor's temples and the Valley of the Kings, a Nile cruise and Abu Simbel"
+sights_lead:
+  - "In {x}, don't miss {y}."
+  - "The classics in {x}: {y}."
+sights_tail:
+  - "Want some food tips for {x} too?"
+  - "Shall I tell you what to eat there as well?"
+sights_none:
+  - "I don't have a good list of sights for {x}, sorry — a travel guide like Wikivoyage will know more. Want to know a few general facts about it instead?"
+draft_ask:
+  - "Sure! Who's the {x} for, and what's it about?"
+  - "Happy to help! Who are you writing to, and what do you want to say?"
+proud:
+  - "And it shows — you really earned this. How are you going to celebrate?"
+  - "All that hard work paid off — you totally earned it! Any plans to celebrate?"
+celebrate_food:
+  - "For a celebration dinner, how about:\n\n• A good steakhouse or a classic French bistro\n• A tasting menu somewhere special\n• Sushi or Japanese omakase\n• An Italian place with fresh pasta and a nice bottle of wine\n\nWhat kind of food do you both love?"
+  - "Some ideas for a special night out:\n\n• A restaurant with a view, like a rooftop place\n• A tasting menu — lots of little courses\n• Your favourite cuisine, but the fanciest place in town\n• Somewhere you've always wanted to try\n\nI can't search local restaurants offline, but a map app will show you the best-rated ones nearby."
+
+correction_doubt:
+  - "Hmm, are you sure? My sources say {y} — {x} is easy to mix up with it. Should I still remember {x} for you?"
+  - "I have {y} from my sources, so I'd double-check {x}. Want me to note your answer anyway?"
+worldtime:
+  - "It's {y} in {x} right now ({z})."
+  - "Right now it's {y} in {x} — {z}."
+worldtime_none:
+  - "I don't know the time zone of {x}, sorry. Try a big city nearby — like “what time is it in Tokyo?”"

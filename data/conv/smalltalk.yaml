@@ -401,7 +401,7 @@ intents:
       - "Okay, another try."
 
   - id: wrong
-    patterns: ['(that''s|that is|this is|it''s|it is|you''re|you are) (wrong|not right|incorrect|not correct|false|not true|a lie|mistaken|not it)|(no,? )?(wrong|incorrect|not true|false)|you made a mistake|that''s not what i asked|not what i asked|that''s not the answer|wrong answer|nope,? wrong|that is not correct']
+    patterns: ['(that''s|that is|this is|it''s|it is|you''re|you are) (wrong|not right|incorrect|not correct|false|not true|a lie|mistaken|not it)|(no,? )?(wrong|incorrect|not true|false)|you made a mistake|that''s not what i asked|not what i asked|that''s not the answer|wrong answer|nope,? wrong|that is not correct|(that|this|your|the) (answer|reply|response|one) (was|is) (wrong|incorrect|not right|not correct|false|bad|off)|you got (that|it) wrong|that was wrong|that''s not right|you''re wrong about (that|it)']
     examples: [that's wrong, you're wrong, incorrect, that's not true, wrong answer, not what i asked]
     action: correction
     responses:

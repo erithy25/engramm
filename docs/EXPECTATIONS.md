@@ -2099,6 +2099,25 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     „are you always right?“ beginnt nicht mehr mit „Plenty!“.
   - Team-Dev-Satz: 1 von 128 Antworten geändert (team-0040, Geburtstag heute: jetzt mit gemerktem Datum).
     NQ-open 400: unverändert 22/9. Suite 679 bestanden, 7 übersprungen.
+- **Alltags-Batterie 37** (Chat-Schreibweise, E-Mail an den Vermieter, Paris-Reise, Beförderung, Deutsch vor einer
+  Präsentation, Uhrzeit weltweit). Gefunden und behoben:
+  - „any food i should try?“ → „Your favourite food is heating.“: „the heating is broken“ war als Lieblingsessen
+    gespeichert. Ein beschriebenes Subjekt („the X is broken“) ist nie ein Wert; Essensfragen auf Reisen nutzen die
+    Küche des Landes (Stadt → Land über die Faktenbank).
+  - „how r u doin“ (Wissenssuche), „im gud thx“, „helo“: gesprochene Schreibweisen ergänzt.
+  - „can u help me write an email“: fragt jetzt nach Empfänger und Anliegen; „to my landlord, the heating is broken“
+    ergibt die passende E-Mail (vorher sofort eine leere Vorlage, danach Mitgefühl statt E-Mail).
+  - „what should i see there?“: von Hand geprüfte Sehenswürdigkeiten für 44 Städte und 9 Länder, mit Angebot für
+    Essenstipps („yes“ → Küche).
+  - „thanks! i worked so hard for it“ nach einer Beförderung → „Oh no …“: jetzt Stolz. „any restaurant ideas?“ /
+    „something fancy“ → Ideen für ein festliches Essen.
+  - „that answer was wrong“ → „Mm-hm“: jetzt Bitte um die richtige Antwort. Eine „Korrektur“ einer belegten Antwort
+    („it's sydney“ nach Canberra) wird höflich angezweifelt und nur auf „yes“ gespeichert.
+  - Uhrzeit weltweit ohne Zeitzonen-Datenbank (`engramm/chat/worldtime.py`: Versatz plus Sommerzeit-Regeln EU, USA/Kanada,
+    Australien, Neuseeland; ≈ 150 Orte, auch deutsch: „wie spät ist es in Tokio?“), mit Nachfragen („and in new york?“).
+  - Übersetzungs-Nachfragen („and good morning?“, „what about goodbye“ → vorher „The answer is Mother.“).
+  - Team-Dev-Satz: 0 von 128 Antworten geändert. NQ-open 400: unverändert 22/9. Regressions-Batterien 30, 33–36:
+    0 Wiederholungen. Suite 682 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "data" / "conv"
 FILES = ("smalltalk", "empathy", "safety", "fun", "replies", "writing", "de", "daily")
 PLACEHOLDERS = {"name", "x", "y", "dish", "rest", "noun", "pron", "subject", "title", "topic", "category", "evidence", "last", "more", "bot",
-                "timeword", "fact", "X"}
+                "timeword", "fact", "X", "z"}
 
 
 def load_sources(src: Path = SRC) -> dict:

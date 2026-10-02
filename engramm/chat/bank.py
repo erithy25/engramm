@@ -54,7 +54,16 @@ _CHAT_WORDS = {"u": "you", "r": "are", "ur": "your", "wat": "what", "wut": "what
                "plaese": "please", "coudl": "could", "shoudl": "should", "wierd": "weird", "untill": "until",
                "captial": "capital", "contry": "country", "countrey": "country", "goverment": "government",
                "tallets": "tallest", "bigest": "biggest", "longst": "longest",
-               "shes": "she's", "hes": "he's", "theyre": "they're", "theres": "there's", "lets": "let's"}
+               "shes": "she's", "hes": "he's", "theyre": "they're", "theres": "there's", "lets": "let's",
+               # spoken spellings: "how r u doin", "im gud thx", "helo", "gd mornin"
+               "doin": "doing", "goin": "going", "nothin": "nothing", "somethin": "something", "mornin": "morning",
+               "evenin": "evening", "gud": "good", "gd": "good", "helo": "hello", "hellooo": "hello", "hii": "hi",
+               "hiii": "hi", "heyy": "hey", "heyyy": "hey", "heya": "hey", "hiya": "hi", "thanx": "thanks",
+               "thankss": "thanks", "nite": "night", "gnite": "good night", "gn": "good night", "gm": "good morning",
+               "yall": "you all", "kinda": "kind of", "sorta": "sort of", "gotta": "got to",
+               "wanna": "want to", "gonna": "going to", "tryna": "trying to", "idc": "I don't care", "ikr": "I know right",
+               "ofc": "of course", "omw": "on my way", "asap": "as soon as possible", "bout": "about", "cya": "see you",
+               "imo": "in my opinion", "tbf": "to be fair", "fr": "for real", "ngl": "not gonna lie"}
 _YOURE_NEXT = re.compile(r"(?:the|so|very|really|too|such|amazing|awesome|great|welcome|funny|smart|right|wrong|"
                          r"kidding|joking|not|a|an|cute|sweet|nice|kind|weird|crazy|stupid|dumb|wild|lying|actually|"
                          r"just|literally|always|never|going|getting|being|doing|making|my)\b")
