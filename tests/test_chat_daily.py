@@ -1873,3 +1873,64 @@ def test_battery47_german_so_so_day_off(chat):
     assert "•" in r.text, r.text
     r = a.turn(st2, "das wetter ist schön")
     assert "Spaziergang" in r.text or "Biergarten" in r.text, r.text
+
+
+def test_battery48_headache_money_colleague_gift_and_jobs(chat):
+    a, _ = chat
+    st = DialogState("l1")
+    a.turn(st, "my head hurts")
+    r = a.turn(st, "since this morning")
+    assert "since this morning" in r.text.lower() and "wear you down" not in r.text, r.text
+    r = a.turn(st, "i didn't drink much water")
+    assert r.kind != "learned" and "water" in r.text, r.text
+    assert "favourite food is drink" not in a.turn(DialogState("l1b"), "what's my favourite food?").text.lower()
+    r = a.turn(st, "should i take something?")
+    assert "ibuprofen" in r.text and "doctor" in r.text, r.text
+    r = a.turn(st, "ok thanks, i'll drink some water")
+    assert "last time" not in r.text, r.text
+    st2 = DialogState("l2")
+    r = a.turn(st2, "i spend too much on food")
+    assert "meals" in r.text, r.text
+    assert "50/30/20" in a.turn(st2, "what's a good budget rule?").text
+    st3 = DialogState("l3")
+    r = a.turn(st3, "my colleague keeps taking credit for my work")
+    assert r.kind == "empathy", r.text
+    assert "pattern" in a.turn(st3, "it happened again today").text
+    assert "factual" in a.turn(st3, "should i talk to my boss?").text
+    assert "visible" in a.turn(st3, "how do i bring it up?").text
+    st4 = DialogState("l4")
+    a.turn(st4, "my girlfriend's birthday is next week")
+    r = a.turn(st4, "she likes reading and coffee")
+    assert r.kind == "learned" and "Smart-home" not in r.text, r.text
+    r = a.turn(st4, "what should i get her?")
+    assert "reading and coffee" in r.text and "bookshop" in r.text, r.text
+    r = a.turn(st4, "something under 30 euros")
+    assert "30 euros" in r.text, r.text
+    st5 = DialogState("l5")
+    a.turn(st5, "i can't decide between two jobs")
+    r = a.turn(st5, "one pays more, the other is more interesting")
+    assert "money versus meaning" in r.text, r.text
+    assert "interesting one" in a.turn(st5, "what would you do?").text
+    assert "Good luck" in a.turn(st5, "yeah i think so too").text
+
+
+def test_battery48_german_headache_and_gift(chat):
+    a, _ = chat
+    st = DialogState("l6")
+    r = a.turn(st, "ich hab kopfschmerzen")
+    assert r.kind == "empathy", r.text
+    assert "heute morgen" in a.turn(st, "seit heute morgen").text
+    assert "Ibuprofen" in a.turn(st, "soll ich was nehmen?").text
+    st2 = DialogState("l7")
+    r = a.turn(st2, "meine freundin hat nächste woche geburtstag")
+    assert "Geburtstag" in r.text or "schenkst" in r.text, r.text
+    a.turn(st2, "sie liest gern")
+    r = a.turn(st2, "was soll ich ihr schenken?")
+    assert "Buch" in r.text and "Wie wär's mit eine" not in r.text, r.text
+
+
+def test_past_negation_is_never_a_fact():
+    from engramm.chat.facts import personal_facts
+    assert personal_facts("i didn't drink much water", "u") == []
+    assert personal_facts("i haven't slept well", "u") == []
+    assert personal_facts("my favourite drink is tea", "u")

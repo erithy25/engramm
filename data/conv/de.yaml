@@ -533,6 +533,26 @@ daily:
     day_off_ideas: ["Ein paar Ideen für deinen freien Tag:\n\n• Ein langer Spaziergang oder eine Radtour\n• In ein Café setzen und ein Buch lesen\n• Ein Museum oder eine Ausstellung besuchen\n• Freunde fragen, ob jemand spontan Zeit hat\n• Oder einfach mal gar nichts – auch das zählt!\n\nWorauf hast du Lust?"]
     nice_weather: ["Perfekt! Dann raus mit dir: ein Spaziergang im Park, ein Eis, Radfahren oder ein Picknick – bei schönem Wetter ist fast alles besser.", "Dann würde ich das ausnutzen! Biergarten, See, Park oder einfach eine Runde Rad fahren."]
     which_bigger: ["{x}"]
+    ache: ["Oh nein, Kopfschmerzen sind fies. Seit wann hast du sie?", "Das tut mir leid. Hast du heute genug getrunken?"]
+    ache_since: ["Seit {x} schon – das ist lang. Hast du genug Wasser getrunken und etwas gegessen?"]
+    ache_meds: ["Zuerst ein großes Glas Wasser und eine Pause vom Bildschirm. Wenn's nicht besser wird, hilft ein übliches Schmerzmittel wie Ibuprofen oder Paracetamol – Dosierung auf der Packung beachten. Bei plötzlichen, sehr starken Schmerzen, Fieber, steifem Nacken oder Sehstörungen bitte zum Arzt."]
+    bday_person: ["Wie schön! Weißt du schon, was du ihr schenkst? Erzähl mir, was sie gern mag.", "Oh, Geburtstag! Was macht sie denn gern? Dann fällt mir bestimmt was ein."]
+    gift_lead: ["Weil sie gern {x}: {y}. Persönlich schlägt teuer – immer.", "Meine Ideen: {y}. Mit einer handgeschriebenen Karte dazu ist es perfekt."]
+    gift_none: ["Ein paar Ideen: ein gemeinsames Erlebnis (Kochkurs, Konzert, Ausflug), ein schönes Buch oder etwas für ihr Hobby. Was macht sie denn gern?"]
+    gift_like:
+      liest: "eine schöne Ausgabe von einem Buch, das sie sich wünscht, ein Gutschein für eine Buchhandlung oder eine gemütliche Leselampe"
+      lesen: "eine schöne Ausgabe von einem Buch, das sie sich wünscht, ein Gutschein für eine Buchhandlung oder eine gemütliche Leselampe"
+      kaffee: "richtig guter Kaffee von einer Rösterei, eine schöne Tasse oder ein Café-Gutschein"
+      tee: "eine Auswahl feiner Tees oder eine schöne Teekanne"
+      kocht: "ein Kochbuch ihrer Lieblingsküche oder ein Kochkurs für zwei"
+      kochen: "ein Kochbuch ihrer Lieblingsküche oder ein Kochkurs für zwei"
+      musik: "Konzertkarten oder eine Platte von ihrer Lieblingsband"
+      sport: "etwas für ihren Sport oder Tickets für ein Spiel"
+      reist: "ein Reisetagebuch oder ein Tagesausflug an einen neuen Ort"
+      reisen: "ein Reisetagebuch oder ein Tagesausflug an einen neuen Ort"
+      pflanzen: "eine schöne Pflanze mit einem hübschen Topf"
+      malt: "ein Skizzenbuch mit guten Stiften oder ein gemeinsamer Museumsbesuch"
+      yoga: "eine gute Yogamatte oder ein Gutschein für einen Kurs"
     bot_human: ["Nein, ich bin kein Mensch – ich bin ENGRAMM, ein Programm auf deinem Rechner. Kein neuronales Netz, keine Cloud: Ich antworte aus dem, was ich gelesen habe, und aus dem, was du mir erzählst.", "Nein, ich bin ein Programm namens ENGRAMM. Aber ich höre dir trotzdem gern zu!"]
     wfh_lonely: ["Das kann ich gut verstehen – Homeoffice kann richtig einsam machen. Ganze Tage ohne ein echtes Gespräch.", "Ja, zu Hause arbeiten ist praktisch, aber man sieht kaum Leute. Kein Plausch an der Kaffeemaschine."]
     maybe_should: ["Das ist eine gute Idee – auch kleine Schritte zählen. Soll ich dir ein paar Ideen geben?", "Finde ich gut! Klein anfangen ist völlig okay. Magst du ein paar Vorschläge?"]

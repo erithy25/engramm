@@ -478,6 +478,9 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
     if re.search(r"^(?:but |and |also |plus )?my (?:\w+ )?\w+ (?:keeps|kept|won'?t stop|wont stop|never stops|"
                  r"is always|always)\s+\w+ing\b", s, re.I):
         return []                        # "my mind keeps racing": how something behaves, never a fact to keep
+    if re.search(r"\b(?:didn'?t|did not|haven'?t|have not|hasn'?t|wasn'?t|weren'?t)\b", s, re.I) and \
+            not re.search(r"\b(?:never|ever)\b.*\b(?:been|lived|worked)\b", s, re.I):
+        return []                        # "I didn't drink much water": what did not happen today, never a favourite
     ws = words(s)
     lw = [w.lower() for w in ws]
     n = len(ws)

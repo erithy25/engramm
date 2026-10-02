@@ -1910,3 +1910,60 @@ pet_names:
   dog: "A few ideas: Max, Bella, Charlie, Luna, Buddy, Daisy, Rocky or Nala. Any idea what kind of dog it'll be?"
 learn_time:
   - "For simple conversations, most people need about 3–6 months of regular practice, say 20–30 minutes a day. Feeling comfortable takes a year or two."
+ache_since:
+  - "Since {x} — that's a long time with a headache. Have you had enough water and something to eat today?"
+  - "Ugh, since {x}. Have you been staring at a screen a lot, or not drinking much?"
+ache_water:
+  - "That might well be it: not drinking enough is one of the most common causes of headaches. Have a big glass of water now and another in the next hour."
+ache_meds:
+  - "Water and a short break from screens first. If it doesn't get better, a common over-the-counter painkiller like ibuprofen or paracetamol can help. Follow the dose on the pack. If it's very sudden and severe, comes with fever, a stiff neck or blurred vision, see a doctor."
+ache_ok:
+  - "Good idea. I hope it eases off soon! 💧"
+  - "Sounds like a plan. Feel better soon!"
+spend_on:
+  food: "Food is one of the easiest places to save: plan the week's meals, shop with a list (and not hungry!), cook bigger batches and take lunch to work. Eating out once a week less often saves more than you'd think."
+  eating out: "Eating out adds up fast. Try cooking on weekdays and keeping restaurants for one special evening a week, and take lunch from home."
+  coffee: "A daily café coffee can be 60–100 a month. A good thermos and coffee from home, plus the café as a treat once or twice a week, makes a real difference."
+  clothes: "For clothes: a 48-hour rule before buying, unsubscribing from shop newsletters and checking second-hand first helps a lot."
+  shopping: "A 48-hour rule before non-essential buys works wonders, and so does deleting saved card details from shopping sites."
+  subscriptions: "List every subscription and cancel what you haven't used in the last month. Most people find at least one or two."
+  other: "Track that spending for a month, then set a weekly limit for it. Seeing the number usually does half the work."
+budget_rule:
+  - "A popular one is 50/30/20: 50% of your take-home pay for needs (rent, bills, groceries), 30% for wants and 20% for savings or paying off debt. Adjust it to your situation. Even 10% saved is a great start."
+credit_stolen:
+  - "That's so frustrating — and unfair. You did the work and someone else gets the recognition. How long has this been going on?"
+  - "Ugh, that's one of the most annoying things at work. Does your boss know what you actually contributed?"
+credit_again:
+  - "Again? Then it's a pattern, not an accident — it's fair to do something about it."
+talk_boss:
+  - "I think it's reasonable, yes. Keep it factual: what you did, with dates or emails, and ask how to make your contributions more visible. It doesn't have to sound like a complaint about your colleague."
+bring_up:
+  - "Something like: “I'd like to make sure my work is visible. On the X project I did A and B (here's the email). How can we make it clearer who did what in future?” Calm, factual, and focused on the work, not on blame. It also helps to send short recap emails after you finish something."
+gift_like:
+  reading: "a beautiful edition of a book they've been wanting, a voucher for a local bookshop or a cosy reading light"
+  coffee: "really good coffee beans from a local roaster, a nice mug or a café voucher"
+  tea: "a selection of fine teas or a nice teapot"
+  cooking: "a cookbook from their favourite cuisine or a cooking class for two"
+  music: "concert tickets or a record from an artist they love"
+  running: "good running socks, a sports bottle or a race entry"
+  sport: "something for their sport, or tickets to a match"
+  gaming: "a game they've had on their wishlist or a gift card for their platform"
+  art: "a sketchbook with nice pens, or a museum visit together"
+  travel: "a travel journal or a day trip somewhere they've never been"
+  plants: "a beautiful plant with a nice pot"
+  wine: "a good bottle from a region they like"
+  yoga: "a good yoga mat or a voucher for a class"
+  photography: "a photo book of your pictures together"
+gift_lead:
+  - "Since {who} {x}, how about {y}? Personal beats expensive every time."
+  - "With {x} in mind: {y}. Add a handwritten card and it's perfect."
+gift_budget:
+  - "Under {x}, still easy: {y}. And a handwritten card costs nothing but means a lot."
+decide_ask:
+  - "That's a tough spot to be in. What are the two options? Tell me what each one has going for it."
+decide_tradeoff:
+  - "The classic one: money versus meaning. A few questions that help: Would the lower salary still cover your life comfortably? Which job would you be proud of in two years? And which one would teach you more?"
+decide_view:
+  - "If the lower salary still pays your bills comfortably, I'd lean towards the more interesting one. Interest keeps you motivated, you learn faster, and that usually pays off later too. If money is tight right now, though, the better-paid one is a perfectly good choice."
+decide_agree:
+  - "Sounds like you already knew deep down. Good luck with it! 🍀"

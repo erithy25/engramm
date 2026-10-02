@@ -2262,6 +2262,20 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - Team-Dev-Satz: 1 von 128 geändert (team-0078: die Antwort zur Berliner Mauer ist jetzt ein kurzer, direkter Satz
     mit demselben Datum statt des langen Artikelsatzes). NQ-open 400: 22/9. Regressionen 32, 38–46 und langes
     Gespräch: 0 Wiederholungen. Suite 717 bestanden, 7 übersprungen.
+- **Alltags-Batterie 48 (Gesundheit, Geld, Arbeit, Geschenke, Entscheidungen; Englisch und Deutsch)**:
+  - Schwer: „i didn't drink much water“ wurde zu „Your favourite food is drink“. Verneinte Vergangenheit („didn't“,
+    „haven't“, „wasn't“) wird jetzt nie als Fakt gespeichert. „she likes reading and coffee“ war eine Smart-Home-Absage;
+    Aussagen über andere Personen sind nie Gerätebefehle.
+  - Kontext: Kopfschmerzen → seit wann → zu wenig getrunken → „should i take something?“ (Wasser, rezeptfreie
+    Schmerzmittel, Warnzeichen für den Arzt); „i spend too much on food“ → konkrete Spartipps, „50/30/20“; Kollege
+    schmückt sich mit fremder Arbeit → „again“ → Chef ansprechen → Formulierungsvorschlag; Geschenk nach Vorlieben
+    („she likes reading and coffee“) mit Budget („under 30 euros“); zwei Jobangebote → Abwägung → „what would you do?“.
+  - Deutsch: „ich hab Kopfschmerzen“ → „seit heute morgen“ → „soll ich was nehmen?“; „meine Freundin hat nächste Woche
+    Geburtstag“ → „sie liest gern“ → „was soll ich ihr schenken?“ (vorher 7 von 8 Zügen unverstanden).
+  - Platz: Die Root-Partition lief voll (ENOSPC mitten im Testlauf). Gelöscht wurden nur eigene Zwischenstände, dazu
+    `git repack` (3.194 lose Objekte, 58 MB → Pack). Danach lief die volle Suite wieder durch.
+  - Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–47 und langes Gespräch: 0 Wiederholungen.
+    Suite 720 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

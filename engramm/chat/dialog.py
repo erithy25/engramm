@@ -371,6 +371,42 @@ _IS_OK = re.compile(r"^(?:is that|would that be|is it) (?:ok(?:ay)?|fine|a probl
 _WHAT_NEED = re.compile(r"^(?:and |so )?what (?:do|will|would) i need(?: for (?:it|a cat|a dog|a kitten|a puppy))?\??$")
 _NAME_IT = re.compile(r"^(?:and |so )?what should i (?:name|call) (?:it|him|her|them|the (?:cat|dog|kitten|puppy))\??$|^(?:any )?name ideas\??$")
 _LEARN_TIME = re.compile(r"^(?:and |so )?how long (?:does it|will it|would it) take(?: to (?:learn (?:it|that)|get good|become fluent))?\??$")
+# battery 48: a headache, spending, a colleague taking credit, a gift from what someone likes, two job offers
+_ACHE = re.compile(r"\b(?:my head (?:hurts|is killing me|is pounding)|(?:i )?(?:have|got|'ve got) (?:a |such a |a bad |a terrible )?headache|"
+                   r"headache)\b")
+_SINCE = re.compile(r"^(?:it'?s been |been |just |only )?(?:since|for) (?P<x>this morning|last night|yesterday|the morning|lunch|hours|"
+                    r"two days|2 days|a few hours|an hour|all day|this afternoon)[.!]*$")
+_LOW_WATER = re.compile(r"^(?:i )?(?:didn'?t|did not|haven'?t|have not) (?:drink|drunk|had) (?:much|enough|any)? ?(?:water|fluids|anything)"
+                        r"(?: today)?[.!]*$|^(?:i'?m|im|i might be|maybe i'?m) (?:a bit |probably )?dehydrated[.!]*$")
+_MEDS = re.compile(r"^(?:should|can|could) i take (?:something|anything|a (?:painkiller|pill|tablet)|an? (?:ibuprofen|aspirin|paracetamol|advil|"
+                   r"tylenol))(?: for (?:it|that))?\??$")
+_WILL_REST = re.compile(r"^(?:ok(?:ay)?,? |thanks,? |ok thanks,? |good idea,? )*(?:i'?ll|ill|i will|gonna) (?:drink (?:some|more) water|"
+                        r"lie down|rest|take (?:a nap|a break|it easy|something)|go to bed|get some sleep)(?: (?:then|now|first))?[.!]*$")
+_SPEND_ON = re.compile(r"^(?:but |and |i think )?i (?:spend|waste|blow) (?:way |far )?(?:too much|so much|a lot) (?:money )?on (?P<x>[a-z ]{3,25}?)[.!]*$")
+_BUDGET_RULE = re.compile(r"^(?:what'?s|what is|is there) (?:a )?(?:good |simple |common )?budget(?:ing)? (?:rule|method|plan|formula)\??$|"
+                          r"^how (?:should|do) i split my (?:salary|income|money)\??$")
+_CREDIT = re.compile(r"\bmy (?P<n>colleague|coworker|co-worker|teammate|boss|manager) (?:keeps |always |just )?(?:taking|took|takes|steals|stole|stealing)"
+                     r" (?:the )?credit\b")
+_AGAIN = re.compile(r"^(?:and )?it (?:happened|did it) again(?: today| this week| yesterday)?[.!]*$|^(?:and )?(?:he|she|they) did it again[.!]*$")
+_TALK_BOSS = re.compile(r"^(?:so )?(?:should|do) i (?:talk|speak) to (?:my |the )?(?:boss|manager|supervisor|hr)(?: about (?:it|this))?\??$")
+_BRING_UP = re.compile(r"^(?:but |and |so )?how (?:do|should|would|can) i (?:bring it up|say it|start|phrase it|approach (?:it|this|him|her))\??$|"
+                       r"^what (?:do|should) i say\??$")
+_GIFT_Q = re.compile(r"^(?:so |and )?(?:what should i (?:get|buy|give) (?:her|him|them)|(?:any )?gift ideas(?: for (?:her|him|them))?|"
+                     r"what (?:could|can) i (?:get|give) (?:her|him|them))\??$")
+_UNDER = re.compile(r"^(?:something |ideally |preferably |but )?(?:under|below|less than|max|up to|no more than) (?P<x>[$€£]?\d+ ?(?:euros?|dollars?|bucks|pounds|€|\$)?)[.!]*$")
+_DECIDE = re.compile(r"^i (?:can'?t|cannot|can not|don'?t know how to) (?:decide|choose|pick) between (?:two|2) (?:jobs?|job offers|offers|options|apartments|flats|cities)[.!]*$")
+_TRADEOFF = re.compile(r"^(?:well,? )?(?:one|the first) (?:pays|is|has|offers) .+,? (?:and )?the other (?:is|has|pays|offers) .+$")
+_WOULD_YOU = re.compile(r"^(?:so )?what would you (?:do|choose|pick)\??$|^which (?:one )?would you (?:take|choose|pick)\??$")
+_FEMALE_NOUNS = frozenset(("sister", "mom", "mum", "mother", "girlfriend", "wife", "daughter", "aunt", "grandma", "grandmother", "niece",
+                           "fiancée"))
+_MALE_NOUNS = frozenset(("brother", "dad", "father", "boyfriend", "husband", "son", "uncle", "grandpa", "grandfather", "nephew", "fiancé"))
+_DE_ACHE = re.compile(r"^(?:ich )?(?:hab|habe) (?:so |echt |total )?(?:kopfschmerzen|kopfweh|migräne)[.!]*$|^mein kopf tut (?:so )?weh[.!]*$")
+_DE_ACHE_SINCE = re.compile(r"^(?:schon )?seit (?P<x>heute morgen|heute früh|gestern|gestern abend|stunden|dem aufstehen|mittag)[.!]*$")
+_DE_MEDS = re.compile(r"^(?:soll|sollte|kann) ich (?:was|etwas|eine tablette|ibuprofen|paracetamol|aspirin|ein schmerzmittel) nehmen\??$")
+_DE_BDAY_PERSON = re.compile(r"^mein(?:e)? (?P<p>freundin|frau|mutter|mama|schwester|beste freundin|kollegin|tochter|oma) hat (?:nächste woche|morgen|bald|"
+                             r"am \w+|übermorgen|diese woche) geburtstag[.!]*$")
+_DE_LIKES = re.compile(r"^(?:sie|er) (?P<x>liest|kocht|reist|malt|mag|liebt|trinkt) (?:gern|gerne|so gern|total gern|viel)?(?: (?P<y>[a-zäöüß ]+?))?[.!]*$")
+_DE_GIFT_Q = re.compile(r"^(?:und )?was (?:soll|sollte|kann|könnte) ich (?:ihr|ihm) schenken\??$|^(?:hast du )?geschenkideen\??$")
 _WEAR = re.compile(r"^(?:(?:and|so|ok|okay|hmm|fine|alright|cool|sure)[.,!]? )?what (?:should|do|can|could) i wear(?: (?:to|for|on|in) "
                    r"(?:the |a |my |an )?(?P<x>[a-z ]+?))?(?: tomorrow| today| tonight)?\??$")
 _OCCASIONS = [("interview", re.compile(r"\binterview")), ("wedding", re.compile(r"\bwedding|\bmarr")),
@@ -1006,6 +1042,42 @@ class Assistant:
         r = self._german_event(st, msg, q, dc)
         if r is not None:
             return r
+        if _DE_ACHE.match(q):
+            st.uses["ache_de"] = st.turn
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "de:ctx:ache", dc["ache"]), via="german")
+        ad = st.uses.get("ache_de")
+        if ad is not None and st.turn - ad <= 4:
+            m = _DE_ACHE_SINCE.match(q)
+            if m:
+                st.uses["ache_de"] = st.turn
+                return Reply(msg, "empathy", self._pick(st, "de:ctx:ache_since", dc["ache_since"], x=m.group("x")), via="german")
+            if _DE_MEDS.match(q):
+                st.uses["ache_de"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:ache_meds", dc["ache_meds"]), via="german")
+        m = _DE_BDAY_PERSON.match(q)
+        if m:
+            st.uses["gift_de"] = {"person": m.group("p"), "likes": [], "turn": st.turn}
+            return Reply(msg, "smalltalk", self._pick(st, "de:ctx:bday_person", dc["bday_person"]), via="german")
+        gd = st.uses.get("gift_de")
+        if gd and st.turn - gd["turn"] <= 6:
+            m = _DE_LIKES.match(q)
+            if m:
+                words_ = (m.group("x") + " " + (m.group("y") or "")).split()
+                gd["likes"] += [w for w in words_ if w in dc["gift_like"]]
+                gd["turn"] = st.turn
+                self._learn(st, [f"My {'girlfriend' if gd['person'] in ('freundin', 'beste freundin') else 'friend'} likes "
+                                 f"{' and '.join(words_)}."], msg)
+                return Reply(msg, "learned", "Gut zu wissen! Das merke ich mir.", via="german")
+            if _DE_GIFT_Q.match(q):
+                gd["turn"] = st.turn
+                if gd["likes"]:
+                    k = gd["likes"][0]
+                    shown = {"liest": "liest", "lesen": "liest", "kocht": "kocht", "kochen": "kocht", "reist": "reist", "reisen": "reist",
+                             "malt": "malt"}.get(k, f"{k} mag")
+                    return Reply(msg, "smalltalk", self._pick(st, "de:ctx:gift_lead", dc["gift_lead"], x=shown, y=dc["gift_like"][k]),
+                                 via="german")
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:gift_none", dc["gift_none"]), via="german")
         la = st.last_action or {}
         food = (la.get("kind") == "rec:food" and st.turn - la.get("turn", -99) <= 3) or \
             (st.uses.get("food_de") is not None and st.turn - st.uses["food_de"] <= 3)
@@ -1682,7 +1754,7 @@ class Assistant:
             st.uses["pet"] = [noun, st.turn]                  # "his name is max" / "he's 7" may follow
         pm = re.search(r"\bmy (best friend|sister|brother|mom|mum|mother|dad|father|friend|boyfriend|girlfriend|wife|husband|son|"
                        r"daughter|cousin|aunt|uncle|grandma|grandmother|grandpa|grandfather|boss|colleague|roommate|partner|"
-                       r"neighbou?r|niece|nephew|fiancée?)\b(?!'s)", message.lower())
+                       r"neighbou?r|niece|nephew|fiancée?)\b(?!'s (?!birthday|wedding|party|anniversary|graduation))", message.lower())
         if pm and rep.kind != "safety":
             st.uses["person_noun"] = [pm.group(1), st.turn]   # "her name is lena" / "she loves art" may follow
         trm = re.search(r"\b(?:say|translate|what(?:'s| is))\b.*\b(?:in|to|into) (spanish|french|german|italian|portuguese)\b",
@@ -2028,7 +2100,8 @@ class Assistant:
                                     or _WEAR.match(normalise(msg).strip()) or _TEXT_EX.match(normalise(msg).strip())):
                 hit = None                                # "what should I see in Tokyo?": travel tips, not live data
             # "I have an exam tomorrow" tells ENGRAMM something to remember; only requests are commands
-            if hit is not None and units[0].act == "statement" and re.match(r"(?:i|i'm|im|i've|my|we|we're|our)\b", msg, re.I):
+            if hit is not None and units[0].act == "statement" and re.match(r"(?:i|i'm|im|i've|my|we|we're|our|she|he|they|his|her|their)\b",
+                                                                            msg, re.I):
                 hit = None
             if hit is not None:
                 return Reply(msg, "unknown", self._reply(st, f"device.{hit[0]}"), via="device")
@@ -3642,7 +3715,7 @@ class Assistant:
                     if dish["name"].lower() == x or dish["name"].lower().replace("homemade ", "") == x:
                         return self._dish_steps(st, msg, dish["name"])
         r2 = self._daily_ctx2(st, msg, norm) or self._daily_ctx3(st, msg, norm) or self._daily_ctx4(st, msg, norm) or \
-            self._daily_ctx5(st, msg, norm)
+            self._daily_ctx5(st, msg, norm) or self._daily_ctx6(st, msg, norm)
         if r2 is not None:
             return r2
         m = _WHAT_LIKES.match(norm)
@@ -4021,6 +4094,80 @@ class Assistant:
             elif lr.group("l") in ("japanese", "chinese", "korean", "arabic"):
                 text += f" {lr.group('l').capitalize()} takes longer, mostly because of the writing system, so be patient with yourself."
             return Reply(msg, "smalltalk", text, via="everyday")
+        return None
+
+    def _daily_ctx6(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 48: a headache across turns, spending on one thing and a budget rule, a colleague taking
+        credit, a gift from what someone likes (and a budget), and choosing between two jobs."""
+        d = self.bank.daily
+        ac = st.uses.get("ache")
+        if _ACHE.search(norm):
+            st.uses["ache"] = ac = st.turn
+            st.uses["sick"] = st.turn
+        if ac is not None and st.turn - ac <= 5 and ac != st.turn:
+            m = _SINCE.match(norm)
+            if m:
+                st.uses["ache"] = st.turn
+                return Reply(msg, "empathy", self._pick(st, "daily:ache_since", d["ache_since"], x=m.group("x")), via="empathy")
+            if _LOW_WATER.match(norm):
+                st.uses["ache"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:ache_water", d["ache_water"]), via="everyday")
+            if _MEDS.match(norm):
+                st.uses["ache"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:ache_meds", d["ache_meds"]), via="everyday")
+            if _WILL_REST.match(norm):
+                return Reply(msg, "smalltalk", self._pick(st, "daily:ache_ok", d["ache_ok"]), via="empathy")
+        m = _SPEND_ON.match(norm)
+        if m:
+            x = m.group("x").strip()
+            key = next((k for k in d["spend_on"] if k != "other" and re.search(rf"\b{k}", x)), "other")
+            rep = self._learn(st, [msg], msg)
+            rep.text = d["spend_on"][key]
+            st.uses["guide_offer"] = ["how can i save money", st.turn]
+            return rep
+        if _BUDGET_RULE.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:budget_rule", d["budget_rule"]), via="everyday")
+        wc = st.uses.get("work_conflict")
+        cm = _CREDIT.search(norm)
+        if cm:
+            st.uses["work_conflict"] = st.turn
+            st.last_exp = {"valence": "negative", "topic": f"your {cm.group('n')}", "person": True, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "daily:credit_stolen", d["credit_stolen"]), via="empathy")
+        if wc is not None and st.turn - wc <= 5:
+            for rx, key in ((_AGAIN, "credit_again"), (_TALK_BOSS, "talk_boss"), (_BRING_UP, "bring_up")):
+                if rx.match(norm):
+                    st.uses["work_conflict"] = st.turn
+                    return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key]), via="empathy" if key == "credit_again" else "everyday")
+        pl = st.uses.get("person_likes")
+        if pl and st.turn - pl[1] <= 8:
+            likes = [k for k in d["gift_like"] if re.search(rf"\b{k}", pl[0])]
+            if likes and _GIFT_Q.match(norm):
+                st.uses["gift_likes"] = [likes, st.turn]
+                ideas = "; or ".join(d["gift_like"][k] for k in likes[:2])
+                pn = (st.uses.get("person_noun") or [""])[0]
+                who = "she likes" if pn in _FEMALE_NOUNS else "he likes" if pn in _MALE_NOUNS else "they like"
+                return Reply(msg, "smalltalk", self._pick(st, "daily:gift_lead", d["gift_lead"], who=who, x=" and ".join(likes[:2]),
+                                                          y=ideas), via="everyday")
+        gl = st.uses.get("gift_likes")
+        m = _UNDER.match(norm)
+        if m and gl and st.turn - gl[1] <= 3:
+            cheap = [d["gift_like"][k].split(" or ")[-1] for k in gl[0][:2]]
+            return Reply(msg, "smalltalk", self._pick(st, "daily:gift_budget", d["gift_budget"], x=m.group("x"), y=" or ".join(cheap)),
+                         via="everyday")
+        dc = st.uses.get("decide")
+        if _DECIDE.match(norm):
+            st.uses["decide"] = st.turn
+            return Reply(msg, "smalltalk", self._pick(st, "daily:decide_ask", d["decide_ask"]), via="empathy")
+        if dc is not None and st.turn - dc <= 4:
+            if _TRADEOFF.match(norm) and re.search(r"\bpay|money|salary|interesting|fun|meaning|passion", norm):
+                st.uses["decide"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:decide_tradeoff", d["decide_tradeoff"]), via="everyday")
+            if _WOULD_YOU.match(norm):
+                st.uses["decide"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:decide_view", d["decide_view"]), via="everyday")
+            if re.fullmatch(r"(?:yeah,? |yes,? |hm+,? )?(?:i think so too|you'?re right|that'?s what i thought|i guess you'?re right|"
+                            r"makes sense|i agree)[.!]*", norm):
+                return Reply(msg, "smalltalk", self._pick(st, "daily:decide_agree", d["decide_agree"]), via="smalltalk")
         return None
 
     def _person_name(self, noun: str) -> str | None:
