@@ -158,6 +158,7 @@ _NEG = {
     "rejected": 3, "dumped": 3, "fired": 3, "unbearable": 3, "insane": 2, "crazy": 2, "hectic": 2, "busy": 1,
     "long": 0, "sleepless": 2, "jetlagged": 1, "ruined": 3, "lied": 2, "stole": 3, "stolen": 3, "robbed": 3,
     "toxic": 3, "micromanaging": 2, "micromanages": 2, "blamed": 2, "bullied": 3, "drained": 2, "burnt": 2,
+    "forgot": 2, "forgotten": 2, "ditched": 2, "betrayed": 3, "excluded": 2, "abandoned": 3,
 }
 _POS = {
     "great": 2, "amazing": 3, "awesome": 3, "wonderful": 3, "fantastic": 3, "good": 1, "nice": 1, "fun": 2,
@@ -259,6 +260,7 @@ def experience(norm: str) -> Experience | None:
     if not _FIRST.search(s) and not _LIFE_SUBJECT.match(s) and \
             not re.search(r"\b(?:today|tonight|yesterday|this (?:morning|week|weekend))\b", s):
         return None
+    s = re.sub(r"\bbest (?:friends?|mate|buddy|man)\b", "friend", s)    # "my best friend forgot …": no praise
     words = re.findall(r"[a-z']+", s)
     negated = {m.group(1) for m in _NEGATION.finditer(s)}
     neg = pos = 0

@@ -79,8 +79,11 @@ _NEEDS = {"egg": ["omelette", "frittata", "carbonara", "shakshuka", "quiche", "p
 # "ok pasta it is", "pizza it is then": a decision
 _DECIDED = re.compile(r"^(?:ok(?:ay)?|alright|fine|right|great|perfect|cool)?,? ?(?:then )?(?P<x>[a-z][a-z' ]{1,30}?) it is(?: then)?[.!]*$")
 # "something I can do at home", "any ideas what I could do inside"
-_THINGS_TO_DO = re.compile(r"^(?:maybe |ok |okay )?(?:something|anything|stuff|things?|ideas?|any ideas?)(?: (?:what|that))? "
-                           r"(?:i|we) (?:can|could|might) do(?P<g> at home| inside| indoors| outside| alone| today| tonight)?[.!?]*$")
+_THINGS_TO_DO = re.compile(r"^(?:maybe |ok |okay |so )?(?:what (?:else )?(?:can|could) (?:i|we) do(?P<g2> at home| inside| indoors| outside)[?.!]*$|"
+                           r"(?:(?:something|anything|stuff|things?|ideas?|any ideas?)(?: (?:what|that))?|what(?: else)?) "
+                           r"(?:i|we) (?:can|could|might) do(?P<g> at home| inside| indoors| outside| alone| today| tonight)?[.!?]*$)")
+_CONTINENTS = frozenset(("africa", "antarctica", "asia", "australia", "europe", "north america", "south america",
+                         "central america", "latin america", "oceania", "the caribbean", "scandinavia", "the middle east"))
 # "maybe reading then", "a movie i guess": a kind of thing to suggest
 _MAYBE_KIND = re.compile(r"^(?:maybe|perhaps|ok|okay|hmm|i guess|i think|probably|then)[, ]+(?P<w>reading|a book|books|a movie|movies|a film|films|"
                          r"a series|a show|tv|music|a game|games|gaming|a podcast|podcasts|cooking|baking|a hobby)"
@@ -121,6 +124,13 @@ _WHAT_WAS_I = re.compile(r"^(?:sorry,? |wait,? )?what (?:was|were|did) i (?:comp
                          r"say|said|upset|stressed|worried|mad|angry|happy|excited) ?(?:about)?(?: earlier| before| again)?\??$")
 # everyday remarks and how a person answers them (see DialogEngine._talk)
 _TALK_RULES = [
+    (re.compile(r"\b(?:i'?m |im |i am |kinda |so |really |pretty )*(?:hungry|starving|peckish)\b"), "talk_hungry"),
+    (re.compile(r"^(?:just )?(?:chillin'?g?|relaxing|chilling at home|lazy day|having a lazy day)(?: tbh| lol)?$"), "talk_chill"),
+    (re.compile(r"^(?:that|it|dinner|lunch|the food) (?:was|tasted) (?:so |really |very )?(?:good|great|delicious|tasty|amazing|yummy|nice)\b"), "talk_tasty"),
+    (re.compile(r"\bi had (?:a |the )?(?:really |very |super )?(?:weird|strange|crazy|bad|good|funny|scary|wild|odd) dream\b"), "talk_dream"),
+    (re.compile(r"^(?:it'?s|its|it is|it has been|it'?s been) (?:raining|pouring|snowing|so (?:cold|grey|gray|windy)|freezing)\b|"
+                r"\b(?:rain|rainy|grey|gray) (?:all day|day|weather)\b"), "talk_weather_bad"),
+    (re.compile(r"^(?:it'?s|its|it is) (?:so |really )?(?:sunny|warm|beautiful|lovely|gorgeous) (?:outside|today|out)\b"), "talk_weather_good"),
     (re.compile(r"\bi (?:should|need to|have to|gotta|must|will|'ll|am going to|'m going to) (?:go to (?:bed|sleep)|sleep|head to bed|get some sleep)\b"), "talk_bed"),
     (re.compile(r"^(?:she|he|it|they)(?:'s| is|'re| are) (?:sleeping|purring|cuddling|snoring|lying|curled up|playing|napping)\b"), "talk_pet_now"),
     (re.compile(r"\b(?:we'?re|i'?m|we are|i am|im) (?:going out|going to (?:a |the )?(?:dinner|party|concert|cinema|movies|game|gym|beach|pub|bar|club)|heading out|off to (?:a |the )?(?:dinner|party|concert|cinema|beach|pub)|meeting (?:friends|my friends|up with))\b"), "talk_plan"),
@@ -137,7 +147,7 @@ _TALK_RULES = [
                 r"too much (?:work|stress)|overwhelmed|swamped)\b"), "talk_tough"),
 ]
 # remarks the plain chit-chat path should hand to DialogEngine._talk
-_TALK_FIRST = re.compile(r"\b(?:start|bed|sleeping|purring|cuddling|napping|curled|watch|going out|going to|heading out|off to|meeting|tell you|let you know|keep you posted|miss(?:ing)?|try|heard|read|seen|watched|killing|exhausted|tired|drained|slept|sleep|"
+_TALK_FIRST = re.compile(r"\b(?:hungry|starving|peckish|chillin'?g?|relaxing|lazy|good|great|delicious|tasty|yummy|dream|raining|pouring|snowing|rain|rainy|grey|gray|sunny|freezing|start|bed|sleeping|purring|cuddling|napping|curled|watch|going out|going to|heading out|off to|meeting|tell you|let you know|keep you posted|miss(?:ing)?|try|heard|read|seen|watched|killing|exhausted|tired|drained|slept|sleep|"
                          r"burn(?:ed|t)?|wiped|sucks?|rough|hard|overwhelmed|swamped)\b")
 # "and 20%?" after a percentage
 _PCT_MORE = re.compile(r"^(?:and |what about |how about |now |ok |okay )?(\d+(?:\.\d+)?)\s?%(?: of (?:it|that))?\??$")
@@ -1001,8 +1011,11 @@ class Assistant:
         dm = _DISLIKE.match(msg.strip())
         if dm and _RELATABLE.fullmatch(dm.group("x").strip().lower()):
             x = dm.group("x").strip().lower()
+            x = re.sub(r"\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)s?\b",
+                       lambda m: m.group(0)[:1].upper() + m.group(0)[1:], x)     # "Mondays", but "rainy days"
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
             return Reply(msg, "smalltalk", self._pick(st, "daily:dislike_relatable", self.bank.daily["dislike_relatable"],
-                                                      x=x[:1].upper() + x[1:] if x.endswith("days") else x),
+                                                      x=x),
                          via="empathy")
         if dm:
             # "i dont like movies": remember it as a dislike and ask what they do enjoy
@@ -1211,6 +1224,11 @@ class Assistant:
         it = self.bank.by_id[u.intent]
         name = self.user_name()
         le = st.last_exp or {}
+        if it.id in ("yes", "ack") and le.get("valence") == "negative" and st.turn - le.get("turn", -99) <= 1 and \
+                st.last_kind in ("empathy", "smalltalk") and (st.last_reply or "").rstrip().endswith("?"):
+            text = self._pick(st, "daily:exp_agree_neg", self.bank.daily["exp_agree_neg"])   # "yeah" to "what gets to you?"
+            parts.append(_Part("main", text))
+            return Reply(u.text, "smalltalk", text, via="empathy")
         if it.id == "thanks" and le.get("valence") == "positive" and st.turn - le.get("turn", -99) <= 2 and \
                 re.search(r"\b(?:promot|passed|got the job|got in|won|graduat|accepted|finished|nailed|hired|raise|award)", le.get("text") or "", re.I):
             # "thanks!" after "congratulations!": not "you're welcome"
@@ -1932,7 +1950,7 @@ class Assistant:
         tp = _TRIP_PLAN.search(norm)
         px = ((tp.group("x") or tp.group("y") or "") if tp else "").strip()
         if tp and px not in ("a", "the", "my", "bed", "work", "school", "sleep", "the gym", "the store", "the shop"):
-            place = _place_case(px)
+            place = " ".join(w if w in ("of", "and", "the", "de", "la") else w[:1].upper() + w[1:] for w in _place_case(px).split())
             st.uses["place_topic"] = [place, st.turn]
             st.last_action = {"kind": "trip_plan", "turn": st.turn, "place": place}
             rep = self._learn(st, [msg], msg)
@@ -1944,7 +1962,7 @@ class Assistant:
                          via="everyday")
         am = _THINGS_TO_DO.match(norm)
         if am:                                            # "something I can do at home" (after "I'm bored")
-            g = (am.group("g") or "").strip()
+            g = (am.group("g") or am.group("g2") or "").strip()
             return self.everyday.recommend(st, msg, "activity", genre="home" if g in ("at home", "inside", "indoors") else None)
         hm = _GOT_HOME.match(norm)
         if hm:
@@ -2766,11 +2784,23 @@ class Assistant:
         what = swap_person(what) if what else ""
         if what and len(what.split()) <= 8:
             head = what[:1].upper() + what[1:]
+            if len(what.split()) <= 3 and (what.lower() in _CONTINENTS or self._is_place(what)):
+                head = _place_case(what)              # "South America", not "South america"
             big = re.match(r"(?:quit|quitting|leav|break|divorc|drop|mov|resign|sell|end|stop)", what.lower())
             st.last_exp = {"valence": "plan", "topic": what, "person": False, "text": u.text, "turn": st.turn}
             key = "plan_big" if big else "plan"
             return self._pick(st, f"daily:{key}", self.bank.daily[key], x=head)
         return self._pick(st, "daily:plan_plain", self.bank.daily["plan_plain"])
+
+    def _is_place(self, name: str) -> bool:
+        """A place the fact bank knows ("berlin", "south korea")."""
+        if self.kgqa is None:
+            return False
+        try:
+            hits = self.kgqa.kb.link(name, limit=1)
+        except Exception:
+            return False
+        return bool(hits) and (hits[0][0].type or "") in _PLACE_TYPES
 
     def _has_fact(self, sentence: str) -> bool:
         """A sentence with something lasting to remember (a name, a job, a home …), not just a mood:
@@ -2863,8 +2893,14 @@ class Assistant:
         norm = normalise(text)
         d = self.bank.daily
         le = st.last_exp or {}
+        dr = st.uses.get("dream")
+        if dr is not None and st.turn - dr <= 2 and not re.search(r"\b(?:you|your)\b", norm):
+            st.uses.pop("dream", None)
+            return self._pick(st, "daily:talk_dream_more", d["talk_dream_more"])
         for rx, key in _TALK_RULES:
             if rx.search(norm):
+                if key == "talk_dream":
+                    st.uses["dream"] = st.turn
                 if key == "talk_tough":
                     st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": text, "turn": st.turn}
                 return self._pick(st, f"daily:{key}", d[key])
@@ -3086,6 +3122,10 @@ class Assistant:
         if le and st.turn - le.get("turn", -99) <= 2 and _AGREE.fullmatch(u.norm):
             # "yeah exactly" after ENGRAMM's question about the moment: stay with it, don't echo it
             key = "exp_agree_neg" if le.get("valence") == "negative" else "exp_agree_pos"
+            parts.append(_Part("main", self._pick(st, f"daily:{key}", self.bank.daily[key])))
+            return
+        if le and st.turn - le.get("turn", -99) <= 2 and re.match(r"(?:yeah|yes|yep|ya|yup|totally|exactly|it did|it really did)\b", u.norm):
+            key = "exp_agree_neg" if le.get("valence") == "negative" else "exp_agree_pos"     # "yeah it hurt"
             parts.append(_Part("main", self._pick(st, f"daily:{key}", self.bank.daily[key])))
             return
         if le and st.turn - le.get("turn", -99) <= 2 and len(words) <= 5 and \

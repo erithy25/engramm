@@ -1001,3 +1001,25 @@ def test_everyday_facts_are_right_or_honest(chat):
     assert "100" in r.text, r.text
     r = a.turn(st, "who invented the light bulb")
     assert "Edison" in r.text, r.text
+
+
+def test_battery31_small_talk(chat):
+    a, st = chat
+    r = a.turn(st, "not much u?")
+    assert "couldn't find" not in r.text, r.text
+    r = a.turn(st, "kinda hungry tho")
+    assert "ideas" in r.text.lower() or "eat" in r.text.lower(), r.text
+    a.turn(st, "idk what to eat")
+    r = a.turn(st, "maybe something sweet")
+    assert "•" in r.text, r.text
+    r = a.turn(st, "gotta go cook brb")
+    assert "Go on" not in r.text, r.text
+    r = a.turn(st, "my best friend forgot my birthday")
+    assert "great to hear" not in r.text, r.text
+    r = a.turn(st, "i had a really weird dream")
+    r = a.turn(st, "i was flying over my old school")
+    assert "How's that going" not in r.text, r.text
+    r = a.turn(st, "its raining all day")
+    assert "Got it" not in r.text, r.text
+    r = a.turn(st, "what can i do inside")
+    assert "•" in r.text, r.text

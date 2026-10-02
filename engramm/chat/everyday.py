@@ -109,7 +109,7 @@ _GENRES = {"sci-fi": "scifi", "scifi": "scifi", "science fiction": "scifi", "sci
            "relaxing": "cosy", "relaxed": "cosy", "relax": "cosy", "chill": "cosy", "calm": "cosy", "chilled": "cosy",
            "peaceful": "cosy", "low-key": "cosy",
            "two": "two", "2": "two", "two-player": "two", "coop": "two", "co-op": "two", "couples": "two",
-           "switch": "switch", "nintendo": "switch"}
+           "switch": "switch", "nintendo": "switch", "sweet": "sweet", "dessert": "sweet", "sugary": "sweet"}
 _ADVICE = re.compile(_LEAD + r"(?:so )?(?:what (?:should|can|could|do you think|would you suggest|would you recommend) i "
                      r"(?:do|say|try)(?: (?:about|with) (?P<about>.+?))?(?: now| then| next)?|what would you do(?: in my (?:place|shoes))?|"
                      r"i (?:don't|do not|dont) know (?:if|whether|what) (?:i should|to) (?:say|do|tell|talk)\b"
@@ -125,7 +125,7 @@ _ADVICE = re.compile(_LEAD + r"(?:so )?(?:what (?:should|can|could|do you think|
                      r"what am i supposed to do|i need (?:some )?advice|(?:so )?what do you think(?: about (?:it|that))?|"
                      r"should i(?: do it)?|is that a good idea|what do you think i should (?:do|say)"
                      r"(?: (?:about|with) (?P<about7>.+?))?|what do i do(?: now| about (?P<about8>.+))?)$")
-_DECIDE = [re.compile(_LEAD + r"(?:should (?:i|we)|do (?:i|we)|would you|what's better[,:]?|which is better[,:]?|"
+_DECIDE = [re.compile(_LEAD + r"(?:(?:do you think|what do you think,?|would you say) (?:i|we) should|should (?:i|we)|do (?:i|we)|would you|what's better[,:]?|which is better[,:]?|"
                       r"help me (?:decide|choose|pick)[,:]?) (?P<a>[^?]{2,40}?) or (?P<b>[^?]{2,40}?)$"),
            re.compile(_LEAD + r"(?:help me )?(?:decide|choose|pick) between (?P<a>[^?]{2,40}?) and (?P<b>[^?]{2,40}?)$"),
            re.compile(r"^(?P<a>[a-z][a-z' ]{1,20}) or (?P<b>[a-z][a-z' ]{1,20})$")]

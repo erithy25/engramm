@@ -107,6 +107,13 @@ intents:
       - "Just waiting for a good question! What's going on with you?"
     follow: ask_mood
 
+  - id: user_not_much
+    patterns: ['(not much|nothing much|nm|same old|same old same old|nothing really|not a lot|just chilling|chilling|chillin|all good)(,)? (and )?(you|u|hbu|wbu|yourself|with you)\\??']
+    examples: [not much you, nothing much and you, same old you]
+    responses:
+      - "Not much here either — just waiting for a good chat. Anything on your mind?"
+      - "Same here, just hanging out. What would you like to talk about?"
+
   - id: bot_state_back
     patterns: ['(and )?(you|how about you|what about you|and yourself|how about yourself|you\?|and how are you|how are you)']
     examples: [and you, how about you, what about you, and yourself]
@@ -351,7 +358,7 @@ intents:
       - "I can help with that: say “tell me a joke” or “tell me a fun fact”, or ask me about something you've always wondered about."
 
   - id: wait
-    patterns: ['(wait|hold on|hang on|one (sec|second|moment|minute)|just a (sec|second|moment|minute)|give me a (sec|second|moment|minute)|brb|be right back|back in a (sec|minute|bit)|let me think|let me see)']
+    patterns: ['(ok |okay )?(gotta go|got to go|going to|need to go) (cook|eat|shower|grab food|get food)( brb| quick| real quick)?|(wait|hold on|hang on|one (sec|second|moment|minute)|just a (sec|second|moment|minute)|give me a (sec|second|moment|minute)|brb|be right back|back in a (sec|minute|bit)|let me think|let me see)']
     examples: [wait, hold on, one sec, brb, let me think]
     responses:
       - "Sure, take your time."

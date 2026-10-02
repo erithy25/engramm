@@ -178,6 +178,21 @@
     "follow": "ask_mood"
    },
    {
+    "id": "user_not_much",
+    "patterns": [
+     "(not much|nothing much|nm|same old|same old same old|nothing really|not a lot|just chilling|chilling|chillin|all good)(,)? (and )?(you|u|hbu|wbu|yourself|with you)\\\\??"
+    ],
+    "examples": [
+     "not much you",
+     "nothing much and you",
+     "same old you"
+    ],
+    "responses": [
+     "Not much here either — just waiting for a good chat. Anything on your mind?",
+     "Same here, just hanging out. What would you like to talk about?"
+    ]
+   },
+   {
     "id": "bot_state_back",
     "patterns": [
      "(and )?(you|how about you|what about you|and yourself|how about yourself|you\\?|and how are you|how are you)"
@@ -706,7 +721,7 @@
    {
     "id": "wait",
     "patterns": [
-     "(wait|hold on|hang on|one (sec|second|moment|minute)|just a (sec|second|moment|minute)|give me a (sec|second|moment|minute)|brb|be right back|back in a (sec|minute|bit)|let me think|let me see)"
+     "(ok |okay )?(gotta go|got to go|going to|need to go) (cook|eat|shower|grab food|get food)( brb| quick| real quick)?|(wait|hold on|hang on|one (sec|second|moment|minute)|just a (sec|second|moment|minute)|give me a (sec|second|moment|minute)|brb|be right back|back in a (sec|minute|bit)|let me think|let me see)"
     ],
     "examples": [
      "wait",
@@ -5087,6 +5102,26 @@
      {
       "x": "a risotto, if you feel like stirring for twenty minutes",
       "de": "ein Risotto, wenn du Lust hast, zwanzig Minuten zu rühren"
+     },
+     {
+      "x": "pancakes with fruit and a drizzle of honey",
+      "de": "Pfannkuchen mit Obst und etwas Honig",
+      "tags": "sweet quick"
+     },
+     {
+      "x": "a two-minute chocolate mug cake in the microwave",
+      "de": "ein Zwei-Minuten-Schokoladen-Tassenkuchen aus der Mikrowelle",
+      "tags": "sweet quick"
+     },
+     {
+      "x": "yoghurt with berries, honey and a few nuts",
+      "de": "Joghurt mit Beeren, Honig und ein paar Nüssen",
+      "tags": "sweet healthy quick"
+     },
+     {
+      "x": "a banana with peanut butter and a square of dark chocolate",
+      "de": "eine Banane mit Erdnussbutter und einem Stück dunkler Schokolade",
+      "tags": "sweet quick"
      }
     ],
     "outro": "What are you in the mood for — something quick, healthy or comforting?",
@@ -6672,6 +6707,33 @@
    "Aww, that sounds adorable — and very cosy!",
    "Cute! Pets really know how to relax."
   ],
+  "talk_hungry": [
+   "Snack time! Want a few quick ideas?",
+   "Ooh, hungry — want me to suggest something quick to eat?"
+  ],
+  "talk_chill": [
+   "Nice, enjoy the downtime! Anything fun on?",
+   "Sounds relaxing. Watching anything good?"
+  ],
+  "talk_tasty": [
+   "Glad it was good! What did you make in the end?",
+   "Yum, glad you enjoyed it!"
+  ],
+  "talk_dream": [
+   "Ooh, tell me! What happened in it?",
+   "Weird dreams are the best stories. What was it about?"
+  ],
+  "talk_dream_more": [
+   "Ha, that sounds wild! Flying dreams are some of the most common ones — and old schools pop up in dreams all the time.",
+   "That's such a dream thing to happen! How did it feel?"
+  ],
+  "talk_weather_bad": [
+   "Ugh, a grey day. Perfect excuse to stay in with something cosy, though!",
+   "Rain all day can be such a mood. Got anything nice planned indoors?"
+  ],
+  "talk_weather_good": [
+   "Lovely! Are you getting out to enjoy it?"
+  ],
   "talk_must": [
    "Sure, go ahead — I'll be here.",
    "No problem, take your time."
@@ -6930,6 +6992,11 @@
     "q": "why do cats pur+",
     "a": "Cats mostly purr when they're relaxed and content, but also to calm themselves when stressed or hurt; the sound comes from rapid twitching of the muscles in the voice box.",
     "v": "contentment"
+   },
+   {
+    "q": "how long does it take to learn (?:a (?:new )?language|spanish|french|italian|portuguese|german|english)",
+    "a": "For everyday conversations, most people need roughly 6–12 months of regular practice. To reach a professional level, the US Foreign Service Institute estimates about 600–750 class hours for languages close to English like Spanish, French or Italian (German about 900).",
+    "v": "6–12 months"
    },
    {
     "q": "how many days (?:are )?(?:in|does) a leap year(?: have)?",
