@@ -294,7 +294,7 @@ intents:
 
   - id: compliment_bot
     patterns:
-      - '(you''re|you are|ur|u r|you''re so|you are so|you''re really|you are really|you''re very|you are very) (smart|clever|great|awesome|amazing|cool|nice|helpful|funny|kind|sweet|brilliant|the best|good|genius|a genius|wonderful|fantastic|intelligent|wise|cute|adorable|lovely|impressive)|(good|great|nice) (job|work|answer)|well done|you rock|i like you|i like talking to you|you''re my favou?rite|i''m impressed|you''re doing great|you did (great|well|good)'
+      - '(you''re|you are|ur|u r|you''re so|you are so|you''re really|you are really|you''re very|you are very) (smart|clever|great|awesome|amazing|cool|nice|helpful|funny|kind|sweet|brilliant|the best|good|genius|a genius|wonderful|fantastic|intelligent|wise|cute|adorable|lovely|impressive)|(good|great|nice) (job|work|answer)|well done|you rock|i like you|i like talking to you|you''re my favou?rite|i''m impressed|you''re doing great|you did (great|well|good)|(you''re|you are|ur) (a |such a |really a |a really )?(good|great) (listener|friend|company)|(you''re|you are) (so |really )?easy to talk to|you get me|you always know what to say'
     examples: [you're smart, you are awesome, good job, well done, you're the best, i like you, you're helpful]
     responses:
       - "Thank you, that's really kind of you!"

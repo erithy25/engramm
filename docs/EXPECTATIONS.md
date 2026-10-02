@@ -2287,6 +2287,15 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     „einer ist Vegetarier“ → „und als Nachtisch?“.
   - Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–48 und langes Gespräch: 0 Wiederholungen.
     Suite 722 bestanden, 7 übersprungen.
+- **Alltags-Batterie 50 (ein langes, gemischtes Gespräch mit 25 Zügen)**: Feierabend, lange Woche, Wochenende,
+  Wanderung, Oslo, Rechnen, Gedächtnis, Gute Nacht.
+  - Vorher 8 schwache Züge: „its been a long week“ → „I see. Tell me more?“; „yeah, lots of deadlines“ → „Mm-hm“; „but
+    tomorrow is friday“ → „Oh? Go on.“; „do you have any plans for the weekend?“ → Wissenssuche; Wandern: Reise- statt
+    Wander-Packliste, „how much water?“ → Kleidungszeile; „is it expensive?“ nach Oslo → unbekannt; „nice. ok, random
+    question: whats 18% of 250?“ → unbekannt; „you're a good listener“ → „Nice!“.
+  - Jetzt passt jeder Zug. Dazu „and what do i do?“ direkt nach „what's my name?“ → Beruf (vorher Ratschlags-Rückfrage).
+  - Wiederholungen 1 → 0. Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–49 und langes
+    Gespräch: 0 Wiederholungen. Suite 723 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

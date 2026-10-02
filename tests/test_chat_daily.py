@@ -1981,3 +1981,30 @@ def test_battery49_german_running_and_guests(chat):
     assert "Besuch" in a.turn(st2, "wir kriegen heute abend besuch").text
     assert "Gemüselasagne" in a.turn(st2, "einer ist vegetarier").text
     assert "Tiramisu" in a.turn(st2, "und als nachtisch?").text
+
+
+def test_battery50_long_week_hike_and_lead_ins(chat):
+    a, _ = chat
+    st = DialogState("n1")
+    r = a.turn(st, "its been a long week")
+    assert r.kind == "empathy" and "Tell me more?" not in r.text, r.text
+    r = a.turn(st, "yeah, lots of deadlines")
+    assert r.kind == "empathy", r.text
+    r = a.turn(st, "but tomorrow is friday")
+    assert "weekend" in r.text.lower(), r.text
+    r = a.turn(st, "do you have any plans for the weekend? lol")
+    assert r.kind == "smalltalk" and "you" in r.text.lower(), r.text
+    r = a.turn(st, "i might go hiking")
+    assert "hike" in r.text.lower() or "hiking" in r.text.lower(), r.text
+    assert "•" in a.turn(st, "any good hiking tips?").text
+    r = a.turn(st, "what should i bring?")
+    assert "Water" in r.text and "passport" not in r.text, r.text
+    assert "litre" in a.turn(st, "how much water?").text
+    r = a.turn(DialogState("n2"), "nice. ok, random question: whats 18% of 250?")
+    assert "45" in r.text, r.text
+    r = a.turn(DialogState("n3"), "you're a good listener")
+    assert r.text != "Nice!", r.text
+    st4 = DialogState("n4")
+    a.turn(st4, "i work as a designer")
+    a.turn(st4, "what's my name?")
+    assert "designer" in a.turn(st4, "and what do i do?").text

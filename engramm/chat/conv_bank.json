@@ -569,7 +569,7 @@
    {
     "id": "compliment_bot",
     "patterns": [
-     "(you're|you are|ur|u r|you're so|you are so|you're really|you are really|you're very|you are very) (smart|clever|great|awesome|amazing|cool|nice|helpful|funny|kind|sweet|brilliant|the best|good|genius|a genius|wonderful|fantastic|intelligent|wise|cute|adorable|lovely|impressive)|(good|great|nice) (job|work|answer)|well done|you rock|i like you|i like talking to you|you're my favou?rite|i'm impressed|you're doing great|you did (great|well|good)"
+     "(you're|you are|ur|u r|you're so|you are so|you're really|you are really|you're very|you are very) (smart|clever|great|awesome|amazing|cool|nice|helpful|funny|kind|sweet|brilliant|the best|good|genius|a genius|wonderful|fantastic|intelligent|wise|cute|adorable|lovely|impressive)|(good|great|nice) (job|work|answer)|well done|you rock|i like you|i like talking to you|you're my favou?rite|i'm impressed|you're doing great|you did (great|well|good)|(you're|you are|ur) (a |such a |really a |a really )?(good|great) (listener|friend|company)|(you're|you are) (so |really )?easy to talk to|you get me|you always know what to say"
     ],
     "examples": [
      "you're smart",
@@ -9913,7 +9913,18 @@
     "hong kong",
     "sydney",
     "copenhagen",
-    "stockholm"
+    "stockholm",
+    "oslo",
+    "norway",
+    "helsinki",
+    "reykjavik",
+    "reykjavík",
+    "iceland",
+    "zurich",
+    "geneva",
+    "switzerland",
+    "denmark",
+    "sweden"
    ]
   },
   "cost_says": {
@@ -10082,6 +10093,35 @@
   ],
   "todo_done_all": [
    "Nice, ticked off: {x}. ✅ That was everything on your list!"
+  ],
+  "long_week": [
+   "Oof, long weeks are draining. What made this one so long?",
+   "Ugh, one of those weeks. What's been keeping you so busy?"
+  ],
+  "deadlines": [
+   "Deadlines stacking up are the worst. At least you made it through, and the weekend is close!",
+   "That's a lot of pressure. Did you get most of it done?"
+  ],
+  "almost_weekend": [
+   "Yes! Almost there. 🎉 Any plans for the weekend?",
+   "Friday — the finish line is in sight! Doing anything nice this weekend?"
+  ],
+  "bot_weekend": [
+   "Ha, I'll be right here, reading Wikipedia and waiting for good questions. 😄 What about you, any plans?",
+   "Same as always: chatting and reading. My weekends are very relaxed! What are you up to?"
+  ],
+  "hike_plan": [
+   "Hiking sounds lovely! Do you know where yet, or still looking for a trail?",
+   "Oh nice, a hike! Fresh air after a long week is exactly right. Where are you thinking of going?"
+  ],
+  "hike_tips": [
+   "A few hiking basics:\n\n• Pick a route a bit shorter than you think, and check the weather in the morning\n• Start early, it's cooler and less crowded\n• Tell someone where you're going\n• Break in your shoes beforehand, no brand-new boots\n• Turn around if the weather turns: the mountain will still be there"
+  ],
+  "hike_bring": [
+   "For a day hike:\n\n• Water (plenty) and snacks, like nuts, a sandwich, fruit\n• Layers: a warm top and a rain jacket, even if it's sunny\n• Good shoes with grip\n• Sun cream, sunglasses, a cap\n• Phone with the map downloaded, plus a power bank\n• A small first-aid kit and plasters"
+  ],
+  "hike_water": [
+   "Roughly half a litre per hour of hiking, more when it's hot or steep. For a 4-hour hike, 2 litres is a good start."
   ]
  }
 }

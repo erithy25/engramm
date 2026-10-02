@@ -439,6 +439,20 @@ _DE_RUN_GO = re.compile(r"^(?:danke,? |ok,? |gut,? )*ich fang(?:e)? (?:morgen|he
 _DE_GUESTS = re.compile(r"^wir (?:kriegen|bekommen|haben) (?:heute abend |morgen |am wochenende )?(?:besuch|gäste)[.!]*$|^(?:heute abend )?kommen (?:freunde|gäste) zum essen[.!]*$")
 _DE_VEGGIE = re.compile(r"^(?:und )?(?:einer|eine|jemand|zwei) (?:davon )?(?:ist|sind|isst) (?:vegetarier(?:in)?|vegan|veganer(?:in)?|kein fleisch)[.!]*$")
 _DE_DESSERT = re.compile(r"^(?:und )?(?:als |zum )?(?:nachtisch|dessert|nachspeise)\??$|^(?:und )?was (?:gibt'?s|mache ich) (?:als|zum) (?:nachtisch|dessert)\??$")
+# battery 50: a long week, deadlines, almost Friday, ENGRAMM's weekend, a hike
+_LONG_WEEK = re.compile(r"^(?:ugh,? |man,? |honestly,? )?(?:it'?s|its|it has|this has|this) been (?:a |such a |one )?(?:really |very |super |so )?"
+                        r"(?:long|rough|tough|crazy|busy|hard|exhausting|hectic|stressful) (?:week|day|month)[.!]*$")
+_DEADLINES = re.compile(r"^(?:yeah,? |yes,? |ugh,? )?(?:so many|lots of|a lot of|too many|tons of|endless) (?:deadlines|meetings|projects|emails)"
+                        r"(?: at work)?[.!]*$|^(?:yeah,? )?(?:too much|so much|lots of) work[.!]*$")
+_ALMOST_WE = re.compile(r"^(?:but |at least |well,? |luckily,? )?(?:tomorrow is friday|it'?s (?:almost|nearly|finally) (?:the )?(?:weekend|friday)|tgif|"
+                        r"(?:only )?one more day(?: until the weekend)?|friday tomorrow)[.!]*$")
+_BOT_WEEKEND = re.compile(r"^(?:and |so )?(?:do|what do) you have (?:any )?plans (?:for|this) (?:the )?weekend(?: lol| haha)?\??$|"
+                          r"^what are you doing (?:this|for the) weekend\??$")
+_HIKE_PLAN = re.compile(r"^(?:i )?(?:might|will|want to|wanna|'m going to|am going to|plan to|'ll|think i'll|'m gonna|am gonna) "
+                        r"(?:go (?:hiking|on a hike|for a hike)|hike)(?: (?:this weekend|tomorrow|on saturday|on sunday))?[.!]*$")
+_HIKE_TIPS = re.compile(r"^(?:any )?(?:good )?(?:hiking tips|tips for (?:hiking|a hike|my hike))\??$")
+_BRING = re.compile(r"^(?:and |so )?what (?:should|do) i (?:bring|pack|take|carry)(?: with me)?\??$")
+_HOW_WATER = re.compile(r"^(?:and |so )?how much water(?: should i (?:bring|take|carry))?\??$")
 _WEAR = re.compile(r"^(?:(?:and|so|ok|okay|hmm|fine|alright|cool|sure)[.,!]? )?what (?:should|do|can|could) i wear(?: (?:to|for|on|in) "
                    r"(?:the |a |my |an )?(?P<x>[a-z ]+?))?(?: tomorrow| today| tonight)?\??$")
 _OCCASIONS = [("interview", re.compile(r"\binterview")), ("wedding", re.compile(r"\bwedding|\bmarr")),
@@ -1909,10 +1923,11 @@ class Assistant:
             msg = msg[lead.end():]                        # "ok whatever, tell me a joke": the request
         if self.speller is not None and "?" not in msg:
             msg = self._fix_typos(msg)                    # "a job interveiw tomorow": the words meant, before learning
-        react = re.match(r"^(?:cool|nice|wow|great|interesting|ok|okay|oh|ah|haha|lol|thanks|thank you|neat|awesome)[,!.]+\s+"
-                         r"(?=(?:who|what|when|where|why|how|which|is|are|was|were|do|does|did|can|could|tell)\b)", msg, re.I)
-        if react:
-            msg = msg[react.end():]                       # "cool, how big is mars?": the question
+        react = re.match(r"^(?P<r>(?:(?:cool|nice|wow|great|interesting|ok|okay|oh|ah|haha|lol|thanks|thank you|neat|awesome)[,!.]+\s+)*)"
+                         r"(?:(?:ok(?:ay)?|so|and)[,]?\s+)?(?P<q>(?:(?:a )?(?:random|quick|another|different|silly|weird) question[:,!.]?\s+)?)"
+                         r"(?=(?:who|what|whats|what's|when|where|why|how|which|is|are|was|were|do|does|did|can|could|tell)\b)", msg, re.I)
+        if react and (react.group("r") or react.group("q")):
+            msg = msg[react.end():]                       # "cool, how big is mars?", "ok, random question: what's …": the question
         if st.lang != "de":
             dc = self._daily_ctx(st, msg)                 # everyday context: a promotion, a week, a dish, a tournament
             if dc is not None:
@@ -3767,7 +3782,8 @@ class Assistant:
                     if dish["name"].lower() == x or dish["name"].lower().replace("homemade ", "") == x:
                         return self._dish_steps(st, msg, dish["name"])
         r2 = self._daily_ctx2(st, msg, norm) or self._daily_ctx3(st, msg, norm) or self._daily_ctx4(st, msg, norm) or \
-            self._daily_ctx5(st, msg, norm) or self._daily_ctx6(st, msg, norm) or self._daily_ctx7(st, msg, norm)
+            self._daily_ctx5(st, msg, norm) or self._daily_ctx6(st, msg, norm) or self._daily_ctx7(st, msg, norm) or \
+            self._daily_ctx8(st, msg, norm)
         if r2 is not None:
             return r2
         m = _WHAT_LIKES.match(norm)
@@ -4092,6 +4108,10 @@ class Assistant:
         d = self.bank.daily
         pt = st.uses.get("place_topic") or st.uses.get("trip")
         place = pt[0] if isinstance(pt, list) and st.turn - pt[1] <= 8 else None
+        tp = st.topic or {}
+        if tp.get("turn", -99) >= st.turn - 3 and (place is None or tp["turn"] > pt[1]) and \
+                any(tp.get("name", "").lower() in cities for cities in d["cost_level"].values()):
+            place, pt = tp["name"], [tp["name"], tp["turn"]]       # "is it expensive?" right after Oslo
         key = place.lower() if place else None
         if place:
             if _SEE_BARE.match(norm):
@@ -4308,6 +4328,43 @@ class Assistant:
                 left = [tx for tx in self.bot.user_texts().values() if re.match(r"^I need to\s+", tx)]
                 key = "todo_done" if left else "todo_done_all"
                 return Reply(msg, "memory", self._pick(st, f"daily:{key}", d[key], x=re.sub(r"\bmy\b", "your", hit[1])), via="memory")
+        return None
+
+    def _daily_ctx8(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 50: the rhythm of a real chat — a long week, deadlines, "tomorrow is Friday", ENGRAMM's own
+        weekend, and a hike (tips, what to bring, how much water)."""
+        d = self.bank.daily
+        if re.fullmatch(r"(?:and |so )?what do i do for (?:a living|work|my job)\??", norm) or \
+                (re.fullmatch(r"(?:and |so )?what do i do(?: again)?\??", norm) and st.uses.get("last_via") == "facts"
+                 and st.uses.get("last_via_turn") == st.turn - 1):
+            rep = self._turn(st, "what's my job?")       # "what's my name again? — and what do I do?": the job
+            rep.message = msg
+            return rep
+        if _LONG_WEEK.match(norm):
+            st.uses["long_week"] = st.turn
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg + " tired", "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "daily:long_week", d["long_week"]), via="empathy")
+        lw = st.uses.get("long_week")
+        if lw is not None and st.turn - lw <= 3 and _DEADLINES.match(norm):
+            st.uses["long_week"] = st.turn
+            return Reply(msg, "empathy", self._pick(st, "daily:deadlines", d["deadlines"]), via="empathy")
+        if _ALMOST_WE.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:almost_weekend", d["almost_weekend"]), via="smalltalk")
+        if _BOT_WEEKEND.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:bot_weekend", d["bot_weekend"]), via="smalltalk")
+        if _HIKE_PLAN.match(norm):
+            st.uses["hike"] = st.turn
+            return Reply(msg, "smalltalk", self._pick(st, "daily:hike_plan", d["hike_plan"]), via="empathy")
+        hk = st.uses.get("hike")
+        if _HIKE_TIPS.match(norm) or (hk is not None and st.turn - hk <= 4 and re.fullmatch(r"(?:any )?(?:good )?tips\??", norm)):
+            st.uses["hike"] = st.turn
+            return Reply(msg, "smalltalk", self._pick(st, "daily:hike_tips", d["hike_tips"]), via="everyday")
+        if hk is not None and st.turn - hk <= 4:
+            if _BRING.match(norm):
+                st.uses["hike"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:hike_bring", d["hike_bring"]), via="everyday")
+            if _HOW_WATER.match(norm):
+                return Reply(msg, "smalltalk", self._pick(st, "daily:hike_water", d["hike_water"]), via="everyday")
         return None
 
     def _person_name(self, noun: str) -> str | None:
