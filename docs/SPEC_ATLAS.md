@@ -155,7 +155,8 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
 | Standard | 1,5 Mio. Artikelanfänge, 1 Mio. Faktenbank-Einträge, voller Regal-Index (626 MB), Wegweiser | **2,73 GB** in 37 Dateien (größte: post.npy 584 MB, doc_post.npy 438 MB, kb.sqlite 406 MB, corpus.u16 392 MB) | ≤ 4,5 GB — eingehalten |
 
 Bauzeit auf GitHub-Runnern: Lite 63 min, Standard 49 min. Lite im Container gemessen: Spitzen-RSS 555 MB,
-p95 0,093 s (Schwellen ≤ 1,5 GB / ≤ 1,5 s eingehalten); 4-GB-VM und Standard-Paket noch offen. Die Installer jenes Laufs wurden abgebrochen, weil ein gleichzeitiger Push den
+p95 0,093 s; Standard aus dem Release: Spitzen-RSS 1.053 MB, p95 0,174 s (Schwellen ≤ 1,5 GB / ≤ 1,5 s
+eingehalten; alle 36 Dateien gegen das Manifest geprüft). Offen: die 4-GB-VM. Die Installer jenes Laufs wurden abgebrochen, weil ein gleichzeitiger Push den
 Installer-Job aus der gemeinsamen Concurrency-Gruppe verdrängte; seitdem hat der aus dem Release
 aufgerufene Desktop-Bau eine eigene Gruppe, und `release/request.json` kann mit `reuse_run` die Pakete
 eines früheren Laufs übernehmen und nur die Installer neu bauen.

@@ -2056,3 +2056,8 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
   Schwellen aus dem Plan (A2): RAM ≤ 1,5 GB, p95 ≤ 1,5 s offline — beide eingehalten. Offen: dieselbe Messung
   auf der 4-GB-VM und mit dem Standard-Paket (2,73 GB Download; nicht in diesem Container gemessen).
+- **RAM und Antwortzeit, Standard-Paket** (aus dem Release `pack-standard-v3.1.0-beta.1` geladen, alle 36 Dateien
+  gegen Manifest-Größe und SHA-256 geprüft; gleicher Container, gleiche 120 Nachrichten): Laden 9,3 s; p50 0,001 s,
+  **p95 0,174 s**, Maximum 6,1 s (die erste Textsuche nach dem Start, kalte Index-Dateien); **Spitzen-RSS 1.053 MB**.
+  Schwellen (RAM ≤ 1,5 GB, p95 ≤ 1,5 s) eingehalten. Wissensbatterie 30 gibt mit dem Standard-Paket dieselben
+  Antworten wie mit dem Lite-Paket. Offen bleibt nur die 4-GB-VM.
