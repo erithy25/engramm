@@ -3066,3 +3066,30 @@ def test_battery77_third_knowledge_sample(chat):
     for i, (q, want) in enumerate(cases):
         r = a.turn(DialogState(f"k77-{i}"), q)
         assert want in r.text and "Nigeria" not in r.text, (q, r.text)
+
+
+def test_battery78_a_whole_evening_in_one_chat(chat):
+    a, _ = chat
+    st = DialogState("e78")
+    a.turn(st, "hey")
+    assert a.turn(st, "i'm good, a bit tired. you?").text.startswith("I'm good, thanks!")
+    r = a.turn(st, "my manager changed the deadline again")
+    assert r.kind == "empathy" and "plan" in r.text, r.text
+    assert "200 °C" in a.turn(st, "how long does chicken take in the oven?").text
+    a.turn(st, "do you like paris?")
+    assert "What" in a.turn(st, "i was there last year").text
+    r = a.turn(st, "the food was amazing")
+    assert "Noted" not in r.text, r.text
+    a.turn(st, "i think i'll watch a movie later")
+    r = a.turn(st, "any recommendations?")
+    assert "opinions" not in r.text and "“" in r.text, r.text
+    st = DialogState("g78")
+    a.turn(st, "hallo")
+    assert "Mir geht's gut" in a.turn(st, "gut, bisschen müde. und dir?").text
+    assert a.turn(st, "egal, was soll ich heute essen?").kind != "unknown"
+    assert "Hähnchen" in a.turn(st, "was mit hähnchen").text
+    a.turn(st, "warst du schon mal in paris?")
+    r = a.turn(st, "ich war letztes jahr dort")
+    assert "Highlight" in r.text or "gefallen" in r.text, r.text
+    a.turn(st, "ich glaub ich schau später einen film")
+    assert "„" in a.turn(st, "hast du tipps?").text

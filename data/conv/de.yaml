@@ -891,3 +891,13 @@ daily:
       verpasst: ["Oh nein, verpasst? Das ist so ärgerlich. Wann kommt der nächste?"]
       nicht_ganz: ["Danke, dass du ehrlich bist. Was ist los?", "Das ist okay – du musst nicht gut drauf sein. Magst du erzählen?"]
       ironie_arbeit: ["Ha, die Begeisterung spür ich bis hierher. 😅 Ist es gerade viel?"]
+    g78:
+      haehnchen: ["Ein paar Ideen mit Hähnchen:\n\n• Hähnchen-Fajitas mit Paprika und Zwiebeln\n• Zitronen-Knoblauch-Hähnchen mit Ofenkartoffeln\n• Ein schnelles Hähnchen-Curry mit Reis\n\nWas davon klingt gut?"]
+      paris: ["Ich war nie irgendwo – ich lese nur. Aber über {x} lese ich viel: Museen, Cafés, das Essen … klingt wunderbar. Warst du schon dort?"]
+      dort: ["Oh schön! Was hat dir am besten gefallen?", "Wie toll! Was war das Highlight?"]
+      essen_war: ["Oh, lecker! Was war das Beste, was du gegessen hast?", "Schön! Gibt's ein Gericht, an das du heute noch denkst?"]
+      film_plan: ["Gute Idee! Weißt du schon, welchen?", "Schön, ein Filmabend! Schon eine Idee, was es wird?"]
+      film_tipps: ["Ein paar Filme zum Lachen: „Grand Budapest Hotel“, „Paddington 2“, „Hot Fuzz“ oder „Ziemlich beste Freunde“. Soll ich noch mehr vorschlagen?"]
+      film_tipps_allg: ["Ein paar Filmtipps: „Ziemlich beste Freunde“, „Inception“, „Das Leben der Anderen“ oder „Paddington 2“. Eher lustig, spannend oder zum Nachdenken?"]
+      muede_du: ["Mir geht's gut, danke! Müde Tage sind zäh – war viel los?"]
+      alter_bau: ["{x} ist rund {n} Jahre alt – fertiggestellt wurde er {y}."]

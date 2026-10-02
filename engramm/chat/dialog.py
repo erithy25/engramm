@@ -991,7 +991,8 @@ class Assistant:
         if re.search(r"\b(?:nochmal|noch mal|gleich nochmal|eigentlich)\b", s) and "?" in msg:
             msg = re.sub(r"\s+", " ", re.sub(r"\b(?:gleich nochmal|nochmal|noch mal|eigentlich)\b", "", msg, flags=re.I)).strip()
             s = normalise_de(msg)                         # "wie heiße ich nochmal?": the question itself
-        lead = re.sub(r"^(?:(?:haha+|hihi+|hehe+|lol|ok(?:ay)?|na gut|gut|cool|super|alles klar|achso|ach so|krass|echt|witzig)[ ,!.]+)+", "", s)
+        lead = re.sub(r"^(?:(?:haha+|hihi+|hehe+|lol|ok(?:ay)?|na gut|gut|cool|super|alles klar|achso|ach so|krass|echt|witzig|egal|naja|na ja|"
+                      r"jedenfalls|wie auch immer|übrigens|apropos)[ ,!.]+)+", "", s)
         if lead != s and len(lead.split()) >= 3:          # "haha ok, was ist die hauptstadt von kanada?": the question
             msg, s = lead, lead
         u = understand(msg, de)
@@ -1271,6 +1272,52 @@ class Assistant:
             return None
         q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", s)).strip(" .!?")
         say = lambda key: Reply(msg, "smalltalk", self._pick(st, f"de:g74:{key}", g[key]), via="german")   # noqa: E731
+        g8 = (self.bank.de["daily"].get("ctx") or {}).get("g78") or {}
+        say8 = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:g78:{key}", g8[key], **kw), via="german")   # noqa: E731
+        if g8 and re.fullmatch(r"(?:gut,? |ganz gut,? |geht,? )?(?:ein )?(?:bisschen|bissl|etwas|leicht|total|echt|so) müde,? (?:und )?(?:dir|du|selbst|bei dir)", q):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "de:g78:muede_du", g8["muede_du"]), via="german")
+        if g8 and re.fullmatch(r"(?:was|etwas|irgendwas|vielleicht was) mit (?:hähnchen|huhn|hühnchen|hühnerfleisch|chicken)", q):
+            return say8("haehnchen")
+        bauten = {"eiffelturm": ("the eiffel tower", "der Eiffelturm"), "kolosseum": ("the colosseum", "das Kolosseum"),
+                  "freiheitsstatue": ("the statue of liberty", "die Freiheitsstatue"), "brandenburger tor": ("the brandenburg gate", "das Brandenburger Tor"),
+                  "kölner dom": ("cologne cathedral", "der Kölner Dom"), "schloss neuschwanstein": ("neuschwanstein castle", "das Schloss Neuschwanstein"),
+                  "big ben": ("big ben", "Big Ben"), "taj mahal": ("the taj mahal", "das Taj Mahal"), "empire state building": ("the empire state building", "das Empire State Building")}
+        am = re.fullmatch(r"(?:und )?wie alt ist (?:der |die |das )?(?P<x>" + "|".join(bauten) + r")(?: eigentlich| denn)?", q)
+        if g8 and am:
+            en, de = bauten[am.group("x")]
+            got = self._age_built(st, en)
+            if got:
+                _x, age, year = got
+                text = self._pick(st, "de:g78:alter_bau", g8["alter_bau"], x=de[:1].upper() + de[1:], n=str(age), y=str(year))
+                if not de.startswith("der "):
+                    text = text.replace(" wurde er ", " wurde es " if de.startswith("das ") else " wurde sie ")
+                return Reply(msg, "answer", text, via="kb")
+        staedte = {"paris": "Paris", "rom": "Rom", "london": "London", "berlin": "Berlin", "wien": "Wien", "prag": "Prag", "barcelona": "Barcelona",
+                   "lissabon": "Lissabon", "amsterdam": "Amsterdam", "new york": "New York", "tokio": "Tokio", "venedig": "Venedig", "münchen": "München"}
+        cm = re.fullmatch(r"(?:warst du (?:schon )?(?:mal |einmal )?in|magst du|wie findest du|kennst du) (?P<x>" + "|".join(staedte) + r")", q)
+        if g8 and cm:
+            st.uses["city78"] = [cm.group("x"), st.turn]
+            return say8("paris", x=staedte[cm.group("x")])
+        c78 = st.uses.get("city78")
+        if g8 and c78 and st.turn - c78[1] <= 4 and re.fullmatch(r"(?:ja,? )?ich war (?:letztes jahr|letzten sommer|im sommer|vor \w+ jahren|schon mal|schon \w+ mal|"
+                                                                 r"letzten monat|\d{4}) (?:dort|da)|(?:ja,? )?ich war (?:dort|da) (?:letztes jahr|schon mal|\d{4})", q):
+            st.uses["city78"] = [c78[0], st.turn]
+            return say8("dort")
+        if g8 and re.fullmatch(r"das essen (?:dort |da )?war (?:so |echt |richtig |total |mega )?(?:super|lecker|toll|großartig|fantastisch|der hammer|klasse|genial)", q):
+            return say8("essen_war")
+        if g8 and re.fullmatch(r"(?:ich (?:glaub|glaube|denke),? )?ich (?:schau|schaue|guck|gucke|seh|sehe) (?:mir )?(?:später|heute abend|nachher|gleich|heute) "
+                               r"(?:noch )?(?:einen|nen|'nen) film(?: an)?", q):
+            st.uses["movie78de"] = st.turn
+            return say8("film_plan")
+        mvd = st.uses.get("movie78de")
+        if g8 and mvd is not None and st.turn - mvd <= 3:
+            if re.fullmatch(r"(?:hast du |irgendwelche |ein paar )?(?:tipps|ideen|empfehlungen|vorschläge)|was soll ich (?:mir )?(?:anschauen|schauen|gucken)", q):
+                st.uses["movie78de"] = st.turn
+                return say8("film_tipps_allg")
+            if re.fullmatch(r"(?:was|etwas|irgendwas) (?:lustiges|witziges|leichtes)|eine komödie|(?:eher )?lustig", q):
+                st.uses["movie78de"] = st.turn
+                return say8("film_tipps")
         g6 = (self.bank.de["daily"].get("ctx") or {}).get("g76") or {}
         sar_de = r"(?:na )?(?:toll|super|klasse|prima|großartig|perfekt|wunderbar|na prima|na super|na klasse|na toll),? "
         if g6 and re.fullmatch(sar_de + r"(?:schon wieder |mal wieder |wieder )?(?:regen|es regnet(?: schon wieder)?)(?: heute)?", q):
@@ -1281,7 +1328,9 @@ class Assistant:
             return Reply(msg, "empathy", self._pick(st, "de:g76:kaputt", g6["kaputt"]), via="german")
         if g6 and re.fullmatch(r"(?:" + sar_de + r")?(?:ich habe|ich hab|hab) (?:den |meinen |die |meine )?(?:zug|bus|bahn|flug|anschluss) verpasst", q):
             return Reply(msg, "empathy", self._pick(st, "de:g76:verpasst", g6["verpasst"]), via="german")
-        if g6 and re.fullmatch(r"(?:naja|na ja|hm+|ehrlich gesagt|eigentlich),? (?:nicht so ganz|nicht wirklich|nicht so|geht so|eher nicht)", q):
+        if g6 and (re.fullmatch(r"(?:naja|na ja|hm+|ehrlich gesagt|eigentlich),? (?:nicht so ganz|nicht wirklich|nicht so|geht so|eher nicht)", q) or
+                   (re.fullmatch(r"nicht so ganz|nicht wirklich|eher nicht", q) and
+                    re.search(r"\b(?:gut|okay|ok|passt|bestens)\b", (st.last_message or "").lower()))):
             st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
             return Reply(msg, "empathy", self._pick(st, "de:g76:nicht_ganz", g6["nicht_ganz"]), via="german")
         if g6 and re.fullmatch(sar_de + r"(?:noch )?mehr arbeit", q):
@@ -3067,6 +3116,9 @@ class Assistant:
                 de_again = (self.bank.de or {}).get("daily", {}).get("unknown_again") if st.lang == "de" else None
                 rep.text = self._pick(st, "de:unknown_again" if de_again else "daily:unknown_again",
                                       de_again or self.bank.daily["unknown_again"])
+        tail = re.search(r"\s+(I'm good, thanks!|I'm doing well, thanks!)$", rep.text or "")
+        if tail and len(rep.text) > len(tail.group(0)) + 10:
+            rep.text = tail.group(1) + " " + rep.text[:tail.start()].strip()   # "…an early night? I'm good, thanks!": the answer to "you?" first
         if rep.text and rep.kind in ("answer", "about", "tool") and rep.text in st.recent and \
                 (len(rep.text) > 80 or re.search(r"\b(?:again|nochmal|noch mal)\b", message, re.I)) and \
                 rep.via not in ("facts", "memory", "facts-bank") and normalise(message) != normalise(st.last_message or ""):
@@ -5166,7 +5218,7 @@ class Assistant:
                                                      r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
             # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
             return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
-        evr = self._sounds(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
+        evr = self._sounds(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
             self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
@@ -6081,6 +6133,66 @@ class Assistant:
                 return Reply(msg, "smalltalk", self._pick(st, "daily:sound:gib_sorry", self.bank.daily["sounds"]["gib_sorry"]), via="smalltalk")
             return None
         return Reply(msg, "smalltalk", self._pick(st, f"daily:sound:{key}", self.bank.daily["sounds"][key]), via="smalltalk")
+
+    def _age_built(self, st: DialogState, name: str) -> tuple[str, int, int] | None:
+        """"How old is the Eiffel Tower?": the year it was completed, and its age now."""
+        rep = self._question(st, f"when was {name} built?")
+        m = re.search(r"\b(1\d{3}|20\d\d)\b", (rep.text or "") if rep.kind == "answer" else "")
+        now = self._now()
+        year_now = now.year if now else __import__("datetime").date.today().year
+        if not m or int(m.group(1)) > year_now:
+            return None
+        subject = re.match(r"(.+?) was (?:completed|built|finished|opened|constructed)", rep.text or "")
+        return (subject.group(1) if subject else name), year_now - int(m.group(1)), int(m.group(1))
+
+    def _daily_ctx22(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 78: a whole evening in one chat — a moved deadline, chicken in the oven, "how old is the Eiffel
+        Tower?" from the year it was built, "do you like Paris?", "I was there last year" / "the food was amazing",
+        and "any recommendations?" after "I'll watch a movie later"."""
+        b = self.bank.daily["b78"]
+        n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", norm)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b78:{key}", b[key], **kw), via="smalltalk")  # noqa: E731
+        if re.search(r"\b(?:my |the )?(?:manager|boss|client|team lead|teacher|professor)\b.*\b(?:changed|moved|pushed|shifted|brought forward)\b.*\bdeadline\b|"
+                     r"\bdeadline (?:got |was )?(?:changed|moved|pushed|shifted) (?:again|forward|back|up)\b", n):
+            st.last_exp = {"valence": "negative", "topic": "work", "person": True, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "daily:b78:deadline", b["deadline"]), via="empathy")
+        if re.fullmatch(r"how long (?:does|do|should) (?:a |the )?(?:chicken|chicken breasts?|chicken thighs?|drumsticks?) (?:take|need|cook|bake|roast)(?: to cook| to bake)?"
+                        r"(?: in the oven)?|how long (?:do|should) i (?:cook|bake|roast) (?:a |the )?chicken(?: breasts?| thighs?)?(?: in the oven)?", n):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b78:chicken_oven", b["chicken_oven"]), via="everyday")
+        m = re.fullmatch(r"(?:btw |by the way |and |so )?how old is (?P<x>the eiffel tower|the colosseum|the statue of liberty|the golden gate bridge|big ben|"
+                         r"the brandenburg gate|the sydney opera house|the empire state building|the leaning tower of pisa|the tower bridge|cologne cathedral|"
+                         r"the burj khalifa|the taj mahal|notre dame|the berlin wall|stonehenge|the great wall of china|neuschwanstein castle)", n)
+        if m:
+            got = self._age_built(st, m.group("x"))
+            if got:
+                x, age, year = got
+                return Reply(msg, "answer", self._pick(st, "daily:b78:age_built", b["age_built"], x=x, n=str(age), y=str(year)), via="kb")
+        m = re.fullmatch(r"(?:do you like|have you been to|have you ever been to|what do you think of|what do you think about) (?P<x>[a-z ]{3,25})", n)
+        known_city = {"paris", "rome", "london", "berlin", "madrid", "lisbon", "vienna", "prague", "amsterdam", "barcelona", "athens", "new york", "tokyo",
+                      "munich", "hamburg", "venice", "florence", "istanbul", "dublin", "copenhagen", "stockholm", "budapest", "zurich", "sydney"}
+        if m and m.group("x") in known_city:
+            st.uses["city78"] = [m.group("x"), st.turn]
+            return say("like_city", x=" ".join(w.capitalize() for w in m.group("x").split()))
+        c78 = st.uses.get("city78") or st.uses.get("city74")
+        trip_recent = c78 and st.turn - c78[1] <= 4
+        if trip_recent and re.fullmatch(r"(?:yes,? |yeah,? )?i (?:was|went) there (?:last|this|in) (?:year|summer|month|spring|autumn|winter|\d{4})|"
+                                        r"(?:yes,? |yeah,? )?i(?:'ve| have) been (?:there )?(?:once|twice|a few times|before)", n):
+            st.uses["city78"] = [c78[0], st.turn]
+            return say("was_there")
+        if re.fullmatch(r"the food (?:there )?was (?:so |really |absolutely )?(?:amazing|great|incredible|delicious|fantastic|awesome|so good|insane)", n):
+            return say("food_was")
+        if re.fullmatch(r"i (?:think i'?ll|might|will|want to|wanna|am going to|'m going to) watch (?:a |some )?(?:movie|film)(?: later| tonight| today)?", n):
+            st.uses["movie78"] = st.turn
+            return None
+        mv = st.uses.get("movie78")
+        if mv is not None and st.turn - mv <= 3:
+            if re.fullmatch(r"(?:any |got any )?(?:recommendations|suggestions|ideas|tips)|(?:what|which) (?:one )?should i watch|recommend (?:one|something)", n):
+                st.uses["movie78"] = st.turn
+                return self._turn(st, "recommend a movie")
+            if re.fullmatch(r"something (?:funny|light|lighthearted)|(?:a )?(?:comedy|funny one)", n):
+                st.uses["movie78"] = st.turn
+                return self._turn(st, "recommend a funny movie")
+        return None
 
     def _money75(self, st: DialogState, msg: str, n: str, de: bool = False) -> Reply | None:
         """Battery 75: a tip, a discount, a bill split — everyday sums people ask for."""

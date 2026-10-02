@@ -6509,6 +6509,38 @@
      "ironie_arbeit": [
       "Ha, die Begeisterung spür ich bis hierher. 😅 Ist es gerade viel?"
      ]
+    },
+    "g78": {
+     "haehnchen": [
+      "Ein paar Ideen mit Hähnchen:\n\n• Hähnchen-Fajitas mit Paprika und Zwiebeln\n• Zitronen-Knoblauch-Hähnchen mit Ofenkartoffeln\n• Ein schnelles Hähnchen-Curry mit Reis\n\nWas davon klingt gut?"
+     ],
+     "paris": [
+      "Ich war nie irgendwo – ich lese nur. Aber über {x} lese ich viel: Museen, Cafés, das Essen … klingt wunderbar. Warst du schon dort?"
+     ],
+     "dort": [
+      "Oh schön! Was hat dir am besten gefallen?",
+      "Wie toll! Was war das Highlight?"
+     ],
+     "essen_war": [
+      "Oh, lecker! Was war das Beste, was du gegessen hast?",
+      "Schön! Gibt's ein Gericht, an das du heute noch denkst?"
+     ],
+     "film_plan": [
+      "Gute Idee! Weißt du schon, welchen?",
+      "Schön, ein Filmabend! Schon eine Idee, was es wird?"
+     ],
+     "film_tipps": [
+      "Ein paar Filme zum Lachen: „Grand Budapest Hotel“, „Paddington 2“, „Hot Fuzz“ oder „Ziemlich beste Freunde“. Soll ich noch mehr vorschlagen?"
+     ],
+     "film_tipps_allg": [
+      "Ein paar Filmtipps: „Ziemlich beste Freunde“, „Inception“, „Das Leben der Anderen“ oder „Paddington 2“. Eher lustig, spannend oder zum Nachdenken?"
+     ],
+     "muede_du": [
+      "Mir geht's gut, danke! Müde Tage sind zäh – war viel los?"
+     ],
+     "alter_bau": [
+      "{x} ist rund {n} Jahre alt – fertiggestellt wurde er {y}."
+     ]
     }
    }
   }
@@ -13055,6 +13087,33 @@
    "dumb": [
     "Sometimes, I know! I'm a small offline program and I do make mistakes. Tell me what went wrong and I'll try to do better.",
     "Fair question — I get things wrong sometimes. What did I mess up?"
+   ]
+  },
+  "b78": {
+   "deadline": [
+    "Ugh, moving deadlines are the worst — it's hard to plan anything. Did it get earlier or later?",
+    "Again? That makes it so hard to plan. Is the new date even realistic?"
+   ],
+   "like_city": [
+    "I've never been anywhere, but from everything I've read about {x} — the food, the museums, the streets — I think I'd love it. Have you been?"
+   ],
+   "was_there": [
+    "Oh nice! What did you like most?",
+    "How lovely! What was the highlight?"
+   ],
+   "food_was": [
+    "Oh, nice! What was the best thing you ate?",
+    "Love that! Any dish you still think about?"
+   ],
+   "movie_rec": [
+    "A few funny ones: “The Grand Budapest Hotel”, “Superbad”, “Paddington 2” and “Hot Fuzz”. Want something else?"
+   ],
+   "chicken_oven": [
+    "In the oven at about 200 °C: chicken breast 20–25 minutes, thighs or drumsticks 35–45 minutes, a whole chicken about 1¼–1½ hours. It's done at 75 °C in the thickest part — or when the juices run clear."
+   ],
+   "age_built": [
+    "{x} is about {n} years old — it was completed in {y}.",
+    "It's about {n} years old: {x} was finished in {y}."
    ]
   }
  }

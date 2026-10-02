@@ -2740,3 +2740,11 @@ b76:
   fine_really: ["Okay, I believe you. 🙂 I'm here if that changes.", "Got it — no pressure. I'm here if you need me."]
   not_fine: ["Thanks for being honest. What's going on?", "That's okay — you don't have to be fine. Want to tell me what's up?"]
   dumb: ["Sometimes, I know! I'm a small offline program and I do make mistakes. Tell me what went wrong and I'll try to do better.", "Fair question — I get things wrong sometimes. What did I mess up?"]
+b78:
+  deadline: ["Ugh, moving deadlines are the worst — it's hard to plan anything. Did it get earlier or later?", "Again? That makes it so hard to plan. Is the new date even realistic?"]
+  like_city: ["I've never been anywhere, but from everything I've read about {x} — the food, the museums, the streets — I think I'd love it. Have you been?"]
+  was_there: ["Oh nice! What did you like most?", "How lovely! What was the highlight?"]
+  food_was: ["Oh, nice! What was the best thing you ate?", "Love that! Any dish you still think about?"]
+  movie_rec: ["A few funny ones: “The Grand Budapest Hotel”, “Superbad”, “Paddington 2” and “Hot Fuzz”. Want something else?"]
+  chicken_oven: ["In the oven at about 200 °C: chicken breast 20–25 minutes, thighs or drumsticks 35–45 minutes, a whole chicken about 1¼–1½ hours. It's done at 75 °C in the thickest part — or when the juices run clear."]
+  age_built: ["{x} is about {n} years old — it was completed in {y}.", "It's about {n} years old: {x} was finished in {y}."]

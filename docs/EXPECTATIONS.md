@@ -2727,6 +2727,21 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Batterien 71/72 danach unverändert (39/0/1, 38/0/2). Zusammen 120 feste Wissensfragen: 117 richtig, 0 falsch, 3 offen.
   Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 768 bestanden, Regressionen 32, 38–76: 0 Wiederholungen;
   Unterschiede nur Uhrzeiten. Skript: `scratchpad/kq77.py`.
+- **Alltags-Batterie 78 (ein ganzer Abend in einem Gespräch, 24 Turns Englisch, 19 Turns Deutsch)**:
+  - „i'm good, a bit tired. you?“ → die Antwort auf „you?“ stand am Ende („… early night? I'm good, thanks!“); jetzt vorne.
+  - „how old is the eiffel tower?“ (vorher „I don't know for sure“) → aus dem Baujahr berechnet: „about 137 years old — it was
+    completed in 1889“ (mit der Uhr des Rechners; auch deutsch „wie alt ist der eiffelturm?“); „how long does chicken take
+    in the oven?“, „my manager changed the deadline again“.
+  - „do you like paris?“ (vorher Artikelanfang mit „I don't have opinions“), „i was there last year“ (vorher als Fakt
+    gespeichert), „the food was amazing“ (vorher „Noted: amazing — yum!“); „any recommendations?“ nach „i'll watch a movie
+    later“ (vorher „I try not to have opinions“) → Filmtipps, „something funny“ → Komödien statt eines Witzes.
+  - Deutsch: „gut, bisschen müde. und dir?“ (vorher nur „Müdigkeit ist fies“), „egal, was soll ich heute essen?“ (vorher
+    Rückfallantwort – „egal,“ vorne störte), „was mit hähnchen“, „warst du schon mal in paris?“, „ich war letztes jahr dort“,
+    „das essen war super“, Filmabend mit Tipps (vorher „Zerleg es: Was ist der allernächste kleine Schritt?“).
+  - Das neue Abschneiden von „naja,“ machte aus „naja, nicht so ganz“ (Batterie 76) eine Rückfallantwort – ein Test schlug
+    an; „nicht so ganz“ nach „mir gehts gut“ wird jetzt erkannt.
+  - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 769 bestanden, Regressionen 32, 38–78 (45 Gespräche):
+    0 Wiederholungen; Unterschiede nur Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
