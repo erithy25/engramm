@@ -783,3 +783,5 @@ daily:
       katze_hund: ["Beide haben was! Hunde sind treue Clowns, Katzen unabhängige Mitbewohner. Und du – Team Katze oder Team Hund?"]
       person: ["Team {x}! Hast du eine{n} zu Hause?"]
       reden: ["Ja, auf meine Art schon – Gespräche wie dieses sind das Schönste an dem, was ich mache.", "Ja! Dafür bin ich da, und ich mag es, wenn wir plaudern."]
+    g69:
+      ausschlafen: ["Ausschlafen ist so unterschätzt! 😴 Genieß es. Und danach – was Gemütliches oder raus an die Luft?"]

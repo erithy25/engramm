@@ -2594,6 +2594,23 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - Deutsch: „und sonst so?“, „magst du katzen oder hunde lieber?“ (vorher Rückfallantworten), „ich bin ein Katzenmensch“.
   - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 758 bestanden, Regressionen 32, 38–68 plus Gegenproben
     (37 Gespräche): 0 Wiederholungen; Unterschiede: neue Lieblings-Antworten (Batterien 58, 62, long), Uhrzeiten.
+- **Alltags-Batterie 69 (echte, unordentliche Nachrichten: Slang, Emojis, Doppelfragen, Rückbezüge)**:
+  - „im good hbu“ (vorher „Great! Ask me anything“, die Rückfrage überhört) → „I'm doing well, thanks for asking“.
+  - „wait what was the height again?“ (vorher „I don't know“) fragt die frühere Frage noch einmal – bei einer Doppelfrage
+    („how tall … and when was it built?“) nur den passenden Teil; ohne frühere Frage eine Rückfrage statt „Zürich was the
+    name again.“ (vorher, unsinnig).
+  - „what about food?“ nach Reisetipps für Paris (vorher Kochrezepte für zu Hause) → Essen in Paris; zehn Städte, sonst
+    ein allgemeiner Tipp. „merci!“ (vorher „Oh? Go on.“) → „De rien !“.
+  - „ugh monday again 😩“ (vorher „what happened?“) → Montags-Antwort; Emojis stören die Muster nicht mehr (auch das
+    deutsche „hab heute frei 🎉“, vorher Rückfallantwort). „i hate mondays“ bleibt eine gemerkte Abneigung.
+  - „my boss keeps giving me extra tasks“ (vorher „Oh really? Tell me more“, als Fakt gespeichert) → Mitgefühl;
+    „idk what to do“ (vorher „sleep on it“) und „what should i do?“ (vorher Freizeitideen wie „ein langes Bad“) → Rat zur
+    Prioritätenliste mit dem Chef; „that helps“ direkt danach → „Glad it helps!“ (sonst die bisherigen Dank-Antworten).
+  - „i'm good at math, you?“ (vorher „You haven't told me that yet“) wird gemerkt und beantwortet.
+  - „ja endlich mal ausschlafen“ nach dem freien Tag (vorher Rückfallantwort); die erste Fassung ersetzte den vorhandenen
+    Freier-Tag-Ablauf (Batterie 47 fand es: die Ideen auf „was könnte ich machen?“ fehlten) – zurückgenommen, jetzt eingehängt.
+  - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 759 bestanden, Regressionen 32, 38–69 plus Gegenproben
+    (39 Gespräche): 0 Wiederholungen; Unterschiede nur Uhrzeiten (Batterie 60).
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

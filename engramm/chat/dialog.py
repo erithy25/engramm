@@ -1246,6 +1246,12 @@ class Assistant:
             return None
         q = s.strip(" .!?")
         say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:g68:{key}", g[key], **kw), via="german")  # noqa: E731
+        g9 = (self.bank.de["daily"].get("ctx") or {}).get("g69") or {}
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", q)).strip()
+        fr = st.uses.get("day_off_de")
+        if g9 and re.search(r"\bausschlafen\b", q) and fr is not None and st.turn - fr <= 3:
+            st.uses["day_off_de"] = st.turn
+            return Reply(msg, "smalltalk", self._pick(st, "de:g69:ausschlafen", g9["ausschlafen"]), via="german")
         if re.fullmatch(r"(?:und )?(?:sonst so|was gibt'?s neues|was gibts neues|alles klar bei dir|was geht bei dir|und bei dir so)", q):
             return say("sonst")
         bf = st.uses.get("de_bot_fav")
@@ -1718,7 +1724,8 @@ class Assistant:
                                    r"(?:ich )?(?:konnte|kann) nicht abschalten|gedankenkarussell|(?:mein )?kopf (?:war|ist) zu voll", q):
             st.last_exp = dict(le0, turn=st.turn)
             return Reply(msg, "empathy", self._pick(st, "de:ctx:racing", dc["racing"]), via="german")
-        if re.fullmatch(r"(?:ich )?(?:hab|habe) (?:heute|morgen|endlich|diese woche) (?:frei|urlaub|keinen termin)|heute ist mein freier tag", q):
+        if re.fullmatch(r"(?:ich )?(?:hab|habe) (?:heute|morgen|endlich|diese woche) (?:frei|urlaub|keinen termin)|heute ist mein freier tag",
+                        re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", q)).strip()):
             st.uses["day_off_de"] = st.turn
             return Reply(msg, "smalltalk", self._pick(st, "de:ctx:day_off", dc["day_off"]), via="german")
         do = st.uses.get("day_off_de")
@@ -4819,7 +4826,7 @@ class Assistant:
                                                      r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
             # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
             return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
-        evr = self._sounds(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
+        evr = self._sounds(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
             self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
@@ -5734,6 +5741,84 @@ class Assistant:
                 return Reply(msg, "smalltalk", self._pick(st, "daily:sound:gib_sorry", self.bank.daily["sounds"]["gib_sorry"]), via="smalltalk")
             return None
         return Reply(msg, "smalltalk", self._pick(st, f"daily:sound:{key}", self.bank.daily["sounds"][key]), via="smalltalk")
+
+    def _daily_ctx19(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 69: messy real messages — "im good hbu" answered both ways, "what was the height again?" asked
+        again from the questions so far, "what about food?" after tips for a trip, "merci!", "ugh monday again",
+        a boss piling on tasks with advice on "idk what to do", and "that helps"."""
+        b = self.bank.daily["b69"]
+        n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',%&-]", " ", norm)).strip(" .!?")      # "ugh monday again 😩": the words
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b69:{key}", b[key], **kw), via="smalltalk")  # noqa: E731
+        qh = st.uses.setdefault("qh69", [])
+        if st.last_q and (not qh or qh[-1] != st.last_q) and not re.search(r"\bagain\b", st.last_q):
+            qh.append(st.last_q)
+            del qh[:-8]
+        if re.match(r"(?:what|whats|what's|who|when|where|how|which)\b", n) and not re.search(r"\b(?:again|it|its|they|them|he|she|there|that)\b", n) \
+                and (not qh or qh[-1] != n + "?"):
+            qh.append(n + "?")                      # "what's the tallest mountain in europe?" answered before the question path
+            del qh[:-8]
+        tm = re.search(r"make a trip to (?P<p>[A-Z][\w' -]+?) easier", st.last_reply or "")
+        if tm:
+            st.uses["trip69"] = [tm.group("p"), st.turn]
+        if re.fullmatch(r"(?:i'?m |im |i am |all )?(?:good|fine|great|ok|okay|alright|not bad|pretty good|doing good|doing well|doing fine|good good)"
+                        r"(?:,? thanks| thx| ty|,? thank you)?,? (?:and )?(?:hbu|wbu|you|u|how about you|what about you|how are you|how r u|"
+                        r"and you|you\?|yourself)", n):
+            return say("good_hbu")
+        am = re.fullmatch(r"(?:wait,? |sorry,? |so,? |um,? |uh,? |hm+,? )?what (?:was|is|were) (?:the |its |it'?s )?(?P<a>height|population|"
+                          r"architect|designer|year|date|age|name|capital|distance|area|size|length)(?: again)?(?:,? sorry)?", n)
+        if am and "again" in n:
+            keys = {"height": r"\btall|\bheight|\bhigh\b", "population": r"how many people|population|\blive\b", "architect": r"design|architect|built by",
+                    "designer": r"design|architect", "year": r"\bwhen\b|\byear\b", "date": r"\bwhen\b|\bdate\b", "age": r"how old|\bage\b",
+                    "name": r"\bname\b|\bcalled\b", "capital": r"\bcapital\b", "distance": r"how far|distance", "area": r"\barea\b|how big",
+                    "size": r"how big|\bsize\b", "length": r"how long|\blength\b"}
+            if not any(re.search(keys[am.group("a")], q, re.I) for q in qh):
+                return Reply(msg, "clarify", self._pick(st, "daily:b69:again_what", b["again_what"], x=am.group("a")), via="clarify")
+            for q in reversed(qh):
+                if re.search(keys[am.group("a")], q, re.I):
+                    parts = re.split(r" and (?=(?:who|what|when|where|how|which)\b)", q.rstrip("?"))
+                    part = next((x for x in parts if re.search(keys[am.group("a")], x, re.I)), q)
+                    if part is not q and len(parts) > 1 and re.search(r"\b(?:it|its|they|he|she)\b", part) and \
+                            (ent := re.search(r"\b(?:is|was|are|were|does|did) (the [a-z ]+?|[A-Z][\w ]+?)(?: and | high| tall|$)", parts[0])):
+                        part = re.sub(r"\b(?:it|they|he|she)\b", ent.group(1), part, count=1)
+                    return self._turn(st, part.strip() + "?")
+        ga = re.fullmatch(r"(?:i'?m|im|i am) (?:really |pretty |quite |very |kinda |kind of )?good at (?P<x>[a-z][a-z ]{1,30}?)"
+                          r"(?:,? (?:you|u|wbu|hbu|and you|what about you|how about you))?", n)
+        if ga and ga.group("x") not in ("it", "that", "this", "everything", "nothing", "lying"):
+            self._learn(st, [f"I am good at {ga.group('x')}."], msg)
+            return Reply(msg, "learned", self._pick(st, "daily:b69:good_at", b["good_at"], x=ga.group("x")), via="memory")
+        tr = st.uses.get("trip69")
+        if tr and st.turn - tr[1] <= 4 and re.fullmatch(r"(?:and |ok,? |okay,? )?(?:what about (?:the )?food|food tips|(?:and )?food|"
+                                                        r"what should i eat(?: there)?|where should i eat|any food tips|what'?s good to eat(?: there)?)", n):
+            key = tr[0].lower()
+            if key in b["trip_food"]:
+                return Reply(msg, "smalltalk", self._pick(st, f"daily:b69:food:{key}", b["trip_food"][key]), via="smalltalk")
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b69:food:other", b["trip_food"]["other"], x=tr[0]), via="smalltalk")
+        ft = re.fullmatch(r"(merci|gracias|grazie|danke|obrigado|obrigada|arigato)(?: beaucoup| mille| schön| sehr| gozaimasu)?", n)
+        if ft:
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:b69:thx:{ft.group(1)}", b["foreign_thanks"][ft.group(1)]), via="smalltalk")
+        if re.fullmatch(r"(?:ugh+|urgh|meh|oh no|nooo+|ahh+)?,? ?(?:it'?s )?monday(?: again| already| morning)?|mondays(?: suck| are the worst)?|"
+                        r"(?:ugh+ )?another monday", n):
+            return say("monday")
+        if re.search(r"\bmy (?:boss|manager|supervisor|team lead)(?: just)? (?:keeps |always |constantly )?(?:giving|gives|gave|dumping|dumps|piling|piles|"
+                     r"throwing|throws)(?: me)?(?: even)? (?:extra|more|so many|too many|additional|new)? ?(?:tasks|work|projects|stuff|things|jobs)\b", n) or \
+                re.fullmatch(r"(?:i have |i've got |i got )?(?:way )?(?:too much|so much) work(?: at work)?|i'?m (?:so )?(?:overloaded|swamped|"
+                             r"drowning in work)(?: at work)?", n):
+            st.uses["work69"] = st.turn
+            st.last_exp = {"valence": "negative", "topic": "work", "person": True, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "daily:b69:workload", b["workload"]), via="empathy")
+        wk = st.uses.get("work69")
+        if wk is not None and st.turn - wk <= 4 and re.fullmatch(r"(?:i )?(?:idk|don'?t know|dunno|have no idea) what (?:to do|i should do)|"
+                                                                 r"what (?:should|can|do) i do(?: about it)?|any (?:advice|tips|ideas)|"
+                                                                 r"what would you do|(?:yes|yeah|yep|definitely|totally),? (?:it'?s )?(?:too much|way too much)?", n):
+            st.uses.pop("work69")
+            st.uses["adv69"] = st.turn
+            st.offer = None
+            return say("workload_advice")
+        if re.fullmatch(r"(?:ok(?:ay)?,? |oh,? |wow,? )?(?:thanks?(?: you)?,? |thx,? |ty,? )?(?:that|this|it) (?:really |actually )?(?:helps|helped|"
+                        r"is helpful|was helpful|is really helpful)(?: a lot)?(?:,? thanks?(?: you)?|,? thx|,? ty)?|(?:thanks?,? )?(?:good|great) advice(?:,? thanks?)?|"
+                        r"(?:thanks?,? )?(?:very|super|really) helpful(?:,? thanks?)?", n) and st.turn - st.uses.get("adv69", -99) <= 3:
+            return say("helps")
+        return None
 
     def _daily_ctx18(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 68: a relaxed chat — "not much, you?" answered first, ENGRAMM's own favourites with a reason

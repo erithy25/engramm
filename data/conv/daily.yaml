@@ -2611,3 +2611,33 @@ b68:
   my_name: ["I'm ENGRAMM!", "It's ENGRAMM. Nice that you asked!"]
   bored_idk: ["No worries. How about one of these: a joke, a fun fact, a quick quiz, or I help you plan something for later?"]
   bored_nah: ["No pressure — sometimes doing nothing is fine too. I'm here if something comes to mind."]
+b69:
+  good_hbu: ["Glad to hear it! I'm good too, thanks — what's on your mind today?", "Nice! I'm doing well, thanks for asking. What are you up to?"]
+  trip_food:
+    paris: ["Food in Paris: a fresh croissant or pain au chocolat from a boulangerie in the morning, a croque monsieur or steak frites in a bistro, crêpes from a street stand, and macarons or an éclair from a pâtisserie. Tip: the menu du jour at lunch is much cheaper than dinner."]
+    rome: ["Food in Rome: carbonara, cacio e pepe and amatriciana in a trattoria, pizza al taglio by the slice, supplì (fried rice balls) and gelato. Coffee at the bar counter is cheaper than at a table."]
+    london: ["Food in London: fish and chips, a full English breakfast, Sunday roast in a pub, and the curries on Brick Lane. Borough Market is great for tasting a bit of everything."]
+    barcelona: ["Food in Barcelona: tapas like patatas bravas and croquetas, pan con tomate, paella by the sea, and churros with chocolate. Dinner starts late — 9 pm is normal."]
+    lisbon: ["Food in Lisbon: pastéis de nata (Pastéis de Belém is the famous spot), grilled sardines, bacalhau and a bifana sandwich. Try a ginjinha, the cherry liqueur."]
+    berlin: ["Food in Berlin: currywurst, döner kebab (Berlin claims it), a big breakfast brunch on the weekend, and lots of great Vietnamese food."]
+    vienna: ["Food in Vienna: Wiener Schnitzel, Sachertorte in a classic café, apple strudel, and a sausage from a Würstelstand late at night."]
+    amsterdam: ["Food in Amsterdam: stroopwafels fresh from the market, bitterballen with a beer, raw herring if you're brave, and Dutch pancakes."]
+    tokyo: ["Food in Tokyo: sushi at a counter, ramen, yakitori under the train tracks, and onigiri from any convenience store — they're surprisingly good. Tipping isn't expected."]
+    new york: ["Food in New York: a slice of pizza folded in half, a bagel with cream cheese, pastrami at a deli, and a hot dog from a street cart."]
+    other: ["My best food tip for {x}: eat where the locals eat — small places a street away from the big sights, local markets, and the lunch menus, which are usually cheaper than dinner."]
+  foreign_thanks:
+    merci: ["De rien ! 😊 Your French is off to a great start."]
+    gracias: ["¡De nada! 😊"]
+    grazie: ["Prego! 😊"]
+    danke: ["Bitte schön! 😊"]
+    obrigado: ["De nada! 😊"]
+    obrigada: ["De nada! 😊"]
+    arigato: ["Dō itashimashite! 😊"]
+  monday: ["Mondays, huh. 😩 Rough start, or just the usual Monday feeling?", "Ah, the Monday blues. Is it work, or just getting going again after the weekend?"]
+  workload: ["That's exhausting — when extra tasks keep piling up, it feels like you can never catch up. Is it more than you can realistically handle right now?",
+             "Ugh, that's a lot. Constant extra tasks wear you down fast. Does your boss know how much is already on your plate?"]
+  workload_advice: ["Here's what often helps:\n\n• Make a quick list of everything on your plate, with rough time estimates.\n• Take it to your boss and ask: “Which of these matters most? If I take on the new task, what can wait?”\n• That makes the overload visible without sounding like a complaint — and the priorities become their decision, not your stress.\n\nWant help wording it?"]
+  again_what: ["Sorry — the {x} of what? Remind me and I'll answer.", "Hmm, the {x} of what exactly? Tell me again and I'll look it up."]
+  good_at: ["Nice — {x}! I'll remember that. I'm handy with facts and numbers, so if you ever want a sparring partner, ask away.",
+            "Cool, {x}! I'll keep that in mind. Me? I'm good at looking things up and doing quick maths."]
+  helps: ["Glad it helps! I'm here if you want to talk it through more.", "Happy to help — good luck with it!"]

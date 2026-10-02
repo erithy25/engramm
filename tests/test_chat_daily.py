@@ -2841,3 +2841,37 @@ def test_battery68_relaxed_chat_opinions_and_follow_ups(chat):
     a.turn(st, "was ist dein lieblingsfilm?")
     assert "DeLorean" in a.turn(st, "warum?").text
     assert "Team Katze" in a.turn(st, "magst du katzen oder hunde lieber?").text
+
+
+def test_battery69_messy_real_messages(chat):
+    a, _ = chat
+    st = DialogState("h69")
+    a.turn(st, "heyyy 😊")
+    r = a.turn(st, "im good hbu")
+    assert "I'm" in r.text and ("good" in r.text or "well" in r.text), r.text
+    st = DialogState("e69")
+    a.turn(st, "what's the tallest mountain in europe?")
+    a.turn(st, "tell me a joke")
+    r = a.turn(st, "wait what was the height again?")
+    assert "5,642" in r.text, r.text
+    r = a.turn(DialogState("n69"), "what was the name again?")
+    assert r.kind == "clarify", r.text
+    st = DialogState("p69")
+    a.turn(st, "i'm going to paris next week!!")
+    a.turn(st, "any tips?")
+    assert "croissant" in a.turn(st, "what about food?").text
+    a.turn(st, "how do i say thank you in french?")
+    assert "De rien" in a.turn(st, "merci!").text
+    st = DialogState("w69")
+    assert "Monday" in a.turn(st, "ugh monday again 😩").text
+    a.turn(st, "yeah work")
+    r = a.turn(st, "my boss keeps giving me extra tasks")
+    assert r.kind == "empathy" and "tell me more" not in r.text.lower(), r.text
+    assert "list" in a.turn(st, "idk what to do").text
+    assert a.turn(st, "ok thanks, that helps").text.startswith(("Glad it helps", "Happy to help"))
+    assert not a.turn(DialogState("s69"), "that helps me sleep").text.startswith(("Glad it helps", "Happy to help"))
+    r = a.turn(DialogState("g69"), "i'm good at math, you?")
+    assert "haven't told me" not in r.text and "math" in r.text, r.text
+    st = DialogState("d69")
+    assert "frei" in a.turn(st, "hab heute frei 🎉").text
+    assert "Ausschlafen" in a.turn(st, "ja endlich mal ausschlafen").text
