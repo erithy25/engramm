@@ -169,6 +169,7 @@ class Atlas:
             except EgressError:
                 docs = []
             from engramm.web.shelf import best_sentences
+            self.last_docs = docs                    # the whole articles, for rules that read further
             got = best_sentences(question, docs, n=14, context=True)
             for _, text, d, prev in got:
                 rows.append((text, {"kind": "shelf", "source": "wikipedia", "key": d["t"], "title": d["t"],

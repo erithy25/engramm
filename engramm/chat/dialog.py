@@ -916,8 +916,29 @@ class Assistant:
         topic = self._named_topic(rep.resolved or text)
         if topic:
             st.uses["q_topic"] = [topic, st.turn]
-        if rep.kind == "answer" and rep.via == "lookup" and _implausible(rep.resolved or text, rep.answer, rep.evidence):
+        if rep.kind == "answer" and rep.via == "lookup" and _implausible(rep.resolved or text, rep.answer, rep.evidence,
+                                                                          _src_title(rep.source), self._before(rep)):
             rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None
+        if rep.kind == "answer" and rep.via == "lookup" and self._wrong_kind(rep.resolved or text, rep.answer):
+            rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None
+        if rep.kind == "answer" and rep.via == "lookup" and _WINNER_Q.match(rep.resolved or text) and not any(
+                rep.answer.lower() in next(g for g in m.groups() if g).lower()
+                for m in _WINNER_RX.finditer(rep.evidence or "")):
+            rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None   # "Rajasthan Royals" for the Champions League
+        if topic and _WINNER_Q.match(rep.resolved or text):
+            docs = self.about.titles.lookup(topic)
+            if docs:
+                lo, hi = self.bot.c.doc_sentences(docs[0])
+                src0 = {"kind": "wikipedia", "title": topic, "key": topic,
+                        "url": "https://en.wikipedia.org/wiki/" + topic.replace(" ", "_")}
+                yrs = re.findall(r"\b(?:1[5-9]|20)\d\d\b", rep.resolved or text)
+                win = None if (yrs and not any(y in topic for y in yrs)) else \
+                    _winner_from([(self.bot.c.sentence_text(i), src0) for i in range(lo, hi)], topic)
+                if win is not None:
+                    rep.kind, rep.answer, rep.guess, rep.evidence, rep.source = "answer", win[0], win[0], win[1], win[2]
+                    rep.via, rep.confidence = "lookup", 1.0
+                elif rep.kind == "answer" and rep.source and rep.source.get("title") != topic:
+                    rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None
         gap = self._topic_gap(st, topic, rep)
         if gap is not None and atlas_on:
             later = self._atlas_answer(st, text)
@@ -1257,6 +1278,67 @@ class Assistant:
                      source={"kind": "wikipedia", "title": title, "key": title,
                              "url": "https://en.wikipedia.org/wiki/" + title.replace(" ", "_")}, via="lookup")
 
+    def _shelf_topic(self, q: str) -> str | None:
+        """The article a question names, by the shelf's title index (all of Wikipedia): "who won the
+        2023 rugby world cup" → "2023 Rugby World Cup"; also with the year moved to the front."""
+        shelf = getattr(self.atlas, "shelf", None) if self.atlas is not None else None
+        if shelf is None or getattr(shelf, "index", None) is None:
+            return None
+        words = re.findall(r"[A-Za-z0-9][\w'’-]*", q)
+        for size in range(min(6, len(words)), 1, -1):
+            for i in range(len(words) - size + 1):
+                gram = words[i:i + size]
+                if gram[0].lower() in _TOPIC_EDGE or gram[-1].lower() in _TOPIC_EDGE:
+                    continue
+                forms = [" ".join(gram)]
+                year = next((w for w in (gram[0], gram[-1]) if re.fullmatch(r"(?:1[5-9]|20)\d\d", w)), None)
+                if year:
+                    rest = [w for w in gram if w != year]
+                    for f in ([year] + rest, [year, "FIFA"] + rest, [year, "UEFA"] + rest, ["UEFA"] + rest + [year],
+                              [year] + rest + ["Championships"], [year] + rest + ["Championship"]):
+                        forms.append(" ".join(f))                 # "wimbledon 2023" → "2023 Wimbledon Championships"
+                for f in forms:
+                    try:
+                        d = shelf.index.lookup(f)
+                    except Exception:
+                        d = None
+                    if d is not None:
+                        return shelf.index.title(d)
+        return None
+
+    def _before(self, rep: Reply) -> str:
+        """The sentence before the evidence in its article ("Bell … telephone. He was born in Edinburgh.")."""
+        rows = getattr(self.bot, "last_rows", None) or []
+        if not rows or rows[0][3] != rep.evidence or rows[0][2] is None or rows[0][2] <= 0:
+            return ""
+        sid = int(rows[0][2])
+        c = self.bot.c
+        try:
+            if int(c.sent_doc[sid - 1]) != int(c.sent_doc[sid]):
+                return ""
+            return c.sentence_text(sid - 1)
+        except Exception:
+            return ""
+
+    def _wrong_kind(self, q: str, answer: str | None) -> bool:
+        """"Who won the marathon?" — "Los Angeles": a place (by the fact bank) is no "who"."""
+        if not answer or self.kgqa is None or not re.match(r"^\s*who\b", q, re.I):
+            return False
+        try:
+            hits = self.kgqa.kb.link(answer, limit=1)
+        except Exception:
+            return False
+        if not hits or hits[0][1] != 0:
+            return False
+        kind = hits[0][0].type or ""
+        if kind in (_PLACE_TYPES - {"Country"}) | _THING_TYPES:
+            return True
+        # a company or a party is no author, painter, director or president
+        return kind in _ORG_TYPES and bool(re.search(r"\b(?:author|writer|wrote|written|painted|painter|directed|director|"
+                                                      r"composed|composer|sang|singer|ceo|president|king|queen|husband|"
+                                                      r"wife|married|born|died|invented|inventor|discovered|man|woman|"
+                                                      r"person)\b", q, re.I))
+
     def _named_topic(self, q: str) -> str | None:
         """The article a question names, as the fact bank titles it: "who won the world cup 2022?"
         → "2022 FIFA World Cup". Only names of two or more words that are in the reading count."""
@@ -1334,6 +1416,11 @@ class Assistant:
         bot = self.bot
         q = bot.resolve(" ".join(text.split()))
         names = [m.group(0) for m in _CAPS_SPAN.finditer(q) if not q.startswith(m.group(0)) or " " in m.group(0)]
+        topic_kb, topic_shelf = self._named_topic(q), self._shelf_topic(q)
+        # the more specific name wins: "2023 Rugby World Cup" (shelf) over "Rugby World Cup" (fact bank)
+        topic = max([t for t in (topic_kb, topic_shelf) if t], key=lambda t: len(t.split()), default=None)
+        if topic:
+            names.insert(0, topic)                       # "world cup 2022" → fetch "2022 FIFA World Cup"
         if st.topic and st.topic.get("name") and st.turn - st.topic.get("turn", -99) <= 3:
             names.append(st.topic["name"])
         try:
@@ -1344,12 +1431,35 @@ class Assistant:
             return None
         ctx = dict(bot.context)
         bot.extra_rows, bot.extra_calib = rows, getattr(self.atlas, "calib", None)
+        bot.extra_only = bool(topic) and any(_on_topic(topic, r[1], r[0]) for r in rows)
         try:
             rep = bot._answer(q)
         finally:
-            bot.extra_rows, bot.extra_calib = [], None
+            bot.extra_rows, bot.extra_calib, bot.extra_only = [], None, False
         src = rep.source or {}
+        win = None
+        if _WINNER_Q.match(q):
+            full = list(rows)
+            for d in getattr(self.atlas, "last_docs", None) or []:
+                src_d = {"kind": "shelf", "source": "wikipedia", "key": d["t"], "title": d["t"], "as_of": d.get("d", "")}
+                full += [(x, src_d) for x in re.split(r"(?<=[.!?])\s+", d.get("x", "")) if 20 < len(x) < 600]
+            years = re.findall(r"\b(?:1[5-9]|20)\d\d\b", q)
+            if not (years and topic and not any(y in topic for y in years)):   # "Super Bowl" for 2024: all editions
+                win = _winner_from(full, topic)
+        if win is not None:
+            rep.kind, rep.answer, rep.guess, rep.evidence, rep.source = "answer", win[0], win[0], win[1], win[2]
+            rep.confidence = max(rep.confidence, 1.0)
+            src = rep.source
+        elif _WINNER_Q.match(q):
+            rep.kind = "unknown"                          # the span extractor guesses badly here: quote instead
         if rep.kind != "answer" or src.get("kind") not in ("shelf", "feed", "web"):
+            quote = self._atlas_quote(st, text, q, rep, names)
+            if quote is None:
+                bot.context = ctx
+            return quote
+        if win is None and (_implausible(q, rep.answer, rep.evidence, _src_title(src)) or not _on_topic(topic, src, rep.evidence)
+                            or self._wrong_kind(q, rep.answer)):
+            # "West Indies won the world cup 2022" from the T20 article: not this topic, not an answer
             quote = self._atlas_quote(st, text, q, rep, names)
             if quote is None:
                 bot.context = ctx
@@ -2181,6 +2291,9 @@ _HOW_Q = re.compile(r"^\s*how (?:do|does|did|can|could|should|would|to|is|are|wa
                     r"long|tall|high|big|large|deep|wide|heavy|fast|often)\b)", re.I)
 _ROLE_Q = re.compile(r"^\s*who(?:'s| is| was| are| were)\s+(?:the\s+)?(?P<role>(?:current |new |present |former |first )?"
                      r"[a-z][a-z -]{1,40}?) (?:of|at|for) (?P<x>.+?)\s*\??$", re.I)
+_ROLE_NOUNS = frozenset("""ceo president king queen minister chancellor mayor founder owner leader coach manager captain
+head director chairman chairwoman chair governor secretary pope emperor empress author writer singer drummer guitarist
+wife husband boss pm premier prince princess editor principal dean commander general chief officer""".split())
 _ROLE_SYN = {"ceo": ["ceo", "chief executive"], "chief executive": ["ceo", "chief executive"],
              "pm": ["prime minister"], "prime minister": ["prime minister", "premier"],
              "head": ["head", "leader", "chief"], "boss": ["ceo", "chief executive", "head", "boss"],
@@ -2206,7 +2319,136 @@ def _place_case(text: str) -> str:
     return " ".join(out)
 
 
-def _implausible(q: str, answer: str | None, evidence: str | None) -> bool:
+_NAME_RX = r"(?:the )?[A-Z][\w'’.-]+(?: (?:of |de |van |von |and )?[A-Z][\w'’.-]+){0,3}"
+_NOT_MAIN = r"(?!(?:repechage|qualif\w*|group|play-?offs?|pool|preliminary|regional|junior|youth|opening|toss|bid|"
+_NOT_MAIN += r"right|vote|first|second|third|match|game|semi-?finals?|quarter-?finals?)\b)"
+# (pattern, weight): the final and the title count most, a plain "won the tournament" less
+_WINNER_PATTERNS = [
+    (rf"(?P<w>{_NAME_RX}) (?:were|was|are|is) crowned (?:the )?(?:\w+ )?(?:champions?|winners?)", 3),
+    (rf"(?i:in the final|in the championship match|in the title match),? (?P<w>{_NAME_RX}) (?:defeated|beat|overcame)", 3),
+    (rf"(?P<w>{_NAME_RX}) won .{{0,40}}?,? (?:claiming|securing|winning|taking|earning) (?:their|its|his|her) "
+     rf"(?:\w+ )?(?i:world cup|world title|title|championship|crown|cup)\b", 3),
+    (rf"(?P<w>{_NAME_RX}) went on to win the (?:\w+ )?(?i:tournament|title|cup|championship|final|competition)\b", 3),
+    (rf"(?P<w>{_NAME_RX}) won the (?:overall |general )(?:classification|title|standings)\b", 3),
+    (rf"(?P<w>{_NAME_RX}) (?:defeated|beat|overcame) .{{3,70}}? in the final", 3),
+    (rf"(?P<w>{_NAME_RX}) (?:retained|defended|claimed|clinched|secured|won) (?:the|their|its|his|her) "
+     rf"(?:\w+ )?(?:title|crown|championship)\b", 3),
+    (rf"(?P<w>{_NAME_RX}) won the final\b", 3),
+    (rf"(?i:the final|the title|the tournament|the race|the championship|the cup|the competition|the edition) "
+     rf"(?:is|was) won by (?P<w>{_NAME_RX})", 2),
+    (rf"(?P<w>{_NAME_RX}) won (?:the|their|its|his|her) {_NOT_MAIN}(?:\w+ )?(?i:tournament|cup|competition|race|"
+     rf"event|gold medal|trophy)\b", 2),
+    (rf"(?P<w>{_NAME_RX}) (?:became|were|was) (?:the )?(?:\w+ )?(?:champions?|winners?) (?:for the|after|by)", 2),
+]
+_WINNER_RX = re.compile("|".join(f"(?:{p})".replace("(?P<w>", f"(?P<w{i}>") for i, (p, _) in enumerate(_WINNER_PATTERNS)))
+_WINNER_W = [w for _, w in _WINNER_PATTERNS]
+_WINNER_Q = re.compile(r"^\s*who (?:won|wins|win|was the winner of|is the winner of|were the winners of|"
+                       r"became champions? (?:of|at))\b", re.I)
+
+
+def _winner_from(rows, topic: str | None):
+    """"Who won the 2022 World Cup?": the name that the topic's own sentences say won — "Argentina were
+    crowned the champions", "Argentina won the final" — counted; (name, best sentence, source) or None."""
+    if not topic:
+        return None
+    votes: Counter = Counter()
+    first: dict = {}
+    tyears = set(re.findall(r"\b(?:1[5-9]|20)\d\d\b", topic))
+    for row in rows:
+        text, src = row[0], row[1]
+        if not _on_topic(topic, src, text):
+            continue
+        for m in _WINNER_RX.finditer(text):
+            near = set(re.findall(r"\b(?:1[5-9]|20)\d\d\b", text[max(0, m.start() - 40):m.end() + 40]))
+            if tyears and near and not near & tyears:
+                continue                              # "West Germany won the 1990 final": another edition
+            i, w = next((k, g) for k, g in enumerate(m.groups()) if g)
+            w = re.sub(r"^(?:the|In|After|Then|However|Finally) ", "", w)
+            if w.lower() in {"it", "he", "she", "they", "this", "the", "who", "in"} or w.lower() in topic.lower():
+                continue
+            votes[w] += _WINNER_W[i]
+            if _WINNER_W[i] >= 3 or w not in first:
+                first[w] = (text, src)
+    if not votes:
+        return None
+    (best, n), *rest = votes.most_common(2) + [(None, 0)]
+    if (rest and rest[0][1] == n) or n < 2:
+        return None                                   # two different "winners", or one weak hint: no answer
+    return best, first[best][0], first[best][1]
+
+
+def _src_title(src: dict | None) -> str:
+    src = src or {}
+    return re.sub(r"\s*\((?:infobox|[^)]*)\)$", "", str(src.get("title") or src.get("key") or ""))
+
+
+def _on_topic(topic: str | None, src: dict, evidence: str | None) -> bool:
+    """A question that names an article is answered from that article or a sentence that names it."""
+    if not topic:
+        return True
+    bare = re.sub(r"\s*\([^)]*\)$", "", topic).lower()
+    title = re.sub(r"\s*\([^)]*\)$", "", str(src.get("title") or src.get("key") or "")).lower()
+    return title == bare or bare in (evidence or "").lower()
+
+
+_COVER_STOP = frozenset("""who whom whose what which when where why how is are was were be been do does did done has have
+had the a an of in on at to for from by with and or but about as it its this that these those there here than then
+current currently today now ever most many much very really also just name named called please tell me
+you your i my mine we our they their he she him his her""".split())
+_COVER_ALT = {"die": ("died", "death", "dead"), "died": ("die", "death", "dead"), "born": ("birth", "née"),
+              "paint": ("painted", "painting", "painter"), "painted": ("painting", "painter"),
+              "direct": ("directed", "director"), "directed": ("director", "directing"),
+              "write": ("wrote", "written", "writer", "author"), "wrote": ("written", "writer", "author", "novel"),
+              "invent": ("invented", "inventor", "invention"), "invented": ("inventor", "invention", "developed"),
+              "found": ("founded", "founder", "established"), "founded": ("founder", "established", "co-founded"),
+              "discover": ("discovered", "discovery"), "discovered": ("discovery", "discoverer"),
+              "build": ("built", "constructed"), "built": ("constructed", "completed", "opened"),
+              "won": ("win", "winner", "champions", "crowned", "title"), "win": ("won", "winner", "champions"),
+              "sing": ("sang", "sung", "singer", "recorded", "performed"), "sang": ("sung", "singer", "recorded"),
+              "compose": ("composed", "composer"), "composed": ("composer",), "launch": ("launched",),
+              "ceo": ("chief executive",), "biggest": ("largest",), "largest": ("biggest",), "tallest": ("highest",),
+              "highest": ("tallest",)}
+
+
+_COVER_VERBS = frozenset("die died paint painted direct directed write wrote invent invented found founded discover "
+                         "discovered build built won win sing sang compose composed launch launched".split())
+_BY_VERBS = frozenset("wrote written write painted paint directed direct composed compose sang sing designed design "
+                      "invented invent founded found built build created create".split())
+
+
+def _covers(q: str, evidence: str, answer: str = "", title: str = "", before: str = "") -> bool:
+    """The evidence names what the question asks about: its content words (a stem of five letters
+    or a usual other form: "died" for "die", "director" for "directed"); one may be missing when
+    the question has four or more."""
+    # the article's subject (its title) and the sentence before ("He was born …") name who is meant;
+    # the asked verb must be in the sentence itself
+    ev = (evidence + " " + title + " " + before).lower()
+    own = evidence.lower()
+    words = [w for w in re.findall(r"[a-z0-9][a-z0-9'-]*", q.lower()) if w not in _COVER_STOP and len(w) > 1]
+    if not words:
+        return True
+    ans = answer.lower()
+    missing = 0
+    for w in words:
+        if w in ans:
+            continue
+        forms = (w,) + _COVER_ALT.get(w, ())
+        if w in _BY_VERBS and ans and any(
+                not pre.endswith("ed") or any(pre.startswith(f[:5]) for f in forms)
+                for pre in re.findall(r"(\S+) by " + re.escape(ans), own)):
+            continue                                  # "a tragedy by William Shakespeare", not "hosted by DJ Dorothy"
+        if w in ("born", "died", "die", "death") and _LIFE_SPAN_RE.search(evidence):
+            continue                                  # "(February 8, 1899 – June 16, 1970)"
+        if w in _COVER_VERBS:
+            if not any((f[:5] if len(f) > 5 else f) in own for f in forms):
+                return False                          # the question's verb ("die", "painted") must be in the sentence
+            continue
+        if not any((f[:5] if len(f) > 5 else f) in ev for f in forms):
+            missing += 1
+    return missing == 0 or (len(words) >= 3 and missing == 1)
+
+
+def _implausible(q: str, answer: str | None, evidence: str | None, title: str = "", before: str = "") -> bool:
     """A looked-up short answer that cannot be meant: a count for "who …?" ("two goals was the top
     scorer"), or a superlative the evidence does not say about it — the biggest *commercial success*
     is no planet, and the tallest mountain *outside Asia* is not the tallest mountain."""
@@ -2214,6 +2456,8 @@ def _implausible(q: str, answer: str | None, evidence: str | None) -> bool:
         return False
     if re.match(r"^\s*who\b", q, re.I) and _NUMBERISH.match(answer):
         return True
+    if not _covers(q, evidence, answer, title, before):
+        return True                                   # "who painted the starry night?" ← a sentence without "painted"
     if _HOW_Q.match(q) and len(answer.split()) <= 3:
         return True                                   # "how do people deal with grief?" — "conspecifics" is no answer
     m = _ROLE_Q.match(q)
@@ -2221,8 +2465,18 @@ def _implausible(q: str, answer: str | None, evidence: str | None) -> bool:
         # "who is the CEO of Apple?": the evidence must name the role, and the answer is a person, not a title
         role = re.sub(r"^(?:current|new|present|former|first)\s+", "", m.group("role").lower().strip())
         syn = _ROLE_SYN.get(role, [role])
-        if not any(x in evidence.lower() for x in syn) or _TITLE_WORDS.search(answer):
+        if role.split()[-1] not in _ROLE_NOUNS:
+            syn = None                                # "the biggest selling female group of all time": no role
+        if syn and (not any(x in evidence.lower() for x in syn) or _TITLE_WORDS.search(answer)):
             return True
+        if syn and re.match(r"^\s*who(?:'s| is| are)\b", q, re.I) and re.search(
+                r"\b(?:former|late|then|ex-|named (?:after|for)|in honou?r of|was (?:the )?(?:" + "|".join(syn) + r"))\b",
+                evidence, re.I):
+            return True                               # "named after President Pompidou" is no current president
+    # an award, prize or title is no person ("Golden Ball was the top scorer")
+    if re.match(r"^\s*who\b", q, re.I) and re.search(r"\b(?:ball|boot|award|prize|trophy|medal|cup|title|glove|shoe)$",
+                                                     answer, re.I):
+        return True
     m = _SUPERLATIVE_Q.match(q)
     if not m or m.group("rest").strip():
         return False
@@ -2379,6 +2633,13 @@ _PLACE_CUE = re.compile(r"\b((?:live in|living in|moved to|move to|moving to|fro
                         r"lives in|visited|went to|stay in|staying in) )([a-z][a-z' -]{1,40})")
 _PLACE_TYPES = frozenset(("City", "Town", "Village", "Settlement", "Country", "AdministrativeRegion", "Island",
                           "CityDistrict", "Region", "State", "Place", "Location", "PopulatedPlace", "Continent"))
+_THING_TYPES = frozenset(("Album", "Single", "Song", "Film", "Book", "TelevisionShow", "TelevisionSeason", "VideoGame",
+                          "Software", "Building", "Automobile", "Aircraft", "Ship", "Weapon", "Food", "Drug", "Disease",
+                          "Award", "Artwork", "Painting", "Mountain", "River", "Lake", "Sea", "Planet", "Star",
+                          "Road", "Station", "Airport", "Language", "Event", "MilitaryConflict"))
+_ORG_TYPES = frozenset(("Company", "Publisher", "RecordLabel", "Organisation", "University", "School", "PoliticalParty",
+                        "GovernmentAgency", "SoccerClub", "BasketballTeam", "TelevisionStation", "Newspaper",
+                        "MilitaryUnit", "Band"))
 _TOPIC_EDGE = set("""who whom whose what which when where why how is are was were be been do does did done has have had
 won win wins winning lost lose the a an of in on at for to by from with and or but about i me my you your he she it they
 him her them his its their this that these those there here top best first last most many much old""".split())

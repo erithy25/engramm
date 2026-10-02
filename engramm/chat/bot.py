@@ -232,6 +232,7 @@ class ChatBot:
         self.c = corpus
         self.cfg = config
         self.r = retriever or Retriever(corpus)
+        self.extra_only = False                 # set by the dialog when the extra rows hold the named article
         self.cap = cap_ratio or {}
         self.facts = FactMemory(RelationCoder(corpus.wide if corpus.wide is not None else corpus.eng, corpus.tok))
         self._facts_key = None
@@ -865,6 +866,8 @@ class ChatBot:
         for score, sid, text, src, f in self._extra_candidates(query):
             rows.append((score, 0, -2, text, src))
             extra_feats[text] = f
+        if self.extra_only and any(r[2] == -2 for r in rows):
+            rows = [r for r in rows if r[2] == -2]       # the named article came from the shelf: only its sentences
         if not rows:
             return self._finish(msg, q, qa, "unknown", None, None, None, None, 0.0, "lookup",
                                 text="I don't know — I found nothing about that.")

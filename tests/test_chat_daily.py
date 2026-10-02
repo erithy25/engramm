@@ -618,3 +618,33 @@ def test_german_everyday_tools_and_follow_ups(chat):
 def test_german_values_use_german_names():
     from engramm.chat.german_bridge import de_value
     assert de_value("Rome") == "Rom" and de_value("Munich and Vienna") == "München und Wien"
+
+
+def test_winner_rules_read_the_named_article():
+    from engramm.chat.dialog import _winner_from
+    t = {"title": "2014 FIFA World Cup"}
+    rows = [("In the final, Germany defeated Argentina 1–0 after extra time to win the tournament.", t),
+            ("West Germany won the 1990 final against Argentina.", t),
+            ("Portugal won the repechage tournament.", t)]
+    assert _winner_from(rows, "2014 FIFA World Cup")[0] == "Germany"
+    r = {"title": "2023 Rugby World Cup"}
+    assert _winner_from([("South Africa retained their title by defeating New Zealand in the final.", r)],
+                        "2023 Rugby World Cup")[0] == "South Africa"
+    assert _winner_from([("France won 2–1 by virtue of goals from Tchouaméni.", t)], "2014 FIFA World Cup") is None
+
+
+def test_evidence_must_cover_the_question():
+    from engramm.chat.dialog import _covers
+    assert not _covers("who painted the starry night",
+                       "Radio shows such as MBC Starry Night, Arirang Evening Groove hosted by DJ Dorothy.", "DJ Dorothy")
+    assert not _covers("when did queen elizabeth ii die",
+                       "He trained his first winner for the Queen (Elizabeth II) on 12 May 2014.", "12 May 2014")
+    assert _covers("who wrote hamlet", "Hamlet is a tragedy by William Shakespeare.", "William Shakespeare")
+    assert _covers("where was alexander graham bell born", "He was born in Edinburgh on March 3, 1847.", "Edinburgh",
+                   before="The telephone was invented by Alexander Graham Bell.")
+
+
+def test_shelf_lookup_prefers_the_plain_title(tmp_path):
+    import numpy as np
+    from engramm.web.shelf import ShelfIndex
+    assert hasattr(ShelfIndex, "lookup")

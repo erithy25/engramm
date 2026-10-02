@@ -206,8 +206,22 @@ class ShelfIndex:
         if not len(self.name_hash):
             return None
         h = np.uint64(term_hash(name_key(name)))
-        i = int(np.searchsorted(self.name_hash, h))
-        return int(self.name_doc[i]) if i < len(self.name_hash) and self.name_hash[i] == h else None
+        lo = int(np.searchsorted(self.name_hash, h))
+        hi = int(np.searchsorted(self.name_hash, h, side="right"))
+        if lo >= hi:
+            return None
+        if hi - lo == 1:
+            return int(self.name_doc[lo])
+        # several articles share the name form ("Albert Einstein", "Albert Einstein (album)"): the one
+        # titled exactly so, else one without a "(…)" qualifier, else the most often named one
+        docs = [int(self.name_doc[i]) for i in range(lo, min(hi, lo + 64))]
+        want = " ".join(name.lower().split())
+        exact = [d for d in docs if self.title(d).lower() == want]
+        if exact:
+            return exact[0]
+        plain = [d for d in docs if "(" not in self.title(d)]
+        pool = plain or docs
+        return max(set(pool), key=lambda d: (pool.count(d), -d))
 
     def search(self, query: str, k: int = 3, prefer_title: str | None = None) -> list[tuple[int, float]]:
         """(title id, score), best first."""
@@ -366,6 +380,21 @@ _SENT = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9\"“(])")
 MIN_RELATIVE = 0.4           # a fetched article scores at least this share of the best one
 
 
+_ALT_WORDS = {
+    "won": ("win", "wins", "winning", "winner", "winners", "champion", "champions", "crowned", "title", "victory"),
+    "win": ("won", "wins", "winning", "winner", "winners", "champion", "champions", "crowned", "title", "victory"),
+    "winner": ("won", "win", "winning", "champion", "champions", "crowned"),
+    "born": ("birth", "née"), "died": ("death", "dead", "killed"), "die": ("died", "death"),
+    "founded": ("founder", "founders", "established", "co-founded", "founding"),
+    "wrote": ("written", "author", "writer", "novel", "authored"), "written": ("wrote", "author", "writer"),
+    "invented": ("inventor", "invention", "developed", "patented"), "discovered": ("discovery", "discoverer"),
+    "directed": ("director", "directing"), "painted": ("painter", "painting"), "built": ("constructed", "construction"),
+    "launched": ("launch", "lift-off", "liftoff"), "launch": ("launched", "lift-off", "liftoff"),
+    "scorer": ("scored", "goals", "golden"), "ceo": ("chief", "executive"), "president": ("elected", "presidency"),
+    "located": ("situated", "lies", "capital"), "invent": ("invented", "inventor", "invention"),
+}
+
+
 def best_sentences(query: str, docs: list[dict], n: int = 12, lead: int = 2,
                    context: bool = False) -> list[tuple]:
     """The sentences of the fetched articles that share the most (idf-weighted) words with the
@@ -377,6 +406,10 @@ def best_sentences(query: str, docs: list[dict], n: int = 12, lead: int = 2,
     qt = set(tokens(query))
     if not qt:
         return []
+    # the words an answer sentence uses for the question's verb ("won" → "crowned the champions after
+    # winning"); they count a little less than the question's own words
+    alt = {w for t in qt for w in _ALT_WORDS.get(t, ())} - qt
+    qt |= alt
     sents: list[tuple[str, dict, int, str]] = []
     for d in docs:
         pos, prev = 0, []
@@ -403,7 +436,8 @@ def best_sentences(query: str, docs: list[dict], n: int = 12, lead: int = 2,
         # the article's own title words are implied in every sentence of it ("it is 330 metres tall"):
         # they count little, the other question words decide
         title = set(tokens(d.get("t", "")))
-        score = sum(math.log(1 + N / df[t]) * (0.3 if t in title else 1.0) for t in hit) / math.sqrt(1 + 0.02 * len(ts))
+        score = sum(math.log(1 + N / df[t]) * (0.3 if t in title else 0.7 if t in alt else 1.0) for t in hit) \
+            / math.sqrt(1 + 0.02 * len(ts))
         row = (score, s, d, prev) if context else (score, s, d)
         if pos < lead:
             leads.append(row)

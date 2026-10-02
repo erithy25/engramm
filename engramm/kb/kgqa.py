@@ -322,6 +322,14 @@ _ROMAN = {"1": "i", "2": "ii", "3": "iii", "4": "iv", "5": "v", "one": "i", "two
           "four": "iv", "five": "v"}
 
 
+_QUALIFIER_FIT = [
+    ({"author", "writer"}, re.compile(r"novel|book|play|poem|short story|novella|series|comics?|manga|essay|memoir", re.I)),
+    ({"director"}, re.compile(r"film|movie|tv series|miniseries|series|documentary", re.I)),
+    ({"composer"}, re.compile(r"song|album|opera|symphony|musical|ballet|composition|soundtrack", re.I)),
+    ({"architect"}, re.compile(r"building|tower|bridge|church|cathedral|stadium|house|palace|museum", re.I)),
+]
+
+
 class KGQA:
     def __init__(self, bank: FactBank, today: dt.date | None = None):
         self.kb = bank
@@ -363,6 +371,14 @@ class KGQA:
                     if e.id != x.id and re.sub(r"\s*\([^)]*\)$", "", e.title).lower() == x.title.lower() \
                             and e.type != x.type:
                         del seen[eid]
+        # a "(…)"-qualified namesake fits the question only if its qualifier fits the asked fact:
+        # "who wrote 1984?" is not about "1984 (advertisement)"
+        allowed = next((rx for keys, rx in _QUALIFIER_FIT if set(props) & keys), None)
+        if allowed is not None:
+            for eid, (e, k) in list(seen.items()):
+                q = re.search(r"\(([^)]*)\)$", e.title)
+                if q and not allowed.search(q.group(1)):
+                    del seen[eid]
         scored = []
         for e, k in seen.values():
             has = bool(self.kb.facts(e.id, props))
