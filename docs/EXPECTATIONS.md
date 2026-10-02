@@ -2777,6 +2777,14 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Ersatzschlüssel, Wunde versorgen, Kaffeefleck), Glückwunsch bei guten Nachrichten. Vorhandene gute Antworten (Beförderung,
   Verlobung, Prüfung, Erkältung auf Englisch) bleiben. Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 773
   bestanden, Regressionen 32, 38–82 (49 Gespräche): 0 Wiederholungen; Unterschiede nur Uhrzeiten.
+- **Sicherheitsnetz für Bestätigungen (Batterie 83)**: Die Fehler „good choice“/„lovely colour“/„A dirty, nice!“ hatten eine
+  gemeinsame Wurzel: Der Wert eines Satzes wurde nach seiner Art getippt („salty“ → Essen), und die Bestätigung nannte die
+  Kategorie, auch wenn der Satz gar keine Vorliebe ausdrückt. Kategorie-Bestätigungen (Essen, Farbe, Auto, Vorliebe) kommen
+  jetzt nur, wenn der Satz ein passendes Wort enthält („like/love/favourite/eat/drive …“); sonst die neutrale Bestätigung.
+  „my tea is lukewarm“, „my pizza arrived late“ → keine Vorliebe; „i love sushi“, „pizza is my favourite food“, „my favourite
+  colour is green“, „i drive a tesla“ unverändert. Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 774 bestanden
+  (die eine Abweichung im ersten Lauf war die Prüfung selbst: „Noted: pizza — yum!“ ist eine gleichwertige Variante),
+  Regressionen 32, 38–83 (50 Gespräche): 0 Wiederholungen; Unterschiede nur Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

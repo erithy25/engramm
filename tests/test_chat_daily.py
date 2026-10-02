@@ -3134,3 +3134,13 @@ def test_battery82_first_person_events(chat):
                              "ich hab mit dem rauchen aufgehört", "ich hab mein portemonnaie verloren"]):
         r = a.turn(DialogState(f"e82-{i}"), msg)
         assert r.kind == "empathy" and not any(x in r.text for x in bad), (msg, r.text)
+
+
+def test_category_confirmations_need_a_cue(chat):
+    a, _ = chat
+    for i, msg in enumerate(["my tea is lukewarm", "my pizza arrived late"]):
+        r = a.turn(DialogState(f"c83-{i}"), msg)
+        assert "good choice" not in r.text and "yum" not in r.text and "colour" not in r.text, (msg, r.text)
+    r = a.turn(DialogState("c83-p"), "pizza is my favourite food")
+    assert "good choice" in r.text or "yum" in r.text, r.text
+    assert "green" in a.turn(DialogState("c83-g"), "my favourite colour is green").text

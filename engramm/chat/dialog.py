@@ -8562,6 +8562,12 @@ class Assistant:
                 break
             if f.subject == USER:
                 cat = next((key for lab, key in _CATEGORY_KEYS if lab in f.relation), None)
+                cue = {"food": r"\b(?:like|likes|love|loves|favou?rite|enjoy|eat|eats|eating|prefer|best|fan|adore|crave|craving|go-to)\b",
+                       "colour": r"\b(?:colou?rs?|favou?rite|like|love|prefer)\b",
+                       "car": r"\b(?:drive|drives|driving|car|own|owns|bought|have|has|got)\b",
+                       "fav": r"\b(?:like|likes|love|loves|favou?rite|enjoy|enjoys|adore|prefer|fan|into|obsessed|crazy about|best|nothing beats)\b"}.get(cat)
+                if cue and not re.search(cue, f.sentence or "", re.I):
+                    cat = None                         # "my soup is too salty" names no favourite food: a plain confirmation
                 if cat == "name":
                     key = "learned.name_changed" if name_before and name_before != f.object else "learned.name_new"
                     out.append(self._reply(st, key, x=f.object))
