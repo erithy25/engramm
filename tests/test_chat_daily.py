@@ -714,3 +714,14 @@ def test_privacy_and_network_answers_are_accurate(chat):
     assert "neural network" in r.text, r.text
     r = a.turn(st, "where do you get your information")
     assert "Wikipedia" in r.text, r.text
+
+
+def test_german_privacy_and_no_english_in_german(chat):
+    a, st = chat
+    r = a.turn(st, "bist du mit dem internet verbunden")
+    assert "offline" in r.text and "Internetzugang" in r.text, r.text
+    r = a.turn(st, "was ist tor")
+    assert "Stationen" in r.text, r.text
+    a.turn(st, "wer ist zorblax quux")
+    r = a.turn(st, "wer ist zorblax quuxx")
+    assert "I'm afraid" not in r.text and "beyond" not in r.text, r.text

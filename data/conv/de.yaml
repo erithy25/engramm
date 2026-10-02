@@ -107,6 +107,27 @@ intents:
       - "Freut mich zu hören! Was steht heute bei dir an?"
       - "Schön! Gibt's was Neues bei dir?"
       - "Das ist gut. Worüber wollen wir reden?"
+  - id: de_privacy
+    patterns: ['(sind|ist) (meine daten|das hier|dieser chat|unser chat|das gespräch) (sicher|privat|geschützt)|(schickst|sendest|teilst|verkaufst|lädst) du (meine|unsere) (daten|nachrichten|fragen|chats?)( irgendwohin| hoch| weiter| an jemanden)?|wer kann (das|unseren chat|meine nachrichten|das gespräch) (sehen|lesen)|liest (da )?jemand mit|datenschutz|speicherst du (meine daten|alles)( irgendwo)?|trackst du mich']
+    responses:
+      - "Deine Daten bleiben bei dir: Alles, was du schreibst und was ich mir merke, liegt auf diesem Rechner. Kein Konto, kein Tracking – und ich vergesse alles, was du willst."
+      - "Niemand sonst sieht unseren Chat – er verlässt diesen Rechner nie. Auch mit eingeschaltetem Internetzugang lade ich nur herunter (Wikipedia-Fächer, Nachrichten-Feeds) und schicke nie, was du schreibst."
+  - id: de_internet
+    patterns: ['bist du (mit dem internet verbunden|online)|hast du internet( zugang| zugriff)?|brauchst du (das )?internet|funktionierst du offline|kannst du (im internet|im netz|online) (suchen|nachschauen|surfen)|kannst du googeln|gehst du ins internet']
+    responses:
+      - "Standardmäßig arbeite ich komplett offline. Unter „Internetzugang“ in der Seitenleiste kannst du einzelne Kanäle einschalten: ganze Wikipedia-Artikel, Nachrichten-Feeds oder einzelne Seiten über Tor. Deine Fragen verlassen den Rechner trotzdem nie, und jeder Abruf steht im Netzprotokoll."
+  - id: de_net_howto
+    patterns: ['wie (schalte|mache) ich (das )?(internet|den internetzugang|das netz|das regal) (an|ein)|wie aktiviere ich (das )?(internet|den internetzugang)|internet (einschalten|anschalten|aktivieren)']
+    responses:
+      - "Öffne „Internetzugang“ in der Seitenleiste und schalte die Kanäle ein, die du möchtest: das Wikipedia-Regal, Nachrichten-Feeds oder den Boten über Tor. Jeder Kanal hat seinen eigenen Schalter, und das Netzprotokoll zeigt jeden Abruf."
+  - id: de_sources
+    patterns: ['woher (hast|weißt|kennst) du (dein wissen|das alles|deine informationen|das)|was sind deine quellen|wie aktuell (ist|sind) dein (wissen|deine daten|deine informationen)|wie aktuell bist du|von wann (ist|sind) dein (wissen|deine daten)']
+    responses:
+      - "Aus dem, was ich gelesen habe: die Anfänge von Wikipedia-Artikeln und Fakten aus Wikidata, die mit meinem Wissenspaket kommen, dazu das, was du mir erzählst. Das Paket ist ein Schnappschuss – mit eingeschaltetem Internetzugang lese ich das ganze Wikipedia-Regal (Stand 27. September 2026) und Feeds, die du auswählst. Zu jedem Fakt zeige ich die Quelle."
+  - id: de_tor
+    patterns: ['was ist tor|wie funktioniert tor|wozu tor|was macht tor|was ist das tor netzwerk']
+    responses:
+      - "Tor ist ein Netz, das deine Verbindung über drei Stationen von Freiwilligen leitet: Die besuchte Seite sieht deine Adresse nicht, und niemand unterwegs sieht zugleich, wer du bist und wohin du gehst. Ich nutze es – wenn du es einschaltest –, um Seiten abzurufen, ohne deine IP zu verraten."
   - id: joke
     patterns: ['(erzähl|erzähle|sag) (mir )?(einen|nen|mal einen|noch einen) witz|kennst du (einen|nen) witz|witz( bitte)?|mach (mal )?einen witz|(erzähl|erzähle|sag) (mir )?(mal )?(was|etwas) (lustiges|witziges)|was lustiges( bitte)?|bring mich zum lachen']
     responses:
@@ -322,3 +343,8 @@ daily:
   # Wissensfrage, die die deutsche Brücke nicht übersetzen kann
   knowledge_de:
     - "Das kann ich auf Deutsch leider noch nicht nachschlagen. Frag mich gern auf Englisch – dann suche ich in meinen Quellen."
+  # dieselbe Lücke zweimal hintereinander: nicht wortgleich
+  unknown_again:
+    - "Das weiß ich leider immer noch nicht – dazu habe ich nichts gefunden."
+    - "Da muss ich wieder passen, tut mir leid."
+    - "Dazu fällt mir leider weiterhin nichts Verlässliches ein."

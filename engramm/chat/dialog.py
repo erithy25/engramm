@@ -357,7 +357,9 @@ class Assistant:
         rep.seconds = time.time() - t0
         if rep.text and rep.text == st.last_reply and normalise(message) != normalise(st.last_message or ""):
             if rep.kind == "unknown":
-                rep.text = self._pick(st, "daily:unknown_again", self.bank.daily["unknown_again"])
+                de_again = (self.bank.de or {}).get("daily", {}).get("unknown_again") if st.lang == "de" else None
+                rep.text = self._pick(st, "de:unknown_again" if de_again else "daily:unknown_again",
+                                      de_again or self.bank.daily["unknown_again"])
         st.last_message = message
         st.last_kind = rep.kind
         self._track(st, rep, msg)
