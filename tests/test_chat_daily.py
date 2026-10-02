@@ -2486,3 +2486,44 @@ def test_strict_mash_spares_real_words():
     for w in ("dhdhd", "sksksk", "asdf", "lkjlkj", "qwertz", "jjjj"):
         assert strict_mash(w), w
     assert gibberish("dhdhd lol") and not gibberish("lol") and not gibberish("haha ok")
+
+
+def test_battery58_follow_ups_that_need_the_turn_before(chat):
+    a, _ = chat
+    st = DialogState("e58")
+    a.turn(st, "what's the tallest mountain in the world?")
+    r = a.turn(st, "no i meant in europe")
+    assert "Elbrus" in r.text and r.kind != "learned", r.text
+    assert "5,642" in a.turn(st, "how tall is it?").text
+    st = DialogState("l58")
+    r = a.turn(st, "should i learn spanish or french?")
+    assert "Spanish" in r.text and "speakers" in r.text, r.text
+    r = a.turn(st, "why?")
+    assert "no source" not in r.text and "speakers" in r.text, r.text
+    r = a.turn(st, "hmm i think i'll go with spanish")
+    assert r.kind != "learned" and "Spanish" in r.text, r.text
+    assert "months" in a.turn(st, "how long will it take?").text
+    st = DialogState("j58")
+    a.turn(st, "tell me a joke")
+    r = a.turn(st, "i don't get it")
+    assert "trying to find out" not in r.text, r.text
+    st = DialogState("t58")
+    a.turn(st, "what's 15% of 80?")
+    r = a.turn(st, "thanks! you're smart")
+    assert not r.text.startswith("You're welcome") and r.text.count("!") <= 2, r.text
+    st = DialogState("i58")
+    a.turn(st, "i have a job interview tomorrow")
+    r = a.turn(st, "it's for a marketing role")
+    assert "A Marketing Role" not in r.text and "What's the role" not in r.text, r.text
+    assert "Marketing Role" not in a.turn(st, "ok wish me luck").text
+    st = DialogState("q58")
+    a.turn(st, "i'm thinking about quitting my job")
+    a.turn(st, "my boss is awful")
+    r = a.turn(st, "but i need the money")
+    assert r.kind != "learned" and "looking" in r.text, r.text
+    r = a.turn(st, "what would you do?")
+    assert "If it were me" in r.text or "Honestly" in r.text, r.text
+    st = DialogState("p58")                                # the fixture has no fact bank: a quoted source still answers
+    a.turn(st, "what is the capital of france?")
+    r = a.turn(st, "are you sure?")
+    assert r.via == "why" and "no source" not in r.text, r.text

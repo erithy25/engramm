@@ -467,7 +467,16 @@ class Everyday:
         if not a or not b or a == b or len(a.split()) > 7 or len(b.split()) > 7:
             return None
         a, b = swap_person(a), swap_person(b)
+        why = self.d.get("decide_why") or {}
+        ka, kb = (re.sub(r"^(?:learn(?:ing)?|study(?:ing)?|speak(?:ing)?) ", "", v.lower()) for v in (a, b))
+        if ka in why and kb in why:
+            # "spanish or french?": a pick with a reason, and the other option kept in view
+            x, y = (ka, kb) if why[ka].get("rank", 0) >= why[kb].get("rank", 0) else (kb, ka)
+            st.uses["decided"] = [x, y, st.turn]
+            return Reply(msg, "smalltalk", self.pick(st, "decide_lang", self.d["decide_lang"], x=x.capitalize(), y=y.capitalize(),
+                                                     a=why[x]["for"], b=why[y]["for"]), via="everyday")
         x = (a, b)[int.from_bytes(_key(st.conversation, "decide", a, b), "little") % 2]
+        st.uses["decided"] = [x, b if x == a else a, st.turn]
         return Reply(msg, "smalltalk", self.pick(st, "decide", self.d["decide"], x=x), via="everyday")
 
     # -- games --------------------------------------------------------------------------------

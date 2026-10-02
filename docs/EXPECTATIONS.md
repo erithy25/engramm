@@ -2425,6 +2425,19 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 - **Runde 56/57/59, Messung**: Team-Dev-Satz 1 von 128 geändert (team-0067, Artikel). NQ-open 400: 22/9. Suite 747 bestanden,
   7 übersprungen. Regressionen 32, 38–59 (Englisch und Deutsch, 25 Gespräche) und langes Gespräch: 0 Wiederholungen;
   Unterschiede nur in Batterie 42/57 (die wieder intakte Schlaf-Kette mit Tipps) und Uhrzeiten.
+- **Alltags-Batterie 58 (Folgefragen, die den Satz davor brauchen)**:
+  - „no i meant in europe“ nach dem höchsten Berg der Welt wurde als Aussage gespeichert („Oh really? Tell me more“); jetzt
+    wird die Frage für Europa neu gestellt → Elbrus (Mont Blanc für Westeuropa) → „how tall is it?“ → „Mount Elbrus is
+    5,642 m (18,510 ft) high.“ Höchste Berge der Kontinente, der Alpen und Deutschlands als handgeprüfte Alltagsfakten.
+  - „should i learn spanish or french?“ → „Let me pick for you: “learn spanish”“ → „why?“ → „I didn't give you a fact just
+    now, so there's no source to show.“ Jetzt: Wahl mit Begründung (Sprecher, Schwierigkeit, Länder), „why?“ erklärt sie,
+    „i'll go with spanish“ wird nicht als Fakt gelernt, „how long will it take?“ → 3–6 Monate.
+  - „thanks! you're smart“ → „You're welcome! Aw, thanks! You made my day.“ (zwei Antworten) → nur „Aw, thanks! …“.
+  - „it's for a marketing role“ → „A Marketing Role — impressive! What's the role?“ und später „Good luck at A Marketing Role“;
+    jetzt eine Rolle, keine Firma.
+  - „i don't get it“ nach einem Witz → vorher „What are you trying to find out?“; „but i need the money“ / „what would you
+    do?“ vor einer Kündigung → konkrete Abwägung statt allgemeiner Notiz-Tipps; „are you sure?“ → „Yes — Lima. That's
+    straight from the infobox …“ statt der rohen Infobox-Zeile.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

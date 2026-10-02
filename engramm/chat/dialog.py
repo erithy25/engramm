@@ -2612,6 +2612,9 @@ class Assistant:
         seen_intents: set[str] = set()       # "bye. see you": one goodbye, not two
         units = [u for u in units if not (u.act == "intent" and u.intent and
                                           (u.intent in seen_intents or seen_intents.add(u.intent)))]
+        if any(u.intent == "compliment_bot" for u in units):
+            # "thanks! you're smart": one warm reply ("Aw, thanks!"), not "You're welcome! Aw, thanks!"
+            units = [u for u in units if u.intent != "thanks"] or units
         for u in units:
             if u.act in ("statement", "feeling") and self.everyday.activity_title(u.text):
                 learn.append(u)                  # "I just finished The Quiet Orchard": ask about it (see _learn)
@@ -4376,7 +4379,7 @@ class Assistant:
         r2 = self._daily_ctx2(st, msg, norm) or self._daily_ctx3(st, msg, norm) or self._daily_ctx4(st, msg, norm) or \
             self._daily_ctx5(st, msg, norm) or self._daily_ctx6(st, msg, norm) or self._daily_ctx7(st, msg, norm) or \
             self._daily_ctx8(st, msg, norm) or self._daily_ctx9(st, msg, norm) or self._daily_ctx10(st, msg, norm) or \
-            self._daily_ctx11(st, msg, norm) or self._daily_ctx12(st, msg, norm)
+            self._daily_ctx11(st, msg, norm) or self._daily_ctx12(st, msg, norm) or self._daily_ctx13(st, msg, norm)
         if r2 is not None:
             return r2
         m = _WHAT_LIKES.match(norm)
@@ -4529,6 +4532,12 @@ class Assistant:
         interview = pp is not None and pp[0] == "interview" and st.turn - pp[1] <= 8
         if interview:
             m = _INTERVIEW_AT.match(norm)
+            rm = re.fullmatch(r"(?:an? )?(?P<r>[a-z][a-z &/-]{1,30}?) (?:role|position|job|internship|post)", m.group("x").strip()) if m else None
+            if rm:                                        # "it's for a marketing role": a role, not a company
+                pp[1] = st.turn
+                st.uses["interview_role"] = rm.group("r")
+                return Reply(msg, "smalltalk", self._pick(st, "daily:interview_role", d["interview_role"], x=rm.group("r")),
+                             via="empathy")
             if m:
                 comp = " ".join(w[:1].upper() + w[1:] for w in m.group("x").split())
                 st.uses["interview_at"] = comp
@@ -5192,6 +5201,66 @@ class Assistant:
                 return Reply(msg, "smalltalk", self._pick(st, "daily:sound:gib_sorry", self.bank.daily["sounds"]["gib_sorry"]), via="smalltalk")
             return None
         return Reply(msg, "smalltalk", self._pick(st, f"daily:sound:{key}", self.bank.daily["sounds"][key]), via="smalltalk")
+
+    def _daily_ctx13(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 58: follow-ups a person expects to work — "no, I meant in Europe", "why?" after a pick,
+        "I'll go with Spanish", "are you sure?", "I don't get it" after a joke, and "what would you do?"
+        before quitting a job."""
+        d = self.bank.daily
+        n = norm.strip(" .!?")
+        dc = st.uses.get("decided")
+        if dc and st.turn - dc[2] <= 3:
+            if re.fullmatch(r"(?:but )?(?:why|how come|why that one|why (?:not )?(?:the other|" + re.escape(dc[1].lower()) + r"))", n):
+                why = (d.get("decide_why") or {}).get(dc[0].lower())
+                text = self._pick(st, "daily:decide_reason", d["decide_reason"], x=dc[0].capitalize(), a=why["for"]) if why else \
+                    self._pick(st, "daily:decide_coin", d["decide_coin"], x=dc[0], y=dc[1])
+                dc[2] = st.turn
+                return Reply(msg, "smalltalk", text, via="everyday")
+            gm = re.fullmatch(r"(?:hmm+,? |ok(?:ay)?,? |yeah,? )?(?:i think )?(?:i'?ll|i will|i'?m gonna|i am going to|let'?s) (?:go with|pick|choose|do|take) "
+                              r"(?P<x>[a-z ]+?)(?: then)?|(?P<y>[a-z ]+?) it is", n)
+            if gm:
+                x = (gm.group("x") or gm.group("y")).strip()
+                st.uses["chosen"] = [x, st.turn]
+                st.uses.pop("decided", None)
+                key = "chosen_lang" if x.lower() in (d.get("decide_why") or {}) else "chosen"
+                return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key], x=x.capitalize()), via="smalltalk")
+        ch = st.uses.get("chosen")
+        if ch and st.turn - ch[1] <= 3 and ch[0].lower() in (d.get("decide_why") or {}) and \
+                re.fullmatch(r"how long (?:will|would|does) it take(?: to learn(?: it)?)?|how long to learn it|is it hard(?: to learn)?", n):
+            return Reply(msg, "smalltalk", d["learn_time"][0], via="everyday")
+        mm = re.fullmatch(r"(?:no,? |nah,? |sorry,? |oh,? )?i meant (?P<x>in [a-z ]{3,30}|on [a-z ]{3,30}|for [a-z ]{3,30})", n)
+        if mm and st.last_q and re.search(r"\b(?:in|on) the world\b|\best\b", st.last_q.lower()):
+            q = re.sub(r"(?i)\b(?:in|on) the world\b", mm.group("x"), st.last_q) if re.search(r"(?i)\bin the world\b", st.last_q) \
+                else st.last_q.rstrip(" ?") + " " + mm.group("x") + "?"
+            self._spelled = q                              # "What's the tallest mountain in europe?"
+            return self._question(st, q)
+        lf = st.last_fact or {}
+        if re.fullmatch(r"(?:are you|you) (?:sure|certain)|(?:is that|that'?s) (?:right|true|correct)|really", n) and lf.get("sure") and \
+                (lf.get("source") or {}).get("kind") == "kb" and lf.get("answer") and st.last_kind == "answer":
+            return Reply(msg, "answer", self._pick(st, "daily:sure_kb", d["sure_kb"], x=lf["answer"], y=lf["source"].get("key", "")),
+                         via="why")
+        hm = re.search(r"(\d[\d,]*(?:\.\d+)? m \([\d,]+ ft\))", st.last_reply or "")
+        if hm and st.uses.get("last_via") == "common" and re.fullmatch(r"(?:and )?how (?:tall|high) is (?:it|that)", n):
+            # "how tall is it?" right after "Mount Elbrus … at 5,642 m (18,510 ft)": the number just said
+            item = next((it for it in d.get("common", []) if isinstance(it, dict) and it.get("a") == st.last_reply), None)
+            who = (item or {}).get("t") or (item or {}).get("v") or "It"
+            return Reply(msg, "answer", f"{who} is {hm.group(1)} high.", answer=hm.group(1), via="common", confidence=1.0)
+        la = st.last_action or {}
+        if la.get("kind") == "joke" and st.turn - la.get("turn", -99) <= 1 and \
+                re.fullmatch(r"(?:i )?(?:don'?t|do not|dont) get it|i don'?t understand(?: it)?|what\?*|huh|explain(?: it)?|i'?m confused", n):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:joke_explain", d["joke_explain"]), via="smalltalk")
+        if re.search(r"\b(?:thinking (?:about|of) quitting|want to quit|wanna quit|going to quit|gonna quit|should i quit) (?:my )?(?:job|work)\b", n):
+            st.uses["quit_job"] = [st.turn]
+            return None
+        qj = st.uses.get("quit_job")
+        if qj and st.turn - qj[-1] <= 4:
+            if re.fullmatch(r"(?:but )?(?:i |we )?(?:really )?need the (?:money|salary|income|paycheck)|(?:but )?i can'?t afford (?:to|it)", n):
+                st.uses["quit_job"] = [st.turn]
+                return Reply(msg, "smalltalk", self._pick(st, "daily:quit_money", d["quit_money"]), via="empathy")
+            if re.fullmatch(r"what (?:would|should) (?:you|i) do|what do you think(?: i should do)?|what would you do in my (?:place|shoes)", n):
+                st.uses["quit_job"] = [st.turn]
+                return Reply(msg, "smalltalk", self._pick(st, "daily:quit_view", d["quit_view"]), via="everyday")
+        return None
 
     def _daily_ctx12(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 57: everyday moments that only make sense with the turn before — a new puppy and its name,

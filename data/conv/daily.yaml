@@ -1032,6 +1032,14 @@ yes_no_quote:
 # everyday facts the text look-up tends to get wrong; each checked by hand ("q" is matched against the
 # normalised question without the question mark)
 common:
+  - {q: "(?:and |so )?(?:what(?:'s| is) the |which is the )?(?:tallest|highest|biggest) mountain (?:in|of|on) europe", a: "Mount Elbrus in Russia is the highest mountain in Europe, at 5,642 m (18,510 ft). In Western Europe it's Mont Blanc, at about 4,806 m.", v: "Mount Elbrus", t: "Mount Elbrus"}
+  - {q: "(?:and |so )?(?:what(?:'s| is) the |which is the )?(?:tallest|highest|biggest) mountain (?:in|of|on) africa", a: "Mount Kilimanjaro in Tanzania is the highest mountain in Africa, at 5,895 m (19,341 ft).", v: "Mount Kilimanjaro", t: "Mount Kilimanjaro"}
+  - {q: "(?:and |so )?(?:what(?:'s| is) the |which is the )?(?:tallest|highest|biggest) mountain (?:in|of|on) south america", a: "Aconcagua in Argentina is the highest mountain in South America, at 6,961 m (22,838 ft).", v: "Aconcagua", t: "Aconcagua"}
+  - {q: "(?:and |so )?(?:what(?:'s| is) the |which is the )?(?:tallest|highest|biggest) mountain (?:in|of|on) north america", a: "Denali in Alaska is the highest mountain in North America, at 6,190 m (20,310 ft).", v: "Denali", t: "Denali"}
+  - {q: "(?:and |so )?(?:what(?:'s| is) the |which is the )?(?:tallest|highest|biggest) mountain (?:in|of|on) australia", a: "Mount Kosciuszko is the highest mountain on mainland Australia, at 2,228 m (7,310 ft).", v: "Mount Kosciuszko", t: "Mount Kosciuszko"}
+  - {q: "(?:and |so )?(?:what(?:'s| is) the |which is the )?(?:tallest|highest|biggest) mountain (?:in|of|on) antarctica", a: "Mount Vinson is the highest mountain in Antarctica, at 4,892 m (16,050 ft).", v: "Mount Vinson", t: "Mount Vinson"}
+  - {q: "(?:and |so )?(?:what(?:'s| is) the |which is the )?(?:tallest|highest|biggest) mountain (?:in|of|on) germany", a: "The Zugspitze is Germany's highest mountain, at 2,962 m (9,718 ft), on the border with Austria.", v: "Zugspitze", t: "Zugspitze"}
+  - {q: "(?:and |so )?(?:what(?:'s| is) the |which is the )?(?:tallest|highest|biggest) mountain (?:in|of|on) the alps", a: "Mont Blanc is the highest mountain in the Alps, at about 4,806 m (15,768 ft).", v: "Mont Blanc", t: "Mont Blanc"}
   - {q: "(?:and |so )?(?:when|what year|in what year|which year) did the berlin wall (?:fall|come down)|when was the fall of the berlin wall", a: "The Berlin Wall fell on 9 November 1989, during the Peaceful Revolution in East Germany.", v: "9 November 1989", t: "Berlin Wall", follow: [{q: "(?:and |so )?why did (?:it|the wall|the berlin wall) fall\\??", a: "Mass protests in East Germany, people fleeing via Hungary and Czechoslovakia, and reforms in the Soviet Union under Gorbachev. On 9 November an official mistakenly announced that travel was allowed immediately, and crowds forced the border open that night."}, {q: "(?:and |so )?who was (?:the )?(?:german |west german )?chancellor (?:then|at the time|back then)\\??", a: "Helmut Kohl was Chancellor of West Germany then. He went on to lead reunified Germany from October 1990."}, {q: "(?:and |so )?how long did (?:it|the wall) (?:stand|last|exist)\\??", a: "About 28 years: it went up on 13 August 1961 and fell on 9 November 1989."}]}
   - {q: "(?:and |so )?(?:where is|where can i see|in which museum is|where (?:is|can you see) the painting of) (?:the )?mona lisa(?: now| today| kept| displayed| hanging)?", a: "The Mona Lisa hangs in the Louvre in Paris, behind bulletproof glass in the Salle des États.", v: "the Louvre", t: "Mona Lisa"}
   - {q: "(?:and |so )?(?:has anyone|did anyone|has anybody|did people|have people) (?:ever )?(?:climbed|reached the (?:top|summit) of|been to the top of) (?:mount )?everest|who (?:was the first (?:person |man |one )?to climb|first climbed|first reached the summit of) (?:mount )?everest", a: "Yes — Edmund Hillary and Tenzing Norgay were the first to reach the summit, on 29 May 1953. Thousands have climbed it since.", v: "Edmund Hillary and Tenzing Norgay", t: "Mount Everest", first: "Edmund Hillary from New Zealand and Tenzing Norgay, a Sherpa from Nepal — they reached the top together on 29 May 1953.", when: "That was on 29 May 1953."}
@@ -2345,4 +2353,44 @@ sounds:
     - "I'm still stuck on “{x}”, sorry! Explain it to me?"
     - "You really like “{x}”! 😄 I don't know it though — is it a name, a game, a word from another language?"
     - "“{x}” remains a mystery to me. Tell me what it is and I'll remember it."
+# battery 58: follow-ups that need the turn before
+decide_why:
+  spanish: {for: "it has over 500 million speakers, it's one of the easier languages for English speakers, and it opens up Spain and most of Latin America", rank: 2}
+  french: {for: "it's spoken across Europe, Canada and much of Africa, and it's a big help for diplomacy, fashion and food", rank: 1}
+  german: {for: "it's the most spoken native language in the EU and great for work in Germany, Austria and Switzerland", rank: 1}
+  italian: {for: "it's one of the easiest for English speakers and pure joy for food, art and travel", rank: 1}
+  japanese: {for: "it opens up anime, games and a fascinating culture — though the writing system takes patience", rank: 0}
+  chinese: {for: "it has the most native speakers in the world, though the tones and characters take time", rank: 0}
+  portuguese: {for: "it's spoken in Brazil and Portugal and close to Spanish", rank: 1}
+  english: {for: "it's the most widely used language for work, travel and the internet", rank: 3}
+decide_lang:
+  - "I'd go with {x}: {a}. {y} is lovely too — {b}."
+  - "{x}, I'd say — {a}. But if {y} excites you more, that matters most: {b}."
+decide_reason:
+  - "Mainly because {a}. In the end, though, the language you're most excited about is the one you'll stick with."
+  - "Because {a}. That said, motivation beats everything — pick the one you'd enjoy practising."
+decide_coin:
+  - "Honestly, it was close — a bit of a coin flip between {x} and {y}. Did you feel relieved or disappointed when I said {x}? That's your real answer."
+  - "No deep reason — both are good. The trick is how you felt when I said {x}: relieved, or a little let down?"
+chosen:
+  - "{x} it is — good choice!"
+  - "Nice, {x}! Sounds like a plan."
+chosen_lang:
+  - "{x} it is — ¡buena elección! Start small: ten minutes a day beats one long session a week."
+  - "Great choice! {x} will open a lot of doors. Want some tips to get started?"
+sure_kb:
+  - "Yes — {x}. That's straight from the infobox of the Wikipedia article “{y}”."
+  - "I'm sure: {x}. It comes from the fact bank, taken from the article “{y}”."
+joke_explain:
+  - "Ha, fair — it's a pun, and puns are an acquired taste. 😄 Want a different one?"
+  - "That one's a wordplay joke — the double meaning is the whole joke. Shall I try a better one?"
+quit_money:
+  - "That's the hard part — money is a real constraint. Could you start looking for something new while you're still there? Then you're choosing, not escaping."
+  - "Totally understandable. Quitting without something lined up is risky. Maybe start applying quietly now, so the money worry doesn't make the decision for you?"
+quit_view:
+  - "If it were me: I wouldn't quit before having something lined up. I'd start looking now, keep notes on what the boss does, and talk to HR if it gets worse. Leaving on your own terms feels a lot better."
+  - "Honestly? I'd quietly start applying elsewhere and set myself a deadline — say three months. If nothing changes by then, you'll have options instead of just a bad boss."
+interview_role:
+  - "{x} — nice field! Do you know what the team works on?"
+  - "Ooh, a {x} role! Exciting. Do you know what kind of questions to expect?"
 
