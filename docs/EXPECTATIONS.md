@@ -2555,6 +2555,24 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     kleingeschrieben); ein alter Test schlug an, Namen bleiben beim eigenen Namens-Ablauf („Alexander“). Messung: Team-Dev-Satz
     1 von 128 (team-0067), NQ 22/9, Suite 756 bestanden, Regressionen 32, 38–66 (33 Gespräche): 0 Wiederholungen;
     Unterschiede: Batterie 41 (Trennungsantwort wie früher), 48 (kein doppelter Punkt im Vergessen-Zitat), Uhrzeiten.
+- **Alltags-Batterie 67 (Gedächtnis auf Deutsch)**: Das deutsche Gedächtnis war deutlich schwächer als das englische.
+  - „hi, ich bin lena und ich bin lehrerin in hamburg“ → Rückfallantwort; jetzt Name, Beruf und Wohnort als drei einzelne
+    Erinnerungen („Freut mich, Lena! Lehrerin in Hamburg – merk ich mir.“). „ich wohne in berlin“ wurde als Englisch erkannt
+    („Mm-hm. What's on your mind?“), weil „wohne“ in der deutschen Wortliste fehlte; ergänzt um wohne, lebe, arbeite, heiße,
+    hasse, schwester, bruder, merk, vergiss, verschoben, termin u. a.
+  - „nein, ich meinte münchen“ (vorher Rückfallantwort) ersetzt den alten Wohnort; nach einem Satz mit Beruf und Ort
+    trifft die Korrektur den passenden Teil („ich meinte bonn“ → Wohnort, „ich meinte bäcker“ → Beruf).
+    „ich arbeite als koch bei einem hotel“ speichert keinen Wohnort „Einem Hotel“; „ich bin wieder/heute in köln“
+    speichert keinen Beruf.
+  - „meine schwester heißt anna“ (vorher „Interessant – wie ging's weiter?“) → „sie ist ärztin“ → „was macht meine
+    schwester beruflich?“ → „Deine Schwester arbeitet als Ärztin.“; „sie ist echt nett“ bekommt eine warme Antwort statt
+    „Das verstehe ich leider nicht“.
+  - „vergiss, dass ich pilze hasse“ (vorher eine Mitgefühls-Antwort, nichts vergessen) löscht den Eintrag wirklich.
+  - „merk dir, dass mein zahnarzttermin am freitag ist“, „der wurde auf montag verschoben“, „und wann ist er jetzt?“ →
+    „Dein Zahnarzttermin ist am Montag.“ (vorher dreimal Rückfallantwort); „verschoben“ ohne bekannten Termin fragt nach.
+  - „was weißt du über mich?“ mischte englische Sätze ein („Your sister is called Anna.“); jetzt ganz auf Deutsch.
+  - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 757 bestanden, Regressionen 32, 38–67 plus 7 deutsche
+    Gegenproben (35 Gespräche): 0 Wiederholungen; Unterschiede nur Uhrzeiten (Batterie 60).
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

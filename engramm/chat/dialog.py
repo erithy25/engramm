@@ -821,6 +821,30 @@ _TRANSIENT = re.compile(r"\b(?:right now|at the moment|atm|currently|soon|in a b
 _WRAP_UP = re.compile(r"^(?:ok(?:ay)?,? )?(?:i'?m|i am|we'?re|we are) (?:done|finished|off)(?: here)?(?: for (?:today|now|tonight|the day))?[.!]*$|^that'?s (?:all|it) for (?:today|now|tonight)")
 
 
+_DE_REL = {"sister": "Deine Schwester", "brother": "Dein Bruder", "mother": "Deine Mutter", "father": "Dein Vater",
+           "girlfriend": "Deine Freundin", "boyfriend": "Dein Freund", "husband": "Dein Mann", "wife": "Deine Frau",
+           "son": "Dein Sohn", "daughter": "Deine Tochter", "boss": "Dein Chef", "grandma": "Deine Oma", "grandpa": "Dein Opa"}
+_DE_DAY = {"monday": "Montag", "tuesday": "Dienstag", "wednesday": "Mittwoch", "thursday": "Donnerstag", "friday": "Freitag",
+           "saturday": "Samstag", "sunday": "Sonntag", "tomorrow": "morgen", "today": "heute"}
+
+
+def _de_your(sent: str) -> str:
+    """The English sentences the German memory layer stores ("Your sister is called Anna.", "Your zahnarzttermin is on
+    monday.") rendered back in German; anything else stays as it is."""
+    m = re.fullmatch(r"Your (\w+) is called (.+)\.", sent)
+    if m and m.group(1).lower() in _DE_REL:
+        return f"{_DE_REL[m.group(1).lower()]} heißt {m.group(2)}."
+    m = re.fullmatch(r"Your (\w+) works as an? (.+)\.", sent)
+    if m and m.group(1).lower() in _DE_REL:
+        return f"{_DE_REL[m.group(1).lower()]} arbeitet als {m.group(2)[:1].upper() + m.group(2)[1:]}."
+    m = re.fullmatch(r"Your (\w+) is on (\w+)\.", sent)
+    if m and m.group(2).lower() in _DE_DAY and re.fullmatch(r"[a-zäöüß]+", m.group(1).lower()):
+        word = m.group(1)[:1].upper() + m.group(1)[1:]
+        return f"Dein{'e' if word.lower().endswith(('ung', 'e', 'stunde', 'prüfung')) else ''} {word} ist am {_DE_DAY[m.group(2).lower()]}." \
+            if m.group(2).lower() not in ("tomorrow", "today") else f"{word}: {_DE_DAY[m.group(2).lower()]}."
+    return sent
+
+
 @dataclass
 class DialogState:
     conversation: str = "default"
@@ -950,7 +974,8 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or self._german_ctx61(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+                self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
                 self._german_life(st, msg, s)
@@ -1078,6 +1103,140 @@ class Assistant:
         if stmt is not None:
             return stmt
         return Reply(msg, "unknown", self._pick(st, "de:fallback", de["replies"]["fallback"]), via="german")
+
+    def _german_mem67(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 67: memory in German — name, job and city in one sentence, "nein, ich meinte München", "meine
+        Schwester heißt Anna" → "sie ist Ärztin", appointments ("merk dir, dass mein Zahnarzttermin am Freitag ist",
+        moved to Monday), "vergiss, dass ich Pilze hasse"; the English facts are answered in German."""
+        q = s.strip(" .!?")
+        days = {"montag": "monday", "dienstag": "tuesday", "mittwoch": "wednesday", "donnerstag": "thursday", "freitag": "friday",
+                "samstag": "saturday", "sonntag": "sunday", "morgen": "tomorrow", "heute": "today"}
+        nouns = {"schwester": ("sister", "Deine Schwester"), "bruder": ("brother", "Dein Bruder"), "mutter": ("mother", "Deine Mutter"),
+                 "mama": ("mother", "Deine Mama"), "vater": ("father", "Dein Vater"), "papa": ("father", "Dein Papa"),
+                 "freundin": ("girlfriend", "Deine Freundin"), "freund": ("boyfriend", "Dein Freund"), "mann": ("husband", "Dein Mann"),
+                 "frau": ("wife", "Deine Frau"), "sohn": ("son", "Dein Sohn"), "tochter": ("daughter", "Deine Tochter"),
+                 "chef": ("boss", "Dein Chef"), "chefin": ("boss", "Deine Chefin"), "oma": ("grandma", "Deine Oma"), "opa": ("grandpa", "Dein Opa")}
+        cap = lambda w: " ".join(x[:1].upper() + x[1:] for x in w.split())                # noqa: E731
+        jm = re.fullmatch(r"(?:hi,? |hallo,? |hey,? )?(?:ich bin (?P<name>[a-zäöüß]+) und (?:ich bin |arbeite als )?|ich bin |ich arbeite als )"
+                          r"(?P<job>[a-zäöüß]+(?:in)?) (?:in|aus|bei) (?P<place>[a-zäöüß]+(?: [a-zäöüß]+)?)", q)
+        if jm and re.search(r"(?:er|in|ist|ent|eur|arzt|koch|loge|ant|at|wirt|mann|frau)$", jm.group("job")) and jm.group("job") not in (
+                "wieder", "immer", "schon", "noch", "lieber", "später", "sicher", "sauer", "unter", "hier", "mal", "da", "gerade",
+                "jetzt", "allein", "drin", "bereit", "fertig", "zuhause", "daheim", "oben", "unten", "weiter", "eher", "nur", "privat"):
+            prep = re.search(r" (in|aus|bei) " + re.escape(jm.group("place")) + "$", q).group(1)
+            place_ok = prep != "bei" and not re.match(r"(?:einem|einer|der|dem|den|die|das|meiner|meinem)\b", jm.group("place"))
+            sents = ([f"My name is {cap(jm.group('name'))}."] if jm.group("name") else []) + [f"I work as a {cap(jm.group('job'))}."] + \
+                ([f"I {'come from' if prep == 'aus' else 'live in'} {_de_place_case(jm.group('place'))}."] if place_ok else [])
+            sids = []
+            for sent in sents:
+                self._learn(st, [sent], msg)
+                sids.append(self.bot.context.get("last_learned"))
+            st.uses["learn67"] = [sids, st.turn + 1]
+            head = f"Freut mich, {cap(jm.group('name'))}! " if jm.group("name") else ""
+            where = f" in {_de_place_case(jm.group('place'))}" if place_ok and prep == "in" else \
+                (f" aus {_de_place_case(jm.group('place'))}" if place_ok else "")
+            return Reply(msg, "learned", f"{head}{cap(jm.group('job'))}{where} – merk ich mir.", via="german")
+        cm = re.fullmatch(r"(?:nein,? |ne,? |sorry,? |oh,? |halt,? |moment,? )+(?:ich meinte |ich meine |eigentlich )(?P<x>[a-zäöüß ]{2,30})", q)
+        if cm and st.last_kind == "learned" and self.bot.context.get("last_learned") in self.bot.user_texts():
+            sid = self.bot.context["last_learned"]
+            l67 = st.uses.get("learn67")
+            if l67 and l67[1] == st.turn:
+                jobby = bool(re.search(r"(?:er|in|ist|ent|eur|arzt|koch|loge|ant|at|wirt)$", cm.group("x").strip()))
+                for cand in l67[0]:
+                    rel = {r for f in self.bot.facts.facts if f.source == cand for r in f.relation}
+                    if ("#job" in rel) == jobby and "#name" not in rel and cand in self.bot.user_texts():
+                        sid = cand
+                        break
+            old_t = self.bot.user_texts()[sid]
+            fs = [f for f in self.bot.facts.facts if f.source == sid and f.subject == USER and f.object]
+            if fs and not any("#name" in f.relation for f in fs) and re.search(re.escape(fs[0].object), old_t, re.I):
+                x = _de_place_case(cm.group("x").strip()) if fs[0].object[:1].isupper() else cm.group("x").strip()
+                self.bot.memory.forget(sid)
+                self.bot.refresh()
+                self._learn(st, [re.sub(re.escape(fs[0].object), x, old_t, count=1, flags=re.I)], msg)
+                return Reply(msg, "learned", f"Ah, {x} – korrigiert!", via="german")
+        pm = re.fullmatch(r"mein(?:e)? (?P<n>[a-zäöüß]+) heißt (?P<x>[a-zäöüß]+)", q)
+        if pm and pm.group("n") in nouns:
+            en, de = nouns[pm.group("n")]
+            st.uses["pn_de"] = [pm.group("n"), st.turn]
+            self._learn(st, [f"My {en} is called {cap(pm.group('x'))}."], msg)
+            return Reply(msg, "learned", f"{cap(pm.group('x'))} – schöner Name! Merk ich mir.", via="german")
+        pn = st.uses.get("pn_de")
+        if pn and st.turn - pn[1] <= 4:
+            sj = re.fullmatch(r"(?:sie|er) (?:ist|arbeitet als) (?P<j>[a-zäöüß]+)", q)
+            ad = re.fullmatch(r"(?:sie|er) ist (?:(?:so|sehr|echt|total|richtig|wirklich|voll) )?(?P<a>nett|lieb|toll|super|cool|klasse|"
+                              r"witzig|lustig|süß|großartig|die beste|der beste|schlau|klug|hilfsbereit)", q)
+            if ad:
+                en, de = nouns[pn[0]]
+                st.uses["pn_de"] = [pn[0], st.turn]
+                ihr = "ihr" if de.startswith("Deine") else "ihm"
+                return Reply(msg, "smalltalk", f"Das klingt schön! Man merkt, dass du {ihr} nahestehst. Was macht ihr gern zusammen?", via="german")
+            if sj and sj.group("j") not in ("nett", "lieb", "toll", "super", "krank", "müde", "da", "weg", "hier", "gut"):
+                en, de = nouns[pn[0]]
+                st.uses["pn_de"] = [pn[0], st.turn]
+                self._learn(st, [f"My {en} works as a {cap(sj.group('j'))}."], msg)
+                return Reply(msg, "learned", f"{cap(sj.group('j'))} – beeindruckend! Merk ich mir.", via="german")
+        bq = re.fullmatch(r"(?:und )?was (?:macht|arbeitet) mein(?:e)? (?P<n>[a-zäöüß]+)(?: beruflich)?|was ist mein(?:e)? (?P<m>[a-zäöüß]+) von beruf", q)
+        if bq and (bq.group("n") or bq.group("m")) in nouns:
+            key = bq.group("n") or bq.group("m")
+            en, de = nouns[key]
+            r = self._question(st, f"what is my {en}'s job?")
+            jm2 = re.search(r"works as an? (.+?)\.", r.text or "")
+            if r.kind == "answer" and jm2:
+                return Reply(msg, "answer", f"{de} arbeitet als {jm2.group(1)}.", via="german", source=r.source)
+            return Reply(msg, "unknown", f"Das hast du mir noch nicht erzählt. Was macht {de.split()[0].lower()} {de.split()[1]} denn?", via="german")
+        nq = re.fullmatch(r"(?:und )?wie heißt mein(?:e)? (?P<n>[a-zäöüß]+)(?: noch mal| nochmal| gleich)?", q)
+        if nq and nq.group("n") in nouns:
+            en, de = nouns[nq.group("n")]
+            r = self._question(st, f"what is my {en}'s name?")
+            nm2 = re.search(r"is called ([A-ZÄÖÜa-zäöüß]+)", r.text or "")
+            if r.kind == "answer" and nm2:
+                return Reply(msg, "answer", f"{de} heißt {nm2.group(1)}.", via="german")
+        if re.fullmatch(r"(?:und )?(?:was arbeite ich|was mache ich beruflich|was ist mein beruf|als was arbeite ich)", q):
+            r = self._question(st, "what is my job?")
+            jm3 = re.search(r"work as an? (.+?)\.", r.text or "")
+            if r.kind == "answer" and jm3:
+                return Reply(msg, "answer", f"Du arbeitest als {cap(jm3.group(1))}.", via="german")
+        am = re.fullmatch(r"merk dir,? dass mein(?:e)? (?P<x>[a-zäöüß]+) am (?P<d>montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag) ist", q)
+        if am:
+            self._learn(st, [f"My {am.group('x')} is on {days[am.group('d')]}."], msg)
+            st.uses["appt_de"] = [am.group("x"), st.turn]
+            return Reply(msg, "learned", f"Okay, {cap(am.group('x'))} am {cap(am.group('d'))} – merk ich mir.", via="german")
+        wq = re.fullmatch(r"(?:und )?wann ist mein(?:e)? (?P<x>[a-zäöüß]+)(?: jetzt| denn)?", q)
+        er = re.fullmatch(r"(?:und )?wann ist (?:er|sie|es|der|die|das) (?:jetzt|denn|nun)", q)
+        ap = st.uses.get("appt_de")
+        if wq or (er and ap):
+            x = wq.group("x") if wq else ap[0]
+            r = self._question(st, f"when is my {x}?")
+            dm = re.search(r"\bon (monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|today)\b", (r.text or "").lower())
+            if r.kind == "answer" and dm:
+                de_day = next(k for k, v in days.items() if v == dm.group(1))
+                return Reply(msg, "answer", f"Dein {cap(x)} ist am {cap(de_day)}.", via="german")
+        mv = re.fullmatch(r"(?:der|die|das|er|sie|es) (?:wurde|ist) (?:jetzt )?(?:auf|am) (?P<d>montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag)"
+                          r"(?: verschoben| verlegt)?(?: worden)?", q)
+        if mv and not ap:
+            return Reply(msg, "clarify", f"Was wurde denn auf {cap(mv.group('d'))} verschoben? Sag mir kurz, welcher Termin – dann merk ich's mir.",
+                         via="german")
+        if mv and ap:
+            texts = self.bot.user_texts()
+            for sid, t in list(texts.items()):
+                if re.search(rf"\bmy {re.escape(ap[0])} is on\b", t, re.I):
+                    self.bot.memory.forget(sid)
+            self.bot.refresh()
+            self._learn(st, [f"My {ap[0]} is on {days[mv.group('d')]}."], msg)
+            st.uses["appt_de"] = [ap[0], st.turn]
+            return Reply(msg, "learned", f"Okay, verschoben auf {cap(mv.group('d'))} – hab ich geändert.", via="german")
+        fg = re.fullmatch(r"vergiss,? dass ich (?P<x>[a-zäöüß ]+?) (?P<v>hasse|nicht mag|mag|liebe|nicht leiden kann)", q) or \
+            re.fullmatch(r"vergiss,? dass ich (?P<v2>keine?|kein) (?P<y>[a-zäöüß]+) mag", q)
+        if fg:
+            gd = fg.groupdict()
+            x = gd.get("x") or gd.get("y")
+            neg = gd.get("v") in ("hasse", "nicht mag", "nicht leiden kann") or gd.get("v2")
+            r = self.bot._forget(f"forget that i {'do not like' if neg else 'like'} {x}")
+            if r.kind == "forgot":
+                return Reply(msg, "forgot", f"Erledigt – ich habe vergessen, dass du {cap(x)} {'nicht magst' if neg else 'magst'}. Es ist wirklich weg, "
+                             "nicht nur versteckt.", via="memory")
+            return Reply(msg, "nothing", f"Dazu habe ich nichts gespeichert, was ich vergessen könnte.", via="memory")
+        return None
 
     def _german_ctx65(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """Battery 65 in German: loneliness and making friends, grief and memories, feeling not good enough,
@@ -2253,7 +2412,7 @@ class Assistant:
                 line = None
             if line is None:
                 sent = personal_sentence(f.subject, f.relation, f.object, f.sentence)
-                line = sent
+                line = _de_your(sent) if sent else sent
             if line and line not in lines:
                 lines.append(line)
         if not lines:

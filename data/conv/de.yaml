@@ -10,6 +10,7 @@ detect:
   # words that are common in German and rare in English messages
   german: [ich, du, bin, bist, ist, nicht, und, das, der, die, den, dem, ein, eine, einen, mir, mich, dir, dich,
            stunden, stunde, minuten, tage, wochen, monate, jahre, ungefähr, etwa, circa, knapp, halbe,
+           wohne, lebe, arbeite, heiße, hasse, schwester, bruder, mutter, vater, meinte, merk, vergiss, verschoben, termin,
            wie, was, wer, wo, warum, wieso, geht, gehts, heiße, heisse, danke, bitte, gut, schlecht, auch, noch,
            schon, aber, oder, sehr, heute, morgen, gestern, hast, habe, kannst, kann, bitte, mein, meine, dein,
            deine, sind, wir, ihr, sie, es, zu, mit, für, über, von, auf, nein, ja, doch, genau, tschüss, tschüs,

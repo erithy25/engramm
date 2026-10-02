@@ -2743,3 +2743,49 @@ def test_battery66_memory_corrections_dislikes_and_forgetting(chat):
     assert r.text.count("?") <= 1, r.text
     r = a.turn(DialogState("f66"), "forget it, tell me a joke")
     assert r.kind == "smalltalk", r.text
+
+
+def test_battery67_german_memory(chat):
+    a, _ = chat
+    st = DialogState("g67")
+    r = a.turn(st, "hi, ich bin lena und ich bin lehrerin in hamburg")
+    assert "Lena" in r.text and "Hamburg" in r.text, r.text
+    assert a.turn(st, "wie heiße ich?").text == "Du heißt Lena."
+    assert "Hamburg" in a.turn(st, "wo wohne ich?").text
+    assert "Lehrerin" in a.turn(st, "und was arbeite ich?").text
+    st = DialogState("c67")
+    a.turn(st, "ich wohne in berlin")
+    assert "München" in a.turn(st, "nein, ich meinte münchen").text
+    assert "München" in a.turn(st, "wo wohne ich?").text
+    st = DialogState("t67")
+    a.turn(st, "hi, ich bin tom und ich bin lehrer in köln")
+    a.turn(st, "nein, ich meinte bonn")
+    assert "Bonn" in a.turn(st, "wo wohne ich?").text
+    assert "Lehrer" in a.turn(st, "was arbeite ich?").text
+    st = DialogState("k67")
+    r = a.turn(st, "ich arbeite als koch bei einem hotel")
+    assert "Hotel" not in r.text, r.text
+    a.turn(st, "nein, ich meinte bäcker")
+    assert "Bäcker" in a.turn(st, "was arbeite ich?").text
+    st = DialogState("s67")
+    a.turn(st, "meine schwester heißt anna")
+    a.turn(st, "sie ist ärztin")
+    assert "Ärztin" in a.turn(st, "was macht meine schwester beruflich?").text
+    assert "Anna" in a.turn(st, "wie heißt meine schwester?").text
+    r = a.turn(st, "sie ist echt nett")
+    assert r.kind == "smalltalk" and "ihr" in r.text, r.text
+    st = DialogState("f67")
+    a.turn(st, "ich hasse pilze")
+    assert "Pilze" in a.turn(st, "was mag ich nicht?").text
+    assert a.turn(st, "vergiss, dass ich pilze hasse").kind == "forgot"
+    assert "Pilze" not in a.turn(st, "was mag ich nicht?").text
+    st = DialogState("z67")
+    a.turn(st, "merk dir, dass mein zahnarzttermin am freitag ist")
+    assert "Freitag" in a.turn(st, "wann ist mein zahnarzttermin?").text
+    a.turn(st, "der wurde auf montag verschoben")
+    assert "Montag" in a.turn(st, "und wann ist er jetzt?").text
+    known = a.turn(st, "was weißt du über mich?").text
+    assert "Your" not in known and "Freitag" not in known, known
+    for msg in ("ich bin wieder in berlin", "ich bin heute in köln"):
+        assert a.turn(DialogState("n67"), msg).kind != "learned", msg
+    assert a.turn(DialogState("v67"), "der wurde auf montag verschoben").kind == "clarify"
