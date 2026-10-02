@@ -1823,3 +1823,53 @@ def test_german_spouse_tense():
         "Emmanuel Macron ist mit Brigitte Macron verheiratet."
     assert de_sentence("spouse", "Albert Einstein", "Elsa Einstein", "Albert Einstein was married to Elsa Einstein.") == \
         "Albert Einstein war mit Elsa Einstein verheiratet."
+
+
+def test_battery47_trip_cat_language_and_wall(chat):
+    a, _ = chat
+    st = DialogState("k1")
+    a.turn(st, "im going to rome next week")
+    r = a.turn(st, "for 4 days")
+    assert "4 days" in r.text and "Rome" in r.text, r.text
+    r = a.turn(st, "what should i see?")
+    assert "Colosseum" in r.text and "Kyoto" not in r.text, r.text
+    r = a.turn(st, "is it expensive?")
+    assert "Rome" in r.text and "mid-range" in r.text, r.text
+    r = a.turn(st, "do i need a visa as a german?")
+    assert "no visa" in r.text.lower() and "Italy" in r.text, r.text
+    st2 = DialogState("k2")
+    a.turn(st2, "i'm thinking about getting a cat")
+    r = a.turn(st2, "i live in a small apartment")
+    assert "flat" in r.text or "indoor" in r.text, r.text
+    r = a.turn(st2, "what do i need?")
+    assert "litter" in r.text, r.text
+    r = a.turn(st2, "what should i name it?")
+    assert "Luna" in r.text, r.text
+    st3 = DialogState("k3")
+    a.turn(st3, "i want to learn spanish")
+    r = a.turn(st3, "how long does it take?")
+    assert "months" in r.text and "Spanish" in r.text, r.text
+    st4 = DialogState("k4")
+    r = a.turn(st4, "what year did the berlin wall fall?")
+    assert "1989" in r.text, r.text
+    assert "Gorbachev" in a.turn(st4, "why did it fall?").text
+    assert "Kohl" in a.turn(st4, "who was the chancellor then?").text
+    assert "28 years" in a.turn(st4, "how long did it stand?").text
+
+
+def test_battery47_german_so_so_day_off(chat):
+    a, _ = chat
+    st = DialogState("k5")
+    a.turn(st, "na, wie läuft's?")
+    r = a.turn(st, "geht so")
+    assert "Freut mich" not in r.text and r.kind == "empathy", r.text
+    a.turn(st, "hab schlecht geschlafen")
+    r = a.turn(st, "zu viel im kopf")
+    assert "aufschreiben" in r.text or "Zettel" in r.text, r.text
+    st2 = DialogState("k6")
+    r = a.turn(st2, "ich hab heute frei")
+    assert "frei" in r.text.lower(), r.text
+    r = a.turn(st2, "keine ahnung was ich machen soll")
+    assert "•" in r.text, r.text
+    r = a.turn(st2, "das wetter ist schön")
+    assert "Spaziergang" in r.text or "Biergarten" in r.text, r.text

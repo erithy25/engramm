@@ -352,6 +352,25 @@ _DE_MISUNDERSTOOD = re.compile(r"^du (?:verstehst|kapierst) (?:mich |ja |echt |g
 _DE_SORRY = re.compile(r"^(?:sorry|entschuldigung|tut mir leid|sry)[,!.]* ?(?:das )?(?:war|ist) (?:nicht so|nicht böse) gemeint[.!]*$|"
                        r"^(?:sorry|entschuldige|entschuldigung|tut mir leid)(?:,? (?:das war gemein|ich war gemein|war blöd von mir))?[.!]*$")
 _DE_HELP = re.compile(r"^(?:hey,? |du,? )?(?:kannst|könntest) du mir (?:bitte |mal )?(?:bei etwas |bei was |mit etwas )?helfen\??$|^ich brauche (?:deine |mal )?hilfe[.!?]*$")
+# battery 47: a trip being planned, getting a cat, learning a language, a day off in German
+_SEE_BARE = re.compile(r"^(?:so |and |ok )?what (?:should|can|could|do|must) (?:i|we) (?:see|visit|do|check out)(?: there| first| while i'?m there)?\??$|"
+                       r"^(?:any )?(?:must-sees|sights|things to see)(?: there)?\??$")
+_TRIP_DAYS = re.compile(r"^(?:just |only |it'?s |for )*(?:for )?(?P<n>\d+|two|three|four|five|six|seven|ten) (?:days|nights)(?: only)?[.!]*$")
+_EXPENSIVE = re.compile(r"^(?:and |so |but )?(?:is (?:it|that|the city|\w+) (?:expensive|pricey|cheap|affordable)|how expensive is (?:it|\w+(?: \w+)?))\??$")
+_VISA = re.compile(r"^(?:and |so )?(?:do|will|would) i need a visa(?: (?:for|to go to|to visit) (?:it|there|[a-z ]+?))?(?: as an? (?P<n>[a-z]+)(?: citizen)?)?\??$")
+_LANG_THERE = re.compile(r"^(?:and |so )?what language(?:s)? do (?:they|people|you) speak(?: there)?\??$")
+_EU = frozenset(("Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic", "Denmark", "Estonia", "Finland", "France",
+                 "Germany", "Greece", "Hungary", "Ireland", "Italy", "Latvia", "Lithuania", "Luxembourg", "Malta", "Netherlands",
+                 "Poland", "Portugal", "Romania", "Slovakia", "Slovenia", "Spain", "Sweden"))
+_EU_NATIONAL = re.compile(r"\b(?:german|french|italian|spanish|austrian|dutch|belgian|portuguese|greek|irish|polish|swedish|danish|finnish|"
+                          r"czech|hungarian|croatian|romanian|bulgarian|slovak|slovenian|luxembourgish|maltese|cypriot|estonian|latvian|"
+                          r"lithuanian|eu citizen|european)\b")
+_GET_PET = re.compile(r"\b(?:thinking (?:about|of) getting|want to get|planning to get|going to get|getting) an? (?P<p>cat|kitten|dog|puppy)\b")
+_SMALL_FLAT = re.compile(r"^(?:but |and )?i (?:live in|have|only have) (?:a |an )?(?:small|tiny|little) (?:apartment|flat|place|studio)[.!]*$")
+_IS_OK = re.compile(r"^(?:is that|would that be|is it) (?:ok(?:ay)?|fine|a problem|alright)(?: for (?:a|the) (?:cat|dog))?\??$")
+_WHAT_NEED = re.compile(r"^(?:and |so )?what (?:do|will|would) i need(?: for (?:it|a cat|a dog|a kitten|a puppy))?\??$")
+_NAME_IT = re.compile(r"^(?:and |so )?what should i (?:name|call) (?:it|him|her|them|the (?:cat|dog|kitten|puppy))\??$|^(?:any )?name ideas\??$")
+_LEARN_TIME = re.compile(r"^(?:and |so )?how long (?:does it|will it|would it) take(?: to (?:learn (?:it|that)|get good|become fluent))?\??$")
 _WEAR = re.compile(r"^(?:(?:and|so|ok|okay|hmm|fine|alright|cool|sure)[.,!]? )?what (?:should|do|can|could) i wear(?: (?:to|for|on|in) "
                    r"(?:the |a |my |an )?(?P<x>[a-z ]+?))?(?: tomorrow| today| tonight)?\??$")
 _OCCASIONS = [("interview", re.compile(r"\binterview")), ("wedding", re.compile(r"\bwedding|\bmarr")),
@@ -859,6 +878,39 @@ class Assistant:
         for rx, key in ((_DE_MISUNDERSTOOD, "misunderstood"), (_DE_SORRY, "sorry_ok"), (_DE_HELP, "help_ask")):
             if rx.match(q):
                 return Reply(msg, "smalltalk", self._pick(st, f"de:ctx:{key}", dc[key]), via="german")
+        if re.fullmatch(r"(?:hm+,? |naja,? |ach,? )?(?:geht so|so lala|so la la|mittel|naja|nicht so toll|nicht so gut|könnte besser sein|"
+                        r"durchwachsen|es geht|muss ja)", q):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "de:ctx:so_so", dc["so_so"]), via="german")
+        le0 = st.last_exp or {}
+        sleepy = le0 and st.turn - le0.get("turn", -99) <= 3 and re.search(r"schlaf|geschlafen|nacht|müde", le0.get("text") or "")
+        if sleepy and re.fullmatch(r"(?:einfach |eher |wohl )?(?:zu viel|so viel|viel) (?:im kopf|gedanken|nachgedacht|gegrübelt)|"
+                                   r"(?:ich )?(?:konnte|kann) nicht abschalten|gedankenkarussell|(?:mein )?kopf (?:war|ist) zu voll", q):
+            st.last_exp = dict(le0, turn=st.turn)
+            return Reply(msg, "empathy", self._pick(st, "de:ctx:racing", dc["racing"]), via="german")
+        if re.fullmatch(r"(?:ich )?(?:hab|habe) (?:heute|morgen|endlich|diese woche) (?:frei|urlaub|keinen termin)|heute ist mein freier tag", q):
+            st.uses["day_off_de"] = st.turn
+            return Reply(msg, "smalltalk", self._pick(st, "de:ctx:day_off", dc["day_off"]), via="german")
+        do = st.uses.get("day_off_de")
+        if do is not None and st.turn - do <= 3:
+            if re.fullmatch(r"(?:keine ahnung|weiß nicht|weiss nicht|ich weiß nicht)(?:,? was ich (?:machen|tun) soll)?|hast du (?:eine )?idee\w*|"
+                            r"was (?:könnte|kann|soll) ich (?:machen|tun)", q):
+                st.uses["day_off_de"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:day_off_ideas", dc["day_off_ideas"]), via="german")
+            if re.fullmatch(r"(?:das |und das )?wetter ist (?:so |richtig |echt |total )?(?:schön|gut|toll|super|herrlich|sonnig)", q):
+                st.uses["day_off_de"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:nice_weather", dc["nice_weather"]), via="german")
+        vals = [v for v in st.uses.get("kb_vals", []) if st.turn - v[0] <= 4]
+        wb = re.fullmatch(r"(?:und )?(?:welche|welcher|welches|wer|was) (?:davon |von beiden )?(?:ist|hat) (?P<w>größer|kleiner|mehr einwohner|älter|höher|länger)", q)
+        if wb and len(vals) >= 2 and vals[-1][1] != vals[-2][1]:
+            w = {"größer": "bigger", "kleiner": "smaller", "mehr einwohner": "bigger", "älter": "older", "höher": "taller",
+                 "länger": "longer"}[wb.group("w")]
+            a_, b_ = vals[-2][1], vals[-1][1]
+            rep = self.everyday.compare(st, f"which is {w}, {a_} or {b_}", f"which is {w}, {a_} or {b_}".lower())
+            if rep is not None and rep.kind == "answer":
+                rep.text = _de_compare(rep.text, s)
+                rep.message = msg
+                return rep
         m = _DE_MOVING.match(q)
         if m and m.group("x") not in ("hause", "bett", "ruhe", "der stadt", "die stadt"):
             city = _de_place_case(m.group("x"))
@@ -3589,7 +3641,8 @@ class Assistant:
                 for dish in dishes:
                     if dish["name"].lower() == x or dish["name"].lower().replace("homemade ", "") == x:
                         return self._dish_steps(st, msg, dish["name"])
-        r2 = self._daily_ctx2(st, msg, norm) or self._daily_ctx3(st, msg, norm) or self._daily_ctx4(st, msg, norm)
+        r2 = self._daily_ctx2(st, msg, norm) or self._daily_ctx3(st, msg, norm) or self._daily_ctx4(st, msg, norm) or \
+            self._daily_ctx5(st, msg, norm)
         if r2 is not None:
             return r2
         m = _WHAT_LIKES.match(norm)
@@ -3908,6 +3961,68 @@ class Assistant:
             return Reply(msg, "smalltalk", self._pick(st, "daily:what_else", d["what_else"]), via="smalltalk")
         return None
 
+    def _daily_ctx5(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 47: a trip (how long, what to see, how expensive, visa, language), getting a cat (small flat,
+        what you need, names) and how long learning a language takes."""
+        d = self.bank.daily
+        pt = st.uses.get("place_topic") or st.uses.get("trip")
+        place = pt[0] if isinstance(pt, list) and st.turn - pt[1] <= 8 else None
+        key = place.lower() if place else None
+        if place:
+            if _SEE_BARE.match(norm):
+                rep = self._turn(st, f"what should i see in {key}?")
+                rep.message = msg
+                return rep
+            m = _TRIP_DAYS.match(norm)
+            if m and st.turn - pt[1] <= 2:
+                n = m.group("n")
+                return Reply(msg, "smalltalk", self._pick(st, "daily:trip_length", d["trip_length"], x=n, y=place), via="everyday")
+            if _EXPENSIVE.match(norm):
+                level = next((lv for lv, cities in d["cost_level"].items() if key in cities), None)
+                if level:
+                    return Reply(msg, "smalltalk", _fill(d["cost_says"][level], x=place), via="everyday")
+            m = _VISA.match(norm)
+            country = d["place_country"].get(key)
+            if m and country:
+                own = (m.group("n") or "") + " " + " ".join(f.object for f in self.bot.facts.facts if f.subject == USER and "#origin" in f.relation)
+                if country in _EU and _EU_NATIONAL.search(own.lower()):
+                    return Reply(msg, "smalltalk", self._pick(st, "daily:visa_eu", d["visa_eu"], x=country if key != country.lower() else place),
+                                 via="everyday")
+                return Reply(msg, "smalltalk", self._pick(st, "daily:visa_check", d["visa_check"]), via="everyday")
+            if _LANG_THERE.match(norm) and country:
+                rep = self._kb_answer(st, f"what language do they speak in {country}")
+                if rep is not None:
+                    rep.message = msg
+                    return rep
+        gp = st.uses.get("get_pet")
+        m = _GET_PET.search(norm)
+        if m:
+            st.uses["get_pet"] = gp = [{"kitten": "cat", "puppy": "dog"}.get(m.group("p"), m.group("p")), st.turn]
+        if gp and st.turn - gp[1] <= 6 and gp[0] == "cat":
+            if _SMALL_FLAT.match(norm):
+                gp[1] = st.turn
+                rep = self._learn(st, [msg], msg)
+                rep.text = self._pick(st, "daily:cat_small_flat", d["cat_small_flat"])
+                return rep
+            if _IS_OK.match(norm):
+                gp[1] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:cat_ok", d["cat_ok"]), via="everyday")
+            if _WHAT_NEED.match(norm):
+                gp[1] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:cat_need", d["cat_need"]), via="everyday")
+        if gp and st.turn - gp[1] <= 6 and _NAME_IT.match(norm):
+            return Reply(msg, "smalltalk", d["pet_names"][gp[0]], via="everyday")
+        lr = re.search(r"\b(?:learn|learning|study|studying) (?P<l>spanish|french|german|italian|english|japanese|chinese|portuguese|"
+                       r"korean|russian|arabic|dutch)\b", normalise(st.last_message or ""))
+        if lr and _LEARN_TIME.match(norm):
+            text = self._pick(st, "daily:learn_time", d["learn_time"])
+            if lr.group("l") in ("spanish", "italian", "portuguese", "dutch", "french"):
+                text += f" {lr.group('l').capitalize()} is one of the easier languages for English and German speakers!"
+            elif lr.group("l") in ("japanese", "chinese", "korean", "arabic"):
+                text += f" {lr.group('l').capitalize()} takes longer, mostly because of the writing system, so be patient with yourself."
+            return Reply(msg, "smalltalk", text, via="everyday")
+        return None
+
     def _person_name(self, noun: str) -> str | None:
         for tx in self.bot.user_texts().values():
             m = re.match(rf"^My {re.escape(noun)} is called ([A-Z][\w'-]*)\.?$", tx)
@@ -4194,7 +4309,7 @@ class Assistant:
             if found is not None and found.sentences:
                 st.last_about = {"title": found.title, "doc": found.doc, "next": found.next_sentence,
                                  "end": found.end_sentence, "source": found.source}
-                lead = self._pick(st, "daily:cuisine_lead", self.bank.daily["cuisine_lead"], x=place)
+                lead = self._pick(st, "daily:cuisine_lead", self.bank.daily["cuisine_lead"], x=_place_case(place) if place.islower() else place)
                 return Reply(text, "smalltalk", f"{lead} {' '.join(found.sentences)}", via="about",
                              source=found.source)
         return None
@@ -4509,13 +4624,25 @@ class Assistant:
                                                          r"when (?:he|she|they) did (?:it|that)|at that time))?", q):
             return Reply(text, "answer", ct[0], answer=ct[0], source={"kind": "common", "source": "everyday facts", "key": ""},
                          confidence=1.0, via="common")   # "how old was he then?" after the first man on the moon
+        cf = st.uses.get("common_follow")
+        if cf and st.turn - cf[1] <= 4:                   # "why did it fall?" after the Berlin Wall
+            for f in cf[0]:
+                if re.fullmatch(f["q"], q):
+                    cf[1] = st.turn
+                    return Reply(text, "answer", f["a"], answer=f["a"], source={"kind": "common", "source": "everyday facts",
+                                                                                  "key": ""}, confidence=1.0, via="common")
         tp = st.topic if st.topic and st.turn - st.topic.get("turn", -99) <= 4 else None
         tries = [q]
         if tp and re.search(r"\b(?:it|there)\b", q):         # "who was the first person on it?" after the Moon
             tries.append(re.sub(r"\b(?:it|there)\b", tp["name"].lower(), q, count=1))
+        if re.search(r"\bthe (?:painting|picture|statue|building|tower|book|film|movie)\b", q):
+            for name in reversed(st.uses.get("recap", [])[-4:]):   # "where is the painting now?" after the Mona Lisa
+                tries.append(re.sub(r"\bthe (?:painting|picture|statue|building|tower|book|film|movie)\b", name.lower(), q, count=1))
         item = next((it for q in tries for it in self.bank.daily.get("common", []) if re.fullmatch(it["q"], q)), None)
         if item is None:
             return None
+        if item.get("follow"):
+            st.uses["common_follow"] = [item["follow"], st.turn]
         src = {"kind": "common", "source": "everyday facts", "key": item.get("key", "")}
         if item.get("t"):                         # a person or thing: "when was he born?" follows on from it
             self.bot.context.update({"answer": item["t"], "atype": None, "mention": item["t"], "kb_last": None})

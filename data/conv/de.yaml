@@ -102,7 +102,7 @@ intents:
       - "Alles klar."
       - "In Ordnung."
   - id: user_fine
-    patterns: ['((mir geht s|mir gehts|mir geht es|bei mir( ist)?( alles)?|alles|mir geht s auch|mir gehts auch) )?(gut|super|bestens|prima|klar|ok|okay|ganz gut|gut soweit|passt|läuft|läuft gut|geht so|alles gut)(,? danke|,? danke dir|,? danke der nachfrage)?(,? und (bei )?dir|,? und wie geht s dir)?[!.]*']
+    patterns: ['((mir geht s|mir gehts|mir geht es|bei mir( ist)?( alles)?|alles|mir geht s auch|mir gehts auch) )?(gut|super|bestens|prima|klar|ok|okay|ganz gut|gut soweit|passt|läuft|läuft gut|alles gut)(,? danke|,? danke dir|,? danke der nachfrage)?(,? und (bei )?dir|,? und wie geht s dir)?[!.]*']
     responses:
       - "Freut mich zu hören! Was steht heute bei dir an?"
       - "Schön! Gibt's was Neues bei dir?"
@@ -527,6 +527,12 @@ daily:
       - {need: [nudel, käse], idea: "Käsespätzle-Style: Nudeln mit geschmolzenem Käse und Röstzwiebeln."}
       - {need: [ei], idea: "Rührei, Omelett oder Pfannkuchen – Eier sind echte Retter."}
       - {need: [nudel], idea: "Pasta aglio e olio: nur Knoblauch, Olivenöl, Chili und Nudeln."}
+    so_so: ["Nur so lala? Was ist los – magst du erzählen?", "Hm, klingt nach einem durchwachsenen Tag. Was drückt denn?"]
+    racing: ["Das kenne ich – nachts wird der Kopf plötzlich laut. Schreib die Gedanken kurz auf einen Zettel, mit einem nächsten Schritt für morgen. Dann sind sie für heute erledigt.", "Gedankenkarussell, ganz typisch. Was oft hilft: alles aufschreiben, was dich beschäftigt – dann muss der Kopf es nicht mehr festhalten."]
+    day_off: ["Wie schön, ein freier Tag! Hast du schon was vor, oder lässt du ihn auf dich zukommen?", "Frei – herrlich! Willst du was unternehmen oder eher entspannen?"]
+    day_off_ideas: ["Ein paar Ideen für deinen freien Tag:\n\n• Ein langer Spaziergang oder eine Radtour\n• In ein Café setzen und ein Buch lesen\n• Ein Museum oder eine Ausstellung besuchen\n• Freunde fragen, ob jemand spontan Zeit hat\n• Oder einfach mal gar nichts – auch das zählt!\n\nWorauf hast du Lust?"]
+    nice_weather: ["Perfekt! Dann raus mit dir: ein Spaziergang im Park, ein Eis, Radfahren oder ein Picknick – bei schönem Wetter ist fast alles besser.", "Dann würde ich das ausnutzen! Biergarten, See, Park oder einfach eine Runde Rad fahren."]
+    which_bigger: ["{x}"]
     bot_human: ["Nein, ich bin kein Mensch – ich bin ENGRAMM, ein Programm auf deinem Rechner. Kein neuronales Netz, keine Cloud: Ich antworte aus dem, was ich gelesen habe, und aus dem, was du mir erzählst.", "Nein, ich bin ein Programm namens ENGRAMM. Aber ich höre dir trotzdem gern zu!"]
     wfh_lonely: ["Das kann ich gut verstehen – Homeoffice kann richtig einsam machen. Ganze Tage ohne ein echtes Gespräch.", "Ja, zu Hause arbeiten ist praktisch, aber man sieht kaum Leute. Kein Plausch an der Kaffeemaschine."]
     maybe_should: ["Das ist eine gute Idee – auch kleine Schritte zählen. Soll ich dir ein paar Ideen geben?", "Finde ich gut! Klein anfangen ist völlig okay. Magst du ein paar Vorschläge?"]

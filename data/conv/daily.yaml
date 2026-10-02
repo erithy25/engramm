@@ -1020,6 +1020,8 @@ yes_no_quote:
 # everyday facts the text look-up tends to get wrong; each checked by hand ("q" is matched against the
 # normalised question without the question mark)
 common:
+  - {q: "(?:and |so )?(?:when|what year|in what year|which year) did the berlin wall (?:fall|come down)|when was the fall of the berlin wall", a: "The Berlin Wall fell on 9 November 1989, during the Peaceful Revolution in East Germany.", v: "9 November 1989", t: "Berlin Wall", follow: [{q: "(?:and |so )?why did (?:it|the wall|the berlin wall) fall\\??", a: "Mass protests in East Germany, people fleeing via Hungary and Czechoslovakia, and reforms in the Soviet Union under Gorbachev. On 9 November an official mistakenly announced that travel was allowed immediately, and crowds forced the border open that night."}, {q: "(?:and |so )?who was (?:the )?(?:german |west german )?chancellor (?:then|at the time|back then)\\??", a: "Helmut Kohl was Chancellor of West Germany then. He went on to lead reunified Germany from October 1990."}, {q: "(?:and |so )?how long did (?:it|the wall) (?:stand|last|exist)\\??", a: "About 28 years: it went up on 13 August 1961 and fell on 9 November 1989."}]}
+  - {q: "(?:and |so )?(?:where is|where can i see|in which museum is|where (?:is|can you see) the painting of) (?:the )?mona lisa(?: now| today| kept| displayed| hanging)?", a: "The Mona Lisa hangs in the Louvre in Paris, behind bulletproof glass in the Salle des États.", v: "the Louvre", t: "Mona Lisa"}
   - {q: "(?:and |so )?(?:has anyone|did anyone|has anybody|did people|have people) (?:ever )?(?:climbed|reached the (?:top|summit) of|been to the top of) (?:mount )?everest|who (?:was the first (?:person |man |one )?to climb|first climbed|first reached the summit of) (?:mount )?everest", a: "Yes — Edmund Hillary and Tenzing Norgay were the first to reach the summit, on 29 May 1953. Thousands have climbed it since.", v: "Edmund Hillary and Tenzing Norgay", t: "Mount Everest", first: "Edmund Hillary from New Zealand and Tenzing Norgay, a Sherpa from Nepal — they reached the top together on 29 May 1953.", when: "That was on 29 May 1953."}
   - {q: "(?:and |so )?(?:how (?:big|large) is (?:the planet )?mercury|what(?:'s| is) the (?:size|diameter) of (?:the planet )?mercury|how wide is mercury|how big is mercury compared to (?:the )?earth)", a: "Mercury is about 4,879 km across — about 38% of Earth's width — the smallest planet.", v: "4,879 km", t: "Mercury"}
   - {q: "(?:and |so )?how far (?:away )?is mercury from the sun|what(?:'s| is) the distance (?:between|from) (?:the sun and mercury|mercury (?:and|to) the sun)", a: "Mercury is on average about 58 million km (0.39 AU) from the Sun.", v: "58 million km (0.39 AU)", t: "Mercury"}
@@ -1829,3 +1831,82 @@ what_else:
 sarcasm_ack:
   - "Ha, I figured! 😄 Hang in there. Coffee helps."
   - "Yeah, I didn't think so. 😄 What would make today a bit better?"
+place_country:
+  paris: France
+  london: United Kingdom
+  rome: Italy
+  barcelona: Spain
+  madrid: Spain
+  berlin: Germany
+  munich: Germany
+  hamburg: Germany
+  amsterdam: Netherlands
+  vienna: Austria
+  prague: Czech Republic
+  budapest: Hungary
+  lisbon: Portugal
+  venice: Italy
+  florence: Italy
+  milan: Italy
+  athens: Greece
+  istanbul: Turkey
+  dubai: United Arab Emirates
+  new york: United States
+  new york city: United States
+  san francisco: United States
+  los angeles: United States
+  washington: United States
+  chicago: United States
+  tokyo: Japan
+  kyoto: Japan
+  seoul: South Korea
+  beijing: China
+  hong kong: China
+  singapore: Singapore
+  bangkok: Thailand
+  sydney: Australia
+  cairo: Egypt
+  marrakech: Morocco
+  cape town: South Africa
+  rio de janeiro: Brazil
+  mexico city: Mexico
+  toronto: Canada
+  copenhagen: Denmark
+  stockholm: Sweden
+  edinburgh: United Kingdom
+  dublin: Ireland
+  japan: Japan
+  italy: Italy
+  france: France
+  spain: Spain
+  greece: Greece
+  portugal: Portugal
+  germany: Germany
+  thailand: Thailand
+  egypt: Egypt
+cost_level:
+  cheap: [budapest, prague, lisbon, istanbul, bangkok, cairo, marrakech, mexico city, athens, cape town, rio de janeiro, thailand, egypt, portugal, greece]
+  mid: [rome, barcelona, madrid, berlin, vienna, venice, florence, milan, munich, hamburg, tokyo, kyoto, seoul, beijing, chicago, toronto, edinburgh, dublin, italy, spain, japan, germany, france]
+  pricey: [paris, london, amsterdam, new york, new york city, san francisco, los angeles, washington, dubai, singapore, hong kong, sydney, copenhagen, stockholm]
+cost_says:
+  cheap: "{X} is fairly affordable compared with most of Western Europe and North America: eating out, public transport and museums won't break the bank."
+  mid: "{X} is mid-range: not cheap, but manageable. Hotels in the centre and tourist-trap restaurants add up; local trattorias, bakeries and public transport keep it reasonable."
+  pricey: "{X} is on the expensive side, especially hotels and eating out in the centre. Booking early, staying a bit further out and eating where locals eat helps a lot."
+trip_length:
+  - "{X} days in {y} is a nice amount: enough for the highlights without rushing. Want a rough plan for the days?"
+  - "{X} days is perfect for {y}. Should I suggest what to see first?"
+visa_eu:
+  - "No: as an EU citizen you can travel to {x} with just your ID card or passport, no visa needed."
+visa_check:
+  - "That depends on the rules for your passport, and they change. Please check the official foreign office website of your country before you go. I'd rather not guess on something this important."
+cat_small_flat:
+  - "Cats usually do fine in small flats, as long as they have things to climb, a window to look out of and someone to play with. Many indoor cats are perfectly happy."
+cat_ok:
+  - "Yes, absolutely. A calm adult cat is often an even better fit for a small flat than a kitten. Shelters can tell you which cats are relaxed indoors."
+cat_need:
+  - "For a cat you'll need:\n\n• A litter tray, litter and a scoop\n• Food and water bowls, and good-quality food\n• A scratching post (or two!)\n• A carrier for vet visits\n• A few toys and a cosy bed\n\nAnd a first vet check-up after you get it."
+pet_names:
+  cat: "A few ideas: Luna, Milo, Simba, Nala, Oliver, Mochi, Pepper or Leo. Do you know yet if it'll be a boy or a girl?"
+  dog: "A few ideas: Max, Bella, Charlie, Luna, Buddy, Daisy, Rocky or Nala. Any idea what kind of dog it'll be?"
+learn_time:
+  - "For simple conversations, most people need about 3–6 months of regular practice, say 20–30 minutes a day. Feeling comfortable takes a year or two."

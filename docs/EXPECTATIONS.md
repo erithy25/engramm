@@ -2249,6 +2249,19 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     „wie lange dauert das?“.
   - Wiederholungen 1 → 0. Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–45 und langes
     Gespräch: 0 Wiederholungen. Suite 715 bestanden, 7 übersprungen.
+- **Alltags-Batterie 47 (Reise, Wissensgespräche, deutscher Small Talk)**:
+  - Reise: „im going to rome next week“ → „for 4 days“ → „what should i see?“ (vorher Kyoto/Reykjavík/Algarve!) →
+    „is it expensive?“ (Preisniveau für 52 Ziele) → „do i need a visa as a german?“ (EU-Bürger ins EU-Land: nein; sonst
+    ehrlicher Verweis auf das Auswärtige Amt) → „what language do they speak?“.
+  - Alltagsfakten können jetzt eigene Folgefragen tragen (`follow`): Berliner Mauer → „why did it fall?“, „who was the
+    chancellor then?“, „how long did it stand?“; „where is the painting now?“ nach der Mona Lisa (über die letzten Themen).
+  - Katze anschaffen: kleine Wohnung → „is that ok?“ → „what do i need?“ → Namensideen; „how long does it take?“ beim
+    Sprachenlernen (mit ehrlichem Zusatz je nach Sprache).
+  - Deutsch: „geht so“ wurde als „gut“ verstanden („Freut mich!“), jetzt als durchwachsen; „zu viel im Kopf“ nach schlechtem
+    Schlaf; „ich hab heute frei“ → „keine Ahnung was ich machen soll“ → „das Wetter ist schön“; „welche ist größer?“.
+  - Team-Dev-Satz: 1 von 128 geändert (team-0078: die Antwort zur Berliner Mauer ist jetzt ein kurzer, direkter Satz
+    mit demselben Datum statt des langen Artikelsatzes). NQ-open 400: 22/9. Regressionen 32, 38–46 und langes
+    Gespräch: 0 Wiederholungen. Suite 717 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
