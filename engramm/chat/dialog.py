@@ -669,6 +669,73 @@ class Assistant:
             rep = self.everyday.recommend(st, msg, "food", "quick", lang="de")
             rep.text = self._pick(st, "de:life:hungry", dl["hungry"]) + rep.text[rep.text.index("\n"):]
             return rep
+        fw = re.fullmatch(r"(?:und |dann |hmm,? )?(?:was |etwas |irgendwas |lieber was |eher was |lieber etwas |vielleicht was )?mit "
+                          r"(?P<x>[a-zäöüß]+)(?: bitte| vielleicht| drin)?", s)
+        if fw and la.get("kind") == "rec:food" and st.turn - la.get("turn", -99) <= 3:
+            word = fw.group("x")                         # "was mit nudeln" after cooking ideas
+            key = next((k for k in dl["food_with"] if word.startswith(k) or k.startswith(word.rstrip("n"))), None)
+            if key:
+                st.last_action = {"kind": "rec:food", "turn": st.turn, "genre": None, "lang": "de"}
+                body = "\n".join("• " + i[:1].upper() + i[1:] for i in dl["food_with"][key][:3])
+                head = self._pick(st, "de:life:food_with_head", dl["food_with_head"], x=word[:1].upper() + word[1:])
+                return Reply(msg, "smalltalk", f"{head}\n\n{body}", via="german")
+        bdm = re.fullmatch(r"(?:ich (?:hab|habe) (?P<w>morgen|heute|übermorgen) geburtstag|(?P<w2>morgen|heute|übermorgen) (?:ist|hab ich) "
+                           r"(?:mein )?geburtstag)(?: und ich werde (?P<n>\d{1,3}))?[!.]*", s)
+        if bdm:                                          # "ich hab morgen geburtstag"
+            when = bdm.group("w") or bdm.group("w2")
+            day = self._today() + dt.timedelta(days={"heute": 0, "morgen": 1, "übermorgen": 2}[when])
+            self._learn(st, [f"My birthday is {day.day} {day.strftime('%B')}."], msg)
+            st.uses["de_bday"] = st.turn
+            key = "birthday_today" if when == "heute" else "birthday_tomorrow"
+            return Reply(msg, "smalltalk", self._pick(st, f"de:life:{key}", dl[key]), via="german")
+        tn_ = re.fullmatch(r"(?:und )?ich werde (?:morgen |heute |bald |nächste woche )?(\d{1,3})(?: jahre(?: alt)?)?[!.]*", s)
+        if tn_:
+            st.uses["de_bday"] = st.turn
+            return Reply(msg, "smalltalk", self._pick(st, "de:life:turning", dl["turning"], x=tn_.group(1)), via="german")
+        bd_ = st.uses.get("de_bday")
+        if bd_ is not None and st.turn - bd_ <= 3 and re.fullmatch(
+                r"(?:und )?(?:hast du (?:ein paar |irgendwelche )?ideen|irgendwelche ideen|ideen|wie (?:soll|kann|könnte) ich (?:das )?feiern|"
+                r"ich weiß (?:noch )?nicht,? wie ich feiern soll|was könnte ich machen|was soll ich machen)\??", s):
+            shown = st.uses.get("de_party_shown")
+            st.uses["de_bday"] = st.turn
+            if shown is not None and st.turn - shown <= 4:   # the ideas were just given: no word-for-word repeat
+                return Reply(msg, "smalltalk", self._pick(st, "de:life:party_again", dl["party_again"]), via="german")
+            st.uses["de_party_shown"] = st.turn
+            return Reply(msg, "smalltalk", self._pick(st, "de:life:party_ideas", dl["party_ideas"]), via="german")
+        lx = st.last_exp or {}
+        wz = re.fullmatch(r"(?:wir waren|wir sind) (?:fast |über |knapp |schon )?(?P<n>\d{1,2}|ein|einem|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn) "
+                          r"(?:jahre?|monate?) (?:lang )?zusammen(?: gewesen)?[.!]*", s)
+        if wz and lx.get("person") and st.turn - lx.get("turn", -99) <= 3:
+            n_ = wz.group("n")                           # "wir waren 2 jahre zusammen" after a break-up
+            unit = "Monate" if "monat" in s else "Jahre"
+            if n_ in ("ein", "einem"):
+                unit = "Monat" if "monat" in s else "Jahr"
+            dat = f"einem {unit}" if n_ in ("ein", "einem") else f"{n_} {unit}n"      # dative: "nach 2 Jahren"
+            nom = f"Ein {unit}" if n_ in ("ein", "einem") else f"{n_} {unit}"
+            return Reply(msg, "empathy", self._pick(st, "de:life:together", dl["together"], x=nom, y=dat), via="german")
+        if re.search(r"\b(?:mein|meine) (?:freundin|freund|partner|partnerin|mann|frau|ex) hat (?:mit mir )?schluss gemacht|"
+                     r"\bwir haben uns getrennt\b|\b(?:sie|er) hat (?:mich )?(?:verlassen|schluss gemacht)\b|\bich wurde verlassen\b", s):
+            st.last_exp = {"valence": "negative", "topic": None, "person": True, "text": msg,
+                           "text_en": "my partner broke up with me", "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "de:life:heartbreak", dl["heartbreak"]), via="german")
+        if re.search(r"\b(?:wie lange|wie koche|wie mache|wie macht man|wie kocht man|was hilft (?:gegen|bei)|was kann ich (?:gegen|bei)|"
+                     r"tipps (?:gegen|bei|für|zum)|wie werde ich .+ los|wie (?:muss|müssen|soll|sollte) (?:ich )?)\b", s):
+            for g in dl["howto"]:                        # "wie lange müssen nudeln kochen?": the German guide
+                if any(re.search(rf"\b{re.escape(k)}", s) for k in g["keys"]):
+                    st.last_action = {"kind": "howto_de", "turn": st.turn, "title": g["title"]}
+                    body = "\n".join("• " + x for x in g["steps"])
+                    return Reply(msg, "smalltalk", f"{g['title']}:\n\n{body}", via="german")
+        lpk = re.fullmatch(r"(?:und |ok,? )?(?:worum geht(?:'s| es) (?:in|bei)|was ist mit|erzähl (?:mir )?(?:mehr )?(?:über|von)|was weißt du über|"
+                           r"und) (?:dem |den |der |das )?(?P<n>ersten|zweiten|dritten|letzten|erste|zweite|dritte|letzte)\??", s)
+        if lpk and (getattr(st, "last_list", None) or {}).get("titles") and st.turn - st.last_list.get("turn", -99) <= 4:
+            n = {"erst": "first", "zweit": "second", "dritt": "third", "letzt": "last"}[re.sub(r"en?$", "", lpk.group("n"))]
+            rep = self.everyday.pick_from_list(st, msg, f"the {n} one")
+            if rep is not None:                          # "worum geht es in dem ersten?" after film ideas
+                idx = {"first": 0, "second": 1, "third": 2, "last": -1}[n]
+                title = re.sub(r"\s*\([^)]*\)$", "", st.last_list["titles"][idx] or "")
+                rep.text = self._pick(st, "de:life:list_pick_lead", dl["list_pick_lead"], x=title, y=rep.text)
+                rep.via = "german"
+                return rep
         if re.fullmatch(r"(?:draußen )?(?:es )?regnet(?: es)?(?: (?:draußen|schon den ganzen tag|den ganzen tag|total|so|mal wieder))*|"
                         r"(?:es ist|ist) (?:so |total |voll )?(?:grau|kalt|ungemütlich|eklig) (?:draußen|heute)?|"
                         r"(?:draußen|heute) (?:regnet|schüttet|stürmt) es(?: total| so| den ganzen tag)?", s):
@@ -1019,15 +1086,19 @@ class Assistant:
         s = re.sub(r"^(?:und|also|ok|okay) ", "", s)
         if ment and re.search(r"\b(?:leben|wohnen) (?:da|dort)\b|\b(?:da|dort) (?:leben|wohnen)\b", s):
             s = re.sub(r"\bwie viele (?:leute|menschen) (?:leben|wohnen) (?:da|dort)\b", f"wie viele einwohner hat {ment.lower()}", s)
-        if ment and re.search(r"\b(?:hat|ist|liegt|wurde|war|heißt) (?:sie|er|es)\b|\b(?:sie|er|es) (?:hat|ist|liegt)\b", s) and \
+        if ment and re.search(r"\b(?:hat|ist|liegt|wurde|war|heißt) (?:sie|er|es|ihn)\b|\b(?:sie|er|es) (?:hat|ist|liegt)\b", s) and \
                 not re.search(r"\bgeboren|gestorben\b", s):
-            # "und wie viele einwohner hat sie?" after Canberra: the place just named
-            s = re.sub(r"\b(?:sie|er|es)\b", ment.lower(), s, count=1)
+            # "und wie viele einwohner hat sie?" after Canberra, "wer hat ihn entworfen?" after the Eiffel Tower
+            s = re.sub(r"\b(?:sie|er|es|ihn)\b", ment.lower(), s, count=1)
         hit = to_english(s)
         if hit is None:
             return None
         english, kind, x_en, x_de = hit
         st.uses["de_last_q"] = [st.turn, s, (x_de or "").lower()]
+        names = st.uses.setdefault("de_names", {})
+        if x_de and x_de.lower() != x_en.lower() and x_en.lower() not in ("he", "she", "it", "him", "her"):
+            art = re.search(rf"\b(der|die|das) {re.escape(x_de.lower())}\b", s)
+            names[x_en.lower()] = [x_de, art.group(1) if art else ""]     # "der Eiffelturm", for the follow-ups
         dd = self.bank.de["daily"]
         if kind == "about":
             rep = self._about(st, Unit("about", english, english.lower(), data={"kind": "tell", "topic": x_en}))
@@ -1066,11 +1137,19 @@ class Assistant:
             return rep
         if rep.via == "kb":
             name = re.sub(r"\s*\([^)]*\)$", "", (rep.source or {}).get("key") or x_en)
+            article = ""
             if x_de and x_de.lower() != x_en.lower() and x_en.lower() == name.lower() and \
                     x_en.lower() not in ("he", "she", "it", "him", "her"):
                 name = x_de                     # "Frankreich", as the user wrote it
+            known_de = names.get(name.lower())
+            if known_de:                        # "Eiffel Tower" in a follow-up: the German name from before
+                name, article = known_de[0], known_de[1]
+            elif names.get(x_en.lower()):
+                article = names[x_en.lower()][1]
             sent = de_sentence(kind, name, rep.answer or "", rep.text)
             if sent:
+                if article and sent.startswith(name):
+                    sent = article[:1].upper() + article[1:] + " " + sent    # "Der Eiffelturm ist 330 m hoch."
                 rep.text = sent
                 return rep
         rep.text = f"{dd['english_text']} {rep.text}"

@@ -4620,6 +4620,230 @@
     "hungry": [
      "Hunger? Dann vielleicht was Schnelles:"
     ],
+    "party_again": [
+     "Ich hab dir ja eben ein paar Ideen genannt – was davon spricht dich am meisten an? Eher ruhig mit Freunden oder richtig groß?",
+     "Magst du es eher gemütlich oder mit vielen Leuten? Dann kann ich die Ideen von eben eingrenzen."
+    ],
+    "together": [
+     "{x} – das ist eine lange Zeit. Kein Wunder, dass es so weh tut.",
+     "Nach {y} ist das ein großer Einschnitt. Sei nachsichtig mit dir."
+    ],
+    "food_with_head": [
+     "Mit {x}? Wie wär's mit:",
+     "Mit {x} geht zum Beispiel:"
+    ],
+    "food_with": {
+     "nudel": [
+      "Pasta aglio e olio – Knoblauch, Olivenöl, Chili",
+      "cremige Pilzpasta",
+      "Nudeln mit Kirschtomaten und Mozzarella",
+      "Spaghetti Carbonara"
+     ],
+     "pasta": [
+      "Pasta aglio e olio – Knoblauch, Olivenöl, Chili",
+      "cremige Pilzpasta",
+      "Nudeln mit Kirschtomaten und Mozzarella",
+      "Spaghetti Carbonara"
+     ],
+     "reis": [
+      "gebratener Reis mit Ei",
+      "ein Gemüserisotto",
+      "eine Burrito-Bowl",
+      "Reispfanne mit Hähnchen"
+     ],
+     "hähnchen": [
+      "Hähnchen-Fajitas mit Paprika",
+      "Zitronen-Knoblauch-Hähnchen mit Ofenkartoffeln",
+      "schnelles Hähnchencurry mit Reis"
+     ],
+     "huhn": [
+      "Hähnchen-Fajitas mit Paprika",
+      "Zitronen-Knoblauch-Hähnchen mit Ofenkartoffeln",
+      "schnelles Hähnchencurry mit Reis"
+     ],
+     "kartoffel": [
+      "Ofenkartoffeln mit Kräuterquark",
+      "Kartoffelsuppe",
+      "eine spanische Tortilla",
+      "Bratkartoffeln mit Spiegelei"
+     ],
+     "ei": [
+      "Shakshuka",
+      "ein Omelett mit Käse und Kräutern",
+      "gebratener Reis mit Ei"
+     ],
+     "eier": [
+      "Shakshuka",
+      "ein Omelett mit Käse und Kräutern",
+      "gebratener Reis mit Ei"
+     ],
+     "gemüse": [
+      "ein großes Gemüsecurry",
+      "Ofengemüse mit Feta",
+      "Minestrone",
+      "Gemüsepfanne mit Nudeln"
+     ],
+     "fisch": [
+      "Lachs mit Zitrone, Kartoffeln und grünen Bohnen",
+      "Fischtacos",
+      "Kabeljau mit Tomaten und Oliven"
+     ],
+     "lachs": [
+      "Lachs mit Zitrone, Kartoffeln und grünen Bohnen",
+      "Teriyaki-Lachs mit Reis",
+      "Lachspasta mit Spinat"
+     ],
+     "käse": [
+      "Käsespätzle",
+      "Mac and Cheese",
+      "ein Omelett mit Käse und Kräutern"
+     ],
+     "tofu": [
+      "knuspriger Tofu aus der Pfanne",
+      "Tofu-Curry mit Kokosmilch",
+      "Teriyaki-Tofu-Bowl"
+     ],
+     "pilz": [
+      "cremige Pilzpasta",
+      "Pilzrisotto",
+      "Pilze auf Toast mit Knoblauch"
+     ],
+     "linsen": [
+      "rotes Linsen-Dal mit Reis",
+      "Linsensuppe",
+      "Linsen-Bolognese"
+     ]
+    },
+    "birthday_tomorrow": [
+     "Morgen schon? Wie schön – alles Gute im Voraus! 🎂 Hast du schon Pläne?",
+     "Oh, morgen ist dein Geburtstag? Toll! 🎉 Wie willst du feiern?"
+    ],
+    "birthday_today": [
+     "Alles Gute zum Geburtstag! 🎂 Lass dich heute verwöhnen. Was hast du vor?"
+    ],
+    "turning": [
+     "{x} – ein richtig schönes Alter! 🎉 Wird groß gefeiert?",
+     "Wow, {x}! Herzlichen Glückwunsch schon mal. Wie fühlt sich das an?"
+    ],
+    "party_ideas": [
+     "Ein paar Ideen zum Feiern:\n\n• Ein Abendessen mit deinen liebsten Leuten in einem schönen Restaurant\n• Eine kleine Party zu Hause mit Motto oder Spieleabend\n• Ein Ausflug: Therme, Wandern oder ein Städtetrip\n• Etwas Besonderes erleben: Escape Room, Konzert, Kochkurs\n\nEher ruhig oder mit vielen Leuten?"
+    ],
+    "heartbreak": [
+     "Oh nein, das tut mir wirklich leid. Trennungen tun weh, auch wenn man es vielleicht kommen sah. Wie geht es dir gerade?",
+     "Das ist hart – es tut mir leid. Magst du erzählen, wie es dazu kam?"
+    ],
+    "list_pick_lead": [
+     "Zu „{x}“ habe ich auf Englisch gelesen: {y}"
+    ],
+    "howto": [
+     {
+      "keys": [
+       "nudel",
+       "pasta",
+       "spaghetti"
+      ],
+      "title": "Nudeln kochen",
+      "steps": [
+       "Viel Wasser (etwa 1 Liter pro 100 g) zum Kochen bringen und gut salzen.",
+       "Die meisten getrockneten Nudeln brauchen 8–12 Minuten – die Packungsangabe ist ein guter Richtwert.",
+       "Eine Minute vor Ende probieren: weich, aber noch mit etwas Biss (al dente).",
+       "Vor dem Abgießen eine Tasse Nudelwasser aufheben – damit hält die Soße besser."
+      ]
+     },
+     {
+      "keys": [
+       "reis"
+      ],
+      "title": "Reis kochen",
+      "steps": [
+       "Reis waschen, bis das Wasser fast klar ist.",
+       "Etwa 1,5 Tassen Wasser pro Tasse weißem Reis (Vollkorn: 2).",
+       "Aufkochen, Deckel drauf, Hitze klein: 12–15 Minuten (Vollkorn 35–40).",
+       "5–10 Minuten zugedeckt ruhen lassen, dann mit einer Gabel auflockern."
+      ]
+     },
+     {
+      "keys": [
+       "ei",
+       "eier"
+      ],
+      "title": "Eier kochen",
+      "steps": [
+       "Das Ei vorsichtig mit einem Löffel ins kochende Wasser legen.",
+       "Weich: 6 Minuten · mittel: 8 Minuten · hart: 10–11 Minuten.",
+       "Danach kurz in kaltes Wasser – dann lässt es sich viel leichter schälen."
+      ]
+     },
+     {
+      "keys": [
+       "pfannkuchen",
+       "pancakes",
+       "eierkuchen"
+      ],
+      "title": "Einfache Pfannkuchen",
+      "steps": [
+       "200 g Mehl, 2 TL Backpulver, eine Prise Salz und 1 EL Zucker mischen.",
+       "1 Ei, 300 ml Milch und 2 EL geschmolzene Butter unterrühren, bis der Teig glatt ist.",
+       "Kleine Kellen in einer leicht gebutterten Pfanne bei mittlerer Hitze backen.",
+       "Wenden, wenn oben Bläschen entstehen – etwa 1–2 Minuten pro Seite."
+      ]
+     },
+     {
+      "keys": [
+       "halsschmerzen",
+       "hals"
+      ],
+      "title": "Was bei Halsschmerzen hilft",
+      "steps": [
+       "Warme Getränke – Tee mit Honig und Zitrone ist ein Klassiker.",
+       "Mehrmals täglich mit warmem Salzwasser gurgeln (ein halber Teelöffel Salz auf ein Glas).",
+       "Lutschtabletten und genug Schlaf; Rauch und sehr trockene Luft meiden.",
+       "Zum Arzt, wenn es länger als eine Woche dauert, hohes Fieber dazukommt oder Schlucken bzw. Atmen schwerfällt."
+      ]
+     },
+     {
+      "keys": [
+       "kopfschmerzen",
+       "kopfweh",
+       "migräne"
+      ],
+      "title": "Was bei Kopfschmerzen hilft",
+      "steps": [
+       "Ein großes Glas Wasser trinken – leichter Flüssigkeitsmangel ist eine häufige Ursache.",
+       "Eine Weile ruhig und abgedunkelt ausruhen, weg vom Bildschirm.",
+       "Ein kühles Tuch auf der Stirn oder ein kurzer Spaziergang an der frischen Luft.",
+       "Bei sehr starken, plötzlichen oder immer wiederkehrenden Kopfschmerzen zum Arzt."
+      ]
+     },
+     {
+      "keys": [
+       "erkältung",
+       "erkältet",
+       "schnupfen"
+      ],
+      "title": "Gut durch eine Erkältung",
+      "steps": [
+       "So viel wie möglich ausruhen und viel trinken.",
+       "Warme Suppe, Tee mit Honig und Dampf (heiße Dusche) lindern das verstopfte Gefühl.",
+       "Meerwasser-Nasenspray hilft bei verstopfter Nase.",
+       "Die meisten Erkältungen sind nach 7–10 Tagen vorbei – bei hohem Fieber oder längerer Dauer zum Arzt."
+      ]
+     },
+     {
+      "keys": [
+       "schlafen",
+       "einschlafen",
+       "schlaf"
+      ],
+      "title": "Was beim Schlafen hilft",
+      "steps": [
+       "Die letzte halbe Stunde keine Bildschirme – lieber etwas auf Papier lesen.",
+       "Ab dem frühen Nachmittag keinen Kaffee mehr.",
+       "Jeden Tag zur gleichen Zeit ins Bett und aufstehen, auch am Wochenende.",
+       "Wenn du nach 20 Minuten nicht schläfst: aufstehen und etwas Ruhiges machen."
+      ]
+     }
+    ],
     "joke_liked": [
      "Freut mich! 😄 Noch einen?",
      "Haha, schön, dass er dir gefällt! Willst du noch einen hören?"

@@ -221,6 +221,11 @@ def de_sentence(kind: str, x: str, value: str, age_text: str | None = None) -> s
     v = de_value(value)
     if kind == "born_when" and re.fullmatch(r"\d{3,4}", v):
         tmpl = "{x} wurde {v} geboren."
+    if kind in ("built_when", "founded_when", "released"):
+        if re.match(r"^\d{1,2}\. ", v):
+            tmpl = tmpl.replace("{v}", "am {v}")         # "wurde am 31. März 1889 fertiggestellt"
+        elif re.match(r"^[A-ZÄÖÜ][a-zäöü]+ \d{3,4}$", v):
+            tmpl = tmpl.replace("{v}", "im {v}")
     if kind in ("born_when", "died_when") and not re.match(r"^\d{1,2}\.", v):
         tmpl = tmpl.replace("am {v}", "{v}")
         if re.match(r"^[A-ZÄÖÜ][a-zäöü]+ \d{3,4}$", v):

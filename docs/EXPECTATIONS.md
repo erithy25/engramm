@@ -2173,6 +2173,16 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - „how old is he“ nach „Obama's wife is Michelle“ → Michelle. Das Geschlecht aus dem Artikelanfang entscheidet jetzt
     zwischen letzter Antwort und genannter Person → Barack Obama, 65.
   - Team-Dev-Satz: 0 von 128 Antworten geändert. NQ-open 400: unverändert 22/9. Suite 687 bestanden, 7 übersprungen.
+- **Alltags-Batterie 41 (Deutsch)** (Vorstellung, Trennung, Kochen, Eiffelturm, Geburtstag, Filmabend):
+  - Vorher unverstanden, jetzt beantwortet: „ich hab morgen geburtstag“, „ich werde 30“, „hast du ideen?“ (zweimal →
+    keine Wiederholung), „was mit nudeln“, „wie lange müssen nudeln kochen?“, „worum geht es in dem ersten?“. Neu sind
+    8 deutsche Anleitungen (Nudeln, Reis, Eier, Pfannkuchen, Halsweh, Kopfweh, Erkältung, Schlaf).
+  - Eiffelturm: „Eiffelturm ist …“ → „Der Eiffelturm ist …“. Folgefragen behalten den deutschen Namen (vorher „Eiffel
+    Tower wurde …“), „wer hat ihn entworfen?“ wird aufgelöst (vorher Rückfrage), „wurde am 31. März 1889
+    fertiggestellt“.
+  - Trennung: eigene Antwort statt „das kommt dann noch dazu“; „wir waren 2 jahre zusammen“.
+  - Wiederholungen 2 → 0. Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–40 und
+    langes Gespräch: 0 Wiederholungen. Suite 695 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

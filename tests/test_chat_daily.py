@@ -1377,3 +1377,32 @@ def test_he_and_she_follow_the_right_person():
     bot.not_a_person = lambda n: n == "Good Omens"
     bot.context = {"answer": None, "atype": None, "mention": "Good Omens"}
     assert bot.resolve("who is his wife") == "who is his wife"
+
+
+def test_battery41_german_birthday_breakup_howto_food_and_names(chat):
+    a, _ = chat
+    st = DialogState("de1")
+    r = a.turn(st, "ich hab morgen geburtstag")
+    assert "Geburtstag" in r.text and "nicht ganz" not in r.text, r.text
+    r = a.turn(st, "ich werde 30")
+    assert "30" in r.text, r.text
+    first = a.turn(st, "hast du ideen?").text
+    assert "•" in first, first
+    second = a.turn(st, "hast du ideen?").text
+    assert second != first, second
+    st2 = DialogState("de2")
+    a.turn(st2, "meine freundin hat schluss gemacht")
+    r = a.turn(st2, "wir waren 2 jahre zusammen")
+    assert "2 Jahre" in r.text or "2 Jahren" in r.text, r.text
+    st3 = DialogState("de3")
+    r = a.turn(st3, "wie lange müssen nudeln kochen?")
+    assert "8–12 Minuten" in r.text, r.text
+    a.turn(st3, "was soll ich heute kochen?")
+    r = a.turn(st3, "was mit nudeln")
+    assert "•" in r.text and "Nudeln" in r.text, r.text
+
+
+def test_german_dates_for_buildings():
+    from engramm.chat.german_bridge import de_sentence
+    assert de_sentence("built_when", "Der Eiffelturm", "31 March 1889") == "Der Eiffelturm wurde am 31. März 1889 fertiggestellt."
+    assert de_sentence("built_when", "Der Kölner Dom", "1880") == "Der Kölner Dom wurde 1880 fertiggestellt."
