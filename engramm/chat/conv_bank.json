@@ -13251,6 +13251,56 @@
   "b82": {
    "events": [
     {
+     "q": "i(?:'m| am) going to (?:a |the )?(?:concert|gig|festival|show|game|match|party|wedding)(?: tonight| today| later| tomorrow| this weekend)?",
+     "v": "pos",
+     "a": "Ooh, fun! Who or what are you going to see?"
+    },
+    {
+     "q": "i (?:just )?woke up|(?:i'?m |im )?just up",
+     "v": "pos",
+     "a": "Morning — whatever time it is! ☀️ Did you sleep well?"
+    },
+    {
+     "q": "i(?:'m| am) at the gym(?: right now)?|(?:i'?m |im )?working out(?: right now)?",
+     "v": "pos",
+     "a": "Nice, get it! 💪 What are you training today?"
+    },
+    {
+     "q": "i (?:really |totally )?hate my (?:job|work)",
+     "v": "neg",
+     "a": "That's rough — spending so many hours somewhere you don't like wears you down. Is it the work itself, the people, or something else?"
+    },
+    {
+     "q": "(?:what do you think (?:about|of)|your (?:thoughts|opinion) on|how do you feel about) (?:ai|artificial intelligence)",
+     "v": "pos",
+     "a": "AI is a big topic! Huge potential — medicine, research, translation — and real concerns: privacy, energy use, jobs, misinformation. I'm a different approach myself: no neural network, and everything stays on your computer."
+    },
+    {
+     "q": "(?:can|could) you help me (?:study|learn|revise)(?: for (?:my |an? )?(?:exams?|tests?))?",
+     "v": "pos",
+     "a": "Sure! I can quiz you, explain things in simple words, or help you make a study plan. What subject is it?"
+    },
+    {
+     "q": "i need (?:some )?motivation|(?:i'?m |im )?(?:so |really )?unmotivated|motivate me",
+     "v": "neg",
+     "a": "You don't need to feel motivated to start — start tiny: just 5 minutes. Motivation usually shows up after you begin, not before. What's the thing you're putting off?"
+    },
+    {
+     "q": "it'?s snowing|(?:it'?s )?snow(?:ing)? (?:outside|here)",
+     "v": "pos",
+     "a": "Snow! ❄️ Cosy or annoying for you?"
+    },
+    {
+     "q": "what should i (?:name|call) my (?:new )?(?:cat|kitten)",
+     "v": "pos",
+     "a": "Some cat names people love: Luna, Milo, Mochi, Oliver, Nala, Pepper or Simba. Is it a boy or a girl?"
+    },
+    {
+     "q": "what should i (?:name|call) my (?:new )?(?:dog|puppy)",
+     "v": "pos",
+     "a": "Some dog names people love: Max, Bella, Charlie, Luna, Buddy, Coco or Rocky. Is it a boy or a girl?"
+    },
+    {
      "q": "i (?:just )?(?:lost|can'?t find) my (?:wallet|purse)",
      "v": "neg",
      "a": "Oh no, that's so stressful! Retrace your last steps — and if it doesn't turn up, block your cards first, then report it to the police."
@@ -13307,6 +13357,76 @@
     }
    ],
    "de": [
+    {
+     "q": "ich (?:geh|gehe) (?:heute abend |heute |morgen |am wochenende )?(?:auf|zu) (?:ein|einem|eine|einer) (?:konzert|festival|party|hochzeit|spiel)(?: heute abend)?",
+     "v": "pos",
+     "a": "Oh, wie cool! Wen oder was gehst du sehen?"
+    },
+    {
+     "q": "meine? (?:beste )?(?:freundin|freund|schwester|bruder|cousine|cousin) heiratet(?: bald| nächstes jahr| im sommer)?",
+     "v": "pos",
+     "a": "Oh, wie schön! Bist du bei der Hochzeit dabei?"
+    },
+    {
+     "q": "ich bin (?:gerade|eben|grad) (?:erst )?aufgewacht",
+     "v": "pos",
+     "a": "Guten Morgen – egal, wie spät es ist! ☀️ Gut geschlafen?"
+    },
+    {
+     "q": "ich bin (?:gerade )?(?:im fitnessstudio|beim sport|im gym)",
+     "v": "pos",
+     "a": "Stark, gib Gas! 💪 Was trainierst du heute?"
+    },
+    {
+     "q": "ich hasse meinen (?:job|beruf)|ich hasse meine arbeit",
+     "v": "neg",
+     "a": "Das ist hart – so viele Stunden irgendwo zu verbringen, wo man nicht gern ist, zermürbt. Liegt es an der Arbeit selbst, an den Leuten oder an etwas anderem?"
+    },
+    {
+     "q": "ich freu(?:e)? mich (?:so |total |schon )*auf (?:weihnachten|ostern|silvester|den urlaub|meinen geburtstag)",
+     "v": "pos",
+     "a": "Schön! Vorfreude ist die schönste Freude. Was freut dich am meisten?"
+    },
+    {
+     "q": "ich (?:hab|habe) (?:endlich )?meine (?:abschlussarbeit|bachelorarbeit|masterarbeit|doktorarbeit|hausarbeit) (?:fertig|abgegeben)",
+     "v": "pos",
+     "a": "Glückwunsch – das ist ein riesiger Meilenstein! 🎉 Wie fühlt es sich an?"
+    },
+    {
+     "q": "meine (?:schwester|freundin|frau|cousine) hat ein (?:baby|kind) bekommen|mein (?:bruder|freund|cousin) ist vater geworden",
+     "v": "pos",
+     "a": "Wie schön – herzlichen Glückwunsch! Junge oder Mädchen?"
+    },
+    {
+     "q": "was (?:hältst|denkst) du (?:von|über) (?:ki|künstliche intelligenz)",
+     "v": "pos",
+     "a": "KI ist ein großes Thema! Riesiges Potenzial – Medizin, Forschung, Übersetzen – und echte Sorgen: Datenschutz, Stromverbrauch, Jobs, Falschinformationen. Ich selbst bin ein anderer Ansatz: kein neuronales Netz, und alles bleibt auf deinem Rechner."
+    },
+    {
+     "q": "kannst du mir (?:beim lernen|bei den hausaufgaben|bei der prüfungsvorbereitung) helfen|hilf mir beim lernen",
+     "v": "pos",
+     "a": "Klar! Ich kann dich abfragen, Dinge einfach erklären oder mit dir einen Lernplan machen. Welches Fach?"
+    },
+    {
+     "q": "ich brauche (?:etwas |ein bisschen )?motivation|ich bin (?:so |total )?unmotiviert|motivier mich",
+     "v": "neg",
+     "a": "Du musst dich nicht motiviert fühlen, um anzufangen – fang winzig an: nur 5 Minuten. Die Motivation kommt meist erst beim Machen. Was schiebst du gerade vor dir her?"
+    },
+    {
+     "q": "ich bin (?:gerade |grad )?im urlaub",
+     "v": "pos",
+     "a": "Wie schön, genieß es! Wo bist du denn?"
+    },
+    {
+     "q": "wie soll ich meine (?:neue )?(?:katze|kätzchen) nennen",
+     "v": "pos",
+     "a": "Beliebte Katzennamen: Luna, Milo, Mochi, Leo, Nala, Pepper oder Simba. Ist es ein Kater oder eine Katze?"
+    },
+    {
+     "q": "wie soll ich meinen (?:neuen )?(?:hund|welpen) nennen",
+     "v": "pos",
+     "a": "Beliebte Hundenamen: Max, Bella, Charlie, Luna, Buddy, Coco oder Rocky. Rüde oder Hündin?"
+    },
     {
      "q": "ich (?:hab|habe) mein(?:en)? (?:portemonnaie|geldbeutel|geldbörse|brieftasche) verloren",
      "v": "neg",

@@ -2785,6 +2785,18 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   colour is green“, „i drive a tesla“ unverändert. Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 774 bestanden
   (die eine Abweichung im ersten Lauf war die Prüfung selbst: „Noted: pizza — yum!“ ist eine gleichwertige Variante),
   Regressionen 32, 38–83 (50 Gespräche): 0 Wiederholungen; Unterschiede nur Uhrzeiten.
+- **Alltags-Batterie 84 (zweite Verallgemeinerungsprobe: 40 neue Einzelnachrichten, EN + DE)**: vorher u. a. „i'm going to a
+  concert tonight“ → „I'll remember that you work as a concert.“, „ich hasse meinen job“ → „Notiert: Meinen Job – lieber
+  nicht.“ (als Abneigung gespeichert), „i just woke up“/„i'm at the gym“ → „tell me more“, „what should i name my cat?“ →
+  Rückfrage „Is it a dog, a cat …?“, deutsch viele Rückfallantworten (Konzert, aufgewacht, Fitnessstudio, Abschlussarbeit,
+  Baby, KI, Lernhilfe, Motivation, Urlaub mit „Und wie war's?“). Alle bekommen jetzt passende Antworten (Ereignistabelle
+  erweitert). Grundfehler gefunden: Die Tippfehler-Korrektur machte aus „snowing“ „showing“ – gültige Beugungen bekannter
+  Wörter (snow + ing, bake + d …) werden nicht mehr „korrigiert“, echte Tippfehler („interveiw“) weiterhin. Die erste Fassung
+  fing zwei vorhandene Abläufe ab (Hausaufgaben mit Fach-Rückfrage, „hat sich verlobt“ mit Trauzeugin-Folgefragen) – von
+  zwei alten Tests gefunden, zurückgenommen. Release: beta.23 hing beim Herunterladen der Paket-Artefakte (kein Zeitlimit,
+  Standard 6 Stunden); der Reuse-Job hat jetzt 20 Minuten Zeitlimit, beta.23 ist erneut angestoßen. Messung: Team-Dev-Satz
+  1 von 128 (team-0067), NQ 22/9, Suite 775 bestanden, Regressionen 32, 38–84 (51 Gespräche): 0 Wiederholungen;
+  Unterschiede nur Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

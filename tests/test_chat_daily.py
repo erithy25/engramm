@@ -3144,3 +3144,16 @@ def test_category_confirmations_need_a_cue(chat):
     r = a.turn(DialogState("c83-p"), "pizza is my favourite food")
     assert "good choice" in r.text or "yum" in r.text, r.text
     assert "green" in a.turn(DialogState("c83-g"), "my favourite colour is green").text
+
+
+def test_battery84_second_generalisation_probe(chat):
+    a, _ = chat
+    bad = ("work as", "tell me more", "Erzähl ruhig mehr", "wie ging's weiter", "Und wie war's", "lieber nicht", "nicht nachschlagen",
+           "What went wrong with your", "nicht ganz verstanden", "haven't read anything")
+    for i, msg in enumerate(["i'm going to a concert tonight", "i just woke up", "i'm at the gym", "i hate my job", "what do you think about ai?",
+                             "can you help me study?", "it's snowing!", "ich geh heute abend auf ein konzert", "meine beste freundin heiratet",
+                             "ich bin gerade aufgewacht", "ich hasse meinen job", "was hältst du von ki?", "kannst du mir beim lernen helfen?",
+                             "ich brauche motivation", "ich bin im urlaub", "wie soll ich meine katze nennen?"]):
+        r = a.turn(DialogState(f"g84-{i}"), msg)
+        assert not any(x in r.text for x in bad), (msg, r.text)
+    assert "interveiw" not in a.turn(DialogState("t84"), "i have a job interveiw tomorow").text

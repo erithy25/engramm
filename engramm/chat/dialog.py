@@ -5253,7 +5253,12 @@ class Assistant:
         for i, tok in enumerate(toks):
             m = re.fullmatch(r"([a-z]{5,})([.,!]*)", tok)
             prev = toks[i - 1].lower().strip(",.") if i else ""
-            if m and prev not in ("i'm", "im", "am", "called", "named", "is", "name", "call", "me") and not self.speller.known(m.group(1)):
+            w = m.group(1) if m else ""
+            stems = [w[:-3], w[:-3] + "e", w[:-4] if w[-4:-3] == w[-5:-4] else "", w[:-2], w[:-1], w[:-2] + "e" if w.endswith("ed") else "",
+                     w[:-3] + "y" if w.endswith("ies") else "", w[:-2] if w.endswith("er") else "", w[:-3] if w.endswith("est") else "",
+                     w[:-2] if w.endswith("ly") else ""] if re.search(r"(?:ing|ed|es|s|er|est|ly)$", w) else []
+            inflected = any(len(x) >= 3 and self.speller.known(x) for x in stems if x)   # "snowing" is snow + ing, not "showing"
+            if m and prev not in ("i'm", "im", "am", "called", "named", "is", "name", "call", "me") and not self.speller.known(m.group(1)) and not inflected:
                 fixed = self.speller.fix_word(m.group(1))
                 if fixed and fixed.lower() != m.group(1) and self.speller.known(fixed.lower()):
                     tok = fixed.lower() + m.group(2)
