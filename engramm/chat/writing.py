@@ -103,6 +103,7 @@ class WritingRequest:
     sign: str | None = None
     variant: int = 0
     subject: bool = True
+    polite: bool = False                    # "make it more polite" once it is already formal
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -198,6 +199,8 @@ def parse_request(message: str, purposes: dict) -> WritingRequest | None:
 
 def classify_purpose(text: str, purposes: dict) -> str:
     low = " " + text.lower() + " "
+    if "complaint" in purposes and re.search(r"\bcomplain", low):
+        return "complaint"                    # said so: a complaint, also about broken heating
     for name, p in purposes.items():
         for key in p.get("keys", []):
             if re.search(key, low):
@@ -388,15 +391,18 @@ def draft(req: WritingRequest, spec: dict, user_name: str | None, today: dt.date
         out = re.sub(r"\{(\w+)\}", lambda m: fill.get(m.group(1), m.group(0)), s)
         out = re.sub(r"\s+([,.!?])", r"\1", out)
         out = re.sub(r"\s{2,}", " ", out).strip()
+        out = re.sub(r"(?<![\w.])i(?=['’ ,.!?]|$)", "I", out)   # "that i'll be late" → "that I'll be late"
         return out
     sign = req.sign or user_name or "[Your name]"
     # greeting
     g = spec["greetings"]
+    gkey = f"{conversation}|{req.purpose}|0" if req.polite else key   # a politer draft keeps its "Dear …"
     if req.recipient_name:
-        greet = _pick(g[f"{tone}_named"], key + "g").replace("{recipient_name}", req.recipient_name)
+        greet = _pick(g[f"{tone}_named"], gkey + "g").replace("{recipient_name}", req.recipient_name)
     elif req.recipient:
         title = _recipient_title(req.recipient, tone)
-        greet = _pick(g[f"{tone}_role"], key + "g").replace("{recipient_title}", title)
+        greet = (g[f"{tone}_role"][0] if req.polite else _pick(g[f"{tone}_role"], gkey + "g")
+                 ).replace("{recipient_title}", title)
     else:
         greet = _pick(g[f"{tone}_unknown"], key + "g")
     opening = "" if req.short else f(_pick(parts.get("open", [""]), key + "o"))
@@ -413,6 +419,10 @@ def draft(req: WritingRequest, spec: dict, user_name: str | None, today: dt.date
         sign_off = _pick(closings[tone], key + "s")
     if closing.endswith(","):                 # "With sincere thanks," is itself the sign-off
         sign_off, closing = closing, ""
+    if req.polite and tone == "formal":
+        opening = opening or "I hope you are well."
+        extras = [re.sub(r"^Please let me know", "Could you please let me know", e) for e in extras]
+        extras.append("I would be very grateful for your help.")
     paragraph = " ".join(x for x in [opening, body] + extras if x)
     lines = []
     if req.genre in ("email",) and req.subject:
@@ -487,6 +497,8 @@ def apply_edit(req: WritingRequest, cmd: str, x: str | None) -> WritingRequest:
     elif cmd == "longer":
         r.short, r.long = False, True
     elif cmd == "formal":
+        if r.tone == "formal":                # already formal: more courteous wording, never the same text
+            r.polite, r.variant = True, r.variant + 1
         r.tone = "formal"
     elif cmd == "casual":
         r.tone = "casual"

@@ -885,7 +885,12 @@ class Assistant:
                  "again": "Here's another version:", "add": "Done — I've added that:",
                  "sign": "Signed:", "date": "I've changed the date:", "to": "Addressed to the new recipient:",
                  "nosubject": "Without the subject line:"}
-        return self._show_draft(st, text, req, note=notes.get(cmd, ""))
+        note = notes.get(cmd, "")
+        if cmd == "formal" and req.polite and re.search(r"\bpolite|nicer|kinder\b", text, re.I):
+            note = "Here's a more polite version:"
+        elif cmd == "formal" and req.polite:
+            note = "It was already formal — here's an even more courteous version:"
+        return self._show_draft(st, text, req, note=note)
 
     def _content(self, st: DialogState, u: Unit) -> Reply:
         if u.act == "writing":

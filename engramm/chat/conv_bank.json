@@ -2784,6 +2784,63 @@
      ]
     }
    },
+   "repair": {
+    "keys": [
+     "heating",
+     "boiler",
+     "hot water",
+     "radiator",
+     "leak",
+     "leaking",
+     "mould",
+     "mold",
+     "damp",
+     "needs? (?:a )?repair",
+     "fix (?:the|my)",
+     "(?:get|have) (?:it|this) fixed",
+     "washing machine",
+     "dishwasher",
+     "fridge",
+     "toilet",
+     "shower"
+    ],
+    "subject": [
+     "Repair needed{about_title}",
+     "Request for repair{about_title}"
+    ],
+    "formal": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "I am writing to let you know{about}.",
+      "I wanted to let you know{about}."
+     ],
+     "extra": [
+      "Could you please arrange for it to be repaired as soon as possible? I'm happy to let someone in — just let me know what time suits.",
+      "Would you be able to send someone to take a look in the next few days? Please let me know when they can come."
+     ],
+     "close": [
+      "Thank you very much for your help.",
+      "Many thanks in advance."
+     ]
+    },
+    "casual": {
+     "open": [
+      ""
+     ],
+     "body": [
+      "just a heads-up{about}.",
+      "quick one{about}."
+     ],
+     "extra": [
+      "Could you get someone to fix it soon? Let me know when they can come."
+     ],
+     "close": [
+      "Thanks a lot!"
+     ]
+    }
+   },
    "complaint": {
     "keys": [
      "complain",

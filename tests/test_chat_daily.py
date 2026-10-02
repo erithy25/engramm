@@ -725,3 +725,14 @@ def test_german_privacy_and_no_english_in_german(chat):
     a.turn(st, "wer ist zorblax quux")
     r = a.turn(st, "wer ist zorblax quuxx")
     assert "I'm afraid" not in r.text and "beyond" not in r.text, r.text
+
+
+def test_writing_repairs_politeness_and_capital_i(chat):
+    a, st = chat
+    r = a.turn(st, "write an email to my landlord that the heating is broken")
+    assert "unhappy" not in r.text and "repair" in r.text.lower(), r.text
+    first = r.text
+    r = a.turn(st, "make it more polite")
+    assert r.text != first and "grateful" in r.text and "Dear" in r.text, r.text
+    r = a.turn(st, "write a text to my friend saying i'll be late")
+    assert "I'll be late" in r.text, r.text
