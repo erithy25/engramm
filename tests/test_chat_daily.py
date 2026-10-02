@@ -1934,3 +1934,50 @@ def test_past_negation_is_never_a_fact():
     assert personal_facts("i didn't drink much water", "u") == []
     assert personal_facts("i haven't slept well", "u") == []
     assert personal_facts("my favourite drink is tea", "u")
+
+
+def test_battery49_running_kid_guests_and_todos(chat):
+    a, _ = chat
+    st = DialogState("m1")
+    a.turn(st, "i want to start running")
+    assert "fine" in a.turn(st, "i've never really done sport").text
+    assert "Three times" in a.turn(st, "how often should i run?").text
+    assert "minutes" in a.turn(st, "how far?").text
+    assert "running shoes" in a.turn(st, "what shoes do i need?").text.lower()
+    st2 = DialogState("m2")
+    a.turn(st2, "my son has a math test tomorrow")
+    r = a.turn(st2, "he's really nervous")
+    assert "you're feeling" not in r.text and "normal" in r.text, r.text
+    r = a.turn(st2, "how can i help him?")
+    assert "sleep" in r.text and "•" in r.text, r.text
+    assert "At 10" in a.turn(st2, "he's 10").text
+    st3 = DialogState("m3")
+    a.turn(st3, "i have friends coming over for dinner")
+    assert "6 people" in a.turn(st3, "6 people").text
+    a.turn(st3, "one is vegan")
+    r = a.turn(st3, "what should i cook?")
+    assert "vegan" in r.text and "curry" in r.text.lower(), r.text
+    assert "Sorbet" in a.turn(st3, "and for dessert?").text
+    st4 = DialogState("m4")
+    a.turn(st4, "remind me to call my mom tomorrow")
+    r = a.turn(st4, "and to buy milk")
+    assert "buy milk" in r.text, r.text
+    r = a.turn(st4, "what do i need to do?")
+    assert "buy milk" in r.text and "call your mom" in r.text, r.text
+    r = a.turn(st4, "i called her")
+    assert "ticked off" in r.text and "call your mom" in r.text, r.text
+    r = a.turn(st4, "what do i need to do?")
+    assert "buy milk" in r.text and "call your mom" not in r.text, r.text
+
+
+def test_battery49_german_running_and_guests(chat):
+    a, _ = chat
+    st = DialogState("m5")
+    r = a.turn(st, "ich will mit dem joggen anfangen")
+    assert "Laufen" in r.text, r.text
+    assert "Dreimal" in a.turn(st, "wie oft soll ich laufen?").text
+    assert "erste Lauf" in a.turn(st, "danke, ich fang morgen an").text
+    st2 = DialogState("m6")
+    assert "Besuch" in a.turn(st2, "wir kriegen heute abend besuch").text
+    assert "Gemüselasagne" in a.turn(st2, "einer ist vegetarier").text
+    assert "Tiramisu" in a.turn(st2, "und als nachtisch?").text

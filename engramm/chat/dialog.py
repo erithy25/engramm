@@ -407,6 +407,38 @@ _DE_BDAY_PERSON = re.compile(r"^mein(?:e)? (?P<p>freundin|frau|mutter|mama|schwe
                              r"am \w+|übermorgen|diese woche) geburtstag[.!]*$")
 _DE_LIKES = re.compile(r"^(?:sie|er) (?P<x>liest|kocht|reist|malt|mag|liebt|trinkt) (?:gern|gerne|so gern|total gern|viel)?(?: (?P<y>[a-zäöüß ]+?))?[.!]*$")
 _DE_GIFT_Q = re.compile(r"^(?:und )?was (?:soll|sollte|kann|könnte) ich (?:ihr|ihm) schenken\??$|^(?:hast du )?geschenkideen\??$")
+# battery 49: starting to run, a nervous child before a test, guests for dinner, adding to and ticking off reminders
+_RUN_START = re.compile(r"^(?:i )?(?:want to|wanna|would like to|am going to|'m going to|plan to) (?:start|get into|begin) (?:running|jogging)[.!]*$")
+_NEVER_SPORT = re.compile(r"^(?:but |well,? )?i(?:'ve| have)? (?:never|not) (?:really )?(?:done|did|do) (?:any |much )?(?:sport|sports|exercise)(?: before| really)?[.!]*$|"
+                          r"^i'?m (?:a )?(?:total |complete )?beginner[.!]*$")
+_RUN_OFTEN = re.compile(r"^(?:and |so )?how (?:often|many times a week) should i (?:run|go running|jog)\??$")
+_RUN_FAR = re.compile(r"^(?:and |so )?how (?:far|long|much)(?: should i (?:run|go))?\??$")
+_RUN_SHOES = re.compile(r"^(?:and |so )?what (?:shoes|gear|clothes|equipment|kit) (?:do|should) i (?:need|get|buy|wear)\??$")
+_KID = re.compile(r"\bmy (?P<k>son|daughter|kid|child|boy|girl|little one|nephew|niece) (?:has|have|'s got|is having|is taking) (?:a |an |his |her )?"
+                  r"(?:\w+ )?(?:test|exam|quiz|presentation|recital|match|game)")
+_KID_NERVOUS = re.compile(r"^(?:and |but )?(?:he'?s|she'?s|he is|she is|they'?re) (?:really |so |super |very |a bit |kinda )?(?:nervous|anxious|scared|"
+                          r"stressed|worried)(?: about it)?[.!]*$")
+_KID_HELP = re.compile(r"^(?:so |and )?how (?:can|do|could|should) i help (?:him|her|them)\??$|^what (?:can|should) i do(?: for (?:him|her))?\??$")
+_KID_AGE = re.compile(r"^(?:he'?s|she'?s|he is|she is|they'?re) (?P<n>\d{1,2})(?: years old)?[.!]*$")
+_GUESTS = re.compile(r"\b(?:i have|i'?ve got|we have|having|we'?re having|i'?m having) (?:some )?(?:friends|people|guests|family) (?:coming )?(?:over|round)"
+                     r"(?: for (?:dinner|lunch|food))?\b|\bdinner party\b")
+_GUEST_N = re.compile(r"^(?:about |around |maybe |like )?(?P<n>\d{1,2}|two|three|four|five|six|seven|eight|ten|twelve) (?:people|guests|of us|persons)?[.!]*$")
+_ONE_VEGAN = re.compile(r"^(?:and |but )?(?:one|two|some|a friend|one of them|my friend) (?:is|are|of them is) (?P<d>vegan|vegetarian|gluten[- ]free|"
+                        r"lactose intolerant|allergic to nuts)[.!]*$")
+_DESSERT = re.compile(r"^(?:and |what about |how about )?(?:for |a )?dessert\??$|^(?:and )?what (?:about|for) dessert\??$")
+_TODO_MORE = re.compile(r"^(?:(?:and|also|oh and|plus) (?:to |that i need to )?|to |that i (?:also )?need to )(?P<x>[a-z][a-z ,'-]{2,60})[.!]*$")
+_DID_IT = re.compile(r"^(?:ok(?:ay)?,? |done,? |so )?i (?:just |already |finally )?(?P<v>called|bought|sent|paid|booked|cleaned|finished|emailed|"
+                     r"texted|picked up|made|fixed|washed|cooked|wrote|replied to|returned|cancelled|renewed|did) (?P<o>[a-z ]{0,30}?)[.!]*$")
+_PAST_BASE = {"called": "call", "bought": "buy", "sent": "send", "paid": "pay", "booked": "book", "cleaned": "clean", "finished": "finish",
+              "emailed": "email", "texted": "text", "picked up": "pick up", "made": "make", "fixed": "fix", "washed": "wash",
+              "cooked": "cook", "wrote": "write", "replied to": "reply to", "returned": "return", "cancelled": "cancel",
+              "renewed": "renew", "did": "do"}
+_DE_RUN = re.compile(r"^(?:ich )?(?:will|möchte|werde) (?:mit dem |wieder mit dem |mit )?(?:joggen|laufen|rennen) anfangen[.!]*$|^ich fang(?:e)? (?:mit dem )?(?:joggen|laufen) an[.!]*$")
+_DE_RUN_OFTEN = re.compile(r"^(?:und )?wie oft (?:soll|sollte) ich (?:laufen|joggen)(?: gehen)?\??$")
+_DE_RUN_GO = re.compile(r"^(?:danke,? |ok,? |gut,? )*ich fang(?:e)? (?:morgen|heute|gleich|am montag) an[.!]*$")
+_DE_GUESTS = re.compile(r"^wir (?:kriegen|bekommen|haben) (?:heute abend |morgen |am wochenende )?(?:besuch|gäste)[.!]*$|^(?:heute abend )?kommen (?:freunde|gäste) zum essen[.!]*$")
+_DE_VEGGIE = re.compile(r"^(?:und )?(?:einer|eine|jemand|zwei) (?:davon )?(?:ist|sind|isst) (?:vegetarier(?:in)?|vegan|veganer(?:in)?|kein fleisch)[.!]*$")
+_DE_DESSERT = re.compile(r"^(?:und )?(?:als |zum )?(?:nachtisch|dessert|nachspeise)\??$|^(?:und )?was (?:gibt'?s|mache ich) (?:als|zum) (?:nachtisch|dessert)\??$")
 _WEAR = re.compile(r"^(?:(?:and|so|ok|okay|hmm|fine|alright|cool|sure)[.,!]? )?what (?:should|do|can|could) i wear(?: (?:to|for|on|in) "
                    r"(?:the |a |my |an )?(?P<x>[a-z ]+?))?(?: tomorrow| today| tonight)?\??$")
 _OCCASIONS = [("interview", re.compile(r"\binterview")), ("wedding", re.compile(r"\bwedding|\bmarr")),
@@ -1042,6 +1074,26 @@ class Assistant:
         r = self._german_event(st, msg, q, dc)
         if r is not None:
             return r
+        if _DE_RUN.match(q):
+            st.uses["run_de"] = st.turn
+            return Reply(msg, "smalltalk", self._pick(st, "de:ctx:run_start", dc["run_start"]), via="german")
+        rd = st.uses.get("run_de")
+        if rd is not None and st.turn - rd <= 5:
+            if _DE_RUN_OFTEN.match(q):
+                st.uses["run_de"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:run_often", dc["run_often"]), via="german")
+            if _DE_RUN_GO.match(q):
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:run_go", dc["run_go"]), via="german")
+        if _DE_GUESTS.match(q):
+            st.uses["guests_de"] = st.turn
+            return Reply(msg, "smalltalk", self._pick(st, "de:ctx:guests", dc["guests"]), via="german")
+        gd_ = st.uses.get("guests_de")
+        if gd_ is not None and st.turn - gd_ <= 6:
+            if _DE_VEGGIE.match(q):
+                st.uses["guests_de"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:guests_veggie", dc["guests_veggie"]), via="german")
+            if _DE_DESSERT.match(q):
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:dessert", dc["dessert"]), via="german")
         if _DE_ACHE.match(q):
             st.uses["ache_de"] = st.turn
             st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
@@ -3715,7 +3767,7 @@ class Assistant:
                     if dish["name"].lower() == x or dish["name"].lower().replace("homemade ", "") == x:
                         return self._dish_steps(st, msg, dish["name"])
         r2 = self._daily_ctx2(st, msg, norm) or self._daily_ctx3(st, msg, norm) or self._daily_ctx4(st, msg, norm) or \
-            self._daily_ctx5(st, msg, norm) or self._daily_ctx6(st, msg, norm)
+            self._daily_ctx5(st, msg, norm) or self._daily_ctx6(st, msg, norm) or self._daily_ctx7(st, msg, norm)
         if r2 is not None:
             return r2
         m = _WHAT_LIKES.match(norm)
@@ -4168,6 +4220,94 @@ class Assistant:
             if re.fullmatch(r"(?:yeah,? |yes,? |hm+,? )?(?:i think so too|you'?re right|that'?s what i thought|i guess you'?re right|"
                             r"makes sense|i agree)[.!]*", norm):
                 return Reply(msg, "smalltalk", self._pick(st, "daily:decide_agree", d["decide_agree"]), via="smalltalk")
+        return None
+
+    def _daily_ctx7(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 49: starting to run (how often, how far, shoes), a child nervous before a test, guests for
+        dinner (how many, a vegan guest, menu, dessert), and adding to or ticking off reminders."""
+        d = self.bank.daily
+        if _RUN_START.match(norm):
+            st.uses["run"] = st.turn
+            rep = self._learn(st, [msg], msg)
+            rep.text = self._pick(st, "daily:run_start", d["run_start"])
+            return rep
+        rn = st.uses.get("run")
+        if rn is not None and st.turn - rn <= 6:
+            for rx, key in ((_NEVER_SPORT, "run_beginner"), (_RUN_OFTEN, "run_often"), (_RUN_FAR, "run_far"), (_RUN_SHOES, "run_shoes")):
+                if rx.match(norm):
+                    st.uses["run"] = st.turn
+                    return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key]), via="everyday")
+            if re.fullmatch(r"(?:cool,? |ok(?:ay)?,? |great,? |thanks,? )*(?:i'?ll|ill|i will|gonna) (?:start|begin|go)(?: running)? (?:tomorrow|today|"
+                            r"on monday|this week|tonight)[.!]*", norm):
+                return Reply(msg, "smalltalk", self._pick(st, "daily:run_go", d["run_go"]), via="smalltalk")
+        if _KID.search(norm):
+            st.uses["kid"] = st.turn
+        kd = st.uses.get("kid")
+        if kd is not None and st.turn - kd <= 5 and kd != st.turn:
+            if _KID_NERVOUS.match(norm):
+                st.uses["kid"] = st.turn
+                return Reply(msg, "empathy", self._pick(st, "daily:kid_nervous", d["kid_nervous"]), via="empathy")
+            if _KID_HELP.match(norm):
+                st.uses["kid"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:kid_help", d["kid_help"]), via="everyday")
+            m = _KID_AGE.match(norm)
+            if m and 3 <= int(m.group("n")) <= 18:
+                st.uses["kid"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:kid_age", d["kid_age"], x=m.group("n")), via="everyday")
+        gs = st.uses.get("guests")
+        if _GUESTS.search(norm):
+            st.uses["guests"] = gs = {"n": None, "diet": None, "turn": st.turn}
+            rep = self._learn(st, [msg], msg)
+            rep.text = self._pick(st, "daily:guests_ack", d["guests_ack"])
+            return rep
+        if gs and st.turn - gs["turn"] <= 6:
+            m = _GUEST_N.match(norm)
+            if m:
+                gs.update(n=m.group("n"), turn=st.turn)
+                return Reply(msg, "smalltalk", self._pick(st, "daily:guests_count", d["guests_count"], x=m.group("n")), via="everyday")
+            m = _ONE_VEGAN.match(norm)
+            if m:
+                gs.update(diet=m.group("d"), turn=st.turn)
+                return Reply(msg, "smalltalk", self._pick(st, "daily:guests_vegan", d["guests_vegan"]), via="everyday")
+            if _COOK_FOR.match(norm) or re.fullmatch(r"(?:so |ok )?what (?:should|could|can) (?:i|we) (?:cook|make|serve)(?: for (?:them|everyone|the guests))?\??|"
+                                                     r"(?:yes|yeah|sure)(?: please)?[.!]*", norm):
+                gs["turn"] = st.turn
+                st.uses["guests_menu"] = st.turn
+                key = "guests_menu_vegan" if gs["diet"] in ("vegan", "vegetarian") else "guests_menu"
+                return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key], x=gs["n"] or "everyone"), via="everyday")
+            gm = st.uses.get("guests_menu")
+            if gm is not None and st.turn - gm <= 3 and _FOOD_TIME.match(norm):
+                return Reply(msg, "smalltalk", self._pick(st, "daily:guests_time", d["guests_time"]), via="everyday")
+            if _DESSERT.match(norm):
+                key = "dessert_vegan" if gs["diet"] == "vegan" else "dessert_guests"
+                return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key]), via="everyday")
+        la = st.last_action or {}
+        if (st.last_reply or "").find("what do I need to do") >= 0 or (st.uses.get("last_via") == "memory" and "noted it" in (st.last_reply or "")):
+            m = _TODO_MORE.match(norm)
+            if m:
+                what = m.group("x").strip(" .!")
+                self._learn(st, [f"I need to {what}."], msg)
+                return Reply(msg, "learned", self._pick(st, "daily:todo_added", d["todo_added"], x=re.sub(r"\bmy\b", "your", what)),
+                             via="memory")
+        m = _DID_IT.match(norm)
+        if m:
+            base = _PAST_BASE[m.group("v")]
+            obj = m.group("o").strip()
+            todos = {sid: tx for sid, tx in self.bot.user_texts().items() if re.match(r"^I need to\s+", tx)}
+            hit = None
+            for sid, tx in todos.items():
+                task = re.sub(r"^I need to\s+", "", tx).rstrip(".").lower()
+                if task.startswith(base + " ") or task == base:
+                    rest = task[len(base):].strip()
+                    if not obj or obj in ("her", "him", "them", "it", "that", "this") or obj in rest or rest.startswith(obj.split()[0]):
+                        hit = (sid, task)
+                        break
+            if hit:
+                self.bot.memory.forget(hit[0])
+                self.bot.refresh()
+                left = [tx for tx in self.bot.user_texts().values() if re.match(r"^I need to\s+", tx)]
+                key = "todo_done" if left else "todo_done_all"
+                return Reply(msg, "memory", self._pick(st, f"daily:{key}", d[key], x=re.sub(r"\bmy\b", "your", hit[1])), via="memory")
         return None
 
     def _person_name(self, noun: str) -> str | None:

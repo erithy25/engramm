@@ -5360,6 +5360,24 @@
      "malt": "ein Skizzenbuch mit guten Stiften oder ein gemeinsamer Museumsbesuch",
      "yoga": "eine gute Yogamatte oder ein Gutschein für einen Kurs"
     },
+    "run_start": [
+     "Super! Laufen ist super für den Einstieg – du brauchst nur Schuhe. Bist du schon mal gelaufen, oder ist es ein Neustart?"
+    ],
+    "run_often": [
+     "Dreimal pro Woche ist perfekt für den Anfang, mit einem Ruhetag dazwischen. Und am Anfang lieber im Wechsel: eine Minute laufen, zwei Minuten gehen, 20–30 Minuten lang."
+    ],
+    "run_go": [
+     "Klasse – fang langsam an und erzähl mir, wie der erste Lauf war! 🏃"
+    ],
+    "guests": [
+     "Schön, Besuch! Wie viele kommen denn – und gibt's jemanden, der etwas nicht isst?"
+    ],
+    "guests_veggie": [
+     "Gut zu wissen! Am einfachsten ist ein Hauptgericht, das alle essen können: eine große Gemüselasagne, ein Kichererbsen-Curry mit Reis oder ein Risotto mit Pilzen. Alles lässt sich gut vorbereiten."
+    ],
+    "dessert": [
+     "Als Nachtisch: Tiramisu oder Panna cotta am Vortag gemacht, ein Obstcrumble mit Eis oder einfach ein schöner Obstteller mit geschmolzener Schokolade."
+    ],
     "bot_human": [
      "Nein, ich bin kein Mensch – ich bin ENGRAMM, ein Programm auf deinem Rechner. Kein neuronales Netz, keine Cloud: Ich antworte aus dem, was ich gelesen habe, und aus dem, was du mir erzählst.",
      "Nein, ich bin ein Programm namens ENGRAMM. Aber ich höre dir trotzdem gern zu!"
@@ -10002,6 +10020,68 @@
   ],
   "decide_agree": [
    "Sounds like you already knew deep down. Good luck with it! 🍀"
+  ],
+  "run_start": [
+   "Love it! Running is one of the easiest sports to start: just shoes and a door. Have you run before, or is this a fresh start?"
+  ],
+  "run_beginner": [
+   "That's totally fine — everyone starts somewhere. The trick is to start slower than you think: walk–run intervals, and you'll be surprised how fast you improve."
+  ],
+  "run_often": [
+   "Three times a week is perfect for starting, with a rest day in between so your body can adapt."
+  ],
+  "run_far": [
+   "Don't think in distance yet, think in time: 20–30 minutes of alternating 1 minute running and 2 minutes walking. Every week, run a bit more and walk a bit less. In 8–10 weeks most people can run 30 minutes straight."
+  ],
+  "run_shoes": [
+   "Proper running shoes matter most, ideally from a running shop where they look at how you run. Comfortable and cushioned beats fashionable. The rest (shorts, a T-shirt that isn't cotton) can be anything."
+  ],
+  "run_go": [
+   "Great — go slow, enjoy it, and tell me how the first run went! 🏃"
+  ],
+  "kid_nervous": [
+   "That's so normal before a test — it shows he cares. How old is he?",
+   "Aw, poor thing. Nerves before a test are completely normal. What's he most worried about?"
+  ],
+  "kid_help": [
+   "A few things that help:\n\n• A short, relaxed review tonight instead of last-minute cramming\n• A good night's sleep and a proper breakfast\n• Tell him that mistakes are okay and that you're proud of him for trying\n• A simple breathing trick for the test: in for 4, out for 6\n\nYour calm helps him most."
+  ],
+  "kid_age": [
+   "At {x}, a calm evening and knowing you're not worried about the grade makes a big difference. Maybe do one or two practice problems together, then something fun to switch off."
+  ],
+  "guests_ack": [
+   "Nice, a dinner party! How many people are coming?"
+  ],
+  "guests_count": [
+   "{X} people — a proper dinner! Any dietary needs, like vegetarian or allergies?"
+  ],
+  "guests_vegan": [
+   "Good to know. The easiest way is a main everyone can eat, so the vegan guest doesn't get a sad side dish. Want ideas?"
+  ],
+  "guests_menu_vegan": [
+   "For a group with a vegan guest:\n\n• A big vegetable and chickpea curry with rice and naan, everyone loves it\n• Chili sin carne with all the toppings, guests add what they like\n• Pasta with a rich tomato and roasted vegetable sauce\n\nAll of them scale easily for {x} and can be made ahead."
+  ],
+  "guests_menu": [
+   "For {x} people, something you can make ahead works best:\n\n• Lasagne or a vegetable lasagne\n• A big curry with rice\n• A roast chicken with roast vegetables\n\nThen you can enjoy your guests instead of standing at the stove."
+  ],
+  "guests_time": [
+   "About an hour, most of it hands-off simmering — and all of them taste even better made a few hours ahead."
+  ],
+  "dessert_vegan": [
+   "Vegan desserts everyone likes:\n\n• Sorbet with fresh berries\n• Dark chocolate mousse (many dark chocolates are vegan)\n• Baked apples with cinnamon and a crumble topping\n• A big fruit platter with melted dark chocolate for dipping"
+  ],
+  "dessert_guests": [
+   "For dessert: a tiramisu or panna cotta made the day before, or a simple fruit crumble with ice cream."
+  ],
+  "todo_added": [
+   "Added: {x}. Ask me “what do I need to do?” any time."
+  ],
+  "todo_done": [
+   "Nice, ticked off: {x}. ✅",
+   "Great — I've crossed off: {x}. ✅"
+  ],
+  "todo_done_all": [
+   "Nice, ticked off: {x}. ✅ That was everything on your list!"
   ]
  }
 }

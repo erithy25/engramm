@@ -553,6 +553,12 @@ daily:
       pflanzen: "eine schöne Pflanze mit einem hübschen Topf"
       malt: "ein Skizzenbuch mit guten Stiften oder ein gemeinsamer Museumsbesuch"
       yoga: "eine gute Yogamatte oder ein Gutschein für einen Kurs"
+    run_start: ["Super! Laufen ist super für den Einstieg – du brauchst nur Schuhe. Bist du schon mal gelaufen, oder ist es ein Neustart?"]
+    run_often: ["Dreimal pro Woche ist perfekt für den Anfang, mit einem Ruhetag dazwischen. Und am Anfang lieber im Wechsel: eine Minute laufen, zwei Minuten gehen, 20–30 Minuten lang."]
+    run_go: ["Klasse – fang langsam an und erzähl mir, wie der erste Lauf war! 🏃"]
+    guests: ["Schön, Besuch! Wie viele kommen denn – und gibt's jemanden, der etwas nicht isst?"]
+    guests_veggie: ["Gut zu wissen! Am einfachsten ist ein Hauptgericht, das alle essen können: eine große Gemüselasagne, ein Kichererbsen-Curry mit Reis oder ein Risotto mit Pilzen. Alles lässt sich gut vorbereiten."]
+    dessert: ["Als Nachtisch: Tiramisu oder Panna cotta am Vortag gemacht, ein Obstcrumble mit Eis oder einfach ein schöner Obstteller mit geschmolzener Schokolade."]
     bot_human: ["Nein, ich bin kein Mensch – ich bin ENGRAMM, ein Programm auf deinem Rechner. Kein neuronales Netz, keine Cloud: Ich antworte aus dem, was ich gelesen habe, und aus dem, was du mir erzählst.", "Nein, ich bin ein Programm namens ENGRAMM. Aber ich höre dir trotzdem gern zu!"]
     wfh_lonely: ["Das kann ich gut verstehen – Homeoffice kann richtig einsam machen. Ganze Tage ohne ein echtes Gespräch.", "Ja, zu Hause arbeiten ist praktisch, aber man sieht kaum Leute. Kein Plausch an der Kaffeemaschine."]
     maybe_should: ["Das ist eine gute Idee – auch kleine Schritte zählen. Soll ich dir ein paar Ideen geben?", "Finde ich gut! Klein anfangen ist völlig okay. Magst du ein paar Vorschläge?"]

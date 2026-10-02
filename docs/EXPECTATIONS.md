@@ -2276,6 +2276,17 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     `git repack` (3.194 lose Objekte, 58 MB → Pack). Danach lief die volle Suite wieder durch.
   - Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–47 und langes Gespräch: 0 Wiederholungen.
     Suite 720 bestanden, 7 übersprungen.
+- **Alltags-Batterie 49 (Laufen, Kind vor dem Test, Gäste, Erinnerungen; Englisch und Deutsch)**:
+  - Laufen anfangen → Anfänger → wie oft → wie weit → welche Schuhe → „i'll start tomorrow“ (vorher 3× „weiß nicht“).
+  - „my son has a math test tomorrow“ → „he's really nervous“ wurde als Angst des Nutzers gelesen („I'm sorry you're
+    feeling anxious“), jetzt geht es um das Kind → „how can i help him?“ (vorher ein Beziehungsratschlag) → „he's 10“.
+  - Gäste: Anzahl → „one is vegan“ → Menü, das alle essen können → Kochzeit → veganer Nachtisch.
+  - Erinnerungen: „and to buy milk“ ergänzt die Liste; „i called her“ hakt „call your mom“ ab (Vergangenheitsform auf
+    Grundform), die Liste zeigt danach nur noch „buy milk“.
+  - Deutsch: „ich will mit dem Joggen anfangen“ → „wie oft?“ → „ich fang morgen an“; „wir kriegen heute Abend Besuch“ →
+    „einer ist Vegetarier“ → „und als Nachtisch?“.
+  - Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–48 und langes Gespräch: 0 Wiederholungen.
+    Suite 722 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
