@@ -358,8 +358,8 @@ intents:
       - "I can help with that: say “tell me a joke” or “tell me a fun fact”, or ask me about something you've always wondered about."
 
   - id: wait
-    patterns: ['(ok |okay )?(gotta go|got to go|going to|need to go) (cook|eat|shower|grab food|get food)( brb| quick| real quick)?|(wait|hold on|hang on|one (sec|second|moment|minute)|just a (sec|second|moment|minute)|give me a (sec|second|moment|minute)|brb|be right back|back in a (sec|minute|bit)|let me think|let me see)']
-    examples: [wait, hold on, one sec, brb, let me think]
+    patterns: ['(ok |okay )?(gotta go|got to go|going to|need to go) (cook|eat|shower|grab food|get food)( brb| quick| real quick)?|(wait|hold on|hang on|one (sec|second|moment|minute)|just a (sec|second|moment|minute)|give me a (sec|second|moment|minute)|brb|be right back|back in a (sec|minute|bit)|let me think|let me see)((,| -)? ?(gotta|got to|have to|need to|going to|gonna|just|i need to|i have to|i gotta) (grab|get|check|do|answer|feed|take|make|go|use|eat|pee|run)( [a-z]+){0,4})?( brb| quick| real quick)?']
+    examples: [wait, hold on, one sec, brb, let me think, brb gotta grab smth]
     responses:
       - "Sure, take your time."
       - "No rush — I'll be here."
@@ -770,9 +770,9 @@ intents:
     patterns: ['what can''t you do|what are your (limits|limitations|weaknesses)|what don''t you know|are you (always )?(right|correct|accurate)|can you be wrong|do you make mistakes|can i trust you|should i trust you|how accurate are you|are you reliable']
     examples: [what can't you do, what are your limits, can you be wrong, can i trust you]
     responses:
-      - "I don't have internet access, I only know what I've read, and I can misunderstand complicated sentences. When I'm unsure, I say so — and I show my sources so you can check."
+      - "I can be wrong, yes. Unless you switch on Internet access I'm offline, I only know what I've read, and I can misunderstand complicated sentences. When I'm unsure, I say so — and I show my sources so you can check."
       - "I'm good with facts and remembering things you tell me, but weaker at creative writing, long reasoning and anything after my reading stopped. I'll tell you when I don't know."
-      - "Plenty! I only know what I've read and what you've told me, I'm offline unless you switch on Internet access, and I'm less flexible with language than a neural network. I can be wrong — that's why I show a source for every fact, and why I say “I don't know” when I'm not sure."
+      - "Not always, no. I only know what I've read and what you've told me, I'm offline unless you switch on Internet access, and I'm less flexible with language than a neural network. I can be wrong — that's why I show a source for every fact, and why I say “I don't know” when I'm not sure."
 
   - id: who_am_i
     patterns: ['who am i|do you know (me|who i am)|what''s my name\?? do you know|do you remember (me|my name)|you know me\??|remember me\??|do you know my name']

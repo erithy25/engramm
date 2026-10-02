@@ -305,6 +305,7 @@ daily:
                    "Aufregung gehört dazu, die meisten sind vorher nervös. Soll ich dir ein paar Tipps geben?"]
     me_too: ["Schön! Was steht heute bei dir an?", "Freut mich! Worüber wollen wir reden?"]
     hungry: ["Hunger? Dann vielleicht was Schnelles:"]
+    thanks_bye: ["Sehr gern! {x}!", "Immer gern! {x} – ich bin da, wenn du mich brauchst."]
     bot_fav:
       keys: {essen: [essen, gericht, speise], farbe: [farbe], film: [film], buch: [buch, autor], musik: [musik, lied, song, band, sänger],
              tier: [tier], jahreszeit: [jahreszeit], getränk: [getränk], sport: [sport], stadt: [stadt, land, ort], serie: [serie]}

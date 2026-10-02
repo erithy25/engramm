@@ -743,7 +743,14 @@ class Everyday:
             shape = "time"
         else:
             shape = "plain"
-        st.last_exp = {"valence": exp.valence, "topic": exp.topic, "person": exp.person, "text": text, "turn": st.turn}
+        prev = st.last_exp or {}
+        if not exp.topic and not exp.person and prev.get("person") and st.turn - prev.get("turn", -99) <= 2 \
+                and prev.get("valence") == exp.valence:
+            # "i feel left out" right after "my friend didn't invite me": still about the friend
+            st.last_exp = {"valence": exp.valence, "topic": prev.get("topic"), "person": True,
+                           "text": f"{prev.get('text', '')} {text}".strip(), "turn": st.turn}
+        else:
+            st.last_exp = {"valence": exp.valence, "topic": exp.topic, "person": exp.person, "text": text, "turn": st.turn}
         return self.pick(st, f"moment:{exp.valence}:{shape}", self.d["experience"][exp.valence][shape],
                          topic=exp.topic or "", timeword=exp.timeword or "day")
 

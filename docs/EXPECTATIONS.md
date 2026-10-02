@@ -2083,6 +2083,22 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     Mit eingeschaltetem Internet beantwortet die Atlas-Frische-Stufe das.
   - Team-Dev-Satz: 0 von 128 Antworten geändert. NQ-open 400: unverändert 22/9. Regressions-Batterien 30–34:
     0 Wiederholungen. Suite 678 bestanden, 7 übersprungen.
+- **Alltags-Batterie 36** (Slang, Ratschlag zu einer Freundin, Gitarre lernen, Deutsch mit Stress, 30. Geburtstag).
+  Gefunden und behoben:
+  - „its hard“ nach „i'm learning to play guitar“ → „Hi Hard, nice to meet you!“: Eine Namenskorrektur gilt nur
+    direkt nach einer kurzen Namensnennung und nie für Wörter wie hard/tired/fine.
+  - „my birthday was yesterday“ → „Your birthday is yesterday“: relative Tage werden zum Datum, mit Glückwunsch.
+  - „im kinda hungry tbh“ → „Noted: hungry — yum!“: Zustände (hungry, tbh, kinda …) sind nie Werte; „idk maybe
+    pizza“ danach → „Pizza sounds perfect!“.
+  - Ratschlag-Gespräch: „didn't invite me“ zählt als negatives Erlebnis, „i feel left out“ bleibt bei der Person,
+    „what if she gets mad“ (vorher „who's she?“) und „ok ill try“ (vorher Wissenssuche).
+  - Lernen (Gitarre, Klavier, Schlagzeug, Geige, Ukulele, Sprachen): Rückfragen zu Schmerzen, Dauer, Liedern, Tipps.
+  - „i'm tom“ klein geschrieben wird über die Großschreib-Statistik des Pakets als Name erkannt (vorher „Tom — good
+    choice!“).
+  - Außerdem: „brb gotta grab smth“, „i just turned 30“, „yeah feels weird“, „danke dir, bis morgen“ (beides),
+    „are you always right?“ beginnt nicht mehr mit „Plenty!“.
+  - Team-Dev-Satz: 1 von 128 Antworten geändert (team-0040, Geburtstag heute: jetzt mit gemerktem Datum).
+    NQ-open 400: unverändert 22/9. Suite 679 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

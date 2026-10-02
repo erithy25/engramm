@@ -723,14 +723,15 @@
    {
     "id": "wait",
     "patterns": [
-     "(ok |okay )?(gotta go|got to go|going to|need to go) (cook|eat|shower|grab food|get food)( brb| quick| real quick)?|(wait|hold on|hang on|one (sec|second|moment|minute)|just a (sec|second|moment|minute)|give me a (sec|second|moment|minute)|brb|be right back|back in a (sec|minute|bit)|let me think|let me see)"
+     "(ok |okay )?(gotta go|got to go|going to|need to go) (cook|eat|shower|grab food|get food)( brb| quick| real quick)?|(wait|hold on|hang on|one (sec|second|moment|minute)|just a (sec|second|moment|minute)|give me a (sec|second|moment|minute)|brb|be right back|back in a (sec|minute|bit)|let me think|let me see)((,| -)? ?(gotta|got to|have to|need to|going to|gonna|just|i need to|i have to|i gotta) (grab|get|check|do|answer|feed|take|make|go|use|eat|pee|run)( [a-z]+){0,4})?( brb| quick| real quick)?"
     ],
     "examples": [
      "wait",
      "hold on",
      "one sec",
      "brb",
-     "let me think"
+     "let me think",
+     "brb gotta grab smth"
     ],
     "responses": [
      "Sure, take your time.",
@@ -1618,9 +1619,9 @@
      "can i trust you"
     ],
     "responses": [
-     "I don't have internet access, I only know what I've read, and I can misunderstand complicated sentences. When I'm unsure, I say so — and I show my sources so you can check.",
+     "I can be wrong, yes. Unless you switch on Internet access I'm offline, I only know what I've read, and I can misunderstand complicated sentences. When I'm unsure, I say so — and I show my sources so you can check.",
      "I'm good with facts and remembering things you tell me, but weaker at creative writing, long reasoning and anything after my reading stopped. I'll tell you when I don't know.",
-     "Plenty! I only know what I've read and what you've told me, I'm offline unless you switch on Internet access, and I'm less flexible with language than a neural network. I can be wrong — that's why I show a source for every fact, and why I say “I don't know” when I'm not sure."
+     "Not always, no. I only know what I've read and what you've told me, I'm offline unless you switch on Internet access, and I'm less flexible with language than a neural network. I can be wrong — that's why I show a source for every fact, and why I say “I don't know” when I'm not sure."
     ]
    },
    {
@@ -4601,6 +4602,10 @@
     ],
     "hungry": [
      "Hunger? Dann vielleicht was Schnelles:"
+    ],
+    "thanks_bye": [
+     "Sehr gern! {x}!",
+     "Immer gern! {x} – ich bin da, wenn du mich brauchst."
     ],
     "bot_fav": {
      "keys": {
@@ -7860,6 +7865,129 @@
   "dread_dentist": [
    "Totally get it — hardly anyone likes that chair. It'll be over before you know it, and you'll be glad it's done. Maybe plan something nice for afterwards?",
    "You're not alone, most people feel that way. Tell them if you're nervous — they're used to it and can take it slowly. Treat yourself afterwards!"
-  ]
+  ],
+  "bday_yesterday": [
+   "Happy belated birthday! 🎂 I hope it was a good one. I've noted it: {x}.",
+   "Oh, happy belated birthday! 🎉 Did you do anything nice? I'll remember {x}."
+  ],
+  "bday_today": [
+   "Happy birthday! 🎂 I hope you get spoiled today. I've noted it: {x}.",
+   "It's your birthday? Happy birthday! 🎉 Any plans to celebrate? I'll remember {x}."
+  ],
+  "bday_tomorrow": [
+   "Your birthday's tomorrow? Exciting! 🎂 Got any plans? I've noted {x}."
+  ],
+  "turned": [
+   "Happy birthday! 🎉 {x} — how does it feel?",
+   "{x}! Congratulations 🎂 Did you celebrate?"
+  ],
+  "food_pick": [
+   "{X} sounds perfect! Ordering in, or making it yourself?",
+   "Ooh, {x} — good call. Enjoy!"
+  ],
+  "feels_weird": [
+   "That's totally normal — new things often feel a bit strange at first. What feels weirdest about it?",
+   "Makes sense! Give it a little time. What's the strange part for you?"
+  ],
+  "what_if_mad": [
+   "That's a fair worry. But if you say it calmly — “I was a bit hurt, can we talk?” — a good friend will usually understand. And if she does get upset, that's a conversation worth having anyway.",
+   "She might be surprised at first, sure. Starting with how you feel instead of blaming her makes that much less likely. You care about the friendship — that will come across."
+  ],
+  "will_try": [
+   "Good luck — I'm rooting for you. Tell me how it goes!",
+   "That's brave. Whatever happens, you did the right thing by speaking up. Let me know how it went!"
+  ],
+  "hurt_by_person": [
+   "Of course you do — being left out by someone close stings more than by anyone else. Do you know why it happened, or did it come out of nowhere?",
+   "That makes total sense. It hurts most when it's someone who matters to you. Have you two talked about it yet?"
+  ],
+  "learning": {
+   "guitar": {
+    "start": [
+     "Oh nice, the {x}! How long have you been playing?",
+     "That's awesome — the {x} is such a fun one. Acoustic or electric?"
+    ],
+    "pain": [
+     "Totally normal at the start — your fingertips are building calluses. Short sessions (15–20 minutes) a few times a day help, and after 2–3 weeks it gets much better. Take a break if it really hurts."
+    ],
+    "hard": [
+     "Everyone feels that at first — chord changes are clumsy for weeks, then suddenly they click. Practise just two chords back and forth for a few minutes a day; it adds up fast."
+    ],
+    "how_long": [
+     "With 15–30 minutes a day, most people play simple songs after 2–3 months and feel fairly comfortable after about a year. Regular short practice beats long sessions once a week."
+    ],
+    "songs": [
+     "Good beginner songs: “Knockin' on Heaven's Door” (G, D, Am, C), “Horse with No Name” (two chords!), “Stand by Me”, “Three Little Birds” and “Wonderwall” with a capo. Start with the one you like most — motivation matters more than difficulty."
+    ],
+    "tips": [
+     "A few things that help: practise a little every day, use a metronome slowly, learn songs you love, and record yourself now and then — you'll hear the progress."
+    ]
+   },
+   "piano": {
+    "start": [
+     "Oh, lovely — the {x}! Are you learning with a teacher, an app or on your own?"
+    ],
+    "hard": [
+     "That's normal — getting both hands to do different things is the hardest part. Practise each hand alone first, then together really slowly."
+    ],
+    "how_long": [
+     "With regular practice (20–30 minutes a day), simple pieces are possible after a few months, and many people play comfortably after a year or two."
+    ],
+    "songs": [
+     "Nice starter pieces: “Heart and Soul”, the first part of “Für Elise”, “Let It Be” (simplified), “River Flows in You” (easy version) and “Ode to Joy”."
+    ],
+    "tips": [
+     "Practise slowly and with a steady rhythm, little and often, and learn to read simple sheet music early — it pays off later."
+    ]
+   },
+   "drums": {
+    "start": [
+     "Drums — that's so much fun! Do you have a kit at home or a practice pad?"
+    ],
+    "how_long": [
+     "Basic rock beats come within a few weeks; playing along to songs comfortably usually takes a few months of regular practice."
+    ],
+    "tips": [
+     "Use a metronome from day one, start slow, and protect your ears — earplugs make a big difference."
+    ]
+   },
+   "violin": {
+    "start": [
+     "The {x}! That's a beautiful instrument — and a brave choice. How's it going so far?"
+    ],
+    "how_long": [
+     "Honestly, the violin takes patience: a clean sound often takes several months, and simple tunes sound nice after about a year."
+    ],
+    "tips": [
+     "Practise in front of a mirror to check your bow, keep sessions short and regular, and tune before every practice."
+    ]
+   },
+   "ukulele": {
+    "start": [
+     "A {x}! Great choice — it's one of the friendliest instruments to start with. What made you pick it?"
+    ],
+    "how_long": [
+     "The ukulele is quick to learn: many people play simple songs within a couple of weeks."
+    ],
+    "songs": [
+     "Easy ukulele songs: “Riptide”, “I'm Yours”, “Somewhere Over the Rainbow” and “Stand by Me”."
+    ]
+   },
+   "language": {
+    "start": [
+     "{x}! That's great. What made you want to learn it — travel, work, someone special?",
+     "Oh nice, {x}! How long have you been learning?"
+    ],
+    "hard": [
+     "Every learner hits that wall — it usually means you're about to improve. Keep sessions short and daily, and don't be afraid of mistakes."
+    ],
+    "how_long": [
+     "For everyday conversations, most people need roughly 6–12 months of regular practice. Languages close to English (Spanish, French, Italian) are usually quicker than Japanese or Arabic."
+    ],
+    "tips": [
+     "Learn a few words every day, listen to podcasts or shows in {x}, speak out loud even if it feels silly, and try a language exchange partner."
+    ]
+   }
+  }
  }
 }

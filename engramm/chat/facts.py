@@ -406,7 +406,9 @@ NON_VALUES = frozenset(("favourite", "favorite", "best", "most", "one", "thing",
                         "something", "anything", "nothing", "everything", "someone", "anyone", "somewhere",
                         "anywhere", "whatever",
                         # "I got a new job": an adjective alone is not the job
-                        "new", "old", "first", "next", "last", "current"))
+                        "new", "old", "first", "next", "last", "current",
+                        # "I'm kinda hungry tbh": a state, never a favourite food
+                        "hungry", "starving", "thirsty", "peckish", "sleepy", "tbh", "idk", "kinda", "lol"))
 
 
 # words that are never the value of a personal statement: fillers, time phrases, evaluation cues

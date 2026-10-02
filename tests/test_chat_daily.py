@@ -1147,3 +1147,43 @@ def test_a_word_describing_a_noun_is_not_the_value():
     from engramm.chat.facts import personal_facts
     f = personal_facts("I have a dentist appointment at 3.", "u")
     assert f and "#job" not in f[0].relation and f[0].kind == "DATE", f
+
+
+def test_battery36_names_birthdays_slang_friends_and_learning(chat):
+    a, st = chat
+    a.turn(st, "i'm learning to play guitar")
+    r = a.turn(st, "its hard")
+    assert "nice to meet you" not in r.text.lower() and "Hard" not in r.text, r.text
+    r = a.turn(st, "my fingers hurt")
+    assert "callus" in r.text, r.text
+    r = a.turn(st, "any songs for beginners?")
+    assert "Knockin'" in r.text, r.text
+    st2 = DialogState("daily")
+    a.turn(st2, "im kinda hungry tbh")
+    r = a.turn(st2, "idk maybe pizza")
+    assert "izza" in r.text and "Tell me more" not in r.text, r.text
+    r = a.turn(st2, "brb gotta grab smth")
+    assert "Tell me more" not in r.text, r.text
+    st3 = DialogState("daily")
+    r = a.turn(st3, "i just turned 30")
+    assert "birthday" in r.text.lower() or "Congratulations" in r.text, r.text
+    r = a.turn(st3, "my birthday was yesterday")
+    assert "yesterday" not in r.text.lower().replace("belated", ""), r.text
+    r = a.turn(st3, "when is my birthday?")
+    assert "30 September" in r.text, r.text           # the test clock says 1 October
+    st4 = DialogState("daily")
+    a.turn(st4, "my best friend didnt invite me to her birthday")
+    r = a.turn(st4, "i feel left out")
+    assert "someone close" in r.text or "matters to you" in r.text, r.text
+    r = a.turn(st4, "what if she gets mad")
+    assert "who's" not in r.text.lower(), r.text
+    r = a.turn(st4, "ok ill try")
+    assert "couldn't find" not in r.text, r.text
+    st5 = DialogState("daily")
+    a.bot.cap = dict(a.bot.cap or {}, tom=0.93)          # the pack's capstats: "Tom" is nearly always capitalised
+    a.turn(st5, "i'm tom")
+    r = a.turn(st5, "what's my name?")
+    assert "Tom" in r.text, r.text
+    st6 = DialogState("de")
+    r = a.turn(st6, "danke dir, bis morgen")
+    assert "Bis morgen" in r.text, r.text

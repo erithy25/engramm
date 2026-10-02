@@ -93,6 +93,27 @@ _MAYBE_KINDS = {"reading": "book", "book": "book", "books": "book", "movie": "mo
                 "games": "game", "gaming": "game", "podcast": "podcast", "podcasts": "podcast", "cooking": "food",
                 "baking": "food", "hobby": "hobby"}
 # "I moved to a new city and don't know anyone"
+_COMMON_FOODS = frozenset("""pizza pasta sushi burger taco curry salad ramen noodle soup sandwich chinese indian thai
+mexican italian japanese kebab fries steak chicken fish rice pho dumpling lasagna lasagne spaghetti risotto omelette eggs
+pancake waffle burrito wrap falafel poke bowl stir fry stir-fry chili chilli takeout takeaway something sweet chocolate
+ice cream cake toast cereal leftovers nachos wings""".split()) | {"stir fry", "ice cream", "fried rice", "mac and cheese",
+                                                                 "something sweet", "something healthy", "a salad"}
+_LANGS = frozenset("spanish french german italian portuguese japanese chinese mandarin korean arabic russian dutch "
+                   "swedish turkish greek polish hindi english".split())
+_LEARNING = re.compile(r"^(?:so |btw,? |guess what,? )?(?:i'?m|im|i am|i'?ve been|i have been|i just started|i started) "
+                       r"(?:learning|practicing|practising|taking lessons in|teaching myself)(?: to play| how to play)? (?:the )?"
+                       r"(?P<x>guitar|piano|drums|violin|ukulele|" + "|".join(sorted(_LANGS)) + r")"
+                       r"(?: (?:lately|recently|again|now|at the moment|this year))?$")
+_LEARN_FOLLOW = [
+    ("pain", re.compile(r"\b(?:fingers? (?:hurt|hurts|are sore|is sore|ache)|sore fingers|my fingers|hurts my fingers|blisters?)\b")),
+    ("hard", re.compile(r"^(?:but |yeah,? |honestly,? )?(?:it'?s|its|it is) (?:so |really |super |kinda |pretty )?(?:hard|difficult|tough)|"
+                        r"^(?:i'?m|im) (?:so |really )?(?:bad|terrible|slow) at it|^i (?:keep|always) (?:messing up|forgetting|making mistakes)")),
+    ("how_long", re.compile(r"\bhow long (?:until|till|before|does it take|will it take)|\bwhen (?:will|do) i get (?:good|better)\b|"
+                            r"\bhow (?:fast|quickly) can i (?:learn|get good)")),
+    ("songs", re.compile(r"\b(?:songs?|pieces?|tunes?)\b.*\b(?:beginners?|easy|simple|start|learn)\b|\b(?:easy|simple|beginner) "
+                         r"(?:songs?|pieces?)\b|\bwhat should i (?:play|learn) first\b")),
+    ("tips", re.compile(r"\b(?:any |some |got any )?(?:tips|advice|tricks)\b|\bhow (?:can|do|should) i (?:practi[cs]e|learn|improve|get better)\b")),
+]
 _IT_ABOUT = re.compile(r"^(?:so |and |ok |okay |hmm,? )?(?:what'?s it about|what is it about|what are they about|tell me (?:more )?about it|"
                        r"who wrote it|who made it|who directed it|is it good|is it any good|what kind of (?:book|movie|film|show) is it)\??$")
 _WILL_THEY = re.compile(r"^(?:but |so |and )?(?:do you think|you think|will|would|is there a chance|what if) (?:she|he|they|my ex)"
@@ -280,8 +301,12 @@ _NEEDS_NUMBER = re.compile(r"(?i)\b(?:boiling point|melting point|freezing point
 _YES_NO_Q = re.compile(r"(?i)^(?:is|are|was|were|does|do|did|can|could|has|have|will|would|should)\b(?!.*\b(?:or)\b)")
 # "no wait, it's alexander" right after telling the name
 _NAME_FIX = re.compile(r"(?i)^(?:no,? |nope,? |sorry,? |oops,? )?(?:wait,? |actually,? |i mean,? )*(?:it'?s|its|i'?m|im|my name is|"
-                       r"call me) (?P<x>[a-z][a-z'-]+)[.!]*$")
+                       r"call me) (?P<x>[a-z][a-z'-]+)(?:,? (?:actually|sorry|lol|haha|not \w+))?[.!]*$")
 # "really? i thought it was sydney" after an answer
+# "it's hard", "i'm tired": never a corrected name
+_NOT_NAMES = frozenset("""hard easy fine good great ok okay okey tired bored busy sorry sure done ready here back home
+fun nice cool weird funny late early true right wrong bad sad happy hungry sick ill cold hot fair difficult tough boring
+alright annoying awful amazing everything nothing something complicated serious real okish""".split())
 _THOUGHT_IT_WAS = re.compile(r"^(?:really\??,? |wait,? |huh,? |oh,? |hm+,? )*i (?:thought|was sure|always thought) "
                              r"(?:it was|it's|its|the answer was|that it was) (?P<x>[a-z][a-z .'-]{1,40})$")
 # "and the second?" after a superlative
@@ -660,6 +685,13 @@ class Assistant:
             key = next((k for k, forms in fav["keys"].items() if any(word.startswith(f) for f in forms)), "other")
             st.uses["de_bot_fav"] = [key, st.turn]
             return Reply(msg, "smalltalk", self._pick(st, f"de:life:bot_fav:{key}", fav[key]), via="german")
+        tb = re.fullmatch(r"(?:ok(?:ay)?,? )?(?:danke|vielen dank|dank dir|danke dir|danke schön|merci)(?: dir| schön| sehr| für alles)?,? (?:und )?"
+                          r"(tschüss|tschüs|ciao|bis morgen|bis später|bis dann|bis bald|gute nacht|schönen abend(?: noch)?|"
+                          r"schönen tag(?: noch)?|mach'?s gut)", s)
+        if tb:                                           # "danke dir, bis morgen": both, not only the thanks
+            bye = tb.group(1)
+            return Reply(msg, "smalltalk", self._pick(st, "de:life:thanks_bye", dl["thanks_bye"], x=bye[:1].upper() + bye[1:]),
+                         via="german")
         th = _THANKS_DE.fullmatch(s)
         if th:
             rest = th.group("rest") or ""
@@ -1084,8 +1116,15 @@ class Assistant:
                 return self._german(st, msg)      # "die nachbarn waren laut": no English word, stays German
         msg = expand_chat(msg)                            # "wats ur name" → "what's your name"
         msg = self._prefer_correction(msg)                # "actually i prefer ramen" right after a favourite
+        li = re.fullmatch(r"(?i)((?:hi|hey|hello|yo)?,? ?(?:i'?m|im|i am|my name'?s|name'?s|this is) )([a-z][a-z'-]{1,20})"
+                          r"((?: here| btw| by the way)?[.!]*)", msg.strip())
+        if li and li.group(2).islower() and li.group(2) not in _NOT_NAMES and \
+                (getattr(self.bot, "cap", None) or {}).get(li.group(2), 0.0) >= 0.8:
+            msg = li.group(1) + li.group(2).capitalize() + li.group(3)   # "i'm tom": a name, written like one
         nc = _NAME_FIX.match(msg.strip())
-        if nc and st.last_kind == "learned" and re.search(r"\b(?:my name is|call me|i'm|im|i am)\b", st.last_message or "", re.I):
+        if nc and st.last_kind == "learned" and re.match(r"^(?:hi,? |hey,? |hello,? )?(?:my name is|call me|i'm|im|i am|name'?s) "
+                                                         r"[a-z][\w'-]*[.!]?$", (st.last_message or "").strip(), re.I) and \
+                nc.group("x").lower() not in _NOT_NAMES:
             name = nc.group("x")
             msg = f"My name is {name[:1].upper() + name[1:]}."      # "no wait, it's alexander" right after the name
         msg = _split_self_statements(msg)                 # "my name is Sam and I'm a teacher": two facts
@@ -1123,6 +1162,12 @@ class Assistant:
                 msg = f"{m.group('head')} my {pet[0]}{m.group('tail') or '?'}"
             elif m:
                 msg = f"what's my {pet[0]}'s {m.group('what')}?"
+        bd = re.fullmatch(r"(?i)(?:oh,? |actually,? |btw,? )?(?:my birthday|my bday|it'?s my birthday|it was my birthday)"
+                          r"(?: (?:is|was|'s))? (yesterday|today|tomorrow)(?: actually)?[.!]*", msg.strip())
+        if bd:                                            # "my birthday was yesterday": the date, not "yesterday"
+            day = self._today() + dt.timedelta(days={"yesterday": -1, "today": 0, "tomorrow": 1}[bd.group(1).lower()])
+            st.uses["bday_rel"] = [bd.group(1).lower(), st.turn]
+            msg = f"My birthday is {day.day} {day.strftime('%B')}."
         if re.fullmatch(r"(?i)(?:and |so )?(?:what'?s|what is|do you (?:know|remember)|tell me) my age\??", msg.strip()):
             msg = "how old am i?"                       # the age is a number fact (#age)
         have = st.uses.get("have_noun")
@@ -2101,6 +2146,37 @@ class Assistant:
                                                                   r"sure why not|why not|tips please|ok tell me)[!. ]*", norm.strip()):
             st.uses.pop("sleep_offer", None)              # "yes please" after "want a few tips for tonight?"
             return self.everyday.recommend(st, msg, "sleep")
+        if re.fullmatch(r"(?:yeah,? |yes,? |honestly,? |tbh,? |lol,? )?(?:it )?(?:feels|it feels|it'?s|its|kinda feels) (?:kinda |a bit |so |really |pretty |super |a little )?"
+                        r"(?:weird|strange|odd|surreal|unreal|different)(?: (?:tbh|honestly|lol|though))?[.!]*", norm.strip()):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:feels_weird", d["feels_weird"]), via="smalltalk")
+        fc = st.uses.get("food_ctx")
+        llf = getattr(st, "last_list", None) or {}
+        if (fc is not None and st.turn - fc <= 2) or (llf.get("kind") == "food" and st.turn - llf.get("turn", -99) <= 2):
+            mf = re.fullmatch(r"(?:idk,? |i don'?t know,? |dunno,? |hmm+,? |um+,? |well,? |ok,? |lol,? )*(?:maybe|probably|i guess|i think|perhaps|"
+                              r"thinking|i want|i'd say|i feel like|craving) (?:some |a |an )?(?P<x>[a-z][a-z ]{2,24}?)"
+                              r"(?: i guess| maybe| tonight| then| lol| tbh)?[.!?]*", norm.strip())
+            typer = getattr(self.bot, "typer", None)
+            if mf and (mf.group("x") in _COMMON_FOODS or mf.group("x").rstrip("s") in _COMMON_FOODS or
+                       (typer is not None and typer.category(mf.group("x")) == "#food")):
+                st.uses.pop("food_ctx", None)             # "idk maybe pizza" after "I'm hungry": go with it
+                recap = st.uses.setdefault("recap", [])
+                recap[:] = [x for x in recap if x != "food"] + ["food"]
+                return Reply(msg, "smalltalk", self._pick(st, "daily:food_pick", d["food_pick"], x=mf.group("x"),
+                                                          X=mf.group("x")[:1].upper() + mf.group("x")[1:]), via="everyday")
+        br = st.uses.get("bday_rel")
+        if br and br[1] == st.turn and norm.startswith("my birthday is"):
+            r = self._learn(st, [msg], msg)               # "my birthday was yesterday": wishes, and the date kept
+            key = {"yesterday": "bday_yesterday", "today": "bday_today", "tomorrow": "bday_tomorrow"}[br[0]]
+            r.text = self._pick(st, f"daily:{key}", d[key], x=msg[len("My birthday is "):].rstrip("."))
+            return r
+        tn = re.fullmatch(r"(?:so |well |guess what,? )?(?:i )?(?:just |finally |recently |officially )?turned (\d{1,3})"
+                          r"(?: (?:today|yesterday|last week|this week|on (?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)))?[.!]*",
+                          norm.strip())
+        if tn and 1 <= int(tn.group(1)) <= 120:
+            r = self._learn(st, [msg], msg)               # "i just turned 30": a birthday, said like one
+            r.text = self._pick(st, "daily:turned", d["turned"], x=tn.group(1))
+            st.last_exp = {"valence": "positive", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            return r
         lst = getattr(st, "last_list", None) or {}
         if lst.get("titles") and st.turn - lst.get("turn", -99) <= 3 and _IT_ABOUT.match(norm.strip()):
             titles = [re.sub(r"\s*\([^)]*\)$", "", x) for x in lst["titles"]]
@@ -2120,6 +2196,42 @@ class Assistant:
         if re.fullmatch(r"(?:ugh,? |honestly,? )?i (?:hate|dread|can'?t stand|really hate|am scared of|'m scared of|fear) "
                         r"(?:going to )?the (?:dentists?|doctors?|dentist'?s|doctor'?s)", norm.strip(" .!")):
             return Reply(msg, "empathy", self._pick(st, "daily:dread_dentist", d["dread_dentist"]), via="empathy")
+        lm = _LEARNING.match(norm.strip(" .!"))
+        if lm:                                            # "i'm learning to play guitar": ask like a friend would
+            what = lm.group("x")
+            key = "language" if what in _LANGS else what
+            if key in d["learning"]:
+                st.uses["learning"] = [key, what, st.turn]
+                self._learn(st, [f"I am learning {what}."], msg)
+                return Reply(msg, "smalltalk", self._pick(st, f"daily:learning:{key}:start", d["learning"][key]["start"],
+                                                          x=what.capitalize() if key == "language" else what), via="everyday")
+        lg = st.uses.get("learning")
+        if lg and st.turn - lg[2] <= 8 and not ((st.last_exp or {}).get("turn", -99) > lg[2] or
+                                                 (st.last_action or {}).get("turn", -99) > lg[2]):
+            sec = d["learning"][lg[0]]
+            for part, rx in _LEARN_FOLLOW:
+                if part in sec and rx.search(norm):
+                    lg[2] = st.turn
+                    x = lg[1].capitalize() if lg[0] == "language" else lg[1]
+                    return Reply(msg, "smalltalk", self._pick(st, f"daily:learning:{lg[0]}:{part}", sec[part], x=x),
+                                 via="everyday")
+        lp = st.last_exp or {}
+        if lp.get("person") and st.turn - lp.get("turn", -99) <= 2 and re.fullmatch(
+                r"(?:and |yeah,? |honestly,? |i mean,? )?(?:i )?(?:just )?(?:feel|felt|am feeling|'?m feeling|kinda feel) (?:so |really |kinda |a bit |pretty |very )?"
+                r"(?:left out|excluded|hurt|betrayed|forgotten|unimportant|replaced|ignored|rejected|unwanted|invisible|sad about it|"
+                r"stupid|like i don'?t matter|like they don'?t care)[.!]*", norm.strip()):
+            # "i feel left out" right after "my friend didn't invite me": about the friend, not general loneliness
+            st.last_exp = dict(lp, text=f"{lp.get('text', '')} {msg}".strip(), turn=st.turn)
+            topic = lp.get("topic") or "them"
+            return Reply(msg, "empathy", self._pick(st, "daily:hurt_by_person", d["hurt_by_person"], x=topic), via="empathy")
+        if re.fullmatch(r"(?:but |and |so )?what if (?:she|he|they|my \w+)(?: just)? (?:gets?|becomes?|is|are|feels?) (?:really |so |super )?"
+                        r"(?:mad|angry|upset|hurt|annoyed|offended|defensive|sad|weird about it)(?: at me| with me)?\??", norm.strip()):
+            return Reply(msg, "empathy", self._pick(st, "daily:what_if_mad", d["what_if_mad"]), via="empathy")
+        if re.fullmatch(r"(?:ok(?:ay)?,? |alright,? |yeah,? |fine,? |sure,? )?(?:i'?ll|ill|i will|i'?m gonna|im gonna|gonna|i'?m going to) "
+                        r"(?:try|do it|do that|try that|try it|give it a (?:try|shot|go)|talk to (?:her|him|them)|tell (?:her|him|them)|"
+                        r"text (?:her|him|them)|call (?:her|him|them))(?: (?:then|tomorrow|later|today|tonight|soon))?(?: thanks?)?[.!]*",
+                        norm.strip()):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:will_try", d["will_try"]), via="smalltalk")
         if _WILL_THEY.match(norm):                        # "do you think she'll come back?": honest, kind, no article
             return Reply(msg, "empathy", self._pick(st, "daily:will_they", d["will_they"]), via="empathy")
         if _BOT_LIKES.match(norm):
@@ -2683,7 +2795,7 @@ class Assistant:
         if _WHERE_WERE_WE.match(norm):
             themes = st.uses.get("recap", [])
             if themes:
-                last = "you" if themes[-1] == "things about you" else themes[-1]
+                last = "what you told me about yourself" if themes[-1] == "things about you" else themes[-1]
                 return Reply(msg, "smalltalk", self._pick(st, "daily:where_were_we", d["where_were_we"], x=last),
                              via="smalltalk")
             return Reply(msg, "smalltalk", self._pick(st, "daily:recap_none", d["recap_none"]), via="smalltalk")
@@ -3268,6 +3380,8 @@ class Assistant:
             if rx.search(norm):
                 if key == "talk_dream":
                     st.uses["dream"] = st.turn
+                if key == "talk_hungry":
+                    st.uses["food_ctx"] = st.turn
                 if key == "talk_tough":
                     st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": text, "turn": st.turn}
                 return self._pick(st, f"daily:{key}", d[key])

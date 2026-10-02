@@ -178,7 +178,11 @@ _NEG_PHRASES = re.compile(r"\b(?:(?:long|rough|bad|hard|tough|terrible|awful|hor
                           r"broke down|got a ticket|got a parking ticket|spilled|locked out|took credit|"
                           r"stole my (?:idea|work|lunch|spot|thunder)|talked over me|threw me under the bus|"
                           r"went behind my back|left me out|stood me up|ghosted me|cut me off|was rude to me|"
-                          r"made fun of me|laughed at me|don't appreciate|doesn't appreciate|didn't appreciate)\b")
+                          r"made fun of me|laughed at me|don't appreciate|doesn't appreciate|didn't appreciate|"
+                          r"(?:didn'?t|did not|never|won'?t|doesn'?t) (?:even )?invite me|wasn'?t invited|"
+                          r"(?:didn'?t|did not|never) (?:text|call|write|answer|reply)(?:ed)? (?:me )?back|"
+                          r"forgot (?:about )?my birthday|ignor(?:ed|es|ing) me|blocked me|unfollowed me|"
+                          r"(?:is|was) mad at me|(?:is|was) angry (?:at|with) me|not talking to me|stopped talking to me)\b")
 _POS_PHRASES = re.compile(r"\b(?:(?:good|great|nice|amazing|awesome|fun|lovely|perfect|productive|relaxing|"
                           r"wonderful|fantastic|chill|cozy) (?:day|week|night|morning|weekend|evening|time|trip|"
                           r"holiday|vacation)|went (?:really |so |very )?(?:well|great|fine|smoothly)|"
