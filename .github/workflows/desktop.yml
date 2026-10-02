@@ -29,8 +29,10 @@ permissions:
   contents: write
 
 concurrency:
-  # a newer push waits for the running build instead of cancelling it (installer builds take ~15 min)
-  group: desktop-${{ github.ref }}
+  # a newer push waits for the running build instead of cancelling it (installer builds take ~15 min);
+  # called from the release (github.workflow is then "Release") it has its own group, so a push to the
+  # branch can never push the release's installer build out of the queue
+  group: desktop-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:

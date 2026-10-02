@@ -2,6 +2,8 @@
 # Wikidata, Wikipedia article leads), published with the release, and the desktop installers are
 # built with that pack in their download catalog. Started by hand with the release tag, or by a push
 # that changes release/request.json ({"tag": "...", "prerelease": true}).
+# With "reuse_run": "<run id>" the packs and the catalog of that earlier run of this workflow are taken
+# over (same tag: the catalog points at it) and only the installers are built again on this commit.
 name: Release
 
 on:
@@ -31,6 +33,7 @@ jobs:
       prerelease: ${{ steps.r.outputs.prerelease }}
       shelf: ${{ steps.r.outputs.shelf }}
       standard: ${{ steps.r.outputs.standard }}
+      reuse: ${{ steps.r.outputs.reuse }}
     steps:
       - uses: actions/checkout@v4
       - id: r
@@ -49,9 +52,13 @@ jobs:
           echo "shelf=$shelf" >> "$GITHUB_OUTPUT"
           standard=$(python3 -c 'import json;print(str(json.load(open("release/request.json")).get("standard", False)).lower())')
           echo "standard=$standard" >> "$GITHUB_OUTPUT"
+          reuse=$(python3 -c 'import json;print(json.load(open("release/request.json")).get("reuse_run", ""))')
+          echo "$reuse" | grep -Eq '^[0-9]*$' || { echo "bad reuse_run $reuse"; exit 1; }
+          echo "reuse=$reuse" >> "$GITHUB_OUTPUT"
 
   pack:
     needs: request
+    if: ${{ needs.request.outputs.reuse == '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:
@@ -103,7 +110,7 @@ jobs:
     # the standard pack (≈ 1.5 M article leads, 1 M fact-bank entries, full shelf index) in its own
     # release, so its files do not collide with the lite pack's
     needs: [request, pack]
-    if: ${{ needs.request.outputs.standard == 'true' }}
+    if: ${{ needs.request.outputs.standard == 'true' && needs.request.outputs.reuse == '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 340
     steps:
@@ -180,14 +187,49 @@ jobs:
           name: catalog-final
           path: out/catalog.json
 
+  reuse:
+    # packs and catalog of an earlier run (same tag), carried into this run under the same names
+    needs: request
+    if: ${{ needs.request.outputs.reuse != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: pack
+          path: pack
+          run-id: ${{ needs.request.outputs.reuse }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: catalog-final
+          path: catalog
+          run-id: ${{ needs.request.outputs.reuse }}
+          github-token: ${{ github.token }}
+      - run: |
+          ls -la pack pack/* catalog
+          cat catalog/catalog.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pack
+          path: pack/
+          compression-level: 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: catalog-final
+          path: catalog/catalog.json
+
   installers:
-    needs: catalog
+    needs: [catalog, reuse]
+    if: ${{ always() && (needs.catalog.result == 'success' || needs.reuse.result == 'success') }}
     uses: ./.github/workflows/desktop.yml
     with:
       catalog_artifact: catalog-final
 
   publish:
-    needs: [request, pack, installers]
+    needs: [request, installers]
     if: ${{ always() && needs.installers.result == 'success' }}
     runs-on: ubuntu-latest
     steps:

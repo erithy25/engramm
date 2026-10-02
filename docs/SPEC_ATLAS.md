@@ -147,6 +147,19 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
 - **Bei ausgeschalteten Kanälen** sind die Antworten identisch mit v3 und es gibt 0 Abrufe
   (`tests/test_web_atlas.py`).
 
+## Pakete (A2), gemessen im Release-Lauf 36953606047 (2. Oktober 2026)
+
+| Paket | Inhalt | Größe (gemessen) | Schwelle (vorab) |
+|---|---|---|---|
+| Lite | 400 k Artikelanfänge, Faktenbank-Auszug, Regal-Index lite (530 MB) | ≈ 1,25 GB (Artefakt 2,50 GB = Paketdateien + dasselbe Paket als Zip) | — |
+| Standard | 1,5 Mio. Artikelanfänge, 1 Mio. Faktenbank-Einträge, voller Regal-Index (626 MB), Wegweiser | **2,73 GB** in 37 Dateien (größte: post.npy 584 MB, doc_post.npy 438 MB, kb.sqlite 406 MB, corpus.u16 392 MB) | ≤ 4,5 GB — eingehalten |
+
+Bauzeit auf GitHub-Runnern: Lite 63 min, Standard 49 min. RAM und p95 auf der 4-GB-VM sind noch nicht
+gemessen (offen). Die Installer jenes Laufs wurden abgebrochen, weil ein gleichzeitiger Push den
+Installer-Job aus der gemeinsamen Concurrency-Gruppe verdrängte; seitdem hat der aus dem Release
+aufgerufene Desktop-Bau eine eigene Gruppe, und `release/request.json` kann mit `reuse_run` die Pakete
+eines früheren Laufs übernehmen und nur die Installer neu bauen.
+
 ## Bedrohungsmodell und ehrliche Restrisiken
 
 - **Geschützt:**
