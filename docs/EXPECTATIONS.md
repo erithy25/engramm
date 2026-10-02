@@ -2752,6 +2752,16 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   mit „beim ersten Mal“, Trennungsrat nach „ich vermisse …“) – von den Batterien 41, 54 und long gefunden, zurückgenommen.
   Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 770 bestanden, Regressionen 32, 38–79 (46 Gespräche):
   0 Wiederholungen; Unterschiede: „i miss him/her“ jetzt Mitgefühl statt gespeicherter Fakt (Batterie 64, long), Uhrzeiten.
+- **Alltags-Batterie 80 (Zustände von Dingen: „my X is ADJ“)**: Der Fehler „screen cracked“ → Lieblingsfarbe war kein Einzelfall.
+  Vorher: „my car is dirty“ → „A dirty, nice! I'll remember that.“, „my soup is too salty“ → „Salty — good choice!“,
+  „my eyes are blue“ → „Got it, your favourite colour is blue.“, „my plant died“ → „How's that going?“, „my wifi is down“,
+  „my laptop is slow“, „my shoes are wet“ → „Oh, interesting — tell me more.“ (alles gespeichert). Jetzt erkennt ein
+  allgemeiner Handler den Zustand: konkrete Hilfe, wo es eine gibt (Router neu starten, Tabs schließen, Kartoffel in die
+  versalzene Suppe, Zeitungspapier in nasse Schuhe, Diebstahl melden), sonst Mitgefühl; Farben („Blue eyes — nice!“)
+  werden nicht zur Lieblingsfarbe. Schmerzen (Zahn, Rücken, Bauch) mit Rat, Brustschmerz mit dem Hinweis auf den
+  Notruf (112/911). Kopfschmerz bleibt beim vorhandenen Ablauf mit Folgefragen (Batterie 48 fand, dass die erste Fassung
+  ihn überschrieb). Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 771 bestanden, Regressionen 32, 38–80
+  (47 Gespräche): 0 Wiederholungen; Unterschiede nur Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

@@ -6178,6 +6178,26 @@ class Assistant:
         b = self.bank.daily["b78"]
         n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", norm)).strip(" .!?")
         say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b78:{key}", b[key], **kw), via="smalltalk")  # noqa: E731
+        b0 = self.bank.daily["b80"]
+        sm = re.fullmatch(r"my (?P<o>[a-z]+(?: [a-z]+)?) (?:is|are|was|were|got|just|has|have) (?:so |too |really |very |a bit |kind of |super |completely |totally |still )?"
+                          r"(?P<a>dirty|messy|cold|slow|wet|broken|down|dead|died|stolen|lost|cracked|salty|burnt|burned|leaking|flat|empty|ruined|soaked|gone|"
+                          r"not working|stopped working|freezing|frozen|red|blue|green|black|white|yellow|grey|gray|brown|pink|purple|orange|silver)", n) or \
+            re.fullmatch(r"my (?P<o>tooth|teeth|back|stomach|tummy|chest) (?P<a>hurts|hurt|aches|is killing me|really hurts|hurts so much)", n) or \
+            re.fullmatch(r"my (?P<o>plant|plants|flowers?|goldfish|fish) (?P<a>died|is dead|are dead)", n)
+        if sm and sm.group("o") not in ("name", "favourite", "favorite", "birthday", "job", "hair colour", "favourite colour"):
+            o, a = sm.group("o"), sm.group("a")
+            cols = {"red", "blue", "green", "black", "white", "yellow", "grey", "gray", "brown", "pink", "purple", "orange", "silver"}
+            if a in cols:
+                return Reply(msg, "smalltalk", self._pick(st, "daily:b80:colour", b0["colour"], x=a, X=a.capitalize(), y=o), via="smalltalk")
+            if re.match(r"hurt|ache|is killing|really hurt", a):
+                o = {"teeth": "tooth", "tummy": "stomach"}.get(o, o)
+                a = "hurts"
+            key = next((k for k in (f"{o} {a}", o if o in ("wifi", "internet") else "", "plant" if re.search(r"plant|flower|fish", o) else "",
+                                    f"{o.split()[-1]} {a}", a) if k and k in b0["special"]), None)
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            if key:
+                return Reply(msg, "empathy", b0["special"][key], via="empathy")
+            return Reply(msg, "empathy", self._pick(st, "daily:b80:neg", b0["neg"]), via="empathy")
         b9 = self.bank.daily["b79"]
         say9 = lambda key, kind="smalltalk", **kw: Reply(msg, kind, self._pick(st, f"daily:b79:{key}", b9[key], **kw),   # noqa: E731
                                                          via="empathy" if kind == "empathy" else "smalltalk")

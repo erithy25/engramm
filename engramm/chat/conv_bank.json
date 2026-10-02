@@ -13191,6 +13191,36 @@
     "Oh nice, {x}! How long have you been at it?",
     "That's great — learning {x} is so rewarding. How's it going so far?"
    ]
+  },
+  "b80": {
+   "special": {
+    "wifi": "Ugh, no internet is the worst. Restarting the router (unplug, wait 30 seconds) fixes it surprisingly often.",
+    "internet": "Ugh, no internet is the worst. Restarting the router (unplug, wait 30 seconds) fixes it surprisingly often.",
+    "laptop slow": "Slow laptops are so frustrating. Closing browser tabs and doing a restart often helps more than you'd think.",
+    "computer slow": "Slow computers are so frustrating. Closing browser tabs and doing a restart often helps more than you'd think.",
+    "phone slow": "Annoying! A restart and clearing a few apps running in the background usually helps.",
+    "plant": "Oh no, your plant! Often it's too much water rather than too little. Maybe the next one gets a sunnier spot?",
+    "coffee cold": "Cold coffee is a small tragedy. ☕ Microwave or a fresh cup?",
+    "tea cold": "Cold tea — the classic. Fresh cup?",
+    "salty": "Too salty? A splash of water or unsalted stock, a peeled potato simmered in it, or a squeeze of lemon can rescue it.",
+    "wet": "Wet shoes are the worst! Stuffing them with newspaper helps them dry much faster.",
+    "messy": "Happens to everyone! Ten minutes of tidying with good music works wonders.",
+    "dirty": "Car wash weekend? 🚗",
+    "stolen": "Oh no, that's awful. Have you reported it to the police? It's worth it for insurance, too.",
+    "tooth hurts": "Ouch, toothache is miserable. Rinsing with warm salt water can ease it a little — and if it lasts more than a day or two, it's worth seeing a dentist.",
+    "head hurts": "Ouch. Water, a break from screens and a bit of fresh air often help. If it's very strong or sudden, please see a doctor.",
+    "back hurts": "Ugh, back pain is no fun. Gentle movement and warmth usually help more than lying still. If it lasts or gets worse, see a doctor.",
+    "stomach hurts": "Oh no. Something light like tea and plain food may help. If it's severe or doesn't go away, please see a doctor.",
+    "chest hurts": "Chest pain can be serious. If it's strong, spreads to your arm, jaw or back, or you're short of breath, call emergency services now (112 in Europe, 911 in the US)."
+   },
+   "neg": [
+    "Ugh, that's annoying. Is it something you can fix quickly?",
+    "Oh no — that's the last thing you need. What happened?"
+   ],
+   "colour": [
+    "{X} {y} — nice!",
+    "Ooh, {x} {y}. Love that."
+   ]
   }
  }
 }

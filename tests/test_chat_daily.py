@@ -3105,3 +3105,12 @@ def test_battery79_forty_everyday_messages(chat):
         r = a.turn(DialogState(f"m79-{i}"), msg)
         assert r.kind != "learned" and not any(x in r.text for x in bad), (msg, r.text)
     assert "deine Oma" in a.turn(DialogState("o79"), "ich vermisse meine oma").text
+
+
+def test_battery80_states_of_things_are_not_preferences(chat):
+    a, _ = chat
+    for i, msg in enumerate(["my car is dirty", "my coffee is cold", "my laptop is slow", "my wifi is down", "my soup is too salty",
+                             "my plant died", "my tooth hurts", "my eyes are blue", "my car is red"]):
+        r = a.turn(DialogState(f"s80-{i}"), msg)
+        assert r.kind != "learned" and "good choice" not in r.text and "favourite colour" not in r.text and "A dirty" not in r.text, (msg, r.text)
+    assert "112" in a.turn(DialogState("c80"), "my chest hurts").text
