@@ -969,3 +969,23 @@ def test_german_everyday_events_cooking_memory(chat):
     assert "vergessen" in r.text, r.text
     r = a.turn(st, "wo wohne ich")
     assert "Köln" not in r.text, r.text
+
+
+def test_battery29_pets_luck_and_no_fake_jobs(chat):
+    a, st = chat
+    r = a.turn(st, "i havent started studying")
+    assert "work as" not in r.text, r.text
+    r = a.turn(st, "wish me luck")
+    assert "luck" in r.text.lower() or "crossed" in r.text.lower(), r.text
+    r = a.turn(st, "i just adopted a dog!")
+    assert "name" in r.text.lower(), r.text
+    a.turn(st, "his name is buddy")
+    r = a.turn(st, "hes a golden retriever")
+    assert "golden retriever" in r.text, r.text
+    a.turn(st, "hes 2 months old")
+    r = a.turn(st, "what breed is he")
+    assert "golden retriever" in r.text, r.text
+    r = a.turn(st, "any tips for a new puppy owner")
+    assert "puppy" in r.text.lower() and "•" in r.text, r.text
+    r = a.turn(st, "night")
+    assert "darkness" not in r.text, r.text

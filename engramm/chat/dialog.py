@@ -137,7 +137,7 @@ _TALK_RULES = [
                 r"too much (?:work|stress)|overwhelmed|swamped)\b"), "talk_tough"),
 ]
 # remarks the plain chit-chat path should hand to DialogEngine._talk
-_TALK_FIRST = re.compile(r"\b(?:bed|sleeping|purring|cuddling|napping|curled|watch|going out|going to|heading out|off to|meeting|tell you|let you know|keep you posted|miss(?:ing)?|try|heard|read|seen|watched|killing|exhausted|tired|drained|slept|sleep|"
+_TALK_FIRST = re.compile(r"\b(?:start|bed|sleeping|purring|cuddling|napping|curled|watch|going out|going to|heading out|off to|meeting|tell you|let you know|keep you posted|miss(?:ing)?|try|heard|read|seen|watched|killing|exhausted|tired|drained|slept|sleep|"
                          r"burn(?:ed|t)?|wiped|sucks?|rough|hard|overwhelmed|swamped)\b")
 # "and 20%?" after a percentage
 _PCT_MORE = re.compile(r"^(?:and |what about |how about |now |ok |okay )?(\d+(?:\.\d+)?)\s?%(?: of (?:it|that))?\??$")
@@ -933,9 +933,28 @@ class Assistant:
             if m:
                 name = m.group("x").strip(" .!")
                 msg = f"My {pet[0]} is called {name[:1].upper() + name[1:]}."
-            m = _PET_AGE.match(msg.strip())               # "she's 3"
+            m = _PET_AGE.match(msg.strip())               # "she's 3", "he's 2 months old"
             if m:
-                msg = f"My {pet[0]} is {m.group('n')} years old."
+                unit = (m.group("u") or " years old").strip()
+                unit = unit if unit.endswith("old") else unit.replace("yrs", "years") + " old"
+                msg = f"My {pet[0]} is {m.group('n')} {unit}."
+                st.uses["pet"] = [pet[0], st.turn]
+            mb = _PET_BREED.match(msg.strip()) if not m else None
+            if mb and not re.search(r"\b(?:good|bad|cute|sweet|tired|asleep|sleeping|hungry|so|very|really|little)\b", mb.group("b")):
+                msg = f"My {pet[0]} is a {mb.group('b').strip()}."          # "he's a golden retriever"
+                st.uses["pet"] = [pet[0], st.turn]
+                st.uses["pet_breed"] = [mb.group("b").strip(), st.turn]
+            if msg.startswith(f"My {pet[0]} is called "):
+                st.uses["pet_name"] = msg[len(f"My {pet[0]} is called "):].rstrip(".")
+                st.uses["pet"] = [pet[0], st.turn]
+        pbq = st.uses.get("pet_breed")
+        if pet and pbq and re.fullmatch(r"(?i)(?:and )?what (?:breed|kind of dog|kind of cat|type of dog) is (?:he|she|it|my \w+|[A-Za-z]+)\??", msg.strip()):
+            name = st.uses.get("pet_name") or f"Your {pet[0]}"
+            return Reply(msg, "answer", f"{name} is a {pbq[0]}.", answer=pbq[0], via="facts")
+        pn = st.uses.get("pet_name")
+        if pet and pn and re.search(rf"\b{re.escape(pn)}\b", msg, re.I) and msg.rstrip().endswith("?") or \
+                (pet and pn and re.match(r"(?i)^(?:how|what|when|where|who|is|does)\b", msg) and re.search(rf"\b{re.escape(pn)}\b", msg, re.I)):
+            msg = re.sub(rf"(?i)\b{re.escape(pn)}\b", f"my {pet[0]}", msg, count=1)   # "how old is buddy?"
         if pet and st.turn - pet[1] <= 8:
             m = _PET_PRON_Q.match(msg.strip())            # "how old is she?" → "how old is my cat?"
             if m and m.group("head"):
@@ -1187,7 +1206,8 @@ class Assistant:
         it = self.bank.by_id[u.intent]
         name = self.user_name()
         le = st.last_exp or {}
-        if it.id == "thanks" and le.get("valence") == "positive" and st.turn - le.get("turn", -99) <= 2:
+        if it.id == "thanks" and le.get("valence") == "positive" and st.turn - le.get("turn", -99) <= 2 and \
+                re.search(r"\b(?:promot|passed|got the job|got in|won|graduat|accepted|finished|nailed|hired|raise|award)", le.get("text") or "", re.I):
             # "thanks!" after "congratulations!": not "you're welcome"
             text = self._pick(st, "daily:thanks_praise", self.bank.daily["thanks_praise"])
             parts.append(_Part("main", text))
@@ -1877,6 +1897,8 @@ class Assistant:
             rep = self._superlative(st, msg)            # "and the second" after "the tallest mountain"
             if rep is not None:
                 return rep
+        if re.fullmatch(r"(?:please |pls |ok |so )?(?:wish me luck|fingers crossed|cross your fingers(?: for me)?|keep your fingers crossed(?: for me)?)[.!]*", norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:wish_luck", d["wish_luck"]), via="smalltalk")
         wm = _WEAR.match(norm)
         if wm:                                            # "what should I wear?" — for what the chat is about
             about = " ".join(filter(None, [wm.group("x"), normalise(st.last_message or "")]))
@@ -2766,8 +2788,19 @@ class Assistant:
             confirm = talk                                # still remembered, but answered like a person
         pm = _HAVE_PET.match(text.strip())
         if pm:                                            # "I have a cat": ask its name, like a person would
-            st.uses["pet"] = [pm.group(1).lower(), st.turn]
-            confirm = self._pick(st, "daily:have_pet", self.bank.daily["have_pet"], x=pm.group(1).lower())
+            kind = {"puppy": "dog", "kitten": "cat", "bunny": "rabbit"}.get(pm.group(1).lower(), pm.group(1).lower())
+            st.uses["pet"] = [kind, st.turn]
+            st.uses.pop("pet_name", None)
+            new = re.search(r"\b(?:adopted|rescued|just got|bought|new|baby)\b", text, re.I)
+            key = "have_pet_new" if new else "have_pet"
+            confirm = self._pick(st, f"daily:{key}", self.bank.daily[key], x=pm.group(1).lower())
+        ym = re.match(r"^My (\w+) is (\d{1,2} (?:months|weeks)) old\.$", text.strip())
+        if ym:                                            # "he's 2 months old": a puppy
+            confirm = self._pick(st, "daily:pet_young", self.bank.daily["pet_young"], x=ym.group(2))
+        bm = re.match(r"^My (\w+) is an? (.+?)\.$", text.strip())
+        pb = st.uses.get("pet_breed")
+        if bm and pb and pb[1] == st.turn:                # "he's a golden retriever"
+            confirm = self._pick(st, "daily:pet_breed", self.bank.daily["pet_breed"], x=bm.group(2))
         hm = _HAVE_COUNT.match(text.strip())
         if hm and hm.group(2).lower() in _FAMILY_PLURALS:     # "I have two kids": ask their names, like a person
             noun = "children" if hm.group(2).lower() in ("kids", "children") else hm.group(2).lower()
@@ -3469,8 +3502,8 @@ _REC_SEEN = re.compile(r"^(?:oh |hmm |ah )?(?:i(?:'ve| have)? )?(?:already )?(?:
                        r"visited|done|know)(?: of| about)? (?:that|it|those|them|all of (?:them|those)|these|all of these)"
                        r"(?: one| ones)?(?: already)?[.!]*$")
 _REC_GENRE = re.compile(r"^(?:maybe |preferably |ideally |hmm |ok |okay |more like )?(?:something|somewhere|anything|one|ones|"
-                        r"a|an|more|some)?\s*(?:about |on |with |in |related to |more about )?(?:a bit |more |really |kinda |pretty )?(?P<g>[a-z-]+)"
-                        r"(?: one| ones| please| maybe| instead| stuff| place| places| book| books| movie| movies)?\??$")
+                        r"a|an|more|some)?\s*(?:about |on |with |in |for |related to |more about )?(?:the |a )?(?:a bit |more |really |kinda |pretty )?(?P<g>[a-z-]+)"
+                        r"(?: one| ones| please| maybe| instead| stuff| place| places| book| books| movie| movies| players?| people)?\??$")
 _I_LIKE = re.compile(r"^i (?:really |absolutely |just )?(?:love|like|adore|am into|'m into|am a big fan of|'m a big fan of) "
                      r"(?P<x>[a-z][a-z' .-]{1,40})$")
 _BEST_OF = re.compile(r"^(?:so |and )?what(?:'s| is| are|s) (?P<who>their|his|her|its|the) (?:best|greatest|most famous|top|"
@@ -3532,12 +3565,13 @@ _FAMILY_PLURALS = frozenset("kids children sons daughters brothers sisters sibli
                             "grandchildren".split())
 _HAVE_COUNT = re.compile(r"^i (?:have|have got|'ve got|got) (two|three|four|five|six|seven|eight|nine|ten|\d{1,2}) "
                          r"([a-z]+)[.!]*$", re.I)
-_HAVE_PET = re.compile(r"^i (?:have|have got|'ve got|got|own) an? (?:little |small |big |old |young |new )?"
-                       r"(cat|dog|puppy|kitten|rabbit|hamster|parrot|bird|horse|guinea pig|tortoise|turtle|fish|snake)[.!]*$",
+_HAVE_PET = re.compile(r"^i (?:have|have got|'ve got|got|own|just got|adopted|just adopted|rescued|just rescued|bought|just bought) an? (?:little |small |big |old |young |new |baby )?"
+                       r"(cat|dog|puppy|kitten|rabbit|bunny|hamster|parrot|bird|horse|guinea pig|tortoise|turtle|fish|snake)[.!]*$",
                        re.I)
 _PET_NAME = re.compile(r"^(?:her|his|its|their) name(?:'s| is)\s+(?P<x>[A-Za-z][\w' -]{0,25})$|"
                        r"^(?:she's|he's|it's|she is|he is|it is) called\s+(?P<y>[A-Za-z][\w' -]{0,25})$", re.I)
-_PET_AGE = re.compile(r"^(?:she's|he's|it's|she is|he is|it is)\s+(?P<n>\d{1,2})(?: years old| years| yrs)?[.!]*$", re.I)
+_PET_AGE = re.compile(r"^(?:she's|he's|it's|she is|he is|it is)\s+(?P<n>\d{1,2})(?P<u> years old| years| yrs| months old| months| weeks old| weeks)?[.!]*$", re.I)
+_PET_BREED = re.compile(r"^(?:she's|he's|it's|she is|he is|it is) an? (?P<b>[a-z][a-z -]{2,30}?)(?: mix)?[.!]*$", re.I)
 _PET_PRON_Q = re.compile(r"^(?P<head>(?:how old|what breed|what colou?r|what kind of \w+) is) (?:she|he|it)(?P<tail>\?)?$|"
                          r"^(?P<head2>what's|what is) (?:her|his|its) (?P<what>name|age)\??$", re.I)
 _THEIR_NAMES = re.compile(r"^(?:their names are|they are called|they're called|they are named|named|called)\s+(.+)$", re.I)

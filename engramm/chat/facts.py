@@ -691,6 +691,12 @@ _NAMED_SUBJECT = re.compile(r"^(?:[A-Z][\w'’.-]+)(?: (?:[A-Z][\w'’.-]+|da|de
                             r"(?:was|is|were|are|has|had|died|lived|grew)\b")
 
 
+# "-ing" words that do name a line of work ("I work in marketing")
+_ING_JOBS = frozenset("""marketing engineering nursing accounting banking consulting teaching training publishing
+advertising catering farming fishing mining printing plumbing lending programming designing modelling modeling
+recruiting tutoring coaching computing manufacturing retailing logistics""".split())
+
+
 def _with_age(f: Fact) -> Fact:
     """"I'm 29", "I am 29 years old", "my dog is 3 years old": the number is an age (#age)."""
     if f.kind == "NUMBER" and re.fullmatch(r"\d{1,3}", f.object) and 0 < int(f.object) < 120 and \
@@ -734,6 +740,11 @@ def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None,
                            + (() if "#fav" in f.relation else ("#dislike",)), f.object, f.source, f.sentence, f.kind)
                       for f in fp]
             fp = [_with_age(f) for f in fp if not ("#home" in f.relation and _GENERIC_PLACE.match(f.object))]
+            if re.search(r"\b(?:haven'?t|havent|have not|hasn'?t|didn'?t|did not|not yet|never)\b", low):
+                # "I haven't started studying": no job called "studying"
+                fp = [f for f in fp if "#job" not in f.relation]
+            fp = [f for f in fp if not ("#job" in f.relation and re.fullmatch(r"[a-z]+ing", f.object.lower())
+                                        and f.object.lower() not in _ING_JOBS)]
             out += fp if fp else third_person_facts(s, source, initial_is_name)
             continue
         tp = third_person_facts(s, source, initial_is_name)

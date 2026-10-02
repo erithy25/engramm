@@ -130,7 +130,7 @@ intents:
       - "Bye, {name}! Come back anytime."
 
   - id: good_night
-    patterns: ['((ok(ay)?|alright|well|right)[,.!]* )?(good ?night|nighty night|night night|gn|sleep well|i''m going to bed|im going to bed|i am going to bed|going to bed|i''m going to sleep|im going to sleep|off to bed|i''m off to bed|im off to bed|time for bed|time to sleep|gonna sleep|gonna go to bed|heading to bed)( now| then)?([,.!]* (good ?night|night|gn|bye|see you( tomorrow)?|nn))?']
+    patterns: ['((ok(ay)?|alright|well|right)[,.!]* )?(good ?night|night|nite|nighty night|night night|gn|sleep well|i''m going to bed|im going to bed|i am going to bed|going to bed|i''m going to sleep|im going to sleep|off to bed|i''m off to bed|im off to bed|time for bed|time to sleep|gonna sleep|gonna go to bed|heading to bed)( now| then)?([,.!]* (good ?night|night|gn|bye|see you( tomorrow)?|nn))?']
     examples: [good night, i'm going to bed, time for bed]
     responses:
       - "Good night! Sleep well."

@@ -223,7 +223,7 @@
    {
     "id": "good_night",
     "patterns": [
-     "((ok(ay)?|alright|well|right)[,.!]* )?(good ?night|nighty night|night night|gn|sleep well|i'm going to bed|im going to bed|i am going to bed|going to bed|i'm going to sleep|im going to sleep|off to bed|i'm off to bed|im off to bed|time for bed|time to sleep|gonna sleep|gonna go to bed|heading to bed)( now| then)?([,.!]* (good ?night|night|gn|bye|see you( tomorrow)?|nn))?"
+     "((ok(ay)?|alright|well|right)[,.!]* )?(good ?night|night|nite|nighty night|night night|gn|sleep well|i'm going to bed|im going to bed|i am going to bed|going to bed|i'm going to sleep|im going to sleep|off to bed|i'm off to bed|im off to bed|time for bed|time to sleep|gonna sleep|gonna go to bed|heading to bed)( now| then)?([,.!]* (good ?night|night|gn|bye|see you( tomorrow)?|nn))?"
     ],
     "examples": [
      "good night",
@@ -4872,6 +4872,10 @@
     "Take it one day at a time. Sharing memories with others who knew them can help, and so can simply resting.",
     "Be patient with yourself. If it ever feels too heavy to carry, talking to a counsellor or your doctor can really help."
    ],
+   "sleep": [
+    "When sleep won't come: put the phone away, get up for 15 minutes and do something calm in dim light, then try again. Writing down what's on your mind first can help switch it off.",
+    "Try slow breathing — in for 4, hold for 4, out for 6 — and don't check the clock. If thoughts keep coming, jot them down for tomorrow; your brain can let go once they're on paper."
+   ],
    "tired": [
     "Honestly? Rest. Eat something proper, drink some water, and give yourself an early night — tomorrow is a fresh start.",
     "Take a real break: twenty minutes with no screens, maybe a short walk. Then do one small thing that's easy to finish.",
@@ -5444,6 +5448,36 @@
       "x": "Tetris — a classic for a reason",
       "tags": "video classic puzzle",
       "title": "Tetris"
+     },
+     {
+      "x": "Mario Kart 8 Deluxe — great fun for two (Switch)",
+      "tags": "video two switch party",
+      "title": "Mario Kart 8 Deluxe"
+     },
+     {
+      "x": "It Takes Two, a co-op adventure made for exactly two players",
+      "tags": "video two",
+      "title": "It Takes Two (video game)"
+     },
+     {
+      "x": "Overcooked! 2, chaotic co-op cooking (Switch and more)",
+      "tags": "video two switch party",
+      "title": "Overcooked! 2"
+     },
+     {
+      "x": "Patchwork, a cosy board game for two",
+      "tags": "board two",
+      "title": "Patchwork (board game)"
+     },
+     {
+      "x": "7 Wonders Duel, a strategy game for two",
+      "tags": "board two",
+      "title": "7 Wonders Duel"
+     },
+     {
+      "x": "Animal Crossing: New Horizons, relaxing island life on the Switch",
+      "tags": "video switch cozy",
+      "title": "Animal Crossing: New Horizons"
      }
     ],
     "outro": "Board games or video games?"
@@ -6761,6 +6795,22 @@
    "Sorry, that wasn't clear! Which part should I explain differently?",
    "Oops, I lost you there. What did you mean?"
   ],
+  "have_pet_new": [
+   "Oh, how exciting — a new {x}! What's their name?",
+   "Congratulations on the new {x}! What did you name them?"
+  ],
+  "pet_breed": [
+   "A {x} — lovely! They're such great companions.",
+   "Aww, a {x}! Good choice."
+  ],
+  "wish_luck": [
+   "Good luck! You've got this. 🍀",
+   "Fingers crossed for you — you'll do great!"
+  ],
+  "pet_young": [
+   "Aww, {x} — a real baby! Lots of cuddles and chewed socks ahead.",
+   "So little! {x} is such a sweet age."
+  ],
   "accomplished": [
    "Nice, well done! How does it feel to have {x} behind you?",
    "That's great — {x}, done! Got anything fun planned now?",
@@ -6932,6 +6982,32 @@
      "Whisk in 1 egg, 300 ml milk and 2 tbsp melted butter until just smooth.",
      "Cook small ladlefuls in a lightly buttered pan on medium heat.",
      "Flip when bubbles appear on top — about 1–2 minutes per side."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "puppy"
+     ],
+     [
+      "new",
+      "dog"
+     ],
+     [
+      "dog",
+      "tips"
+     ],
+     [
+      "puppy",
+      "owner"
+     ]
+    ],
+    "title": "Tips for a new puppy",
+    "steps": [
+     "Take them outside often — after waking up, after eating and after playing — and praise them right away.",
+     "Keep a simple routine for food, walks and sleep; puppies sleep 18 hours a day.",
+     "Give them chew toys so your shoes stay safe.",
+     "Short, positive training sessions (a few minutes) work best — and book a first vet visit for vaccinations."
     ]
    },
    {

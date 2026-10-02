@@ -107,7 +107,9 @@ _GENRES = {"sci-fi": "scifi", "scifi": "scifi", "science fiction": "scifi", "sci
            "healthy": "healthy", "light": "healthy", "cosy": "cosy", "cozy": "cosy", "comforting": "cosy",
            "warm": "warm", "home": "home", "at home": "home", "indoors": "home", "inside": "home",
            "relaxing": "cosy", "relaxed": "cosy", "relax": "cosy", "chill": "cosy", "calm": "cosy", "chilled": "cosy",
-           "peaceful": "cosy", "low-key": "cosy"}
+           "peaceful": "cosy", "low-key": "cosy",
+           "two": "two", "2": "two", "two-player": "two", "coop": "two", "co-op": "two", "couples": "two",
+           "switch": "switch", "nintendo": "switch"}
 _ADVICE = re.compile(_LEAD + r"(?:so )?(?:what (?:should|can|could|do you think|would you suggest|would you recommend) i "
                      r"(?:do|say|try)(?: (?:about|with) (?P<about>.+?))?(?: now| then| next)?|what would you do(?: in my (?:place|shoes))?|"
                      r"i (?:don't|do not|dont) know (?:if|whether|what) (?:i should|to) (?:say|do|tell|talk)\b"
@@ -423,6 +425,8 @@ class Everyday:
         if re.search(r"\b(?:stress|stressed|stressful|anxious|anxiety|worried|nervous|overwhelmed|overwhelming|panic|"
                      r"pressure|deadline|deadlines|too much)\b", t):
             return "stress"
+        if re.search(r"\b(?:can'?t sleep|cannot sleep|cant sleep|can'?t fall asleep|insomnia|wide awake|lying awake|awake at)\b", t):
+            return "sleep"
         if re.search(r"\b(?:tired|exhausted|exhausting|long day|long week|no sleep|sleep|drained|burnt out|burned out)\b", t):
             return "tired"
         if re.search(r"\b(?:sad|lonely|down|depressed|unhappy|miserable|cry|crying|cried|heartbroken)\b", t):
@@ -432,6 +436,10 @@ class Everyday:
         return "generic"
 
     def advice(self, st, msg: str, about: str | None) -> Reply:
+        if about:                                   # "any tips for a new puppy owner": a guide, when there is one
+            guide = self.a._howto(st, f"tips for {about}")
+            if guide is not None and guide.kind != "unknown":
+                return guide
         exp = st.last_exp if st.last_exp and st.turn - st.last_exp.get("turn", -99) <= 4 else None
         context = about or (exp or {}).get("text")
         if not context and not exp:
