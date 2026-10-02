@@ -6541,6 +6541,45 @@
      "alter_bau": [
       "{x} ist rund {n} Jahre alt – fertiggestellt wurde er {y}."
      ]
+    },
+    "g79": {
+     "handy": [
+      "Oh nein! Ist es heil geblieben?",
+      "Autsch! Funktioniert es noch?"
+     ],
+     "lernen": [
+      "Oh schön, {x}! Wie lange machst du das schon?",
+      "Toll – {x} zu lernen macht richtig Spaß. Wie läuft's bisher?"
+     ],
+     "fuehrerschein": [
+      "Glückwunsch zum Führerschein! 🎉 Wohin geht die erste Fahrt?"
+     ],
+     "sinn": [
+      "Große Frage! Beantworten kann ich sie dir nicht – aber ich kann dir erzählen, was Philosophen wie Aristoteles oder Camus darüber dachten. Frag einfach."
+     ],
+     "nachbarn": [
+      "Oh je, das ist anstrengend, gerade wenn man Ruhe braucht. Ist das jeden Tag so?",
+      "Das nervt richtig. Konntest du schon mal mit ihnen reden?"
+     ],
+     "nettes": [
+      "Du bist wichtig – und auch ein mittelmäßiger Tag zählt. Schön, dass du da bist. 😊",
+      "Du gibst dir Mühe, und das merkt man. Gönn dir heute was Schönes!"
+     ],
+     "stau": [
+      "Oh nein, Stau – hoffentlich löst er sich bald auf. Läuft wenigstens gute Musik?",
+      "Nicht schön! Kommst du jetzt zu spät?"
+     ],
+     "geheimnis": [
+      "Deine Geheimnisse bleiben auf deinem Rechner – ich schicke nichts irgendwohin. Und wenn ich etwas vergessen soll, sag einfach „vergiss, dass …“."
+     ],
+     "zurueck": [
+      "Schön, dass du wieder da bist! Wo waren wir stehen geblieben?",
+      "Willkommen zurück! Was gibt's?"
+     ],
+     "morgen": [
+      "Guten Morgen! ☀️ Gut geschlafen?",
+      "Guten Morgen! Was steht heute an?"
+     ]
     }
    }
   }
@@ -13114,6 +13153,43 @@
    "age_built": [
     "{x} is about {n} years old — it was completed in {y}.",
     "It's about {n} years old: {x} was finished in {y}."
+   ]
+  },
+  "b79": {
+   "cracked": [
+    "Oh no! Is it still usable, or is the touch acting up? A screen protector stops it spreading, and repair shops can usually swap the glass.",
+    "Ugh, that sinking feeling! Does it still work okay?"
+   ],
+   "dropped": [
+    "Oh no! Did it survive?",
+    "Eek — is it okay?"
+   ],
+   "miss_person": [
+    "Missing someone you love is hard. What do you miss most about {x}?",
+    "That's a heavy feeling. Want to tell me a bit about {x}?"
+   ],
+   "cat_mess": [
+    "Oh no, classic cat move! 😼 Hope it didn't land on anything important.",
+    "Of course they did. 😄 Cats and full cups — a dangerous combination. All cleaned up?"
+   ],
+   "burned": [
+    "Oops! Happens to the best of us. Second round?",
+    "Ha, the smoke alarm's favourite breakfast. 😄 Try again?"
+   ],
+   "noisy": [
+    "Ugh, that's exhausting, especially when you want to rest. Is it like that every day?",
+    "That's really annoying. Have you been able to talk to them about it?"
+   ],
+   "traffic": [
+    "Ugh, traffic — hope it clears soon. Got some music or a podcast on?",
+    "Oh no, not fun. Are you going to be late?"
+   ],
+   "secret": [
+    "Your secrets stay on your computer — I don't send anything anywhere. And if you ever want me to forget something, just say “forget that …”."
+   ],
+   "learning": [
+    "Oh nice, {x}! How long have you been at it?",
+    "That's great — learning {x} is so rewarding. How's it going so far?"
    ]
   }
  }

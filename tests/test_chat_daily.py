@@ -3093,3 +3093,15 @@ def test_battery78_a_whole_evening_in_one_chat(chat):
     assert "Highlight" in r.text or "gefallen" in r.text, r.text
     a.turn(st, "ich glaub ich schau später einen film")
     assert "„" in a.turn(st, "hast du tipps?").text
+
+
+def test_battery79_forty_everyday_messages(chat):
+    a, _ = chat
+    bad = ("favourite colour", "good choice", "meine oma", "haven't read anything", "Erzähl ruhig mehr", "nicht ganz verstanden")
+    for i, msg in enumerate(["my phone screen cracked", "i miss my grandma", "my cat knocked over my coffee", "i burned the toast",
+                             "my neighbors are so loud", "i'm stuck in traffic", "can you keep a secret?", "mein handy ist runtergefallen",
+                             "ich vermisse meine oma", "meine nachbarn sind so laut", "ich stehe im stau",
+                             "kannst du ein geheimnis bewahren?", "bin wieder da", "was ist der sinn des lebens?", "sag mir was nettes"]):
+        r = a.turn(DialogState(f"m79-{i}"), msg)
+        assert r.kind != "learned" and not any(x in r.text for x in bad), (msg, r.text)
+    assert "deine Oma" in a.turn(DialogState("o79"), "ich vermisse meine oma").text

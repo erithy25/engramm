@@ -1272,6 +1272,27 @@ class Assistant:
             return None
         q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", s)).strip(" .!?")
         say = lambda key: Reply(msg, "smalltalk", self._pick(st, f"de:g74:{key}", g[key]), via="german")   # noqa: E731
+        g9 = (self.bank.de["daily"].get("ctx") or {}).get("g79") or {}
+        say9 = lambda key, kind="smalltalk", **kw: Reply(msg, kind, self._pick(st, f"de:g79:{key}", g9[key], **kw), via="german")   # noqa: E731
+        if g9:
+            if re.fullmatch(r"(?:mist,? |oh nein,? )?mein (?:handy|smartphone|iphone|laptop|tablet) ist (?:mir )?(?:runtergefallen|heruntergefallen|hingefallen)|"
+                            r"mir ist (?:mein |das )?(?:handy|smartphone|iphone) runtergefallen", q):
+                return say9("handy", "empathy")
+            if re.fullmatch(r"was ist (?:der )?sinn des lebens|was ist der sinn von allem|warum leben wir", q):
+                return say9("sinn")
+            if re.fullmatch(r"(?:meine|die) (?:nachbarn|mitbewohner) (?:sind|waren) (?:so |total |echt |mal wieder |schon wieder )*(?:laut|nervig)(?: heute)?", q):
+                st.last_exp = {"valence": "negative", "topic": None, "person": True, "text": msg, "turn": st.turn}
+                return say9("nachbarn", "empathy")
+            if re.fullmatch(r"(?:sag|erzähl) (?:mir )?(?:was|etwas) (?:nettes|schönes|liebes|positives)", q):
+                return say9("nettes")
+            if re.fullmatch(r"(?:boah,? |mist,? )?ich (?:stehe|steh|stecke|steck) (?:gerade |schon wieder )?im stau", q):
+                return say9("stau", "empathy")
+            if re.fullmatch(r"kannst du (?:ein )?geheimnis(?:se)? (?:bewahren|behalten|für dich behalten)|bleibt das unter uns|erzählst du das (?:jemandem|weiter)", q):
+                return say9("geheimnis")
+            if re.fullmatch(r"(?:ich )?bin wieder da|(?:ich bin )?zurück|da bin ich wieder", q):
+                return say9("zurueck")
+            if re.fullmatch(r"(?:guten )?morgen|moin moin", q) and re.match(r"\s*guten morgen", msg.lower()):
+                return say9("morgen")
         g8 = (self.bank.de["daily"].get("ctx") or {}).get("g78") or {}
         say8 = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:g78:{key}", g8[key], **kw), via="german")   # noqa: E731
         if g8 and re.fullmatch(r"(?:gut,? |ganz gut,? |geht,? )?(?:ein )?(?:bisschen|bissl|etwas|leicht|total|echt|so) müde,? (?:und )?(?:dir|du|selbst|bei dir)", q):
@@ -2703,6 +2724,11 @@ class Assistant:
         if m:
             x = m.group(1)
             y = {"ihn": "er", "sie": "sie", "es": "es"}.get(x, "das")
+            pm = re.fullmatch(r"meine([nm]?) (\w+)", x)
+            if pm:                                     # "ich vermisse meine Oma": "deine Oma", not "meine oma"
+                noun = pm.group(2)
+                x = f"deine{pm.group(1)} {noun[:1].upper() + noun[1:]}"
+                y = "sie" if noun in _FEMALE_DE else "er" if pm.group(1) == "n" or noun in ("opa", "vater", "papa", "bruder", "hund", "kater", "mann", "freund", "sohn") else "es"
             return Reply(msg, "empathy", self._pick(st, "de:life:miss", dl["miss"], x=x, y=y), via="german")
         if re.fullmatch(r"(?:und )?noch (?:einer|einen|eins|ein witz|einen witz)|nochmal", s) and la.get("kind") == "joke":
             return self._german(st, "erzähl mir einen witz")
@@ -6152,6 +6178,32 @@ class Assistant:
         b = self.bank.daily["b78"]
         n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", norm)).strip(" .!?")
         say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b78:{key}", b[key], **kw), via="smalltalk")  # noqa: E731
+        b9 = self.bank.daily["b79"]
+        say9 = lambda key, kind="smalltalk", **kw: Reply(msg, kind, self._pick(st, f"daily:b79:{key}", b9[key], **kw),   # noqa: E731
+                                                         via="empathy" if kind == "empathy" else "smalltalk")
+        if re.fullmatch(r"(?:ugh,? |oh no,? )?my (?:phone|phone'?s|laptop|tablet|ipad|iphone)(?: screen)? (?:screen )?(?:cracked|broke|is cracked|shattered|got cracked)", n):
+            return say9("cracked", "empathy")
+        if re.fullmatch(r"(?:ugh,? |oops,? )?i (?:just )?dropped my (?:phone|laptop|tablet|ipad|iphone)(?: again)?", n):
+            return say9("dropped", "empathy")
+        mp = re.fullmatch(r"i (?:really |so )?miss (?P<w>my (?:grandma|grandpa|mom|mum|dad|mother|father|sister|brother|best friend|friend|dog|cat|grandmother|grandfather|"
+                          r"family|home|ex|boyfriend|girlfriend)|him|her|them)(?: so much| a lot)?", n)
+        if mp:
+            w = mp.group("w")
+            obj = {"him": "him", "her": "her", "them": "them"}.get(w) or ("her" if re.search(r"grandma|mom|mum|mother|sister|grandmother|girlfriend", w) else
+                                                                          "him" if re.search(r"grandpa|dad|father|brother|grandfather|boyfriend", w) else "them")
+            st.last_exp = {"valence": "negative", "topic": None, "person": True, "text": msg, "turn": st.turn}
+            return say9("miss_person", "empathy", x=obj)
+        if re.fullmatch(r"my (?:cat|kitten|dog|puppy) (?:just )?(?:knocked over|spilled|tipped over|broke|ate) my (?:coffee|tea|drink|glass|plant|cup|mug|water|food|lunch|dinner)", n):
+            return say9("cat_mess")
+        if re.fullmatch(r"(?:oops,? |ugh,? )?i (?:just )?(?:burned|burnt) (?:the |my )?(?:toast|food|dinner|pasta|rice|pizza|cookies|pancakes|eggs|lunch|breakfast)", n):
+            return say9("burned")
+        if re.fullmatch(r"my (?:neighbou?rs?|roommates?|flatmates?) (?:are|is) (?:so |really |super |being )?(?:loud|noisy|annoying)(?: again| tonight)?", n):
+            st.last_exp = {"valence": "negative", "topic": None, "person": True, "text": msg, "turn": st.turn}
+            return say9("noisy", "empathy")
+        if re.fullmatch(r"(?:ugh,? )?(?:i'?m|im|i am) (?:stuck in|sitting in) (?:a )?(?:traffic|traffic jam|a jam)(?: again)?", n):
+            return say9("traffic", "empathy")
+        if re.fullmatch(r"can (?:you|u) keep a secret|will you tell anyone|is this (?:private|confidential)|are you going to tell anyone", n):
+            return say9("secret")
         if re.search(r"\b(?:my |the )?(?:manager|boss|client|team lead|teacher|professor)\b.*\b(?:changed|moved|pushed|shifted|brought forward)\b.*\bdeadline\b|"
                      r"\bdeadline (?:got |was )?(?:changed|moved|pushed|shifted) (?:again|forward|back|up)\b", n):
             st.last_exp = {"valence": "negative", "topic": "work", "person": True, "text": msg, "turn": st.turn}

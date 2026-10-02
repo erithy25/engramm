@@ -2748,3 +2748,13 @@ b78:
   movie_rec: ["A few funny ones: “The Grand Budapest Hotel”, “Superbad”, “Paddington 2” and “Hot Fuzz”. Want something else?"]
   chicken_oven: ["In the oven at about 200 °C: chicken breast 20–25 minutes, thighs or drumsticks 35–45 minutes, a whole chicken about 1¼–1½ hours. It's done at 75 °C in the thickest part — or when the juices run clear."]
   age_built: ["{x} is about {n} years old — it was completed in {y}.", "It's about {n} years old: {x} was finished in {y}."]
+b79:
+  cracked: ["Oh no! Is it still usable, or is the touch acting up? A screen protector stops it spreading, and repair shops can usually swap the glass.", "Ugh, that sinking feeling! Does it still work okay?"]
+  dropped: ["Oh no! Did it survive?", "Eek — is it okay?"]
+  miss_person: ["Missing someone you love is hard. What do you miss most about {x}?", "That's a heavy feeling. Want to tell me a bit about {x}?"]
+  cat_mess: ["Oh no, classic cat move! 😼 Hope it didn't land on anything important.", "Of course they did. 😄 Cats and full cups — a dangerous combination. All cleaned up?"]
+  burned: ["Oops! Happens to the best of us. Second round?", "Ha, the smoke alarm's favourite breakfast. 😄 Try again?"]
+  noisy: ["Ugh, that's exhausting, especially when you want to rest. Is it like that every day?", "That's really annoying. Have you been able to talk to them about it?"]
+  traffic: ["Ugh, traffic — hope it clears soon. Got some music or a podcast on?", "Oh no, not fun. Are you going to be late?"]
+  secret: ["Your secrets stay on your computer — I don't send anything anywhere. And if you ever want me to forget something, just say “forget that …”."]
+  learning: ["Oh nice, {x}! How long have you been at it?", "That's great — learning {x} is so rewarding. How's it going so far?"]

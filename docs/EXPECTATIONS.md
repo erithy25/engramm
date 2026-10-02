@@ -2742,6 +2742,16 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     an; „nicht so ganz“ nach „mir gehts gut“ wird jetzt erkannt.
   - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 769 bestanden, Regressionen 32, 38–78 (45 Gespräche):
     0 Wiederholungen; Unterschiede nur Uhrzeiten.
+- **Alltags-Batterie 79 (40 neue Einzelnachrichten, wie echte Nutzer sie schicken; EN + DE)**: erster Lauf mit groben Fehlern:
+  „my phone screen cracked“ → „Got it, your favourite colour is cracked.“, „i burned the toast“ → „Toast — good choice!“,
+  „ich vermisse meine oma“ → „Natürlich vermisst du meine oma.“ (Pronomen nicht umgestellt), dazu als Fakten gespeichert:
+  „i miss my grandma“, „my cat knocked over my coffee“, „my neighbors are so loud“ („How's that going?“), „i'm stuck in
+  traffic“; „can you keep a secret?“ → Textsuche; deutsch Rückfallantworten für Handy, Nachbarn, Stau, Sinn des Lebens,
+  „sag mir was nettes“, Geheimnis, „bin wieder da“. Alle 40 bekommen jetzt eine passende Antwort; „meine Oma“ → „deine Oma“
+  (mit „sie“). Die erste Fassung überschrieb drei vorhandene, bessere Abläufe (Gitarre lernen mit Folgefragen, Führerschein
+  mit „beim ersten Mal“, Trennungsrat nach „ich vermisse …“) – von den Batterien 41, 54 und long gefunden, zurückgenommen.
+  Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 770 bestanden, Regressionen 32, 38–79 (46 Gespräche):
+  0 Wiederholungen; Unterschiede: „i miss him/her“ jetzt Mitgefühl statt gespeicherter Fakt (Batterie 64, long), Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
