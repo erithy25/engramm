@@ -2676,6 +2676,22 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     höchstens drei Wörter ohne Präposition oder Zeit- und Ereigniswort.
   - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 764 bestanden, Regressionen 32, 38–73 (41 Gespräche):
     0 Wiederholungen; Unterschiede: Batterie 42 (Besuch der Schwester ohne Speichern), 45 (Geburtstag), Uhrzeiten.
+- **Alltags-Batterie 74 (Folgefragen über mehrere Turns; EN + DE)**:
+  - „explain it simpler“ nach „what is photosynthesis?“ (vorher „I don't know much about Photosynthesis simpler“) und „why is
+    it important?“ (vorher „couldn't find anything about Photosynthesis“) → einfache Erklärung bzw. Bedeutung; 18 Schulbegriffe
+    (Photosynthese, Schwerkraft, Evolution, Demokratie, Inflation, DNA, Schwarzes Loch, Klimawandel, Impfung …), auch direkt
+    („explain vaccine simply“).
+  - Mond: „has anyone been there?“, „who?“, „why did they stop going?“ (vorher dreimal „I don't know“ bzw. „who's they?“).
+  - Stadt: „what's it famous for?“ nach „what's the capital of italy?“ meint Rom, nicht Italien (vorher „I don't know“) → ein
+    Satz aus den ersten 40 Sätzen des Artikels („City of Seven Hills … Eternal City“); „when's the best time to go?“ für
+    europäische Städte.
+  - Hund: „what breed would you recommend?“ (vorher Artikel „What Would You Do? (2008 TV program)“), „i live in a small
+    apartment“ (vorher „That's brilliant — you must be really happy!“), „what about a cat instead?“. Der vorhandene
+    Katzen-Ablauf aus Batterie 47 bleibt (die erste Fassung überschrieb ihn, ein alter Test schlug an).
+  - Deutsch: „erzähl mehr“ (vorher Rückfallantwort), „und wo?“ nach „wann ist er gestorben?“ → „Einstein starb in Princeton.“
+    (vorher englisch), Hund/Rasse/kleine Wohnung/Katze.
+  - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 765 bestanden, Regressionen 32, 38–74 (42 Gespräche):
+    0 Wiederholungen; Unterschiede nur Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

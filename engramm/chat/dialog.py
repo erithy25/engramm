@@ -1000,7 +1000,7 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_mem67(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
@@ -1262,6 +1262,40 @@ class Assistant:
                 return Reply(msg, "forgot", f"Erledigt – ich habe vergessen, dass du {cap(x)} {'nicht magst' if neg else 'magst'}. Es ist wirklich weg, "
                              "nicht nur versteckt.", via="memory")
             return Reply(msg, "nothing", f"Dazu habe ich nichts gespeichert, was ich vergessen könnte.", via="memory")
+        return None
+
+    def _german_ctx74(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 74 in German: "erzähl mehr" after an explanation, and choosing a dog or a cat."""
+        g = (self.bank.de["daily"].get("ctx") or {}).get("g74")
+        if not g:
+            return None
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", s)).strip(" .!?")
+        say = lambda key: Reply(msg, "smalltalk", self._pick(st, f"de:g74:{key}", g[key]), via="german")   # noqa: E731
+        if re.fullmatch(r"(?:erzähl|erzähle|sag) (?:mir )?(?:noch )?mehr(?: darüber| davon| dazu)?|mehr (?:davon|dazu|bitte)|und weiter|weiter", q) and \
+                (st.last_about or self.bot.context.get("mention")):
+            rep = self._more(st, msg)
+            if rep.kind == "about":
+                rep.text = f"{self.bank.de['daily']['english_text']} {rep.text}"
+                rep.message = msg
+                return rep
+        if re.fullmatch(r"ich (?:überlege|denke darüber nach|will|möchte|würde gern)(?:,)? (?:mir )?(?:einen|eine) (?P<p>hund|welpen|katze|kätzchen)"
+                        r"(?: zu)? (?:holen|zu holen|anschaffen|anzuschaffen|adoptieren|zu adoptieren)?", q):
+            st.uses["pet74"] = ["dog" if re.search(r"hund|welpe", q) else "cat", st.turn]
+            return say("hund") if st.uses["pet74"][0] == "dog" else None
+        pet = st.uses.get("pet74")
+        if pet and st.turn - pet[1] <= 5:
+            if re.fullmatch(r"(?:und )?welche (?:rasse|hunderasse)(?: würdest du (?:mir )?empfehlen| empfiehlst du| passt)?|hast du eine rasse(?:empfehlung)?", q):
+                st.uses["pet74"] = [pet[0], st.turn]
+                return say("rasse")
+            if re.fullmatch(r"(?:aber |also )?ich wohne in einer (?:kleinen|winzigen) wohnung", q):
+                self._learn(st, ["I live in a small apartment."], msg)
+                st.uses["pet74"] = [pet[0], st.turn]
+                return Reply(msg, "learned", self._pick(st, "de:g74:klein", g["klein_hund"] if pet[0] == "dog" else g["katze"]), via="german")
+            if re.fullmatch(r"(?:und |oder |was ist mit )?(?:einer |eine )?katze(?: stattdessen)?|wäre eine katze besser", q):
+                st.uses["pet74"] = ["cat", st.turn]
+                return say("katze")
+            if re.fullmatch(r"(?:ok(?:ay)?,? |gut,? )?(?:dann )?(?:vielleicht |wohl )?(?:doch )?(?:eine )?katze(?: dann)?", q):
+                return say("katze_ok")
         return None
 
     def _german_ctx73(self, st: DialogState, msg: str, s: str) -> Reply | None:
@@ -2655,6 +2689,8 @@ class Assistant:
         if sup is not None:
             return sup
         last = st.uses.get("de_last_q")
+        if s in ("wo", "und wo", "wo denn", "und wo genau") and last and st.turn - last[0] <= 2 and "gestorben" in last[1]:
+            return self._german_question(st, msg, re.sub(r"^(?:und )?(?:wann|in welchem jahr)", "wo", last[1]))
         if s in ("wo", "und wo", "wo denn", "und wo genau") and last and st.turn - last[0] <= 2 and "geboren" in last[1]:
             return self._german_question(st, msg, re.sub(r"^(?:und )?(?:wann|in welchem jahr)", "wo", last[1]))
         return None
@@ -5091,7 +5127,7 @@ class Assistant:
                                                      r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
             # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
             return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
-        evr = self._sounds(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
+        evr = self._sounds(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
             self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
@@ -6006,6 +6042,99 @@ class Assistant:
                 return Reply(msg, "smalltalk", self._pick(st, "daily:sound:gib_sorry", self.bank.daily["sounds"]["gib_sorry"]), via="smalltalk")
             return None
         return Reply(msg, "smalltalk", self._pick(st, f"daily:sound:{key}", self.bank.daily["sounds"][key]), via="smalltalk")
+
+    def _daily_ctx21(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 74: follow-ups a person keeps track of — "explain it simpler" and "why is it important?" about
+        the concept just explained, "has anyone been there?" / "who?" / "why did they stop going?" after the Moon,
+        "what's it famous for?" and "when's the best time to go?" after a city, and choosing a dog or a cat."""
+        b = self.bank.daily["b74"]
+        n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", norm)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b74:{key}", b[key], **kw), via="smalltalk")  # noqa: E731
+        topic = st.topic if st.topic and st.turn - st.topic.get("turn", -99) <= 5 else None
+        la = st.last_about if st.last_about and st.turn - st.last_about.get("turn", st.turn) <= 5 else None
+        title = ((la or {}).get("title") or (topic or {}).get("title") or (topic or {}).get("name") or "")
+        tkey = re.sub(r"^(?:the|a|an) ", "", title.lower())
+        tkey = {"photosynthetic": "photosynthesis", "black holes": "black hole", "vaccines": "vaccine", "volcanoes": "volcano",
+                "earthquakes": "earthquake", "atoms": "atom", "ai": "artificial intelligence", "global warming": "climate change"}.get(tkey, tkey)
+        if re.fullmatch(r"(?:can you |could you |please )?(?:explain|say|put) (?:it|that|this) (?:simpler|more simply|in simple(?:r)? (?:words|terms)|"
+                        r"like i'?m (?:five|5|a kid|a child))(?: please)?|(?:in )?simpler(?: words| terms)?(?: please)?|i don'?t understand(?: that| it)?|"
+                        r"what does that mean|eli5", n) and title:
+            if tkey in b["simple"]:
+                st.uses["simple74"] = [tkey, st.turn]
+                return Reply(msg, "about", b["simple"][tkey][0], via="about")
+            return None
+        if re.fullmatch(r"(?:and |but |so )?why (?:is|are) (?:it|that|this|they) (?:so )?important|why does (?:it|that) matter|what'?s (?:it|that) good for", n):
+            key = (st.uses.get("simple74") or [None])[0] if st.uses.get("simple74") and st.turn - st.uses["simple74"][1] <= 3 else tkey
+            if key in b["simple"]:
+                return Reply(msg, "about", b["simple"][key][1], via="about")
+        m = re.fullmatch(r"(?:can you )?explain (?P<x>[a-z ]{3,30}?)(?: simply| in simple (?:words|terms)| like i'?m (?:five|5))", n) or \
+            re.fullmatch(r"what is (?:a |an |the )?(?P<x>[a-z ]{3,30}?) in simple (?:words|terms)", n)
+        if m:
+            x = re.sub(r"^(?:the|a|an) ", "", m.group("x"))
+            if x in b["simple"]:
+                st.uses["simple74"] = [x, st.turn]
+                return Reply(msg, "about", b["simple"][x][0], via="about")
+        moon = tkey == "moon" or (st.uses.get("moon74") is not None and st.turn - st.uses["moon74"] <= 3)
+        if moon:
+            if re.fullmatch(r"(?:has|have|did) (?:anyone|anybody|people|humans|someone) (?:ever )?(?:been|gone|walked|landed|stood) (?:there|on it|on the moon|to the moon)", n):
+                st.uses["moon74"] = st.turn
+                return say("moon_been")
+            if st.uses.get("moon74") is not None and re.fullmatch(r"(?:and )?who(?: was it| were they| exactly)?|who went|which astronauts", n):
+                st.uses["moon74"] = st.turn
+                return say("moon_who")
+            if re.fullmatch(r"(?:and )?why did (?:they|we|people|nasa|humans) stop (?:going|going there|going back|flying there)|why hasn'?t anyone been back|"
+                            r"why don'?t we go (?:back|there) anymore", n):
+                st.uses["moon74"] = st.turn
+                return say("moon_stop")
+        city = (topic or {}).get("name") or (topic or {}).get("title") or ""
+        ans = str(self.bot.context.get("answer") or "")
+        if st.last_kind == "answer" and re.fullmatch(r"[A-Z][a-zé]+(?: [A-Z][a-zé]+)?", ans) and re.search(r"\bcapital\b", st.last_message or "", re.I):
+            city = ans                                  # "what's the capital of Italy?" … "what's it famous for?": Rome
+        euro = {"rome", "paris", "london", "berlin", "madrid", "lisbon", "vienna", "prague", "amsterdam", "barcelona", "athens", "budapest",
+                "venice", "florence", "milan", "munich", "copenhagen", "stockholm", "dublin", "brussels", "zurich", "krakow", "istanbul", "edinburgh"}
+        if re.fullmatch(r"(?:and |so )?(?:what'?s|what is|what) (?:it|the city|that city|rome|paris|london) (?:famous|known|best known) for|why is it famous", n):
+            name = city or title
+            found = self.about.find(name) if name else None
+            st.uses["city74"] = [name, st.turn]
+            if found:
+                pool = list(found.sentences)
+                try:
+                    lo, hi = self.bot.c.doc_sentences(found.doc)
+                    pool = [self.bot.c.sentence_text(i) for i in range(lo, min(hi, lo + 40))]
+                except Exception:
+                    pass
+                sents = [x for x in pool if 30 < len(x) < 320 and re.search(r"\b(?:known for|famous|renowned|landmarks?|attractions?|world heritage|"
+                                                                            r"most visited|nicknamed|referred to as|major centres? of|celebrated)\b", x, re.I)]
+                if sents:
+                    return Reply(msg, "about", sents[0], evidence=sents[0], source=found.source, via="about")
+            if name:
+                return say("famous_none", x=name)
+        if re.fullmatch(r"(?:and |so )?(?:when'?s|when is|what'?s|what is) the best (?:time|season|month) to (?:go|visit|travel)(?: there)?", n) and \
+                (city.lower() in euro or (st.uses.get("city74") or [""])[0].lower() in euro):
+            return say("best_time", x=city if city.lower() in euro else st.uses["city74"][0])
+        pet = st.uses.get("pet74")
+        if re.fullmatch(r"(?:i'?m|i am|im) (?:thinking (?:about|of)|considering|planning on|planning to get|looking (?:at|into)) (?:getting |adopting )?(?:a |an )?(?P<p>dog|puppy|cat|kitten)", n):
+            st.uses["pet74"] = ["dog" if re.search(r"dog|puppy", n) else "cat", st.turn]
+            return None
+        if pet and st.turn - pet[1] <= 5:
+            if re.fullmatch(r"(?:so )?what (?:breed|kind|type)(?: of (?:dog|cat))? (?:would|do|should|could) (?:you recommend|you suggest|i get)|"
+                            r"which (?:breed|dog|kind)(?: would you recommend| should i get)?|any (?:breed )?recommendations", n) and pet[0] == "dog":
+                st.uses["pet74"] = [pet[0], st.turn]
+                return say("breed")
+            if re.fullmatch(r"(?:but |and |well,? )?i live in (?:a |an )?(?:small|tiny|little) (?:apartment|flat|studio)", n) and pet[0] == "dog":
+                self._learn(st, ["I live in a small apartment."], msg)
+                st.uses["pet74"] = [pet[0], st.turn]
+                return Reply(msg, "learned", self._pick(st, "daily:b74:small_flat_dog", b["small_flat_dog"]), via="memory") if pet[0] == "dog" else \
+                    Reply(msg, "learned", self._pick(st, "daily:b74:cat_instead", b["cat_instead"]), via="memory")
+            if re.fullmatch(r"(?:and |so |ok,? )?(?:what about|how about|or) (?:a )?(?:cat|kitten)(?: instead)?|(?:would|is) a cat (?:be )?better", n):
+                st.uses["pet74"] = ["cat", st.turn]
+                return say("cat_instead")
+            if re.fullmatch(r"(?:ok(?:ay)?,? )?(?:maybe|probably|i think|then) (?:a |i'?ll get a )?cat(?: then)?", n):
+                return say("cat_ok")
+        if re.fullmatch(r"i live in (?:a |an )?(?:small|tiny|little|cozy|cosy) (?:apartment|flat|studio)", n) and not (pet and st.turn - pet[1] <= 5):
+            self._learn(st, ["I live in a small apartment."], msg)
+            return Reply(msg, "learned", self._pick(st, "daily:b74:small_flat", b["small_flat"]), via="memory")
+        return None
 
     def _daily_ctx20(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 73: what a person keeps and what passes — "I'm drinking coffee", "my mom fell asleep on the couch",

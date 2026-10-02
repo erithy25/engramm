@@ -6407,6 +6407,24 @@
       "Schön, ihr wohnt zusammen! Wie lange schon?",
       "Alles klar, du wohnst mit {x} zusammen. Merk ich mir."
      ]
+    },
+    "g74": {
+     "rasse": [
+      "Kommt auf dein Leben an! Beliebt sind: Labrador oder Golden Retriever (freundlich, familientauglich), Beagle (fröhlich, braucht Bewegung), Cavalier King Charles Spaniel oder Französische Bulldogge (kleiner, ruhiger) – und Mischlinge aus dem Tierheim sind oft wunderbar. Wie viel Platz und Zeit hast du?"
+     ],
+     "klein_hund": [
+      "Dann passt ein kleinerer, ruhiger Hund besser – etwa eine Französische Bulldogge, ein Cavalier King Charles Spaniel, ein Shih Tzu oder ein ruhiger erwachsener Hund aus dem Tierheim. Tägliche Spaziergänge zählen mehr als die Größe der Wohnung."
+     ],
+     "katze": [
+      "Eine Katze passt super in eine kleine Wohnung: kein Gassigehen, tagsüber gut allein, und glücklich mit Fensterplatz und Kletterbaum. Zwei Katzen leisten sich gegenseitig Gesellschaft."
+     ],
+     "katze_ok": [
+      "Klingt nach einer guten Wahl! Im Tierheim gibt es oft tolle erwachsene Katzen, deren Charakter man schon kennt."
+     ],
+     "hund": [
+      "Ein Hund – wie schön! Was reizt dich daran?",
+      "Oh, ein Hund! Hast du schon eine Rasse im Kopf?"
+     ]
     }
    }
   }
@@ -12707,6 +12725,116 @@
    "friend_name": [
     "{x} — nice! I'll remember your best friend's name.",
     "Got it: your best friend is {x}."
+   ]
+  },
+  "b74": {
+   "simple": {
+    "photosynthesis": [
+     "Plants make their own food from sunlight. They take in water and carbon dioxide, use the Sun's energy to turn them into sugar, and release oxygen as a by-product.",
+     "It's the reason we have food and oxygen: almost every food chain starts with plants, and the oxygen we breathe comes from photosynthesis."
+    ],
+    "gravity": [
+     "Everything with mass pulls on everything else. The Earth is so heavy that its pull keeps us on the ground and the Moon in orbit.",
+     "Without gravity there'd be no planets, no orbits and no atmosphere — it holds the whole universe together."
+    ],
+    "evolution": [
+     "Living things slowly change over many generations. Individuals that happen to suit their environment better survive and have more offspring, so their traits spread.",
+     "It explains why life is so diverse — and helps medicine, for example in understanding how bacteria become resistant to antibiotics."
+    ],
+    "democracy": [
+     "People rule themselves: citizens choose their leaders in free elections and can vote them out again.",
+     "It protects people's rights and lets a country change its government peacefully instead of by force."
+    ],
+    "inflation": [
+     "Prices go up over time, so the same money buys less. If bread costs €2 this year and €2.10 next year, that's 5% inflation.",
+     "It eats into savings and wages, so central banks try to keep it low and steady — around 2% a year."
+    ],
+    "dna": [
+     "DNA is the instruction manual inside every cell. It's a long molecule that tells the body how to grow, work and repair itself — and it's passed from parents to children.",
+     "It's the basis of heredity, and reading it helps diagnose diseases, solve crimes and develop medicines."
+    ],
+    "black hole": [
+     "A place where so much mass is squeezed so tightly that gravity lets nothing escape — not even light.",
+     "Black holes shape galaxies (most have a giant one in the middle) and test our theories of gravity in the most extreme conditions."
+    ],
+    "climate change": [
+     "The Earth is getting warmer because burning coal, oil and gas adds greenhouse gases to the air, which trap heat like a blanket.",
+     "It brings more heatwaves, droughts, floods and rising seas — which affect food, water and where people can live."
+    ],
+    "electricity": [
+     "Tiny particles called electrons flowing through a wire, like water through a pipe. That flow can power lights, motors and phones.",
+     "Almost everything in modern life runs on it — from fridges and hospitals to the internet."
+    ],
+    "internet": [
+     "A huge network of computers all over the world that can send each other data — web pages, messages, videos — in small packets.",
+     "It connects billions of people and is how we communicate, work, learn and shop today."
+    ],
+    "vaccine": [
+     "A vaccine shows your immune system a harmless preview of a germ, so it learns to recognise and fight it before you ever get really sick.",
+     "Vaccines have wiped out smallpox and prevent millions of deaths every year from diseases like measles and polio."
+    ],
+    "atom": [
+     "The tiny building blocks of everything. Each atom has a centre (protons and neutrons) with electrons around it.",
+     "Everything — you, air, water, stars — is made of atoms, so understanding them explains chemistry, materials and energy."
+    ],
+    "recession": [
+     "When a country's economy shrinks for a while — businesses sell less, and people lose jobs. Often defined as two quarters in a row of falling output.",
+     "It affects jobs, wages and savings, which is why governments and central banks try to soften it."
+    ],
+    "blockchain": [
+     "A shared digital record book copied across many computers. New entries are linked to the old ones, so changing the past is practically impossible.",
+     "It lets people agree on records without a central authority — the basis of Bitcoin and other cryptocurrencies."
+    ],
+    "artificial intelligence": [
+     "Computer programs that do things that usually need human intelligence — recognising pictures, translating, answering questions — by learning patterns from lots of examples.",
+     "It's changing work, medicine and everyday tools — which is why people debate how to use it responsibly."
+    ],
+    "greenhouse effect": [
+     "Some gases in the air let sunlight in but keep part of the heat from escaping — like the glass of a greenhouse.",
+     "A little of it keeps Earth warm enough to live on; too much (from burning fossil fuels) causes global warming."
+    ],
+    "volcano": [
+     "An opening in the Earth's crust where hot melted rock (magma) from deep inside comes up as lava, ash and gas.",
+     "Eruptions can be dangerous, but volcanoes also create new land and very fertile soil."
+    ],
+    "earthquake": [
+     "The ground shakes when huge plates of the Earth's crust suddenly slip past each other and release built-up tension.",
+     "Understanding them helps build safer houses and warn people in time."
+    ]
+   },
+   "simple_none": [
+    "Simpler? I'll try: {x} in one line is the first thing I told you — but I don't have a kid-friendly version of it ready. Ask me about one part and I'll explain that."
+   ],
+   "moon_been": [
+    "Yes! Twelve astronauts walked on the Moon between 1969 and 1972, on six NASA Apollo missions."
+   ],
+   "moon_who": [
+    "Neil Armstrong and Buzz Aldrin were the first (Apollo 11, July 1969); Gene Cernan and Harrison Schmitt the last (Apollo 17, December 1972). All twelve were American."
+   ],
+   "moon_stop": [
+    "Mostly money and politics: once the space race was won, the very expensive Apollo program was cut, and NASA moved on to Skylab and the Space Shuttle. The Artemis program now plans to send people back."
+   ],
+   "best_time": [
+    "For {x}, spring (April to June) and early autumn (September to October) are usually best: mild weather and fewer crowds than in peak summer."
+   ],
+   "famous_none": [
+    "{x} is best known for its history and sights — ask me about a specific one and I'll look it up."
+   ],
+   "breed": [
+    "Depends on your life! A few common picks: Labrador or Golden Retriever (friendly, great with families), Beagle (cheerful, needs exercise), Cavalier King Charles Spaniel or French Bulldog (smaller, calmer), and mixed-breed rescues are often wonderful. How much space and time do you have?"
+   ],
+   "small_flat_dog": [
+    "Then a smaller, calmer dog fits better — for example a French Bulldog, Cavalier King Charles Spaniel, Shih Tzu, or a calm adult rescue. Daily walks matter more than the size of the flat."
+   ],
+   "small_flat": [
+    "Cozy! Got it — a small apartment.",
+    "Ah, a small apartment — cozy. I'll keep that in mind."
+   ],
+   "cat_instead": [
+    "A cat suits a small apartment really well: no walks needed, fine alone during a workday, and happy with a window seat and some climbing. Two cats keep each other company."
+   ],
+   "cat_ok": [
+    "Sounds like a good fit! Shelters often have lovely adult cats whose personality you already know — worth a visit."
    ]
   }
  }

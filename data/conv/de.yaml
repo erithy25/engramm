@@ -865,3 +865,9 @@ daily:
       kinder: ["Oh, {x}! Wie heißen sie?", "{X} – schön! Wie alt sind sie?"]
       geburtstag: ["{x} – notiert! 🎂 Ich merke mir deinen Geburtstag.", "Dein Geburtstag ist am {x}? Merk ich mir! 🎂"]
       wohnen: ["Schön, ihr wohnt zusammen! Wie lange schon?", "Alles klar, du wohnst mit {x} zusammen. Merk ich mir."]
+    g74:
+      rasse: ["Kommt auf dein Leben an! Beliebt sind: Labrador oder Golden Retriever (freundlich, familientauglich), Beagle (fröhlich, braucht Bewegung), Cavalier King Charles Spaniel oder Französische Bulldogge (kleiner, ruhiger) – und Mischlinge aus dem Tierheim sind oft wunderbar. Wie viel Platz und Zeit hast du?"]
+      klein_hund: ["Dann passt ein kleinerer, ruhiger Hund besser – etwa eine Französische Bulldogge, ein Cavalier King Charles Spaniel, ein Shih Tzu oder ein ruhiger erwachsener Hund aus dem Tierheim. Tägliche Spaziergänge zählen mehr als die Größe der Wohnung."]
+      katze: ["Eine Katze passt super in eine kleine Wohnung: kein Gassigehen, tagsüber gut allein, und glücklich mit Fensterplatz und Kletterbaum. Zwei Katzen leisten sich gegenseitig Gesellschaft."]
+      katze_ok: ["Klingt nach einer guten Wahl! Im Tierheim gibt es oft tolle erwachsene Katzen, deren Charakter man schon kennt."]
+      hund: ["Ein Hund – wie schön! Was reizt dich daran?", "Oh, ein Hund! Hast du schon eine Rasse im Kopf?"]

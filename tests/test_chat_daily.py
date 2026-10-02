@@ -2990,3 +2990,29 @@ def test_battery73_what_passes_and_what_is_kept(chat):
     assert "Kinder" in a.turn(st, "ich habe zwei kinder").text
     assert a.turn(st, "ich trinke gerade kaffee").kind == "smalltalk"
     assert "Papa" in a.turn(st, "mein papa hat mich heute angerufen").text
+
+
+def test_battery74_follow_ups_over_several_turns(chat):
+    a, _ = chat
+    st = DialogState("s74")
+    st.last_about = {"title": "Photosynthesis", "doc": 0, "next": 0, "end": 0, "source": None, "turn": 0}
+    st.turn = 1
+    assert "sunlight" in a.turn(st, "explain it simpler").text
+    assert "oxygen" in a.turn(st, "why is it important?").text
+    assert "immune system" in a.turn(DialogState("v74"), "explain vaccine simply").text
+    st = DialogState("m74")
+    st.topic = {"title": "Moon", "name": "Moon", "turn": 0}
+    st.turn = 1
+    assert "Twelve" in a.turn(st, "has anyone been there?").text
+    assert "Armstrong" in a.turn(st, "who?").text
+    assert "Apollo" in a.turn(st, "why did they stop going?").text
+    st = DialogState("d74")
+    a.turn(st, "i'm thinking about getting a dog")
+    assert "Labrador" in a.turn(st, "what breed would you recommend?").text
+    r = a.turn(st, "i live in a small apartment")
+    assert "really happy" not in r.text and "smaller" in r.text, r.text
+    assert "walks" in a.turn(st, "what about a cat instead?").text
+    st = DialogState("g74")
+    a.turn(st, "ich überlege, mir einen hund zu holen")
+    assert "Labrador" in a.turn(st, "welche rasse würdest du empfehlen?").text
+    assert "Katze" in a.turn(st, "und eine katze?").text
