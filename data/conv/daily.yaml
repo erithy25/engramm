@@ -1214,3 +1214,46 @@ job_where:
 job_start:
   - "Oh, {x} already — that's soon! I've noted it. Anything you want to prepare before then?"
   - "Got it, you start {x}. Exciting! Is there anything you're unsure about yet?"
+today_head:
+  - "Here's what I have for today:"
+  - "For today you told me about:"
+today_none:
+  - "I don't have anything noted for today. Got something planned? Tell me and I'll keep it in mind."
+  - "Nothing on my list for today — a free day? If something comes up, just tell me."
+howto_step:
+  - "From the steps above: {x}"
+  - "That's this part: {x}"
+howto_yes:
+  - "Yes, it's part of it: {x}"
+  - "Yep, it's in there: {x}"
+howto_not_in:
+  - "This simple version doesn't use {x}, so you can leave it out."
+  - "No {x} in this version — you're fine without it."
+like_title:
+  - "If you liked {x}, you might enjoy these:"
+  - "In the spirit of {x}:"
+like_unknown:
+  - "I don't know {x} well enough to match it — what do you like about it? Funny, exciting, fantasy, something true?"
+  - "Hmm, {x} isn't one I know. What kind is it — funny, thrilling, sci-fi, romantic?"
+suggest_ok:
+  - "A {x} sounds like a great idea! Enjoy it."
+  - "Ooh, a {x} — good call. You deserve it."
+  - "I'd say yes to a {x}! Tell me how it was."
+slept_good:
+  - "Oh, that's the best start to a day! Got anything nice planned?"
+  - "Love that — a good night's sleep makes everything easier. What's on today?"
+slept_bad:
+  - "Ugh, rough nights make everything harder. Was something on your mind? I can give you a few tips for tonight if you like."
+  - "Oh no — that drags the whole day down. Want a few tricks that help with sleep tonight?"
+will_they:
+  - "Honestly, I can't know that — nobody really can. What I do know: you'll be okay either way, even if it doesn't feel like it now. What would you want, if you're really honest with yourself?"
+  - "I wish I could tell you. It's normal to hope for that, especially so soon. Whatever happens, try to look after yourself first — how are you sleeping and eating at the moment?"
+bot_likes:
+  - "Plenty, in my own way! I love reading about space, octopuses and old recipes — and I really like conversations like this one. What about you, what do you enjoy?"
+  - "I'd say reading — about anything, really: history, animals, how things work. And puzzles. What do you like doing?"
+which_one:
+  - "Which one — {x}?"
+  - "Sure! Which one do you mean: {x}?"
+dread_dentist:
+  - "Totally get it — hardly anyone likes that chair. It'll be over before you know it, and you'll be glad it's done. Maybe plan something nice for afterwards?"
+  - "You're not alone, most people feel that way. Tell them if you're nervous — they're used to it and can take it slowly. Treat yourself afterwards!"

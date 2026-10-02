@@ -93,6 +93,37 @@ _MAYBE_KINDS = {"reading": "book", "book": "book", "books": "book", "movie": "mo
                 "games": "game", "gaming": "game", "podcast": "podcast", "podcasts": "podcast", "cooking": "food",
                 "baking": "food", "hobby": "hobby"}
 # "I moved to a new city and don't know anyone"
+_IT_ABOUT = re.compile(r"^(?:so |and |ok |okay |hmm,? )?(?:what'?s it about|what is it about|what are they about|tell me (?:more )?about it|"
+                       r"who wrote it|who made it|who directed it|is it good|is it any good|what kind of (?:book|movie|film|show) is it)\??$")
+_WILL_THEY = re.compile(r"^(?:but |so |and )?(?:do you think|you think|will|would|is there a chance|what if) (?:she|he|they|my ex)"
+                        r"(?:'ll| will| would|'d)? ?(?:ever |still |actually )?(?:come back|forgive me|text me|call me(?: back)?|"
+                        r"miss(?:es)? me|want(?:s)? me back|get back together|love(?:s)? me|change|regret(?:s)? it|apologi[sz]e)"
+                        r"(?: (?:to me|again|one day|someday|eventually))?\??$")
+_BOT_LIKES = re.compile(r"^(?:so |and |but )?(?:do you (?:like|enjoy|love) (?:anything|stuff|things|something)|what do you "
+                        r"(?:like|enjoy|love)(?: doing| to do)?|what are you into|what makes you happy|do you have "
+                        r"(?:hobbies|a hobby|interests|any hobbies|any interests))\??$")
+_SLEPT_GOOD = re.compile(r"^(?:oh |well |yeah |actually |honestly )?(?:i )?(?:slept|had (?:a )?(?:really |super |pretty |very )?"
+                         r"(?:great|good|amazing|fantastic|wonderful|solid|deep) (?:sleep|night(?:'?s sleep)?))(?: (?:really|so|super|pretty|very|"
+                         r"incredibly))?(?: (?:great|well|amazing|good|fantastic|wonderful|like a baby|like a log|like a rock|"
+                         r"for (?:ten|10|nine|9|eight|8) hours))?(?: actually| last night| for once| today)*[!. ]*$")
+_SLEPT_BAD = re.compile(r"^(?:ugh,? |oh |well |honestly )?(?:i )?(?:(?:slept|sleep) (?:really |so |very |super |pretty )?"
+                        r"(?:badly|bad|terribly|terrible|horribly|awful|awfully|poorly|like crap)|(?:barely|hardly|didn'?t|did not) "
+                        r"(?:slept|sleep)(?: at all)?|had (?:a )?(?:really |such a )?(?:bad|terrible|rough|awful|horrible|sleepless) "
+                        r"(?:night|sleep)|couldn'?t (?:fall asleep|sleep)(?: at all)?)(?: last night| again| at all)*[!. ]*$")
+_HOW_ABOUT = re.compile(r"^(?:ok |okay |so |hmm,? |well,? )?(?:how about|what about|maybe|let'?s (?:go for|have|get|grab|take)) "
+                        r"(?:a |an |some |we (?:go for |have |get |grab |take )?(?:a |an |some )?)(?P<x>(?:quick |short |long |little |nice |"
+                        r"cup of |hot )?(?:walk|run|jog|coffee|tea|break|nap|bike ride|swim|stroll|snack|drink|beer|"
+                        r"movie night|game night|pizza|bath|shower|rest|picnic|hike|chat|cocktail|glass of wine|"
+                        r"ice cream|workout|day off|trip|holiday|vacation))(?: then| instead| later| now| together)?[?!.]*$")
+_LIKE_TITLE = re.compile(r"^(?:maybe |ok |hmm,? )?(?:something|anything|one|stuff|books?|movies?|films?|shows?|series|more)? ?"
+                         r"(?:like|similar to|in the style of|along the lines of) (?P<x>[a-z0-9' :&-]{3,40})\??$")
+_LIKE_GENRE = {"harry potter": "fantasy", "the lord of the rings": "fantasy", "lord of the rings": "fantasy",
+               "game of thrones": "fantasy", "the hobbit": "fantasy", "narnia": "fantasy", "percy jackson": "fantasy",
+               "star wars": "scifi", "star trek": "scifi", "dune": "scifi", "the martian": "scifi", "interstellar": "scifi",
+               "the hunger games": "dystopia", "hunger games": "dystopia", "1984": "dystopia", "divergent": "dystopia",
+               "sherlock": "mystery", "sherlock holmes": "mystery", "agatha christie": "mystery", "breaking bad": "crime",
+               "the godfather": "crime", "friends": "comedy", "the office": "comedy", "brooklyn nine-nine": "comedy",
+               "pride and prejudice": "romance", "the notebook": "romance", "toy story": "animation", "shrek": "animation"}
 _NEW_JOB = re.compile(r"\b(?:got|have|landed|found|accepted|took|start(?:ing)?|begin(?:ning)?) (?:a |my |the |that )?(?:new )?job"
                       r"(?: offer)?\b(?! interview)|\bgot hired\b|\bnew job\b")
 _JOB_AT = re.compile(r"(?:it'?s|its|it is|it'?ll be|that'?s|the (?:new )?job is|i'?ll be working|i will be working|i'?m going to work|"
@@ -224,6 +255,10 @@ _TASK_ORDER = [re.compile(r"\b(?:work|job|meeting|study|studying|homework|email|
                re.compile(r"\b(?:gym|run|running|workout|work out|walk|sport|yoga|swim|swimming|training|football|exercise)\b"),
                re.compile(r"\b(?:cook|cooking|dinner|eat|meal|lunch)\b"),
                re.compile(r"\b(?:relax|tv|netflix|read|reading|friends|call|game|games|chill|movie|bath)\b")]
+_TODAY_Q = re.compile(r"^(?:so |and |ok |hey )?(?:(?:any|what are my|what'?s my|do i have any|got any) plans? (?:for (?:me )?)?today|"
+                      r"what(?:'s| is) (?:on )?my (?:schedule|agenda|calendar|plan|day)(?: (?:for |like )?today)?(?: like)?|"
+                      r"what do i have (?:on |planned |going on )?today|what(?:'s| is) (?:on|happening) (?:for me )?today|"
+                      r"do i have anything (?:on |planned )?today|anything (?:on|planned) (?:for )?today|what'?s up for today)\??$")
 _TODO_Q = re.compile(r"^(?:so |and |ok )?(?:what (?:do|did) i (?:need|have|want|wanted|have got) to do|what was i supposed to do|"
                      r"what(?:'s| is) on my (?:list|to-?do list)|what did i ask you to remind me(?: of| about)?)(?: today| later| again)?\??$")
 # "remind me to call mom at 6": no alarms here, but a note
@@ -303,6 +338,10 @@ _ME_Q_DE = [(re.compile(r"(?:und )?(?:wie alt bin ich|weißt du(?: noch)?,? wie 
              "what do i do for a living?", "Du arbeitest als {x}."),
             (re.compile(r"(?:und )?(?:wo wohne ich|wo lebe ich|weißt du(?: noch)?,? wo ich wohne)"), "where do i live?", "Du wohnst in {x}."),
             (re.compile(r"(?:und )?(?:woher komme ich|wo komme ich her)"), "where am i from?", "Du kommst aus {x}."),
+            (re.compile(r"(?:und )?(?:welche farbe mag ich(?: am liebsten)?|was ist meine lieblingsfarbe|weißt du(?: noch)?,? (?:welche farbe ich mag|"
+                        r"was meine lieblingsfarbe ist))"), "what is my favourite colour?", "Deine Lieblingsfarbe ist {x}."),
+            (re.compile(r"(?:und )?(?:was esse ich am liebsten|was ist mein lieblingsessen|weißt du(?: noch)?,? (?:was ich am liebsten esse|"
+                        r"was mein lieblingsessen ist))"), "what is my favourite food?", "Dein Lieblingsessen ist {x}."),
             (re.compile(r"(?:und )?(?:was mag ich nicht|was mag ich gar nicht|was esse ich nicht gern)"), "", "list:#dislike"),
             (re.compile(r"(?:und )?(?:was mag ich|was mag ich gern|was esse ich gern)"), "", "list:#fav")]
 _SUPER_DE = re.compile(r"(?:und |also )?(?:was|welche[rs]?|wie heißt|wer|wie hoch|wie lang|wie groß) (?:ist )?(?:der|die|das) "
@@ -510,7 +549,15 @@ class Assistant:
             if inner.kind != "learned":
                 return Reply(msg, "unknown", self._pick(st, "de:fallback", de["replies"]["fallback"]), via="german")
             key = "learned_name" if u.data["what"] == "name" else "learned_fact"
-            text = self._pick(st, f"de:{key}", de["replies"][key], name=u.data["value"])
+            eng = u.data["english"]
+            shown = " ".join(w[:1].upper() + w[1:] for w in str(u.data["value"]).split())
+            if eng.startswith("My favourite colour is"):
+                key = "learned_colour"                   # "ich mag blau": a reply about blue, not "gemerkt"
+            elif eng.startswith("My favourite food is"):
+                key = "learned_food"
+            elif eng.startswith("I like "):
+                key = "learned_like"
+            text = self._pick(st, f"de:{key}", de["replies"][key], name=u.data["value"], x=shown)
             return Reply(msg, "learned", text, source=inner.source, via="german")
         if u.kind == "ask_name":
             if name:
@@ -604,6 +651,15 @@ class Assistant:
                            "text_en": "i can't sleep", "turn": st.turn}
             st.uses["de_sleep_offer"] = st.turn
             return Reply(msg, "empathy", self._pick(st, "de:life:slept_bad", dl["slept_bad"]), via="german")
+        bf = re.fullmatch(r"(?:und )?(?:(?:was|welche[rs]?|wer) ist )?(?:dein|deine|deinen) (?:absolute[rs]? )?lieblings(\w+)|"
+                          r"(?:und )?hast du (?:eine?n? |auch eine?n? )?lieblings(\w+)|(?:und )?(?:was|welche[rs]?) (\w+) magst du "
+                          r"(?:am liebsten|gern)", s)
+        if bf:                                           # "was ist dein lieblingsessen?": an answer, not "nichts gefunden"
+            word = (bf.group(1) or bf.group(2) or bf.group(3) or "").lower()
+            fav = dl["bot_fav"]
+            key = next((k for k, forms in fav["keys"].items() if any(word.startswith(f) for f in forms)), "other")
+            st.uses["de_bot_fav"] = [key, st.turn]
+            return Reply(msg, "smalltalk", self._pick(st, f"de:life:bot_fav:{key}", fav[key]), via="german")
         th = _THANKS_DE.fullmatch(s)
         if th:
             rest = th.group("rest") or ""
@@ -1000,6 +1056,10 @@ class Assistant:
             return Reply(msg, "nothing", "Please type something.")
         if re.fullmatch(r"(?:\.{2,}|…+)", msg):                        # "...": still thinking
             return Reply(msg, "smalltalk", self._pick(st, "daily:dots", self.bank.daily["dots"]), via="smalltalk")
+        if st.lang != "de" and (st.last_action or {}).get("kind") == "howto":
+            hf = self._howto_follow(st, msg)
+            if hf is not None:
+                return hf
         if st.lang != "de" and "new_job" in st.uses:
             job = self._job_detail(st, msg)
             if job is not None:
@@ -2036,6 +2096,75 @@ class Assistant:
         if dc:
             return Reply(msg, "smalltalk", self._pick(st, "daily:decided", d["decided"], x=dc.group("x").strip()),
                          via="everyday")
+        so = st.uses.get("sleep_offer")
+        if so is not None and st.turn - so <= 1 and re.fullmatch(r"(?:yes|yeah|yep|sure|ok|okay|please|yes please|go on|"
+                                                                  r"sure why not|why not|tips please|ok tell me)[!. ]*", norm.strip()):
+            st.uses.pop("sleep_offer", None)              # "yes please" after "want a few tips for tonight?"
+            return self.everyday.recommend(st, msg, "sleep")
+        lst = getattr(st, "last_list", None) or {}
+        if lst.get("titles") and st.turn - lst.get("turn", -99) <= 3 and _IT_ABOUT.match(norm.strip()):
+            titles = [re.sub(r"\s*\([^)]*\)$", "", x) for x in lst["titles"]]
+            if len(titles) == 1:                          # "what's it about?" after one suggestion: that one
+                rep = self.everyday.pick_from_list(st, msg, "the first one")
+                if rep is not None:
+                    return rep
+            shown = ", ".join(f"“{x}”" for x in titles[:-1]) + f" or “{titles[-1]}”"
+            return Reply(msg, "smalltalk", self._pick(st, "daily:which_one", d["which_one"], x=shown), via="everyday")
+        m3 = re.fullmatch(r"(?:what'?s|what is|how much is|how many is) (\d+) ([a-z]+) (plus|and|\+|minus|-|times) (\d+)(?: more)? ?([a-z]+)?\??",
+                          norm.strip())
+        if m3 and (m3.group(5) in (None, m3.group(2), m3.group(2) + "s") or m3.group(2) == m3.group(5) + "s"):
+            a, b = int(m3.group(1)), int(m3.group(4))     # "what's 3 eggs plus 2 eggs": 5 eggs
+            r = a + b if m3.group(3) in ("plus", "and", "+") else a - b if m3.group(3) in ("minus", "-") else a * b
+            noun = m3.group(5) or m3.group(2)
+            return Reply(msg, "tool", f"{r} {noun}.", via="tool")
+        if re.fullmatch(r"(?:ugh,? |honestly,? )?i (?:hate|dread|can'?t stand|really hate|am scared of|'m scared of|fear) "
+                        r"(?:going to )?the (?:dentists?|doctors?|dentist'?s|doctor'?s)", norm.strip(" .!")):
+            return Reply(msg, "empathy", self._pick(st, "daily:dread_dentist", d["dread_dentist"]), via="empathy")
+        if _WILL_THEY.match(norm):                        # "do you think she'll come back?": honest, kind, no article
+            return Reply(msg, "empathy", self._pick(st, "daily:will_they", d["will_they"]), via="empathy")
+        if _BOT_LIKES.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:bot_likes", d["bot_likes"]), via="smalltalk")
+        if _SLEPT_GOOD.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:slept_good", d["slept_good"]), via="empathy")
+        if _SLEPT_BAD.match(norm):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            st.uses["sleep_offer"] = st.turn
+            return Reply(msg, "empathy", self._pick(st, "daily:slept_bad", d["slept_bad"]), via="empathy")
+        an = re.fullmatch(r"(?:and |also |plus |or )?(?:a|an|some|any) (?:good |great |fun )?([a-z]+)(?: too| as well)?\??", norm.strip())
+        if an and la.get("kind", "").startswith("rec:") and st.turn - la.get("turn", -99) <= 3:
+            from engramm.chat.everyday import _REC_NOUN
+            k3 = _REC_NOUN.get(an.group(1))
+            if k3:                                        # "and a podcast?" after book ideas
+                return self.everyday.recommend(st, msg, k3)
+        ha = _HOW_ABOUT.match(norm)
+        if ha and not self.everyday._recommend_kind(norm):
+            x = ha.group("x").strip()                     # "how about a walk": a suggestion, not a question
+            return Reply(msg, "smalltalk", self._pick(st, "daily:suggest_ok", d["suggest_ok"], x=x), via="smalltalk")
+        lk2 = _LIKE_TITLE.match(norm)
+        if lk2 and la.get("kind", "").startswith("rec:") and st.turn - la.get("turn", -99) <= 3:
+            kind = la["kind"][4:]                         # "something like harry potter" after book ideas
+            x = lk2.group("x").strip(" ?!.")
+            genre = None
+            for k2, sec in d["recommend"].items():
+                for it in sec.get("items", []) if isinstance(sec, dict) else []:
+                    if not isinstance(it, dict):
+                        continue
+                    title = str(it.get("title") or "").lower()
+                    if title and (x in title or title in x):
+                        tags = [g for g in str(it.get("tags", "")).split() if g not in ("fiction", "classic")]
+                        genre = genre or (tags[0] if tags else None)
+            genre = genre or _LIKE_GENRE.get(x)
+            if not genre:                                 # a title I don't know: ask, don't store it as a fact
+                shown = " ".join(w[:1].upper() + w[1:] for w in x.split())
+                return Reply(msg, "smalltalk", self._pick(st, "daily:like_unknown", d["like_unknown"], x=shown),
+                             via="everyday")
+            if genre:
+                rep = self.everyday.recommend(st, msg, kind, genre)
+                if "\n" in rep.text:
+                    shown = " ".join(w if w in ("of", "the", "and") else w[:1].upper() + w[1:] for w in x.split())
+                    body = "\n".join(l for l in rep.text.split("\n")[1:] if x not in l.lower())
+                    rep.text = self._pick(st, "daily:like_title", d["like_title"], x=shown) + "\n" + body
+                return rep
         mk = _MAYBE_KIND.match(norm)
         if mk:                                            # "maybe reading then" after ideas: books
             kind = _MAYBE_KINDS.get(mk.group("w").replace("a ", "", 1))
@@ -2080,6 +2209,22 @@ class Assistant:
                 body = "\n".join(f"{i + 1}. {t[:1].upper() + t[1:]}" for i, t in enumerate(tasks))
                 return Reply(msg, "smalltalk", f"{self._pick(st, 'daily:plan_day_head', d['plan_day_head'])}\n\n{body}\n\n"
                              f"{self._pick(st, 'daily:plan_day_tip', d['plan_day_tip'])}", via="everyday")
+        if _TODAY_Q.match(norm):                          # "any plans for me today?": today's events and notes
+            from engramm.chat.realize import to_second_person
+            self.bot.refresh()
+            texts = self.bot.user_texts()
+            today = self._today().isoformat()
+            items = []
+            for e in self.events.events:
+                if e.day == today and e.source in texts:
+                    said = to_second_person(texts[e.source]) or texts[e.source]
+                    items.append(said.rstrip(".!") + ("" if re.search(r"\b(?:today|tonight|later|at \d)", said, re.I) else " today"))
+            items += ["You wanted to " + re.sub(r"\bmy\b", "your", re.sub(r"^I need to\s+", "", tx)).rstrip(".")
+                      for tx in texts.values() if re.match(r"^I need to\s+", tx)]
+            if items:
+                return Reply(msg, "memory", self._pick(st, "daily:today_head", d["today_head"]) + "\n" +
+                             "\n".join("• " + it[:1].upper() + it[1:] + "." for it in items), via="memory")
+            return Reply(msg, "memory", self._pick(st, "daily:today_none", d["today_none"]), via="memory")
         if _TODO_Q.match(norm):                           # "what do I need to do?": the notes from "remind me to …"
             self.bot.refresh()
             todo = [re.sub(r"^I need to\s+", "", t).rstrip(".") for t in self.bot.user_texts().values()
@@ -2166,6 +2311,46 @@ class Assistant:
         body = "\n".join("• " + x for x in best["steps"])
         st.last_action = {"kind": "howto", "turn": st.turn, "title": best["title"]}
         return Reply(text, "smalltalk", f"{best['title']}:\n\n{body}", via="everyday")
+
+    def _howto_follow(self, st: DialogState, text: str) -> Reply | None:
+        """A question right after a guide ("how long do I cook them?", "do I need baking powder?"):
+        answered from the guide's own steps, never from unrelated advice."""
+        la = st.last_action or {}
+        if st.turn - la.get("turn", -99) > 3:
+            return None
+        q = normalise(text).strip(" ?!.")
+        if not re.match(r"(?:and |so |ok |okay |but |wait )?(?:how|what|do|does|can|should|is|are|when|which|"
+                        r"for how|at what)\b", q) or len(q.split()) > 12 or \
+                re.match(r"(?:and |so |ok |okay )?(?:how|what) about\b", q):
+            return None                                   # "how about a walk": a new idea, not about the guide
+        guide = next((g for g in self.bank.daily.get("howto", []) if g["title"] == la.get("title")), None)
+        if guide is None:
+            return None
+        steps = guide["steps"]
+        d = self.bank.daily
+        if re.search(r"\bhow long\b|\bhow many (?:minutes|hours|seconds)\b|\bhow much time\b|\bwhen (?:do|should) i (?:flip|turn|take)", q):
+            timed = [s for s in steps if re.search(r"\d\s*(?:[–-]\s*\d+\s*)?(?:minutes?|mins?|seconds?|hours?)\b", s)]
+            if timed:
+                return Reply(text, "smalltalk", self._pick(st, "daily:howto_step", d["howto_step"], x=timed[-1]), via="everyday")
+        skip = {"i", "do", "does", "need", "how", "it", "them", "they", "the", "a", "an", "should", "can", "is", "are",
+                "what", "when", "which", "and", "so", "ok", "okay", "but", "wait", "to", "use", "have", "my", "with",
+                "much", "many", "long", "make", "cook", "really", "you", "of", "for", "in", "on", "or", "any", "about",
+                "this", "that", "there", "then", "right", "just", "well", "good", "okay"}
+        qw = [w for w in re.findall(r"[a-z]+", q) if w not in skip and len(w) > 2]
+        if not qw:
+            return None
+        def score(s):
+            sw = set(re.findall(r"[a-z]+", s.lower()))
+            return sum(1 for w in qw if w in sw or w.rstrip("s") in sw or w + "s" in sw)
+        best = max(steps, key=score)
+        need = re.match(r"(?:and |so |but )?(?:do|does|should|can|must) (?:i|you|we)\b", q)
+        if score(best) == 0:
+            if need:
+                return Reply(text, "smalltalk", self._pick(st, "daily:howto_not_in", d["howto_not_in"], x=" ".join(qw)),
+                             via="everyday")
+            return None
+        key = "howto_yes" if need else "howto_step"
+        return Reply(text, "smalltalk", self._pick(st, f"daily:{key}", d[key], x=best), via="everyday")
 
     def _likes_answer(self, st: DialogState, text: str) -> Reply | None:
         """"what do I like?" / "what don't I like?": the favourites or dislikes you told me."""

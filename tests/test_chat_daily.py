@@ -1101,3 +1101,49 @@ def test_a_weekday_or_an_adjective_is_never_the_job():
     assert f and "#job" not in f[0].relation, f
     f = personal_facts("I am a new teacher.", "u")
     assert f and f[0].object == "new teacher" and "#job" in f[0].relation, f
+
+
+def test_battery35_appointments_guides_likes_and_suggestions(chat):
+    a, st = chat
+    r = a.turn(st, "i have a dentist appointment at 3")
+    assert "work as" not in r.text, r.text
+    r = a.turn(st, "when is my dentist appointment?")
+    assert "at 3" in r.text, r.text
+    r = a.turn(st, "any plans for me today?")
+    assert "dentist appointment at 3" in r.text, r.text
+    r = a.turn(st, "how do i make pancakes")
+    r = a.turn(st, "how long do i cook them")
+    assert "minutes per side" in r.text, r.text
+    r = a.turn(st, "do i need yeast?")
+    assert "yeast" in r.text and "doesn't use" in r.text, r.text
+    r = a.turn(st, "how about a walk")
+    assert "walk" in r.text and "answer" not in r.text.lower(), r.text
+    r = a.turn(st, "what's 3 eggs plus 2 eggs")
+    assert r.text == "5 eggs.", r.text
+    r = a.turn(st, "i slept great actually")
+    assert "congratulations" not in r.text.lower(), r.text
+    r = a.turn(st, "do you think she'll come back?")
+    assert "article" not in r.text, r.text
+    a.turn(st, "can you recommend a book")
+    r = a.turn(st, "what's it about?")
+    assert r.text.startswith(("Which one", "Sure! Which one")), r.text
+    a.turn(st, "can you recommend a book")
+    r = a.turn(st, "something like harry potter")
+    assert "Harry Potter" in r.text and "•" in r.text, r.text
+    assert not any("harry potter" in t.lower() for t in _stored(a)), _stored(a)
+    st2 = DialogState("de")
+    r = a.turn(st2, "was ist dein lieblingsessen?")
+    assert "nichts gefunden" not in r.text and "Verlässliches" not in r.text, r.text
+    r = a.turn(st2, "ich mag blau")
+    assert "Blau" in r.text, r.text
+    r = a.turn(st2, "welche farbe mag ich?")
+    assert r.text == "Deine Lieblingsfarbe ist Blau.", r.text
+    a.turn(st2, "ich mag keine pilze")
+    r = a.turn(st2, "was mag ich?")
+    assert "Pilze" not in r.text, r.text
+
+
+def test_a_word_describing_a_noun_is_not_the_value():
+    from engramm.chat.facts import personal_facts
+    f = personal_facts("I have a dentist appointment at 3.", "u")
+    assert f and "#job" not in f[0].relation and f[0].kind == "DATE", f

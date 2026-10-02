@@ -2064,6 +2064,25 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     Schlaftipps auf „ja bitte“.
   - Team-Dev-Satz: 2 von 128 Antworten geändert, beide besser (team-0050 „Your dentist appointment is on Friday.“,
     team-0079). NQ-open 400: unverändert 22/9. Suite 676 bestanden, 7 übersprungen.
+- **Alltags-Batterie 35** (Morgen mit Zahnarzttermin, Trennung, Buchtipps, Pfannkuchen, Deutsch mit Vorlieben,
+  Präsident/Bevölkerung). Gefunden und behoben:
+  - „i have a dentist appointment at 3“ → „you work as a dentist“: Ein Wort vor einem Kopfnomen (appointment, lesson,
+    exam …) ist nie der Wert, und „at 3“ ist eine Uhrzeit. Jetzt gilt: Termin gemerkt, „when is my dentist
+    appointment?“ → „You have a dentist appointment at 3.“, „any plans for me today?“ listet Termine und Notizen.
+  - „how long do i cook them“ nach dem Pfannkuchen-Rezept → Beziehungsratschlag: Rückfragen zu einer Anleitung
+    werden aus deren Schritten beantwortet („do i need yeast?“ → „This simple version doesn't use yeast …“).
+  - Deutsch: „was ist dein lieblingsessen?“, „ich mag blau“, „welche farbe mag ich?“, „ich esse am liebsten …“
+    (vorher „nichts gefunden“ bzw. nicht verstanden).
+  - „what about a movie“ → „The answer is MTV VJ.“, „how about a walk“ → „fourth largest town“: Vorschläge und
+    Nachfragen nach Empfehlungen sind jetzt keine Wissensfragen mehr.
+  - „something like harry potter“ → als Vorliebe gespeichert: liefert jetzt ähnliche Bücher, und unbekannte Titel
+    werden nachgefragt statt gespeichert.
+  - „i slept great“ → „congratulations!“; „do you think she'll come back?“ → Artikeltitel;
+    „what's it about?“ nach drei Vorschlägen → „Which one …?“; „3 eggs plus 2 eggs“ → „5 eggs.“
+  - Offen und ehrlich so belassen: „who is the president of france“ (Faktenbank ohne Präsidenten, Stand 2022).
+    Mit eingeschaltetem Internet beantwortet die Atlas-Frische-Stufe das.
+  - Team-Dev-Satz: 0 von 128 Antworten geändert. NQ-open 400: unverändert 22/9. Regressions-Batterien 30–34:
+    0 Wiederholungen. Suite 678 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

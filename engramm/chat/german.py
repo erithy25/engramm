@@ -54,10 +54,19 @@ _STATEMENTS = [
     (re.compile(r"^ich arbeite als ([\w\-äöüß ]{2,40})$"), "fact", "I work as {0}."),
     (re.compile(r"^mein lieblingsessen ist ([\w\-äöüß ]{2,40})$"), "fact", "My favourite food is {0}."),
     (re.compile(r"^meine lieblingsfarbe ist ([\w\-äöüß ]{2,40})$"), "fact", "My favourite colour is {0}."),
+    (re.compile(r"^(?:also |ich glaube,? )?ich (?:mag|liebe|trage) (?:die farbe )?(?:am liebsten |total |sehr |echt )?"
+                r"(blau|rot|grün|gelb|schwarz|weiß|lila|violett|rosa|pink|orange|grau|braun|türkis|beige|gold|silber)"
+                r"(?: am liebsten| total| sehr| gern| gerne)?$"), "fact", "My favourite colour is {0}."),
+    (re.compile(r"^(?:also |ich glaube,? )?(?:ich esse (?:am liebsten|total gern|sehr gern|gern|gerne)|mein lieblingsgericht ist) "
+                r"([\w\-äöüß ]{2,30}?)(?: am liebsten)?$"), "fact", "My favourite food is {0}."),
+    (re.compile(r"^(?:also |ehrlich gesagt )?ich (?:mag|liebe) (?!(?:kein\w*|nicht|dich|euch|es|das|den|die|ihn|sie|ihm|ihr|"
+                r"dein|mich|so|gar|überhaupt|eigentlich|lieber|auch)\b)([a-zäöüß][\w\-äöüß]*(?: [a-zäöüß][\w\-äöüß]*)?)"
+                r"(?: sehr| total| echt| so| gern| gerne)?$"), "fact", "I like {0}."),
 ]
 _SHOWN_DE = {"name": "du heißt {0}", "I live in {0}.": "du wohnst in {0}", "I am from {0}.": "du kommst aus {0}",
              "I am {0} years old.": "du bist {0}", "I work as {0}.": "du arbeitest als {0}",
-             "My favourite food is {0}.": "dein Lieblingsessen ist {0}", "My favourite colour is {0}.": "deine Lieblingsfarbe ist {0}"}
+             "My favourite food is {0}.": "dein Lieblingsessen ist {0}", "My favourite colour is {0}.": "deine Lieblingsfarbe ist {0}",
+             "I like {0}.": "du magst {0}"}
 
 
 def statement_de(s: str) -> tuple[str, str, str, str] | None:

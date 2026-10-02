@@ -230,6 +230,15 @@ replies:
   learned_fact:
     - "Alles klar, das merke ich mir."
     - "Okay, gemerkt."
+  learned_colour:
+    - "{x} – schöne Wahl! Merk ich mir."
+    - "Ah, {x}! Gefällt mir. Ist gespeichert."
+  learned_food:
+    - "{x} – lecker! Merk ich mir für Essensideen."
+    - "Mmh, {x}! Gut zu wissen, ist gespeichert."
+  learned_like:
+    - "{x} – schön! Das merke ich mir."
+    - "Oh, {x}! Gut zu wissen. Ist gespeichert."
   name_known:
     - "Du heißt {name}."
   name_unknown:
@@ -296,6 +305,23 @@ daily:
                    "Aufregung gehört dazu, die meisten sind vorher nervös. Soll ich dir ein paar Tipps geben?"]
     me_too: ["Schön! Was steht heute bei dir an?", "Freut mich! Worüber wollen wir reden?"]
     hungry: ["Hunger? Dann vielleicht was Schnelles:"]
+    bot_fav:
+      keys: {essen: [essen, gericht, speise], farbe: [farbe], film: [film], buch: [buch, autor], musik: [musik, lied, song, band, sänger],
+             tier: [tier], jahreszeit: [jahreszeit], getränk: [getränk], sport: [sport], stadt: [stadt, land, ort], serie: [serie]}
+      essen: ["Ich esse ja nichts – aber wenn ich dürfte, wäre es Pizza. So viele Leute schwärmen davon! Und deins?",
+              "Ich kann nicht essen, aber Rezepte für Lasagne lese ich besonders gern. Was isst du am liebsten?"]
+      farbe: ["Blau, glaube ich – die Farbe von Himmel und Meer, und in vielen Umfragen der Favorit. Und deine?",
+              "Ich mag Grün. Klingt ruhig und lebendig zugleich. Welche Farbe magst du?"]
+      film: ["Filme sehe ich nicht, aber über „Zurück in die Zukunft“ habe ich so viel gelesen, dass er mein Favorit wäre. Und deiner?"]
+      buch: ["Ich lese ja den ganzen Tag! Wenn ich eins wählen müsste: „Der kleine Prinz“. Was liest du gern?"]
+      musik: ["Hören kann ich nichts, aber ich lese gern über die Beatles. Was hörst du so?"]
+      tier: ["Oktopusse! Drei Herzen und unglaublich schlau. Hast du ein Lieblingstier?"]
+      jahreszeit: ["Herbst – bunte Blätter, Tee und gemütliche Abende, zumindest in allem, was ich darüber lese. Und du?"]
+      getränk: ["Ich trinke nichts, aber über Kaffee lese ich am meisten. Was trinkst du gern?"]
+      sport: ["Schach, wenn das zählt – da geht es um Muster, das liegt mir. Machst du Sport?"]
+      stadt: ["Ich war nie irgendwo, aber Lissabon klingt in allem, was ich lese, wunderschön. Wo gefällt es dir?"]
+      serie: ["Serien schaue ich nicht, aber über „Breaking Bad“ lese ich ständig. Was schaust du gerade?"]
+      other: ["Gute Frage! Ich habe nicht wirklich Vorlieben, aber erzähl mir deine – ich merke sie mir."]
     tired: ["Müde Tage sind zäh. Hast du schlecht geschlafen, oder war einfach viel los?",
             "Oh, das kenne ich nur vom Hörensagen – aber es klingt anstrengend. Zu wenig Schlaf oder zu viel um die Ohren?"]
     slept_bad: ["Ach, schlechte Nächte ziehen den ganzen Tag runter. Lag's an Gedanken im Kopf oder einfach so? Wenn du magst, gebe ich dir ein paar Tipps für heute Nacht.",

@@ -235,7 +235,9 @@ _REC_ANY = re.compile(
     r"(?:any|got any|do you have any|give me some|i need some|i want some) (?:good )?(?P<n3>[a-z\- ]{2,40}?) "
     r"(?:recommendations?|suggestions?|recs|ideas)$|"
     r"(?:what's|what is|whats|know|do you know) (?:a |an |some |any )?(?:good|great|nice|fun|decent) (?P<n4>[a-z\- ]{2,40}?)"
-    r"(?: to (?:listen to|read|watch|play))?$")
+    r"(?: to (?:listen to|read|watch|play))?$|"
+    r"(?:and |so |ok |okay )?(?:what|how) about (?:a |an |some |any )?(?:good |great |fun |nice )?(?P<n5>[a-z\- ]{2,30}?)"
+    r"(?: then| instead| now| too| as well)?\??$|(?:and|also|plus) (?:a|an|some) (?:good |great )?(?P<n6>[a-z\- ]{2,30}?)(?: too)?\??$")
 _REC_VERB = re.compile(_LEAD + r"what (?:should|can|could|do you think) i (?P<v>read|watch|listen to|play)(?: next| now| tonight)?$")
 _REC_VERB_KIND = {"read": "book", "watch": "movie", "listen to": "music", "play": "game"}
 
@@ -274,7 +276,8 @@ class Everyday:
         # "any podcast recommendations?", "what should I read next"
         m = _REC_ANY.match(norm)
         if m:
-            noun = (m.group("n") or m.group("n2") or m.group("n3") or m.group("n4") or "").strip()
+            noun = (m.group("n") or m.group("n2") or m.group("n3") or m.group("n4") or m.group("n5") or
+                    m.group("n6") or "").strip()
             words_ = noun.split()
             for w in reversed(words_):
                 kind = _REC_NOUN.get(w)
@@ -425,7 +428,9 @@ class Everyday:
         if re.search(r"\b(?:stress|stressed|stressful|anxious|anxiety|worried|nervous|overwhelmed|overwhelming|panic|"
                      r"pressure|deadline|deadlines|too much)\b", t):
             return "stress"
-        if re.search(r"\b(?:can'?t sleep|cannot sleep|cant sleep|can'?t fall asleep|insomnia|wide awake|lying awake|awake at)\b", t):
+        if re.search(r"\b(?:can'?t sleep|cannot sleep|cant sleep|can'?t fall asleep|couldn'?t sleep|couldn'?t fall asleep|insomnia|"
+                     r"wide awake|lying awake|awake at|slept (?:so |really |very )?(?:badly|bad|terribly|poorly)|barely slept|"
+                     r"hardly slept|sleepless|bad night)\b", t):
             return "sleep"
         if re.search(r"\b(?:tired|exhausted|exhausting|long day|long week|no sleep|sleep|drained|burnt out|burned out)\b", t):
             return "tired"

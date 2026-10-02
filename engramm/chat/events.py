@@ -15,8 +15,9 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 _DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-_WHEN = r"(?P<when>tomorrow|today|tonight|this (?:evening|afternoon|morning)|next week|on (?:" + "|".join(_DAYS) + \
-        r")|(?:this|next) (?:" + "|".join(_DAYS) + r"))"
+_WHEN = r"(?P<when>tomorrow|today|tonight|this (?:evening|afternoon|morning)|later(?: today)?|next week|on (?:" + "|".join(_DAYS) + \
+        r")|(?:this|next) (?:" + "|".join(_DAYS) + r")|at \d{1,2}(?:[:.]\d{2})?(?: ?[ap]\.?m\.?)?(?! ?(?:years?|days?|weeks?|months?)\b)|" \
+        r"at \d{1,2} o'?clock)"
 _EVENT_WORDS = (r"exam|test|interview|appointment|meeting|presentation|job interview|date|match|game|concert|"
                 r"surgery|operation|flight|trip|wedding|party|driving test|audition|deadline|first day|doctor'?s appointment|"
                 r"dentist appointment|recital|race|competition|performance")
@@ -38,7 +39,8 @@ class Event:
 
 def event_date(when: str, today: dt.date) -> dt.date:
     w = when.lower()
-    if w in ("today", "tonight") or w.startswith("this ") and w.split()[1] in ("evening", "afternoon", "morning"):
+    if w in ("today", "tonight", "later", "later today") or w.startswith("at ") or \
+            w.startswith("this ") and w.split()[1] in ("evening", "afternoon", "morning"):
         return today
     if w == "tomorrow":
         return today + dt.timedelta(days=1)

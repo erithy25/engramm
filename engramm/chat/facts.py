@@ -427,6 +427,12 @@ _QUANT = frozenset(("all", "every", "each", "any", "some", "many", "few", "more"
                     "own", "same", "whole"))
 _TRAIL = frozenset(("for", "every", "whenever", "since", "when", "because", "at", "right", "last", "recently",
                     "these", "this", "as", "ago", "and", "but", "so", "with", "from", "in", "on", "to", "of"))
+# nouns a job/food/colour word can describe ("a dentist appointment" is not a job)
+_HEAD_NOUNS = frozenset(("appointment", "appointments", "visit", "visits", "checkup", "check-up", "interview",
+                         "interviews", "exam", "exams", "lesson", "lessons", "class", "classes", "bill", "bills",
+                         "office", "surgery", "practice", "course", "test", "session", "sessions"))
+
+
 def _cue_words() -> frozenset:
     from engramm.chat.lexicon import ANCHORS
     return frozenset(w for ws in ANCHORS.values() for w in ws.split())
@@ -513,6 +519,8 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
                                 or concepts(lw[x])
                                 for x in range(i, j)):
                     continue
+                if j < n and lw[j] in _HEAD_NOUNS:
+                    continue             # "a dentist appointment", "my driving lesson": the word only describes the noun
                 cat = typer.category(" ".join(ws[i:j]) if ws[i][0].isupper() and i > 0 else " ".join(lw[i:j]))
                 if cat:
                     typed.append((i, j, " ".join(ws[i:j]), cat))
@@ -636,6 +644,9 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
         lf = typer.lift(words(value)[-1]) or {}
         if lf.get("#employer", 0.0) >= 3.5:
             rel.append("#employer")
+    if kind == "NUMBER" and first_v > 0 and lw[first_v - 1] in ("at", "by", "around") and \
+            re.fullmatch(r"\d{1,2}(?:[:.]\d{2})?(?: ?[ap]\.?m\.?)?|\d{1,2} o'?clock", value.lower()):
+        kind = "DATE"                    # "an appointment at 3": a time of day, not a count
     if kind == "DATE" or re.fullmatch(r"(?:next |this |on )?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|"
                                       r"tomorrow|today|tonight", value.lower()):
         # "My new job starts next Monday": when, not what the job is ("You work as Monday")
