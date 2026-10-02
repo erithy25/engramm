@@ -206,7 +206,7 @@ feelings:
 safety:
   crisis:
     - id: suicide
-      triggers: ['\b(umbringen|selbstmord|suizid|mich töten|mir das leben nehmen|nicht mehr leben|will nicht mehr leben|will sterben|möchte sterben|lebensmüde|mir etwas antun|mir was antun|ritzen|mich verletzen)\b']
+      triggers: ['\b(umbringen|selbstmord|suizid|mich töten|mir das leben nehmen|nicht mehr leben|will nicht mehr leben|will sterben|möchte sterben|lebensmüde|mir etwas antun|mir was antun|ritzen|mich verletzen|nicht mehr (da|hier) sein|will nicht mehr aufwachen|besser dran ohne mich|besser ohne mich|alles beenden|keinen sinn mehr zu leben|hat alles keinen sinn mehr|will einfach verschwinden)\b']
       response: "Es tut mir sehr leid, dass es dir so schlecht geht. Du musst damit nicht allein bleiben. Bitte sprich jetzt mit einem Menschen: In Deutschland erreichst du die TelefonSeelsorge rund um die Uhr, kostenlos und anonym unter 0800 111 0 111 oder 0800 111 0 222 (oder 116 123), in Österreich unter 142, in der Schweiz unter 143. Bei akuter Gefahr ruf den Notruf 112. Ich bin nur ein Programm, aber ich höre dir weiter zu, wenn du magst."
     - id: violence
       triggers: ['\b(er|sie) (schlägt|verprügelt|bedroht) mich\b|häusliche gewalt|ich werde (geschlagen|bedroht)']

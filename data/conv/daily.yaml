@@ -795,6 +795,10 @@ rec_exhausted:
 where_were_we:
   - "We were talking about {x}."
   - "Last thing was {x} — want to pick that up again?"
+accomplished:
+  - "Nice, well done! How does it feel to have {x} behind you?"
+  - "That's great — {x}, done! Got anything fun planned now?"
+  - "Well done! Was it tough, or did it go smoothly?"
 homework:
   - "Of course! What subject is it?"
   - "Happy to help — what's the subject, and what's the question?"

@@ -59,6 +59,14 @@ _ASK_FOR_CATEGORY = {"#name": "ask_name", "#home": "ask_home", "#job": "ask_job"
 _CAPS_NAME = re.compile(r"\b[A-Z][a-zA-Z'-]+")
 
 
+# "I finally finished my thesis", "I'm done with my homework": something achieved
+_DONE_WITH = re.compile(r"(?i:(?:i|i'm|im|i am|i've|ive|i have|we|we've|we're)\s+(?:just\s+|finally\s+|already\s+)*"
+                        r"(?:done with|finished|completed|passed|submitted|handed in|got through|nailed)\s+)"
+                        r"(?P<x>(?:my|the|our|all my|all the|that)\s+[a-z][a-z' -]{2,40})[.!]*$")
+# closing a chat ("i'm done for today") is a goodbye, not something to remember
+_WRAP_UP = re.compile(r"^(?:ok(?:ay)?,? )?(?:i'?m|i am|we'?re|we are) (?:done|finished|off)(?: here)?(?: for (?:today|now|tonight|the day))?[.!]*$|^that'?s (?:all|it) for (?:today|now|tonight)")
+
+
 @dataclass
 class DialogState:
     conversation: str = "default"
@@ -589,6 +597,9 @@ class Assistant:
         quiet: list[Unit] = []
         content = any(u.act not in ("intent", "empty") or (u.intent and self._is_content_intent(u.intent))
                       for u in units)
+        seen_intents: set[str] = set()       # "bye. see you": one goodbye, not two
+        units = [u for u in units if not (u.act == "intent" and u.intent and
+                                          (u.intent in seen_intents or seen_intents.add(u.intent)))]
         for u in units:
             if u.act in ("statement", "feeling") and self.everyday.activity_title(u.text):
                 learn.append(u)                  # "I just finished The Quiet Orchard": ask about it (see _learn)
@@ -1901,7 +1912,7 @@ class Assistant:
         """Remember a statement only if it carries something: a recognised fact, something about
         you, or a named thing."""
         s = sentence.strip()
-        if len(s) < 3 or is_discourse(normalise(s)):
+        if len(s) < 3 or is_discourse(normalise(s)) or _WRAP_UP.search(normalise(s)):
             return False
         facts = facts_from_text(s, "probe", self.bot.is_name_initial_fact, typer=self.bot.typer)
         if facts:
@@ -2005,6 +2016,10 @@ class Assistant:
             plain = self.everyday.activity_reaction(st, text)      # "I watched Inception": ask how it was
             if plain is not None:
                 confirm = plain
+        dm = _DONE_WITH.match(text.strip())
+        if dm and self._generic_confirm:                  # "I finished my homework": cheer, like a friend
+            confirm = self._pick(st, "daily:accomplished", self.bank.daily["accomplished"],
+                                 x=re.sub(r"\b(?:my|our)\b", "your", dm.group("x").rstrip(" .!")))
         pm = _HAVE_PET.match(text.strip())
         if pm:                                            # "I have a cat": ask its name, like a person would
             st.uses["pet"] = [pm.group(1).lower(), st.turn]

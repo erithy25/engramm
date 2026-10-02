@@ -117,7 +117,7 @@ intents:
 
   - id: farewell
     patterns:
-      - '(ok(ay)?,? )?(bye+|good ?bye|bye bye|see you|see ya|see you later|see you soon|later|catch you later|talk to you later|ttyl|i have to go|i''ve got to go|i gotta go|gotta go|i must go|i need to go|i''m leaving|i am leaving|got to go|i''ve got to go now|i''m off|i am off|farewell|ciao|cya|take care|have a nice day|have a good day|have a great day|until next time|peace out|i''m out)( now| then| for now| for today)?( then)?'
+      - '((ok(ay)?|alright|well|thanks|thank you|thx|that''s (enough|all|it)( for (today|now|tonight))?|i''m done( for (today|now|tonight))?)[,.!]* (and |so )?)?(bye+|good ?bye|bye bye|see you|see ya|see you later|see you soon|later|catch you later|talk to you later|ttyl|i have to go|i''ve got to go|i gotta go|gotta go|i must go|i need to go|i''m leaving|i am leaving|got to go|i''ve got to go now|i''m off|i am off|farewell|ciao|cya|take care|have a nice day|have a good day|have a great day|until next time|peace out|i''m out|i''m done for (today|now|tonight|the day)|i am done for (today|now|tonight|the day)|that''s (all|it) for (today|now|tonight))( now| then| for now| for today)?( then)?'
     examples: [bye, goodbye, see you later, gotta go, talk to you later, take care, have a nice day]
     responses:
       - "Goodbye! It was nice talking to you."
@@ -241,10 +241,24 @@ intents:
       - "Thank you! I try my best."
       - "That's very nice of you to say."
 
+  - id: bot_quiet
+    patterns: ['(just |please |pls |oh )?(shut up|be quiet|stop talking|go away|leave me alone|stop it|enough)( please| pls| already| now)?']
+    examples: [shut up, be quiet, go away, leave me alone, stop talking]
+    responses:
+      - "Okay, I'll be quiet. I'm here whenever you want to talk again."
+      - "Alright, I'll leave you be. Just write when you need me."
+
+  - id: apology_to_bot
+    patterns: ['(i''m |i am |im )?(so |really )?sorry,? (that was|i was|for being|for calling you) (mean|rude|harsh|unfair|not nice|a jerk|stupid|dumb|names)( of me)?|(i''m |i am |im )?sorry (i|for) (yelled|yelling|snapped|snapping|insulted|insulting|cursed|cursing)( at you)?|i didn''t mean (that|it)|(that was|i was) (mean|rude|harsh)(,? sorry)?']
+    examples: [sorry that was mean, sorry i was rude, i didn't mean that, sorry for yelling at you]
+    responses:
+      - "No worries, I don't take it personally. Everyone has rough moments. What's going on?"
+      - "Apology accepted, and thanks for saying it. Is something bothering you?"
+
   - id: insult_bot
     patterns:
-      - '(you''re|you are|ur|u r|you''re so|you are so|you''re really|you are really) (stupid|dumb|useless|an idiot|idiot|annoying|terrible|bad|the worst|boring|slow|dumb as a rock|pathetic|trash|garbage|worthless)|stupid|dumb|useless|idiot|you suck|shut up|i hate you|screw you|go away|stupid bot|dumb bot|useless bot|this is (useless|stupid|dumb)|you''re not helpful|you are not helpful|you don''t understand anything|you know nothing'
-    examples: [you're stupid, you suck, shut up, you're useless, i hate you, stupid bot]
+      - '(you''re|you are|ur|u r|you''re so|you are so|you''re really|you are really) (stupid|dumb|useless|an idiot|idiot|annoying|terrible|bad|the worst|boring|slow|dumb as a rock|pathetic|trash|garbage|worthless)|stupid|dumb|useless|idiot|you suck|i hate you|screw you|stupid bot|dumb bot|useless bot|this is (useless|stupid|dumb)|you''re not helpful|you are not helpful|you don''t understand anything|you know nothing'
+    examples: [you're stupid, you suck, you're useless, i hate you, stupid bot]
     responses:
       - "Sorry I let you down. I'm still limited — tell me what went wrong and I'll try to do better."
       - "I hear you. I don't know everything, but I'd like to help — what were you looking for?"
