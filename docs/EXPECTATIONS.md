@@ -2515,6 +2515,20 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - Der Geräte-Klassifikator („set a timer“) greift bei Aussagen nur noch, wenn sie wie ein Befehl beginnen.
   - Messung: Team-Dev-Satz 1 von 128 (team-0067). NQ-open 400: 22/9. Suite 754 bestanden, 7 übersprungen. Regressionen
     32, 38–64 (31 Gespräche): 0 Wiederholungen, Unterschiede nur Uhrzeiten.
+- **Alltags-Batterie 65 (Batterie 64 auf Deutsch)**:
+  - Schwerer Fehler, ausgelöst durch die Grundantwort aus Batterie 61: Sie merkte sich neutrale Aussagen als positive
+    Stimmung, und alles Folgende bekam fröhliche Antworten – „mein opa ist letzten monat gestorben“ → „Ah, verstehe.
+    Erzähl ruhig mehr!“, „wir standen uns sehr nahe“ → „Das klingt richtig gut!“, „es tut trotzdem weh“ → „Wie schön!“,
+    „vielleicht sollte ich einfach alles hinschmeißen“ → „Finde ich gut!“. Außerdem gab es auf Deutsch keine
+    Trauer-Kategorie; „niemand interessiert sich für mich“ war unverstanden.
+  - Behoben: neutrale Aussagen zählen als neutral (keine fröhliche Folgeantwort), traurige Wörter (gestorben, schlimm,
+    vermisse, allein …) zählen negativ, und eine positive Stimmung wird bei solchen Wörtern nie fortgeschrieben. Neue
+    Trauer-Kategorie (gestorben, Beerdigung, „habe meinen Hund verloren“ …).
+  - Jetzt wie auf Englisch: neue Stadt und Freunde finden, schüchtern, Trauer mit Erinnerungen, Hochstapler-Gefühl,
+    Hoffnungslosigkeit mit ruhiger Nachfrage und TelefonSeelsorge (0800 111 0 111/0800 111 0 222, Österreich 142,
+    Schweiz 143, Notruf 112), Panikattacke, Präsentationsangst, Trennung („soll ich mit ihm befreundet bleiben?“).
+  - Erste Fassung fing „meine freundin hat schluss gemacht“ ab, ohne den Gesprächszustand zu setzen; die bestehende
+    Folgefrage „wir waren 2 jahre zusammen“ ging verloren (alter Test fing das ab, vor dem Commit behoben).
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

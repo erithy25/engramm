@@ -4425,6 +4425,18 @@
    ],
    "categories": [
     {
+     "id": "grief",
+     "valence": "negative",
+     "triggers": [
+      "\\b(?:gestorben|verstorben|ist tot|sind tot|beerdigung|trauerfeier|trauere|in trauer|nicht mehr da ist)\\b|\\bhabe? (?:meine[n]? )?(?:mama|mutter|papa|vater|oma|opa|bruder|schwester|freund|freundin|hund|katze|mann|frau) verloren\\b"
+     ],
+     "responses": [
+      "Das tut mir so leid. Jemanden zu verlieren, der einem nahesteht, ist unglaublich schwer. Magst du mir von ihm oder ihr erzählen?",
+      "Mein herzliches Beileid. Es gibt keinen richtigen Weg zu trauern – ich bin da, wenn du reden möchtest.",
+      "Das ist so traurig, es tut mir wirklich leid. Wie geht es dir damit?"
+     ]
+    },
+    {
      "id": "sad",
      "valence": "negative",
      "triggers": [
@@ -5997,6 +6009,71 @@
      "weird": [
       "Komisch im guten Sinn, hoffe ich! 😄",
       "Erwischt! Normal ist eh überbewertet."
+     ]
+    },
+    "g65": {
+     "friends_tips": "Freunde finden als Erwachsener:\n\n• Geh dorthin, wo regelmäßig dieselben Leute sind: ein Kurs, ein Verein, ein Sportteam, ein Ehrenamt.\n• Wiederholung zählt mehr als der erste Eindruck – bleib ein paar Wochen dabei.\n• Schlag selbst etwas Kleines vor: einen Kaffee nach dem Kurs.\n• Sag Ja zu Einladungen, auch wenn du müde bist.\n\nEs dauert ein paar Monate – das ist normal.",
+     "shy": [
+      "Das ist völlig okay – viele sind schüchtern. Am leichtesten geht es bei einer gemeinsamen Aktivität, etwa einem Kurs oder Verein: Man redet über die Sache, nicht über sich, und dieselben Gesichter jede Woche erledigen den Rest.",
+      "Schüchtern zu sein verhindert keine Freundschaften – es geht nur langsamer und stetiger besser. Ein wöchentlicher Kurs ist ideal: kein großer erster Eindruck nötig."
+     ],
+     "new_city": [
+      "Ein Neuanfang in einer fremden Stadt ist hart, gerade am Anfang. Wohin bist du gezogen?",
+      "Das kenne ich von vielen – die ersten Monate in einer neuen Stadt können einsam sein. Was hat dich dorthin gebracht?"
+     ],
+     "close": [
+      "Jemanden zu verlieren, dem man so nahestand, hinterlässt eine große Lücke. Wie war {p} so?",
+      "Das macht es noch schwerer. Klingt, als hätte {p} dir sehr viel bedeutet. Woran erinnerst du dich am liebsten?"
+     ],
+     "memory": [
+      "Was für eine schöne Erinnerung. Jedes Mal, wenn du das machst, ist ein Stück von {d} dabei. Machst du das noch manchmal?",
+      "Danke, dass du das erzählst. Solche gemeinsamen Momente bleiben – sie gehören dir für immer."
+     ],
+     "miss": [
+      "Natürlich vermisst du {d}. Das zeigt, wie viel {p} dir bedeutet hat.",
+      "Das ist ganz normal und zeigt, wie nah ihr euch wart. Gibt es etwas, das dich besonders an {d} erinnert?"
+     ],
+     "impostor": [
+      "Das Gefühl ist unglaublich verbreitet – es hat sogar einen Namen: Hochstapler-Syndrom. Du siehst die Highlights der anderen und deine eigenen Zweifel. Gut möglich, dass manche genau so über dich denken.",
+      "Man vergleicht leicht sein Inneres mit dem Äußeren der anderen. Die wurden für ihr Können eingestellt – und du auch. Was kannst du in deinem Job richtig gut?"
+     ],
+     "check_in": "Das klingt wirklich schwer, und ich bin froh, dass du es mir erzählst. Darf ich fragen: Hast du Gedanken, dir etwas anzutun oder nicht mehr da sein zu wollen? Dann sprich bitte jetzt mit einem Menschen – die TelefonSeelsorge ist rund um die Uhr kostenlos erreichbar: 0800 111 0 111 oder 0800 111 0 222 (Österreich 142, Schweiz 143), im Notfall 112. Wenn nicht, bin ich trotzdem da – was war in letzter Zeit am schwersten?",
+     "nobody": [
+      "Das klingt sehr einsam. Danke, dass du es mir sagst. Was ist passiert, dass du dich so fühlst?",
+      "Das ist ein schweres Gefühl. Ich bin da und höre zu – magst du erzählen, was los ist?"
+     ],
+     "not_even": [
+      "Das tut mir wirklich leid. Zu fühlen, dass nicht mal die eigene Familie sich kümmert, tut sehr weh. Du bist wichtig – und ich bin froh, dass du mit mir sprichst. Gibt es jemanden, dem du dich ein bisschen näher fühlst?",
+      "Das ist ein einsamer Ort, und es ist verständlich, dass es wehtut. Ist mit ihnen in letzter Zeit etwas passiert?"
+     ],
+     "panic": [
+      "Das tut mir leid – Panikattacken sind wirklich beängstigend. Geht es dir jetzt etwas besser?",
+      "Oh nein, das klingt furchtbar. Panikattacken fühlen sich an, als würde etwas Schlimmes passieren. Wie geht es dir gerade?"
+     ],
+     "panic_bad": [
+      "Das glaube ich dir. Der Körper schlägt Alarm, obwohl keine echte Gefahr da ist. Du hast es aber überstanden – es ist vorbeigegangen.",
+      "Natürlich – das Herzrasen und die Angst fühlen sich so echt an. Gut, dass du darüber sprichst."
+     ],
+     "panic_tips": "Wenn es wieder passiert:\n\n• Sag dir: Das ist eine Panikattacke, sie fühlt sich schlimm an, geht aber vorbei – meist nach 10–20 Minuten.\n• Atme langsam aus – länger aus als ein (4 ein, 6–8 aus).\n• Erde dich: Nenne 5 Dinge, die du siehst, 4, die du fühlst, 3, die du hörst.\n• Danach: sei sanft zu dir.\n\nWenn Panikattacken öfter kommen, können Hausarzt oder Therapie wirklich helfen – sie sind gut behandelbar.",
+     "presentation": [
+      "Präsentationen machen fast alle nervös – du bist in guter Gesellschaft. Hast du sie schon einmal laut geübt?",
+      "Ach, eine Präsentation – das kennt jeder. Wie gut fühlst du dich vorbereitet?"
+     ],
+     "mess_up": [
+      "Dann machst du eine kurze Pause, atmest durch und machst weiter – das Publikum merkt es meist gar nicht. In Erinnerung bleibt die Botschaft, nicht der Versprecher.",
+      "Ehrlich: Ein kleiner Fehler ist viel weniger schlimm, als es sich jetzt anfühlt. Die meisten Zuhörer sind auf deiner Seite. Lern die ersten zwei Sätze auswendig – der Rest kommt."
+     ],
+     "breakup": [
+      "Das tut mir leid. Trennungen sind schwer, auch wenn sie richtig sind. Wie geht es dir?",
+      "Oh, das ist hart. Magst du erzählen, wie es dazu kam?"
+     ],
+     "my_choice": [
+      "Das ist ganz normal. Etwas zu beenden, weil es richtig ist, heißt nicht, dass es nicht wehtut – du verlierst etwas, das dir wichtig war. Sei gut zu dir.",
+      "Die schwere Entscheidung zu treffen braucht Mut, und es darf trotzdem wehtun. Beides stimmt. Wie kümmerst du dich gerade um dich?"
+     ],
+     "friends": [
+      "Das kann klappen, aber meist nicht sofort. Die meisten brauchen erst Abstand – ein paar Wochen oder Monate –, bis sich die Gefühle gelegt haben. Frag dich: Hilft dir die Freundschaft beim Heilen, oder hält sie die Wunde offen?",
+      "Vielleicht später. Direkt nach einer Trennung heißt 'Freunde bleiben' oft, dass einer auf mehr hofft. Gib euch Zeit."
      ]
     }
    }

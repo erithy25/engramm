@@ -950,7 +950,8 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_ctx57(st, msg, s) or self._german_ctx61(st, msg, s) or self._german_ctx63(st, msg, s) or \
+            life = self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or self._german_ctx61(st, msg, s) or \
+                self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
                 self._german_life(st, msg, s)
             if life is not None:
@@ -1064,8 +1065,10 @@ class Assistant:
         if re.match(r"^(?:wer|was|wann|wo|wie|welche[rsmn]?|warum|wieso|weshalb|woher|wohin)\b", s):
             return Reply(msg, "unknown", self._pick(st, "de:knowledge", dd["knowledge_de"]), via="german")
         le = st.last_exp or {}
-        if le and st.turn - le.get("turn", -99) <= 2 and len(s.split()) >= 2 and "?" not in msg and \
-                not re.match(r"^(?:haha|hihi|hehe|lol|ok|okay|cool|super|ach so|achso|gut|klar|stimmt|aber)\b", s) and \
+        if le and le.get("valence") in ("negative", "positive") and st.turn - le.get("turn", -99) <= 2 and len(s.split()) >= 2 and \
+                "?" not in msg and not re.match(r"^(?:haha|hihi|hehe|lol|ok|okay|cool|super|ach so|achso|gut|klar|stimmt|aber)\b", s) and \
+                not (le.get("valence") == "positive" and re.search(r"\b(?:weh|schlimm|traurig|schlecht|furchtbar|schrecklich|leider|tot|"
+                                                                    r"gestorben|vermisse|angst|allein|einsam)\b", s)) and \
                 not re.search(r"\b(?:vielleicht|morgen|wochenende|freitag|urlaub|plane|werde|will|freue)\b", s):
             # "die nachbarn waren laut" after "ich bin müde": more of the same moment
             key = "follow_neg" if le.get("valence") == "negative" else "follow_pos"
@@ -1075,6 +1078,84 @@ class Assistant:
         if stmt is not None:
             return stmt
         return Reply(msg, "unknown", self._pick(st, "de:fallback", de["replies"]["fallback"]), via="german")
+
+    def _german_ctx65(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 65 in German: loneliness and making friends, grief and memories, feeling not good enough,
+        hopelessness (a gentle check-in with help numbers), a panic attack, presentation nerves, a breakup."""
+        g = (self.bank.de["daily"].get("ctx") or {}).get("g65")
+        if not g:
+            return None
+        q = s.strip(" .!?")
+        pk = lambda key, opts, **kw: self._pick(st, f"de:g65:{key}", opts, **kw)          # noqa: E731
+        recent = lambda key, k=3: (st.uses.get(key) and st.turn - st.uses[key][-1] <= k)   # noqa: E731
+        if re.search(r"\b(?:neue stadt|umgezogen|hergezogen)\b", q) and re.search(r"\b(?:kenne niemanden|kenne keinen|niemanden kenne|allein)\b", q):
+            st.uses["alone65"] = [st.turn]
+            return Reply(msg, "empathy", pk("new_city", g["new_city"]), via="german")
+        if re.fullmatch(r"wie (?:findet man|finde ich) (?:als erwachsene[rn]? |neue )?freunde(?: als erwachsene[rn]?| in einer neuen stadt)?", q):
+            st.uses["alone65"] = [st.turn]
+            return Reply(msg, "smalltalk", g["friends_tips"], via="german")
+        if re.fullmatch(r"(?:aber )?ich bin (?:aber )?(?:eher |ziemlich |sehr |total |etwas |ein bisschen )?(?:schüchtern|introvertiert|zurückhaltend)(?: aber)?", q):
+            return Reply(msg, "smalltalk", pk("shy", g["shy"]), via="german")
+        if re.search(r"\b(?:gestorben|verstorben|beerdigung|ist tot)\b", q):
+            st.uses["grief65"] = [st.turn, "sie" if re.search(r"\b(?:oma|mama|mutter|schwester|tante|frau|freundin|tochter)\b", q) else "er"]
+            return None                                   # the grief feeling answers
+        gr = st.uses.get("grief65")
+        if gr and st.turn - gr[0] <= 5:
+            p_, d_ = gr[1], {"er": "ihm", "sie": "ihr"}[gr[1]]
+            a_ = {"er": "ihn", "sie": "sie"}[gr[1]]
+            if re.fullmatch(r"wir (?:standen uns|waren uns) (?:sehr |so |total |richtig )?(?:nahe|nah)|(?:er|sie) war (?:wie )?mein(?:e)? (?:bester? freund(?:in)?|held(?:in)?)", q):
+                gr[0] = st.turn
+                return Reply(msg, "smalltalk", pk("close", g["close"], p=p_), via="german")
+            if re.fullmatch(r"(?:er|sie) hat mir (?:das |den |die )?[a-zäöüß ]{2,30} beigebracht|(?:er|sie) hat (?:immer|oft) [a-zäöüß ]{2,30}", q):
+                gr[0] = st.turn
+                return Reply(msg, "smalltalk", pk("memory", g["memory"], d=d_), via="german")
+            if re.fullmatch(r"ich vermisse (?:ihn|sie)(?: so| sehr| so sehr)?", q):
+                gr[0] = st.turn
+                return Reply(msg, "empathy", pk("miss", g["miss"], d=a_, p=p_), via="german")
+        if re.search(r"\b(?:nicht gut genug|nicht klug genug|ein versager|eine versagerin|so dumm|wertlos|nutzlos)\b", q):
+            st.uses["imp65"] = [st.turn]
+            return None
+        if recent("imp65", 3):
+            if re.search(r"\b(?:alle|jeder|die anderen|alle kollegen)\b.*\b(?:klüger|besser|schlauer|talentierter|schneller)\b", q):
+                st.uses["imp65"] = [st.turn]
+                return Reply(msg, "smalltalk", pk("impostor", g["impostor"]), via="german")
+            if re.search(r"\b(?:alles hinschmeißen|alles hinwerfen|alles aufgeben|was soll das alles|hat alles keinen sinn)\b", q):
+                return Reply(msg, "empathy", g["check_in"], via="german")
+        if re.fullmatch(r"(?:niemand|keiner|keine sau) (?:interessiert sich für mich|mag mich|kümmert sich um mich|würde mich vermissen)", q):
+            st.uses["nobody65"] = [st.turn]
+            return Reply(msg, "empathy", pk("nobody", g["nobody"]), via="german")
+        if recent("nobody65", 4):
+            if re.fullmatch(r"nicht (?:mal|einmal) (?:meine |mein )?(?:familie|eltern|freunde|mama|papa|partner(?:in)?)", q):
+                st.uses["nobody65"] = [st.turn]
+                return Reply(msg, "empathy", pk("not_even", g["not_even"]), via="german")
+            if re.search(r"\b(?:warum ich mir (?:überhaupt )?mühe gebe|hat (?:alles )?keinen sinn|was soll das alles|ich kann nicht mehr|bringt (?:alles )?nichts)\b", q):
+                return Reply(msg, "empathy", g["check_in"], via="german")
+        if re.search(r"\bpanikattacke\b", q):
+            st.uses["panic65"] = [st.turn]
+            return Reply(msg, "empathy", pk("panic", g["panic"]), via="german")
+        if recent("panic65", 3):
+            if re.fullmatch(r"(?:das|es) war (?:so |echt |total |richtig )?(?:schlimm|furchtbar|schrecklich|beängstigend|heftig)", q):
+                st.uses["panic65"] = [st.turn]
+                return Reply(msg, "empathy", pk("panic_bad", g["panic_bad"]), via="german")
+            if re.search(r"\bwas kann ich (?:tun|machen)\b|\bwas hilft\b|\btipps\b", q):
+                return Reply(msg, "smalltalk", g["panic_tips"], via="german")
+        if re.search(r"\b(?:präsentation|vortrag|referat|rede)\b", q) and re.search(r"\b(?:nervös|aufgeregt|angst|panik)\b", q):
+            st.uses["pres65"] = [st.turn]
+            return Reply(msg, "empathy", pk("presentation", g["presentation"]), via="german")
+        if recent("pres65", 3) and re.search(r"\bwas,? wenn ich\b.*\b(?:verhaspel|verspreche|stecken bleibe|blackout|versage|vergesse)", q):
+            return Reply(msg, "empathy", pk("mess_up", g["mess_up"]), via="german")
+        if re.search(r"\b(?:schluss gemacht|getrennt|trennung)\b", q):
+            st.uses["breakup65"] = [st.turn]
+            st.last_exp = {"valence": "negative", "topic": None, "person": True, "text": msg, "text_en": _de_advice_hint(s),
+                           "turn": st.turn}                # "wir waren 2 jahre zusammen" follows
+            return Reply(msg, "empathy", pk("breakup", g["breakup"]), via="german")
+        if recent("breakup65", 4):
+            if re.search(r"\bmeine entscheidung\b|\bich habe? schluss gemacht\b", q) and re.search(r"\b(?:weh|trotzdem|schwer)\b", q):
+                st.uses["breakup65"] = [st.turn]
+                return Reply(msg, "empathy", pk("my_choice", g["my_choice"]), via="german")
+            if re.search(r"\bbefreundet bleiben\b|\bfreunde bleiben\b", q):
+                return Reply(msg, "smalltalk", pk("friends", g["friends"]), via="german")
+        return None
 
     def _german_ctx63(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """Battery 63 in German: "nein, ich meinte in Europa", a language choice with reasons, "versteh ich nicht"
@@ -1298,7 +1379,8 @@ class Assistant:
             return None
         if re.search(r"\b(?:mega|super|toll|schön|geil|klasse|cool|spitze|genial|lustig|spaß|perfekt|wunderbar|herrlich|gut gelaufen|gefreut|glücklich)\b", q):
             key = "stmt_pos"
-        elif re.search(r"\b(?:weh|krank|müde|stress|stressig|schlecht|mies|doof|nervig|anstrengend|kaputt|traurig|ärger|blöd|scheiße|mist|sauer|genervt)\b", q):
+        elif re.search(r"\b(?:weh|krank|müde|stress|stressig|schlecht|mies|doof|nervig|anstrengend|kaputt|traurig|ärger|blöd|scheiße|mist|sauer|genervt|"
+                       r"schlimm|furchtbar|schrecklich|gestorben|tot|vermisse|allein|einsam|angst|panik|schluss|getrennt|verloren|wehgetan)\b", q):
             key = "stmt_neg"
         elif (re.match(r"^(?:ich|wir|mein|meine|meinem|meinen|heute|gestern|vorhin|letzte|am wochenende)\b", q) or
               re.match(r"^(?:die|der|das|unser|unsere|meine|mein|deren|alle)\b[\wäöüß ]{2,40}\b(?:haben|hat|war|waren|ist|sind|wurde|wurden|gab|ging|"
@@ -1307,7 +1389,7 @@ class Assistant:
             key = "stmt_plain"                            # a story in the first person: ask for more
         else:
             return None
-        st.last_exp = {"valence": "negative" if key == "stmt_neg" else "positive", "topic": None, "person": False, "text": msg,
+        st.last_exp = {"valence": {"stmt_neg": "negative", "stmt_pos": "positive"}.get(key, "neutral"), "topic": None, "person": False, "text": msg,
                        "text_en": _de_advice_hint(s), "turn": st.turn}
         return Reply(msg, "smalltalk", self._pick(st, f"de:g61:{key}", g[key]), via="german")
 
