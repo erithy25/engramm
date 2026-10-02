@@ -2674,7 +2674,7 @@ class Assistant:
             elif len(re.findall(r"[a-zäöüß]+", msg.lower())) >= 2:
                 return self._german(st, msg)      # "die nachbarn waren laut": no English word, stays German
         msg = expand_chat(msg)                            # "wats ur name" → "what's your name"
-        lead = re.match(r"^(?:ok(?:ay)?,?\s+)?(?:whatever|anyways?|moving on|never ?mind|nvm|enough of that|forget (?:it|that)|"
+        lead = re.match(r"^(?:ok(?:ay)?,?\s+)?(?:whatever|anyways?|moving on|never ?mind|nvm|enough of that|forget (?:it|that)(?=[,.!])|"
                         r"ok(?:ay)? then|alright then|fine then)[,.!]*\s+(?=\S+\s+\S)", msg, re.I)
         if lead:
             msg = msg[lead.end():]                        # "ok whatever, tell me a joke": the request
@@ -2809,7 +2809,7 @@ class Assistant:
         if dm:
             # "i dont like movies": remember it as a dislike and ask what they do enjoy
             x = dm.group("x").strip()
-            rep = self._learn(st, [msg], msg)
+            rep = self._learn(st, [f"I don't like {x}."], msg)      # "i hate mushrooms" is a dislike, never a favourite
             if rep.kind == "learned":
                 rep.text = self._pick(st, "daily:dislike", self.bank.daily["dislike"], x=x)
             st.last_action = {"kind": "dislike", "turn": st.turn, "x": x}
@@ -2941,6 +2941,7 @@ class Assistant:
         content = any(u.act not in ("intent", "empty") or (u.intent and self._is_content_intent(u.intent))
                       for u in units)
         seen_intents: set[str] = set()       # "bye. see you": one goodbye, not two
+        emp_said = False
         units = [u for u in units if not (u.act == "intent" and u.intent and
                                           (u.intent in seen_intents or seen_intents.add(u.intent)))]
         if any(u.intent == "compliment_bot" for u in units):
@@ -2960,7 +2961,9 @@ class Assistant:
                     parts.append(_Part("main", self._discourse(st, u)))
                     main = main or Reply(msg, "smalltalk", "", via="smalltalk")
                 elif exp is not None:
-                    parts.append(_Part("prefix", self.everyday.moment(st, exp, u.text)))
+                    if not emp_said:                      # three sad sentences in one message: one warm reply, not three
+                        parts.append(_Part("prefix", self.everyday.moment(st, exp, u.text)))
+                        emp_said = True
                     if self._has_fact(u.text):
                         quiet.append(u)
                     main = main or Reply(msg, "empathy", "", via="empathy")
@@ -2973,12 +2976,15 @@ class Assistant:
                     self._chitchat(st, u, parts, alone=len(units) == 1)
             elif u.act == "feeling":
                 exp = experience(u.norm)
-                if exp is not None and exp.topic and u.data.get("category") in _GENERAL_MOODS and \
+                if emp_said:
+                    pass                                  # one empathetic reply per message is enough
+                elif exp is not None and exp.topic and u.data.get("category") in _GENERAL_MOODS and \
                         not u.data.get("negated"):
                     # "my boss was so annoying": name the boss, not just the mood
                     parts.append(_Part("prefix", self.everyday.moment(st, exp, u.text)))
                 else:
                     parts.append(_Part("prefix", self._feeling(st, u)))
+                emp_said = True
                 st.last_exp = {"valence": u.data.get("valence"), "topic": exp.topic if exp else None,
                                "person": bool(exp and exp.person), "text": u.text, "turn": st.turn}
                 if self._has_fact(u.text):
@@ -2991,7 +2997,10 @@ class Assistant:
                 parts.append(_Part("main", r.text))
                 if main is None or main.kind in ("smalltalk", "empathy"):
                     main = r
-        if learn:
+        if learn and emp_said:
+            r = self._learn(st, [u.text for u in learn], msg)   # a hard day told in three sentences: remembered quietly
+            main = main or r
+        elif learn:
             r = self._learn(st, [u.text for u in learn], msg)
             parts.append(_Part("learn", r.text))
             if main is None or main.kind in ("smalltalk", "empathy"):
@@ -4711,7 +4720,8 @@ class Assistant:
             self._daily_ctx5(st, msg, norm) or self._daily_ctx6(st, msg, norm) or self._daily_ctx7(st, msg, norm) or \
             self._daily_ctx8(st, msg, norm) or self._daily_ctx9(st, msg, norm) or self._daily_ctx10(st, msg, norm) or \
             self._daily_ctx11(st, msg, norm) or self._daily_ctx12(st, msg, norm) or self._daily_ctx13(st, msg, norm) or \
-            self._daily_ctx14(st, msg, norm) or self._daily_ctx15(st, msg, norm) or self._daily_ctx16(st, msg, norm)
+            self._daily_ctx14(st, msg, norm) or self._daily_ctx15(st, msg, norm) or self._daily_ctx16(st, msg, norm) or \
+            self._daily_ctx17(st, msg, norm)
         if r2 is not None:
             return r2
         m = _WHAT_LIKES.match(norm)
@@ -5499,6 +5509,9 @@ class Assistant:
         """Battery 59: sounds and test messages a person types — "aaaaa", "hhhh", "abc", "omg", "smh" — get a
         human reaction, never "Oh? Go on." or "I see. Tell me more?"."""
         n = norm.strip(" .!?")
+        if re.fullmatch(r"(?:and |so )?what do i do(?: for (?:a living|work))?(?: again)?", n) and \
+                any("#job" in f.relation and f.subject == USER for f in self.bot.facts.facts):
+            return self._question(st, "what is my job?")   # "what do i do?" is about my job, not sights in Munich
         key = None
         if re.fullmatch(r"a{3,}h*|a+h{2,}|a+r+g+h*|ahh+", n):
             key = "scream"
@@ -5533,6 +5546,108 @@ class Assistant:
                 return Reply(msg, "smalltalk", self._pick(st, "daily:sound:gib_sorry", self.bank.daily["sounds"]["gib_sorry"]), via="smalltalk")
             return None
         return Reply(msg, "smalltalk", self._pick(st, f"daily:sound:{key}", self.bank.daily["sounds"][key]), via="smalltalk")
+
+    def _daily_ctx17(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 66: memory the way a person keeps it — a job and a city in one sentence, "no wait, I meant
+        Munich" (the old fact is replaced, not kept beside it), an appointment that moved, "she's a doctor" about
+        the sister just named, "what food do I hate?", a pizza without the hated mushrooms, and "do you know them?"
+        about a favourite band."""
+        b = self.bank.daily["b66"]
+        n = norm.strip(" .!?")
+        jm = re.fullmatch(r"(?:hi,? |hey,? |hello,? )?(?:(?:i'?m|i am|my name is|my name'?s) (?P<name>[a-z]+)(?:,| and|, and) )?(?:i'?m|i am|i work as) "
+                          r"an? (?P<job>[a-z]+(?: [a-z]+)?) (?:in|from|at) (?P<place>[a-z]+(?: [a-z]+)?)", n)
+        if jm and jm.group("job") not in ("lot", "bit", "fan", "little"):
+            name, job, place = jm.group("name"), jm.group("job"), _place_case(jm.group("place"))
+            sents = ([f"My name is {name.capitalize()}."] if name and name not in _NOT_NAMES else []) + \
+                [f"I work as a {job}.", f"I live in {place}."]
+            for sent in sents[:-1]:
+                self._learn(st, [sent], msg)            # one memory per fact: "forget where I live" forgets only that
+            r = self._learn(st, sents[-1:], msg)
+            r.text = self._pick(st, "daily:b66:intro_named" if len(sents) == 3 else "daily:b66:intro", b["intro_named" if len(sents) == 3 else "intro"],
+                                x=(name or "").capitalize(), y=article(job), Y=article(job)[:1].upper() + article(job)[1:], z=place)
+            return r
+        lm = st.last_message or ""
+        cm = re.fullmatch(r"(?:no,? |no wait,? |wait,? |sorry,? |oops,? |actually,? |i mean,? )+(?:i meant |it'?s |make that |not \w+,? )?(?P<x>[a-z][a-z ]{1,30})", n)
+        if cm and st.last_kind == "learned" and self.bot.context.get("last_learned") and len(cm.group("x").split()) <= 3:
+            old = facts_from_text(lm, "probe", self.bot.is_name_initial_fact, typer=self.bot.typer)
+            obj = next((f.object for f in old if f.subject == USER and f.object), None)
+            if obj and re.search(re.escape(obj), lm, re.I):
+                x = cm.group("x").strip()
+                place_fact = any(f.object == obj and ({"#home", "#place", "#origin"} & set(f.relation)) for f in old)
+                x = _place_case(x) if obj[:1].isupper() or place_fact else x
+                fixed = re.sub(re.escape(obj), x, lm, count=1, flags=re.I)
+                sid = self.bot.context.get("last_learned")
+                try:
+                    self.bot.memory.forget(sid)
+                    self.bot.refresh()
+                except Exception:
+                    pass
+                r = self._learn(st, [fixed], msg)
+                r.text = self._pick(st, "daily:b66:corrected", b["corrected"], x=x)
+                return r
+        mv = re.fullmatch(r"(?:oh,? |actually,? |update:? |btw,? )?(?:it|that|the appointment|it'?s) (?:moved|got moved|was moved|changed|is now|has moved|'?s now)"
+                          r" (?:to |on )?(?P<x>(?:next )?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|today)(?: at \d{1,2}(?::\d\d)?(?: ?[ap]m)?)?)", n)
+        if mv:
+            texts = self.bot.user_texts() if hasattr(self.bot, "user_texts") else {}
+            cand = [(sid, t) for sid, t in texts.items() if re.search(r"\b(?:appointment|meeting|exam|interview|dentist|doctor|party|date|flight|class)\b", t, re.I)
+                    and re.search(r"\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|today)\b", t, re.I)]
+            if cand:
+                sid, t = sorted(cand)[-1]
+                new_t = re.sub(r"\b(?:on )?(?:next )?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|today)(?: at \d{1,2}(?::\d\d)?(?: ?[ap]m)?)?\b",
+                               ("on " if not mv.group("x").startswith(("tomorrow", "today")) else "") + mv.group("x"), t, count=1, flags=re.I)
+                new_t = re.sub(r"^(?:remember that |please remember |remember )", "", new_t, flags=re.I)
+                try:
+                    self.bot.memory.forget(sid)
+                    self.bot.refresh()
+                except Exception:
+                    pass
+                r = self._learn(st, [new_t[:1].upper() + new_t[1:]], msg)
+                nm_ = re.search(r"\bmy ([a-z]+ (?:appointment|meeting|exam|interview)|appointment|meeting|exam|interview|dentist|party|flight|class)\b",
+                                new_t, re.I)
+                st.uses["moved66"] = [nm_.group(1).lower() if nm_ else "appointment", st.turn]
+                day = mv.group("x")
+                r.text = self._pick(st, "daily:b66:moved", b["moved"], x=day[:1].upper() + day[1:] if day[0].isalpha() else day)
+                return r
+        wd = re.fullmatch(r"what does my (?P<w>[a-z]+(?: friend)?) do(?: for (?:a living|work))?", n)
+        if wd and wd.group("w") not in ("dog", "cat"):
+            return self._question(st, f"what is my {wd.group('w')}'s job?")   # "what does my sister do?"
+        mv6 = st.uses.get("moved66")
+        if mv6 and st.turn - mv6[1] <= 3 and re.fullmatch(r"(?:so |and )?when is it(?: now| then)?", n):
+            return self._question(st, f"when is my {mv6[0]}?")
+        pnm = re.fullmatch(r"my (?P<w>sister|brother|mom|mum|mother|dad|father|wife|husband|girlfriend|boyfriend|partner|son|daughter|best friend|friend|boss|"
+                           r"cousin|aunt|uncle|grandma|grandpa)(?:'s name is| is called) [a-z]+", n)
+        if pnm:
+            st.uses["person_noun"] = [pnm.group("w"), st.turn]   # "she's a doctor" may follow
+            return None
+        pn = st.uses.get("person_noun")
+        if pn and st.turn - pn[1] <= 4:
+            sj = re.fullmatch(r"(?:and |oh,? )?(?:she|he)(?:'s| is) an? (?P<j>[a-z]+(?: [a-z]+)?)(?: (?:at|in) (?P<w>[a-z ]+))?", n)
+            if sj and sj.group("j") not in ("bit", "lot", "little", "fan", "great", "good", "nice"):
+                st.uses["person_noun"] = [pn[0], st.turn]
+                r = self._learn(st, [f"My {pn[0]} works as a {sj.group('j')}."], msg)
+                r.text = self._pick(st, "daily:b66:person_job", b["person_job"], x=sj.group("j"), y=pn[0])
+                return r
+            if re.fullmatch(r"what'?s (?:her|his) name(?: again)?|what is (?:her|his) name(?: again)?|what was (?:her|his) name", n):
+                return self._question(st, f"what is my {pn[0]}'s name?")
+        if re.fullmatch(r"what (?:food|foods|things?|kind of food)? ?do i (?:hate|dislike|not like|can'?t stand)|what (?:food )?don'?t i like", n):
+            return self._question(st, "what do i dislike?")
+        if re.fullmatch(r"what do you (?:know|remember) about me(?: now| so far| at this point)?", n) and n.endswith(("now", "so far", "point")):
+            return self._turn(st, "what do you know about me?")
+        if re.fullmatch(r"(?:suggest|recommend|pick) (?:a |me a )?pizza(?: for me)?|what pizza should i (?:get|order|have)", n):
+            texts = " ".join((self.bot.user_texts() if hasattr(self.bot, "user_texts") else {}).values()).lower()
+            avoid = [w for w in ("mushrooms", "olives", "onions", "pineapple", "anchovies", "peppers") if re.search(rf"(?:don'?t like|hate|dislike) {w}", texts)]
+            text = self._pick(st, "daily:b66:pizza", b["pizza"])
+            if avoid:
+                text += " " + self._pick(st, "daily:b66:pizza_avoid", b["pizza_avoid"], x=" or ".join(avoid))
+            return Reply(msg, "smalltalk", text, via="everyday")
+        if re.fullmatch(r"(?:do you know|have you heard of|you know) (?:them|him|her|that band|that one)", n):
+            fb = re.search(r"\bmy favou?rite (?:band|singer|artist|group) is ([a-z0-9 .&'-]{2,30})", lm.lower())
+            if fb:
+                return self._daily_ctx14(st, msg, f"have you heard of {fb.group(1).strip()}")
+        if re.fullmatch(r"(?:any |got any )?(?:ideas|suggestions|tips)(?: for that)?|what should i do", n) and \
+                re.search(r"\b(?:relax|unwind|chill|switch off|rest)\b", lm.lower()):
+            return Reply(msg, "smalltalk", b["relax"], via="everyday")
+        return None
 
     def _daily_ctx16(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 64: emotional conversations that need the turn before — shyness after "how do people make
@@ -7126,6 +7241,21 @@ class Assistant:
         bot.refresh()
         bot.context["last_learned"] = sid
         fs = [f for f in bot.facts.facts if f.source == sid]
+        single = {"#home", "#job", "#employer"}
+        new_keys = {(f.subject, c) for f in fs for c in set(f.relation) & single if f.subject == USER}
+        if new_keys:
+            # "I live in Munich" after "I live in Hamburg": the new home replaces the old one, like a person updates it
+            stale = {f.source for f in bot.facts.facts if f.source != sid and f.source.startswith(CHAT_PREFIX) and
+                     any((f.subject, c) in new_keys for c in set(f.relation) & single) and
+                     len([g for g in bot.facts.facts if g.source == f.source]) == 1}
+            for old_sid in stale:
+                try:
+                    bot.memory.forget(old_sid)
+                except Exception:
+                    pass
+            if stale:
+                bot.refresh()
+                fs = [f for f in bot.facts.facts if f.source == sid]
         confirm = self._confirm(st, fs, name_before)
         wf = _WORK_IN.match(text.strip())
         if wf and text.rstrip(".").endswith(f"My job is in {wf.group('f').strip()}"):

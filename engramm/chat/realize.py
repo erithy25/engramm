@@ -496,6 +496,8 @@ def personal_sentence(subject: str, relation, value: str, evidence: str | None) 
     """How ENGRAMM tells you something you told it: category sentences first ("Your name is
     Erik."), then your own sentence in the second person, then a quote."""
     rel = set(relation or ())
+    if subject == "USER" and "#dislike" in rel:
+        return f"You don't like {value}."               # "I don't like mushrooms" is no favourite food
     if subject == "USER":
         for cat, tpl in _CATEGORY_ANSWER.items():
             if cat in rel:
@@ -510,7 +512,8 @@ def personal_sentence(subject: str, relation, value: str, evidence: str | None) 
     elif subject.startswith("USER:") and "#name" in rel:
         noun = subject.partition(":")[2]
         many = noun.endswith("s") and noun not in ("boss", "bus", "class") or noun == "children" or " and " in value
-        return (_OWNED_NAMES if many else _OWNED_NAME).format(noun=noun, x=value)
+        shown = " ".join(w[:1].upper() + w[1:] if w.islower() and w not in ("and", "or") else w for w in value.split())
+        return (_OWNED_NAMES if many else _OWNED_NAME).format(noun=noun, x=shown)   # "Anna", as a name is written
     if evidence:
         flipped = to_second_person(evidence)
         if flipped and value.lower() in flipped.lower() and len(flipped.split()) <= 30:

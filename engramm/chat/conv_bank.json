@@ -11743,6 +11743,37 @@
     "{x} — what a beautiful city to study in! It's got a great student life too. When do you start?",
     "Ooh, {x}! That's a fantastic place for university. Are you moving there soon?"
    ]
+  },
+  "b66": {
+   "intro_named": [
+    "Nice to meet you, {x}! {Y} in {z} — I'll remember that.",
+    "Hi {x}! {Y} in {z}, lovely. Noted."
+   ],
+   "intro": [
+    "{Y} in {z} — nice! I'll remember that.",
+    "Got it: {y}, living in {z}."
+   ],
+   "corrected": [
+    "Ah, {x} — got it, I've corrected that.",
+    "No problem, {x} it is. Updated!"
+   ],
+   "moved": [
+    "Okay, moved to {x} — I've updated it.",
+    "Got it, it's {x} now. Noted."
+   ],
+   "person_job": [
+    "A {x} — impressive! I'll remember that about your {y}.",
+    "Your {y} is a {x}? That's great. Noted."
+   ],
+   "pizza": [
+    "How about a classic margherita, a spicy salami, or a quattro formaggi?",
+    "I'd go for a margherita with fresh basil — or a pepperoni if you're hungry."
+   ],
+   "pizza_avoid": [
+    "And no {x} — I remember you don't like them.",
+    "All without {x}, of course!"
+   ],
+   "relax": "A few ways to unwind:\n\n• A warm shower or bath, then comfy clothes\n• Your favourite series or a comfort film\n• A short walk without your phone\n• Music, a book, or just ten minutes of doing nothing\n\nAnything that sounds good right now?"
   }
  }
 }

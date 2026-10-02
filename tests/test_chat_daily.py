@@ -2708,3 +2708,38 @@ def test_battery65_german_emotional_conversations(chat):
     a.turn(st, "ich hab mit meinem freund schluss gemacht")
     r = a.turn(st, "es war meine entscheidung, aber es tut trotzdem weh")
     assert not cheerful.search(r.text), r.text
+
+
+def test_battery66_memory_corrections_dislikes_and_forgetting(chat):
+    a, _ = chat
+    st = DialogState("m66")
+    r = a.turn(st, "hi, i'm lena and i'm a teacher in hamburg")
+    assert "hamburg" not in r.text.split("as a")[-1].lower() or "Lena" in r.text, r.text
+    assert "teacher" in a.turn(st, "and what do i do?").text
+    assert "Hamburg" in a.turn(st, "where do i live?").text
+    a.turn(st, "i live in berlin")
+    r = a.turn(st, "no wait, i meant munich")
+    assert "Munich" in r.text and "tell me more" not in r.text.lower(), r.text
+    assert "Munich" in a.turn(st, "where do i live?").text
+    summary = a.turn(st, "what do you know about me?").text
+    assert "Berlin" not in summary and "meant" not in summary, summary
+    st = DialogState("d66")
+    a.turn(st, "i hate mushrooms")
+    r = a.turn(st, "what food do i hate?")
+    assert "mushrooms" in r.text and "favourite" not in r.text.lower(), r.text
+    assert "mushrooms" in a.turn(st, "suggest a pizza for me").text
+    r = a.turn(st, "forget that i hate mushrooms")
+    assert r.kind == "forgot" and "mushrooms" in r.text, r.text
+    st = DialogState("p66")
+    a.turn(st, "my sister's name is anna")
+    a.turn(st, "she's a doctor")
+    assert "doctor" in a.turn(st, "what does my sister do?").text
+    assert "Anna" in a.turn(st, "what's her name again?").text
+    st = DialogState("a66")
+    a.turn(st, "remember that my dentist appointment is on friday")
+    a.turn(st, "actually it moved to monday")
+    assert "monday" in a.turn(st, "when is it now?").text.lower()
+    r = a.turn(DialogState("x66"), "i had a long day. work was stressful and my train was late. now i just want to relax.")
+    assert r.text.count("?") <= 1, r.text
+    r = a.turn(DialogState("f66"), "forget it, tell me a joke")
+    assert r.kind == "smalltalk", r.text

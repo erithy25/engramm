@@ -383,6 +383,7 @@ class ChatBot:
                        r"wrote)|you (?:know|remember|have|learned|learnt|heard)) (?:about|on|regarding|of)|"
                        r"everything (?:about|on|regarding)|all about|the (?:information|info|facts?|details?|stuff) "
                        r"(?:about|on|regarding)|about|the fact that|that)\s+", "", topic, flags=re.I).strip()
+        topic = re.sub(r"\bi (?:really )?(?:hate|dislike|can'?t stand|do not like|don'?t like)\b", "i don't like", topic, flags=re.I)
         texts = {s: t for s, t in self.user_texts().items() if s.startswith(CHAT_PREFIX)}
         if not texts:
             return Reply(msg, "nothing", "You haven't told me anything I could forget.")
@@ -391,7 +392,9 @@ class ChatBot:
         elif topic.lower() in ("", "it", "this", "that") and self.context["last_learned"] in texts:
             gone = [self.context["last_learned"]]
         else:
-            best = self._match_topic(topic, texts)
+            words = [w for w in re.findall(r"[a-z]{4,}", topic.lower()) if w not in STOP and w not in ("don't", "dont", "that", "like")]
+            exact = [s for s, t in texts.items() if words and all(re.search(rf"\b{re.escape(w)}", t.lower()) for w in words)]
+            best = sorted(exact)[-1] if len(exact) == 1 else self._match_topic(topic, texts)   # "mushrooms": the text that says it
             gone = [best] if best else []
         if not gone:
             return Reply(msg, "nothing", f"I don't have anything about “{topic}” to forget.")
@@ -399,7 +402,7 @@ class ChatBot:
             self.memory.forget(sid)
         self.refresh()
         shown = [re.sub(r"^(?:and|also|oh|plus|but|so|well)[,]?\s+(?=\w)", "", texts[s], flags=re.I) for s in gone[:3]]
-        what = "; ".join(f"“{x[:1].upper() + x[1:]}”" for x in shown) + (" …" if len(gone) > 3 else "")
+        what = "; ".join(f"“{x[:1].upper() + x[1:].rstrip('.!')}”" for x in shown) + (" …" if len(gone) > 3 else "")
         return Reply(msg, "forgot", f"Done — I have forgotten {what}. It is gone from my memory, not just hidden.",
                      via="memory")
 

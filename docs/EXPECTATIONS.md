@@ -2532,6 +2532,25 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - Messung: Team-Dev-Satz 1 von 128 (team-0067). NQ-open 400: 22/9. Suite 755 bestanden. Regressionen 32, 38–65
     (32 Gespräche): 0 Wiederholungen. Batterie 41 zeigte, dass „meine freundin hat schluss gemacht“ nun „auch wenn sie richtig
     sind“ hörte – die eigene Trennungsantwort gilt jetzt nur, wenn man selbst Schluss gemacht hat (Batterie 41 wieder wie vorher).
+- **Alltags-Batterie 66 (Gedächtnis: Korrekturen, Abneigungen, Vergessen, mehrere Sätze)**:
+  - Schwerer Fehler im Datenschutz-Kernversprechen: „forget that i hate mushrooms“ und „forget that i like pizza“
+    vergaßen nichts – die Füllwort-Regel aus Batterie 43 entfernte „forget that“ wie bei „forget it, tell me a joke“, der
+    Rest wurde neu gespeichert („I already know that“, „Pizza — good choice! I'll remember that.“). Jetzt nur noch vor
+    einem Satzzeichen; das genaue Vergessen trifft den Eintrag, der alle Inhaltswörter enthält („I don't like mushrooms“),
+    statt den ähnlichsten (vorher wurde einmal „My name is Lena …“ gelöscht).
+  - „i'm lena and i'm a teacher in hamburg“ → Beruf „hamburg“; jetzt Name, Beruf und Wohnort als drei einzelne
+    Erinnerungen (einzeln vergessbar). „i hate mushrooms“ wurde zum Lieblingsessen („What food do I hate?“ → „Your
+    favourite food is mushrooms.“); jetzt eine Abneigung, auch in „what do you know about me?“ („You don't like mushrooms.“),
+    und „suggest a pizza for me“ lässt die Pilze weg.
+  - Korrekturen: „no wait, i meant munich“ (vorher als Aussage gespeichert) ersetzt den alten Wohnort; ein neuer Wohnort,
+    Beruf oder Arbeitgeber ersetzt den alten (vorher standen „You live in Hamburg“ und „You live in Munich“ nebeneinander);
+    „actually it moved to monday“ (vorher „Monday — nice! I'll remember that you live there.“) verschiebt den Zahnarzttermin.
+  - „she's a doctor“ nach „my sister's name is anna“ (vorher „Oh? Go on.“) wird gespeichert; „what does my sister do?“,
+    „what's her name again?“ → „Anna“ (Namen großgeschrieben); „what do i do?“ fragt nach dem eigenen Beruf, nicht nach
+    Sehenswürdigkeiten.
+  - Eine Nachricht mit drei Sätzen über einen schweren Tag bekam drei Mitgefühls-Antworten hintereinander; jetzt eine,
+    der Rest wird still gemerkt. „any ideas?“ nach „i just want to relax“ → Entspannungsideen; „do you know them?“ nach
+    der Lieblingsband → Artikelanfang.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
