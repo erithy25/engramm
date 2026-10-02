@@ -2200,6 +2200,18 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     nennen den Amtsinhaber). Text-Antworten zu Ämtern können veraltet sein; das sagt die Antwort selbst.
   - Wiederholungen 1 → 0. Team-Dev-Satz: 1 von 128 geändert (team-0074: Macron statt „weiß nicht“). NQ-open 400: 22/9.
     Regressionen 32, 38–41 und langes Gespräch: 0 Wiederholungen. Suite 702 bestanden, 7 übersprungen.
+- **Alltags-Batterie 43 (Englisch, Umgangssprache)** (Small Talk mit „u/r/whatcha“, Umzug nach Berlin, kranker Hund,
+  Rechnen und Trinkgeld, Prüfungsstress, Lieblingsgericht mit Korrektur, Mond und Mars, Einsamkeit):
+  - Schwer: „ok whatever, tell me a joke“ wurde als Fakt gespeichert; jetzt kommt der Witz und danach „another one“.
+    „actually no, it's risotto“ korrigiert jetzt das Lieblingsgericht (vorher blieb es Lasagne).
+  - Kontext: „same lol“ nach „how are you“; „that's kinda sad“ über ENGRAMM selbst; „for work“ nach dem Umzug;
+    Wohnviertel für 16 Städte; „best food there“ zur Stadt des Gesprächs; Symptome des kranken Hundes → Tierarzt-Rat;
+    „ok ill call them“ → „I hope Bruno feels better soon“; Trinkgeld 15/18/20 %; Prüfungen: Anzahl → Fächer → „which
+    first?“ → „I'm worst at physics“ → Plan; Einsamkeit im Homeoffice → Ideen → „that sounds nice“.
+  - Wissen: „who was the first person on it?“ nach dem Mond (Pronomen in Alltagsfakten) und „when was that?“;
+    Größe und Sonnenabstand der Planeten, von Sonne und Mond („cool, how big is mars?“ → „and how far is it from the sun?“).
+  - Wiederholungen 2 → 0. Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–42 und langes
+    Gespräch: 0 Wiederholungen. Suite 706 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

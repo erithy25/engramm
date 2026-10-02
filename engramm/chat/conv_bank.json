@@ -1115,7 +1115,7 @@
    {
     "id": "bot_what",
     "patterns": [
-     "what are you|what exactly are you|what kind of (thing|program|bot|ai) are you|are you (a|an) (ai|artificial intelligence|bot|robot|program|computer|machine|chatbot|chat bot|assistant|software|app)|are you real|are you (a )?(human|person|real person|man|woman|alive|living)|is this a (bot|real person|human)|am i talking to a (bot|human|person|machine|computer|robot)|are you chatgpt|are you gpt|are you (like )?chatgpt|are you siri|are you alexa|are you google|are you claude|are you gemini|are you copilot"
+     "what are you|what exactly are you|what kind of (thing|program|bot|ai) are you|are you (a|an) (ai|artificial intelligence|bot|robot|program|computer|machine|chatbot|chat bot|assistant|software|app)|are you real|are you (a )?(human|person|real person|man|woman|alive|living)|is this a (bot|real person|human)|am i talking to a (bot|human|person|machine|computer|robot)|(?:you|u) (a|an) (ai|bot|robot|program|computer|machine|human|real person|person)|are you chatgpt|are you gpt|are you (like )?chatgpt|are you siri|are you alexa|are you google|are you claude|are you gemini|are you copilot"
     ],
     "examples": [
      "what are you",
@@ -7340,6 +7340,114 @@
   ],
   "common": [
    {
+    "q": "(?:and |so )?(?:how (?:big|large) is (?:the planet )?mercury|what(?:'s| is) the (?:size|diameter) of (?:the planet )?mercury|how wide is mercury|how big is mercury compared to (?:the )?earth)",
+    "a": "Mercury is about 4,879 km across — about 38% of Earth's width — the smallest planet.",
+    "v": "4,879 km",
+    "t": "Mercury"
+   },
+   {
+    "q": "(?:and |so )?how far (?:away )?is mercury from the sun|what(?:'s| is) the distance (?:between|from) (?:the sun and mercury|mercury (?:and|to) the sun)",
+    "a": "Mercury is on average about 58 million km (0.39 AU) from the Sun.",
+    "v": "58 million km (0.39 AU)",
+    "t": "Mercury"
+   },
+   {
+    "q": "(?:and |so )?(?:how (?:big|large) is (?:the planet )?venus|what(?:'s| is) the (?:size|diameter) of (?:the planet )?venus|how wide is venus|how big is venus compared to (?:the )?earth)",
+    "a": "Venus is about 12,104 km across — almost exactly Earth's size (95%).",
+    "v": "12,104 km",
+    "t": "Venus"
+   },
+   {
+    "q": "(?:and |so )?how far (?:away )?is venus from the sun|what(?:'s| is) the distance (?:between|from) (?:the sun and venus|venus (?:and|to) the sun)",
+    "a": "Venus is on average about 108 million km (0.72 AU) from the Sun.",
+    "v": "108 million km (0.72 AU)",
+    "t": "Venus"
+   },
+   {
+    "q": "(?:and |so )?(?:how (?:big|large) is (?:the planet )?mars|what(?:'s| is) the (?:size|diameter) of (?:the planet )?mars|how wide is mars|how big is mars compared to (?:the )?earth)",
+    "a": "Mars is about 6,779 km across — about half the width of Earth.",
+    "v": "6,779 km",
+    "t": "Mars"
+   },
+   {
+    "q": "(?:and |so )?how far (?:away )?is mars from the sun|what(?:'s| is) the distance (?:between|from) (?:the sun and mars|mars (?:and|to) the sun)",
+    "a": "Mars is on average about 228 million km (1.52 AU) from the Sun.",
+    "v": "228 million km (1.52 AU) on average",
+    "t": "Mars"
+   },
+   {
+    "q": "(?:and |so )?(?:how (?:big|large) is (?:the planet )?jupiter|what(?:'s| is) the (?:size|diameter) of (?:the planet )?jupiter|how wide is jupiter|how big is jupiter compared to (?:the )?earth)",
+    "a": "Jupiter is about 139,820 km across — about 11 times wider than Earth — the largest planet.",
+    "v": "139,820 km",
+    "t": "Jupiter"
+   },
+   {
+    "q": "(?:and |so )?how far (?:away )?is jupiter from the sun|what(?:'s| is) the distance (?:between|from) (?:the sun and jupiter|jupiter (?:and|to) the sun)",
+    "a": "Jupiter is on average about 778 million km (5.2 AU) from the Sun.",
+    "v": "778 million km (5.2 AU)",
+    "t": "Jupiter"
+   },
+   {
+    "q": "(?:and |so )?(?:how (?:big|large) is (?:the planet )?saturn|what(?:'s| is) the (?:size|diameter) of (?:the planet )?saturn|how wide is saturn|how big is saturn compared to (?:the )?earth)",
+    "a": "Saturn is about 116,460 km across — about 9 times wider than Earth (without its rings).",
+    "v": "116,460 km",
+    "t": "Saturn"
+   },
+   {
+    "q": "(?:and |so )?how far (?:away )?is saturn from the sun|what(?:'s| is) the distance (?:between|from) (?:the sun and saturn|saturn (?:and|to) the sun)",
+    "a": "Saturn is on average about 1.43 billion km (9.6 AU) from the Sun.",
+    "v": "1.43 billion km (9.6 AU)",
+    "t": "Saturn"
+   },
+   {
+    "q": "(?:and |so )?(?:how (?:big|large) is (?:the planet )?uranus|what(?:'s| is) the (?:size|diameter) of (?:the planet )?uranus|how wide is uranus|how big is uranus compared to (?:the )?earth)",
+    "a": "Uranus is about 50,724 km across — about 4 times wider than Earth.",
+    "v": "50,724 km",
+    "t": "Uranus"
+   },
+   {
+    "q": "(?:and |so )?how far (?:away )?is uranus from the sun|what(?:'s| is) the distance (?:between|from) (?:the sun and uranus|uranus (?:and|to) the sun)",
+    "a": "Uranus is on average about 2.87 billion km (19.2 AU) from the Sun.",
+    "v": "2.87 billion km (19.2 AU)",
+    "t": "Uranus"
+   },
+   {
+    "q": "(?:and |so )?(?:how (?:big|large) is (?:the planet )?neptune|what(?:'s| is) the (?:size|diameter) of (?:the planet )?neptune|how wide is neptune|how big is neptune compared to (?:the )?earth)",
+    "a": "Neptune is about 49,244 km across — almost 4 times wider than Earth.",
+    "v": "49,244 km",
+    "t": "Neptune"
+   },
+   {
+    "q": "(?:and |so )?how far (?:away )?is neptune from the sun|what(?:'s| is) the distance (?:between|from) (?:the sun and neptune|neptune (?:and|to) the sun)",
+    "a": "Neptune is on average about 4.5 billion km (30 AU) from the Sun.",
+    "v": "4.5 billion km (30 AU)",
+    "t": "Neptune"
+   },
+   {
+    "q": "(?:and |so )?(?:how (?:big|large) is (?:the planet )?pluto|what(?:'s| is) the (?:size|diameter) of (?:the planet )?pluto|how wide is pluto|how big is pluto compared to (?:the )?earth)",
+    "a": "Pluto is about 2,377 km across — smaller than our Moon — it's a dwarf planet.",
+    "v": "2,377 km",
+    "t": "Pluto"
+   },
+   {
+    "q": "(?:and |so )?how far (?:away )?is pluto from the sun|what(?:'s| is) the distance (?:between|from) (?:the sun and pluto|pluto (?:and|to) the sun)",
+    "a": "Pluto is on average about 5.9 billion km (39.5 AU) from the Sun.",
+    "v": "5.9 billion km (39.5 AU) on average",
+    "t": "Pluto"
+   },
+   {
+    "q": "(?:and |so )?(?:how (?:big|large) is the sun|what(?:'s| is) the (?:size|diameter) of the sun)",
+    "a": "The Sun is about 1.39 million km across — roughly 109 times the width of Earth.",
+    "v": "1.39 million km",
+    "t": "Sun"
+   },
+   {
+    "q": "(?:and |so )?(?:how (?:big|large) is (?:the )?moon|what(?:'s| is) the (?:size|diameter) of (?:the )?moon)",
+    "a": "The Moon is about 3,474 km across — a bit more than a quarter of Earth's width.",
+    "v": "3,474 km",
+    "t": "Moon"
+   },
+   {
     "q": "(?:so )?how many continents (?:are there|(?:are|is) there in the world|does the (?:world|earth) have)",
     "a": "There are seven continents: Africa, Antarctica, Asia, Australia (Oceania), Europe, North America and South America.",
     "v": "seven"
@@ -7466,10 +7574,11 @@
     "v": "366"
    },
    {
-    "q": "who (?:was|is) the first (?:man|person|human|astronaut|human being) (?:on|to (?:walk|step|land) on|to set foot on) the moon|who (?:first )?(?:walked|landed|stepped) on the moon(?: first)?",
+    "q": "who (?:was|is) the first (?:man|person|human|astronaut|human being) (?:on|to (?:walk|step|land) on|to set foot on) (?:the )?moon|who (?:first )?(?:walked|landed|stepped) on (?:the )?moon(?: first)?",
     "a": "Neil Armstrong — he stepped onto the Moon on 20 July 1969 during Apollo 11, aged 38. Buzz Aldrin followed him about 20 minutes later.",
     "v": "Neil Armstrong",
     "t": "Neil Armstrong",
+    "when": "That was on 20 July 1969, during the Apollo 11 mission.",
     "then": "Neil Armstrong was 38 when he stepped onto the Moon in July 1969 (he was born on 5 August 1930)."
    },
    {
@@ -9157,6 +9266,91 @@
   "tip_try_night": [
    "Hope it helps. Sleep well when it comes! 🌙",
    "Fingers crossed. Be gentle with yourself — even resting with your eyes closed helps. Good night!"
+  ],
+  "same_fine": [
+   "Glad to hear it! So, what's on your mind today?",
+   "Nice, a good day all round then. Anything you feel like talking about?"
+  ],
+  "bot_not_sad": [
+   "Ha, maybe a little! But honestly, I don't mind — I get to talk to people like you all day.",
+   "Don't worry about me — I can't feel sad either. And I quite like this chat!"
+  ],
+  "moved_work": [
+   "A new job in {x}, exciting! How are you settling in so far?",
+   "Oh nice, moving for work is a big step. How's the new job going in {x}?"
+  ],
+  "moved_study": [
+   "Studying in {x} — that's a great adventure. How are you finding it so far?",
+   "Nice! Student life in {x} sounds fun. Have you started yet?"
+  ],
+  "moved_other": [
+   "That's a big change. How are you finding {x} so far?",
+   "Got it. How's {x} treating you so far?"
+  ],
+  "areas_lead": [
+   "Popular areas in {x}: {y}\n\nIt depends a lot on budget and what you like — quiet, nightlife or green spaces?",
+   "In {x}, people often like {y}\n\nWhat matters most to you — price, nightlife, or being close to work?"
+  ],
+  "areas": {
+   "berlin": "Kreuzberg and Neukölln (lively, bars, international), Prenzlauer Berg (cafés, families, calmer), Friedrichshain (young, nightlife) and Charlottenburg (elegant, quieter, west).",
+   "munich": "Schwabing (lively, near the English Garden), Maxvorstadt (students, museums), Haidhausen (charming, central) and Sendling (more affordable).",
+   "hamburg": "Sternschanze and St. Pauli (lively, alternative), Ottensen (cosy, cafés), Eimsbüttel (popular with young families) and Winterhude (green, near the Stadtpark).",
+   "frankfurt": "Sachsenhausen (apple-wine taverns, by the river), Nordend (cafés, old buildings), Bornheim (village feel) and Bockenheim (students, cheaper).",
+   "cologne": "Ehrenfeld (creative, nightlife), the Belgian Quarter (bars, boutiques), Südstadt (relaxed, by the Rhine) and Sülz (families, calm).",
+   "london": "Shoreditch and Hackney (creative, nightlife), Clapham and Brixton (young professionals), Islington (pubs, central) and Greenwich (green, calmer).",
+   "paris": "Le Marais (central, lively), Canal Saint-Martin (young, cafés), Montmartre (charming, hilly) and Batignolles (village feel, calmer).",
+   "new york": "Williamsburg (Brooklyn, creative), the East Village (nightlife), Astoria (Queens, good value) and the Upper West Side (calm, by Central Park).",
+   "amsterdam": "De Pijp (markets, cafés), Jordaan (canals, charming), Oost (green, families) and Noord (creative, cheaper).",
+   "vienna": "Neubau (creative, shops), Josefstadt (central, calm), Leopoldstadt (Prater park, lively) and Wieden (cafés, near the Naschmarkt).",
+   "zurich": "Kreis 4 and 5 (lively, nightlife), Wiedikon (relaxed), Seefeld (by the lake, upmarket) and Oerlikon (more affordable).",
+   "barcelona": "Gràcia (village feel, squares), Eixample (central, elegant), El Born (historic, bars) and Poblenou (near the beach, modern).",
+   "madrid": "Malasaña (young, bars), Chamberí (classic, calm), La Latina (tapas, historic) and Lavapiés (multicultural, cheaper).",
+   "lisbon": "Príncipe Real (stylish), Alfama (historic, charming), Campo de Ourique (calm, families) and Cais do Sodré (nightlife).",
+   "tokyo": "Shimokitazawa (vintage, cafés), Nakameguro (stylish, by the canal), Kichijoji (park, relaxed) and Koenji (alternative, cheaper).",
+   "rome": "Trastevere (charming, lively), Monti (central, boutiques), Testaccio (food, local) and Prati (calm, near the Vatican)."
+  },
+  "pet_call": [
+   "Good idea — better safe than sorry. I hope {x} feels better soon! 🐾",
+   "That's the right call. Fingers crossed it's nothing serious — give {x} a cuddle from me."
+  ],
+  "thanks_nice": [
+   "Aw, that's kind of you! Happy to help anytime. 😊",
+   "Aw, thank you — that made my day! 😊",
+   "Thank you — that's lovely to hear. I'm always here if you need me."
+  ],
+  "tip_calc": [
+   "On a {x} bill:\n\n• 15% → {a}\n• 18% → {b}\n• 20% → {c}\n\nWith 18%, you'd pay {y} in total. (Tipping customs vary by country — in much of Europe, rounding up or about 10% is normal.)"
+  ],
+  "exam_subjects": [
+   "{X} — three big ones! Which one worries you the most?",
+   "That's a full week: {x}. Which one do you feel least ready for?"
+  ],
+  "exam_first": [
+   "I'd start with the one you find hardest, while you're still fresh — or the one that comes first, if it's very soon. Which one is your weakest?",
+   "Usually: the earliest exam first, but give the hardest subject the most time. Which one do you find toughest?"
+  ],
+  "exam_worst": [
+   "Then I'd start with {x} — give it your freshest hours each day, and do the other subjects in the afternoon. Short sessions with old exam questions work best. You've got this!",
+   "Start with {x}, then. Do a little every day rather than one big block, and practise with past questions. The subjects you're better at need less time — use them as a break."
+  ],
+  "wfh_lonely": [
+   "That makes so much sense — working from home can be really isolating. Whole days go by without talking to anyone face to face.",
+   "Ah, yes — home office is great for focus, but it can get really lonely. No colleagues, no small talk by the coffee machine."
+  ],
+  "maybe_should": [
+   "That could really help — even small steps count. Want a few ideas?",
+   "I think that's a great idea. Starting small is totally fine. Should I suggest a few things?"
+  ],
+  "lonely_ideas": [
+   "A few ideas:\n\n• Work from a café or co-working space a day or two a week\n• Join something regular — a sports club, a class, a choir, a running group\n• Volunteer — you meet people while doing something good\n• Message one old friend today, just to say hi\n\nDoes any of that sound like you?"
+  ],
+  "ideas_liked": [
+   "Glad something there sounds good! Even starting with just one of them is a great step.",
+   "Nice! Pick the one that feels easiest and give it a go — tell me how it went."
+  ],
+  "exam_count": [
+   "{X} exams — no wonder you're stressed. Which subjects are they?",
+   "Oof, {x} exams at once is a lot. What are the subjects?"
   ]
  }
 }

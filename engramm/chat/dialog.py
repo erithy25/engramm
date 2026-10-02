@@ -219,6 +219,40 @@ _THE_PLACES = {"United States", "United Kingdom", "United Nations", "Netherlands
 _HOLDER = re.compile(r"\b(?:incumbent|current (?:officeholder|holder|office-holder|monarch|pope|president|prime minister|chancellor|"
                      r"secretary-general)) is (?P<a>(?:King |Queen |Pope )?[A-Z][\w.'’-]+(?: (?:de |von |van |da |bin )?[A-Z][\w.'’-]+){0,3})|"
                      r"(?P<b>[A-Z][\w.'’-]+(?: [A-Z][\w.'’-]+){1,3}) is the (?:\d+\w* (?:and )?)?(?:current|incumbent)\b")
+# battery 43: small talk that follows on from what was just said
+_SAME_FINE = re.compile(r"^(?:same|same here|me too|likewise|same lol|same tbh|same haha|ditto|you too|same old)[.! ]*(?:lol|haha|tbh)?[.!]*$")
+_BOT_SAD = re.compile(r"^(?:oh,? |aw+,? |hmm,? )?(?:that'?s|thats|that is|sounds) (?:kinda |kind of |a bit |so |really |pretty |very )?"
+                      r"(?:sad|depressing|lonely|bleak|boring|grim)(?: (?:tbh|lol|honestly|though))?[.!]*$")
+_MOVED_REASON = re.compile(r"^(?:it'?s |its |mainly |mostly |just )?(?:for|because of) (?:a |my |the )?(?P<r>work|job|new job|uni|university|"
+                           r"college|school|studies|studying|my studies|love|my partner|my girlfriend|my boyfriend|my wife|my husband|"
+                           r"family|a fresh start|a change)[.!]*$")
+_AREAS_Q = re.compile(r"^(?:and |so |ok )?(?:any |what are (?:some |the )?|which are (?:the )?|what'?s a |where'?s a )?(?:good |nice |best |cool |safe )"
+                      r"(?:neighbou?rhoods?|areas?|districts?|parts of (?:the )?(?:city|town))(?: to live(?: in)?| to stay(?: in)?| for (?:young people|families))?"
+                      r"(?: (?:there|in (?P<p>[a-z][a-z ]+?)))?\??$|^(?:where should i (?:live|stay|look for a flat|look for an apartment))"
+                      r"(?: (?:there|in (?P<q>[a-z][a-z ]+?)))?\??$")
+_BEST_FOOD = re.compile(r"^(?:and |so |ok )?(?:what'?s|what is|whats) (?:the )?(?:best|typical|local|must-try|famous) (?:food|dish|thing to eat)"
+                        r"(?: (?:there|in (?P<p>[a-z][a-z ]+?)))?\??$|^(?:what (?:is|are) (?:the )?(?:famous|typical) (?:foods?|dishes) "
+                        r"(?:there|in (?P<q>[a-z][a-z ]+?)))\??$")
+_THANKS_NICE = re.compile(r"^(?:thanks?|thank you|ty|thx|aw+,? thanks?)[,!.]* (?:you'?re|ur|youre|you are) (?:so |really |very |the |such a )?"
+                          r"(?:sweet|kind|best|amazing|awesome|lovely|great|star|helpful|nice|a gem|a sweetheart|wonderful)[.! ]*(?:❤️|<3|:\))?$")
+_TIP = re.compile(r"^(?:what'?s|what is|whats|how much is|how much should i (?:tip|leave)(?: on| for)?|calculate)(?: the| a)? ?(?:tip|gratuity)?"
+                  r"(?: on| for)? (?:a |the |my )?[$€£]?(?P<n>\d+(?:[.,]\d{1,2})?) ?(?:dollars?|euros?|bucks|pounds|usd|eur|€|\$)?"
+                  r"(?: (?:bill|check|meal|dinner|tab))?\??$|^how much (?:should i )?tip (?:on|for) (?:a )?[$€£]?(?P<m>\d+(?:[.,]\d{1,2})?)"
+                  r" ?(?:dollars?|euros?|bucks|pounds)?(?: (?:bill|check|meal|dinner))?\??$")
+_EXAMS = re.compile(r"\b(?:exams?|tests?|finals|midterms)\b")
+_SUBJECTS = ("math", "maths", "mathematics", "physics", "chemistry", "biology", "history", "geography", "english", "german",
+             "french", "spanish", "latin", "economics", "statistics", "programming", "computer science", "philosophy",
+             "psychology", "law", "medicine", "accounting", "finance", "art", "music", "literature", "sociology")
+_STUDY_FIRST = re.compile(r"^(?:so |and |ok )?(?:which|what) (?:one |subject |exam )?should i (?:study|start with|learn|revise|do) first\??$|"
+                          r"^where should i start\??$|^what should i start with\??$")
+_WORST_AT = re.compile(r"^(?:i'?m|im|i am) (?:worst|the worst|really bad|so bad|terrible|weakest|bad) (?:at|in) (?P<s>[a-z ]+?)[.!]*$|"
+                       r"^(?P<t>[a-z ]+?) is (?:my )?(?:worst|weakest|hardest)(?: subject| one)?[.!]*$")
+_WFH = re.compile(r"\b(?:work(?:ing)? from home|wfh|remote(?:ly)?|home ?office|home all day)\b")
+_MAYBE_SHOULD = re.compile(r"^(?:maybe|perhaps|i guess|i think|probably) i (?:should|could|need to|ought to) (?P<x>get out more|go out more|"
+                           r"see people more|see friends more|call (?:a friend|someone|my \w+)|join (?:a |something|some)[a-z ]*|try [a-z ]+|"
+                           r"get a (?:dog|cat|pet|hobby)|go to the gym|start [a-z ]+|meet (?:new )?people)[.!]*$")
+_IDEAS_Q = re.compile(r"^(?:so |and |ok |but )?what (?:could|can|should) i (?:do|try)(?: about it)?\??$|^any ideas\??$")
+_THEN_WHEN = re.compile(r"^(?:and |so )?when (?:was|did) (?:that|it|this)(?: happen)?\??$")
 _WEAR = re.compile(r"^(?:(?:and|so|ok|okay|hmm|fine|alright|cool|sure)[.,!]? )?what (?:should|do|can|could) i wear(?: (?:to|for|on|in) "
                    r"(?:the |a |my |an )?(?P<x>[a-z ]+?))?(?: tomorrow| today| tonight)?\??$")
 _OCCASIONS = [("interview", re.compile(r"\binterview")), ("wedding", re.compile(r"\bwedding|\bmarr")),
@@ -1284,6 +1318,9 @@ class Assistant:
         if rep.via == "tool" and trm:
             st.uses["tr_lang"] = [trm.group(1), st.turn]      # "and good morning?" may follow
         nm_ = normalise(message)
+        mvm = re.search(r"\b(?:just |recently |finally )?(?:moved|relocated) (?:to|here to) (?P<p>[a-z][a-z ]{1,25}?)(?: (?:for|because|last|this|a)\b|[.!,]|$)", nm_)
+        if mvm and rep.kind != "safety":
+            st.uses["moved"] = [mvm.group("p").strip().title(), st.turn]
         if rep.kind != "safety" and _PROMOTED.search(nm_):
             st.uses["promo"] = st.turn                   # "senior analyst" may follow
         if rep.kind != "safety" and message_type(message) != "question":
@@ -1365,6 +1402,14 @@ class Assistant:
             elif len(re.findall(r"[a-zäöüß]+", msg.lower())) >= 2:
                 return self._german(st, msg)      # "die nachbarn waren laut": no English word, stays German
         msg = expand_chat(msg)                            # "wats ur name" → "what's your name"
+        lead = re.match(r"^(?:ok(?:ay)?,?\s+)?(?:whatever|anyways?|moving on|never ?mind|nvm|enough of that|forget (?:it|that)|"
+                        r"ok(?:ay)? then|alright then|fine then)[,.!]*\s+(?=\S+\s+\S)", msg, re.I)
+        if lead:
+            msg = msg[lead.end():]                        # "ok whatever, tell me a joke": the request
+        react = re.match(r"^(?:cool|nice|wow|great|interesting|ok|okay|oh|ah|haha|lol|thanks|thank you|neat|awesome)[,!.]+\s+"
+                         r"(?=(?:who|what|when|where|why|how|which|is|are|was|were|do|does|did|can|could|tell)\b)", msg, re.I)
+        if react:
+            msg = msg[react.end():]                       # "cool, how big is mars?": the question
         if st.lang != "de":
             dc = self._daily_ctx(st, msg)                 # everyday context: a promotion, a week, a dish, a tournament
             if dc is not None:
@@ -1716,6 +1761,7 @@ class Assistant:
         if it.responses_named and name:
             options = it.responses_named + [o for o in it.responses if o not in it.responses_named][:1]
         text = self._pick(st, f"intent:{it.id}", options, name=name or "", x=u.groups.get("x", ""))
+        st.uses["last_intent"] = [it.id, st.turn]
         parts.append(_Part("main", text))
         if it.follow:
             st.asked.append(f"follow:{it.id}")
@@ -2083,10 +2129,10 @@ class Assistant:
         how = self._howto(st, text)
         if how is not None:
             return how
-        if _DISTANCE_Q.match(normalise(text)):
+        common = self._common_fact(st, text)
+        if common is None and _DISTANCE_Q.match(normalise(text)):
             return Reply(text, "unknown", self._pick(st, "daily:distance_none", self.bank.daily["distance_none"]),
                          via="clarify")
-        common = self._common_fact(st, text)
         if common is not None:
             return common
         sup = self._superlative(st, text)
@@ -2575,10 +2621,12 @@ class Assistant:
                                                            r"(?:to the vet(?:'?s)?|to a vet)|(?:should|do) i (?:call|see|go to) (?:a|the) vet(?:'?s)?"
                                                            r"(?: now| today| tomorrow)?\??", norm.strip()):
             return Reply(msg, "smalltalk", self._pick(st, "daily:vet_advice", d["vet_advice"], x=pt2[0]), via="everyday")
-        if pt2 and st.turn - pt2[1] <= 3 and re.fullmatch(r"(?:and |but )?(?:he|she|it)(?:'s| is| has| hasn'?t|'s been| has been| keeps)? "
+        if pt2 and st.turn - pt2[1] <= 3 and re.fullmatch(r"(?:and |but )?(?:he|she|it)(?:'s| is| has| hasn'?t|'s been| has been| keeps| just)? "
                                                            r"(?:not eating|stopped eating|won'?t eat|doesn'?t eat|isn'?t eating|throwing up|"
-                                                           r"vomiting|limping|very tired|so tired|sleeping all day|not drinking|eaten anything)"
-                                                           r"(?: (?:since|for) [a-z0-9 ]{1,20})?[.!]*", norm.strip()):
+                                                           r"vomiting|limping|very tired|so tired|sleeping all day|not drinking|eaten anything|"
+                                                           r"threw up|thrown up|vomited|was sick|got diarrh(?:o)?ea|diarrh(?:o)?ea|coughing|shaking)"
+                                                           r"(?: (?:twice|three times|again|a lot|a few times|once))?(?: (?:since|for) [a-z0-9 ]{1,20})?"
+                                                           r"(?: (?:today|this morning|last night|tonight|yesterday))?[.!]*", norm.strip()):
             return Reply(msg, "empathy", self._pick(st, "daily:pet_unwell", d["pet_unwell"], x=pt2[0]), via="empathy")
         wv = self._worth_visit(st, msg)
         if wv is not None:
@@ -3182,6 +3230,9 @@ class Assistant:
                 for dish in dishes:
                     if dish["name"].lower() == x or dish["name"].lower().replace("homemade ", "") == x:
                         return self._dish_steps(st, msg, dish["name"])
+        r2 = self._daily_ctx2(st, msg, norm)
+        if r2 is not None:
+            return r2
         m = _WHAT_LIKES.match(norm)
         if m:
             who = m.group("x")
@@ -3200,6 +3251,123 @@ class Assistant:
                         name = self._person_name(noun) or name
                         return Reply(msg, "answer", self._pick(st, "daily:person_likes_answer", d["person_likes_answer"],
                                                                x=name, y=_cuisine_case(lm.group(1))), via="facts")
+        return None
+
+    def _daily_ctx2(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 43: "same lol" after "how are you?", "that's sad" about ENGRAMM itself, why someone moved,
+        where to live and what to eat in their city, a sick pet's symptoms, a tip on a bill, exam planning
+        across turns, and loneliness when working from home."""
+        d = self.bank.daily
+        last = (st.last_reply or "")
+        lv = st.uses.get("last_via")
+        fc = st.uses.get("food_ctx")
+        ll = getattr(st, "last_list", None) or {}
+        food = (fc is not None and st.turn - fc <= 3) or (ll.get("kind") == "food" and st.turn - ll.get("turn", -99) <= 3)
+        if lv == "everyday" and "•" in last and not food and re.fullmatch(r"(?:oh,? |ooh,? |hmm,? )?(?:that |those |these |they |it )?(?:all )?"
+                                                            r"(?:sounds?|sound|look|looks) (?:really |so |pretty |very )?(?:nice|good|great|"
+                                                            r"lovely|fun|cool|interesting|doable|like a plan)(?: actually| tbh)?[.!]*", norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:ideas_liked", d["ideas_liked"]), via="smalltalk")
+        ex0 = st.uses.get("exams")
+        m = re.fullmatch(r"(?:and |but |plus )?i (?:have|'ve got|got|have got) (?P<n>\d+|two|three|four|five|six) (?:exams?|tests?|finals)"
+                         r"(?: (?:next week|this week|tomorrow|in a row|coming up|soon|on monday|on friday))?[.!]*", norm)
+        if m:
+            st.uses["exams"] = dict(ex0 or {"subjects": [], "worst": None}, turn=st.turn)
+            return Reply(msg, "smalltalk", self._pick(st, "daily:exam_count", d["exam_count"], x=m.group("n")), via="empathy")
+        asked = re.search(r"\bhow (?:are|r) (?:you|u)\b|\bhow'?s it going\b|\bhow are things\b|\bhow (?:you|u) doing\b|\bhru\b|"
+                          r"\bhow'?s your day\b", normalise(expand_chat(st.last_message or "")))
+        if _SAME_FINE.match(norm) and (re.search(r"\bhow are you\b|\bhow about you\b|\band you\b", last.lower()) or asked):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:same_fine", d["same_fine"]), via="smalltalk")
+        li = st.uses.get("last_intent") or ["", -99]
+        if _BOT_SAD.match(norm) and lv == "smalltalk" and li[1] == st.turn - 1 and li[0].startswith("bot_"):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:bot_not_sad", d["bot_not_sad"]), via="smalltalk")
+        mv = st.uses.get("moved")
+        m = _MOVED_REASON.match(norm)
+        if m and mv and st.turn - mv[1] <= 2:
+            r = m.group("r")
+            key = "moved_work" if r in ("work", "job", "new job") else "moved_study" if r in (
+                "uni", "university", "college", "school", "studies", "studying", "my studies") else "moved_other"
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key], x=mv[0]), via="empathy")
+        m = _AREAS_Q.match(norm)
+        if m:
+            place = (m.group("p") or m.group("q") or "").strip() or (mv[0] if mv else None) or self._place_ctx(st)
+            if place:
+                areas = d["areas"].get(place.lower())
+                if areas:
+                    return Reply(msg, "smalltalk", self._pick(st, "daily:areas_lead", d["areas_lead"], x=place.title(), y=areas),
+                                 via="everyday")
+        m = _BEST_FOOD.match(norm)
+        if m:
+            place = (m.group("p") or m.group("q") or "").strip() or self._place_ctx(st) or (mv[0] if mv else None)
+            if place:
+                rep = self._cuisine(st, msg, place.title() if place.islower() else place)
+                if rep is not None:
+                    return rep
+        pt = st.uses.get("pet")
+        if pt and st.turn - pt[1] <= 6 and re.fullmatch(r"(?:ok(?:ay)?,? |alright,? |yeah,? |good idea,? )?(?:i'?ll|ill|i will|gonna|i'?m gonna) "
+                                                         r"(?:call|ring|phone|take (?:him|her|them) to|go to) (?:them|the vet|a vet|him|her)"
+                                                         r"(?: now| today| then| tomorrow)?[.!]*", norm):
+            name = st.uses.get("pet_name")
+            who = name if isinstance(name, str) and name else f"your {pt[0]}"
+            return Reply(msg, "smalltalk", self._pick(st, "daily:pet_call", d["pet_call"], x=who), via="empathy")
+        if _THANKS_NICE.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:thanks_nice", d["thanks_nice"]), via="smalltalk")
+        m = _TIP.match(norm)
+        if m and re.search(r"\btip|\bgratuity", norm):
+            amount = float((m.group("n") or m.group("m")).replace(",", "."))
+            cur = "€" if re.search(r"€|euro", norm) else "£" if re.search(r"£|pound", norm) else "$"
+            def fmt(v):
+                return f"{cur}{v:,.2f}"
+            text = self._pick(st, "daily:tip_calc", d["tip_calc"], x=fmt(amount), a=fmt(amount * .15), b=fmt(amount * .18),
+                              c=fmt(amount * .20), y=fmt(amount * 1.18))
+            return Reply(msg, "tool", text, via="tool", confidence=1.0)
+        ex = st.uses.get("exams")
+        if _EXAMS.search(norm) and not ex:
+            st.uses["exams"] = ex = {"subjects": [], "worst": None, "turn": st.turn}
+        if ex and st.turn - ex["turn"] <= 8:
+            found = [s for s in _SUBJECTS if re.search(rf"\b{s}\b", norm)]
+            if found and len(found) >= 2 and len(norm.split()) <= 12 and "?" not in msg:
+                ex["subjects"] = found
+                ex["turn"] = st.turn
+                listing = ", ".join(found[:-1]) + " and " + found[-1]
+                return Reply(msg, "smalltalk", self._pick(st, "daily:exam_subjects", d["exam_subjects"], x=listing), via="empathy")
+            m = _WORST_AT.match(norm)
+            if m:
+                subj = (m.group("s") or m.group("t")).strip()
+                ex["worst"], ex["turn"] = subj, st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:exam_worst", d["exam_worst"], x=subj), via="everyday")
+            if _STUDY_FIRST.match(norm):
+                ex["turn"] = st.turn
+                if ex["worst"]:
+                    return Reply(msg, "smalltalk", self._pick(st, "daily:exam_worst", d["exam_worst"], x=ex["worst"]), via="everyday")
+                return Reply(msg, "smalltalk", self._pick(st, "daily:exam_first", d["exam_first"]), via="everyday")
+        le = st.last_exp or {}
+        lonely = le and st.turn - le.get("turn", -99) <= 4 and re.search(r"\blonel|\balone\b|\bisolat|\bno friends\b|\bdon'?t know anyone\b",
+                                                                         le.get("text") or "")
+        if lonely and _WFH.search(norm) and len(norm.split()) <= 12:
+            st.last_exp = dict(le, turn=st.turn)
+            return Reply(msg, "empathy", self._pick(st, "daily:wfh_lonely", d["wfh_lonely"]), via="empathy")
+        m = _MAYBE_SHOULD.match(norm)
+        if m:
+            if lonely:
+                st.last_exp = dict(le, turn=st.turn)
+            return Reply(msg, "smalltalk", self._pick(st, "daily:maybe_should", d["maybe_should"]), via="empathy")
+        if lonely and _IDEAS_Q.match(norm):
+            st.last_exp = dict(le, turn=st.turn)
+            return Reply(msg, "smalltalk", self._pick(st, "daily:lonely_ideas", d["lonely_ideas"]), via="everyday")
+        cw = st.uses.get("common_when")
+        if cw and st.turn - cw[1] <= 3 and _THEN_WHEN.match(norm):
+            return Reply(msg, "answer", cw[0], answer=cw[0], source={"kind": "common", "source": "everyday facts", "key": ""},
+                         confidence=1.0, via="common")
+        return None
+
+    def _place_ctx(self, st: DialogState) -> str | None:
+        """The city the conversation is about: a place just talked about, else where the user lives."""
+        pt = st.uses.get("place_topic")
+        if isinstance(pt, list) and pt and st.turn - pt[1] <= 6:
+            return pt[0]
+        for f in self.bot.facts.facts:
+            if f.subject == USER and "#home" in f.relation:
+                return f.object
         return None
 
     def _person_name(self, noun: str) -> str | None:
@@ -3803,17 +3971,22 @@ class Assistant:
                                                          r"when (?:he|she|they) did (?:it|that)|at that time))?", q):
             return Reply(text, "answer", ct[0], answer=ct[0], source={"kind": "common", "source": "everyday facts", "key": ""},
                          confidence=1.0, via="common")   # "how old was he then?" after the first man on the moon
-        for item in self.bank.daily.get("common", []):
-            if re.fullmatch(item["q"], q):
-                src = {"kind": "common", "source": "everyday facts", "key": item.get("key", "")}
-                if item.get("t"):                 # a person or thing: "when was he born?" follows on from it
-                    self.bot.context.update({"answer": item["t"], "atype": None, "mention": item["t"], "kb_last": None})
-                    st.topic = {"title": item["t"], "name": item["t"], "turn": st.turn}
-                if item.get("then"):
-                    st.uses["common_then"] = [item["then"], st.turn]
-                return Reply(text, "answer", item["a"], answer=item.get("v", item["a"]), source=src, confidence=1.0,
-                             via="common")
-        return None
+        tp = st.topic if st.topic and st.turn - st.topic.get("turn", -99) <= 4 else None
+        tries = [q]
+        if tp and re.search(r"\b(?:it|there)\b", q):         # "who was the first person on it?" after the Moon
+            tries.append(re.sub(r"\b(?:it|there)\b", tp["name"].lower(), q, count=1))
+        item = next((it for q in tries for it in self.bank.daily.get("common", []) if re.fullmatch(it["q"], q)), None)
+        if item is None:
+            return None
+        src = {"kind": "common", "source": "everyday facts", "key": item.get("key", "")}
+        if item.get("t"):                         # a person or thing: "when was he born?" follows on from it
+            self.bot.context.update({"answer": item["t"], "atype": None, "mention": item["t"], "kb_last": None})
+            st.topic = {"title": item["t"], "name": item["t"], "turn": st.turn}
+        if item.get("then"):
+            st.uses["common_then"] = [item["then"], st.turn]
+        if item.get("when"):
+            st.uses["common_when"] = [item["when"], st.turn]
+        return Reply(text, "answer", item["a"], answer=item.get("v", item["a"]), source=src, confidence=1.0, via="common")
 
     def _superlative(self, st: DialogState, text: str) -> Reply | None:
         """"What is the tallest mountain in the world?" from the measured values in the fact bank
@@ -3908,6 +4081,10 @@ class Assistant:
         """"actually I prefer ramen" right after "my favorite food is sushi" → "My favourite food is ramen."
         — the correction keeps the category it corrects."""
         m = _PREFER.match(normalise(msg))
+        if not m:
+            m = _CORRECT_IT.match(msg.strip().lower())   # "actually no, it's risotto" right after a favourite
+            if m and _NOT_A_NAME.search(m.group("x")):
+                m = None                                  # "no, it's fine": no new favourite
         sid = self.bot.context.get("last_learned")
         if not m or not sid:
             return msg
@@ -5007,6 +5184,9 @@ _RELATABLE_DE = re.compile(r"(?:montage?|montags|morgende?|frühes aufstehen|fr�
                            r"spinnen|mücken|insekten|smalltalk|menschenmassen|lärm|schnee)", re.I)
 _PREFER = re.compile(r"^(?:actually|no|well|hmm|wait)?,?\s*(?:i (?:think )?(?:prefer|like|love)|i'd say|make that|"
                      r"no wait,?) (?P<x>[a-z][a-z' -]{1,30}?)(?: more| better| instead| actually| now)?$")
+_CORRECT_IT = re.compile(r"^(?:actually|no|nope|wait|sorry|oops|my bad|i mean|i meant)(?:[, ]+(?:no|nope|wait|sorry|actually|"
+                         r"i mean|i meant))*[, ]+(?:it'?s|its|it is|i mean|i meant|make that|change (?:that|it) to)?\s*"
+                         r"(?P<x>[a-z][a-z' -]{1,30}?)(?: actually| instead| now| not that)?[.!]*$")
 _FAV_NOUN = {"#food": "food", "#colour": "colour", "#car": "car"}
 _HI_IM = re.compile(r"^((?:hi|hey|hello|yo|heya|hiya|hallo)[,!.]*\s+(?:i'?m|im|i am|it'?s|this is)\s+)([a-z][a-z'-]+)[.!]*$", re.I)
 _NOT_NAMES = frozenset(("back", "home", "here", "new", "fine", "good", "ok", "okay", "great", "well", "done", "bored", "tired",

@@ -1546,3 +1546,80 @@ def test_reading_date_from_pack_info(tmp_path):
     (tmp_path / "info.json").write_text(json.dumps({"reading": "article leads, top 400,000 (DBpedia 2022.12 abstracts)"}))
     assert reading_as_of(tmp_path) == "December 2022"
     assert reading_as_of(tmp_path / "missing") is None
+
+
+def test_battery43_small_talk_follow_ons(chat):
+    a, _ = chat
+    st = DialogState("g1")
+    a.turn(st, "how r u")
+    r = a.turn(st, "same lol")
+    assert "Tell me more" not in r.text and "Glad" in r.text or "good day" in r.text, r.text
+    r = a.turn(st, "u a robot?")
+    assert r.kind == "smalltalk" and "ENGRAMM" in r.text, r.text
+    a.turn(st, "do u have feelings")
+    r = a.turn(st, "thats kinda sad")
+    assert "what happened" not in r.text.lower(), r.text
+    r = a.turn(st, "ok whatever, tell me a joke")
+    assert r.kind == "smalltalk" and r.kind != "learned", r.text
+    joke = r.text
+    r = a.turn(st, "another one")
+    assert r.text != joke and "wear you down" not in r.text, r.text
+
+
+def test_battery43_correction_pet_tip_exams_lonely(chat):
+    a, _ = chat
+    st = DialogState("g2")
+    a.turn(st, "my favourite dish is lasagna")
+    r = a.turn(st, "actually no, it's risotto")
+    assert r.kind == "learned", r.text
+    assert "risotto" in a.turn(st, "what's my favourite dish now?").text
+    st2 = DialogState("g3")
+    a.turn(st2, "my dog is sick")
+    r = a.turn(st2, "he threw up twice today")
+    assert "vet" in r.text and "wear you down" not in r.text, r.text
+    a.turn(st2, "his name is bruno")
+    r = a.turn(st2, "ok ill call them")
+    assert "Bruno" in r.text, r.text
+    r = a.turn(st2, "thanks, youre sweet")
+    assert r.text.count("!") <= 2 and "Thank you! I try" not in r.text, r.text
+    r = a.turn(DialogState("g4"), "what's the tip on a 45 dollar bill?")
+    assert "$6.75" in r.text and "$9.00" in r.text, r.text
+    st5 = DialogState("g5")
+    a.turn(st5, "im so stressed with exams")
+    r = a.turn(st5, "i have 3 exams next week")
+    assert "3 exams" in r.text, r.text
+    r = a.turn(st5, "math, physics and chemistry")
+    assert "math, physics and chemistry" in r.text.lower(), r.text
+    a.turn(st5, "which should i study first?")
+    r = a.turn(st5, "i'm worst at physics")
+    assert "physics" in r.text and "sorry" not in r.text.lower(), r.text
+    st6 = DialogState("g6")
+    a.turn(st6, "i feel lonely lately")
+    r = a.turn(st6, "not really, i work from home")
+    assert "home" in r.text.lower() and r.kind == "empathy", r.text
+    r = a.turn(st6, "maybe i should get out more")
+    assert "even harder" not in r.text, r.text
+    r = a.turn(st6, "what could i do?")
+    assert "•" in r.text, r.text
+    r = a.turn(st6, "that sounds nice")
+    assert "wear you down" not in r.text, r.text
+
+
+def test_battery43_planets_and_moon_follow_ups(chat):
+    a, _ = chat
+    st = DialogState("g7")
+    st.topic = {"title": "Moon", "name": "Moon", "turn": 0}
+    r = a.turn(st, "who was the first person on it?")
+    assert "Neil Armstrong" in r.text, r.text
+    assert "20 July 1969" in a.turn(st, "when was that?").text
+    st2 = DialogState("g8")
+    r = a.turn(st2, "cool, how big is mars?")
+    assert "6,779 km" in r.text, r.text
+    r = a.turn(st2, "and how far is it from the sun?")
+    assert "228 million km" in r.text, r.text
+
+
+def test_lead_strips_and_name_guard():
+    from engramm.chat.dialog import _slot_value
+    assert _slot_value("it's hard", "name") is None
+    assert _slot_value("its sarah", "name") == "sarah"

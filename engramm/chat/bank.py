@@ -32,7 +32,7 @@ _SLANG = {"u": "you", "r": "are", "ur": "your", "pls": "please", "plz": "please"
           "b4": "before", "2day": "today", "gtg": "got to go", "g2g": "got to go", "gr8": "great", "ok.": "ok", "k.": "k"}
 # chat spelling expanded in the message itself (English), so that understanding, lookup and memory
 # all see "what's your name" for "wats ur name" — whole words only, case kept for everything else
-_CHAT_WORDS = {"u": "you", "r": "are", "ur": "your", "wat": "what", "wut": "what", "wht": "what", "wats": "what's",
+_CHAT_WORDS = {"whatcha": "what are you", "watcha": "what are you", "wyd": "what are you doing", "u": "you", "r": "are", "ur": "your", "wat": "what", "wut": "what", "wht": "what", "wats": "what's",
                "whats": "what's", "whos": "who's", "hows": "how's", "wheres": "where's", "thats": "that's",
                "abt": "about", "thx": "thanks", "thnx": "thanks", "tnx": "thanks", "ty": "thank you",
                "tysm": "thank you so much", "np": "no problem", "pls": "please", "plz": "please", "gf": "girlfriend",

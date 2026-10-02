@@ -536,7 +536,7 @@ intents:
     follow: ask_name
 
   - id: bot_what
-    patterns: ['what are you|what exactly are you|what kind of (thing|program|bot|ai) are you|are you (a|an) (ai|artificial intelligence|bot|robot|program|computer|machine|chatbot|chat bot|assistant|software|app)|are you real|are you (a )?(human|person|real person|man|woman|alive|living)|is this a (bot|real person|human)|am i talking to a (bot|human|person|machine|computer|robot)|are you chatgpt|are you gpt|are you (like )?chatgpt|are you siri|are you alexa|are you google|are you claude|are you gemini|are you copilot']
+    patterns: ['what are you|what exactly are you|what kind of (thing|program|bot|ai) are you|are you (a|an) (ai|artificial intelligence|bot|robot|program|computer|machine|chatbot|chat bot|assistant|software|app)|are you real|are you (a )?(human|person|real person|man|woman|alive|living)|is this a (bot|real person|human)|am i talking to a (bot|human|person|machine|computer|robot)|(?:you|u) (a|an) (ai|bot|robot|program|computer|machine|human|real person|person)|are you chatgpt|are you gpt|are you (like )?chatgpt|are you siri|are you alexa|are you google|are you claude|are you gemini|are you copilot']
     examples: [what are you, are you a robot, are you human, are you an ai, are you chatgpt, are you real]
     responses:
       - "A computer program — specifically ENGRAMM, an offline chat assistant. I don't use neural networks; I count, look things up and remember what you tell me."
