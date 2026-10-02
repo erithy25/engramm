@@ -99,6 +99,18 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
   `ENGRAMM_SIGNING_KEY`. Steht ein Schlüssel in der App, nutzt sie nur ein von ihm signiertes Manifest.
   **Stand:** noch kein Schlüssel hinterlegt; bis dahin schützt allein die gepinnte Paket-Prüfsumme
   (Kette: Installer-Katalog → Paket-Manifest → `shelf.json` → SHA-256 je Fach).
+- **Schlüssel einrichten (Eigentümer, einmalig, ≈ 2 Minuten):**
+  1. `python scripts/sign_manifest.py --keygen` gibt ein Schlüsselpaar aus.
+  2. Den geheimen Teil als Repository-Secret `ENGRAMM_SIGNING_KEY` hinterlegen (GitHub → Settings → Secrets and
+     variables → Actions).
+  3. Den öffentlichen Teil als eine Zeile in `engramm/web/release_keys.txt` committen.
+  4. `shelf.yml` neu laufen lassen; ab dann nimmt die App nur noch ein so signiertes Regal-Manifest an.
+
+  Ende-zu-Ende geprüft (2. Oktober 2026, Wegwerf-Schlüssel, nichts gespeichert) mit dem echten Manifest von
+  `shelf-20260927`:
+  - signiert → die Prüfung gelingt mit dem eigenen Schlüssel,
+  - sie schlägt mit einem fremden Schlüssel fehl,
+  - ein verändertes Manifest wird abgelehnt.
 
 ## Abo (K2)
 
