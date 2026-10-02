@@ -22,6 +22,9 @@ _TOKEN = re.compile(r"[A-Za-z][A-Za-z']*|[^A-Za-z]+")
 _CHAT_FORMS = {"whats", "hows", "wheres", "whos", "thats", "theres", "lets", "im", "ive", "youre", "dont", "cant",
                "wont", "didnt", "doesnt", "isnt", "wasnt", "gonna", "wanna", "gotta", "idk", "pls", "plz", "thx", "lol",
                "omg", "btw", "tbh", "imo", "ok", "okay", "yeah", "yep", "nope", "hmm", "haha"}
+_ACRONYMS = {"dna", "rna", "nasa", "fifa", "uefa", "html", "gps", "usb", "cpu", "gpu", "nba", "nfl", "nhl", "mlb",
+             "unesco", "unicef", "nato", "opec", "ufo", "bmw", "vw", "hiv", "aids", "lgbt", "mri", "atm", "pdf", "url",
+             "wifi", "lcd", "led", "ddr", "ssd", "hdd", "ram", "rom", "dvd", "cia", "fbi", "kgb", "bbc", "cnn", "who"}
 _CONFUSIONS = [(re.compile(r"\bcapitol of\b", re.I), "capital of"),
                (re.compile(r"\bwho's (?=book|song|painting)", re.I), "whose "),
                (re.compile(r"\bteh\b", re.I), "the"),
@@ -61,7 +64,7 @@ class Speller:
         low = w.lower()
         if len(low) < 3 or low in self.counts or not low.isalpha():
             return w
-        if low in _CHAT_FORMS:
+        if low in _CHAT_FORMS or low in _ACRONYMS:
             return w
         cands = []
         for _, group in sorted(_edits1_by_kind(low).items()):

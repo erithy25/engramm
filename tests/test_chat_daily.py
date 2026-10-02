@@ -3157,3 +3157,24 @@ def test_battery84_second_generalisation_probe(chat):
         r = a.turn(DialogState(f"g84-{i}"), msg)
         assert not any(x in r.text for x in bad), (msg, r.text)
     assert "interveiw" not in a.turn(DialogState("t84"), "i have a job interveiw tomorow").text
+
+
+def test_battery85_fourth_knowledge_sample(chat):
+    a, _ = chat
+    for i, (msg, want) in enumerate([("who painted the last supper?", "Leonardo"), ("what does dna stand for?", "deoxyribonucleic"),
+                                     ("who is the father of computers?", "Babbage"), ("how many moons does mars have?", "two"),
+                                     ("what is the largest island in the world?", "Greenland"),
+                                     ("wofür steht dna?", "Desoxyribonukleinsäure"),
+                                     ("wer war der erste römische kaiser?", "Augustus")]):
+        r = a.turn(DialogState(f"k85-{i}"), msg)
+        assert want.lower() in r.text.lower(), (msg, r.text)
+    from engramm.nlp.spell import _ACRONYMS
+    assert {"dna", "nasa", "gps"} <= _ACRONYMS
+
+
+def test_battery85_he_and_it_after_a_painter(chat):
+    a, _ = chat
+    a.bot.context.update({"answer": "Vincent van Gogh", "atype": "PERSON", "mention": "The Starry Night"})
+    assert a.bot.resolve("when did he paint it?") == "when did Vincent van Gogh paint The Starry Night?"
+    a.bot.context.update({"answer": "Vincent van Gogh", "atype": "PERSON", "mention": "Vincent van Gogh"})
+    assert a.bot.resolve("did he like it?") == "did Vincent van Gogh like it?"

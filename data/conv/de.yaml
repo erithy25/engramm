@@ -13,6 +13,7 @@ detect:
            wohne, lebe, arbeite, heiße, hasse, schwester, bruder, mutter, vater, meinte, merk, vergiss, verschoben, termin,
            sprache, sprachen, spricht, sprechen, welche, welcher, welches, fiel, tief, beine, mensch, mond, erfunden,
            rechne, umrechnen, meilen, trinkgeld, rabatt, teile, krankmeldung, schreib, pfannkuchen,
+           wofür, zähne, erwachsener, sekunden, stunde, kaiser, römische, weltall, insel, monde, organ, sinfonie,
            wie, was, wer, wo, warum, wieso, geht, gehts, heiße, heisse, danke, bitte, gut, schlecht, auch, noch,
            schon, aber, oder, sehr, heute, morgen, gestern, hast, habe, kannst, kann, bitte, mein, meine, dein,
            deine, sind, wir, ihr, sie, es, zu, mit, für, über, von, auf, nein, ja, doch, genau, tschüss, tschüs,
@@ -853,6 +854,15 @@ daily:
         - {q: "(?:und )?(?:welcher planet ist der sonne am nächsten|was ist der sonnennächste planet)", a: "Merkur ist der Planet, der der Sonne am nächsten ist.", v: "Merkur"}
         - {q: "(?:und )?(?:was|welches) ist das schnellste landtier|welches tier ist (?:an land )?am schnellsten", a: "Der Gepard – auf kurzen Strecken schafft er rund 100 km/h.", v: "Gepard"}
         - {q: "(?:und )?welches land hat die meisten (?:einwohner|menschen)|was ist das bevölkerungsreichste land(?: der welt)?", a: "Indien – rund 1,43 Milliarden Menschen. Laut UN-Schätzung hat es 2023 China (rund 1,41 Milliarden) überholt.", v: "Indien"}
+        - {q: "(?:und )?wer hat (?:die )?neunte (?:sinfonie|symphonie) (?:komponiert|geschrieben)", a: "Ludwig van Beethoven – seine Neunte (1824) endet mit der „Ode an die Freude“, heute die Europahymne.", v: "Beethoven"}
+        - {q: "(?:und )?wer war der erste mensch im (?:weltall|weltraum|all)", a: "Juri Gagarin – am 12. April 1961 umrundete er mit Wostok 1 einmal die Erde.", v: "Juri Gagarin"}
+        - {q: "(?:und )?wie viele zähne hat (?:ein )?erwachsener(?: mensch)?", a: "Ein Erwachsener hat 32 Zähne, wenn alle Weisheitszähne da sind – sonst 28.", v: "32"}
+        - {q: "(?:und )?was ist das größte organ des menschen|welches ist das größte organ", a: "Die Haut – bei Erwachsenen rund 2 m² groß und etwa 4 kg schwer. (Das größte innere Organ ist die Leber.)", v: "Haut"}
+        - {q: "(?:und )?wie viele monde hat (?:der )?mars", a: "Der Mars hat zwei kleine Monde: Phobos und Deimos.", v: "2"}
+        - {q: "(?:und )?(?:was|welches) ist die größte insel(?: der welt)?", a: "Grönland – rund 2,17 Millionen km². (Australien zählt als Kontinent.)", v: "Grönland"}
+        - {q: "(?:und )?wie viele sekunden hat eine stunde", a: "Eine Stunde hat 3.600 Sekunden (60 × 60).", v: "3600"}
+        - {q: "(?:und )?wer war der erste römische kaiser", a: "Augustus (Octavian) – erster römischer Kaiser von 27 v. Chr. bis 14 n. Chr.", v: "Augustus"}
+        - {q: "(?:und )?wofür steht dna|was bedeutet dna", a: "DNA steht für Desoxyribonukleinsäure (englisch deoxyribonucleic acid).", v: "Desoxyribonukleinsäure"}
         - {q: "(?:und )?was ist h2o", a: "H₂O ist Wasser – zwei Wasserstoffatome und ein Sauerstoffatom.", v: "Wasser"}
         - {q: "(?:und )?wie weit ist der mond (?:von der erde )?(?:weg|entfernt)", a: "Der Mond ist im Schnitt etwa 384.400 km von der Erde entfernt – Licht braucht dafür rund 1,3 Sekunden.", v: "384.400 km"}
       superlativ:

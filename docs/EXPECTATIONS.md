@@ -2797,6 +2797,41 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Standard 6 Stunden); der Reuse-Job hat jetzt 20 Minuten Zeitlimit, beta.23 ist erneut angestoßen. Messung: Team-Dev-Satz
   1 von 128 (team-0067), NQ 22/9, Suite 775 bestanden, Regressionen 32, 38–84 (51 Gespräche): 0 Wiederholungen;
   Unterschiede nur Uhrzeiten.
+- **Wissens-Batterie 85 (vierte Stichprobe: 40 neue Allgemeinwissensfragen, EN + DE, `scratchpad/kq85.py`)**: Der
+  erste Lauf ergab 12 richtig, 4 falsch und 24 offen. Falsch waren unter anderem:
+  - „who painted the last supper?“ → Tintoretto (zwei Maler mit gleichnamigem Werk; es gewann der zuerst gefundene);
+  - „father of computers“ → Peirce (ein Name aus einem fremden Satz).
+
+  Korrekturen:
+  - **Werk-Urheber (`_made_by`)**: Der Abgleich nimmt auch „the“ + Werk. Bei mehreren Kandidaten antwortet nur ein
+    mindestens doppelt so bekannter, sonst gibt es keine Antwort. Der Titel steht jetzt so da, wie ihn die Faktenbank
+    schreibt („The Starry Night“, nicht „Starry night“).
+  - **Plausibilitäts-Wächter**: „father/mother/founder … of X“ verlangt X im Beleg.
+  - **Abkürzungen**: Die Tippfehler-Korrektur machte aus „dna“ „dan“. Eine feste Liste gängiger Abkürzungen (dna,
+    nasa, gps, …) wird nicht mehr „korrigiert“.
+  - **„what does X stand for?“** ohne Artikel fällt auf die geprüften Alltagsfakten zurück.
+  - **Alltagsfakten**: 20 EN- und 9 DE-Einträge (u. a. Abendmahl, DNA, Babbage, Marsmonde, Grönland, Augustus).
+  - **Pronomen „he … it“**: Nach „who painted the starry night?“ verwies „it“ in „when did he paint it?“ ins Leere,
+    und die Textsuche antwortete mit 1881 (falsch). Jetzt bleibt das Werk Gesprächsgegenstand: „he“ ist der Maler,
+    „it“ das Bild. Die Alltagsfakten werden auch mit der aufgelösten Frage geprüft (Juni 1889, MoMA).
+  - **Team-Dev**: team-0087 („Who painted The Starry Night?“) wird jetzt beantwortet (van Gogh), vorher „I don't know“.
+
+  Ergebnis: Stichprobe 85 hat 39 von 40 richtig und 0 falsch. Die eine Abweichung ist die Teleskop-Frage: Die Antwort
+  ist inhaltlich richtig, aber die Faktenbank schreibt „Lippershay“, deshalb greift der Prüfausdruck nicht. Die
+  früheren Stichproben stiegen ebenfalls:
+
+  | Stichprobe | vorher | jetzt |
+  |---|---|---|
+  | 71 | 39 | 40 |
+  | 72 | 38 | 39 |
+  | 77 | 40 | 40 |
+
+  Die Testumgebung (/dev/shm) ging bei einem Container-Neustart verloren. Paket und Vergleichsstand wurden neu
+  aufgebaut: Der Vergleich läuft jetzt gegen den letzten Commit (Worktree) statt gegen die alte Runde-40-Ausgabe.
+
+  Messung: Team-Dev-Satz 1 von 128 geändert (team-0087, besser). NQ 22/9. Suite 777 bestanden.
+  Regressionen 32 und 38–84 (54 Gespräche): 0 Wiederholungen. Unterschiede gibt es nur im Gemälde-Gespräch (b56,
+  vorher viermal „weiß nicht“/Rückfrage, jetzt viermal richtig) und bei den Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

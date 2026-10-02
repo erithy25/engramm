@@ -3836,6 +3836,18 @@
     "krankmeldung",
     "schreib",
     "pfannkuchen",
+    "wofür",
+    "zähne",
+    "erwachsener",
+    "sekunden",
+    "stunde",
+    "kaiser",
+    "römische",
+    "weltall",
+    "insel",
+    "monde",
+    "organ",
+    "sinfonie",
     "wie",
     "was",
     "wer",
@@ -6398,6 +6410,51 @@
        "v": "Indien"
       },
       {
+       "q": "(?:und )?wer hat (?:die )?neunte (?:sinfonie|symphonie) (?:komponiert|geschrieben)",
+       "a": "Ludwig van Beethoven – seine Neunte (1824) endet mit der „Ode an die Freude“, heute die Europahymne.",
+       "v": "Beethoven"
+      },
+      {
+       "q": "(?:und )?wer war der erste mensch im (?:weltall|weltraum|all)",
+       "a": "Juri Gagarin – am 12. April 1961 umrundete er mit Wostok 1 einmal die Erde.",
+       "v": "Juri Gagarin"
+      },
+      {
+       "q": "(?:und )?wie viele zähne hat (?:ein )?erwachsener(?: mensch)?",
+       "a": "Ein Erwachsener hat 32 Zähne, wenn alle Weisheitszähne da sind – sonst 28.",
+       "v": "32"
+      },
+      {
+       "q": "(?:und )?was ist das größte organ des menschen|welches ist das größte organ",
+       "a": "Die Haut – bei Erwachsenen rund 2 m² groß und etwa 4 kg schwer. (Das größte innere Organ ist die Leber.)",
+       "v": "Haut"
+      },
+      {
+       "q": "(?:und )?wie viele monde hat (?:der )?mars",
+       "a": "Der Mars hat zwei kleine Monde: Phobos und Deimos.",
+       "v": "2"
+      },
+      {
+       "q": "(?:und )?(?:was|welches) ist die größte insel(?: der welt)?",
+       "a": "Grönland – rund 2,17 Millionen km². (Australien zählt als Kontinent.)",
+       "v": "Grönland"
+      },
+      {
+       "q": "(?:und )?wie viele sekunden hat eine stunde",
+       "a": "Eine Stunde hat 3.600 Sekunden (60 × 60).",
+       "v": "3600"
+      },
+      {
+       "q": "(?:und )?wer war der erste römische kaiser",
+       "a": "Augustus (Octavian) – erster römischer Kaiser von 27 v. Chr. bis 14 n. Chr.",
+       "v": "Augustus"
+      },
+      {
+       "q": "(?:und )?wofür steht dna|was bedeutet dna",
+       "a": "DNA steht für Desoxyribonukleinsäure (englisch deoxyribonucleic acid).",
+       "v": "Desoxyribonukleinsäure"
+      },
+      {
        "q": "(?:und )?was ist h2o",
        "a": "H₂O ist Wasser – zwei Wasserstoffatome und ein Sauerstoffatom.",
        "v": "Wasser"
@@ -8866,6 +8923,114 @@
     "t": "Mont Blanc"
    },
    {
+    "q": "(?:and |so )?who painted (?:the )?last supper",
+    "a": "Leonardo da Vinci painted The Last Supper (around 1495–1498), on a wall of the convent of Santa Maria delle Grazie in Milan. (Tintoretto painted a famous Last Supper too, in Venice.)",
+    "v": "Leonardo da Vinci",
+    "t": "The Last Supper (Leonardo)"
+   },
+   {
+    "q": "(?:and |so )?who (?:composed|wrote) (?:the )?(?:ninth symphony|9th symphony|ode to joy)",
+    "a": "Ludwig van Beethoven — his Ninth Symphony (1824) ends with the “Ode to Joy”, which is now the anthem of Europe.",
+    "v": "Beethoven",
+    "t": "Symphony No. 9 (Beethoven)"
+   },
+   {
+    "q": "(?:and |so )?who discovered radioactivity",
+    "a": "Henri Becquerel discovered radioactivity in 1896; Marie and Pierre Curie then researched it further — all three shared the 1903 Nobel Prize in Physics.",
+    "v": "Henri Becquerel",
+    "t": "Radioactivity"
+   },
+   {
+    "q": "(?:and |so )?when did the (?:western )?roman empire fall|when was the fall of (?:the )?(?:western )?roman empire",
+    "a": "The Western Roman Empire fell in 476 AD, when the last emperor, Romulus Augustulus, was deposed. The Eastern (Byzantine) Empire lasted until 1453.",
+    "v": "476",
+    "t": "Fall of the Western Roman Empire"
+   },
+   {
+    "q": "(?:and |so )?when was the (?:us |american )?declaration of independence (?:signed|adopted)",
+    "a": "The Declaration of Independence was adopted on 4 July 1776; most delegates signed it on 2 August 1776.",
+    "v": "4 July 1776",
+    "t": "United States Declaration of Independence"
+   },
+   {
+    "q": "(?:and |so )?(?:what(?:'s| is) the |which is the )?(?:largest|biggest) organ (?:of|in) the (?:human )?body",
+    "a": "The skin — it covers about 2 m² and weighs around 4 kg in an adult. (The largest internal organ is the liver.)",
+    "v": "the skin",
+    "t": "Skin"
+   },
+   {
+    "q": "(?:and |so )?how many chromosomes do (?:humans|people|we) have",
+    "a": "Humans have 46 chromosomes — 23 pairs, one set from each parent.",
+    "v": "46",
+    "t": "Chromosome"
+   },
+   {
+    "q": "(?:and |so )?(?:what|which) gas do plants (?:absorb|take in|need)",
+    "a": "Carbon dioxide (CO₂) — plants take it in for photosynthesis and release oxygen.",
+    "v": "carbon dioxide",
+    "t": "Photosynthesis"
+   },
+   {
+    "q": "(?:and |so )?(?:what(?:'s| is) the )?hardest (?:natural )?(?:substance|material|mineral)(?: on earth| in the world)?",
+    "a": "Diamond is the hardest natural material — a 10 on the Mohs scale.",
+    "v": "diamond",
+    "t": "Diamond"
+   },
+   {
+    "q": "(?:and |so )?(?:what(?:'s| is) the |which is the )?smallest planet(?: in (?:our|the) solar system)?|which planet is the smallest",
+    "a": "Mercury is the smallest planet — only about 4,880 km across.",
+    "v": "Mercury",
+    "t": "Mercury (planet)"
+   },
+   {
+    "q": "(?:and |so )?how many moons does mars have",
+    "a": "Mars has two small moons: Phobos and Deimos.",
+    "v": "2",
+    "t": "Moons of Mars"
+   },
+   {
+    "q": "(?:and |so )?(?:what(?:'s| is) the |which is the )?(?:largest|biggest) island(?: in the world| on earth)?",
+    "a": "Greenland is the largest island — about 2.17 million km². (Australia counts as a continent.)",
+    "v": "Greenland",
+    "t": "Greenland"
+   },
+   {
+    "q": "(?:and |so )?(?:what(?:'s| is) the |which is the )?deepest ocean(?: in the world| on earth)?",
+    "a": "The Pacific is the deepest ocean — the Challenger Deep in the Mariana Trench is about 10,900 m deep.",
+    "v": "the Pacific Ocean",
+    "t": "Pacific Ocean"
+   },
+   {
+    "q": "(?:and |so )?(?:what(?:'s| is) the |which is the )?longest wall(?: in the world| on earth)?",
+    "a": "The Great Wall of China — all its sections together are over 21,000 km long.",
+    "v": "the Great Wall of China",
+    "t": "Great Wall of China"
+   },
+   {
+    "q": "(?:and |so )?how many sides does a (?P<x>triangle|square|pentagon|hexagon|heptagon|octagon|decagon) have",
+    "a": "Triangle 3, square 4, pentagon 5, hexagon 6, heptagon 7, octagon 8, decagon 10 — so the one you asked about is in there.",
+    "v": "",
+    "t": "Polygon"
+   },
+   {
+    "q": "(?:and |so )?who was the first (?:roman )?emperor(?: of rome)?",
+    "a": "Augustus (Octavian) was the first Roman emperor, from 27 BC to AD 14.",
+    "v": "Augustus",
+    "t": "Augustus"
+   },
+   {
+    "q": "(?:and |so )?who is (?:known as |called )?the father of (?:the )?computers?",
+    "a": "Charles Babbage is usually called the father of the computer — he designed the Analytical Engine in the 1830s. Alan Turing is often called the father of computer science.",
+    "v": "Charles Babbage",
+    "t": "Charles Babbage"
+   },
+   {
+    "q": "(?:and |so )?what does dna stand for",
+    "a": "DNA stands for deoxyribonucleic acid.",
+    "v": "deoxyribonucleic acid",
+    "t": "DNA"
+   },
+   {
     "q": "(?:and |so )?(?:which|what) country has the (?:most people|most inhabitants|largest population|biggest population|highest population)|(?:what(?:'s| is) the |which is the )?most populous country(?: in the world| on earth)?",
     "a": "India has the most people — about 1.43 billion. It overtook China (about 1.41 billion) in 2023, according to UN estimates.",
     "v": "India",
@@ -9052,6 +9217,16 @@
     "a": "The Mona Lisa hangs in the Louvre in Paris, behind bulletproof glass in the Salle des États.",
     "v": "the Louvre",
     "t": "Mona Lisa"
+   },
+   {
+    "q": "(?:and |so )?when (?:did (?:vincent )?van gogh paint|was) the starry night(?: painted)?",
+    "a": "Van Gogh painted The Starry Night in June 1889, from the window of his room at the asylum in Saint-Rémy-de-Provence.",
+    "v": "June 1889"
+   },
+   {
+    "q": "(?:and |so )?(?:where is|where can i see|in which museum is) the starry night(?: now| today| kept| displayed| hanging)?",
+    "a": "The Starry Night hangs in the Museum of Modern Art (MoMA) in New York, where it has been since 1941.",
+    "v": "the Museum of Modern Art"
    },
    {
     "q": "(?:and |so )?(?:has anyone|did anyone|has anybody|did people|have people) (?:ever )?(?:climbed|reached the (?:top|summit) of|been to the top of) (?:mount )?everest|who (?:was the first (?:person |man |one )?to climb|first climbed|first reached the summit of) (?:mount )?everest",

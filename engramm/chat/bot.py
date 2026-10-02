@@ -554,6 +554,11 @@ class ChatBot:
             if core in _PERSON_PRON and person:
                 rep = person + "'s" if core in ("his", "their", "hers") else person
                 ws[i] = rep + tail
+                if thing and thing != person and core in ("he", "she", "they"):
+                    for j in range(i + 1, len(ws)):       # "when did he paint it?" after the painter of a painting: both
+                        if re.sub(r"[^\w']", "", ws[j]).lower() == "it":
+                            ws[j] = thing + ws[j][len(ws[j].rstrip("?.!,")):]
+                            break
                 return " ".join(ws)
             if core in _THING_PRON and thing:
                 rep = thing + "'s" if core == "its" else ("in " + thing if core == "there" else thing)

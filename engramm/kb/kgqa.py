@@ -444,10 +444,11 @@ class KGQA:
         if not work or len(work.split()) > 8:
             return None
         occ = _MADE_BY_OCC[m.group("v").lower()]
-        rows = self.kb.db.execute("SELECT DISTINCT entity FROM fact WHERE prop = 'notableWork' AND lower(value) = lower(?)",
-                                  (work,)).fetchall()
+        rows = self.kb.db.execute("SELECT entity, value FROM fact WHERE prop = 'notableWork' AND lower(value) IN (lower(?), lower(?))",
+                                  (work, "the " + work)).fetchall()
+        stored = {eid: val for eid, val in rows}         # the title as the fact bank writes it ("The Starry Night")
         people = []
-        for (eid,) in rows:
+        for eid in dict.fromkeys(e for e, _ in rows):
             jobs = " ".join(v for (v,) in self.kb.db.execute(
                 "SELECT value FROM fact WHERE entity = ? AND prop = 'occupation'", (eid,)))
             ent = self.kb.entity(eid)
@@ -456,10 +457,17 @@ class KGQA:
                 continue                        # Richard Harris (actor, "writer") played in Harry Potter, he did not write it
             if ent is not None and (re.search(occ, jobs, re.I) or re.search(occ, ent.type or "", re.I)):
                 people.append(ent)
+        if len(people) > 1:
+            # "The Last Supper": Leonardo's and Tintoretto's — only a clearly better-known one, otherwise no answer
+            people.sort(key=lambda e: -(e.popularity or 0))
+            if (people[0].popularity or 0) < 2 * (people[1].popularity or 0):
+                return None
+            people = people[:1]
         if len(people) != 1:
             return None
         who = people[0]
-        title = work[:1].upper() + work[1:]
+        title = next((v for e, v in stored.items() if e == who.id), "") or work
+        title = title[:1].upper() + title[1:]
         verb = {"wrote": "written", "composed": "composed", "painted": "painted"}[m.group("v").lower()]
         return KBAnswer(who, "notableWork", [who.title], f"{title} was {verb} by {who.title}.",
                         f"{who.title} — notable work: {title}", False)

@@ -8036,6 +8036,10 @@ class Assistant:
                                                                                   "key": ""}, confidence=1.0, via="common")
         tp = st.topic if st.topic and st.turn - st.topic.get("turn", -99) <= 4 else None
         tries = [q]
+        if re.search(r"\b(?:he|she|it|they)\b", q):        # "when did he paint it?" after the painter of The Starry Night
+            rq = normalise(self.bot.resolve(text)).strip(" ?!.")
+            if rq != q:
+                tries.append(rq.lower())
         if tp and re.search(r"\b(?:it|there)\b", q):         # "who was the first person on it?" after the Moon
             tries.append(re.sub(r"\b(?:it|there)\b", tp["name"].lower(), q, count=1))
         if re.search(r"\bthe (?:painting|picture|statue|building|tower|book|film|movie)\b", q):
@@ -8104,8 +8108,11 @@ class Assistant:
         if len(nm.split()) == 1 and ans.text.startswith(nm + " ") and re.search(rf"\bthe {re.escape(nm.lower())}\b", q) \
                 and self.speller is not None and self.speller.known(nm.lower()):
             ans.text = f"The {nm.lower()}{ans.text[len(nm):]}"   # "The telephone was invented by …", not "Telephone was …"
+        work = ans.evidence.split(" — notable work: ", 1)[1] if ans.prop == "notableWork" and " — notable work: " in ans.evidence else None
+        if work:                                          # "who painted the starry night?": "it" is the painting, "he" the painter
+            atype = "PERSON"
         self.bot.context.update({"answer": ans.values[0] if len(ans.values) == 1 else None, "atype": atype,
-                                 "mention": ans.entity.name,
+                                 "mention": work or ans.entity.name,
                                  "many_people": [ans.entity.name, ans.values[:6]] if len(ans.values) > 1 and atype == "PERSON" else None})
         st.last_fact = {"evidence": ans.evidence, "source": src, "answer": value, "question": q, "sure": True}
         self.bot.context["kb_last"] = {"question": q, "names": [ans.entity.name, ans.entity.title]}
@@ -8230,6 +8237,10 @@ class Assistant:
                 return shelf
             if kind == "what" or kind == "tell" and re.match(r"^(?:who|what|when|where|why|how)\b", topic, re.I):
                 return self._question(st, u.text)
+            if kind == "define":                           # "what does dna stand for?" without an article: the hand-checked facts
+                common = self._common_fact(st, u.text)
+                if common is not None:
+                    return common
             if kind == "opinion":
                 return Reply(u.text, "smalltalk", self._pick(st, "intent:bot_opinion",
                                                              self.bank.by_id["bot_opinion"].responses), via="smalltalk")
@@ -9114,6 +9125,9 @@ def _implausible(q: str, answer: str | None, evidence: str | None, title: str = 
         return False
     if re.match(r"^\s*who\b", q, re.I) and _NUMBERISH.match(answer):
         return True
+    fo = re.search(r"\b(?:father|mother|founder|king|queen|godfather|grandfather|inventor|pioneer) of (?:the |modern )?(?P<x>[a-z]+)", q, re.I)
+    if fo and not re.search(rf"\b{re.escape(fo.group('x')[:6])}", evidence, re.I):
+        return True                                   # "father of computers" ← "the father of pragmatism"
     hm = re.match(r"^\s*how many (?P<n>[a-z]+)", q, re.I)
     if hm and re.search(rf"\b(?:the|these|those|both) {re.escape(answer)} {re.escape(hm.group('n').rstrip('s'))}", evidence, re.I):
         return True                                   # "the two countries are EU members" counts a pair, not the EU
