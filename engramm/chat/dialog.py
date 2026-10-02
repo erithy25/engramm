@@ -460,7 +460,8 @@ _DEADLINES = re.compile(r"^(?:yeah,? |yes,? |ugh,? )?(?:so many|lots of|a lot of
                         r"(?: at work)?[.!]*$|^(?:yeah,? )?(?:too much|so much|lots of) work[.!]*$")
 _ALMOST_WE = re.compile(r"^(?:but |at least |well,? |luckily,? )?(?:tomorrow is friday|it'?s (?:almost|nearly|finally) (?:the )?(?:weekend|friday)|tgif|"
                         r"(?:only )?one more day(?: until the weekend)?|friday tomorrow)[.!]*$")
-_BOT_WEEKEND = re.compile(r"^(?:and |so )?(?:do|what do) you have (?:any )?plans (?:for|this) (?:the )?weekend(?: lol| haha)?\??$|"
+_BOT_WEEKEND = re.compile(r"^(?:and |so )?(?:(?:do|what do) you have )?(?:any )?plans (?:for|this) (?:the )?weekend(?: lol| haha)?\??"
+                          r"(?:,? (?:oh )?wait,? (?:you'?re|you are)(?: an?)?(?: bot| ai| computer)?(?: lol| haha)?)?$|"
                           r"^what are you doing (?:this|for the) weekend\??$")
 _HIKE_PLAN = re.compile(r"^(?:i )?(?:might|will|want to|wanna|'m going to|am going to|plan to|'ll|think i'll|'m gonna|am gonna) "
                         r"(?:go (?:hiking|on a hike|for a hike)|hike)(?: (?:this weekend|tomorrow|on saturday|on sunday))?[.!]*$")
@@ -4379,7 +4380,8 @@ class Assistant:
         r2 = self._daily_ctx2(st, msg, norm) or self._daily_ctx3(st, msg, norm) or self._daily_ctx4(st, msg, norm) or \
             self._daily_ctx5(st, msg, norm) or self._daily_ctx6(st, msg, norm) or self._daily_ctx7(st, msg, norm) or \
             self._daily_ctx8(st, msg, norm) or self._daily_ctx9(st, msg, norm) or self._daily_ctx10(st, msg, norm) or \
-            self._daily_ctx11(st, msg, norm) or self._daily_ctx12(st, msg, norm) or self._daily_ctx13(st, msg, norm)
+            self._daily_ctx11(st, msg, norm) or self._daily_ctx12(st, msg, norm) or self._daily_ctx13(st, msg, norm) or \
+            self._daily_ctx14(st, msg, norm)
         if r2 is not None:
             return r2
         m = _WHAT_LIKES.match(norm)
@@ -5201,6 +5203,111 @@ class Assistant:
                 return Reply(msg, "smalltalk", self._pick(st, "daily:sound:gib_sorry", self.bank.daily["sounds"]["gib_sorry"]), via="smalltalk")
             return None
         return Reply(msg, "smalltalk", self._pick(st, f"daily:sound:{key}", self.bank.daily["sounds"][key]), via="smalltalk")
+
+    def _daily_ctx14(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 60: a hike and sore legs, a band ("have you heard of queen?" → "who was their singer?"),
+        "what kind?" after I asked about music, a book already read, symptoms, the time elsewhere, and a long
+        break after exams."""
+        b = self.bank.daily["b60"]
+        n = norm.strip(" .!?")
+        recent = lambda key, k=3: (st.uses.get(key) and st.turn - st.uses[key][-1] <= k)   # noqa: E731
+        if re.search(r"\b(?:went|been|go|was) (?:on a )?(?:hiking|hike|climbing|up a mountain|trekking)\b", n):
+            st.uses["hike60"] = [st.turn]
+        if recent("hike60", 4):
+            hm = re.fullmatch(r"(?:we |i )?(?:went|climbed|hiked) (?:up )?(?:a |the )?(?:mountain|hill|peak|trail) (?:near|in|around|close to) "
+                              r"(?P<p>[a-z ]{3,25})", n)
+            if hm:
+                st.uses["hike60"] = [st.turn]
+                return Reply(msg, "smalltalk", self._pick(st, "daily:b60:hike_where", b["hike_where"], x=_place_case(hm.group("p"))),
+                             via="smalltalk")
+            hh = re.fullmatch(r"(?:it took |we walked |we hiked |like |about |around |almost )*(?P<h>\d+|two|three|four|five|six|seven|eight)"
+                              r"(?: and a half)? hours?(?: long)?", n)
+            if hh:
+                st.uses["hike60"] = [st.turn]
+                return Reply(msg, "smalltalk", self._pick(st, "daily:b60:hike_hours", b["hike_hours"], x=hh.group("h")), via="smalltalk")
+            if re.search(r"\b(?:legs?|feet|knees?|calves|muscles) (?:hurt|are (?:so |really )?sore|ache|are killing me|are dead)\b|\bso sore\b", n):
+                return Reply(msg, "smalltalk", self._pick(st, "daily:b60:hike_sore", b["hike_sore"]), via="smalltalk")
+        tp_ = st.topic or {}
+        sm = re.fullmatch(r"(?:and )?who (?:is|was|were) (?:their|the) (?P<r>lead singer|singer|vocalist|frontman|drummer|guitarist|bassist)", n)
+        if sm and tp_.get("name") and st.turn - tp_.get("turn", -99) <= 3:
+            role = "lead singer" if sm.group("r") in ("singer", "vocalist", "frontman") else sm.group("r")
+            q = f"who was the {role} of {tp_['name']}?"      # "who was their singer?" after Queen
+            self._spelled = q
+            return self._question(st, q)
+        last = (st.last_reply or "").lower()
+        if re.fullmatch(r"(?:and )?(?:what kind|which kind|what sort|what genre|what about you|and you|you)", n) and \
+                re.search(r"\bmusic\b|favourite band", last):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b60:music_mine", b["music_mine"]), via="smalltalk")
+        hb = re.fullmatch(r"(?:have you|did you ever|do you know|you know|ever) (?:heard of |know )?(?:the band |the singer )?"
+                          r"(?P<x>[a-z0-9][a-z0-9 .&'-]{1,30})", n)
+        if hb and self.kgqa is not None and not re.fullmatch(r"(?:it|that|this|them|him|her|me|anything|something|a joke)", hb.group("x")):
+            try:
+                hits = self.kgqa.kb.link(hb.group("x"), limit=3)
+            except Exception:
+                hits = []
+            ent = next((e for e, _ in hits if (e.type or "") in ("Band", "MusicalArtist", "Group") and
+                        title_key(re.sub(r"\s*\([^)]*\)$", "", e.title)) == title_key(hb.group("x"))), None)
+            if ent is not None:
+                name = re.sub(r"\s*\([^)]*\)$", "", ent.title)
+                found = self.about.find(ent.title, n=1)
+                line = found.sentences[0] if found is not None and found.sentences else ""
+                self.bot.context.update({"answer": None, "atype": None, "mention": name, "kb_last": None})
+                st.topic = {"title": ent.title, "name": name, "turn": st.turn}
+                text = self._pick(st, "daily:b60:band_known", b["band_known"], x=name, y=line) if line else \
+                    self._pick(st, "daily:b60:band_short", b["band_short"], x=name)
+                return Reply(msg, "smalltalk", text, via="smalltalk", source=found.source if found is not None and line else None)
+        listed = re.search(r"in the spirit of|books? worth|“[^”]+” by ", st.last_reply or "")
+        if listed and re.fullmatch(r"(?:i'?ve|i have) (?:already )?read (?:that|it|them|those|that one|all of them|all of those)(?: already)?|"
+                                   r"read (?:it|that|them) already", n):
+            st.uses["b60_read"] = [st.turn]
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b60:read_it", b["read_it"]), via="everyday")
+        if (listed or recent("b60_read", 2)) and re.fullmatch(r"(?:something|anything|any) (?:shorter|short|quicker|lighter|easier)(?: to read)?", n):
+            return Reply(msg, "smalltalk", b["short_books"], via="everyday")
+        if st.uses.get("sick") is not None and st.turn - st.uses["sick"] <= 3 and \
+                re.fullmatch(r"(?:i have |i've got |just |mostly |only )?(?:a )?(?:sore throat|headache|runny nose|cough|fever|temperature|stuffy nose|chills|body aches)"
+                             r"(?:(?:,| and) (?:a )?(?:sore throat|headache|runny nose|cough|fever|temperature|stuffy nose|chills|body aches))*", n):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b60:symptoms", b["symptoms"]), via="everyday")
+        if re.fullmatch(r"(?:ok(?:ay)?,? )?(?:thanks?,? |thank you,? )?(?:i'?ll|i will|gonna|i'?m gonna) (?:stay (?:at )?home|stay in bed|rest|call in sick|"
+                        r"take the day off)(?: then| tomorrow)?", n):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b60:stay_home", b["stay_home"]), via="smalltalk")
+        tq = re.fullmatch(r"(?:(?:and |what about |how about )(?:in )?|in )(?P<p>[a-z][a-z .'-]{2,25})", n)
+        if tq and st.uses.get("last_via") == "tool" and re.search(r"\b\d{1,2}:\d\d\b", st.last_reply or ""):
+            wt = self._world_time(st, f"what time is it in {tq.group('p')}?")
+            if wt is not None and re.search(r"\d{1,2}:\d\d", wt.text):
+                st.uses["time_place"] = [tq.group("p"), st.turn]
+                return wt
+        nm = re.fullmatch(r"is it (?P<w>night|nighttime|day|daytime|morning|evening|dark|late|early) (?:in (?P<p>[a-z][a-z .'-]{2,25})|there)"
+                          r"(?: (?:now|right now))?", n)
+        tp = st.uses.get("time_place")
+        place = (nm.group("p") or (tp[0] if tp and st.turn - tp[1] <= 4 else None)) if nm else None
+        if place:
+            tr = self._world_time(st, f"what time is it in {place}?")
+            hm2 = re.search(r"\b(\d{1,2}):(\d\d)\b", tr.text) if tr is not None else None
+            if hm2:
+                h = int(hm2.group(1))
+                part = "night" if h >= 21 or h < 5 else "morning" if h < 12 else "afternoon" if h < 18 else "evening"
+                st.uses["time_place"] = [place, st.turn]
+                w = nm.group("w")
+                yes = (w in ("night", "nighttime", "dark", "late") and part in ("night", "evening")) or \
+                    (w in ("day", "daytime") and part in ("morning", "afternoon")) or w == part or (w == "early" and part == "morning")
+                key = "part_yes" if yes else "part_no"
+                return Reply(msg, "tool", self._pick(st, f"daily:b60:{key}", b[key], x=f"{hm2.group(1)}:{hm2.group(2)}", y=part,
+                                                     z=_place_case(place)), via="tool", confidence=1.0)
+        if re.search(r"\b(?:finished|done with|passed|wrote|had) (?:my |all my |the )?(?:exams?|finals|tests?|thesis|semester)\b", n):
+            st.uses["exams_done"] = [st.turn]
+        if recent("exams_done", 4):
+            if re.fullmatch(r"(?:i think |i hope |pretty sure |i guess )?(?:they|it|everything|all of them) went (?:well|good|great|ok|okay|fine)(?: i think)?", n):
+                st.uses["exams_done"] = [st.turn]
+                return Reply(msg, "smalltalk", self._pick(st, "daily:b60:exams_well", b["exams_well"]), via="empathy")
+            om = re.fullmatch(r"(?:and )?(?:now )?(?:i have|i've got|i get) (?P<x>(?:\d+|a few|two|three|four|six) (?:weeks?|months?|days?)) "
+                              r"(?:off|free|of holidays?|of vacation|break)", n)
+            if om:
+                st.uses["exams_done"] = [st.turn]
+                st.uses["long_break"] = [st.turn]
+                return Reply(msg, "smalltalk", self._pick(st, "daily:b60:time_off", b["time_off"], x=om.group("x")), via="smalltalk")
+        if recent("long_break", 3) and re.search(r"\bwhat (?:should|could|can) i do\b", n):
+            return Reply(msg, "smalltalk", b["break_ideas"], via="everyday")
+        return None
 
     def _daily_ctx13(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 58: follow-ups a person expects to work — "no, I meant in Europe", "why?" after a pick,

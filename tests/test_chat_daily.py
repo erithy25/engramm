@@ -2527,3 +2527,34 @@ def test_battery58_follow_ups_that_need_the_turn_before(chat):
     a.turn(st, "what is the capital of france?")
     r = a.turn(st, "are you sure?")
     assert r.via == "why" and "no source" not in r.text, r.text
+
+
+def test_battery60_natural_everyday_follow_ups(chat):
+    a, _ = chat
+    from engramm.chat.german import is_german
+    spec = a.bank.de
+    for t in ("it was okay, kinda long", "it was ok", "okay cool", "the film was long", "i had a bad day", "it was super long"):
+        assert not is_german(t, spec), t
+    for t in ("es war okay", "ok danke", "wie geht es dir", "der film war lang", "das war super"):
+        assert is_german(t, spec), t
+    st = DialogState("h60")
+    a.turn(st, "i went hiking yesterday")
+    a.turn(st, "it was amazing")
+    assert "Munich" in a.turn(st, "we went up a mountain near munich").text
+    assert "5 hours" in a.turn(st, "about 5 hours").text
+    r = a.turn(st, "my legs hurt now lol")
+    assert "What went wrong" not in r.text, r.text
+    r = a.turn(DialogState("w60"), "any plans for the weekend? oh wait you're a bot lol")
+    assert r.kind == "smalltalk", r.text
+    st = DialogState("x60")
+    a.turn(st, "i think i'm getting sick")
+    r = a.turn(st, "sore throat and headache")
+    assert "cold" in r.text, r.text
+    r = a.turn(st, "thanks, i'll stay home")
+    assert "tell me more" not in r.text and "get well" in r.text.lower(), r.text
+    st = DialogState("e60")
+    a.turn(st, "i just finished my exams!")
+    assert "What happened" not in a.turn(st, "i think they went well").text
+    assert "3 months" in a.turn(st, "now i have 3 months off").text
+    r = a.turn(st, "what should i do with all that time?")
+    assert "•" in r.text and "sleep on it" not in r.text, r.text

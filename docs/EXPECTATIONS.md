@@ -2440,6 +2440,19 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     straight from the infobox …“ statt der rohen Infobox-Zeile.
   - Team-Dev-Satz: 1 von 128 geändert (team-0067, wie Runde 56). NQ-open 400: 22/9. Suite 748 bestanden, 7 übersprungen.
     Regressionen 32, 38–59 (26 Gespräche, Englisch und Deutsch): 0 Wiederholungen, keine Unterschiede außer Uhrzeiten.
+- **Alltags-Batterie 60 (ein ganz normaler Abend: Arbeit, Wandern, Musik, Bücher, Erkältung, Uhrzeit, Prüfungen)**:
+  - Schwerer Fehler: „it was okay, kinda long“ wurde als Deutsch erkannt („Das verstehe ich leider nicht …“), weil „okay“
+    als eindeutig deutsches Wort zählte. „okay/ok“ sind jetzt mehrdeutig, häufige englische Alltagswörter (kinda, long,
+    gonna, really …) zählen für Englisch; deutsche Sätze („es war okay“, „ok danke“, „der film war lang“) bleiben Deutsch.
+  - Wandern: „near munich“ → „Ooh, a mountain near Munich! How long did it take you?“ (vorher „tell me more“), „about 5
+    hours“, „my legs hurt now lol“ → Muskelkater-Tipp statt „What went wrong with your legs?“.
+  - Musik: „what kind?“ nach meiner Frage → meine eigene (gedachte) Vorliebe statt „I couldn't find anything“; „have you
+    heard of queen?“ → erster Satz des Artikels → „who was their singer?“ → Freddie Mercury → „when did he die?“ → 24 November 1991.
+  - Bücher: „i've read that one“ und „something shorter?“ (vorher Nachschlagefehler) → kurze Bücher.
+  - Erkältung: Symptome → Rat (Ruhe, Tee, Arzt bei hohem Fieber), „thanks, i'll stay home“ → „Get well soon“ statt
+    „You're welcome! Oh, interesting — tell me more.“ Uhrzeit: „and in tokyo?“ → Weltzeit, „is it night there?“ aus der
+    Ortszeit. Prüfungen: „they went well“, „3 months off“, „what should i do with all that time?“ → Ideenliste statt
+    „sleep on it“. „any plans for the weekend? oh wait you're a bot lol“ → Antwort statt Nachschlagefehler.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

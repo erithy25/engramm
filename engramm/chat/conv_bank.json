@@ -4053,7 +4053,43 @@
     "don't",
     "can't",
     "live",
-    "lives"
+    "lives",
+    "kinda",
+    "sorta",
+    "gonna",
+    "wanna",
+    "gotta",
+    "long",
+    "pretty",
+    "really",
+    "got",
+    "home",
+    "work",
+    "day",
+    "week",
+    "night",
+    "thanks",
+    "yeah",
+    "yep",
+    "nope",
+    "my",
+    "me",
+    "you",
+    "your",
+    "not",
+    "is",
+    "are",
+    "am",
+    "and",
+    "the",
+    "a",
+    "an",
+    "had",
+    "has",
+    "went",
+    "said",
+    "feel",
+    "think"
    ],
    "ambiguous": [
     "was",
@@ -4082,7 +4118,15 @@
     "morgen",
     "nach",
     "sein",
-    "lang"
+    "lang",
+    "okay",
+    "ok",
+    "hand",
+    "bad",
+    "tag",
+    "top",
+    "super",
+    "cool"
    ]
   },
   "intents": [
@@ -11229,6 +11273,62 @@
   "interview_role": [
    "{x} — nice field! Do you know what the team works on?",
    "Ooh, a {x} role! Exciting. Do you know what kind of questions to expect?"
-  ]
+  ],
+  "b60": {
+   "hike_where": [
+    "Near {x} — with mountains that close, lucky you! Which one did you climb?",
+    "Ooh, a mountain near {x}! How long did it take you?"
+   ],
+   "hike_hours": [
+    "{x} hours — that's a proper hike! The view at the top must have been worth it.",
+    "Wow, {x} hours! No wonder it felt amazing. Did you stop for a break at the top?"
+   ],
+   "hike_sore": [
+    "Haha, that's the good kind of sore — you earned it! Stretch a bit, drink plenty of water, and a warm shower helps.",
+    "The price of a great hike! 😄 Gentle stretching and a short walk today actually help sore legs recover faster."
+   ],
+   "music_mine": [
+    "If I could listen, I think I'd love classical — Bach is basically beautiful patterns, and patterns are my thing. What do you like?",
+    "I can't hear, but from what I've read, I'd pick jazz — all that improvising sounds fascinating. And you?"
+   ],
+   "band_known": [
+    "{x}? Of course — here's what I've read: {y}",
+    "Yes! {y} Are you a big fan?"
+   ],
+   "band_short": [
+    "{x}? Yes, I've read about them. Are you a fan?",
+    "I know of {x}! What's your favourite song by them?"
+   ],
+   "read_it": [
+    "You've already read it — nice! What did you think of it? I can suggest something different if you tell me what you liked.",
+    "Ah, you're ahead of me! Did you like it? Then I'll aim for something in the same spirit."
+   ],
+   "short_books": "Some shorter reads:\n\n• “The Old Man and the Sea” by Ernest Hemingway (about 130 pages)\n• “Of Mice and Men” by John Steinbeck (about 110 pages)\n• “The Little Prince” by Antoine de Saint-Exupéry (about 100 pages)\n\nAny of those sound good?",
+   "symptoms": [
+    "Sore throat and headache — sounds like a cold coming on. Rest, warm drinks like tea with honey, and plenty of water help. If you get a high fever or it lasts more than a few days, see a doctor.",
+    "That sounds like the start of a cold. Take it easy: drink a lot, get some sleep, maybe gargle with salt water for the throat. A doctor is worth it if it gets much worse."
+   ],
+   "stay_home": [
+    "Good call — rest is the fastest way to get better. Get well soon! 🍵",
+    "Smart decision. Tea, blanket, sleep — and get well soon!"
+   ],
+   "part_yes": [
+    "Yes — it's {x} in {z} right now, so it's {y} there.",
+    "It is! {x} in {z}, so {y}."
+   ],
+   "part_no": [
+    "Not really — it's {x} in {z}, so it's {y} there.",
+    "No, it's {x} in {z} — {y} over there."
+   ],
+   "exams_well": [
+    "That's the best feeling! You must be so relieved. How are you celebrating?",
+    "Amazing — fingers crossed for the results! Time to relax now."
+   ],
+   "time_off": [
+    "{x} off — that's huge! Any plans, or still figuring it out?",
+    "Wow, {x} of freedom! Do you want to travel, rest, or do something new?"
+   ],
+   "break_ideas": "That's a lot of time — a few ideas:\n\n• Travel somewhere you've never been, even on a budget\n• Learn something new: a language, an instrument, cooking\n• Get some work experience or an internship\n• Start a small project you never had time for\n• And rest! You earned it.\n\nWhat sounds most like you?"
+  }
  }
 }
