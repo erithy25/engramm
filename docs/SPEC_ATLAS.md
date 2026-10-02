@@ -186,9 +186,9 @@ Umgangssprache, Korrekturen, Planeten, deutscher Alltagskontext, WM auf Deutsch)
 [v3.1.0-beta.12](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.12) (Lauf 36989493546, Batterien 45–46:
 Gedächtnis, Tippfehler, Folgefragen, Stimmung, Sarkasmus, deutsche Amtsinhaber),
 [v3.1.0-beta.13](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.13) (Lauf 36992597545, Batterien 47–48:
-Reise, Folgefragen für Alltagsfakten, Gesundheit, Geld, Arbeit, Geschenke, Entscheidungen). beta.14 bringt die
-Batterien 49–52 (Laufen, Kind vor dem Test, Gäste, Erinnerungen abhaken, lange Gespräche auf Englisch und Deutsch,
-Robustheit).
+Reise, Folgefragen für Alltagsfakten, Gesundheit, Geld, Arbeit, Geschenke, Entscheidungen). beta.14 (Lauf 36996025621)
+scheiterte nur beim Hochladen („other side closed“ nach 45 von 46 Dateien, alle Installer gebaut und getestet); der
+Veröffentlichungsschritt versucht es seitdem nach einer Minute ein zweites Mal. beta.15 bringt die Batterien 49–54.
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 

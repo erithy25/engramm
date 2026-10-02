@@ -241,7 +241,39 @@ jobs:
           cd dist
           find . -type f ! -name 'catalog.json' -exec sha256sum {} \; | sort -k2 > SHA256SUMS.txt
           wc -l SHA256SUMS.txt
-      - uses: softprops/action-gh-release@v2
+      - id: publish
+        # an upload can drop mid-way ("other side closed", beta.14): one more attempt below, re-uploading the files
+        continue-on-error: true
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.request.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: ENGRAMM ${{ needs.request.outputs.tag }}
+          prerelease: ${{ needs.request.outputs.prerelease == 'true' }}
+          body: |
+            ENGRAMM — an offline assistant without a neural network.
+
+            **Install:** pick the installer for your system below. On first start the app asks before
+            downloading a knowledge pack: lite (≈ 1.25 GB) or standard (≈ 2.7 GB, more articles and facts).
+            Offline alternative: download `engramm-pack-lite.zip`, unzip it and choose the folder in the app.
+            Internet channels (shelf, feeds, Tor messenger) stay off until you switch them on one by one.
+
+            Builds are not signed with a developer certificate yet, so both systems ask once on first start.
+            macOS: open ENGRAMM, click "Done", then System Settings → Privacy & Security → "Open Anyway".
+            Windows: SmartScreen → "More info" → "Run anyway". Checksums: `SHA256SUMS.txt`.
+          files: |
+            dist/pack/**
+            dist/engramm-*/**/*.dmg
+            dist/engramm-*/**/*.msi
+            dist/engramm-*/**/*.exe
+            dist/engramm-*/**/*.deb
+            dist/engramm-*/**/*.rpm
+            dist/SHA256SUMS.txt
+      - name: Wait before the second upload attempt
+        if: steps.publish.outcome == 'failure'
+        run: sleep 60
+      - if: steps.publish.outcome == 'failure'
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.request.outputs.tag }}
           target_commitish: ${{ github.sha }}
