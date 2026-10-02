@@ -766,3 +766,20 @@ daily:
       my_choice: ["Das ist ganz normal. Etwas zu beenden, weil es richtig ist, heißt nicht, dass es nicht wehtut – du verlierst etwas, das dir wichtig war. Sei gut zu dir.", "Die schwere Entscheidung zu treffen braucht Mut, und es darf trotzdem wehtun. Beides stimmt. Wie kümmerst du dich gerade um dich?"]
       friends: ["Das kann klappen, aber meist nicht sofort. Die meisten brauchen erst Abstand – ein paar Wochen oder Monate –, bis sich die Gefühle gelegt haben. Frag dich: Hilft dir die Freundschaft beim Heilen, oder hält sie die Wunde offen?", "Vielleicht später. Direkt nach einer Trennung heißt 'Freunde bleiben' oft, dass einer auf mehr hofft. Gib euch Zeit."]
 
+    g68:
+      sonst: ["Alles ruhig bei mir – ich bin da und plaudere gern. Und bei dir, was gibt's Neues?", "Bei mir ist alles beim Alten. Und du – was läuft so bei dir?"]
+      fav_why:
+        essen: ["Weil sie für alle passt – dünn oder dick, schlicht oder schick, und kaum jemand sagt Nein zu einem Stück."]
+        farbe: ["Sie wirkt ruhig und weit – Himmel, Meer, und irgendwie passt sie zu allem."]
+        film: ["Zeitreisen, ein DeLorean und ein toller Soundtrack – was will man mehr? Und die Handlung greift wie ein Puzzle ineinander."]
+        buch: ["Es ist kurz, freundlich und weise – „Man sieht nur mit dem Herzen gut“ bleibt einfach hängen."]
+        musik: ["Sie haben sich in so wenigen Jahren so verändert – von einfachen Liebesliedern bis Abbey Road in nicht mal zehn Jahren."]
+        tier: ["Drei Herzen, blaues Blut, und sie können Gläser öffnen und blitzschnell die Farbe wechseln – wie Außerirdische, nur echt."]
+        jahreszeit: ["Nicht zu heiß, nicht zu kalt, und alles wird golden und rot. Gemütliche Zeit!"]
+        getränk: ["Weil es so viele Rituale darum gibt – die erste Tasse am Morgen, Espresso in Italien, Kaffeeklatsch mit Freunden."]
+        sport: ["Kein Glück, nur Vorausdenken – und es gibt mehr mögliche Partien als Atome im Universum."]
+        stadt: ["Hügel, gelbe Straßenbahnen, der Atlantik und Pastéis de Nata – alle, die darüber schreiben, klingen ein bisschen verliebt."]
+        serie: ["Wie ein Chemielehrer Schritt für Schritt zu Heisenberg wird – darüber wird Jahre später noch gestritten."]
+      katze_hund: ["Beide haben was! Hunde sind treue Clowns, Katzen unabhängige Mitbewohner. Und du – Team Katze oder Team Hund?"]
+      person: ["Team {x}! Hast du eine{n} zu Hause?"]
+      reden: ["Ja, auf meine Art schon – Gespräche wie dieses sind das Schönste an dem, was ich mache.", "Ja! Dafür bin ich da, und ich mag es, wenn wir plaudern."]

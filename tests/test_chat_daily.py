@@ -2789,3 +2789,55 @@ def test_battery67_german_memory(chat):
     for msg in ("ich bin wieder in berlin", "ich bin heute in köln"):
         assert a.turn(DialogState("n67"), msg).kind != "learned", msg
     assert a.turn(DialogState("v67"), "der wurde auf montag verschoben").kind == "clarify"
+
+
+def test_battery68_relaxed_chat_opinions_and_follow_ups(chat):
+    a, _ = chat
+    st = DialogState("c68")
+    a.turn(st, "hey whats up")
+    assert a.turn(st, "not much, just chilling. you?").text.startswith(("I'm good", "Doing fine"))
+    assert "Back to the Future" in a.turn(st, "do you have a favourite movie?").text
+    assert "DeLorean" in a.turn(st, "why that one?").text
+    a.turn(st, "have you seen inception?")
+    r = a.turn(st, "what did you think of it?")
+    assert "Inception" in r.text and r.kind == "smalltalk", r.text
+    st = DialogState("p68")
+    r = a.turn(st, "i'm making pasta tonight")
+    assert r.kind != "learned" and "pasta" in r.text.lower(), r.text
+    assert "guanciale" in a.turn(st, "carbonara").text
+    assert "Traditionally" in a.turn(st, "do you think cream belongs in carbonara?").text
+    a.turn(st, "haha ok fair")
+    assert "carbonara" in a.turn(st, "what should i drink with it?").text
+    assert "favourite food" not in a.turn(st, "what do you know about me?").text.lower()
+    st = DialogState("f68")
+    a.turn(st, "did you watch the game yesterday?")
+    r = a.turn(st, "football")
+    assert len(r.text) < 80 and "football" in r.text, r.text
+    r = a.turn(st, "my team lost 3-0")
+    assert "nice" not in r.text.lower() and "3–0" in r.text, r.text
+    assert "wear you down" not in a.turn(st, "whatever, there's always next season").text
+    st = DialogState("o68")
+    a.turn(st, "what's your opinion on pineapple pizza?")
+    r = a.turn(st, "you're wrong lol")
+    assert "neutral" in r.text or "side" in r.text, r.text
+    r = a.turn(st, "i'm a cat person")
+    assert "work as" not in r.text and "cat" in r.text, r.text
+    assert "work as" not in a.turn(st, "i'm a nice person").text
+    st = DialogState("b68")
+    assert "ENGRAMM" in a.turn(st, "what's your name again?").text
+    assert "Opinions aren't" not in a.turn(st, "do you like talking to me?").text
+    a.turn(st, "i'm so bored")
+    assert "joke" in a.turn(st, "i don't know").text
+    r = a.turn(st, "something fun")
+    assert r.text not in ("Nice!", "Fair enough."), r.text
+    st = DialogState("k68")
+    a.turn(st, "i'm cooking dinner tonight")
+    assert "No rush" in a.turn(st, "not sure yet").text
+    assert "tacos" in a.turn(st, "maybe tacos").text.lower()
+    st = DialogState("g68")
+    a.turn(st, "was machst du so?")
+    r = a.turn(st, "und sonst so?")
+    assert "Neues" in r.text or "läuft" in r.text, r.text
+    a.turn(st, "was ist dein lieblingsfilm?")
+    assert "DeLorean" in a.turn(st, "warum?").text
+    assert "Team Katze" in a.turn(st, "magst du katzen oder hunde lieber?").text

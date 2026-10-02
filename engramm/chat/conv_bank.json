@@ -6089,6 +6089,57 @@
       "Das kann klappen, aber meist nicht sofort. Die meisten brauchen erst Abstand – ein paar Wochen oder Monate –, bis sich die Gefühle gelegt haben. Frag dich: Hilft dir die Freundschaft beim Heilen, oder hält sie die Wunde offen?",
       "Vielleicht später. Direkt nach einer Trennung heißt 'Freunde bleiben' oft, dass einer auf mehr hofft. Gib euch Zeit."
      ]
+    },
+    "g68": {
+     "sonst": [
+      "Alles ruhig bei mir – ich bin da und plaudere gern. Und bei dir, was gibt's Neues?",
+      "Bei mir ist alles beim Alten. Und du – was läuft so bei dir?"
+     ],
+     "fav_why": {
+      "essen": [
+       "Weil sie für alle passt – dünn oder dick, schlicht oder schick, und kaum jemand sagt Nein zu einem Stück."
+      ],
+      "farbe": [
+       "Sie wirkt ruhig und weit – Himmel, Meer, und irgendwie passt sie zu allem."
+      ],
+      "film": [
+       "Zeitreisen, ein DeLorean und ein toller Soundtrack – was will man mehr? Und die Handlung greift wie ein Puzzle ineinander."
+      ],
+      "buch": [
+       "Es ist kurz, freundlich und weise – „Man sieht nur mit dem Herzen gut“ bleibt einfach hängen."
+      ],
+      "musik": [
+       "Sie haben sich in so wenigen Jahren so verändert – von einfachen Liebesliedern bis Abbey Road in nicht mal zehn Jahren."
+      ],
+      "tier": [
+       "Drei Herzen, blaues Blut, und sie können Gläser öffnen und blitzschnell die Farbe wechseln – wie Außerirdische, nur echt."
+      ],
+      "jahreszeit": [
+       "Nicht zu heiß, nicht zu kalt, und alles wird golden und rot. Gemütliche Zeit!"
+      ],
+      "getränk": [
+       "Weil es so viele Rituale darum gibt – die erste Tasse am Morgen, Espresso in Italien, Kaffeeklatsch mit Freunden."
+      ],
+      "sport": [
+       "Kein Glück, nur Vorausdenken – und es gibt mehr mögliche Partien als Atome im Universum."
+      ],
+      "stadt": [
+       "Hügel, gelbe Straßenbahnen, der Atlantik und Pastéis de Nata – alle, die darüber schreiben, klingen ein bisschen verliebt."
+      ],
+      "serie": [
+       "Wie ein Chemielehrer Schritt für Schritt zu Heisenberg wird – darüber wird Jahre später noch gestritten."
+      ]
+     },
+     "katze_hund": [
+      "Beide haben was! Hunde sind treue Clowns, Katzen unabhängige Mitbewohner. Und du – Team Katze oder Team Hund?"
+     ],
+     "person": [
+      "Team {x}! Hast du eine{n} zu Hause?"
+     ],
+     "reden": [
+      "Ja, auf meine Art schon – Gespräche wie dieses sind das Schönste an dem, was ich mache.",
+      "Ja! Dafür bin ich da, und ich mag es, wenn wir plaudern."
+     ]
     }
    }
   }
@@ -11788,6 +11839,265 @@
     "All without {x}, of course!"
    ],
    "relax": "A few ways to unwind:\n\n• A warm shower or bath, then comfy clothes\n• Your favourite series or a comfort film\n• A short walk without your phone\n• Music, a book, or just ten minutes of doing nothing\n\nAnything that sounds good right now?"
+  },
+  "b68": {
+   "chill_you": [
+    "I'm good, thanks — just here and ready to chat. Chilling sounds perfect; anything fun planned for later?",
+    "Doing fine, thanks for asking! A slow day is underrated. Got anything planned, or just taking it easy?"
+   ],
+   "fav_keys": {
+    "food": [
+     "food",
+     "dish",
+     "meal"
+    ],
+    "movie": [
+     "movie",
+     "film"
+    ],
+    "book": [
+     "book",
+     "author",
+     "novel"
+    ],
+    "music": [
+     "music",
+     "song",
+     "band",
+     "singer",
+     "artist",
+     "album"
+    ],
+    "animal": [
+     "animal"
+    ],
+    "season": [
+     "season"
+    ],
+    "drink": [
+     "drink"
+    ],
+    "sport": [
+     "sport"
+    ],
+    "city": [
+     "city",
+     "country",
+     "place"
+    ],
+    "show": [
+     "show",
+     "series",
+     "tv show"
+    ]
+   },
+   "fav": {
+    "food": [
+     "I can't eat, but if I could, it'd be pizza — so many people rave about it. What's yours?"
+    ],
+    "colour": [
+     "Blue, I think — the colour of sky and sea, and the favourite in most surveys. What's yours?"
+    ],
+    "movie": [
+     "I can't watch films, but I've read so much about Back to the Future that it'd be my pick. What's yours?"
+    ],
+    "book": [
+     "I read all day! If I had to pick one: The Little Prince. What do you like to read?"
+    ],
+    "music": [
+     "I can't hear anything, but I love reading about the Beatles. What do you listen to?"
+    ],
+    "animal": [
+     "Octopuses! Three hearts and incredibly clever. Do you have a favourite animal?"
+    ],
+    "season": [
+     "Autumn — colourful leaves, tea and cosy evenings, at least in everything I read about it. And you?"
+    ],
+    "drink": [
+     "I don't drink anything, but coffee is what I read about the most. What do you like to drink?"
+    ],
+    "sport": [
+     "Chess, if that counts — it's all patterns, which suits me. Do you play any sport?"
+    ],
+    "city": [
+     "I've never been anywhere, but Lisbon sounds beautiful in everything I read. Where do you like it?"
+    ],
+    "show": [
+     "I don't watch TV, but I read about Breaking Bad all the time. What are you watching right now?"
+    ]
+   },
+   "fav_why": {
+    "food": [
+     "Because it works for everyone — thin or thick, simple or fancy, and almost nobody says no to a slice."
+    ],
+    "colour": [
+     "It feels calm and open — sky, sea, and somehow it goes with everything."
+    ],
+    "movie": [
+     "Time travel, a DeLorean and a great soundtrack — what's not to love? Plus the plot fits together like a puzzle."
+    ],
+    "book": [
+     "It's short, kind and wise — “what is essential is invisible to the eye” stays with you."
+    ],
+    "music": [
+     "They changed so much in so few years — from simple love songs to Abbey Road in under a decade."
+    ],
+    "animal": [
+     "Three hearts, blue blood, and they can open jars and change colour in a blink — like aliens, only real."
+    ],
+    "season": [
+     "Not too hot, not too cold, and everything turns gold and red. Cosy season!"
+    ],
+    "drink": [
+     "Because people have so many rituals around it — the morning cup, espresso in Italy, coffee breaks with friends."
+    ],
+    "sport": [
+     "No luck involved, just thinking ahead — and there are more possible games than atoms in the universe."
+    ],
+    "city": [
+     "Hills, yellow trams, the ocean and pastéis de nata — everyone who writes about it sounds a bit in love."
+    ],
+    "show": [
+     "Watching a chemistry teacher turn into Heisenberg step by step — people still argue about it years later."
+    ]
+   },
+   "think_of_it": [
+    "I can't watch or read things myself, so I don't have a real opinion on {x} — but I'm curious: what did you think of it?",
+    "No eyes here, so no verdict from me on {x}, sadly. Did you like it?"
+   ],
+   "cook_unsure": [
+    "No rush! Pasta, tacos, a stir-fry or a big salad are all quick. Anything sound good?"
+   ],
+   "good_person": [
+    "I believe it! 😊",
+    "That comes through, honestly. 😊"
+   ],
+   "bad_person": [
+    "Hey, don't be so hard on yourself. What makes you say that?",
+    "I don't think that's the whole story. What happened?"
+   ],
+   "cook_generic": [
+    "Nice! What are you making?",
+    "Ooh, what's on the menu?"
+   ],
+   "cook": [
+    "Ooh, {x} tonight — nice! What kind are you making?",
+    "{X} tonight sounds great! What are you going for?"
+   ],
+   "dish": {
+    "carbonara": [
+     "Carbonara — a classic! Eggs, pecorino, guanciale and lots of black pepper. Are you going the traditional way?"
+    ],
+    "bolognese": [
+     "Bolognese — slow-cooked and cosy. Fun fact: in Bologna it's served with tagliatelle, not spaghetti."
+    ],
+    "pesto": [
+     "Pesto — fresh basil, pine nuts, parmesan, garlic and olive oil. Simple and so good."
+    ],
+    "lasagne": [
+     "Lasagne — layers of joy! That one's worth the effort."
+    ],
+    "lasagna": [
+     "Lasagna — layers of joy! That one's worth the effort."
+    ],
+    "aglio e olio": [
+     "Aglio e olio — garlic, olive oil and chilli. Fifteen minutes and it tastes like Italy."
+    ],
+    "arrabbiata": [
+     "Arrabbiata — tomato, garlic and a good kick of chilli. Spicy choice!"
+    ],
+    "cacio e pepe": [
+     "Cacio e pepe — just pecorino, pepper and pasta water, but tricky to get creamy. Good luck!"
+    ],
+    "mac and cheese": [
+     "Mac and cheese — pure comfort food. Baked or from the pot?"
+    ]
+   },
+   "dish_other": [
+    "{X} — good choice! Enjoy cooking.",
+    "Mmm, {x} — delicious. Enjoy!"
+   ],
+   "carbonara_cream": [
+    "Traditionally, no — a Roman carbonara is just eggs, pecorino, guanciale and pepper; the creaminess comes from the eggs and pasta water. But plenty of people add cream at home. Your kitchen, your rules!"
+   ],
+   "pineapple": [
+    "I don't really take sides, but it's one of the internet's great debates! Sweet and salty is a real thing — Hawaiian pizza was invented in Canada, by the way. Which side are you on?"
+   ],
+   "drink_with": {
+    "carbonara": [
+     "A crisp white goes great with carbonara — Frascati or a Pinot Grigio. Without alcohol: sparkling water with lemon cuts through the richness nicely."
+    ],
+    "bolognese": [
+     "A medium red like Chianti or Sangiovese. Or a cold cola, honestly — no judgement."
+    ],
+    "pesto": [
+     "A fresh white like Vermentino, or lemonade if you skip alcohol."
+    ],
+    "pizza": [
+     "Beer or a light red like Lambrusco — or a classic cola."
+    ],
+    "curry": [
+     "A cold lager or a lassi — both calm the heat."
+    ],
+    "other": [
+     "Something light and fresh — a crisp white wine, a cold beer, or sparkling water with lemon if you skip alcohol."
+    ]
+   },
+   "sport": [
+    "Ah, {x}! Who was playing — and was it a good one?",
+    "Oh nice, {x}! Who did you watch?"
+   ],
+   "lost": [
+    "Ouch, {a}–{b} hurts. Sorry! Was it at least a decent game, or one to forget?",
+    "Oh no, {a}–{b} — that stings. Sorry about that!"
+   ],
+   "won": [
+    "{a}–{b}, nice! Congratulations — that must feel great. Were you watching live?",
+    "A {a}–{b} win — great result! Did you celebrate?"
+   ],
+   "won_team": [
+    "{x} {a}–{b} — nice! Were you watching at home or at the stadium?"
+   ],
+   "lost_team": [
+    "{x} lost {a}–{b}? Ouch. Are you a fan?"
+   ],
+   "drew": [
+    "A {a}–{b} draw — not bad, not great. Did it feel like a win or a loss?"
+   ],
+   "lost_sucks": [
+    "It really does. A loss like that stings for a day or two — but it's also what makes the wins feel so good.",
+    "Yeah, that one hurts. At least you're not alone — every fan of your team is grumbling right now."
+   ],
+   "next_season": [
+    "That's the spirit! Every season is a fresh start.",
+    "Exactly — new season, new chances. Fans are the most optimistic people there are."
+   ],
+   "not_a_side": [
+    "Ha, I didn't actually take a side! So — team pineapple or not?",
+    "I stayed neutral, I promise! But I'm curious where you stand."
+   ],
+   "pet_person": [
+    "A {x} person — nice! Do you have one?",
+    "Team {x}! Do you have one at home?"
+   ],
+   "x_person": [
+    "A {x} person — good to know! I'll keep that in mind.",
+    "Ha, a {x} person! That says a lot."
+   ],
+   "like_talking": [
+    "I do, in my own way — conversations like this one are the best part of what I do.",
+    "Yes! Talking with you is what I'm here for, and I like it when we chat."
+   ],
+   "my_name": [
+    "I'm ENGRAMM!",
+    "It's ENGRAMM. Nice that you asked!"
+   ],
+   "bored_idk": [
+    "No worries. How about one of these: a joke, a fun fact, a quick quiz, or I help you plan something for later?"
+   ],
+   "bored_nah": [
+    "No pressure — sometimes doing nothing is fine too. I'm here if something comes to mind."
+   ]
   }
  }
 }

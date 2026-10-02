@@ -974,7 +974,7 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_mem67(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
@@ -1236,6 +1236,34 @@ class Assistant:
                 return Reply(msg, "forgot", f"Erledigt – ich habe vergessen, dass du {cap(x)} {'nicht magst' if neg else 'magst'}. Es ist wirklich weg, "
                              "nicht nur versteckt.", via="memory")
             return Reply(msg, "nothing", f"Dazu habe ich nichts gespeichert, was ich vergessen könnte.", via="memory")
+        return None
+
+    def _german_ctx68(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 68 in German: "und sonst so?", "warum?" after ENGRAMM's favourite, cats or dogs, "ich bin ein
+        Katzenmensch", "redest du gern mit mir?"."""
+        g = (self.bank.de["daily"].get("ctx") or {}).get("g68")
+        if not g:
+            return None
+        q = s.strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:g68:{key}", g[key], **kw), via="german")  # noqa: E731
+        if re.fullmatch(r"(?:und )?(?:sonst so|was gibt'?s neues|was gibts neues|alles klar bei dir|was geht bei dir|und bei dir so)", q):
+            return say("sonst")
+        bf = st.uses.get("de_bot_fav")
+        if bf and st.turn - bf[1] <= 2 and bf[0] in g["fav_why"] and \
+                re.fullmatch(r"(?:und )?(?:warum|wieso|weshalb|warum der|warum das|warum die|warum gerade (?:der|die|das)(?: da)?|was magst du daran)", q):
+            st.uses.pop("de_bot_fav")
+            return Reply(msg, "smalltalk", self._pick(st, f"de:g68:why:{bf[0]}", g["fav_why"][bf[0]]), via="german")
+        if re.fullmatch(r"(?:und |also )?(?:magst du (?:lieber )?(?:katzen|hunde) oder (?:katzen|hunde)(?: lieber)?|(?:katzen|hunde) oder (?:katzen|hunde)|"
+                        r"bist du (?:eher )?(?:team )?(?:katze|hund) oder (?:team )?(?:katze|hund))", q):
+            return say("katze_hund")
+        pm = re.fullmatch(r"ich bin (?:eher |total |voll |definitiv |ein )*(?:ein |eine )?(?P<x>katzen|hunde)(?:mensch|person|typ)", q)
+        if pm:
+            x = "Katze" if pm.group("x") == "katzen" else "Hund"
+            self._learn(st, [f"I like {'cats' if x == 'Katze' else 'dogs'}."], msg)
+            return Reply(msg, "learned", self._pick(st, "de:g68:person", g["person"], x=x).replace("eine{n}", "eine" if x == "Katze" else "einen"),
+                         via="german")
+        if re.fullmatch(r"(?:redest|sprichst|plauderst|chattest) du gern(?:e)? mit mir|magst du (?:es,? )?mit mir zu (?:reden|plaudern)|magst du mich", q):
+            return say("reden")
         return None
 
     def _german_ctx65(self, st: DialogState, msg: str, s: str) -> Reply | None:
@@ -4791,7 +4819,8 @@ class Assistant:
                                                      r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
             # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
             return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
-        evr = self._sounds(st, msg, norm) or self._event_q(st, msg, norm) or self._officeholder(st, msg, norm)
+        evr = self._sounds(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
+            self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
         pr = st.uses.get("promo")
@@ -5705,6 +5734,134 @@ class Assistant:
                 return Reply(msg, "smalltalk", self._pick(st, "daily:sound:gib_sorry", self.bank.daily["sounds"]["gib_sorry"]), via="smalltalk")
             return None
         return Reply(msg, "smalltalk", self._pick(st, f"daily:sound:{key}", self.bank.daily["sounds"][key]), via="smalltalk")
+
+    def _daily_ctx18(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 68: a relaxed chat — "not much, you?" answered first, ENGRAMM's own favourites with a reason
+        on "why that one?", "what did you think of it?" about a film it cannot watch, pasta tonight (not stored as a
+        favourite) with the dish and a drink, a lost match ("my team lost 3-0" is not "nice!"), "you're wrong lol"
+        after a neutral answer, "i'm a cat person" (not a job), and a bored chat that offers something."""
+        b = self.bank.daily["b68"]
+        n = norm.strip(" .!?")
+        lm = normalise(st.last_message or "").strip(" .!?")
+        lr = st.last_reply or ""
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b68:{key}", b[key], **kw), via="smalltalk")  # noqa: E731
+        cy = re.fullmatch(r"(?P<a>(?:not much|nothing much|nm|nothing really|same old|just|chilling|relaxing)[a-z ,']*?)[,.!]* "
+                          r"(?:and )?(?:you|u|wbu|hbu|what about you|how about you|and you|yourself)", n)
+        if cy and re.search(r"\b(?:chill|chilling|relax|relaxing|lazy|couch|sofa|netflix)\b", n):
+            return say("chill_you")
+        fm = re.fullmatch(r"(?:do you have|have you got|what'?s|what is) (?:a |your )?(?:fav(?:ou?rite)?|favorite) (?P<k>[a-z ]+?)", n)
+        if fm:
+            kind = next((k for k, ws in b["fav_keys"].items() if fm.group("k") in ws), None)
+            if kind:
+                st.uses["fav68"] = [kind, st.turn]
+                return Reply(msg, "smalltalk", self._pick(st, f"daily:b68:fav:{kind}", b["fav"][kind]), via="smalltalk")
+        fv = st.uses.get("fav68")
+        if fv and st.turn - fv[1] <= 2 and re.fullmatch(r"(?:but |and |ok,? |okay,? )?(?:why|why that one|why that|how come|why is that|"
+                                                        r"why's that|what do you like about it|what makes it so good)", n):
+            st.uses.pop("fav68")
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:b68:why:{fv[0]}", b["fav_why"][fv[0]]), via="smalltalk")
+        sm = re.fullmatch(r"(?:have you|did you|you) (?:ever )?(?:seen|watched|read|heard) (?P<x>[a-z0-9' :]+)", lm)
+        if sm and re.fullmatch(r"(?:so |and |ok,? )?(?:what did you think(?: of it| of that| about it)?|did you like it|how did you like it|"
+                               r"what'?s your opinion(?: on it)?|was it good)", n):
+            x = " ".join(w.capitalize() for w in sm.group("x").split())
+            return say("think_of_it", x=x)
+        ck = re.fullmatch(r"(?:i'?m|i am|im|we'?re|we are) (?:making|cooking|eating) (?P<x>[a-z ]+?) (?:tonight|today|for dinner|"
+                          r"for lunch|later|this evening)|(?:i'?m|i am|im|we'?re|we are) having (?P<y>[a-z ]+?) for (?:dinner|lunch|tea)(?: tonight| today)?", n)
+        if ck and len((ck.group("x") or ck.group("y")).split()) <= 3:
+            x = re.sub(r"^(?:some|a|an|the|my|our) ", "", ck.group("x") or ck.group("y"))
+            if x in ("dinner", "lunch", "breakfast", "food", "something", "something nice", "a meal", "meal", "tea", "supper"):
+                st.uses["cook68"] = ["", st.turn]
+                return say("cook_generic")
+            st.uses["cook68"] = [x, st.turn]
+            return say("cook", x=x, X=x[:1].upper() + x[1:])
+        co = st.uses.get("cook68")
+        if co and st.turn - co[1] <= 1 and re.fullmatch(r"(?:i'?m |im )?(?:not sure(?: yet)?|no idea(?: yet)?|idk(?: yet)?|dunno|i don'?t know(?: yet)?|"
+                                                        r"haven'?t decided(?: yet)?|still deciding|no clue)", n):
+            st.uses["cook68"] = ["", st.turn]
+            return say("cook_unsure")
+        mb = re.fullmatch(r"(?:maybe|probably|i think|prob|perhaps|i guess|thinking(?: about)?|either) (?P<x>[a-z]+(?: [a-z]+){0,2})", n)
+        if co and st.turn - co[1] <= 2 and mb:
+            n = mb.group("x")
+        if co and st.turn - co[1] <= 2 and re.fullmatch(r"[a-z]+(?: [a-z]+){0,2}", n) and not _REACTION.fullmatch(n) and \
+                not set(n.split()) & {"not", "sure", "yet", "idk", "something", "maybe", "probably", "just", "i", "you", "it", "know", "dunno",
+                                      "think", "what", "why", "how", "no", "yes", "thanks", "lol", "haha", "cool", "nice", "is", "was"} and \
+                n not in ("yes", "no", "yeah", "nope", "idk", "not sure", "dunno", "maybe", "why", "what", "ok", "okay", "thanks"):
+            st.uses["cook68"] = [n, st.turn]
+            if n in b["dish"]:
+                return Reply(msg, "smalltalk", self._pick(st, f"daily:b68:dish:{n}", b["dish"][n]), via="smalltalk")
+            if len(n.split()) <= 2:
+                return say("dish_other", X=n[:1].upper() + n[1:], x=n)
+        if re.search(r"\bcream\b.*\bcarbonara\b|\bcarbonara\b.*\bcream\b", n) and re.match(r"(?:do you think|does|is|should|can|would)", n):
+            return say("carbonara_cream")
+        if re.fullmatch(r"(?:what'?s|what is) your (?:opinion|take|view) on (?:pineapple pizza|pineapple on pizza|hawaiian pizza)|"
+                        r"(?:does|should) pineapple (?:belong|go) on pizza|(?:do you like|thoughts on) pineapple (?:on )?pizza", n):
+            return say("pineapple")
+        dw = re.fullmatch(r"what (?:should|could|can) i drink with (?:it|that|this|(?P<x>[a-z ]+))", n)
+        if dw:
+            x = dw.group("x") or (co[0] if co and st.turn - co[1] <= 4 else "")
+            key = next((k for k in b["drink_with"] if k != "other" and k in x), "other")
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:b68:drink:{key}", b["drink_with"][key]), via="smalltalk")
+        if re.search(r"\b(?:watch|see|catch)(?:ed)? the (?:game|match)\b", lm) and \
+                n in ("football", "soccer", "basketball", "hockey", "ice hockey", "tennis", "baseball", "rugby", "handball", "the football",
+                      "american football", "the nba", "the nfl", "formula 1", "f1", "cricket", "volleyball", "the champions league"):
+            st.uses["sport68"] = st.turn
+            return say("sport", x=n.replace("the ", "", 1) if n.startswith("the ") else n)
+        sc = re.fullmatch(r"(?:ugh,? |sadly,? |so,? )?(?:my team|we|my club|our team|they|[a-z]+(?: [a-z]+)?) (?P<v>lost|won|drew|tied)"
+                          r"(?: the game| the match| again)?,? (?P<a>\d{1,2}) ?(?:-|–|to|:) ?(?P<b>\d{1,2})(?: again)?", n)
+        if sc and int(sc.group("a")) < 30:
+            v = {"tied": "drew"}.get(sc.group("v"), sc.group("v"))
+            a, c = sorted((int(sc.group("a")), int(sc.group("b"))), reverse=v != "lost") if v != "drew" else (sc.group("a"), sc.group("b"))
+            if v == "lost":
+                a, c = max(int(sc.group("a")), int(sc.group("b"))), min(int(sc.group("a")), int(sc.group("b")))
+            st.uses["lost68"] = [v, st.turn]
+            team = re.match(r"(?:ugh,? |sadly,? |so,? )?(.+?) (?:lost|won|drew|tied)\b", n).group(1)
+            if team not in ("my team", "we", "my club", "our team", "they") and v in ("won", "lost"):
+                return say(v + "_team", x=" ".join(w.capitalize() for w in team.split()), a=a, b=c)
+            return say(v, a=a, b=c)
+        lo = st.uses.get("lost68")
+        if lo and lo[0] == "lost" and st.turn - lo[1] <= 2 and \
+                re.fullmatch(r"(?:yeah|yep|yes|ya|ugh)?,? ?(?:it |that |which )?(?:really |totally |so )?(?:sucks|stinks|hurts|was awful|was bad|"
+                             r"is annoying|was terrible|is the worst)(?: so much)?", n):
+            return say("lost_sucks")
+        if re.fullmatch(r"(?:but |well,? )?(?:there'?s|there is) always next (?:season|year|time|game|match|week)", n):
+            return say("next_season")
+        if re.fullmatch(r"(?:you'?re|you are|ur|that'?s|thats) (?:so |totally |completely |just )?wrong(?: lol| haha| lmao)?", n) and \
+                re.search(r"I can't have a favourite|what do you think about|I don't really take sides|Both have their fans", lr):
+            return say("not_a_side")
+        pp = re.fullmatch(r"(?:i'?m|i am|im) (?:more of |more |totally |definitely |really |kind of |kinda |a big |such )?(?:an? )?(?:big |total |huge )?"
+                          r"(?P<x>[a-z]+) person", n)
+        if pp:
+            x = pp.group("x")
+            if x in ("cat", "dog"):
+                self._learn(st, [f"I like {x}s."], msg)
+                return Reply(msg, "learned", self._pick(st, "daily:b68:pet_person", b["pet_person"], x=x), via="memory")
+            if x in ("nice", "good", "kind", "normal", "decent", "friendly", "funny", "happy", "positive", "honest", "loyal", "real", "simple"):
+                return say("good_person")
+            if x in ("bad", "terrible", "horrible", "awful", "boring", "horrible", "useless", "difficult", "weird", "toxic"):
+                return say("bad_person")
+            if x not in ("shy", "private", "busy", "different"):
+                return say("x_person", x=x)
+        if re.fullmatch(r"(?:do you|you) (?:like|enjoy) (?:talking|chatting|speaking) (?:to|with) me|do you enjoy our (?:chats|conversations)|"
+                        r"are you having fun(?: talking to me)?|do you like me", n):
+            return say("like_talking")
+        if re.fullmatch(r"(?:sorry,? )?(?:what'?s|what is|what was|whats) your name again|remind me (?:of )?your name|"
+                        r"what did you say your name (?:is|was)|(?:sorry,? )?who are you again", n):
+            return say("my_name")
+        bo = st.uses.get("bored68")
+        if re.fullmatch(r"(?:i'?m|i am|im) (?:so |really |super |very |sooo+ |soo )?bored(?: out of my mind)?|(?:i'?m )?bored+|so bored", n):
+            st.uses["bored68"] = st.turn
+            return None
+        if bo is not None and st.turn - bo <= 3:
+            if re.fullmatch(r"(?:i )?(?:don'?t know|dunno|idk|no idea|not sure)", n):
+                st.uses["bored68"] = st.turn
+                return say("bored_idk")
+            if re.fullmatch(r"(?:something|anything) (?:fun|funny|cool|interesting)|surprise me|anything", n):
+                st.uses.pop("bored68", None)
+                return self._turn(st, "tell me a fun fact" if "interesting" in n or "cool" in n else "tell me a joke")
+            if re.fullmatch(r"nah+|nope|no|not really|meh", n):
+                st.uses.pop("bored68", None)
+                return say("bored_nah")
+        return None
 
     def _daily_ctx17(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 66: memory the way a person keeps it — a job and a city in one sentence, "no wait, I meant

@@ -2573,6 +2573,27 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - „was weißt du über mich?“ mischte englische Sätze ein („Your sister is called Anna.“); jetzt ganz auf Deutsch.
   - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 757 bestanden, Regressionen 32, 38–67 plus 7 deutsche
     Gegenproben (35 Gespräche): 0 Wiederholungen; Unterschiede nur Uhrzeiten (Batterie 60).
+- **Alltags-Batterie 68 (lockeres Gespräch: Meinungen, Rückfragen, Kochen, Sport, Langeweile; EN + DE)**:
+  - „not much, just chilling. you?“ → vorher „A calm day is underrated. Anything fun planned? I'm good, thanks!“ (Antwort
+    auf die Rückfrage am Ende); jetzt zuerst „I'm good, thanks“. „nm u?“ bleibt bei der alten, passenden Antwort.
+  - ENGRAMM hatte auf Deutsch Lieblinge (Film „Zurück in die Zukunft“, Buch, Tier …), auf Englisch nur „I don't have one
+    of my own“; jetzt dieselben Lieblinge in beiden Sprachen, und „why that one?“/„warum?“ (vorher „I don't know, sorry“
+    bzw. „kann ich auf Deutsch nicht nachschlagen“) bekommt eine Begründung. Die englische Lieblingsfarbe bleibt das
+    bisherige Violett (erste Fassung überschrieb sie und brach „mine is green“ – von Batterie 57 gefunden, zurückgenommen).
+  - „what did you think of it?“ nach „have you seen inception?“ → vorher Suche („So You Think You Can Dance came closest“);
+    jetzt ehrlich: keine eigene Meinung, Rückfrage.
+  - „i'm making pasta tonight“ wurde als Lieblingsessen gespeichert; jetzt Rückfrage, „carbonara“ (vorher Artikelanfang) →
+    kurze Antwort, „do you think cream belongs in carbonara?“ (vorher „I don't know“) → traditionell nein, „what should i
+    drink with it?“ (vorher „Your favourite food is pasta.“) → passende Getränke; „not sure yet“/„maybe tacos“ verstanden.
+  - „football“ nach „did you watch the game?“ (vorher Artikelanfang) → Rückfrage; „my team lost 3-0“ (vorher „My Team 3–0 —
+    nice!“) → Mitgefühl; „there's always next season“ (vorher „that can really wear you down“) → Zuversicht.
+  - „you're wrong lol“ nach einer neutralen Antwort → „I didn't actually take a side“; „i'm a cat person“ und „i'm a nice
+    person“ wurden als Beruf gespeichert („you work as a person“) – behoben.
+  - „do you like talking to me?“ (vorher „Opinions aren't really my thing“), „what's your name again?“ (vorher „I don't
+    know“); Langeweile: „i don't know“/„something fun“ bekommen Vorschläge bzw. einen Witz statt „Fair enough.“/„Nice!“.
+  - Deutsch: „und sonst so?“, „magst du katzen oder hunde lieber?“ (vorher Rückfallantworten), „ich bin ein Katzenmensch“.
+  - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 758 bestanden, Regressionen 32, 38–68 plus Gegenproben
+    (37 Gespräche): 0 Wiederholungen; Unterschiede: neue Lieblings-Antworten (Batterien 58, 62, long), Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
