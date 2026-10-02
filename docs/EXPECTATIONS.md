@@ -2769,6 +2769,14 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   ohne geratene Grammatik („Rot – schöne Farbe!“ statt „Roter Auto“). „mein auto ist kaputt“ bleibt beim Ironie-Ablauf aus
   Batterie 76 (die erste Fassung fing es ab). Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 772 bestanden,
   Regressionen 32, 38–81 (48 Gespräche): 0 Wiederholungen; Unterschiede nur Uhrzeiten.
+- **Alltags-Batterie 82 (Ereignisse in der Ich-Form, 20 EN + 14 DE)**: vorher u. a. „i quit smoking“ → „Smoking — good
+  choice! I'll remember that.“, „i locked myself out“/„i cut my finger“ → „Oh, interesting — tell me more.“, „i forgot my
+  umbrella“ → „What went wrong with your umbrella?“, „i overslept“/„i'm moving next month“ → „How's that going?“ (gespeichert);
+  deutsch fast nur Rückfallantworten, „ich hab mein portemonnaie verloren“ → „Was war denn so schwierig daran?“. Jetzt eine
+  Tabelle aus Muster, Antwort und Stimmung (EN + DE) mit konkreter Hilfe, wo sie passt (Karten sperren 116 116,
+  Ersatzschlüssel, Wunde versorgen, Kaffeefleck), Glückwunsch bei guten Nachrichten. Vorhandene gute Antworten (Beförderung,
+  Verlobung, Prüfung, Erkältung auf Englisch) bleiben. Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 773
+  bestanden, Regressionen 32, 38–82 (49 Gespräche): 0 Wiederholungen; Unterschiede nur Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

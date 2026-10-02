@@ -1272,6 +1272,10 @@ class Assistant:
             return None
         q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", s)).strip(" .!?")
         say = lambda key: Reply(msg, "smalltalk", self._pick(st, f"de:g74:{key}", g[key]), via="german")   # noqa: E731
+        for ev in self.bank.daily["b82"]["de"]:
+            if re.fullmatch(ev["q"], q):
+                st.last_exp = {"valence": "negative" if ev["v"] == "neg" else "positive", "topic": None, "person": False, "text": msg, "turn": st.turn}
+                return Reply(msg, "empathy", ev["a"], via="german")
         g1 = (self.bank.de["daily"].get("ctx") or {}).get("g81") or {}
         if g1:
             sp = g1["spezial"]
@@ -6203,6 +6207,10 @@ class Assistant:
         b = self.bank.daily["b78"]
         n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", norm)).strip(" .!?")
         say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b78:{key}", b[key], **kw), via="smalltalk")  # noqa: E731
+        for ev in self.bank.daily["b82"]["events"]:
+            if re.fullmatch(ev["q"], n):
+                st.last_exp = {"valence": "negative" if ev["v"] == "neg" else "positive", "topic": None, "person": False, "text": msg, "turn": st.turn}
+                return Reply(msg, "empathy", ev["a"], via="empathy")
         b0 = self.bank.daily["b80"]
         sm = re.fullmatch(r"my (?P<o>[a-z]+(?: [a-z]+)?) (?:is|are|was|were|got|just|has|have) (?:so |too |really |very |a bit |kind of |super |completely |totally |still )?"
                           r"(?P<a>dirty|messy|cold|slow|wet|broken|down|dead|died|stolen|lost|cracked|salty|burnt|burned|leaking|flat|empty|ruined|soaked|gone|"

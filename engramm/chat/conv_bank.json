@@ -13247,6 +13247,127 @@
     "{X} {y} — nice!",
     "Ooh, {x} {y}. Love that."
    ]
+  },
+  "b82": {
+   "events": [
+    {
+     "q": "i (?:just )?(?:lost|can'?t find) my (?:wallet|purse)",
+     "v": "neg",
+     "a": "Oh no, that's so stressful! Retrace your last steps — and if it doesn't turn up, block your cards first, then report it to the police."
+    },
+    {
+     "q": "i (?:forgot|left) my umbrella(?: at home)?",
+     "v": "neg",
+     "a": "Classic! Hope the rain is kind to you. 🌧️"
+    },
+    {
+     "q": "i (?:just )?spilled (?:coffee|tea|wine|juice) (?:on|all over) my (?:shirt|top|pants|trousers|dress|jeans|laptop|keyboard)",
+     "v": "neg",
+     "a": "Oh no! Cold water and a bit of dish soap right away usually gets coffee out. (If it's the laptop: switch it off and turn it upside down.)"
+    },
+    {
+     "q": "i (?:got|received) a (?:parking|speeding) (?:ticket|fine)",
+     "v": "neg",
+     "a": "Argh, that stings. How much was it?"
+    },
+    {
+     "q": "i (?:just )?locked myself out(?: of (?:my|the) (?:flat|apartment|house|car))?",
+     "v": "neg",
+     "a": "Oh no! Does a neighbour, friend or your landlord have a spare key? Otherwise a locksmith — ask for the price first."
+    },
+    {
+     "q": "i overslept(?: (?:again|today|this morning))?",
+     "v": "neg",
+     "a": "Oh no! Did you make it in time, or is the day already a write-off?"
+    },
+    {
+     "q": "i(?:'m| am) moving (?:next|this) (?:month|week|year)|i(?:'m| am) moving (?:to [a-z ]+|house|out)",
+     "v": "pos",
+     "a": "Big change! Exciting or more stressful right now? Packing early, one box a day, helps a lot."
+    },
+    {
+     "q": "i (?:broke|fractured) my (?:leg|arm|wrist|ankle|foot|finger|toe)",
+     "v": "neg",
+     "a": "Oh no, that's awful — I'm sorry! How did it happen? Rest up and don't push it."
+    },
+    {
+     "q": "i (?:just )?cut my (?:finger|hand|thumb)",
+     "v": "neg",
+     "a": "Ouch! Rinse it with clean water and press a clean cloth on it until it stops bleeding. If it's deep or won't stop after 10 minutes, get it looked at."
+    },
+    {
+     "q": "i (?:quit|stopped|gave up) smoking",
+     "v": "pos",
+     "a": "That's huge — well done! The first few weeks are the hardest. How long has it been?"
+    },
+    {
+     "q": "i (?:just )?ran (?:a |my first )?(?:5k|10k|half marathon)",
+     "v": "pos",
+     "a": "Nice one! 🏃 How did it feel?"
+    }
+   ],
+   "de": [
+    {
+     "q": "ich (?:hab|habe) mein(?:en)? (?:portemonnaie|geldbeutel|geldbörse|brieftasche) verloren",
+     "v": "neg",
+     "a": "Oh nein, wie stressig! Geh deine letzten Wege nochmal ab – und wenn es nicht wieder auftaucht: zuerst die Karten sperren (116 116), dann bei der Polizei melden."
+    },
+    {
+     "q": "ich (?:hab|habe) verschlafen(?: heute)?",
+     "v": "neg",
+     "a": "Oh nein! Hast du es noch rechtzeitig geschafft, oder ist der Tag schon gelaufen?"
+    },
+    {
+     "q": "ich (?:hab|habe) mich ausgesperrt",
+     "v": "neg",
+     "a": "Oh nein! Hat ein Nachbar, Freund oder der Vermieter einen Ersatzschlüssel? Sonst Schlüsseldienst – vorher nach dem Preis fragen."
+    },
+    {
+     "q": "ich (?:hab|habe) (?:einen|ein) (?:strafzettel|knöllchen|bußgeld) bekommen",
+     "v": "neg",
+     "a": "Ärgerlich! Wie viel war es denn?"
+    },
+    {
+     "q": "ich bin (?:durch die prüfung|durch die klausur|durchgefallen)(?: gefallen)?|ich (?:hab|habe) die (?:prüfung|klausur) nicht bestanden",
+     "v": "neg",
+     "a": "Das tut mir leid – das ist echt frustrierend. Weißt du schon, wann du es nochmal versuchen kannst?"
+    },
+    {
+     "q": "ich ziehe (?:nächsten|diesen) (?:monat|woche|sommer) um|ich ziehe (?:bald )?um",
+     "v": "pos",
+     "a": "Große Veränderung! Eher aufregend oder gerade stressig? Früh anfangen und jeden Tag eine Kiste packen hilft enorm."
+    },
+    {
+     "q": "ich (?:hab|habe) mir (?:das|den|die) (?:bein|arm|handgelenk|knöchel|fuß|finger|zeh) gebrochen",
+     "v": "neg",
+     "a": "Oh nein, das tut mir leid! Wie ist das passiert? Schon dich und mach langsam."
+    },
+    {
+     "q": "ich bin (?:so |total |richtig )?erkältet|ich (?:hab|habe) (?:eine )?erkältung",
+     "v": "neg",
+     "a": "Gute Besserung! Viel trinken, Tee, Ruhe – und gönn dir einen Tag auf dem Sofa."
+    },
+    {
+     "q": "ich (?:hab|habe) mich (?:in den finger|in die hand) geschnitten",
+     "v": "neg",
+     "a": "Autsch! Mit sauberem Wasser ausspülen und ein sauberes Tuch draufdrücken, bis es aufhört zu bluten. Wenn es tief ist oder nach 10 Minuten nicht aufhört, lass es anschauen."
+    },
+    {
+     "q": "ich (?:hab|habe) eine gehaltserhöhung bekommen",
+     "v": "pos",
+     "a": "Glückwunsch – das hast du dir verdient! 🎉 Wird gefeiert?"
+    },
+    {
+     "q": "ich bin schwanger",
+     "v": "pos",
+     "a": "Oh, wie schön – herzlichen Glückwunsch! 🎉 Wie fühlst du dich?"
+    },
+    {
+     "q": "ich (?:hab|habe) (?:mit dem rauchen aufgehört|das rauchen aufgegeben)",
+     "v": "pos",
+     "a": "Das ist riesig – stark! Die ersten Wochen sind die schwersten. Wie lange ist es schon her?"
+    }
+   ]
   }
  }
 }

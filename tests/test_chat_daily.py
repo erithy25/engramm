@@ -3124,3 +3124,13 @@ def test_battery81_german_states_of_things(chat):
         assert r.kind == "empathy" and "wie ging's weiter" not in r.text, (msg, r.text)
     assert "112" in a.turn(DialogState("b81"), "mir tut die brust weh").text
     assert "Roter Auto" not in a.turn(DialogState("f81"), "mein auto ist rot").text
+
+
+def test_battery82_first_person_events(chat):
+    a, _ = chat
+    bad = ("tell me more", "How's that going", "good choice", "What went wrong with your", "wie ging's weiter", "Erzähl ruhig mehr", "Und wie war's")
+    for i, msg in enumerate(["i lost my wallet", "i locked myself out", "i overslept", "i'm moving next month", "i cut my finger", "i quit smoking",
+                             "i forgot my umbrella", "ich hab verschlafen", "ich hab mich ausgesperrt", "ich bin erkältet", "ich bin schwanger",
+                             "ich hab mit dem rauchen aufgehört", "ich hab mein portemonnaie verloren"]):
+        r = a.turn(DialogState(f"e82-{i}"), msg)
+        assert r.kind == "empathy" and not any(x in r.text for x in bad), (msg, r.text)
