@@ -175,6 +175,12 @@ Installer-Job aus der gemeinsamen Concurrency-Gruppe verdrängte; seitdem hat de
 aufgerufene Desktop-Bau eine eigene Gruppe, und `release/request.json` kann mit `reuse_run` die Pakete
 eines früheren Laufs übernehmen und nur die Installer neu bauen.
 
+Veröffentlichte Vorabversionen mit diesen Paketen (alle mit 45 Dateien, darunter 6 Installer für 3.1.0 — deb, rpm,
+dmg arm64/x64, exe, msi — und SHA256SUMS.txt, nach jedem Lauf nachgeprüft):
+[v3.1.0-beta.8](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.8) (Lauf 36976863912, Batterien 34–40),
+[v3.1.0-beta.9](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.9) (Lauf 36978307456, Pronomen nach Person
+und Geschlecht). beta.10 bringt die Batterien 41 (Deutsch) und 42 (Kontext, Turniere, Amtsinhaber).
+
 ## Bedrohungsmodell und ehrliche Restrisiken
 
 - **Geschützt:**
