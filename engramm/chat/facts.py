@@ -471,6 +471,10 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
 
     ``implicit``: the sentence has no "I"/"my" but is still about you ("Nothing beats curry.")."""
     s = _GREETING.sub("", normalise_first_person(sentence)).strip()
+    if re.search(r"\b(?:feel|feels|felt|feeling|look|looks|looked|sound|sounds|seem|seems) like (?:a |an |such a |the )?"
+                 r"(?:failure|loser|idiot|fool|mess|burden|fraud|joke|zombie|crap|shit|garbage|nobody|nothing|i|it|that|this|"
+                 r"giving up|crying|sleeping|dying|everyone|no one)\b", s, re.I):
+        return []                        # "I feel like a failure": a feeling, never a favourite
     ws = words(s)
     lw = [w.lower() for w in ws]
     n = len(ws)

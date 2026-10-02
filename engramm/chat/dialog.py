@@ -513,6 +513,9 @@ class Assistant:
         dd = de.get("daily", {})
         st.lang = "de"
         s = normalise_de(msg)
+        lead = re.sub(r"^(?:(?:haha+|hihi+|hehe+|lol|ok(?:ay)?|na gut|gut|cool|super|alles klar|achso|ach so|krass|echt|witzig)[ ,!.]+)+", "", s)
+        if lead != s and len(lead.split()) >= 3:          # "haha ok, was ist die hauptstadt von kanada?": the question
+            msg, s = lead, lead
         u = understand(msg, de)
         name = self.user_name()
         known = self.speller.known if self.speller is not None else None
@@ -717,6 +720,15 @@ class Assistant:
                 return Reply(msg, "tool", f"Die Zeitzone von {place[:1].upper() + place[1:]} kenne ich leider nicht. "
                                           "Frag mich nach einer großen Stadt in der Nähe, z. B. „Wie spät ist es in Tokio?“",
                              via="tool")
+        if la.get("kind") == "joke" and st.turn - la.get("turn", -99) <= 2 and re.fullmatch(
+                r"(?:haha+|hihi+|lol|xd|😂|🤣)?[, ]*(?:(?:der|das|die) (?:war|ist) (?:echt |richtig |voll |sehr )?(?:gut|lustig|witzig|super|klasse|toll|"
+                r"genial|stark)|sehr (?:gut|lustig|witzig)|witzig|lustig|ich lach mich tot|geil)?[!. ]*", s) and s.strip():
+            return Reply(msg, "smalltalk", self._pick(st, "de:life:joke_liked", dl["joke_liked"]), via="german")
+        off2 = st.uses.get("de_offer")
+        if off2 and st.turn - off2[1] <= 1 and re.fullmatch(r"(?:nein|nee|nö|ne)(?:,? (?:danke|keine ideen|lieber nicht|nicht nötig|eher nicht))?|"
+                                                              r"keine ideen(?:,? danke)?|lieber nicht", s):
+            st.uses.pop("de_offer", None)                # "nein, keine ideen" after "soll ich dir Ideen geben?"
+            return Reply(msg, "smalltalk", self._pick(st, "de:life:offer_no", dl["offer_no"]), via="german")
         tq = re.match(r"^(?:ok(?:ay)?,? |super,? |cool,? )?(?:danke|vielen dank|dank dir|danke dir|danke schön)(?: dir)?[!,.]+ *(?P<r>.{6,})$", s)
         if tq and not re.match(r"(?:tschüss|tschüs|ciao|bis |gute nacht|schönen|mach'?s gut)", tq.group("r")):
             return self._german(st, tq.group("r"))         # "danke! was kann ich heute abend noch machen?": the question
@@ -1086,6 +1098,19 @@ class Assistant:
                                               r"sore throat|headache|cough)|my throat hurts|caught a cold|coming down with)\b",
                                               message.lower()):
             st.uses["sick"] = st.turn                         # "should I go to work?" may follow
+        plm = re.search(r"\b(?:moved to|moving to|live in|living in|i'?m in|visiting|going to|trip to|flying to|travel(?:l)?ing to|"
+                        r"holiday in|vacation in|from) ([a-z][a-z ]{2,25}?)(?=\s+(?:next|this|last|tomorrow|for|with|and|now|soon|recently)\b|"
+                        r"[.!?,]|$)", message.lower())
+        if plm and plm.group(1).strip() in self.bank.daily.get("sights", {}) and rep.kind != "safety":
+            st.uses["place_topic"] = [_place_case(plm.group(1).strip()), st.turn]   # "what should I see there?" may follow
+        petm = re.search(r"\bmy (dog|cat|puppy|kitten|hamster|rabbit|bunny|parrot|bird|horse|guinea pig|turtle|tortoise|budgie)\b",
+                         message.lower())
+        if petm and rep.kind != "safety":
+            pet_now = st.uses.get("pet")
+            noun = {"puppy": "dog", "kitten": "cat", "bunny": "rabbit"}.get(petm.group(1), petm.group(1))
+            if not pet_now or pet_now[0] != noun:
+                st.uses.pop("pet_name", None)
+            st.uses["pet"] = [noun, st.turn]                  # "his name is max" / "he's 7" may follow
         pm = re.search(r"\bmy (best friend|sister|brother|mom|mum|mother|dad|father|friend|boyfriend|girlfriend|wife|husband|son|"
                        r"daughter|cousin|aunt|uncle|grandma|grandmother|grandpa|grandfather|boss|colleague|roommate|partner|"
                        r"neighbou?r|niece|nephew|fiancée?)\b(?!'s)", message.lower())
@@ -1820,6 +1845,17 @@ class Assistant:
         wtq = self._world_time(st, text) or self._worth_visit(st, text)
         if wtq is not None:
             return wtq
+        kf = re.fullmatch(r"(?:and |so |ok,? )?what(?:'s| is| are) (?P<p>[a-z][a-z .'-]{2,25}?) (?:famous|known|best known|popular) for\??",
+                          normalise(text).strip())
+        if kf and kf.group("p").strip() in self.bank.daily.get("sights", {}):
+            key = kf.group("p").strip()                 # "what's berlin famous for?": its classic sights
+            shown = _place_case(key)
+            st.uses["place_topic"] = [shown, st.turn]
+            st.uses["food_offer"] = [shown, st.turn]
+            st.uses["sights_shown"] = [key, st.turn]
+            return Reply(text, "smalltalk", self._pick(st, "daily:famous_for", self.bank.daily["famous_for"], x=shown,
+                                                       y=self.bank.daily["sights"][key]), via="everyday",
+                         source={"kind": "common", "source": "everyday facts", "key": ""})
         see = _SEE_THERE.match(normalise(text).strip())
         if see:                                         # "what should I see there?" during a trip to Paris
             pt = st.uses.get("place_topic")
@@ -1828,7 +1864,12 @@ class Assistant:
                 d = self.bank.daily
                 key = place.lower().strip()
                 shown = _place_case(key)
+                ss = st.uses.get("sights_shown")
+                if key in d.get("sights", {}) and ss and ss[0] == key and st.turn - ss[1] <= 6:
+                    st.uses["food_offer"] = [shown, st.turn]   # the classics were just named: something else, no repeat
+                    return Reply(text, "smalltalk", self._pick(st, "daily:sights_again", d["sights_again"], x=shown), via="everyday")
                 if key in d.get("sights", {}):
+                    st.uses["sights_shown"] = [key, st.turn]
                     st.uses["place_topic"] = [shown, st.turn]
                     lead = self._pick(st, "daily:sights_lead", d["sights_lead"], x=shown, y=d["sights"][key])
                     tail = self._pick(st, "daily:sights_tail", d["sights_tail"], x=shown)
@@ -2245,16 +2286,73 @@ class Assistant:
                                                                        norm.strip(" .!"))):
             st.uses["resto"] = st.turn                    # "any restaurant ideas?" for a celebration dinner
             return Reply(msg, "smalltalk", self._pick(st, "daily:celebrate_food", d["celebrate_food"]), via="everyday")
+        lneg = st.last_exp or {}
+        if lneg.get("valence") == "negative" and st.turn - lneg.get("turn", -99) <= 2 and re.fullmatch(
+                r"(?:but |and )?i (?:studied|worked|tried|practi[cs]ed|prepared|trained) (?:so |really |super |very )?(?:hard|much|a lot)"
+                r"(?: for (?:it|this|that|weeks|months))?[.!]*", norm.strip()):
+            st.last_exp = dict(lneg, text=f"{lneg.get('text', '')} {msg}".strip(), turn=st.turn)
+            return Reply(msg, "empathy", self._pick(st, "daily:effort_neg", d["effort_neg"]), via="empathy")
         if re.fullmatch(r"(?:ok(?:ay)?,? |thanks,? |thank you,? |good idea,? |alright,? )*(?:i'?ll|ill|i will|i'?m going to|im going to|i'?m gonna|gonna) "
-                        r"(?:make|have|get|grab|cook|drink|order|eat|try|watch|read|take|do) (?:some |a |an |me (?:a |some )?)?[a-z][a-z ]{1,25}"
+                        r"(?:make|have|get|grab|cook|drink|order|eat|try|watch|read|take|do|study|practi[cs]e) (?:some |a |an |me (?:a |some )?)?[a-z][a-z ]{1,25}"
                         r"(?: then| now| later| tonight| first)?[.!]*", norm.strip()):
             sk2 = st.uses.get("sick")
-            key = "get_well" if sk2 is not None and st.turn - sk2 <= 6 else "future_plan"
+            ln = st.last_exp or {}
+            key = "get_well" if sk2 is not None and st.turn - sk2 <= 6 else \
+                "try_again" if ln.get("valence") == "negative" and st.turn - ln.get("turn", -99) <= 4 else "future_plan"
             return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key]), via="smalltalk")
         sk = st.uses.get("sick")
         if sk is not None and st.turn - sk <= 5 and re.fullmatch(r"(?:so |but |and )?(?:should|can|do) i (?:still )?(?:go to|go into|go in to) "
                                                                   r"(?:work|school|uni|class|the office|the gym)(?: today| tomorrow)?\??", norm.strip()):
             return Reply(msg, "smalltalk", self._pick(st, "daily:sick_work", d["sick_work"]), via="everyday")
+        if re.fullmatch(r"(?:and |honestly,? |i mean,? )?(?:i )?(?:just )?(?:feel|felt|am|'?m) (?:like )?(?:such |a |an |a total |a complete |so )*"
+                        r"(?:failure|loser|idiot|stupid|useless|not good enough|disappointment|fraud|let ?down)(?: right now| today| lately)?[.!]*",
+                        norm.strip()):
+            st.last_exp = dict(st.last_exp, valence="negative", text=f"{st.last_exp.get('text', '')} {msg}".strip(), turn=st.turn) if st.last_exp else \
+                {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "daily:self_worth", d["self_worth"]), via="empathy")
+        ps = re.fullmatch(r"(?:oh no,? |ugh,? |so,? )?my (dog|cat|puppy|kitten|hamster|rabbit|bunny|parrot|bird|horse|guinea pig) "
+                          r"(?:is|seems|has been|got|'s|looks) (?:really |so |very |a bit |kind of )?(?:sick|ill|unwell|not well|poorly|hurt|injured)"
+                          r"(?: today| again)?[.!]*", norm.strip())
+        if ps:                                            # "my dog is sick": a worried owner, not "the first time with your dog?"
+            st.last_exp = {"valence": "negative", "topic": f"your {ps.group(1)}", "person": False, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "daily:pet_sick", d["pet_sick"], x=ps.group(1)), via="empathy")
+        go = st.uses.get("guide_offer")
+        if go and st.turn - go[1] <= 1 and re.fullmatch(r"(?:yes|yeah|yep|sure|ok|okay|please|yes please|go on|why not|"
+                                                         r"sure why not|definitely|that would help|ok tell me)[!. ]*", norm.strip()):
+            st.uses.pop("guide_offer", None)              # "yes" after "want a few ideas …?": the guide offered
+            hr = self._howto(st, go[0])
+            if hr is not None:
+                return hr
+        if re.search(r"\bi (?:don'?t|do not) know (?:anyone|anybody|a single person|many people)(?: here| there| yet| in (?:the|this) city)?\b|"
+                     r"\bi have no friends (?:here|there|yet)\b", norm):
+            st.uses["guide_offer"] = ["how can i make friends in a new city", st.turn]   # "but i don't know anyone here"
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "daily:new_city_alone", d["new_city_alone"]), via="empathy")
+        if st.last_kind == "tool" and re.search(r"°[CF]", st.last_reply or "") and re.fullmatch(
+                r"(?:so |and )?(?:is (?:that|it) (?:hot|cold|warm|cool|chilly|freezing|a lot|normal|nice)|how (?:hot|cold|warm) is that)\??",
+                norm.strip()):
+            m_c = re.search(r"(-?\d+(?:[.,]\d+)?) ?°C", st.last_reply or "")
+            if m_c:                                       # "is that hot?" right after "30 °C = 86 °F"
+                c = float(m_c.group(1).replace(",", "."))
+                key = "freezing" if c <= 0 else "cold" if c < 10 else "cool" if c < 17 else "mild" if c < 23 else \
+                    "warm" if c < 28 else "hot" if c < 35 else "very_hot"
+                return Reply(msg, "smalltalk", d["temp_feel"][key].format(x=m_c.group(1)), via="tool")
+        if re.fullmatch(r"(?:and |plus |also |ugh,? )?(?:the |my |our )?rent (?:is|keeps going up|went up|got)(?: (?:too|so|way too|really|crazy|insanely))? "
+                        r"?(?:expensive|high|much|up)?(?: (?:here|now|again))?[.!]*", norm.strip()) or \
+                re.fullmatch(r"(?:everything|prices|food|groceries|bills) (?:is|are) (?:so |too |really |way too )?expensive(?: now| lately)?[.!]*", norm.strip()):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg + " money", "turn": st.turn}
+            st.uses["guide_offer"] = ["how can i save money", st.turn]
+            return Reply(msg, "empathy", self._pick(st, "daily:money_tight", d["money_tight"]), via="empathy")
+        pt2 = st.uses.get("pet")
+        if pt2 and st.turn - pt2[1] <= 6 and re.fullmatch(r"(?:so |and |but )?(?:should|do) i (?:take|bring|call) (?:him|her|it|them|my \w+|the \w+) "
+                                                           r"(?:to the vet(?:'?s)?|to a vet)|(?:should|do) i (?:call|see|go to) (?:a|the) vet(?:'?s)?"
+                                                           r"(?: now| today| tomorrow)?\??", norm.strip()):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:vet_advice", d["vet_advice"], x=pt2[0]), via="everyday")
+        if pt2 and st.turn - pt2[1] <= 3 and re.fullmatch(r"(?:and |but )?(?:he|she|it)(?:'s| is| has| hasn'?t|'s been| has been| keeps)? "
+                                                           r"(?:not eating|stopped eating|won'?t eat|doesn'?t eat|isn'?t eating|throwing up|"
+                                                           r"vomiting|limping|very tired|so tired|sleeping all day|not drinking|eaten anything)"
+                                                           r"(?: (?:since|for) [a-z0-9 ]{1,20})?[.!]*", norm.strip()):
+            return Reply(msg, "empathy", self._pick(st, "daily:pet_unwell", d["pet_unwell"], x=pt2[0]), via="empathy")
         wv = self._worth_visit(st, msg)
         if wv is not None:
             return wv
@@ -2659,6 +2757,12 @@ class Assistant:
         if st.turn - la.get("turn", -99) > 3:
             return None
         q = normalise(text).strip(" ?!.")
+        if _HOWTO_Q.match(q):
+            words_q = set(re.findall(r"[a-z']+", q))
+            stems_q = {w.rstrip("s") for w in words_q} | words_q
+            for g in self.bank.daily.get("howto", []):
+                if g["title"] != la.get("title") and any(all(k in stems_q or k.rstrip("s") in stems_q for k in grp) for grp in g["keys"]):
+                    return None                           # "can you help me make a budget?": another guide, not a follow-up
         if not re.match(r"(?:and |so |ok |okay |but |wait )?(?:how|what|do|does|can|should|is|are|when|which|"
                         r"for how|at what)\b", q) or len(q.split()) > 12 or \
                 re.match(r"(?:and |so |ok |okay )?(?:how|what) about\b", q):
@@ -4373,7 +4477,9 @@ _HOWTO_Q = re.compile(r"^(?:so |ok |okay |hey )?(?:how (?:do|can|should|would) (
                       r"how long does it take to|"
                       r"how long (?:do|should) (?:i|you)|how much \w+ should (?:i|you)|what(?:'s| is) the best way to|"
                       r"what should i (?:wear|do) (?:to|for|about)|any tips (?:on|for) |tips for |how (?:do|can) i get rid of|"
-                      r"what (?:helps|can help|is good|works) (?:with|against|for)|what can i do (?:about|against|for))\b")
+                      r"what (?:helps|can help|is good|works) (?:with|against|for)|what can i do (?:about|against|for)|"
+                      r"any (?:tips|advice|ideas) (?:to|on how to|how to)|tips (?:to|on how to)|(?:can|could) you help me "
+                      r"(?:make|create|set up|plan|do|write) (?:a |my )?(?:budget|savings plan))\b")
 _TOPIC_EDGE = set("""who whom whose what which when where why how is are was were be been do does did done has have had
 won win wins winning lost lose the a an of in on at for to by from with and or but about i me my you your he she it they
 him her them his its their this that these those there here top best first last most many much old""".split())

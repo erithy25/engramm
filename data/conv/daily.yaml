@@ -1154,6 +1154,12 @@ howto:
   - keys: [[fever]]
     title: "What helps with a fever"
     steps: ["Rest and drink a lot — fever uses up fluids.", "Light clothes and a light blanket; a lukewarm (not cold) cloth can feel good.", "A standard fever reducer can help if it's okay for you.", "See a doctor if it's above 39.5 °C, lasts more than three days, or comes with a stiff neck, rash or confusion."]
+  - keys: [[save, money], [saving, money], [spend, less], [money, tips]]
+    title: "Ways to save money"
+    steps: ["Write down everything you spend for a month — most people find one or two surprises.", "Cancel subscriptions you don't really use, and compare insurance, phone and energy contracts once a year.", "Cook more at home and take lunch with you; plan meals so less food gets thrown away.", "Move a fixed amount to a savings account right after payday, so you never see it.", "Wait 48 hours before any non-essential purchase — often the urge passes."]
+  - keys: [[budget]]
+    title: "A simple monthly budget"
+    steps: ["Start with your monthly income after tax.", "List fixed costs: rent, bills, insurance, transport, debt payments.", "A common rule of thumb is 50/30/20: about 50% for needs, 30% for wants, 20% for savings and paying off debt.", "Set a weekly amount for groceries and fun, and check in every Sunday.", "Tell me your income and rent if you like, and I'll help you do the maths."]
   - keys: [[hiccup], [hiccups]]
     title: "Getting rid of hiccups"
     steps: ["Hold your breath for 10–20 seconds, then breathe out slowly — repeat a few times.", "Sip a glass of cold water slowly, or swallow a teaspoon of sugar.", "Breathe slowly into cupped hands for a minute.", "Hiccups that last more than two days are worth mentioning to a doctor."]
@@ -1487,3 +1493,41 @@ getting_sick:
 get_well:
   - "Good idea — tea with honey is perfect. Get well soon! 💛"
   - "That'll help. Take it easy today, and get well soon!"
+self_worth:
+  - "You're not a failure — you're someone who tried hard at something difficult and it didn't work out this time. That's not the same thing at all. Be as kind to yourself as you'd be to a friend."
+  - "I hear you, and it's okay to feel that way right now. But one bad result doesn't say who you are. What would you tell a friend who said this?"
+effort_neg:
+  - "That makes it even more frustrating — all that effort and it didn't show this time. The work isn't lost, though; it'll pay off next time."
+  - "Ugh, that's the worst part — knowing how much you put in. That effort still counts, even if the result doesn't show it yet."
+try_again:
+  - "That's the spirit! You've got this — and you'll go in knowing more than last time."
+  - "Good for you. Next time you'll be better prepared — I'm rooting for you!"
+vet_advice:
+  - "If he hasn't eaten for more than a day, seems very tired, is vomiting or has diarrhoea, yes — call the vet today. When in doubt, a quick call costs little and they can tell you if it can wait."
+  - "I'd call the vet, honestly. Not eating for more than 24 hours, lethargy or vomiting in a {x} are good reasons to have them checked — and it'll put your mind at ease."
+pet_unwell:
+  - "Poor thing. How long has it been? If it's more than a day, or he also seems very tired or is throwing up, it's worth calling the vet."
+  - "Oh no, that's worrying. Is he still drinking water? If it lasts more than a day or he seems weak, I'd call the vet."
+pet_sick:
+  - "Oh no, poor thing! What's wrong — is he not eating, or something else?"
+  - "Aw, I'm sorry — that's so worrying. What are the symptoms?"
+famous_for:
+  - "{x} is best known for {y}. Want some food tips for {x} too?"
+  - "People come to {x} for {y}. Shall I tell you what to eat there as well?"
+sights_again:
+  - "Beyond the big classics I mentioned, the best part of {x} is often just wandering — the neighbourhoods, a market, a café where locals go. Want some food tips too?"
+  - "Apart from the famous ones, I'd say: pick a neighbourhood, get lost a little, and eat where it's busy with locals. Shall I tell you about the food in {x}?"
+new_city_alone:
+  - "That's one of the hardest parts of moving — it takes a while, and that's normal. Want a few ideas for meeting people there?"
+  - "Starting from zero is tough. It does get better, usually faster than you'd think. Shall I give you some ideas for making friends?"
+temp_feel:
+  freezing: "{x} °C is freezing — below the point where water turns to ice. Wrap up warm!"
+  cold: "{x} °C is cold — definitely coat weather."
+  cool: "{x} °C is cool — a jacket or a jumper is a good idea."
+  mild: "{x} °C is pleasantly mild — t-shirt weather for many, a light jacket for others."
+  warm: "{x} °C is warm — nice summer weather."
+  hot: "Yes, {x} °C is hot — drink enough and look for some shade."
+  very_hot: "{x} °C is very hot — take it easy, drink plenty of water and avoid the midday sun."
+money_tight:
+  - "That's really tough — rent eats so much of everyone's income these days. Want a few ideas for saving where it doesn't hurt much?"
+  - "Ugh, yes, it's brutal right now. You're definitely not alone with that. Should I share some ways to save a bit?"

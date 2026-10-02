@@ -1277,3 +1277,44 @@ def test_battery38_day_plan_lunch_sister_german_evening_and_sick_day(chat):
     r = a.turn(st3, "thanks, i'll make some tea")
     assert "get well" in r.text.lower(), r.text
     assert not any("tea" in t.lower() and "favourite" in t.lower() for t in _stored(a))
+
+
+def test_battery39_self_worth_pets_money_city_and_german_jokes(chat):
+    a, st = chat
+    a.turn(st, "i failed my exam")
+    r = a.turn(st, "i feel like a failure")
+    assert "you like" not in r.text.lower() and ("not a failure" in r.text or "doesn't say who you are" in r.text), r.text
+    r = a.turn(st, "i'll try again next time")
+    assert "enjoy" not in r.text.lower(), r.text
+    assert not any("failure" in t.lower() for t in _stored(a) if "like" in t.lower() and "feel" not in t.lower())
+    st2 = DialogState("daily")
+    a.turn(st2, "my dog is sick")
+    r = a.turn(st2, "should i take him to the vet?")
+    assert "vet" in r.text, r.text
+    a.turn(st2, "his name is max")
+    a.turn(st2, "he's 7")
+    r = a.turn(st2, "how old is max?")
+    assert "7" in r.text, r.text
+    st3 = DialogState("daily")
+    r = a.turn(st3, "rent is too expensive")
+    assert "saving" in r.text or "save" in r.text, r.text
+    r = a.turn(st3, "yes please")
+    assert "Ways to save money" in r.text, r.text
+    r = a.turn(st3, "can you help me make a budget?")
+    assert "budget" in r.text.lower() and "doesn't use" not in r.text, r.text
+    st4 = DialogState("daily")
+    a.turn(st4, "convert 30 celsius to fahrenheit")
+    r = a.turn(st4, "is that hot?")
+    assert "30 °C is hot" in r.text, r.text
+    st5 = DialogState("daily")
+    a.turn(st5, "i just moved to berlin")
+    r = a.turn(st5, "what's berlin famous for?")
+    assert "Brandenburg Gate" in r.text, r.text
+    r = a.turn(st5, "what should i see there?")
+    assert "Brandenburg Gate" not in r.text, r.text            # no repeat of the same list
+    st6 = DialogState("de")
+    r = a.turn(st6, "haha ok, was ist die hauptstadt von kanada?")
+    assert "klingt" not in r.text.lower() and "freut mich" not in r.text.lower(), r.text   # the question, not a reaction
+    a.turn(st6, "erzähl mir einen witz")
+    r = a.turn(st6, "der war gut")
+    assert "Schönes passiert" not in r.text, r.text

@@ -2136,6 +2136,21 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - „is it worth visiting?“ nach dem Eiffelturm; „ugh mondays“.
   - Team-Dev-Satz: 0 von 128 Antworten geändert. NQ-open 400: unverändert 22/9. Regressions-Batterien 34–37:
     0 Wiederholungen. Suite 683 bestanden, 7 übersprungen.
+- **Alltags-Batterie 39** (Umzug nach Berlin, kranker Hund, Geldsorgen, deutsche Langeweile mit Witzen, Rechnen,
+  durchgefallene Prüfung). Gefunden und behoben:
+  - „i feel like a failure“ → „Got it, you like failure.“: „feel/look/sound like …“ ist nie eine Vorliebe; jetzt
+    eine aufbauende Antwort, und „i'll try again next time“ → „That's the spirit!“ (vorher „enjoy!“).
+  - „haha ok, was ist die hauptstadt von kanada?“ → „Das klingt richtig gut!“: eine Reaktion vor der Frage wird
+    abgetrennt, die Frage beantwortet.
+  - Hund: „my dog is sick“ setzt den Haustier-Zusammenhang („his name is max“, „he's 7“, „how old is max?“), Rat zum
+    Tierarzt.
+  - „what's berlin famous for?“ / „what should i see there?“ nach dem Umzug, ohne die Liste zu wiederholen;
+    „i don't know anyone here“ → Angebot, „yes“ → Tipps zum Freundefinden.
+  - Geld: „rent is too expensive“ → Angebot mit Spartipps, Anleitungen „save money“ und „budget“ (vorher Artikel
+    „Savemoney“). „is that hot?“ nach 30 °C → Einordnung.
+  - Deutsch: „nein, keine ideen“ nach dem Angebot, „der war gut“ nach einem Witz.
+  - Team-Dev-Satz: 0 von 128 Antworten geändert. NQ-open 400: unverändert 22/9. Regressions-Batterien 34–38:
+    0 Wiederholungen. Suite 684 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

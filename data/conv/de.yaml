@@ -305,6 +305,8 @@ daily:
                    "Aufregung gehört dazu, die meisten sind vorher nervös. Soll ich dir ein paar Tipps geben?"]
     me_too: ["Schön! Was steht heute bei dir an?", "Freut mich! Worüber wollen wir reden?"]
     hungry: ["Hunger? Dann vielleicht was Schnelles:"]
+    joke_liked: ["Freut mich! 😄 Noch einen?", "Haha, schön, dass er dir gefällt! Willst du noch einen hören?"]
+    offer_no: ["Alles klar! Sag einfach Bescheid, wenn dir noch langweilig ist – ich hab auch Witze auf Lager.", "Kein Problem. Worüber magst du stattdessen reden?"]
     off_work: ["Endlich! Wie war dein Tag?", "Feierabend – herrlich. War's ein guter Tag?"]
     weekend: ["Endlich Wochenende! Hast du was Schönes vor?", "Wochenende! Ausschlafen oder schon Pläne?"]
     holiday: ["Urlaub – wie schön! Fährst du weg oder bleibst du zu Hause?"]
