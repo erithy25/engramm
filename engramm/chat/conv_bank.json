@@ -5470,6 +5470,10 @@
     "call_friend": [
      "Viel Glück – ich hoffe, ihr kriegt das hin. Echte Freundschaften überstehen einen Streit. 💛"
     ],
+    "work_seen": [
+     "Selbst sehen kann ich nicht, aber ich kenne {x}! Hast du ihn gesehen? Wie fandest du ihn?",
+     "Mit eigenen Augen nicht – aber ich habe über {x} gelesen. Hat er dir gefallen?"
+    ],
     "bot_human": [
      "Nein, ich bin kein Mensch – ich bin ENGRAMM, ein Programm auf deinem Rechner. Kein neuronales Netz, keine Cloud: Ich antworte aus dem, was ich gelesen habe, und aus dem, was du mir erzählst.",
      "Nein, ich bin ein Programm namens ENGRAMM. Aber ich höre dir trotzdem gern zu!"
@@ -10636,6 +10640,36 @@
   ],
   "still_hurts": [
    "Of course it does. You're allowed to feel sad about it, however old you are. Be kind to yourself, and talk to the people close to you."
+  ],
+  "work_seen": [
+   "I can't watch or read myself, but I know {x}! Have you? What did you think?",
+   "Not with my own eyes — but I've read about {x}. Did you like it?"
+  ],
+  "work_book": [
+   "{X} — that's a big one! How did you find it?",
+   "Nice, {x}! What did you think of it?"
+  ],
+  "work_film": [
+   "{X} — good choice! What did you like about it?",
+   "Ooh, {x}! Was it as good as people say?"
+  ],
+  "work_music": [
+   "{X} — nice! What's your favourite song?",
+   "Ooh, {x}! Any song you have on repeat right now?"
+  ],
+  "work_dark": [
+   "Yeah, {x} is famously bleak. It stays with you, though — that's what makes it so powerful.",
+   "It really is heavy. Maybe something lighter next? Happy to suggest a few."
+  ],
+  "score_ack": [
+   "{X} {y} — nice! Were you watching at home or at the stadium?",
+   "Ooh, {y}! {X} fans must be happy. Was it a close game?"
+  ],
+  "best_player": [
+   "Always a hot debate! Over whole careers, most people name Lionel Messi or Cristiano Ronaldo. Among younger players (as of my 2022 data), Kylian Mbappé and Erling Haaland come up a lot. Who's your pick?"
+  ],
+  "work_should": [
+   "Lots of people love {x}. If the topic sounds interesting to you, I'd say give it a go — you can always stop if it doesn't grab you."
   ]
  }
 }

@@ -2343,6 +2343,21 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     Test verbietet doppelte Musternamen in dialog.py.
   - Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–53 und langes Gespräch: 0 Wiederholungen.
     Suite 732 bestanden, 7 übersprungen.
+- **Alltags-Batterie 55 (Filme, Bücher, Musik, Fußball; Englisch und Deutsch)**:
+  - Faktenfehler gefunden: „i just finished reading 1984“ → „who wrote it?“ → „It was written by Stephen King.“ Der
+    Fragesatz wurde als Frage nach dem Roman „It“ gelesen. Jetzt ist ein kleingeschriebenes „it“ als Objekt („who wrote/
+    directed/made it“) nie ein Titel, und das genannte Werk wird zum Thema: „1984“ → „Nineteen Eighty-Four“ → „who wrote it?“
+    → „Nineteen Eighty-Four was written by George Orwell.“ → „what else did he write?“ → Orwells Werke.
+  - Werk-Kontext: „i loved interstellar“ → „any similar movies?“ (ohne den Film selbst); „i've been listening to a lot of
+    taylor swift“ wurde zu „you work as a lot“, jetzt eine passende Rückfrage; „it was so depressing“ nach einem Buch war
+    „That's brilliant — you must be really happy!“, jetzt passend; Fußballergebnis („bayern won 3-1“); „who's the best
+    player in the world?“ mit Datumshinweis. Hobbys wie „i love cooking“ bleiben Hobbys (eine erste Fassung las sie als
+    Werk; vom Dev-Satz, team-0045, und Batterie 43 abgefangen und vor dem Commit behoben).
+  - Deutsch: „hast du interstellar gesehen?“ → „worum geht es?“ → „wer hat den Film gemacht?“ (aus dem Artikel:
+    Christopher Nolan) → „kennst du ähnliche Filme?“.
+  - Grenze: „Inception“ steht nicht im Lite-Paket; dazu sagt Engramm ehrlich, dass es nichts weiß.
+  - Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–54 und langes Gespräch: 0 Wiederholungen.
+    Suite 735 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

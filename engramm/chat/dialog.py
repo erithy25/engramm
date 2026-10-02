@@ -145,7 +145,10 @@ _LIKE_GENRE = {"harry potter": "fantasy", "the lord of the rings": "fantasy", "l
                "the hunger games": "dystopia", "hunger games": "dystopia", "1984": "dystopia", "divergent": "dystopia",
                "sherlock": "mystery", "sherlock holmes": "mystery", "agatha christie": "mystery", "breaking bad": "crime",
                "the godfather": "crime", "friends": "comedy", "the office": "comedy", "brooklyn nine-nine": "comedy",
-               "pride and prejudice": "romance", "the notebook": "romance", "toy story": "animation", "shrek": "animation"}
+               "pride and prejudice": "romance", "the notebook": "romance", "toy story": "animation", "shrek": "animation",
+               "inception": "scifi", "the matrix": "scifi", "blade runner": "scifi", "nineteen eighty-four": "dystopia",
+               "brave new world": "dystopia", "the handmaid's tale": "dystopia", "fahrenheit 451": "dystopia",
+               "the dark knight": "action", "titanic": "romance", "the shining": "thriller", "get out": "thriller"}
 _NEW_JOB = re.compile(r"\b(?:got|have|landed|found|accepted|took|start(?:ing)?|begin(?:ning)?) (?:a |my |the |that )?(?:new )?job"
                       r"(?: offer)?\b(?! interview)|\bgot hired\b|\bnew job\b")
 _JOB_AT = re.compile(r"(?:it'?s|its|it is|it'?ll be|that'?s|the (?:new )?job is|i'?ll be working|i will be working|i'?m going to work|"
@@ -544,6 +547,23 @@ _DE_FIRST_TRY = re.compile(r"^(?:und )?(?:beim|im) ersten (?:mal|anlauf|versuch)
 _DE_FIGHT = re.compile(r"\bich (?:hab|habe) mich mit (?:meiner|meinem) (?:besten freundin|besten freund|freundin|freund|schwester|bruder|mutter|vater) (?:gestritten|verkracht)\b")
 _DE_APOLOGIZE = re.compile(r"^(?:und )?wie (?:entschuldige ich mich|soll ich mich entschuldigen|kann ich mich entschuldigen)\??$")
 _DE_CALL_FRIEND = re.compile(r"^(?:ok(?:ay)?,? |gut,? )?ich (?:ruf|rufe|schreib|schreibe) (?:sie|ihn|ihr|ihm) (?:gleich |jetzt |morgen |heute )?(?:an)?[.!]*$")
+# battery 55: talking about a film, a book or music: the work becomes the topic, "it" is the work
+_MEDIA = re.compile(r"^(?:i'?ve been |i have been |i'?m |i am |i )?(?:just |finally |recently )?(?P<v>listening to|into|finished reading|finished|started reading|"
+                    r"started|reading|read|re-?read|watched|saw|watching|loved|love|liked|really liked|really loved)"
+                    r" (?:a lot of |lots of |so much |the book |the movie |the film )?(?P<x>[a-z0-9][a-z0-9 '&.:-]{1,40}?)"
+                    r"(?: lately| recently| these days| right now| again| last night| yesterday| today)?[.!]*$")
+_SEEN = re.compile(r"^(?:have|did) you (?:ever )?(?:seen|watched|see|watch|read|heard of) (?P<x>[a-z0-9][a-z0-9 '&.:-]{1,40}?)\??$")
+_IT_Q = re.compile(r"^(?:and |so )?(?:who|when|where|what year|how long|how many|what) [a-z ]*\bit\b[a-z ]*\??$")
+_SIMILAR = re.compile(r"^(?:any|some) (?:similar|other|more) (?P<k>movies|films|books|shows|series|artists|bands|songs|music)(?: like (?:it|that|this))?\??$|"
+                      r"^(?:anything|something) (?:similar|like (?:it|that))\??$")
+_WORK_ALIAS = {"1984": "Nineteen Eighty-Four"}
+_WORK_TYPES = {"book": ("Book", "Novel", "WrittenWork", "Poem"), "film": ("Film", "TelevisionShow", "TelevisionSeries"),
+               "music": ("Band", "MusicalArtist", "Person", "Album", "Single", "Group")}
+_SCORE = re.compile(r"^(?P<t>[a-z][a-z .]{1,25}?) (?:won|beat [a-z .]+?|lost|drew)(?: (?P<s>\d+ ?[-–:] ?\d+))?(?: (?:last night|yesterday|today|again))?[.!]*$")
+_BEST_PLAYER = re.compile(r"^who(?:'s| is) the best (?:football |soccer )?player in the world\??$|^who(?:'s| is) the goat\??$")
+_DEPRESSING = re.compile(r"^(?:it was |it'?s |but it was |that was )(?:so |really |pretty |quite |kinda )?(?:depressing|dark|bleak|sad|heavy|disturbing|scary|"
+                         r"creepy|intense)[.!]*$")
+_DE_SEEN = re.compile(r"^(?:hast|kennst) du (?:schon )?(?P<x>[a-z0-9][a-z0-9 '&.:-]{1,40}?)(?: gesehen| gelesen| gehört)?\??$")
 _WEAR = re.compile(r"^(?:(?:and|so|ok|okay|hmm|fine|alright|cool|sure)[.,!]? )?what (?:should|do|can|could) i wear(?: (?:to|for|on|in) "
                    r"(?:the |a |my |an )?(?P<x>[a-z ]+?))?(?: tomorrow| today| tonight)?\??$")
 _OCCASIONS = [("interview", re.compile(r"\binterview")), ("wedding", re.compile(r"\bwedding|\bmarr")),
@@ -1258,6 +1278,43 @@ class Assistant:
                 return Reply(msg, "smalltalk", self._pick(st, "de:ctx:apologize", dc["apologize"]), via="german")
             if _DE_CALL_FRIEND.match(q):
                 return Reply(msg, "smalltalk", self._pick(st, "de:ctx:call_friend", dc["call_friend"]), via="german")
+        m = _DE_SEEN.match(q)
+        if m and not re.fullmatch(r"(?:zeit|lust|hunger|angst|recht|ahnung|lust drauf|kinder|haustiere|geschwister)", m.group("x")):
+            hit = self._work_entity(m.group("x"), None)
+            if hit:
+                title, kind = hit
+                name = re.sub(r"\s*\([^)]*\)$", "", title)
+                st.topic = {"title": title, "name": name, "turn": st.turn}
+                st.uses["work"] = [title, name, kind, st.turn]
+                self.bot.context.update({"answer": None, "atype": None, "mention": name, "kb_last": None})
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:work_seen", dc["work_seen"], x=name), via="german")
+        wk = st.uses.get("work")
+        if wk and st.turn - wk[3] <= 6:
+            title, name, kind = wk[0], wk[1], wk[2]
+            if re.fullmatch(r"(?:und )?(?:worum geht(?:'s| es)(?: da| darin| in dem film| in dem buch)?|was passiert (?:da|darin))", q):
+                f = self.about.find(title)
+                if f is not None:
+                    wk[3] = st.turn
+                    rep = self._about_reply(st, msg, f, "tell")
+                    rep.text = f"{self.bank.de['daily']['english_text']} {rep.text}"
+                    return rep
+            if re.fullmatch(r"(?:und )?wer hat (?:den film|das buch|ihn|es|den|das) (?:gemacht|gedreht|geschrieben|inszeniert)", q):
+                verb = "wrote" if kind == "book" else "directed"
+                rep = self._kb_answer(st, f"who {verb} {name}?")
+                if rep is None or not rep.answer:          # not in the fact bank: the article's own "directed by …"
+                    mk = self._work_maker(title)
+                    rep = Reply(msg, "answer", "", answer=mk[0], source=mk[1], via="about", confidence=0.8) if mk else None
+                if rep is not None and rep.answer:
+                    wk[3] = st.turn
+                    de_text = (f"{name} ist von {rep.answer}." if kind != "book" else f"{name} wurde von {rep.answer} geschrieben.")
+                    return Reply(msg, "answer", de_text, answer=rep.answer, evidence=rep.evidence, source=rep.source, via="german",
+                                 confidence=rep.confidence)
+            if re.fullmatch(r"(?:und )?(?:kennst du |hast du |gibt es )?(?:ähnliche|noch mehr solche|vergleichbare) (?:filme|bücher|serien|musik|"
+                            r"künstler)(?: wie den| wie das)?", q):
+                rec = "book" if kind == "book" else "music" if kind == "music" else "movie"
+                rep = self.everyday.recommend(st, msg, rec, _LIKE_GENRE.get(name.lower()), lang="de")
+                rep.text = "\n".join(ln for ln in rep.text.split("\n") if name.lower() not in ln.lower() or not ln.startswith("•"))
+                return rep
         m = _DE_CONVERT.match(q)
         if m:
             from engramm.chat.tools import convert
@@ -4013,7 +4070,8 @@ class Assistant:
                         return self._dish_steps(st, msg, dish["name"])
         r2 = self._daily_ctx2(st, msg, norm) or self._daily_ctx3(st, msg, norm) or self._daily_ctx4(st, msg, norm) or \
             self._daily_ctx5(st, msg, norm) or self._daily_ctx6(st, msg, norm) or self._daily_ctx7(st, msg, norm) or \
-            self._daily_ctx8(st, msg, norm) or self._daily_ctx9(st, msg, norm) or self._daily_ctx10(st, msg, norm)
+            self._daily_ctx8(st, msg, norm) or self._daily_ctx9(st, msg, norm) or self._daily_ctx10(st, msg, norm) or \
+            self._daily_ctx11(st, msg, norm)
         if r2 is not None:
             return r2
         m = _WHAT_LIKES.match(norm)
@@ -4755,6 +4813,124 @@ class Assistant:
                 return Reply(msg, "empathy", self._pick(st, "daily:still_hurts", d["still_hurts"]), via="empathy")
         return None
 
+    def _work_entity(self, x: str, kind: str | None, strict: bool = False) -> tuple[str, str] | None:
+        """(title, kind) of a film, book or artist the user named, from the fact bank's links or an article title."""
+        x = x.strip(" .!?")
+        x = _WORK_ALIAS.get(x.lower(), x)
+        kinds = [kind] if kind else ["film", "book", "music"]
+        if self.kgqa is not None:
+            try:
+                links = self.kgqa.kb.link(x, limit=8)
+            except Exception:
+                links = []
+            for k in kinds:
+                for ent, _rank in links:
+                    if (ent.type or "") in _WORK_TYPES[k]:
+                        return ent.title, k
+        for k in kinds:
+            for cand in (f"{x.title()} (film)", f"{x.title()} (novel)") if k != "music" else ():
+                f = self.about.find(cand)
+                if f is not None and "(" in f.title:
+                    return f.title, k
+        if strict:
+            return None                                   # "i love cooking": a hobby, not a work, unless it is clearly one
+        f = self.about.find(x.title() if x.islower() else x)
+        if f is not None and f.title.lower().replace("the ", "").startswith(x.lower().replace("the ", "")[:6]):
+            return f.title, kind or "film"
+        return None
+
+    def _work_maker(self, title: str) -> tuple[str, dict] | None:
+        """Who wrote or directed a work, from its article's own "written by …" / "directed by …"."""
+        f = self.about.find(title)
+        if f is None:
+            return None
+        m = re.search(r"\b(?:directed|written|co-written, directed,? and produced|written and directed|composed|painted)(?:,? and produced)? by "
+                      r"(?:the [A-Z]?[a-z]+ (?:writer|author|director|novelist|filmmaker) )?"
+                      r"(?P<w>[A-Z][a-zà-ÿ'-]+(?: (?:[A-Z]\.|[A-Z][a-zà-ÿ'-]+)){1,3})", " ".join(f.sentences))
+        return (m.group("w"), f.source) if m else None
+
+    def _daily_ctx11(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 55: a film, book or artist becomes the topic ("i just finished reading 1984", "have you seen
+        inception?"), so "who wrote it?", "what's it about?" and "any similar movies?" are about that work — never
+        about Stephen King's "It"; a football score, the best player, and a depressing book."""
+        d = self.bank.daily
+        m = _SEEN.match(norm)
+        verb = None
+        if m:
+            x, verb = m.group("x"), "seen"
+        else:
+            m = _MEDIA.match(norm)
+            x, verb = (m.group("x"), m.group("v")) if m else (None, None)
+        if x and not re.fullmatch(r"(?:it|that|this|them|him|her|a lot|so much|the news|the game|the match|tv|music)", x):
+            kind = "music" if verb in ("listening to", "into") else "book" if verb and "read" in verb else \
+                "film" if verb in ("watched", "saw", "watching", "seen") else None
+            strict = verb in ("loved", "love", "liked", "really liked", "really loved")
+            hit = self._work_entity(x, kind, strict=strict)
+            if hit:
+                title, kind = hit
+                name = re.sub(r"\s*\([^)]*\)$", "", title)
+                st.topic = {"title": title, "name": name, "turn": st.turn}
+                st.uses["work"] = [title, name, kind, st.turn]
+                self.bot.context.update({"answer": None, "atype": None, "mention": name, "kb_last": None})
+                if verb == "seen":
+                    return Reply(msg, "smalltalk", self._pick(st, "daily:work_seen", d["work_seen"], x=name), via="smalltalk")
+                key = {"music": "work_music", "book": "work_book", "film": "work_film"}[kind]
+                if verb in ("loved", "love", "liked", "really liked", "really loved", "listening to", "into"):
+                    self._learn(st, [f"I like {name}."], msg)
+                return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key], x=name), via="empathy")
+        wk = st.uses.get("work")
+        if wk and st.turn - wk[3] <= 6:
+            title, name, kind = wk[0], wk[1], wk[2]
+            if _DEPRESSING.match(norm):
+                wk[3] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:work_dark", d["work_dark"], x=name), via="empathy")
+            if _IT_Q.match(norm) and not getattr(self, "_in_work_q", False):
+                q2 = re.sub(r"\bit\b", name, msg, count=1, flags=re.I)
+                rep = self._kb_answer(st, q2.rstrip("?") + "?")   # the fact bank first: "George Orwell", then "he" works
+                mk = self._work_maker(title) if rep is None and re.match(r"(?:and |so )?who (?:wrote|directed|made|painted|composed)\b", norm) else None
+                if mk:
+                    who, src = mk
+                    self.bot.context.update({"answer": who, "atype": "PERSON", "mention": who, "kb_last": None})
+                    verb = re.search(r"\b(wrote|directed|made|painted|composed)\b", norm).group(1)
+                    shown = {"wrote": "written", "made": "made", "painted": "painted", "composed": "composed", "directed": "directed"}[verb]
+                    rep = Reply(msg, "answer", f"{name} was {shown} by {who}.", answer=who, source=src, via="about", confidence=0.8)
+                if rep is None:
+                    self._in_work_q = True
+                    try:
+                        rep = self._turn(st, q2)             # "who wrote it?" → "who wrote Nineteen Eighty-Four?"
+                    finally:
+                        self._in_work_q = False
+                rep.message = msg
+                wk[3] = st.turn
+                return rep
+            if _IT_ABOUT.match(norm.strip()):
+                f = self.about.find(title)
+                if f is not None:
+                    wk[3] = st.turn
+                    return self._about_reply(st, msg, f, "tell")
+            if re.fullmatch(r"(?:so |but )?(?:should i|would you recommend|is it worth) (?:read|watch|see|listen to|reading|watching|"
+                            r"seeing|listening to)?(?: it| that| this)?(?: book| film| movie)?\??|is it (?:good|worth it)\??", norm):
+                wk[3] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:work_should", d["work_should"], x=name), via="smalltalk")
+            m = _SIMILAR.match(norm)
+            if m:
+                k = m.group("k") or ""
+                rec = "book" if kind == "book" or k.startswith("book") else "music" if kind == "music" or k in (
+                    "artists", "bands", "songs", "music") else "movie"
+                genre = _LIKE_GENRE.get(name.lower())
+                rep = self.everyday.recommend(st, msg, rec, genre)
+                if "\n" in rep.text and genre:
+                    body = "\n".join(l for l in rep.text.split("\n")[1:] if name.lower() not in l.lower())
+                    rep.text = self._pick(st, "daily:like_title", d["like_title"], x=name) + "\n" + body
+                return rep
+        m = _SCORE.match(norm)
+        if m and re.search(r"\b(?:game|match|watch|football|soccer)\b", (st.last_message or "").lower() + " " + (st.last_reply or "").lower()):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:score_ack", d["score_ack"], x=m.group("t").title(),
+                                                      y=(m.group("s") or "").replace("-", "–")), via="smalltalk")
+        if _BEST_PLAYER.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:best_player", d["best_player"]), via="smalltalk")
+        return None
+
     def _person_name(self, noun: str) -> str | None:
         for tx in self.bot.user_texts().values():
             m = re.match(rf"^My {re.escape(noun)} is called ([A-Z][\w'-]*)\.?$", tx)
@@ -5417,6 +5593,9 @@ class Assistant:
         if self.kgqa is None or re.search(r"\b(?:i|me|my|mine|i'm)\b", text.lower()):
             return None
         q = self.bot.resolve(" ".join(text.split()))
+        if re.search(r"\b(?:wrote|written|directed|made|painted|sang|sung|composed|built|designed|invented|created|founded|produced|"
+                     r"published|filmed) it\b(?! (?:by|was))", q):
+            return None                                   # "who wrote it?": a pronoun, never Stephen King's novel "It"
         try:
             ans = self.kgqa.answer(q)
         except Exception:                       # a damaged fact bank must not break the chat

@@ -2193,3 +2193,53 @@ def test_dialog_module_names_each_pattern_once():
     names = _re.findall(r"^(_[A-Z][A-Z0-9_]*) = ", src, _re.M)
     twice = [n for n, c in Counter(names).items() if c > 1]
     assert not twice, twice
+
+
+def test_battery55_work_topic_and_it_is_never_the_novel_it(chat):
+    a, _ = chat
+
+    class KB:
+        def link(self, x, limit=8):
+            from types import SimpleNamespace as N
+            return [(N(title="Nineteen Eighty-Four", type="Book"), 0)] if x == "Nineteen Eighty-Four" else []
+    a._kb_answer_orig = a._kb_answer
+    st = DialogState("t1")
+    # "who wrote it?" without a work in context must never be read as the novel "It"
+    assert a._kb_answer(st, "who wrote it?") is None
+    pages = {"Nineteen Eighty-Four": _about("Nineteen Eighty-Four", [
+        "Nineteen Eighty-Four is a dystopian novel written by the English writer George Orwell."])}
+    a.about.find = lambda t, **kw: pages.get(t)
+
+    class KQ:
+        kb = KB()
+
+        def answer(self, q):
+            return None
+    a.kgqa = KQ()
+    try:
+        r = a.turn(st, "i just finished reading 1984")
+        assert "Nineteen Eighty-Four" in r.text, r.text
+        assert st.topic["name"] == "Nineteen Eighty-Four"
+        r = a.turn(st, "it was so depressing")
+        assert "brilliant" not in r.text and "happy" not in r.text, r.text
+        r = a.turn(st, "who wrote it?")
+        assert "Orwell" in r.text and "King" not in r.text, r.text
+    finally:
+        a.kgqa = None
+
+
+def test_battery55_score_and_best_player(chat):
+    a, _ = chat
+    st = DialogState("t2")
+    a.turn(st, "did you watch the game last night?")
+    r = a.turn(st, "bayern won 3-1")
+    assert "3–1" in r.text and "Go on" not in r.text, r.text
+    assert "Messi" in a.turn(DialogState("t3"), "who's the best player in the world?").text
+
+
+def test_hobbies_are_not_works(chat):
+    a, _ = chat
+    st = DialogState("t4")
+    a.turn(st, "i love cooking")
+    r = a.turn(st, "what do i love doing?")
+    assert "cooking" in r.text.lower(), r.text

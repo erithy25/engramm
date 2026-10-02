@@ -600,6 +600,7 @@ daily:
     first_try: ["Beim ersten Mal – stark! Viele brauchen zwei oder drei Anläufe."]
     apologize: ["Eine gute Entschuldigung ist einfach:\n\n• Sag konkret, was dir leidtut\n• Kein „aber“ – nicht rausreden\n• Zeig, dass du verstehst, wie es sich für sie angefühlt hat\n• Sag, was du anders machen willst\n\nUnd dann hör ihr richtig zu."]
     call_friend: ["Viel Glück – ich hoffe, ihr kriegt das hin. Echte Freundschaften überstehen einen Streit. 💛"]
+    work_seen: ["Selbst sehen kann ich nicht, aber ich kenne {x}! Hast du ihn gesehen? Wie fandest du ihn?", "Mit eigenen Augen nicht – aber ich habe über {x} gelesen. Hat er dir gefallen?"]
     bot_human: ["Nein, ich bin kein Mensch – ich bin ENGRAMM, ein Programm auf deinem Rechner. Kein neuronales Netz, keine Cloud: Ich antworte aus dem, was ich gelesen habe, und aus dem, was du mir erzählst.", "Nein, ich bin ein Programm namens ENGRAMM. Aber ich höre dir trotzdem gern zu!"]
     wfh_lonely: ["Das kann ich gut verstehen – Homeoffice kann richtig einsam machen. Ganze Tage ohne ein echtes Gespräch.", "Ja, zu Hause arbeiten ist praktisch, aber man sieht kaum Leute. Kein Plausch an der Kaffeemaschine."]
     maybe_should: ["Das ist eine gute Idee – auch kleine Schritte zählen. Soll ich dir ein paar Ideen geben?", "Finde ich gut! Klein anfangen ist völlig okay. Magst du ein paar Vorschläge?"]
