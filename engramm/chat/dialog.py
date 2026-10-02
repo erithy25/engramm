@@ -230,6 +230,15 @@ _CUISINE_ADJ = {"japan": "Japanese", "china": "Chinese", "korea": "Korean", "sou
 # "wer hat die relativitätstheorie entwickelt?" → "Die Relativitätstheorie wurde von … entwickelt."
 _WHO_MADE_DE = re.compile(r"wer hat (?P<art>die |den |das )?(?P<x>[a-zäöüß][a-zäöüß \-]{2,40}?) (?P<v>entwickelt|erfunden|geschrieben|"
                           r"gemalt|entdeckt|gegründet|komponiert|gebaut|erschaffen|gedreht|gesungen)")
+# "heute hab ich ein vorstellungsgespräch"
+_EVENT_DE_RX = re.compile(r"\b(?:heute|morgen|gleich|nachher|übermorgen|am \w+|diese woche|nächste woche) (?:hab|habe) ich "
+                          r"(?:ein|eine|einen|mein|meine|meinen) (?P<e>vorstellungsgespräch|prüfung|klausur|präsentation|date|"
+                          r"fahrprüfung|termin|arzttermin|bewerbungsgespräch)\b|\bich (?:hab|habe) (?:heute|morgen|gleich) "
+                          r"(?:ein|eine|einen) (?P<e2>vorstellungsgespräch|prüfung|klausur|präsentation|date)\b")
+# German dishes that need an ingredient without naming it
+_NEEDS_DE = {"eier": ["omelett", "shakshuka", "ei"], "reis": ["reis", "risotto"], "nudeln": ["pasta", "nudel"],
+             "käse": ["käse", "feta", "pizza"], "brot": ["brot", "fladenbrot", "pizza"], "kartoffeln": ["kartoffel"],
+             "tomaten": ["tomate", "shakshuka", "salsa"]}
 # German everyday forms (dialog._german_life)
 _NA_DE = re.compile(r"(?:hey |hi |hallo |moin |servus |hallöchen )?na(?: du| ihr)?(?:,? (?:wie geht'?s|alles klar|alles gut))?")
 _THANKS_DE = re.compile(r"(?:(?:cool|super|ok(?:ay)?|alles klar|gut|perfekt|toll|mega|ah|oh),? )?"
@@ -464,7 +473,8 @@ class Assistant:
             from engramm.chat.tools import calculate
             res = calculate(u.data["expr"])
             if res is not None and res.value is not None:
-                return Reply(msg, "tool", f"{u.data['expr']} = {res.value.replace('.', ',')}", via="tool")
+                shown = u.data["expr"].replace("*", "×").replace("/", "÷")
+                return Reply(msg, "tool", f"{shown} = {res.value.replace('.', ',')}", via="tool")
         if u.kind == "intent":
             it = next(i for i in de["intents"] if i["id"] == u.data["id"])
             if it["id"] == "joke":
@@ -472,6 +482,8 @@ class Assistant:
             opts = it.get("responses_named") if name and it.get("responses_named") else it["responses"]
             return Reply(msg, "smalltalk", self._pick(st, f"de:{it['id']}", opts, name=name or ""), via="german")
         if u.kind == "feeling":
+            st.last_exp = {"valence": u.data["valence"], "topic": None, "person": False, "text": msg,
+                           "text_en": _de_advice_hint(s), "turn": st.turn}
             fe = de["feelings"]
             if u.data["negated"]:
                 opts = fe["negated_negative"] if u.data["valence"] == "negative" else fe["negated_positive"]
@@ -533,6 +545,59 @@ class Assistant:
         hm = re.fullmatch(r"(?:etwas|was|lieber was|eher was|ideen) (?:für|fürs) (zuhause|zu hause|drinnen|daheim)", s)
         if hm and la.get("kind", "").startswith("rec:") and st.turn - la.get("turn", -99) <= 3:
             return self.everyday.recommend(st, msg, la["kind"][4:], "home", lang="de")
+        ev = _EVENT_DE_RX.search(s)
+        if ev:
+            what = ev.group("e") or ev.group("e2")
+            st.uses["event_de"] = [what, st.turn]
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "text_en": "", "turn": st.turn}
+            art = {"vorstellungsgespräch": "deinem Vorstellungsgespräch", "prüfung": "deiner Prüfung",
+                   "klausur": "deiner Klausur", "präsentation": "deiner Präsentation", "date": "deinem Date",
+                   "fahrprüfung": "deiner Fahrprüfung"}.get(what, "deinem Termin")
+            return Reply(msg, "empathy", self._pick(st, "de:life:event", dl["event"], x=art,
+                                                    X=what[:1].upper() + what[1:]), via="german")
+        evu = st.uses.get("event_de")
+        if evu and st.turn - evu[1] <= 3 and re.search(r"\b(?:nervös|aufgeregt|angst|bammel|panik|unsicher|lampenfieber)\b", s):
+            return Reply(msg, "empathy", self._pick(st, "de:life:event_nerves", dl["event_nerves"]), via="german")
+        if evu and st.turn - evu[1] <= 4 and re.fullmatch(r"(?:hast du |ein paar |irgendwelche )?(?:tipps|tips|einen tipp|rat|ratschläge)(?: für mich)?|"
+                                                          r"wie bereite ich mich (?:am besten )?vor|was soll ich beachten", s):
+            key = evu[0] if evu[0] in dl["event_tips"] else ("prüfung" if evu[0] in ("klausur", "fahrprüfung") else "generic")
+            return Reply(msg, "smalltalk", self._pick(st, f"de:life:tips:{key}", dl["event_tips"][key]), via="german")
+        if re.fullmatch(r"(?:kannst du )?(?:mir )?(?:die )?daumen drücken|drück(?:st du)? mir (?:die|beide) daumen|wünsch mir glück", s):
+            return Reply(msg, "smalltalk", self._pick(st, "de:life:thumbs", dl["thumbs"]), via="german")
+        if re.search(r"\b(?:(?:meinen|meine) (?:job|arbeit|stelle|arbeitsstelle) verloren|(?:wurde|bin|worden) (?:heute )?(?:gekündigt|entlassen)|mir wurde gekündigt|ich wurde rausgeschmissen)\b", s):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg,
+                           "text_en": "i lost my job", "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "de:life:job_lost", dl["job_lost"]), via="german")
+        ll = getattr(st, "last_list", None) or {}
+        wo = re.fullmatch(r"(?:aber |oh |hm+ )?ich (?:hab|habe) (?:keine?n?|kein) (?P<x>[a-zäöüß]+)(?: (?:mehr|da|zu hause|zuhause|im haus))?", s)
+        if wo and ll.get("kind") == "food" and st.turn - ll.get("turn", -99) <= 3:
+            x = wo.group("x")
+            needs = [x[:-1] if x.endswith(("n", "e")) and len(x) > 4 else x] + _NEEDS_DE.get(x, [])
+            texts = ll.get("texts") or []
+            hit = [t for t in texts if any(n in t.lower() for n in needs)]
+            rest = [t for t in texts if t not in hit]
+            shown = x[:1].upper() + x[1:]
+            if hit and rest:
+                short = lambda t: re.sub(r"^(?:ein|eine|einen)\s+", "", re.split(r" –|,| mit | auf | wenn ", t)[0].strip())
+                return Reply(msg, "smalltalk", self._pick(st, "de:life:without_skip", dl["without_skip"], x=shown,
+                                                          dish="das " + short(hit[0]) if not short(hit[0]).lower().startswith(("pizza", "suppe")) else "die " + short(hit[0]),
+                                                          rest=" oder ".join(short(r) for r in rest)), via="german")
+            return Reply(msg, "smalltalk", self._pick(st, "de:life:without_fine", dl["without_fine"], x=shown), via="german")
+        if re.fullmatch(r"(?:ok(?:ay)?|gut|alles klar|na gut|super),? dann (?:eben |halt |wohl |doch )?[a-zäöüß ]{2,30}", s) and \
+                (ll.get("kind") == "food" or la.get("kind", "").startswith("rec:")) and st.turn - ll.get("turn", -99) <= 4:
+            return Reply(msg, "smalltalk", self._pick(st, "de:life:decided", dl["decided"]), via="german")
+        if re.search(r"\bguten appetit\b|\blass es dir schmecken\b|\bmahlzeit\b", s):
+            return Reply(msg, "smalltalk", self._pick(st, "de:life:appetit", dl["appetit"]), via="german")
+        fg = re.fullmatch(r"vergiss,? (?:bitte )?(?P<w>wo ich wohne|wie ich heiße|meinen namen|wo ich arbeite|was ich beruflich mache|alles(?: über mich)?|wie alt ich bin)(?: bitte)?", s)
+        if fg:
+            english = {"wo ich wohne": "forget where I live", "wie ich heiße": "forget my name", "meinen namen": "forget my name",
+                       "wo ich arbeite": "forget where I work", "was ich beruflich mache": "forget my job",
+                       "wie alt ich bin": "forget my age"}.get(fg.group("w"), "forget everything about me")
+            rep = self._turn(st, english)
+            key = "forgot" if rep.kind == "forgot" else "forget_none"
+            return Reply(msg, rep.kind if rep.kind == "forgot" else "nothing", self._pick(st, f"de:life:{key}", dl[key]), via="german")
+        if re.fullmatch(r"was weißt du (?:alles )?über mich|was hast du dir (?:über mich )?gemerkt|was weißt du von mir", s):
+            return self._german_known(st, msg)
         me = next(((en, tpl) for rx, en, tpl in _ME_Q_DE if rx.fullmatch(s)), None)
         if me:
             return self._german_me(st, msg, *me)
@@ -546,6 +611,46 @@ class Assistant:
         if s in ("wo", "und wo", "wo denn", "und wo genau") and last and st.turn - last[0] <= 2 and "geboren" in last[1]:
             return self._german_question(st, msg, re.sub(r"^(?:und )?(?:wann|in welchem jahr)", "wo", last[1]))
         return None
+
+    def _german_known(self, st: DialogState, msg: str) -> Reply:
+        """"was weißt du über mich?": what you told, in German where the kind of fact is known."""
+        from engramm.chat.german_bridge import de_value
+        dl = self.bank.de["daily"]["life"]
+        self.bot.refresh()
+        lines = []
+        for f in self.bot.facts.facts:
+            if not f.subject.startswith(USER):
+                continue
+            v = de_value(f.object)
+            v = v[:1].upper() + v[1:] if f.subject == USER and not v.isdigit() else v
+            r = set(f.relation)
+            if f.subject != USER:
+                noun = f.subject.partition(":")[2]
+                line = None
+            elif "#name" in r:
+                line = f"Du heißt {v}."
+            elif "#home" in r and "#origin" not in r and "#birth" not in r:
+                line = f"Du wohnst in {v}."
+            elif "#origin" in r:
+                line = f"Du kommst aus {v}."
+            elif "#job" in r:
+                line = f"Du arbeitest als {v}."
+            elif "#age" in r:
+                line = f"Du bist {v}."
+            elif "#dislike" in r:
+                line = f"Du magst kein{'e' if v.endswith(('n', 'e')) else ''} {v}."
+            elif "#fav" in r or "#food" in r:
+                line = f"Du magst {v}."
+            else:
+                line = None
+            if line is None:
+                sent = personal_sentence(f.subject, f.relation, f.object, f.sentence)
+                line = sent
+            if line and line not in lines:
+                lines.append(line)
+        if not lines:
+            return Reply(msg, "memory", self._pick(st, "de:life:known_none", dl["known_none"]), via="german")
+        return Reply(msg, "memory", dl["known_head"] + "\n" + "\n".join("• " + x for x in lines[:12]), via="german")
 
     def _german_me(self, st: DialogState, msg: str, english: str, template: str) -> Reply:
         """"wie alt bin ich?" — the English fact memory, answered in German."""

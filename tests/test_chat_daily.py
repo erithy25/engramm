@@ -941,3 +941,31 @@ def test_emoji_dots_and_frustration(chat):
     assert "Got it" not in r.text, r.text
     r = a.turn(st, "how long does it take to boil an egg")
     assert "minutes" in r.text, r.text
+
+
+def test_german_everyday_events_cooking_memory(chat):
+    a, st = chat
+    r = a.turn(st, "heute hab ich ein vorstellungsgespräch")
+    assert "Daumen" in r.text or "Glück" in r.text, r.text
+    r = a.turn(st, "ich bin voll nervös")
+    assert "Tipps" in r.text, r.text
+    r = a.turn(st, "hast du tipps")
+    assert "•" in r.text, r.text
+    r = a.turn(st, "drück mir die daumen")
+    assert "Daumen" in r.text, r.text
+    r = a.turn(st, "ich hab heute meinen job verloren")
+    assert "leid" in r.text or "hart" in r.text, r.text
+    a.turn(st, "was soll ich heute abend kochen")
+    r = a.turn(st, "ich hab keine eier")
+    assert "Eier" in r.text, r.text
+    r = a.turn(st, "ok dann pasta")
+    assert "Appetit" in r.text or "schmecken" in r.text, r.text
+    r = a.turn(st, "und wie viel ist 12 mal 7")
+    assert "84" in r.text, r.text
+    a.turn(st, "ich wohne jetzt in köln")
+    r = a.turn(st, "was weißt du über mich")
+    assert "Köln" in r.text, r.text
+    r = a.turn(st, "vergiss, wo ich wohne")
+    assert "vergessen" in r.text, r.text
+    r = a.turn(st, "wo wohne ich")
+    assert "Köln" not in r.text, r.text

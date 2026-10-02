@@ -4547,6 +4547,58 @@
      "Wie schön! Erzähl ruhig mehr.",
      "Das klingt richtig gut!"
     ],
+    "event": [
+     "Oh, spannend! Viel Glück bei {x}! Bist du aufgeregt?",
+     "{X} – drück dir die Daumen! Wie fühlst du dich?"
+    ],
+    "event_tips": {
+     "vorstellungsgespräch": [
+      "Ein paar Tipps fürs Vorstellungsgespräch:\n\n• Schau dir die Firma vorher kurz an und überleg, warum du genau dorthin willst.\n• Bereite zwei, drei Beispiele vor, in denen du etwas gut gelöst hast.\n• Hab selbst ein, zwei Fragen parat – das zeigt Interesse.\n• Atme vorher ruhig durch: Die wollen dich kennenlernen, nicht reinlegen."
+     ],
+     "prüfung": [
+      "Ein paar Tipps für die Prüfung:\n\n• Geh heute die wichtigsten Punkte noch einmal kurz durch – nichts Neues mehr anfangen.\n• Schlaf genug, das bringt mehr als eine Nachtschicht.\n• Lies die Aufgaben in Ruhe und fang mit dem an, was du sicher kannst."
+     ],
+     "generic": [
+      "Gute Vorbereitung hilft: Leg dir alles am Vorabend zurecht, plane etwas Puffer ein und gönn dir vorher eine ruhige Minute."
+     ]
+    },
+    "event_nerves": [
+     "Ganz normal – das zeigt, dass es dir wichtig ist. Magst du ein paar Tipps zur Vorbereitung?",
+     "Aufregung gehört dazu, die meisten sind vorher nervös. Soll ich dir ein paar Tipps geben?"
+    ],
+    "thumbs": [
+     "Ich drück dir ganz fest die Daumen! Du schaffst das. 💪",
+     "Daumen sind gedrückt! Erzähl mir nachher, wie es lief."
+    ],
+    "job_lost": [
+     "Oh nein, das tut mir wirklich leid. Das ist ein echter Schock. Wie geht es dir gerade damit?",
+     "Das ist hart – so etwas zieht einem erst mal den Boden weg. Wie geht's dir damit?"
+    ],
+    "without_skip": [
+     "Keine {x}? Dann lass {dish} weg – {rest} gehen auch ohne.",
+     "Okay, ohne {x}. Dann eher {rest}."
+    ],
+    "without_fine": [
+     "Kein Problem – für die Ideen brauchst du keine {x}.",
+     "Passt, {x} brauchst du dafür nicht."
+    ],
+    "decided": [
+     "Gute Wahl – guten Appetit!",
+     "Lecker! Lass es dir schmecken."
+    ],
+    "appetit": [
+     "Danke! 😄 Ich esse zwar nichts, aber lass es dir schmecken!"
+    ],
+    "forgot": [
+     "Erledigt – das habe ich vergessen. Es ist wirklich weg, nicht nur versteckt."
+    ],
+    "forget_none": [
+     "Dazu habe ich nichts gespeichert, was ich vergessen könnte."
+    ],
+    "known_head": "Das weiß ich über dich:",
+    "known_none": [
+     "Du hast mir noch nichts über dich erzählt. Magst du mir etwas sagen – zum Beispiel, wie du heißt?"
+    ],
     "me_unknown": [
      "Das hast du mir noch nicht erzählt. Magst du es mir sagen?"
     ],

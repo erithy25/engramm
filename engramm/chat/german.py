@@ -46,8 +46,8 @@ def is_german(text: str, spec: dict) -> bool:
 _STATEMENTS = [
     (re.compile(r"^(?:ich heiße|ich heisse|mein name ist|man nennt mich|nenn mich) ([a-zäöüß][\w\-äöüß]*(?: [a-zäöüß][\w\-äöüß]*)?)$"),
      "name", "My name is {0}."),
-    (re.compile(r"^ich wohne in ([\w\-äöüß ]{2,40})$"), "fact", "I live in {0}."),
-    (re.compile(r"^ich lebe in ([\w\-äöüß ]{2,40})$"), "fact", "I live in {0}."),
+    (re.compile(r"^ich wohne (?:jetzt |mittlerweile |inzwischen |seit kurzem |neuerdings )?in ([\w\-äöüß ]{2,40})$"), "fact", "I live in {0}."),
+    (re.compile(r"^ich lebe (?:jetzt |mittlerweile |inzwischen |seit kurzem )?in ([\w\-äöüß ]{2,40})$"), "fact", "I live in {0}."),
     (re.compile(r"^ich komme aus ([\w\-äöüß ]{2,40})$"), "fact", "I am from {0}."),
     (re.compile(r"^ich bin (\d{1,3}) jahre alt$"), "fact", "I am {0} years old."),
     (re.compile(r"^ich bin (\d{1,3})$"), "fact", "I am {0} years old."),
@@ -101,7 +101,7 @@ def understand(text: str, spec: dict) -> Understood:
             return Understood("remember", {"what": what, "value": value, "english": english.format(value)})
     if _ASK_NAME.match(s):
         return Understood("ask_name")
-    m = _CALC.match(s)
+    m = _CALC.match(re.sub(r"^(?:und|also|ok|okay) ", "", s))
     if m:
         expr = m.group(1)
         for pat, rep in _DE_OPS:
