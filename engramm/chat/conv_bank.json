@@ -10170,6 +10170,23 @@
   ],
   "hike_water": [
    "Roughly half a litre per hour of hiking, more when it's hot or steep. For a 4-hour hike, 2 litres is a good start."
+  ],
+  "same_again": [
+   "You've said that a few times now 😄 Everything alright? If you're not sure what to ask, I could tell you a fun fact or quiz you.",
+   "Ha, I'm getting déjà vu! 😄 Anything specific on your mind? I'm happy to suggest something."
+  ],
+  "lang_de": [
+   "Klar, gern! Ab jetzt reden wir auf Deutsch. Was liegt dir auf dem Herzen?"
+  ],
+  "lang_en": [
+   "Sure! Let's switch to English. What's on your mind?"
+  ],
+  "numbers_only": [
+   "{x}, is that a number to calculate, a code, or a cat walking over the keyboard? 😄"
+  ],
+  "bad_day_story": [
+   "Oh no, that's one of those days where everything goes wrong at once. 😩 I'm really sorry. Is it at least over now, or is there more to get through?",
+   "What a day! One thing after another. No wonder you're fed up. Do you want to vent a bit more, or would a distraction help?"
   ]
  }
 }

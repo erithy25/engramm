@@ -2039,3 +2039,23 @@ def test_battery51_german_long_conversation(chat):
     st2 = DialogState("o2")
     r = a.turn(st2, "ich bin müde")
     assert "Hallo Müde" not in r.text and r.kind != "learned", r.text
+
+
+def test_battery52_repeats_language_switch_numbers_and_long_story(chat):
+    a, _ = chat
+    st = DialogState("p1")
+    a.turn(st, "how are you")
+    a.turn(st, "how are you")
+    r = a.turn(st, "how are you")
+    assert "few times" in r.text or "déjà vu" in r.text, r.text
+    st2 = DialogState("p2")
+    jokes = [a.turn(st2, "tell me a joke").text for _ in range(3)]
+    assert not any("déjà vu" in j or "few times" in j for j in jokes), jokes
+    st3 = DialogState("p3")
+    r = a.turn(st3, "can we talk auf deutsch?")
+    assert r.text.startswith("Klar") and st3.lang == "de", r.text
+    r = a.turn(DialogState("p4"), "12345")
+    assert "12345" in r.text and "Go on" not in r.text, r.text
+    r = a.turn(DialogState("p5"), "so basically today i woke up late because my alarm didn't go off and then i missed the bus and "
+                                  "had to walk to work in the rain and my boss was in a bad mood and i spilled coffee on my shirt")
+    assert r.kind == "empathy" and "alarm?" not in r.text, r.text

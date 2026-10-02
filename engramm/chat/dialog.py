@@ -3778,6 +3778,12 @@ class Assistant:
         d = self.bank.daily
         norm = normalise(msg).strip()
         la = st.last_action or {}
+        same = normalise(st.last_message or "").strip(" ?!.") == norm.strip(" ?!.") and norm.strip(" ?!.")
+        st.uses["same_run"] = (st.uses.get("same_run", 1) + 1) if same else 1
+        if st.uses["same_run"] == 3 and re.fullmatch(r"(?:hi+|hey+|hello+|yo|hiya|sup|how (?:are|r) (?:you|u)(?: doing)?|how'?s it going|"
+                                                     r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
+            # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
+            return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
         evr = self._event_q(st, msg, norm) or self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
@@ -4415,6 +4421,16 @@ class Assistant:
         """Battery 50: the rhythm of a real chat — a long week, deadlines, "tomorrow is Friday", ENGRAMM's own
         weekend, and a hike (tips, what to bring, how much water)."""
         d = self.bank.daily
+        if re.fullmatch(r"(?:can|could|shall) we (?:talk|speak|chat|write) (?:in |auf )?(?:german|deutsch)(?: please| bitte)?\??|"
+                        r"(?:please )?(?:speak|talk) (?:german|deutsch)(?: please| bitte)?", norm):
+            st.lang = "de"
+            return Reply(msg, "smalltalk", self._pick(st, "daily:lang_de", d["lang_de"]), via="german")
+        if re.fullmatch(r"\d{3,}", norm.strip()):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:numbers_only", d["numbers_only"], x=norm.strip()), via="smalltalk")
+        if len(norm.split()) >= 25 and len(re.findall(r"\b(?:missed|late|spilled|rain(?:ing)?|bad mood|downhill|broke|broken|lost|forgot|failed|"
+                                                     r"didn'?t go off|stuck|crashed|yelled|argued|cancelled|ruined|terrible|awful|worst)\b", norm)) >= 2:
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "daily:bad_day_story", d["bad_day_story"]), via="empathy")
         if re.fullmatch(r"(?:and |so )?what do i do for (?:a living|work|my job)\??", norm) or \
                 (re.fullmatch(r"(?:and |so )?what do i do(?: again)?\??", norm) and st.uses.get("last_via") == "facts"
                  and st.uses.get("last_via_turn") == st.turn - 1):

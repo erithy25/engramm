@@ -2307,6 +2307,15 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     Rückblick auf Deutsch → Kompliment → Gute Nacht mit Namen.
   - Wiederholungen 5 → 0. Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–50 und langes
     Gespräch: 0 Wiederholungen. Suite 724 bestanden, 7 übersprungen.
+- **Alltags-Batterie 52 (Robustheit)**: Emojis, dreimal dieselbe Eingabe, eine lange Pech-Geschichte, „ok“-Ketten,
+  Unverständnis, Mischsprache, Zahlen, viermal „tell me a joke“.
+  - Schon vorher gut: Emojis, Rechnen, Witze ohne Wiederholung, Rückfragen bei „what?“/„huh“.
+  - Neu: Beim dritten gleichen Gruß, „how are you“ oder „ok“ in Folge sagt Engramm das, wie ein Mensch („You've said that
+    a few times now 😄“); bei wiederholten Bitten (Witze) nie. „can we talk auf deutsch?“ wechselt auf Deutsch (vorher
+    Wissenssuche). Eine reine Zahl („12345“) bekommt eine Rückfrage statt „Oh? Go on.“. Die lange Pech-Geschichte bekommt
+    Mitgefühl für den ganzen Tag statt „What went wrong with your alarm?“.
+  - Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–51 und langes Gespräch: 0 Wiederholungen.
+    Suite 725 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
