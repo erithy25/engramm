@@ -2118,6 +2118,24 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - Übersetzungs-Nachfragen („and good morning?“, „what about goodbye“ → vorher „The answer is Mother.“).
   - Team-Dev-Satz: 0 von 128 Antworten geändert. NQ-open 400: unverändert 22/9. Regressions-Batterien 30, 33–36:
     0 Wiederholungen. Suite 682 bestanden, 7 übersprungen.
+- **Alltags-Batterie 38** (langer Montag mit Aufgaben, Mittagessen, Besuch der Schwester; deutscher Feierabend;
+  Eiffelturm; Krankheitstag). Gefunden und behoben:
+  - „laundry, groceries, call my mom and finish a report“ → „Groceries — what a nice name! I'll remember your mother.“:
+    „i have so much to do today“ bietet jetzt an, die Aufgaben zu ordnen; die Liste wird sortiert (Arbeit zuerst,
+    „call your mom“), „which first?“ beantwortet.
+  - „what helps with a sore throat“ → „The answer is streptococcal infection.“: Anleitungen für Halsweh, Kopfweh,
+    Erkältung, Husten und Fieber (mit Arztschwelle); „should i go to work?“ beim Kranksein; „i'll make some tea“
+    wird nicht mehr als Lieblingsgetränk gespeichert.
+  - „her name is lena“ nach „my sister …“ wurde nicht gespeichert: Name und Vorlieben („she loves art“) gehen an die
+    zuletzt genannte Person; „what does my sister love?“ (klarer Vorsprung unter den Fakten einer Person genügt).
+    „she loves art“ nach Ideen → passende Idee (Museum/Galerie).
+  - „ok thanks. what should i make for lunch“ (Dank + Frage) → Ideen „for lunch“; „i have eggs and spinach“ → Gericht
+    aus den Zutaten (19 von Hand geschriebene Kombinationen).
+  - Deutsch: „endlich feierabend“, „war ein langer tag“ (ohne „ich“), „danke! was kann ich heute abend noch machen?“,
+    „eher was ruhiges“, „gute idee, mach ich“ (vorher unverstanden, einmal wortgleich wiederholt).
+  - „is it worth visiting?“ nach dem Eiffelturm; „ugh mondays“.
+  - Team-Dev-Satz: 0 von 128 Antworten geändert. NQ-open 400: unverändert 22/9. Regressions-Batterien 34–37:
+    0 Wiederholungen. Suite 683 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

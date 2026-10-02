@@ -638,6 +638,9 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
     if vcat and value and value[:1].isupper() and first_v > 0 and vcat not in concepts(" ".join(lw)) and \
             vcat in ("#food", "#colour", "#car", "#job"):
         vcat = None             # a capitalised name with no food/colour/car/job word around it ("I watched Inception")
+    if vcat == "#job" and ("#fav" in rel or "#dislike" in rel or set(lw) & {"loves", "love", "likes", "like", "enjoys",
+                                                                           "enjoy", "adores", "adore", "hates", "hate"}):
+        vcat = None                      # "my sister loves art": a liking, not her job
     if vcat and (not has_category or vcat in rel):
         rel.append(vcat)
     # "My employer's name is X", "a company called X": the name of that thing, not your name

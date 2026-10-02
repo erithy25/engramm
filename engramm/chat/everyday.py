@@ -333,6 +333,9 @@ class Everyday:
         if isinstance(intro, list):                   # several openings: never the same one twice in a row
             intro = self.pick(st, f"rec_intro:{kind}", intro)
         intro = intro or self.pick(st, "rec_intro", self.d["recommend"]["intro"])
+        meal = re.search(r"\b(breakfast|lunch|brunch)\b", msg.lower())
+        if kind == "food" and meal and lang == "en" and "tonight" in intro:
+            intro = intro.replace("for tonight", f"for {meal.group(1)}").replace("tonight", f"for {meal.group(1)}")
         if more:
             intro = "A few more:"
         if widened:

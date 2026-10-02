@@ -3830,6 +3830,13 @@
     "hallo",
     "moin",
     "servus",
+    "feierabend",
+    "endlich",
+    "wochenende",
+    "urlaub",
+    "hunger",
+    "juhu",
+    "puh",
     "grüß",
     "gruß",
     "guten",
@@ -4602,6 +4609,21 @@
     ],
     "hungry": [
      "Hunger? Dann vielleicht was Schnelles:"
+    ],
+    "off_work": [
+     "Endlich! Wie war dein Tag?",
+     "Feierabend – herrlich. War's ein guter Tag?"
+    ],
+    "weekend": [
+     "Endlich Wochenende! Hast du was Schönes vor?",
+     "Wochenende! Ausschlafen oder schon Pläne?"
+    ],
+    "holiday": [
+     "Urlaub – wie schön! Fährst du weg oder bleibst du zu Hause?"
+    ],
+    "enjoy": [
+     "Viel Spaß dabei! 😊",
+     "Schön – genieß es!"
     ],
     "thanks_bye": [
      "Sehr gern! {x}!",
@@ -5687,6 +5709,21 @@
      {
       "x": "do a short workout or some stretching",
       "de": "ein kurzes Workout oder ein paar Dehnübungen",
+      "tags": "home"
+     },
+     {
+      "x": "take a long bath or shower with your favourite music",
+      "de": "ein langes Bad oder eine Dusche mit Lieblingsmusik",
+      "tags": "cosy home"
+     },
+     {
+      "x": "make a cup of tea and listen to a podcast or an audiobook",
+      "de": "eine Tasse Tee machen und einen Podcast oder ein Hörbuch hören",
+      "tags": "cosy home"
+     },
+     {
+      "x": "watch a comfort film under a blanket",
+      "de": "unter einer Decke einen Wohlfühlfilm schauen",
       "tags": "cosy home"
      },
      {
@@ -7384,6 +7421,108 @@
    {
     "keys": [
      [
+      "sore",
+      "throat"
+     ],
+     [
+      "throat",
+      "hurt"
+     ],
+     [
+      "throat",
+      "hurts"
+     ]
+    ],
+    "title": "Things that help with a sore throat",
+    "steps": [
+     "Warm drinks — tea with honey and lemon is a classic.",
+     "Gargle with warm salt water (half a teaspoon of salt in a glass of water) a few times a day.",
+     "Throat lozenges and enough sleep; avoid smoke and very dry air.",
+     "See a doctor if it lasts more than a week, you have a high fever, or it's hard to swallow or breathe."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "headache"
+     ],
+     [
+      "head",
+      "hurts"
+     ],
+     [
+      "migraine"
+     ]
+    ],
+    "title": "Things that help with a headache",
+    "steps": [
+     "Drink a big glass of water — mild dehydration is a common cause.",
+     "Rest somewhere quiet and dark, away from screens, for a while.",
+     "A cool cloth on your forehead or a short walk in fresh air can help.",
+     "A standard painkiller can help if it's okay for you; see a doctor if headaches are severe, sudden or keep coming back."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "a",
+      "cold"
+     ],
+     [
+      "have",
+      "cold"
+     ],
+     [
+      "common",
+      "cold"
+     ],
+     [
+      "cold",
+      "symptom"
+     ]
+    ],
+    "title": "Getting through a cold",
+    "steps": [
+     "Rest as much as you can and drink plenty of fluids.",
+     "Warm soup, tea with honey and steam (a hot shower) ease the stuffy feeling.",
+     "Saline nose spray helps with a blocked nose.",
+     "Most colds pass within a week to ten days — see a doctor if you get a high fever or it lasts much longer."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "cough"
+     ],
+     [
+      "coughing"
+     ]
+    ],
+    "title": "Things that help with a cough",
+    "steps": [
+     "Warm drinks with honey soothe the throat (no honey for babies under one).",
+     "Keep the air a bit humid and sleep with your head slightly raised.",
+     "Avoid smoke and drink enough water.",
+     "See a doctor if it lasts more than three weeks, you cough up blood, or you're short of breath."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "fever"
+     ]
+    ],
+    "title": "What helps with a fever",
+    "steps": [
+     "Rest and drink a lot — fever uses up fluids.",
+     "Light clothes and a light blanket; a lukewarm (not cold) cloth can feel good.",
+     "A standard fever reducer can help if it's okay for you.",
+     "See a doctor if it's above 39.5 °C, lasts more than three days, or comes with a stiff neck, rash or confusion."
+    ]
+   },
+   {
+    "keys": [
+     [
       "hiccup"
      ],
      [
@@ -8076,6 +8215,203 @@
   ],
   "worldtime_none": [
    "I don't know the time zone of {x}, sorry. Try a big city nearby — like “what time is it in Tokyo?”"
+  ],
+  "so_much": [
+   "Ugh, those days! Want to list everything? I'll help you put it in a sensible order.",
+   "That sounds like a lot. Tell me what's on the list and we'll sort it together."
+  ],
+  "mondays": [
+   "Mondays are rough! What's on your plate today?",
+   "Ah, the Monday feeling. Coffee first? What does your day look like?"
+  ],
+  "plan_first": [
+   "{X} first — get it out of the way while your energy is fresh.",
+   "I'd say: {x} first. After that the rest feels lighter."
+  ],
+  "ingredient_ideas": [
+   {
+    "need": [
+     "egg",
+     "spinach"
+    ],
+    "idea": "a spinach omelette, or eggs baked on a bed of garlicky spinach (like a quick shakshuka) — with toast if you have some"
+   },
+   {
+    "need": [
+     "egg",
+     "tomato"
+    ],
+    "idea": "shakshuka — eggs poached in a spiced tomato sauce — or simple scrambled eggs with tomatoes"
+   },
+   {
+    "need": [
+     "egg",
+     "potato"
+    ],
+    "idea": "a Spanish tortilla (potato omelette), or fried potatoes with a fried egg on top"
+   },
+   {
+    "need": [
+     "egg",
+     "rice"
+    ],
+    "idea": "egg fried rice — fry the rice hot, push it aside, scramble the eggs, mix, add soy sauce"
+   },
+   {
+    "need": [
+     "egg",
+     "cheese"
+    ],
+    "idea": "a cheese omelette, or a quick frittata"
+   },
+   {
+    "need": [
+     "egg",
+     "bread"
+    ],
+    "idea": "French toast, or eggs on toast"
+   },
+   {
+    "need": [
+     "pasta",
+     "tomato"
+    ],
+    "idea": "a quick tomato pasta — garlic, olive oil, tomatoes, a pinch of salt, done in 15 minutes"
+   },
+   {
+    "need": [
+     "pasta",
+     "cheese"
+    ],
+    "idea": "pasta with butter and cheese, or a simple cacio e pepe"
+   },
+   {
+    "need": [
+     "pasta",
+     "garlic"
+    ],
+    "idea": "pasta aglio e olio — garlic, olive oil and a little chili"
+   },
+   {
+    "need": [
+     "rice",
+     "chicken"
+    ],
+    "idea": "a chicken and rice bowl, or a quick chicken fried rice"
+   },
+   {
+    "need": [
+     "chicken",
+     "potato"
+    ],
+    "idea": "roast chicken pieces with potatoes on one tray"
+   },
+   {
+    "need": [
+     "potato",
+     "cheese"
+    ],
+    "idea": "baked potatoes with cheese, or a quick potato gratin"
+   },
+   {
+    "need": [
+     "bread",
+     "cheese"
+    ],
+    "idea": "a grilled cheese sandwich, maybe with a little mustard"
+   },
+   {
+    "need": [
+     "tomato",
+     "mozzarella"
+    ],
+    "idea": "a caprese salad, or tomato and mozzarella on toast"
+   },
+   {
+    "need": [
+     "egg"
+    ],
+    "idea": "an omelette or a frittata with whatever vegetables you have"
+   },
+   {
+    "need": [
+     "pasta"
+    ],
+    "idea": "a simple pasta — garlic, olive oil and whatever vegetables are in the fridge"
+   },
+   {
+    "need": [
+     "rice"
+    ],
+    "idea": "fried rice with whatever vegetables you have"
+   },
+   {
+    "need": [
+     "potato"
+    ],
+    "idea": "crispy fried or roasted potatoes, maybe with a fried egg"
+   },
+   {
+    "need": [
+     "bread"
+    ],
+    "idea": "a toasted sandwich with whatever's in the fridge"
+   }
+  ],
+  "ingredient_lead": [
+   "With {x}? I'd make {y}.",
+   "Perfect for {y}."
+  ],
+  "ingredient_none": [
+   "Hmm, with {x} I'd keep it simple: a quick stir-fry or a salad. Want a few other ideas?"
+  ],
+  "future_plan": [
+   "Good idea! Enjoy it.",
+   "Sounds like a plan — enjoy!"
+  ],
+  "like_ideas": {
+   "art": "a museum or a gallery — many have special exhibitions, and a café afterwards makes it a lovely afternoon",
+   "paint": "a painting or pottery class together — fun even if you've never done it",
+   "music": "a concert or live music in a bar — check what's on this weekend",
+   "nature": "a hike or a long walk somewhere green, with a picnic",
+   "hik": "a hike with a picnic at the top",
+   "food": "a food market or a cooking class — or cook something special together",
+   "cook": "cooking a fancy dinner together, or a cooking class",
+   "shop": "a stroll through markets and little shops, with coffee breaks",
+   "read": "a cosy bookshop and café afternoon",
+   "book": "a cosy bookshop and café afternoon",
+   "movie": "the cinema, or a movie night at home with snacks",
+   "film": "the cinema, or a movie night at home with snacks",
+   "sport": "watching a match together, or trying something active like climbing or bowling",
+   "dance": "a dance class or a night out dancing",
+   "theat": "a play or a show at the theatre",
+   "history": "a historic old town, a castle or a history museum",
+   "animal": "a zoo, an aquarium or a farm visit",
+   "game": "a board game café or an escape room"
+  },
+  "like_idea": [
+   "Oh, then how about {x}?",
+   "Perfect — then I'd suggest {x}."
+  ],
+  "food_enjoy": [
+   "Enjoy your meal! 😊",
+   "Bon appétit!"
+  ],
+  "sick_work": [
+   "If you have a fever or feel really unwell, stay home — you'll get better faster and won't pass it on. If it's mild, maybe ask to work from home today.",
+   "Honestly? If you're feverish or feel rough, rest is the better choice — colleagues won't thank you for sharing it. Working from home could be a middle way."
+  ],
+  "worth_visit": [
+   "Most people would say yes — {x} is one of those places that's even more impressive in person. Tip: go early or book ahead to skip the queues.",
+   "I'd say it's worth it! {X} is famous for a reason. Going early in the day usually means fewer crowds."
+  ],
+  "getting_sick": [
+   "Oh no — what symptoms do you have? Sore throat, headache, fever?",
+   "Ugh, that's no fun. How are you feeling exactly — throat, head, temperature?"
+  ],
+  "get_well": [
+   "Good idea — tea with honey is perfect. Get well soon! 💛",
+   "That'll help. Take it easy today, and get well soon!"
   ]
  }
 }

@@ -658,6 +658,8 @@ class ChatBot:
             return f, best
         if best >= 1.0 and (second is None or best - second >= 0.25):
             return f, best
+        if owned and best >= 0.7 and second is not None and best - second >= 0.5:
+            return f, best                        # "what does my sister love?": a clear lead among few facts
         if want in ("DATE", "NUMBER"):
             same = [x for _, _, x in scored if x.kind == want]
             if len(same) == 1:                  # the only date you told me, for a "when" question

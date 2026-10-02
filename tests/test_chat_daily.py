@@ -1242,3 +1242,38 @@ def test_world_time_daylight_saving_rules():
 def test_a_described_subject_is_not_a_favourite():
     from engramm.chat.facts import personal_facts
     assert not any("#food" in f.relation for f in personal_facts("to my landlord, the heating is broken", "u"))
+
+
+def test_battery38_day_plan_lunch_sister_german_evening_and_sick_day(chat):
+    a, st = chat
+    a.turn(st, "i have so much to do today")
+    r = a.turn(st, "laundry, groceries, call my mom and finish a report")
+    assert "1. Finish a report" in r.text and "your mom" in r.text and "nice name" not in r.text, r.text
+    r = a.turn(st, "which first?")
+    assert "Finish a report" in r.text or "finish a report" in r.text, r.text
+    r = a.turn(st, "ok thanks. what should i make for lunch")
+    assert "•" in r.text and "for for" not in r.text, r.text
+    r = a.turn(st, "i have eggs and spinach")
+    assert "omelette" in r.text, r.text
+    a.turn(st, "by the way my sister is visiting this weekend")
+    a.turn(st, "her name is lena")
+    r = a.turn(st, "what's my sister's name?")
+    assert "Lena" in r.text, r.text
+    st2 = DialogState("de")
+    r = a.turn(st2, "endlich feierabend")
+    assert "Tag" in r.text, r.text
+    r = a.turn(st2, "war ein langer tag")
+    assert "nicht ganz verstanden" not in r.text and "verstehe ich leider nicht" not in r.text, r.text
+    r = a.turn(st2, "danke! was kann ich heute abend noch machen?")
+    assert "•" in r.text, r.text
+    r = a.turn(st2, "gute idee, mach ich")
+    assert "Spaß" in r.text or "genieß" in r.text, r.text
+    st3 = DialogState("daily")
+    a.turn(st3, "i think i'm getting sick")
+    r = a.turn(st3, "should i go to work?")
+    assert "stay home" in r.text or "rest" in r.text, r.text
+    r = a.turn(st3, "what helps with a sore throat")
+    assert "honey" in r.text, r.text
+    r = a.turn(st3, "thanks, i'll make some tea")
+    assert "get well" in r.text.lower(), r.text
+    assert not any("tea" in t.lower() and "favourite" in t.lower() for t in _stored(a))

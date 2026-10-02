@@ -154,8 +154,8 @@ _REC_DE = [
     ("music", r"(?:(?:kannst du mir )?musik empfehlen|musikempfehlungen?|was soll ich (?:hören|anhören))"),
     ("game", r"(?:(?:kannst du mir )?ein (?:gutes )?spiel empfehlen|spielempfehlungen?|was soll ich spielen|"
              r"was können wir spielen)"),
-    ("activity", r"(?:(?:mir ist (?:so |total )?langweilig,? )?was (?:kann|soll|könnte) ich (?:heute |jetzt |am wochenende )?"
-                 r"(?:machen|tun|unternehmen)|was kann man (?:heute |am wochenende )?machen|ideen für (?:heute|das wochenende|"
+    ("activity", r"(?:(?:mir ist (?:so |total )?langweilig,? )?was (?:kann|soll|könnte) ich (?:(?:heute|abend|jetzt|noch|nachher|später|"
+                 r"gleich|am wochenende|denn|so)\s+)*(?:machen|tun|unternehmen)|was kann man (?:heute |am wochenende )?machen|ideen für (?:heute|das wochenende|"
                  r"den abend))"),
     ("gift", r"(?:geschenkideen?|was soll ich (?:meiner|meinem|meinen|einer|einem) [a-zäöüß]+ schenken|"
              r"was kann ich (?:meiner|meinem|meinen) [a-zäöüß]+ schenken)"),
@@ -205,7 +205,8 @@ def experience_de(s: str):
         return None
     words = re.findall(r"[a-zäöüß]+", s)
     if not (set(words) & {"ich", "mir", "mich", "mein", "meine", "meinem", "meinen", "meiner", "wir", "uns"}) and \
-            not re.search(r"\b(?:heute|gestern|arbeit|schule|uni)\b", s):
+            not re.search(r"\b(?:heute|gestern|arbeit|schule|uni)\b", s) and \
+            not (_PHRASE_NEG_DE.search(s) or _PHRASE_POS_DE.search(s)):    # "war ein langer Tag": no "ich" needed
         return None
     stems = [_stem_de(w) for w in words]
     neg = sum(_NEG_DE.get(w, _NEG_DE.get(st_, 0)) for w, st_ in zip(words, stems))

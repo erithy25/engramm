@@ -12,7 +12,7 @@ detect:
            wie, was, wer, wo, warum, wieso, geht, gehts, heiße, heisse, danke, bitte, gut, schlecht, auch, noch,
            schon, aber, oder, sehr, heute, morgen, gestern, hast, habe, kannst, kann, bitte, mein, meine, dein,
            deine, sind, wir, ihr, sie, es, zu, mit, für, über, von, auf, nein, ja, doch, genau, tschüss, tschüs,
-           hallo, moin, servus, grüß, gruß, guten, gute, nacht, abend, tag, erzähl, erzähle, witz, traurig,
+           hallo, moin, servus, feierabend, endlich, wochenende, urlaub, hunger, juhu, puh, grüß, gruß, guten, gute, nacht, abend, tag, erzähl, erzähle, witz, traurig,
            glücklich, müde, wütend, langweilig, hilfe, wetter, schreib, schreibe, weißt, weiß, kennst, lieber,
            liebe, klar, okay, na, wieder, jetzt, dann, weil, dass, also, mal, bitte, vielen, wann, wurde, wurden,
            er, geboren, gestorben, geschrieben, gemalt, erfunden, gegründet, hauptstadt, einwohner, welche, welcher,
@@ -305,6 +305,10 @@ daily:
                    "Aufregung gehört dazu, die meisten sind vorher nervös. Soll ich dir ein paar Tipps geben?"]
     me_too: ["Schön! Was steht heute bei dir an?", "Freut mich! Worüber wollen wir reden?"]
     hungry: ["Hunger? Dann vielleicht was Schnelles:"]
+    off_work: ["Endlich! Wie war dein Tag?", "Feierabend – herrlich. War's ein guter Tag?"]
+    weekend: ["Endlich Wochenende! Hast du was Schönes vor?", "Wochenende! Ausschlafen oder schon Pläne?"]
+    holiday: ["Urlaub – wie schön! Fährst du weg oder bleibst du zu Hause?"]
+    enjoy: ["Viel Spaß dabei! 😊", "Schön – genieß es!"]
     thanks_bye: ["Sehr gern! {x}!", "Immer gern! {x} – ich bin da, wenn du mich brauchst."]
     bot_fav:
       keys: {essen: [essen, gericht, speise], farbe: [farbe], film: [film], buch: [buch, autor], musik: [musik, lied, song, band, sänger],
