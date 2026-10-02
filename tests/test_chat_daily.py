@@ -1023,3 +1023,19 @@ def test_battery31_small_talk(chat):
     assert "Got it" not in r.text, r.text
     r = a.turn(st, "what can i do inside")
     assert "•" in r.text, r.text
+
+
+def test_german_battery32(chat):
+    a, st = chat
+    r = a.turn(st, "moin")
+    r = a.turn(st, "bei mir auch")
+    assert "verstehe" not in r.text, r.text
+    r = a.turn(st, "ich hab hunger")
+    assert "•" in r.text, r.text
+    r = a.turn(st, "draußen regnet es")
+    assert "Ideen" in r.text, r.text
+    r = a.turn(st, "ja gerne")
+    assert "•" in r.text, r.text
+    a.turn(st, "kannst du mir einen film empfehlen")
+    r = a.turn(st, "was lustiges")
+    assert "•" in r.text and "Clown" not in r.text, r.text

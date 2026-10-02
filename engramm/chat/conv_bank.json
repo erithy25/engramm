@@ -4299,12 +4299,12 @@
    {
     "id": "bored",
     "patterns": [
-     "mir ist (so )?langweilig|langweilig|ich langweile mich"
+     "mir ist (so |total |voll |echt |gerade |richtig |mega )*langweilig( heute| gerade| grad)?|langweilig|ich langweile mich( so| heute)?|mir ist langweilig, was soll ich machen"
     ],
     "responses": [
-     "Dagegen hilft vielleicht ein Witz – sag einfach „erzähl mir einen Witz“. Oder erzähl mir, was dich sonst so interessiert.",
-     "Wie wäre es mit einer Frage an mich, auf Englisch, zu irgendeinem Thema? Ich schlage gern etwas nach.",
-     "Langeweile kenne ich nicht, ich warte einfach. Was machst du denn gern?"
+     "Langeweile? Das kriegen wir hin! Soll ich dir ein paar Ideen geben, dir einen Witz erzählen oder dich ein bisschen quizzen?",
+     "Oh nein! Magst du Ideen für etwas zu tun, einen Witz oder ein kleines Quiz?",
+     "Dagegen hilft vielleicht ein Witz – sag einfach „erzähl mir einen Witz“. Oder soll ich dir ein paar Ideen geben, was du machen könntest?"
     ]
    }
   ],
@@ -4580,6 +4580,20 @@
     "event_nerves": [
      "Ganz normal – das zeigt, dass es dir wichtig ist. Magst du ein paar Tipps zur Vorbereitung?",
      "Aufregung gehört dazu, die meisten sind vorher nervös. Soll ich dir ein paar Tipps geben?"
+    ],
+    "me_too": [
+     "Schön! Was steht heute bei dir an?",
+     "Freut mich! Worüber wollen wir reden?"
+    ],
+    "hungry": [
+     "Hunger? Dann vielleicht was Schnelles:"
+    ],
+    "rain": [
+     "Ach, Regenwetter. Perfekt für einen gemütlichen Tag drinnen – soll ich dir ein paar Ideen geben?",
+     "Grauer Tag, hm? Dann wird's halt drinnen gemütlich. Magst du Ideen?"
+    ],
+    "sun": [
+     "Herrlich! Kommst du raus und genießt es?"
     ],
     "thumbs": [
      "Ich drück dir ganz fest die Daumen! Du schaffst das. 💪",
@@ -5531,7 +5545,7 @@
      },
      {
       "x": "cook something new from whatever is in the kitchen",
-      "de": "etwas Neues aus dem kochen, was in der Küche ist",
+      "de": "etwas Neues mit dem kochen, was gerade in der Küche ist",
       "tags": "cosy home"
      },
      {

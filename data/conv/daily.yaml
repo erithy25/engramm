@@ -307,7 +307,7 @@ recommend:
     intro: ["A few things you could do:", "Here are some ideas:", "How about one of these:"]
     items:
       - {x: "go for a walk somewhere you've never been, even nearby", de: "einen Spaziergang irgendwohin, wo du noch nie warst – auch in der Nähe", tags: "cosy"}
-      - {x: "cook something new from whatever is in the kitchen", de: "etwas Neues aus dem kochen, was in der Küche ist", tags: "cosy home"}
+      - {x: "cook something new from whatever is in the kitchen", de: "etwas Neues mit dem kochen, was gerade in der Küche ist", tags: "cosy home"}
       - {x: "call or message someone you haven't talked to in a while", de: "jemanden anrufen, von dem du lange nichts gehört hast", tags: "home"}
       - {x: "start a book or a series you've been meaning to try", de: "ein Buch oder eine Serie anfangen, die du schon lange ausprobieren wolltest", tags: "cosy home"}
       - {x: "learn a few words of a new language", de: "ein paar Wörter einer neuen Sprache lernen", tags: "home"}

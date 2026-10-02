@@ -274,7 +274,7 @@ _ME_Q_DE = [(re.compile(r"(?:und )?(?:wie alt bin ich|weißt du(?: noch)?,? wie 
             (re.compile(r"(?:und )?(?:woher komme ich|wo komme ich her)"), "where am i from?", "Du kommst aus {x}."),
             (re.compile(r"(?:und )?(?:was mag ich nicht|was mag ich gar nicht|was esse ich nicht gern)"), "", "list:#dislike"),
             (re.compile(r"(?:und )?(?:was mag ich|was mag ich gern|was esse ich gern)"), "", "list:#fav")]
-_SUPER_DE = re.compile(r"(?:und |also )?(?:was|welche[rs]?|wie heißt|wer) (?:ist )?(?:der|die|das) "
+_SUPER_DE = re.compile(r"(?:und |also )?(?:was|welche[rs]?|wie heißt|wer|wie hoch|wie lang|wie groß) (?:ist )?(?:der|die|das) "
                        r"(?P<adj>höchste|längste|größte|kleinste|bevölkerungsreichste) (?P<noun>berg|fluss|see|land|gebäude|hochhaus)"
                        r"(?: der welt| auf der welt| der erde| weltweit)?")
 # a nationality is never the answer to "who …?"
@@ -492,6 +492,8 @@ class Assistant:
                 return Reply(msg, "tool", f"{shown} = {res.value.replace('.', ',')}", via="tool")
         if u.kind == "intent":
             it = next(i for i in de["intents"] if i["id"] == u.data["id"])
+            if it["id"] == "bored":
+                st.uses["de_offer"] = [None, st.turn]
             if it["id"] == "joke":
                 st.last_action = {"kind": "joke", "turn": st.turn}
             opts = it.get("responses_named") if name and it.get("responses_named") else it["responses"]
@@ -523,8 +525,34 @@ class Assistant:
         la = st.last_action or {}
         le = st.last_exp or {}
         s = s.strip(" ?!.")
+        off = st.uses.get("de_offer")
+        if off and st.turn - off[1] <= 1 and re.fullmatch(r"(?:ja|jo|jap|gerne?|klar|ok(?:ay)?|bitte|ja bitte|ja gerne?)?[, ]*(?:ideen|ein paar ideen|ideen bitte|gib mir ideen)?(?: bitte)?", s) and s:
+            st.uses.pop("de_offer", None)                 # "ja, ideen" after "soll ich dir Ideen geben?"
+            return self.everyday.recommend(st, msg, "activity", off[0], lang="de")
         if _NA_DE.fullmatch(s):
             return Reply(msg, "smalltalk", self._pick(st, "de:life:greeting", dl["greeting"]), via="german")
+        if re.fullmatch(r"(?:bei mir auch|mir auch|mir geht'?s auch gut|auch gut|auch ganz gut|gut,? danke|passt|läuft|läuft bei mir|alles gut|alles super|geht so)", s):
+            return Reply(msg, "smalltalk", self._pick(st, "de:life:me_too", dl["me_too"]), via="german")
+        if re.fullmatch(r"(?:ich )?(?:hab|habe|hab so|hab voll|hab echt) (?:so |voll |echt |mega |richtig )?hunger|ich bin (?:so |voll )?hungrig|mega hunger", s):
+            rep = self.everyday.recommend(st, msg, "food", "quick", lang="de")
+            rep.text = self._pick(st, "de:life:hungry", dl["hungry"]) + rep.text[rep.text.index("\n"):]
+            return rep
+        if re.fullmatch(r"(?:draußen )?(?:es )?regnet(?: es)?(?: (?:draußen|schon den ganzen tag|den ganzen tag|total|so|mal wieder))*|"
+                        r"(?:es ist|ist) (?:so |total |voll )?(?:grau|kalt|ungemütlich|eklig) (?:draußen|heute)?|"
+                        r"(?:draußen|heute) (?:regnet|schüttet|stürmt) es(?: total| so| den ganzen tag)?", s):
+            st.last_action = {"kind": "rec:activity", "turn": st.turn, "genre": None, "lang": "de"}
+            st.uses["de_offer"] = ["home", st.turn]
+            return Reply(msg, "smalltalk", self._pick(st, "de:life:rain", dl["rain"]), via="german")
+        if re.fullmatch(r"(?:es ist|ist) (?:so |total |richtig )?(?:sonnig|schön|warm|herrlich) (?:draußen|heute)", s):
+            return Reply(msg, "smalltalk", self._pick(st, "de:life:sun", dl["sun"]), via="german")
+        hm0 = re.fullmatch(r"(?:irgendwas|etwas|was|ideen) (?:für|fürs) (?:drinnen|zuhause|zu hause|daheim)", s)
+        if hm0 and not (la.get("kind", "").startswith("rec:") and st.turn - la.get("turn", -99) <= 3):
+            return self.everyday.recommend(st, msg, "activity", "home", lang="de")
+        gm0 = _GENRE_DE.match(s)
+        if gm0 and la.get("kind", "").startswith("rec:") and st.turn - la.get("turn", -99) <= 3:
+            genre0 = _GENRE_DE_MAP.get(re.sub(r"(?:es|e|er|en)$", "", gm0.group("g")))
+            if genre0:                                   # "was lustiges" after a film: funny films, not a joke
+                return self.everyday.recommend(st, msg, la["kind"][4:], genre0, lang="de")
         th = _THANKS_DE.fullmatch(s)
         if th:
             rest = th.group("rest") or ""
@@ -557,7 +585,7 @@ class Assistant:
             body = rep.text.split("\n", 1)[1] if "\n" in rep.text else rep.text
             rep.text = self._pick(st, "de:life:seen", dl["seen"]) + "\n" + body
             return rep
-        hm = re.fullmatch(r"(?:etwas|was|lieber was|eher was|ideen) (?:für|fürs) (zuhause|zu hause|drinnen|daheim)", s)
+        hm = re.fullmatch(r"(?:etwas|was|irgendwas|lieber was|eher was|ideen) (?:für|fürs) (zuhause|zu hause|drinnen|daheim)", s)
         if hm and la.get("kind", "").startswith("rec:") and st.turn - la.get("turn", -99) <= 3:
             return self.everyday.recommend(st, msg, la["kind"][4:], "home", lang="de")
         ev = _EVENT_DE_RX.search(s)
@@ -791,6 +819,8 @@ class Assistant:
         if isinstance(ans_, str) and ans_ and not re.search(r"\d", ans_) and len(ans_.split()) <= 4:
             ment = ans_                                  # "die Hauptstadt … ist Canberra" → "sie" is Canberra
         s = re.sub(r"^(?:und|also|ok|okay) ", "", s)
+        if ment and re.search(r"\b(?:leben|wohnen) (?:da|dort)\b|\b(?:da|dort) (?:leben|wohnen)\b", s):
+            s = re.sub(r"\bwie viele (?:leute|menschen) (?:leben|wohnen) (?:da|dort)\b", f"wie viele einwohner hat {ment.lower()}", s)
         if ment and re.search(r"\b(?:hat|ist|liegt|wurde|war|heißt) (?:sie|er|es)\b|\b(?:sie|er|es) (?:hat|ist|liegt)\b", s) and \
                 not re.search(r"\bgeboren|gestorben\b", s):
             # "und wie viele einwohner hat sie?" after Canberra: the place just named

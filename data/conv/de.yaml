@@ -158,11 +158,11 @@ intents:
       - "Ein bisschen Deutsch kann ich schon: plaudern, zuhören, mir Dinge merken. Fakten und E-Mails gehen bisher nur auf Englisch."
       - "Deutsch lerne ich gerade. Für Fakten und Schreiben nimm bitte Englisch."
   - id: bored
-    patterns: ['mir ist (so )?langweilig|langweilig|ich langweile mich']
+    patterns: ['mir ist (so |total |voll |echt |gerade |richtig |mega )*langweilig( heute| gerade| grad)?|langweilig|ich langweile mich( so| heute)?|mir ist langweilig, was soll ich machen']
     responses:
-      - "Dagegen hilft vielleicht ein Witz – sag einfach „erzähl mir einen Witz“. Oder erzähl mir, was dich sonst so interessiert."
-      - "Wie wäre es mit einer Frage an mich, auf Englisch, zu irgendeinem Thema? Ich schlage gern etwas nach."
-      - "Langeweile kenne ich nicht, ich warte einfach. Was machst du denn gern?"
+      - "Langeweile? Das kriegen wir hin! Soll ich dir ein paar Ideen geben, dir einen Witz erzählen oder dich ein bisschen quizzen?"
+      - "Oh nein! Magst du Ideen für etwas zu tun, einen Witz oder ein kleines Quiz?"
+      - "Dagegen hilft vielleicht ein Witz – sag einfach „erzähl mir einen Witz“. Oder soll ich dir ein paar Ideen geben, was du machen könntest?"
 
 feelings:
   negators: [nicht, kein, keine, nicht so, gar nicht, überhaupt nicht]
@@ -294,6 +294,11 @@ daily:
       generic: ["Gute Vorbereitung hilft: Leg dir alles am Vorabend zurecht, plane etwas Puffer ein und gönn dir vorher eine ruhige Minute."]
     event_nerves: ["Ganz normal – das zeigt, dass es dir wichtig ist. Magst du ein paar Tipps zur Vorbereitung?",
                    "Aufregung gehört dazu, die meisten sind vorher nervös. Soll ich dir ein paar Tipps geben?"]
+    me_too: ["Schön! Was steht heute bei dir an?", "Freut mich! Worüber wollen wir reden?"]
+    hungry: ["Hunger? Dann vielleicht was Schnelles:"]
+    rain: ["Ach, Regenwetter. Perfekt für einen gemütlichen Tag drinnen – soll ich dir ein paar Ideen geben?",
+           "Grauer Tag, hm? Dann wird's halt drinnen gemütlich. Magst du Ideen?"]
+    sun: ["Herrlich! Kommst du raus und genießt es?"]
     thumbs: ["Ich drück dir ganz fest die Daumen! Du schaffst das. 💪", "Daumen sind gedrückt! Erzähl mir nachher, wie es lief."]
     job_lost: ["Oh nein, das tut mir wirklich leid. Das ist ein echter Schock. Wie geht es dir gerade damit?",
                "Das ist hart – so etwas zieht einem erst mal den Boden weg. Wie geht's dir damit?"]
