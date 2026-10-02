@@ -2422,8 +2422,9 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     sind ausgenommen.
   - „sorry my cat walked on the keyboard“ nach Salat wurde als Fakt über die Katze gespeichert; jetzt „Haha, no worries!
     What did you want to say?“.
-- **Runde 56/57/59, Messung**: Team-Dev-Satz 1 von 128 geändert (team-0067, Artikel). NQ-open 400: 22/9. Gezielte Tests
-  (Batterien 29, 56, 57, 59, Haustiere) grün; Suite und Regressionen 32, 38–59 (Englisch und Deutsch): Nachtrag folgt.
+- **Runde 56/57/59, Messung**: Team-Dev-Satz 1 von 128 geändert (team-0067, Artikel). NQ-open 400: 22/9. Suite 747 bestanden,
+  7 übersprungen. Regressionen 32, 38–59 (Englisch und Deutsch, 25 Gespräche) und langes Gespräch: 0 Wiederholungen;
+  Unterschiede nur in Batterie 42/57 (die wieder intakte Schlaf-Kette mit Tipps) und Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
