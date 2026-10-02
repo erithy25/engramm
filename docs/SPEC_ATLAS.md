@@ -76,11 +76,16 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
   Weiterleitungen; Lite: nur Titel) + `name_doc.npy`, Schlüsselterme `term_hash.npy` (untere 32 Bit des
   BLAKE2b-Hashes) + `ptr.npy` + `post.npy` + `idf.npy` (float16). Je Artikel die Titelwörter und 8
   Schlüsselterme (tf·idf, die ersten 600 Zeichen dreifach).
-  - Gemessen an Shard 0 (96.648 Artikel): 11,7 MB. Hochrechnung ganz Wikipedia (Untergrenze): ≈ 0,55 GB
-    ohne, ≈ 0,67 GB mit Weiterleitungen.
+  - Gemessen an Shard 0 (96.648 Artikel): 11,7 MB. **Gemessen am ganzen Regal `shelf-20260927`
+    (6.369.076 Artikel, 7.425 Fächer):** Index 0,53 GB (Lite, nur Titel) bzw. 0,63 GB (mit Weiterleitungen,
+    7,2 Mio. Namensformen); Lite-Paket mit Regal-Index 1,24 GB.
+  - Gleiche Namensformen („Albert Einstein“, „Albert Einstein (album)“) bleiben alle im Index; der Client
+    nimmt den genau so betitelten Artikel, sonst einen ohne Zusatz.
 - **Bau in der CI** (`.github/workflows/shelf.yml`): ein Teil-Regal je Dump-Shard in parallelen Jobs, Volumes
   direkt als Assets des Releases `shelf-<Datum>`; danach führt `experiments/shelf_merge.py --index-only` nur die
   Index-Teile zusammen (globale idf). Gemessen je Shard: Extraktion 232 s (ein Kern), Bau 172–348 s.
+  **Erster vollständiger Lauf** (Run 2, 16 Gruppen × 4 Shards): 17–31 min je Gruppe, gesamt ≈ 60 min;
+  66 Teil-Regale, 9,7 GB Volumes, 201 Release-Assets.
 - **Client** (`engramm/web/shelf.py`):
   1. Artikel wählen: Namensformen aus der Frage (auch Weiterleitungen wie „xHCI“) zählen stark, dazu
      Schlüsselterme; nur Artikel mit ≥ 40 % des besten Treffers;

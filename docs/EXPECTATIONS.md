@@ -2015,3 +2015,17 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   5 richtig, 2 falsch; nachher 2 sichere Kurzantworten, 7 belegte Zitate, 1 aus der Faktenbank,
   2 ehrlich unbeantwortet, **0 falsch**. Kein Abruf enthielt Fragetext.
 - **Alltags-Batterien** (4 Gespräche, 181 Antworten, Lite-Paket): 0 wortgleiche Wiederholungen (vorher 4).
+- **Ganzes Regal** (`shelf-20260927`, CI-Lauf vom 2026-10-02): 6.369.076 Artikel in 7.425 Fächern,
+  9,7 GB Volumes, Index 0,53 GB (Lite) / 0,63 GB (voll). Hochrechnung aus Shard 0 lag bei 6,3 Mio. Artikeln,
+  6,6 GB Volumes (Untergrenze; Volumes größer, weil Fächer bis zur festen Größe aufgefüllt werden).
+- **Ende-zu-Ende mit dem echten Regal** (Lite-Paket + Regal-Index, direkt ohne Tor): die erste Fassung gab
+  falsche Antworten („West Indies won the world cup 2022“ aus dem T20-Artikel, „Golden Ball was the top
+  scorer“). Nach Themenprüfung, Siegerregeln und Belegabdeckung: 8 Siegerfragen (WM 2014/2018/2022,
+  Euro 2016/2024, Rugby-WM 2023, Tour de France 2024, WM 2010) → 6 richtig, 2 ehrlich ohne Antwort, 0 falsch;
+  JWST-Start „25 December 2021“ richtig; Super Bowl 2024 als belegtes Zitat (Chiefs).
+- **NQ-open Dev, 400 Fragen, Lite offline** (Wirkung der Plausibilitäts- und Abdeckungsprüfungen):
+  vorher (Stand 7c7e8db) 29 beantwortet, 8 richtig (27,6 %); nachher 21 beantwortet, 8 richtig (38,1 %).
+  Gleich viele richtige, 8 falsche weniger. Abgleich: normalisierte Teilzeichenkette gegen die Goldantworten.
+- **Alltags-Batterien 7–14** (Slang, Gefühle, Gedächtnis, Deutsch, Reisen, Hobbys): je Batterie die
+  gefundenen Fehler behoben und als Tests festgehalten; Regressions-Batterien 1–6: 240 Antworten,
+  0 wortgleiche Wiederholungen. Team-Dev-Satz (128 Dialoge): eine Antwort geändert (vage → ehrlich).
