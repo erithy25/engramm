@@ -163,7 +163,8 @@ jobs:
   catalog:
     # the catalog the installers carry: the lite pack's, plus the standard pack's when it was built
     needs: [pack, pack_standard]
-    if: ${{ always() && needs.pack.result == 'success' && needs.pack_standard.result != 'failure' }}
+    # a failed standard pack does not hold back the release: the catalog then lists the lite pack only
+    if: ${{ always() && needs.pack.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
