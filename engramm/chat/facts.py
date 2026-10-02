@@ -399,7 +399,8 @@ NON_VALUES = frozenset(("favourite", "favorite", "best", "most", "one", "thing",
                         # verbs a lexicon may also know as nouns: "I just got back from vacation" has no job "got"
                         "got", "get", "gets", "getting", "went", "go", "goes", "going", "gone", "came", "come", "comes",
                         "coming", "back", "made", "make", "took", "take", "had", "did", "done", "been", "said", "saw",
-                        "seen", "left", "felt", "feel", "tried", "try", "started", "start", "finished", "finish"))
+                        "seen", "left", "felt", "feel", "tried", "try", "started", "start", "finished", "finish",
+                        "quit", "quitting", "fired", "retired", "resigned", "moved", "move"))
 
 
 # words that are never the value of a personal statement: fillers, time phrases, evaluation cues

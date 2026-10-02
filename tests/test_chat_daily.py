@@ -573,3 +573,27 @@ def test_how_questions_need_more_than_a_word():
     from engramm.chat.dialog import _implausible
     assert _implausible("how do people deal with grief", "conspecifics", "… conspecifics …")
     assert not _implausible("how many legs does a spider have", "eight", "Spiders have eight legs.")
+
+
+def test_memory_corrections_and_moves(chat):
+    a, st = chat
+    a.turn(st, "my name is tom")
+    a.turn(st, "actually my name is thomas")
+    r = a.turn(st, "what's my name")
+    assert "Thomas" in r.text, r.text
+    a.turn(st, "i live in hamburg")
+    a.turn(st, "my sister lives in paris")
+    a.turn(st, "i moved to munich last month")
+    r = a.turn(st, "where do i live")
+    assert "unich" in r.text and "amburg" not in r.text, r.text
+    r = a.turn(st, "where does my sister live")
+    assert "aris" in r.text, r.text
+    a.turn(st, "i'm a nurse")
+    r = a.turn(st, "i quit my job")
+    assert "work as a quit" not in r.text and r.text.rstrip().endswith("?"), r.text
+    r = a.turn(st, "what's my job")
+    assert "nurse" not in r.text, r.text
+    a.turn(st, "my favorite food is sushi")
+    a.turn(st, "actually i prefer ramen")
+    r = a.turn(st, "what's my favorite food")
+    assert "ramen" in r.text, r.text

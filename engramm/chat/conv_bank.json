@@ -6128,6 +6128,14 @@
   "wedding_role": [
    "What an honour! Are you excited — or already thinking about the speech?",
    "That's a big honour — they clearly trust you a lot! How do you feel about it?"
+  ],
+  "job_quit": [
+   "Oh wow, that's a big step! How are you feeling about it — relieved?",
+   "That's a big change! Do you already know what's next?"
+  ],
+  "job_lost": [
+   "Oh no, I'm really sorry. That's a hard thing to go through. How are you holding up?",
+   "That's rough — I'm sorry. Was it out of the blue?"
   ]
  }
 }

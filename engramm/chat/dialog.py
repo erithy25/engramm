@@ -378,6 +378,7 @@ class Assistant:
             if len(re.findall(r"[a-z]+", msg.lower())) >= 2:
                 st.lang = "en"
         msg = expand_chat(msg)                            # "wats ur name" → "what's your name"
+        msg = self._prefer_correction(msg)                # "actually i prefer ramen" right after a favourite
         msg = _split_self_statements(msg)                 # "my name is Sam and I'm a teacher": two facts
         have = st.uses.get("have_noun")
         if have and st.turn - have[1] <= 2:               # "their names are Mia and Leo" after "I have two kids"
@@ -901,6 +902,12 @@ class Assistant:
             rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None
             rep.text = "I don't know for sure."
         if rep.kind == "answer" and rep.via in ("facts", "memory") and rep.source and rep.source.get("kind") == "user":
+            orig = self._fact_for(rep)
+            cat = _asked_category(q) if orig is not None and orig.subject == USER else None
+            latest = self._latest_fact(cat) if cat else None
+            if latest is not None and latest.object != rep.answer and latest.subject == USER:
+                rep.answer, rep.guess, rep.evidence = latest.object, latest.object, latest.sentence
+                rep.source = {"kind": "user", "source": latest.source}
             fact = self._fact_for(rep)
             if fact is not None:
                 rep.text = personal_sentence(fact.subject, fact.relation, rep.answer, rep.evidence)
@@ -1003,6 +1010,15 @@ class Assistant:
             wedding = bool(_WEDDING.search(norm)) or (wd is not None and st.turn - wd <= 8)
             key = "speech_wedding" if wedding else "speech_generic"
             return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key]), via="everyday")
+        m = _JOB_CHANGE.match(norm)
+        if m:
+            jobs = [f for f in self.bot.facts.facts if f.subject == USER and "#job" in f.relation]
+            for f in jobs:                              # the old job is no longer true
+                self.bot.memory.forget(f.source)
+            if jobs:
+                self.bot.refresh()
+            key = "job_lost" if m.group("bad") else "job_quit"
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key]), via="empathy")
         if _WORKOUT_DONE.match(norm):
             rep = self._learn(st, [msg], msg)
             rep.text = self._pick(st, "daily:workout_done", d["workout_done"])
@@ -1546,6 +1562,43 @@ class Assistant:
                 return q.replace(old, new, 1)
         return None
 
+    def _prefer_correction(self, msg: str) -> str:
+        """"actually I prefer ramen" right after "my favorite food is sushi" → "My favourite food is ramen."
+        — the correction keeps the category it corrects."""
+        m = _PREFER.match(normalise(msg))
+        sid = self.bot.context.get("last_learned")
+        if not m or not sid:
+            return msg
+        for f in self.bot.facts.facts:
+            if f.source == sid and f.subject == USER:
+                for lab, noun in _FAV_NOUN.items():
+                    if lab in f.relation:
+                        return f"My favourite {noun} is {m.group('x').strip()}."
+        return msg
+
+    def _proper_case(self, text: str) -> str:
+        """"my name is thomas" → "my name is Thomas", "i moved to munich" → "… Munich" — a name after a
+        name cue, and a place after a place cue when the fact bank knows it as a place."""
+        def name(m):
+            return m.group(1) + " ".join(w[:1].upper() + w[1:] for w in m.group(2).split())
+        text = _NAME_CUE.sub(name, text)
+        if self.kgqa is None:
+            return text
+
+        def place(m):
+            words = m.group(2)
+            for n in range(min(3, len(words.split())), 0, -1):
+                cand = " ".join(words.split()[:n])
+                try:
+                    hits = self.kgqa.kb.link(cand, limit=1)
+                except Exception:
+                    hits = []
+                if hits and (hits[0][0].type or "") in _PLACE_TYPES:
+                    rest = words[len(cand):]
+                    return m.group(1) + _place_case(cand) + rest
+            return m.group(0)
+        return _PLACE_CUE.sub(place, text)
+
     def _latest_fact(self, cat: str):
         """Your most recent fact of a category (the later statement corrects the earlier one)."""
         self.bot.refresh()
@@ -1722,7 +1775,7 @@ class Assistant:
 
     def _learn(self, st: DialogState, sentences: list[str], msg: str) -> Reply:
         bot = self.bot
-        text = _job_field(resolve_statement(" ".join(s.strip() for s in sentences if s.strip())))
+        text = self._proper_case(_job_field(resolve_statement(" ".join(s.strip() for s in sentences if s.strip()))))
         sid = source_id(text)
         if sid in bot.user_texts():
             return Reply(msg, "known", self._reply(st, "learned.already"), source={"kind": "user", "source": sid},
@@ -1858,6 +1911,9 @@ class Assistant:
             return None
         if gibberish(u.text) or is_mash(u.text):
             return None                          # "asdfgh" is no favourite food
+        if pending.get("slot") not in ("who_mean", "correction") and \
+                re.match(r"^(?:my|i|i'm|im|i am|i've|we)\b", u.text.strip(), re.I) and len(u.text.split()) >= 3:
+            return None                          # a whole sentence about you: normal learning reads it right
         slot = pending.get("slot")
         if slot == "who_mean":                   # "Sorry, who's ‘he’?" → "Emmanuel Macron": the question again
             name = msg.strip(" .!?")
@@ -2227,6 +2283,10 @@ _HELP_ME = re.compile(r"^(?:can|could|would|will) you help(?: me)?(?: with (?:it
                       r"^help me(?: please)?$|^any (?:ideas|tips|advice)$|^where do i (?:even )?start$")
 _SPEECH_HELP = re.compile(r"^(?:can you |could you |please )?help me (?:write|with|prepare|plan) (?:a |my |the )?"
                           r"(?:best man |maid of honou?r |wedding |birthday |retirement )?(?:speech|toast)(?: please)?$")
+_JOB_CHANGE = re.compile(r"^(?:so |well |guess what,? |btw )?i (?:just |finally |recently )?(?:(?P<quit>quit|left|resigned from|"
+                         r"handed in my notice at|retired from)(?: my)? (?:job|work|position|company)|retired|"
+                         r"(?P<bad>got fired|was fired|got laid off|was laid off|lost my job|got let go|was let go))"
+                         r"(?: today| yesterday| last week| this week)?[.!]*$")
 _TRIP = re.compile(r"^(?:so |well |guess what,? )?(?:i|we|me and my \w+|my \w+ and i) (?:just |finally |recently |also )?"
                    r"(?:got back from|came back from|returned from|went to|were in|was in|visited|travel+ed to|flew to|"
                    r"went on|spent (?:a|the|two|three|four|five|\w+) (?:week|weekend|days?|weeks?) in) "
@@ -2275,6 +2335,15 @@ _RELATABLE_DE = re.compile(r"(?:montage?|montags|morgende?|frühes aufstehen|fr�
                            r"kälte|hitze|stau|staus|pendeln|hausaufgaben|prüfungen|klausuren|warten|schlangen|putzen|"
                            r"aufräumen|hausarbeit|wäsche|abwasch|meetings|e-mails|mails|steuern|zahnarzt|zahnärzte|"
                            r"spinnen|mücken|insekten|smalltalk|menschenmassen|lärm|schnee)", re.I)
+_PREFER = re.compile(r"^(?:actually|no|well|hmm|wait)?,?\s*(?:i (?:think )?(?:prefer|like|love)|i'd say|make that|"
+                     r"no wait,?) (?P<x>[a-z][a-z' -]{1,30}?)(?: more| better| instead| actually| now)?$")
+_FAV_NOUN = {"#food": "food", "#colour": "colour", "#car": "car"}
+_NAME_CUE = re.compile(r"\b((?:my name is|my name's|call me|i'm called|i am called|actually my name is) )"
+                       r"([a-z][a-z'-]+(?: [a-z][a-z'-]+)?)\b(?=[.!,]|$)")
+_PLACE_CUE = re.compile(r"\b((?:live in|living in|moved to|move to|moving to|from|born in|grew up in|based in|"
+                        r"lives in|visited|went to|stay in|staying in) )([a-z][a-z' -]{1,40})")
+_PLACE_TYPES = frozenset(("City", "Town", "Village", "Settlement", "Country", "AdministrativeRegion", "Island",
+                          "CityDistrict", "Region", "State", "Place", "Location", "PopulatedPlace", "Continent"))
 _TOPIC_EDGE = set("""who whom whose what which when where why how is are was were be been do does did done has have had
 won win wins winning lost lose the a an of in on at for to by from with and or but about i me my you your he she it they
 him her them his its their this that these those there here top best first last most many much old""".split())
