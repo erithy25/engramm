@@ -1623,3 +1623,71 @@ def test_lead_strips_and_name_guard():
     from engramm.chat.dialog import _slot_value
     assert _slot_value("it's hard", "name") is None
     assert _slot_value("its sarah", "name") == "sarah"
+
+
+def test_battery44_german_move_pet_percent_and_correction(chat):
+    a, _ = chat
+    st = DialogState("h1")
+    r = a.turn(st, "ich ziehe nächsten monat nach münchen")
+    assert "München" in r.text and r.kind != "unknown", r.text
+    r = a.turn(st, "wegen der arbeit")
+    assert "München" in r.text, r.text
+    r = a.turn(st, "kennst du gute viertel?")
+    assert "Schwabing" in r.text, r.text
+    r = a.turn(st, "was sollte ich mir dort ansehen?")
+    assert "Marienplatz" in r.text, r.text
+    r = a.turn(st, "und was isst man da?")
+    assert "Weißwurst" in r.text, r.text
+    st2 = DialogState("h2")
+    r = a.turn(st2, "mein hund frisst nicht mehr")
+    assert r.kind == "empathy", r.text
+    r = a.turn(st2, "seit gestern")
+    assert "Tierarzt" in r.text, r.text
+    r = a.turn(st2, "er heißt bello")
+    assert "Bello" in r.text, r.text
+    r = a.turn(st2, "soll ich zum tierarzt?")
+    assert "Tierarzt" in r.text, r.text
+    assert "Bello" in a.turn(st2, "ok ich ruf an").text
+    st3 = DialogState("h3")
+    a.turn(st3, "wie viel sind 15 prozent von 80?")
+    assert a.turn(st3, "und 20 prozent?").text == "20 % von 80 sind 16."
+    r = a.turn(st3, "wie viele tage bis weihnachten?")
+    assert "Tage" in r.text and "24. Dezember" in r.text, r.text
+    st4 = DialogState("h4")
+    a.turn(st4, "mein lieblingsessen ist pizza")
+    r = a.turn(st4, "nein, eigentlich lasagne")
+    assert "Lasagne" in r.text, r.text
+    assert "Lasagne" in a.turn(st4, "was ist mein lieblingsessen?").text
+
+
+def test_battery44_german_world_cup_work_and_loneliness(chat):
+    a, _ = chat
+    pages = {
+        "2014 FIFA World Cup": _about("2014 FIFA World Cup", ["It took place in Brazil from 12 June to 13 July 2014."]),
+        "2018 FIFA World Cup": _about("2018 FIFA World Cup", ["It took place in Russia from 14 June to 15 July 2018.",
+                                                              "Germany, the defending champions, were eliminated in the group stage."]),
+        "2022 FIFA World Cup": _about("2022 FIFA World Cup", ["France are the defending champions, having defeated Croatia."]),
+    }
+    a.about.find = lambda t, **kw: pages.get(t)
+    st = DialogState("h5")
+    assert a.turn(st, "wer hat die wm 2014 gewonnen?").text == "Deutschland hat die WM 2014 gewonnen."
+    assert a.turn(st, "und 2018?").text == "Frankreich hat die WM 2018 gewonnen."
+    assert a.turn(st, "wo war die?").text == "Die WM 2018 fand in Russland statt."
+    st2 = DialogState("h6")
+    a.turn(st2, "ich bin total gestresst")
+    r = a.turn(st2, "die arbeit ist einfach zu viel")
+    assert "dazu" not in r.text, r.text
+    a.turn(st2, "mein chef macht druck")
+    r = a.turn(st2, "was soll ich tun?")
+    assert "•" in r.text and "Prioritäten" in r.text, r.text
+    st3 = DialogState("h7")
+    a.turn(st3, "ich fühle mich einsam")
+    r = a.turn(st3, "ich arbeite von zu hause")
+    assert "Homeoffice" in r.text or "zu Hause" in r.text, r.text
+    a.turn(st3, "vielleicht sollte ich mehr rausgehen")
+    r = a.turn(st3, "was könnte ich machen?")
+    assert "Ehrenamt" in r.text, r.text
+    r = a.turn(st3, "klingt gut")
+    assert r.kind == "smalltalk", r.text
+    r = a.turn(DialogState("h8"), "bist du ein mensch?")
+    assert r.text.startswith("Nein"), r.text

@@ -253,6 +253,55 @@ _MAYBE_SHOULD = re.compile(r"^(?:maybe|perhaps|i guess|i think|probably) i (?:sh
                            r"get a (?:dog|cat|pet|hobby)|go to the gym|start [a-z ]+|meet (?:new )?people)[.!]*$")
 _IDEAS_Q = re.compile(r"^(?:so |and |ok |but )?what (?:could|can|should) i (?:do|try)(?: about it)?\??$|^any ideas\??$")
 _THEN_WHEN = re.compile(r"^(?:and |so )?when (?:was|did) (?:that|it|this)(?: happen)?\??$")
+# German everyday context (battery 44)
+_DE_MOVING = re.compile(r"^(?:ich )?(?:ziehe|zieh|ziehen|bin|sind) (?:bald |nächsten monat |nächste woche |im \w+ |demnächst |gerade |jetzt |neulich |vor kurzem )?"
+                        r"(?:nach|in) (?P<x>[a-zäöüß][a-zäöüß -]{1,25}?)(?: gezogen| umgezogen)?(?: (?:um|nächsten monat|bald|im \w+))?[.!]*$")
+_DE_REASON = re.compile(r"^(?:wegen (?:der |meiner |meines |dem |des )?(?P<r>arbeit|jobs?|neuen jobs?|studiums?|uni|liebe|freundin|freundes|"
+                        r"partners?|partnerin|familie)|(?:für|fürs) (?:die |das |den |meinen |meine )?(?P<s>arbeit|job|studium|uni|liebe))[.!]*$")
+_DE_AREAS = re.compile(r"^(?:kennst du |weißt du |hast du |gibt es |was sind )?(?:gute |schöne |beliebte |coole |empfehlenswerte )?(?:viertel|stadtteile|"
+                       r"wohngegenden|gegenden|ecken)(?: zum wohnen)?(?: (?:dort|da|in (?P<p>[a-zäöüß ]+?)))?\??$|^wo (?:sollte|soll|kann) ich (?:dort |da )?"
+                       r"(?:am besten )?wohnen(?: in (?P<q>[a-zäöüß ]+?))?\??$")
+_DE_SIGHTS = re.compile(r"^(?:und )?was (?:sollte|soll|kann|muss) (?:ich|man) (?:mir |sich )?(?:dort |da |in (?P<p>[a-zäöüß ]+?) )?(?:unbedingt )?"
+                        r"(?:ansehen|anschauen|besichtigen|sehen|machen)\??$|^was gibt es (?:dort|da|in (?P<q>[a-zäöüß ]+?)) zu sehen\??$")
+_DE_FOOD = re.compile(r"^(?:und )?was (?:isst|ißt|esse|sollte ich|soll ich|muss ich)(?: man)?(?: (?:dort|da|in (?P<p>[a-zäöüß ]+?)))?(?: so| typischerweise)?"
+                      r"(?: essen| probieren)?\??$|^(?:und )?was (?:ist|sind) (?:das |die )?typische[sn]? (?:essen|gerichte?|spezialitäten) "
+                      r"(?:dort|da|in (?P<q>[a-zäöüß ]+?))\??$")
+_DE_PET_SICK = re.compile(r"^(?:oh je,? |mist,? )?mein(?:e)? (?P<a>hund|katze|kater|hase|kaninchen|hamster|vogel|pferd) (?:frisst|frißt) (?:nicht mehr|nichts mehr|nicht|kaum)"
+                          r"|^mein(?:e)? (?P<b>hund|katze|kater|hase|kaninchen|hamster|vogel|pferd) (?:ist|scheint) (?:krank|schlapp|nicht fit|verletzt)"
+                          r"|^mein(?:e)? (?P<c>hund|katze|kater|hase|kaninchen|hamster|vogel|pferd) (?:hat sich|hat) (?:übergeben|erbrochen|durchfall)")
+_DE_SINCE = re.compile(r"^(?:schon )?seit (?P<x>gestern|heute(?: morgen| früh)?|vorgestern|zwei tagen|2 tagen|drei tagen|3 tagen|einem tag|"
+                       r"heute morgen|gestern abend)[.!]*$")
+_DE_PET_NAME = re.compile(r"^(?:er|sie|es) heißt (?P<x>[a-zäöüß]+)[.!]*$|^(?:sein|ihr) name ist (?P<y>[a-zäöüß]+)[.!]*$")
+_DE_VET = re.compile(r"^(?:soll|sollte|muss) ich (?:mit (?:ihm|ihr) )?(?:zum|zu einem|zur) (?:tierarzt|tierärztin|tierklinik)(?: gehen| fahren)?\??$")
+_DE_CALL = re.compile(r"^(?:ok(?:ay)?,? |gut,? |alles klar,? )?(?:ich ruf(?:e)? (?:dort |da |gleich |jetzt |morgen )?an|ich geh(?:e)? (?:gleich |morgen )?hin|"
+                      r"ich fahr(?:e)? (?:gleich )?hin|ich melde mich beim tierarzt)[.!]*$")
+_DE_PCT = re.compile(r"^(?:und |was ist mit |und was ist mit )?(?P<a>\d+(?:[.,]\d+)?) ?(?:prozent|%)\??$")
+_DE_DAYS = re.compile(r"^(?:wie viele|wieviele) tage (?:sind es |dauert es |hat es )?(?:noch )?bis (?:zu |zum |zur )?(?P<x>weihnachten|heiligabend|silvester|"
+                      r"neujahr|halloween|valentinstag|nikolaus)\??$|^wie lange (?:ist es |dauert es )?noch bis (?P<y>weihnachten|heiligabend|silvester|neujahr|halloween)\??$")
+_DE_HOLIDAYS = {"weihnachten": (12, 24), "heiligabend": (12, 24), "silvester": (12, 31), "neujahr": (1, 1), "halloween": (10, 31),
+                "valentinstag": (2, 14), "nikolaus": (12, 6)}
+_DE_FIX = re.compile(r"^(?:nein|nee|ne|oh|ups|sorry|warte|moment)[, ]+(?:eigentlich |doch |lieber |ich meinte |ich meine |doch lieber )?(?P<x>[a-zäöüß][a-zäöüß -]{1,25}?)"
+                     r"(?: eigentlich| doch| lieber)?[.!]*$|^(?:eigentlich|ich meinte|ich meine) (?:doch )?(?:lieber )?(?P<y>[a-zäöüß][a-zäöüß -]{1,25}?)[.!]*$")
+_DE_EVENT = re.compile(r"^(?:und )?wer hat (?:die |den |das )?(?P<e>wm|weltmeisterschaft|fußball-wm|fussball-wm|em|europameisterschaft|fußball-em|"
+                       r"frauen-wm|olympischen spiele|olympia) ?(?P<y>\d{4})? ?(?:in \w+ )?gewonnen\??$|^wer wurde (?P<y2>\d{4}) (?P<e2>weltmeister|europameister)\??$|"
+                       r"^wo (?:war|fand|fanden|waren) (?:die |das )?(?P<e3>wm|weltmeisterschaft|em|europameisterschaft|olympischen spiele|olympia) ?(?P<y3>\d{4})?"
+                       r"(?: statt)?\??$")
+_DE_EVENT_AGAIN = re.compile(r"^(?:und |was ist mit |und was ist mit )?(?:(?:der |die )?(?:wm|em) )?(?P<y>(?:19|20)\d\d)\??$")
+_DE_EVENT_IT = re.compile(r"^(?:und )?wo (?:war|fand|waren|fanden) (?:die|sie|das|es)?(?: statt)?\??$|^(?:und )?wer hat (?:die|sie|es) gewonnen\??$")
+_DE_BOT_HUMAN = re.compile(r"^bist du (?:ein |eine )?(?:mensch|roboter|ki|künstliche intelligenz|bot|maschine|echt|real|ein echter mensch|computer)\??$")
+_DE_WFH = re.compile(r"\b(?:von zu hause|von zuhause|im homeoffice|im home office|homeoffice|remote)\b")
+_DE_MAYBE = re.compile(r"^(?:vielleicht|wahrscheinlich|ich glaube,? ich) (?:sollte|könnte|muss) ich (?:mehr |öfter |mal )?(?:rausgehen|raus|unter leute|leute treffen|"
+                       r"freunde treffen|jemanden anrufen|einem verein beitreten|einen kurs machen|sport machen)[a-zäöüß ]*[.!]*$|"
+                       r"^(?:vielleicht|wahrscheinlich) sollte ich (?:mehr |öfter |mal )?[a-zäöüß ]+[.!]*$")
+_DE_IDEAS = re.compile(r"^(?:und )?was (?:könnte|kann|sollte|soll) ich (?:da |dagegen )?(?:machen|tun)\??$|^hast du (?:ideen|vorschläge)\??$")
+_DE_WORK_STRESS = re.compile(r"^(?:die )?arbeit (?:ist|wird) (?:einfach |gerade |echt |total |viel )?(?:zu viel|zu stressig|so stressig|so viel|kaum zu schaffen)[.!]*$|"
+                             r"^ich habe? (?:einfach |gerade )?(?:zu viel|so viel) (?:arbeit|zu tun)[.!]*$")
+_DE_BOSS = re.compile(r"^mein(?:e)? (?:chef|chefin|vorgesetzter|vorgesetzte|boss) (?:macht|übt) (?:mir |total |so |viel )?(?:druck|stress)[.!]*$")
+_DE_EVENT_KIND = {"wm": "world cup", "weltmeisterschaft": "world cup", "fußball-wm": "world cup", "fussball-wm": "world cup",
+                  "weltmeister": "world cup", "em": "euro", "europameisterschaft": "euro", "fußball-em": "euro", "europameister": "euro",
+                  "frauen-wm": "women's world cup", "olympischen spiele": "summer olympics", "olympia": "summer olympics"}
+_DE_EVENT_TITLE = {"world cup": "die WM {y}", "euro": "die EM {y}", "women's world cup": "die Frauen-WM {y}",
+                   "summer olympics": "die Olympischen Sommerspiele {y}", "winter olympics": "die Olympischen Winterspiele {y}"}
 _WEAR = re.compile(r"^(?:(?:and|so|ok|okay|hmm|fine|alright|cool|sure)[.,!]? )?what (?:should|do|can|could) i wear(?: (?:to|for|on|in) "
                    r"(?:the |a |my |an )?(?P<x>[a-z ]+?))?(?: tomorrow| today| tonight)?\??$")
 _OCCASIONS = [("interview", re.compile(r"\binterview")), ("wedding", re.compile(r"\bwedding|\bmarr")),
@@ -627,7 +676,7 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_life(st, msg, s)
+            life = self._german_ctx(st, msg, s) or self._german_life(st, msg, s)
             if life is not None:
                 return life
         if u.kind == "fallback" or u.kind == "feeling":
@@ -745,6 +794,189 @@ class Assistant:
             st.last_exp = dict(le, turn=st.turn, text_en=(le.get("text_en") or "") + " " + _de_advice_hint(s))
             return Reply(msg, "empathy", self._pick(st, f"de:life:{key}", dd["life"][key]), via="german")
         return Reply(msg, "unknown", self._pick(st, "de:fallback", de["replies"]["fallback"]), via="german")
+
+    def _german_ctx(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """German everyday context across turns: a move and its reason, where to live, what to see and eat
+        there, a sick pet, "und 20 Prozent?", days until a holiday, "nein, eigentlich Lasagne", the World
+        Cup by year, work stress and loneliness when working from home."""
+        dc = self.bank.de["daily"].get("ctx")
+        if not dc:
+            return None
+        s = s.strip(" .!")
+        q = s.rstrip("?").strip()
+        if _DE_BOT_HUMAN.match(s):
+            return Reply(msg, "smalltalk", self._pick(st, "de:ctx:bot_human", dc["bot_human"]), via="german")
+        m = _DE_MOVING.match(q)
+        if m and m.group("x") not in ("hause", "bett", "ruhe", "der stadt", "die stadt"):
+            city = _de_place_case(m.group("x"))
+            st.uses["moved"] = [city, st.turn]
+            st.uses["place_topic"] = [city, st.turn]
+            return Reply(msg, "smalltalk", self._pick(st, "de:ctx:moving", dc["moving"], x=city), via="german")
+        mv = st.uses.get("moved")
+        m = _DE_REASON.match(q)
+        if m and mv and st.turn - mv[1] <= 2:
+            r = m.group("r") or m.group("s")
+            key = "moved_work" if r.startswith(("arbeit", "job", "neuen")) else "moved_study" if r.startswith(("stud", "uni")) \
+                else "moved_other"
+            return Reply(msg, "smalltalk", self._pick(st, f"de:ctx:{key}", dc[key], x=mv[0]), via="german")
+        pt = st.uses.get("place_topic")
+        here = (pt[0] if isinstance(pt, list) and st.turn - pt[1] <= 8 else None) or (mv[0] if mv else None)
+        for rx, table, lead in ((_DE_AREAS, "areas", "areas_lead"), (_DE_SIGHTS, "sights", "sights_lead"), (_DE_FOOD, "food", "food_lead")):
+            m = rx.match(q)
+            if not m or (table == "food" and not re.search(r"\b(?:man|dort|da|in|typisch\w*)\b", q)):
+                continue                                  # "was soll ich essen?" is about dinner, not the city
+            city = m.group("p") or m.group("q")
+            city = _de_place_case(city) if city else here
+            if not city:
+                continue
+            st.uses["place_topic"] = [city, st.turn]
+            val = dc[table].get(city.lower())
+            if val:
+                return Reply(msg, "smalltalk", self._pick(st, f"de:ctx:{lead}", dc[lead], x=city, y=val), via="german")
+            key = "areas_none" if table == "areas" else "place_none"
+            return Reply(msg, "unknown", self._pick(st, f"de:ctx:{key}", dc[key], x=city), via="german")
+        m = _DE_PET_SICK.match(q)
+        if m:
+            animal = m.group("a") or m.group("b") or m.group("c")
+            st.uses["pet_de"] = {"animal": animal, "name": None, "turn": st.turn}
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "de:ctx:pet_sick", dc["pet_sick"]), via="german")
+        pd = st.uses.get("pet_de")
+        if pd and st.turn - pd["turn"] <= 6:
+            m = _DE_SINCE.match(q)
+            if m:
+                pd["turn"] = st.turn
+                return Reply(msg, "empathy", self._pick(st, "de:ctx:pet_since", dc["pet_since"], x=m.group("x")), via="german")
+            m = _DE_PET_NAME.match(q)
+            if m:
+                name = (m.group("x") or m.group("y")).capitalize()
+                pd.update(name=name, turn=st.turn)
+                eng = {"hund": "dog", "katze": "cat", "kater": "cat", "hase": "rabbit", "kaninchen": "rabbit", "hamster": "hamster",
+                       "vogel": "bird", "pferd": "horse"}.get(pd["animal"], "pet")
+                self._learn(st, [f"My {eng} is called {name}."], msg)
+                return Reply(msg, "learned", self._pick(st, "de:ctx:pet_name", dc["pet_name"], x=name), via="german")
+            if _DE_VET.match(s):
+                pd["turn"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:vet", dc["vet"]), via="german")
+            if _DE_CALL.match(q):
+                who = pd["name"] or ("deiner " + pd["animal"].capitalize() if pd["animal"] == "katze" else "deinem " + pd["animal"].capitalize())
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:pet_call", dc["pet_call"], x=who), via="german")
+        m = _DE_PCT.match(q)
+        lm = re.search(r"\bvon (\d+(?:[.,]\d+)?)\b", normalise_de_text(st.last_message or ""))
+        if m and lm and st.uses.get("last_via") == "tool":
+            a = float(m.group("a").replace(",", "."))
+            b = float(lm.group(1).replace(",", "."))
+            c = a * b / 100
+            fmt = lambda v: (f"{v:.2f}".rstrip("0").rstrip(".")).replace(".", ",")
+            return Reply(msg, "tool", self._pick(st, "de:ctx:pct", dc["pct"], a=fmt(a), b=fmt(b), c=fmt(c)), via="tool",
+                         confidence=1.0)
+        m = _DE_DAYS.match(q)
+        if m:
+            word = m.group("x") or m.group("y")
+            now = self._now() or __import__("datetime").datetime.now()
+            today = now.date() if hasattr(now, "date") else now
+            mo, da = _DE_HOLIDAYS[word]
+            import datetime as _dt
+            target = _dt.date(today.year, mo, da)
+            if target < today:
+                target = _dt.date(today.year + 1, mo, da)
+            n = (target - today).days
+            months = ("Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November",
+                      "Dezember")
+            days = ("Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag")
+            shown = f"{days[target.weekday()]}, {target.day}. {months[target.month - 1]} {target.year}"
+            return Reply(msg, "tool", self._pick(st, "de:ctx:days_until", dc["days_until"], x=word.capitalize(), n=n, d=shown),
+                         via="tool", confidence=1.0)
+        m = _DE_FIX.match(q)
+        sid = self.bot.context.get("last_learned")
+        if m and sid:
+            x = (m.group("x") or m.group("y")).strip()
+            for f in self.bot.facts.facts:
+                if f.source == sid and f.subject == USER and not re.fullmatch(r"(?:ok|okay|gut|schon gut|egal|passt|alles gut|nichts)", x):
+                    noun = next((n for lab, n in _FAV_NOUN.items() if lab in f.relation), None)
+                    if noun:
+                        self._learn(st, [f"My favourite {noun} is {x}."], msg)
+                        shown = x[:1].upper() + x[1:]
+                        return Reply(msg, "learned", self._pick(st, "de:ctx:fav_fixed", dc["fav_fixed"], x=shown), via="german")
+        r = self._german_event(st, msg, q, dc)
+        if r is not None:
+            return r
+        if _DE_WORK_STRESS.match(q):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "text_en": "work is too much",
+                           "turn": st.turn}
+            st.uses["work_de"] = st.turn
+            return Reply(msg, "empathy", self._pick(st, "de:ctx:work_stress", dc["work_stress"]), via="german")
+        if _DE_BOSS.match(q):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "text_en": "my boss puts pressure",
+                           "turn": st.turn}
+            st.uses["work_de"] = st.turn
+            return Reply(msg, "empathy", self._pick(st, "de:ctx:boss_pressure", dc["boss_pressure"]), via="german")
+        wd = st.uses.get("work_de")
+        if wd is not None and st.turn - wd <= 3 and _DE_IDEAS.match(q):
+            return Reply(msg, "smalltalk", self._pick(st, "de:ctx:work_tips", dc["work_tips"]), via="german")
+        le = st.last_exp or {}
+        lonely = le and st.turn - le.get("turn", -99) <= 4 and re.search(r"einsam|allein|niemanden|keine freunde", le.get("text") or "")
+        if lonely and _DE_WFH.search(q) and len(q.split()) <= 10:
+            st.last_exp = dict(le, turn=st.turn)
+            return Reply(msg, "empathy", self._pick(st, "de:ctx:wfh_lonely", dc["wfh_lonely"]), via="german")
+        if _DE_MAYBE.match(q):
+            if lonely:
+                st.last_exp = dict(le, turn=st.turn)
+            st.uses["lonely_de"] = st.turn
+            return Reply(msg, "smalltalk", self._pick(st, "de:ctx:maybe_should", dc["maybe_should"]), via="german")
+        ld = st.uses.get("lonely_de")
+        if (lonely or (ld is not None and st.turn - ld <= 2)) and _DE_IDEAS.match(q):
+            st.uses["ideas_de"] = st.turn
+            return Reply(msg, "smalltalk", self._pick(st, "de:ctx:lonely_ideas", dc["lonely_ideas"]), via="german")
+        idd = st.uses.get("ideas_de")
+        if idd is not None and st.turn - idd <= 2 and re.fullmatch(r"(?:das |klingt |hört sich )?(?:klingt|hört sich)? ?(?:gut|super|toll|schön|"
+                                                                     r"nach einem plan|machbar)(?: an)?", q):
+            return Reply(msg, "smalltalk", self._pick(st, "de:ctx:ideas_liked", dc["ideas_liked"]), via="german")
+        return None
+
+    def _german_event(self, st: DialogState, msg: str, q: str, dc: dict) -> Reply | None:
+        """"Wer hat die WM 2014 gewonnen?", "und 2018?", "wo war die?": the English tournament reader,
+        answered in German."""
+        ev = st.uses.get("event_q")
+        recent = ev is not None and st.turn - ev["turn"] <= 4
+        m = _DE_EVENT.match(q)
+        en = None
+        if m:
+            e = m.group("e") or m.group("e2") or m.group("e3")
+            y = m.group("y") or m.group("y2") or m.group("y3") or (str(ev["year"]) if recent else None)
+            kind = _DE_EVENT_KIND.get(e)
+            if not kind or not y:
+                return None
+            name = {"world cup": "world cup", "euro": "euro", "women's world cup": "women's world cup",
+                    "summer olympics": "olympics"}[kind]
+            en = f"where was the {y} {name} held" if m.group("e3") else f"who won the {y} {name}"
+        elif recent and _DE_EVENT_AGAIN.match(q):
+            y = _DE_EVENT_AGAIN.match(q).group("y")
+            en = f"and {y}"
+        elif recent and _DE_EVENT_IT.match(q):
+            en = "where was it held" if q.lstrip("und ").startswith("wo") else "who won it"
+        if en is None:
+            return None
+        rep = self._event_q(st, msg, en)
+        if rep is None:
+            return None
+        ev = st.uses.get("event_q")
+        title = _DE_EVENT_TITLE[ev["kind"]].format(y=ev["year"])
+        plural = ev["kind"].endswith("olympics")
+        mw = re.match(r"^(?P<x>.+?) won the ", rep.text)
+        mh = re.match(r"^The .+? (?:was|were) held in (?P<x>.+?)\.$", rep.text)
+        if rep.kind == "unknown":
+            text = self._pick(st, "de:ctx:event_unknown", dc["event_unknown"], x=title.split(" ", 1)[1])
+        elif mw:
+            team = _de_country(mw.group("x"))
+            key = "event_won_pl" if team.endswith(("staaten", "lande")) else "event_won"
+            text = self._pick(st, f"de:ctx:{key}", dc[key], x=team, y=title)
+        elif mh:
+            key = "event_where_pl" if plural else "event_where"
+            text = self._pick(st, f"de:ctx:{key}", dc[key], x=_de_country(mh.group("x")), y=title, Y=title[:1].upper() + title[1:])
+        else:
+            return None
+        return Reply(msg, rep.kind, text, evidence=rep.evidence, source=rep.source, via="german", confidence=rep.confidence)
 
     def _german_life(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """German everyday talk that needs the conversation: thanks after a tip or a congratulation,
@@ -5532,6 +5764,27 @@ def _asked_category(q: str) -> str | None:
     if re.search(r"\bwhere am i from\b|\bwhere do i come from\b|\borigin\b", low):
         return "#origin"
     return None
+
+
+def _de_place_case(x: str) -> str:
+    """"münchen" → "München", "new york" → "New York"."""
+    return " ".join(w[:1].upper() + w[1:] for w in x.strip().split())
+
+
+def _de_country(name: str) -> str:
+    """An English country name in German ("Germany" → "Deutschland"), else as it is."""
+    from engramm.chat.german_bridge import EXONYMS
+    if name == "United States":
+        return "die Vereinigten Staaten"
+    for de_name, en in EXONYMS.items():
+        if en == name and " " not in de_name and de_name not in ("usa", "amerika", "holland"):
+            return _de_place_case(de_name)
+    return name
+
+
+def normalise_de_text(text: str) -> str:
+    from engramm.chat.german import normalise_de
+    return normalise_de(text)
 
 
 def _ordinal_pick(norm: str, names: list[str]) -> str | None:

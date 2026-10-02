@@ -2212,6 +2212,17 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     Größe und Sonnenabstand der Planeten, von Sonne und Mond („cool, how big is mars?“ → „and how far is it from the sun?“).
   - Wiederholungen 2 → 0. Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–42 und langes
     Gespräch: 0 Wiederholungen. Suite 706 bestanden, 7 übersprungen.
+- **Alltags-Batterie 44 (Deutsch)** (dieselben Alltagsthemen wie 42/43, auf Deutsch):
+  - Vorher 5 Wiederholungen und 17 von 40 Zügen „Das verstehe ich leider nicht“. Umzug, kranker Hund, Prozent-Folgefrage,
+    Tage bis Weihnachten, Korrektur des Lieblingsessens und WM-Fragen wurden gar nicht verstanden.
+  - Jetzt: „ich ziehe nächsten Monat nach München“ → Grund → Viertel → Sehenswürdigkeiten → „und was isst man da?“
+    (10 deutschsprachige und europäische Städte); Hund frisst nicht → „seit gestern“ → Name → Tierarzt → „ok ich ruf an“;
+    „und 20 Prozent?“; „wie viele Tage bis Weihnachten?“ (24. Dezember, deutsche Zählung); „nein, eigentlich Lasagne“;
+    „wer hat die WM 2014 gewonnen?“ → „Deutschland hat die WM 2014 gewonnen.“, „und 2018?“, „wo war die?“ (der englische
+    Turnier-Leser mit deutschen Länder- und Turniernamen); Arbeitsstress und Druck vom Chef → konkrete Tipps;
+    Einsamkeit im Homeoffice → Ideen; „bist du ein Mensch?“.
+  - Wiederholungen 5 → 0. Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–43 und langes
+    Gespräch: 0 Wiederholungen. Suite 708 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

@@ -485,3 +485,72 @@ daily:
     - "Das weiß ich leider immer noch nicht – dazu habe ich nichts gefunden."
     - "Da muss ich wieder passen, tut mir leid."
     - "Dazu fällt mir leider weiterhin nichts Verlässliches ein."
+  ctx:
+    moving: ["{x} – spannend! Ziehst du wegen der Arbeit hin, oder aus einem anderen Grund?", "Oh, nach {x}! Freust du dich schon? Was führt dich dorthin?"]
+    moved_work: ["Ein neuer Job in {x} – wie aufregend! Freust du dich schon drauf?", "Wegen der Arbeit, verstehe. Ein Neuanfang in {x} – das wird bestimmt spannend!"]
+    moved_study: ["Studieren in {x} – das wird eine tolle Zeit! Weißt du schon, wo du wohnen wirst?"]
+    moved_other: ["Verstehe. Ein großer Schritt! Wie fühlt sich das an?"]
+    areas_lead: ["Beliebte Viertel in {x}: {y}\n\nKommt drauf an, was dir wichtig ist – eher ruhig, Nachtleben oder viel Grün?"]
+    areas_none: ["{x} kenne ich leider nicht gut genug, um dir Viertel zu empfehlen. Frag am besten Leute vor Ort oder schau in lokale Foren."]
+    sights_lead: ["In {x} solltest du dir unbedingt ansehen: {y}\n\nSoll ich dir auch sagen, was man dort isst?"]
+    food_lead: ["Typisch für {x}: {y}\n\nGuten Appetit schon mal!"]
+    place_none: ["Dazu habe ich auf Deutsch leider nichts Verlässliches. Auf Englisch kann ich mehr nachschlagen – frag zum Beispiel „what should I see in {x}?“."]
+    pet_sick: ["Oh nein, der Arme! Seit wann geht das schon so?", "Das ist besorgniserregend. Seit wann frisst er nicht mehr – und trinkt er wenigstens?"]
+    pet_since: ["Seit {x} – dann würde ich ihn im Auge behalten. Wenn er auch heute nichts frisst, schlapp wirkt oder sich übergibt, ruf lieber beim Tierarzt an."]
+    pet_name: ["{X} – was für ein schöner Name! Ich drück die Daumen, dass es {X} bald besser geht."]
+    vet: ["Ich würde anrufen, ehrlich. Wenn ein Hund länger als einen Tag nicht frisst, schlapp ist oder sich übergibt, sollte der Tierarzt draufschauen – und es beruhigt dich auch.", "Ja, ein Anruf beim Tierarzt kostet wenig, und die können dir sagen, ob es warten kann. Lieber einmal zu viel als zu wenig."]
+    pet_call: ["Gute Entscheidung! Ich hoffe, {x} geht's bald wieder besser. 🐾", "Richtig so. Alles Gute für {x} – gib ihm eine Streicheleinheit von mir!"]
+    pct: ["{a} % von {b} sind {c}."]
+    days_until: ["Bis {x} sind es noch {n} Tage ({d})."]
+    fav_fixed: ["Alles klar, dann {x}! Hab's korrigiert.", "Okay, {x} also – merk ich mir!"]
+    event_won: ["{x} hat {y} gewonnen."]
+    event_won_pl: ["{x} haben {y} gewonnen."]
+    event_where: ["{Y} fand in {x} statt."]
+    event_where_pl: ["{Y} fanden in {x} statt."]
+    event_when: ["{Y} lief vom {x}."]
+    event_unknown: ["Das steht in meinem Artikel über {x} leider nicht drin – raten möchte ich nicht."]
+    bot_human: ["Nein, ich bin kein Mensch – ich bin ENGRAMM, ein Programm auf deinem Rechner. Kein neuronales Netz, keine Cloud: Ich antworte aus dem, was ich gelesen habe, und aus dem, was du mir erzählst.", "Nein, ich bin ein Programm namens ENGRAMM. Aber ich höre dir trotzdem gern zu!"]
+    wfh_lonely: ["Das kann ich gut verstehen – Homeoffice kann richtig einsam machen. Ganze Tage ohne ein echtes Gespräch.", "Ja, zu Hause arbeiten ist praktisch, aber man sieht kaum Leute. Kein Plausch an der Kaffeemaschine."]
+    maybe_should: ["Das ist eine gute Idee – auch kleine Schritte zählen. Soll ich dir ein paar Ideen geben?", "Finde ich gut! Klein anfangen ist völlig okay. Magst du ein paar Vorschläge?"]
+    lonely_ideas: ["Ein paar Ideen:\n\n• Ein, zwei Tage pro Woche im Café oder Co-Working arbeiten\n• Etwas Regelmäßiges: Sportverein, Kurs, Chor, Lauftreff\n• Ehrenamt – man lernt Leute kennen und tut Gutes\n• Heute einer alten Freundin oder einem alten Freund schreiben\n\nKlingt etwas davon nach dir?"]
+    ideas_liked: ["Schön, dass dir was davon gefällt! Schon einer davon ist ein toller Anfang.", "Super! Fang mit dem an, was am leichtesten klingt – und erzähl mir, wie's war."]
+    work_stress: ["Das klingt nach richtig viel. Was belastet dich gerade am meisten – die Menge oder der Druck?", "Puh, das ist anstrengend. Ist das gerade eine besonders stressige Phase, oder schon länger so?"]
+    boss_pressure: ["Druck vom Chef macht es doppelt schwer. Hast du schon mal angesprochen, dass es gerade zu viel ist?", "Das ist echt unangenehm. Weiß dein Chef, wie viel du gerade auf dem Tisch hast?"]
+    work_tips: ["Ein paar Dinge, die oft helfen:\n\n• Aufschreiben, was ansteht, und die drei wichtigsten Punkte markieren\n• Mit dem Chef offen über Prioritäten sprechen: „Was soll zuerst fertig werden?“\n• Kleine Pausen einplanen – auch fünf Minuten an der frischen Luft\n• Nach Feierabend bewusst abschalten, Handy weg\n\nWenn es dauerhaft zu viel ist, ist das kein persönliches Versagen."]
+    areas:
+      berlin: "Kreuzberg und Neukölln (lebendig, Bars, international), Prenzlauer Berg (Cafés, Familien, ruhiger), Friedrichshain (jung, Nachtleben) und Charlottenburg (elegant, ruhiger, im Westen)."
+      münchen: "Schwabing (lebendig, am Englischen Garten), Maxvorstadt (Studenten, Museen), Haidhausen (charmant, zentral) und Sendling (etwas günstiger)."
+      hamburg: "Sternschanze und St. Pauli (lebendig, alternativ), Ottensen (gemütlich, Cafés), Eimsbüttel (beliebt bei jungen Familien) und Winterhude (grün, am Stadtpark)."
+      frankfurt: "Sachsenhausen (Apfelweinkneipen, am Main), Nordend (Cafés, Altbau), Bornheim (Dorfgefühl) und Bockenheim (Studenten, günstiger)."
+      köln: "Ehrenfeld (kreativ, Nachtleben), das Belgische Viertel (Bars, Läden), die Südstadt (entspannt, am Rhein) und Sülz (Familien, ruhig)."
+      wien: "Neubau (kreativ, Läden), Josefstadt (zentral, ruhig), Leopoldstadt (Prater, lebendig) und Wieden (Cafés, am Naschmarkt)."
+      zürich: "Kreis 4 und 5 (lebendig, Nachtleben), Wiedikon (entspannt), Seefeld (am See, gehoben) und Oerlikon (günstiger)."
+      stuttgart: "Stuttgart-West (Altbau, Cafés), Stuttgart-Süd (Marienplatz, lebendig), Bad Cannstatt (günstiger, am Neckar) und Degerloch (ruhig, grün)."
+      leipzig: "Plagwitz (kreativ, Kanäle), Südvorstadt (Karli, Kneipen), Connewitz (alternativ) und Gohlis (ruhig, Altbau)."
+      düsseldorf: "Flingern (Cafés, Läden), Pempelfort (zentral, ruhig), Unterbilk (am Medienhafen) und Oberkassel (gehoben, am Rhein)."
+    sights:
+      berlin: "das Brandenburger Tor, die Reichstagskuppel, die Museumsinsel, die East Side Gallery und das Holocaust-Mahnmal."
+      münchen: "den Marienplatz mit dem Glockenspiel, den Englischen Garten, die Frauenkirche, den Viktualienmarkt und Schloss Nymphenburg."
+      hamburg: "die Elbphilharmonie, die Speicherstadt, den Hafen mit einer Barkassenfahrt, den Fischmarkt am Sonntagmorgen und die Alster."
+      frankfurt: "den Römerberg, den Main Tower mit Aussicht, das Museumsufer, die Kleinmarkthalle und Sachsenhausen."
+      köln: "den Kölner Dom, die Hohenzollernbrücke mit den Liebesschlössern, das Schokoladenmuseum, die Altstadt und den Rheinpark."
+      wien: "den Stephansdom, Schloss Schönbrunn, die Hofburg, den Prater mit dem Riesenrad und den Naschmarkt."
+      zürich: "die Altstadt mit dem Grossmünster, den Zürichsee, die Bahnhofstrasse, den Lindenhof und den Uetliberg."
+      paris: "den Eiffelturm, den Louvre, Notre-Dame, Montmartre mit Sacré-Cœur und einen Spaziergang an der Seine."
+      london: "den Tower und die Tower Bridge, das British Museum, Westminster mit Big Ben, das London Eye und den Borough Market."
+      rom: "das Kolosseum, das Forum Romanum, den Trevi-Brunnen, das Pantheon und den Vatikan mit dem Petersdom."
+      barcelona: "die Sagrada Família, den Park Güell, das Gotische Viertel, die Rambla und die Casa Batlló."
+      new york: "den Central Park, die Freiheitsstatue, den Times Square, das Empire State Building und die Brooklyn Bridge."
+    food:
+      berlin: "Currywurst, Döner, Buletten und Berliner Pfannkuchen."
+      münchen: "Weißwurst mit süßem Senf und Brezn, Schweinshaxe, Obatzda im Biergarten und Kaiserschmarrn."
+      hamburg: "Fischbrötchen, Franzbrötchen, Labskaus und Rote Grütze."
+      frankfurt: "Grüne Soße, Handkäs mit Musik, Frankfurter Würstchen und ein Glas Ebbelwoi."
+      köln: "Halve Hahn (ein Roggenbrötchen mit Käse), Himmel un Ääd, Reibekuchen und ein Kölsch."
+      wien: "Wiener Schnitzel, Tafelspitz, Sachertorte und Apfelstrudel."
+      zürich: "Zürcher Geschnetzeltes mit Rösti, Käsefondue und Luxemburgerli."
+      stuttgart: "Maultaschen, Käsespätzle, Zwiebelrostbraten und Brezeln."
+      paris: "Croissants, Crêpes, Croque Monsieur, Steak frites und Macarons."
+      rom: "Carbonara, Cacio e pepe, Supplì, Pizza al taglio und Gelato."
+      london: "Fish and Chips, ein Full English Breakfast, Sunday Roast und Afternoon Tea."
+      barcelona: "Tapas, Pan con tomate, Paella und Crema catalana."
