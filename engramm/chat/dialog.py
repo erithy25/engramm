@@ -781,7 +781,7 @@ class Assistant:
             if is_fresh(text):
                 fresh = self._atlas_answer(st, text)       # "who is the current …": newer sources first
                 if fresh is not None:
-                    return fresh
+                    return self._with_offline_view(st, text, fresh)
         kb = self._kb_answer(st, text)
         if kb is not None:
             return kb
@@ -882,11 +882,30 @@ class Assistant:
         when = src.get("as_of")
         where = {"shelf": "Wikipedia", "feed": src.get("source", "a news feed"), "web": src.get("source", "the web")}[src["kind"]]
         note = f" (from {where}{', as of ' + when if when else ''})"
+        # source agreement: other sources among the fetched sentences that say the same
+        others = _agreeing_sources(rep.answer, rows, src)
+        if others:
+            note = note[:-1] + "; " + ("also " if len(others) == 1 else "also in ") + " and ".join(others[:2]) + ")"
+            rep.confidence = max(rep.confidence, 1.0)
         rep.text = sent.rstrip(".") + note + "."
         rep.via = "atlas"
         rep.message = text
         st.last_fact = {"evidence": rep.evidence, "source": src, "answer": rep.answer, "question": q, "sure": True}
         return rep
+
+    def _with_offline_view(self, st: DialogState, text: str, fresh: Reply) -> Reply:
+        """A newer answer from the network that the offline fact bank contradicts: say both, with
+        their dates, newer first — never silently one of them."""
+        if fresh.kind != "answer" or not fresh.answer or self.kgqa is None:
+            return fresh
+        ctx = dict(self.bot.context)
+        old = self._kb_answer(DialogState(st.conversation + "#kb"), text)
+        self.bot.context = ctx
+        if old is None or not old.answer or _same_value(old.answer, fresh.answer):
+            return fresh
+        fresh.text = fresh.text.rstrip(".") + f". My offline fact bank (older) still says {old.answer}."
+        fresh.alternatives = [{"text": old.text, "source": old.source}] + list(fresh.alternatives or [])
+        return fresh
 
     def _atlas_quote(self, st: DialogState, text: str, q: str, rep: Reply, names: list[str]) -> Reply | None:
         """Not sure of the short answer, but the best sentence comes from the article the question
@@ -1478,6 +1497,32 @@ def resolve_statement(text: str) -> str:
 
 
 _CAPS_SPAN = re.compile(r"\b[A-Z][\w'’.\-]*(?:\s+(?:of|the|and|de|von|van|da|del|la|le)?\s*[A-Z][\w'’.\-]*)*")
+
+
+def _norm_value(v: str) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", v.lower()).strip()
+
+
+def _same_value(a: str, b: str) -> bool:
+    x, y = _norm_value(a), _norm_value(b)
+    return bool(x) and bool(y) and (x == y or f" {x} " in f" {y} " or f" {y} " in f" {x} ")
+
+
+def _agreeing_sources(answer: str | None, rows: list, src: dict) -> list[str]:
+    """Other independent sources (another article, feed or site) whose fetched sentences hold the
+    same answer — "(from Wikipedia …; also BBC News)"."""
+    if not answer or len(_norm_value(answer)) < 3:
+        return []
+    out = []
+    for row in rows:
+        t, rs = row[0], row[1]
+        if rs.get("key") == src.get("key") or not _same_value(answer, t) and _norm_value(answer) not in _norm_value(t):
+            continue
+        name = rs.get("title") if rs.get("kind") == "shelf" else rs.get("source") or rs.get("title")
+        label = f"Wikipedia's “{name}”" if rs.get("kind") == "shelf" else str(name)
+        if name and label not in out and (rs.get("kind") != src.get("kind") or rs.get("key") != src.get("key")):
+            out.append(label)
+    return out
 
 
 def _stems(text: str) -> set[str]:

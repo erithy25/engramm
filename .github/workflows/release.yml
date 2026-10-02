@@ -30,6 +30,7 @@ jobs:
       tag: ${{ steps.r.outputs.tag }}
       prerelease: ${{ steps.r.outputs.prerelease }}
       shelf: ${{ steps.r.outputs.shelf }}
+      standard: ${{ steps.r.outputs.standard }}
     steps:
       - uses: actions/checkout@v4
       - id: r
@@ -46,6 +47,8 @@ jobs:
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "prerelease=$pre" >> "$GITHUB_OUTPUT"
           echo "shelf=$shelf" >> "$GITHUB_OUTPUT"
+          standard=$(python3 -c 'import json;print(str(json.load(open("release/request.json")).get("standard", False)).lower())')
+          echo "standard=$standard" >> "$GITHUB_OUTPUT"
 
   pack:
     needs: request
@@ -96,14 +99,95 @@ jobs:
             dist/engramm-pack-lite.zip
           compression-level: 0
 
+  pack_standard:
+    # the standard pack (≈ 1.5 M article leads, 1 M fact-bank entries, full shelf index) in its own
+    # release, so its files do not collide with the lite pack's
+    needs: [request, pack]
+    if: ${{ needs.request.outputs.standard == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install numpy==2.4.1 numba==0.67.0 tokenizers==0.23.2 pyyaml
+      - name: More disk, work folder
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL || true
+          mkdir -p "$RUNNER_TEMP/engramm"
+          ln -s "$RUNNER_TEMP/engramm" /dev/shm/engramm
+          df -h "$RUNNER_TEMP"
+      - name: Build the standard pack
+        env:
+          PYTHON: python
+          NAME: standard
+          TOP: "1500000"
+          KB_TOP: "1000000"
+        run: bash scripts/build_pack.sh
+      - name: Atlas files (full shelf index, wayfinder)
+        if: ${{ needs.request.outputs.shelf != '' }}
+        env:
+          TAG: ${{ needs.request.outputs.tag }}
+        run: |
+          python -u experiments/wayfinder_build.py --out /dev/shm/engramm/wayfinder.sqlite --kb /dev/shm/engramm/packs/standard/kb.sqlite
+          python -u experiments/pack_add_atlas.py --pack /dev/shm/engramm/packs/standard \
+            --shelf-release "${{ needs.request.outputs.shelf }}" --variant full \
+            --wayfinder /dev/shm/engramm/wayfinder.sqlite --version "${TAG#v}"
+      - uses: actions/download-artifact@v4
+        with:
+          name: catalog
+          path: catalog-in
+      - name: Release assets and catalog entry
+        env:
+          TAG: ${{ needs.request.outputs.tag }}
+        run: |
+          python -c "import json,sys; m=json.load(open('/dev/shm/engramm/packs/standard/manifest.json')); print('standard pack MB', round(m['bytes']/1e6)); sys.exit(m['bytes'] > 4.5e9)"
+          cp catalog-in/catalog.json runtime/app/src-tauri/resources/catalog.json
+          python -u -m experiments.pack_release --pack /dev/shm/engramm/packs/standard --out dist/standard \
+            --tag "pack-standard-${TAG#v}" --catalog runtime/app/src-tauri/resources/catalog.json
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: pack-standard-${{ needs.request.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: ENGRAMM standard knowledge pack (${{ needs.request.outputs.tag }})
+          prerelease: true
+          body: The standard knowledge pack for ENGRAMM ${{ needs.request.outputs.tag }}. The app downloads it when you pick “Standard”.
+          files: dist/standard/**
+      - uses: actions/upload-artifact@v4
+        with:
+          name: catalog-standard
+          path: runtime/app/src-tauri/resources/catalog.json
+
+  catalog:
+    # the catalog the installers carry: the lite pack's, plus the standard pack's when it was built
+    needs: [pack, pack_standard]
+    if: ${{ always() && needs.pack.result == 'success' && needs.pack_standard.result != 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: catalog*
+          path: in
+      - run: |
+          mkdir -p out
+          if [ -f in/catalog-standard/catalog.json ]; then cp in/catalog-standard/catalog.json out/; else cp in/catalog/catalog.json out/; fi
+          cat out/catalog.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: catalog-final
+          path: out/catalog.json
+
   installers:
-    needs: pack
+    needs: catalog
     uses: ./.github/workflows/desktop.yml
     with:
-      catalog_artifact: catalog
+      catalog_artifact: catalog-final
 
   publish:
     needs: [request, pack, installers]
+    if: ${{ always() && needs.installers.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4

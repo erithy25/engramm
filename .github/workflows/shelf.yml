@@ -10,6 +10,8 @@
 name: Shelf
 
 on:
+  push:
+    paths: ["release/shelf_request.json"]      # {"date": "", "groups": 16} — like release/request.json
   workflow_dispatch:
     inputs:
       date:
@@ -29,6 +31,7 @@ jobs:
       date: ${{ steps.plan.outputs.date }}
       groups: ${{ steps.plan.outputs.groups }}
       shards: ${{ steps.plan.outputs.shards }}
+      ngroups: ${{ steps.plan.outputs.ngroups }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -37,12 +40,20 @@ jobs:
       - id: plan
         env:
           GH_TOKEN: ${{ github.token }}
+          IN_DATE: ${{ inputs.date }}
+          IN_GROUPS: ${{ inputs.groups }}
         run: |
-          python experiments/cirrus_extract.py --plan --out /tmp/plan ${{ inputs.date && format('--date {0}', inputs.date) || '' }} > plan.json
+          if [ -z "$IN_GROUPS" ] && [ -f release/shelf_request.json ]; then
+            IN_DATE=$(python -c "import json; print(json.load(open('release/shelf_request.json')).get('date', ''))")
+            IN_GROUPS=$(python -c "import json; print(json.load(open('release/shelf_request.json')).get('groups', 16))")
+          fi
+          IN_GROUPS=${IN_GROUPS:-16}
+          python experiments/cirrus_extract.py --plan --out /tmp/plan ${IN_DATE:+--date "$IN_DATE"} > plan.json
           cat plan.json
           date=$(python -c "import json; print(json.load(open('plan.json'))['date'])")
           shards=$(python -c "import json; print(json.load(open('plan.json'))['shards'])")
-          groups=$(python -c "import json; print(json.dumps(list(range(int('${{ inputs.groups }}')))))")
+          groups=$(python -c "import json; print(json.dumps(list(range(int('$IN_GROUPS')))))")
+          echo "ngroups=$IN_GROUPS" >> "$GITHUB_OUTPUT"
           echo "date=$date" >> "$GITHUB_OUTPUT"
           echo "shards=$shards" >> "$GITHUB_OUTPUT"
           echo "groups=$groups" >> "$GITHUB_OUTPUT"
@@ -71,10 +82,10 @@ jobs:
           DATE: ${{ needs.plan.outputs.date }}
           SHARDS: ${{ needs.plan.outputs.shards }}
           GROUP: ${{ matrix.group }}
-          GROUPS: ${{ inputs.groups }}
+          NGROUPS: ${{ needs.plan.outputs.ngroups }}
         run: |
           set -euo pipefail
-          for ((s = GROUP; s < SHARDS; s += GROUPS)); do
+          for ((s = GROUP; s < SHARDS; s += NGROUPS)); do
             nn=$(printf "s%02d" "$s")
             if gh release view "shelf-$DATE" --json assets -q '.assets[].name' | grep -qx "$nn-index.tar"; then
               echo "$nn already published"; continue

@@ -165,3 +165,24 @@ def test_unsure_shelf_answer_quotes_the_named_article(atlas_chat):
     assert "Mirela Tosk" in r2.text and r2.text.split("“")[0] != r.text.split("“")[0]   # worded differently
     r3 = _ask(a, DialogState("q2"), "When was the Velmar Tower opened?")                 # not the named article
     assert r3.via != "atlas"
+
+
+def test_agreeing_sources_are_named(atlas_chat):
+    a, atlas, eg = atlas_chat
+    eg.set_channel("shelf", enabled=True)
+    eg.set_channel("feeds", enabled=True, feeds=["bbc-world"])
+    atlas.feeds.add([Item("bbc-world", "z1", "Zorblax Bridge to close for repairs",
+                          "The Zorblax Bridge, opened in 1931, will close for repairs next spring.",
+                          "https://www.bbc.co.uk/news/z1", int(time.time()) - 600)])
+    r = _ask(a, DialogState("agree"), "When was the Zorblax Bridge opened?")
+    assert r.kind == "answer" and r.answer == "1931", r.text
+    assert "also" in r.text, r.text                     # the second source that says the same
+
+
+def test_value_helpers():
+    from engramm.chat.dialog import _agreeing_sources, _same_value
+    assert _same_value("Mirela Tosk", "engineer Mirela Tosk") and not _same_value("1931", "1913")
+    rows = [("It was opened in 1931.", {"kind": "shelf", "key": "A", "title": "A"}),
+            ("Opened in 1931, it is old.", {"kind": "feed", "key": "f1", "source": "BBC News", "title": "x"}),
+            ("Opened in 1913.", {"kind": "feed", "key": "f2", "source": "DW", "title": "y"})]
+    assert _agreeing_sources("1931", rows, rows[0][1]) == ["BBC News"]
