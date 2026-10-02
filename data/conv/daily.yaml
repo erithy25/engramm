@@ -2707,3 +2707,12 @@ b74:
   small_flat: ["Cozy! Got it — a small apartment.", "Ah, a small apartment — cozy. I'll keep that in mind."]
   cat_instead: ["A cat suits a small apartment really well: no walks needed, fine alone during a workday, and happy with a window seat and some climbing. Two cats keep each other company."]
   cat_ok: ["Sounds like a good fit! Shelters often have lovely adult cats whose personality you already know — worth a visit."]
+b75:
+  subst:
+    egg: "No eggs? Per egg, mash half a ripe banana or use 3 tbsp applesauce — or just add a splash more milk and ½ tsp extra baking powder. They'll be a bit flatter, but still good."
+    milk: "No milk? Use the same amount of water or any plant milk (oat milk works great). With water they're just a little less rich."
+    butter: "No butter? Use the same amount of a neutral oil (sunflower or rapeseed) — works just as well."
+    baking powder: "No baking powder? Use ½ tsp baking soda plus 1 tbsp lemon juice or vinegar — or beat the egg white stiff and fold it in."
+    sugar: "Just leave it out, or use a little honey or maple syrup instead. For savoury versions you don't need any."
+    flour: "No flour? Blend oats into a fine powder and use about the same amount."
+  no_cook: ["No cooking needed:\n\n• A sandwich or wrap with whatever's in the fridge\n• Yoghurt with fruit and granola\n• A big salad with chickpeas, feta and tomatoes\n• Hummus with bread and raw veggies\n• Or just order something in — totally fair.\n\nAnything sound good?"]

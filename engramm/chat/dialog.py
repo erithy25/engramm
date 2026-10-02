@@ -1271,6 +1271,30 @@ class Assistant:
             return None
         q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", s)).strip(" .!?")
         say = lambda key: Reply(msg, "smalltalk", self._pick(st, f"de:g74:{key}", g[key]), via="german")   # noqa: E731
+        g5 = (self.bank.de["daily"].get("ctx") or {}).get("g75") or {}
+        money = self._money75(st, msg, s.strip(" ?!."), de=True)
+        if money is not None:
+            return money
+        cv = re.fullmatch(r"(?:rechne |wie viel sind |wieviel sind |was sind )?(?P<n>\d+(?:[.,]\d+)?) (?P<a>meilen|kilometer|km|pfund|kilo|kg|fahrenheit|grad fahrenheit|"
+                          r"celsius|grad celsius|fuß|fuss|meter|zoll|zentimeter|cm|liter|gallonen|unzen|gramm) (?:in|zu) (?P<b>meilen|kilometer|km|pfund|kilo|kg|"
+                          r"fahrenheit|celsius|fuß|fuss|meter|zoll|zentimeter|cm|liter|gallonen|unzen|gramm)(?: um)?", q)
+        if cv:
+            units = {"meilen": "miles", "kilometer": "km", "km": "km", "pfund": "pounds", "kilo": "kg", "kg": "kg", "fahrenheit": "fahrenheit",
+                     "grad fahrenheit": "fahrenheit", "celsius": "celsius", "grad celsius": "celsius", "fuß": "feet", "fuss": "feet", "meter": "meters",
+                     "zoll": "inches", "zentimeter": "cm", "cm": "cm", "liter": "liters", "gallonen": "gallons", "unzen": "ounces", "gramm": "grams"}
+            from engramm.chat.tools import convert
+            r = convert(f"convert {cv.group('n').replace(',', '.')} {units[cv.group('a')]} to {units[cv.group('b')]}")
+            if r is not None and r.value is not None:
+                de_u = {"miles": "Meilen", "km": "km", "pounds": "Pfund", "kg": "kg", "°F": "°F", "°C": "°C", "feet": "Fuß", "m": "m", "meters": "m",
+                        "inches": "Zoll", "cm": "cm", "liters": "Liter", "liter": "Liter", "gallons": "Gallonen", "ounces": "Unzen", "g": "g", "grams": "g"}
+                txt = re.sub(r"(?<=\d)\.(?=\d)", ",", r.text)
+                txt = re.sub(r"\b(miles|pounds|feet|inches|liters|liter|gallons|ounces|grams|meters)\b", lambda m_: de_u.get(m_.group(1), m_.group(1)), txt)
+                return Reply(msg, "tool", txt if txt.endswith(".") else txt + ".", answer=r.value, via="tool")
+        if g5 and re.fullmatch(r"(?:kannst du |bitte )?(?:schreib|schreibe|formulier|formuliere) (?:mir )?(?:eine nachricht )?(?:an )?(?:meinen |meine |meinem )?"
+                               r"(?:chef|chefin|arbeitgeber)(?:,)? (?:dass|das) ich krank bin|(?:hilf mir,? )?(?:eine )?krankmeldung (?:an meinen chef )?(?:schreiben|formulieren)", q):
+            return Reply(msg, "smalltalk", g5["krank"], via="german")
+        if g5 and re.fullmatch(r"(?:aber |und )?(?:bitte )?(?:ohne kochen|nichts kochen|ich will nicht kochen|kein kochen)(?: bitte)?", q):
+            return Reply(msg, "smalltalk", self._pick(st, "de:g75:ohne_kochen", g5["ohne_kochen"]), via="german")
         if re.fullmatch(r"(?:erzähl|erzähle|sag) (?:mir )?(?:noch )?mehr(?: darüber| davon| dazu)?|mehr (?:davon|dazu|bitte)|und weiter|weiter", q) and \
                 (st.last_about or self.bot.context.get("mention")):
             rep = self._more(st, msg)
@@ -6043,12 +6067,56 @@ class Assistant:
             return None
         return Reply(msg, "smalltalk", self._pick(st, f"daily:sound:{key}", self.bank.daily["sounds"][key]), via="smalltalk")
 
+    def _money75(self, st: DialogState, msg: str, n: str, de: bool = False) -> Reply | None:
+        """Battery 75: a tip, a discount, a bill split — everyday sums people ask for."""
+        num = r"(\d+(?:[.,]\d{1,2})?)"
+        fmt = (lambda v: f"{v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")) if de else (lambda v: f"{v:,.2f}")   # noqa: E731
+        f = lambda x: float(x.replace(",", "."))                                                                                # noqa: E731
+        cur = "€" if de or re.search(r"€|euro", n) else "$" if re.search(r"\$|dollar", n) else ""
+        if not cur:
+            fmt = lambda v: (f"{v:,.2f}".rstrip("0").rstrip(".") if not de else fmt_de(v))   # noqa: E731
+        fmt_de = lambda v: f"{v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")   # noqa: E731
+        m = re.search(rf"\b{num} ?% tip (?:on|for) (?:a |the )?(?:bill of )?[$€]?{num}", n) or re.search(rf"\btip (?:of )?{num} ?% (?:on|for) [$€]?{num}", n)
+        if m and not de:
+            p, b = f(m.group(1)), f(m.group(2))
+            t = b * p / 100
+            return Reply(msg, "tool", f"A {p:g}% tip on {cur}{fmt(b)} is {cur}{fmt(t)} — {cur}{fmt(b + t)} in total.", answer=fmt(t), via="tool")
+        m = re.search(rf"(?:wie ?viel|wieviel) trinkgeld (?:bei|für|auf) {num} ?(?:€|euro)?", n)
+        if m and de:
+            b = f(m.group(1))
+            return Reply(msg, "tool", f"Bei {fmt(b)} € sind 10 % Trinkgeld {fmt(b * 0.1)} € – du zahlst also rund {fmt(round(b * 1.1))} €. "
+                                      f"In Deutschland sind 5–10 % üblich, bei sehr gutem Service gern mehr.", via="tool")
+        m = re.search(rf"\b(?:what'?s |how much is )?(?:a )?{num} ?% off (?:of )?[$€]?{num}", n) or re.search(rf"{num} ?% (?:rabatt|nachlass) (?:auf|von) {num}", n)
+        if m:
+            p, b = f(m.group(1)), f(m.group(2))
+            if de:
+                return Reply(msg, "tool", f"{p:g} % Rabatt auf {fmt(b)} € macht {fmt(b * p / 100)} € weniger – du zahlst {fmt(b * (1 - p / 100))} €.", via="tool")
+            return Reply(msg, "tool", f"{p:g}% off {cur}{fmt(b)} is {cur}{fmt(b * (1 - p / 100))} — you save {cur}{fmt(b * p / 100)}.", via="tool")
+        m = re.search(rf"\bsplit [$€]?{num} (?:between|among|by|for|with) (\d+)(?: people| persons| of us| friends| ways)?", n) or \
+            re.search(rf"\b(?:bill|total|check|it) (?:was|is|came to|comes to) [$€]?{num}(?: ?(?:euros?|dollars?|€|\$))?,? (?:can you |please )?split (?:it|that|this) "
+                      rf"(?:between|among|by|for) (\d+)", n) or \
+            re.search(rf"(?:teile|teil) {num} ?(?:€|euro)? (?:durch|auf|unter) (\d+)(?: personen| leute| leuten)?", n)
+        if m:
+            b, k = f(m.group(1)), int(m.group(2))
+            if k <= 0:
+                return None
+            if de:
+                return Reply(msg, "tool", f"{fmt(b)} geteilt durch {k} sind {fmt(b / k)} pro Person.", via="tool")
+            return Reply(msg, "tool", f"{cur}{fmt(b)} split {k} ways is {cur}{fmt(b / k)} each.", via="tool")
+        return None
+
     def _daily_ctx21(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 74: follow-ups a person keeps track of — "explain it simpler" and "why is it important?" about
         the concept just explained, "has anyone been there?" / "who?" / "why did they stop going?" after the Moon,
         "what's it famous for?" and "when's the best time to go?" after a city, and choosing a dog or a cat."""
         b = self.bank.daily["b74"]
+        money = self._money75(st, msg, norm.strip(" ?!."))
+        if money is not None:
+            return money
         n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", norm)).strip(" .!?")
+        if re.fullmatch(r"(?:but |and |ok,? )?(?:no cooking(?: please)?|nothing (?:i have )?to cook|i don'?t (?:want|feel like) (?:to )?cook(?:ing)?|"
+                        r"without cooking|something (?:without|with no) cooking)", n):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b75:no_cook", self.bank.daily["b75"]["no_cook"]), via="everyday")
         say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b74:{key}", b[key], **kw), via="smalltalk")  # noqa: E731
         topic = st.topic if st.topic and st.turn - st.topic.get("turn", -99) <= 5 else None
         la = st.last_about if st.last_about and st.turn - st.last_about.get("turn", st.turn) <= 5 else None
@@ -7162,6 +7230,12 @@ class Assistant:
             return None
         steps = guide["steps"]
         d = self.bank.daily
+        sb = re.search(r"(?:don'?t|do not|didn'?t) have (?:any )?(?P<a>eggs?|milk|butter|baking powder|sugar|flour)|(?:instead of|replace|substitute(?: for)?|"
+                       r"without|no) (?:the )?(?P<b>eggs?|milk|butter|baking powder|sugar|flour)", q)
+        if sb:
+            ing = (sb.group("a") or sb.group("b")).rstrip("s") if (sb.group("a") or sb.group("b")) != "baking powder" else "baking powder"
+            if any(re.search(rf"\b{re.escape(ing)}", x, re.I) for x in steps) and ing in d["b75"]["subst"]:
+                return Reply(text, "smalltalk", d["b75"]["subst"][ing], via="everyday")
         if re.search(r"\bhow long\b|\bhow many (?:minutes|hours|seconds)\b|\bhow much time\b|\bwhen (?:do|should) i (?:flip|turn|take)", q):
             timed = [s for s in steps if re.search(r"\d\s*(?:[–-]\s*\d+\s*)?(?:minutes?|mins?|seconds?|hours?)\b", s)]
             if timed:

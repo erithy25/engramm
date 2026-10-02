@@ -3827,6 +3827,15 @@
     "mensch",
     "mond",
     "erfunden",
+    "rechne",
+    "umrechnen",
+    "meilen",
+    "trinkgeld",
+    "rabatt",
+    "teile",
+    "krankmeldung",
+    "schreib",
+    "pfannkuchen",
     "wie",
     "was",
     "wer",
@@ -6424,6 +6433,12 @@
      "hund": [
       "Ein Hund – wie schön! Was reizt dich daran?",
       "Oh, ein Hund! Hast du schon eine Rasse im Kopf?"
+     ]
+    },
+    "g75": {
+     "krank": "Hier ist eine Nachricht, die du nutzen kannst:\n\nHallo [Name],\n\nleider bin ich krank und kann heute nicht zur Arbeit kommen. Dringende E-Mails schaue ich mir an, wenn es mir möglich ist. Ich melde mich, sobald ich wieder fit bin.\n\nViele Grüße\n[Dein Name]",
+     "ohne_kochen": [
+      "Ganz ohne Kochen:\n\n• Ein Brot oder Wrap mit dem, was im Kühlschrank ist\n• Joghurt mit Obst und Müsli\n• Ein großer Salat mit Kichererbsen, Feta und Tomaten\n• Hummus mit Brot und Rohkost\n• Oder einfach bestellen – völlig okay.\n\nWas klingt gut?"
      ]
     }
    }
@@ -12835,6 +12850,19 @@
    ],
    "cat_ok": [
     "Sounds like a good fit! Shelters often have lovely adult cats whose personality you already know — worth a visit."
+   ]
+  },
+  "b75": {
+   "subst": {
+    "egg": "No eggs? Per egg, mash half a ripe banana or use 3 tbsp applesauce — or just add a splash more milk and ½ tsp extra baking powder. They'll be a bit flatter, but still good.",
+    "milk": "No milk? Use the same amount of water or any plant milk (oat milk works great). With water they're just a little less rich.",
+    "butter": "No butter? Use the same amount of a neutral oil (sunflower or rapeseed) — works just as well.",
+    "baking powder": "No baking powder? Use ½ tsp baking soda plus 1 tbsp lemon juice or vinegar — or beat the egg white stiff and fold it in.",
+    "sugar": "Just leave it out, or use a little honey or maple syrup instead. For savoury versions you don't need any.",
+    "flour": "No flour? Blend oats into a fine powder and use about the same amount."
+   },
+   "no_cook": [
+    "No cooking needed:\n\n• A sandwich or wrap with whatever's in the fridge\n• Yoghurt with fruit and granola\n• A big salad with chickpeas, feta and tomatoes\n• Hummus with bread and raw veggies\n• Or just order something in — totally fair.\n\nAnything sound good?"
    ]
   }
  }

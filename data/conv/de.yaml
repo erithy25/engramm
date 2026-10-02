@@ -12,6 +12,7 @@ detect:
            stunden, stunde, minuten, tage, wochen, monate, jahre, ungefähr, etwa, circa, knapp, halbe,
            wohne, lebe, arbeite, heiße, hasse, schwester, bruder, mutter, vater, meinte, merk, vergiss, verschoben, termin,
            sprache, sprachen, spricht, sprechen, welche, welcher, welches, fiel, tief, beine, mensch, mond, erfunden,
+           rechne, umrechnen, meilen, trinkgeld, rabatt, teile, krankmeldung, schreib, pfannkuchen,
            wie, was, wer, wo, warum, wieso, geht, gehts, heiße, heisse, danke, bitte, gut, schlecht, auch, noch,
            schon, aber, oder, sehr, heute, morgen, gestern, hast, habe, kannst, kann, bitte, mein, meine, dein,
            deine, sind, wir, ihr, sie, es, zu, mit, für, über, von, auf, nein, ja, doch, genau, tschüss, tschüs,
@@ -871,3 +872,6 @@ daily:
       katze: ["Eine Katze passt super in eine kleine Wohnung: kein Gassigehen, tagsüber gut allein, und glücklich mit Fensterplatz und Kletterbaum. Zwei Katzen leisten sich gegenseitig Gesellschaft."]
       katze_ok: ["Klingt nach einer guten Wahl! Im Tierheim gibt es oft tolle erwachsene Katzen, deren Charakter man schon kennt."]
       hund: ["Ein Hund – wie schön! Was reizt dich daran?", "Oh, ein Hund! Hast du schon eine Rasse im Kopf?"]
+    g75:
+      krank: "Hier ist eine Nachricht, die du nutzen kannst:\n\nHallo [Name],\n\nleider bin ich krank und kann heute nicht zur Arbeit kommen. Dringende E-Mails schaue ich mir an, wenn es mir möglich ist. Ich melde mich, sobald ich wieder fit bin.\n\nViele Grüße\n[Dein Name]"
+      ohne_kochen: ["Ganz ohne Kochen:\n\n• Ein Brot oder Wrap mit dem, was im Kühlschrank ist\n• Joghurt mit Obst und Müsli\n• Ein großer Salat mit Kichererbsen, Feta und Tomaten\n• Hummus mit Brot und Rohkost\n• Oder einfach bestellen – völlig okay.\n\nWas klingt gut?"]

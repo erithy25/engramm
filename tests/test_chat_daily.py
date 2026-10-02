@@ -3016,3 +3016,21 @@ def test_battery74_follow_ups_over_several_turns(chat):
     a.turn(st, "ich überlege, mir einen hund zu holen")
     assert "Labrador" in a.turn(st, "welche rasse würdest du empfehlen?").text
     assert "Katze" in a.turn(st, "und eine katze?").text
+
+
+def test_battery75_practical_everyday_help(chat):
+    a, _ = chat
+    cases = [("what's a 20% tip on 45 dollars?", "$9.00"), ("split 120 between 4 people", "30 each"), ("how much is 15% off 80?", "68"),
+             ("the bill was 60 euros, split it between 3", "€20.00"), ("wie viel trinkgeld bei 45 euro?", "4,50 €"),
+             ("rechne 5 meilen in km um", "8,047 km"), ("schreib meinem chef, dass ich krank bin", "krank")]
+    for i, (q, want) in enumerate(cases):
+        r = a.turn(DialogState(f"p75-{i}"), q)
+        assert want in r.text, (q, r.text)
+    st = DialogState("e75")
+    a.turn(st, "how do i make pancakes?")
+    r = a.turn(st, "what if i don't have eggs?")
+    assert "banana" in r.text, r.text
+    st = DialogState("n75")
+    a.turn(st, "i can't decide what to eat")
+    r = a.turn(st, "no cooking please")
+    assert "need cooking please" not in r.text and "sandwich" in r.text, r.text

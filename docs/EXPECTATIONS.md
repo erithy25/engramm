@@ -2692,6 +2692,17 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     (vorher englisch), Hund/Rasse/kleine Wohnung/Katze.
   - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 765 bestanden, Regressionen 32, 38–74 (42 Gespräche):
     0 Wiederholungen; Unterschiede nur Uhrzeiten.
+- **Alltags-Batterie 75 (praktische Alltagshilfe; EN + DE)**:
+  - „what's a 20% tip on 45 dollars?“, „how much is 15% off 80?“ (vorher „I don't know“), „split 120 between 4 people“ (vorher
+    „Mm-hm. What's on your mind?“), „the bill was 60 euros, split it between 3“ → Rechnung mit Währung; ohne Währung ohne „.00“.
+  - „what if i don't have eggs?“ nach dem Pfannkuchen-Rezept zitierte nur den Schritt mit dem Ei; jetzt Ersatz (Banane,
+    Apfelmus, mehr Milch und Backpulver); ebenso Milch, Butter, Backpulver, Zucker, Mehl – nur wenn das Rezept sie enthält.
+  - „no cooking please“ → vorher „That's fine, you won't need cooking please for those.“; jetzt Ideen ohne Kochen.
+  - Deutsch: „rechne 5 meilen in km um“ (vorher „Oh? Go on.“) → „5 Meilen = 8,047 km.“, „wie viel trinkgeld bei 45 euro?“
+    (vorher „kann ich nicht nachschlagen“), Rabatt und Teilen, „schreib meinem chef, dass ich krank bin“ (vorher als Ärger
+    mit dem Chef gelesen: „Was hat deinem Chef denn diesmal angestellt?“) → Krankmeldung zum Kopieren, „ohne kochen“.
+  - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 766 bestanden, Regressionen 32, 38–75 (43 Gespräche):
+    0 Wiederholungen; Unterschiede nur Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
