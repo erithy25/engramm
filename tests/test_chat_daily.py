@@ -2138,3 +2138,58 @@ def test_utc_offsets():
     assert utc_offset("london", winter)[1:] == (0, False)
     assert utc_label(5.5) == "UTC+5:30" and utc_label(-3) == "UTC−3" and utc_label(0) == "UTC+0"
     assert utc_offset("atlantis") is None
+
+
+def test_battery54_others_news_fight_divorce(chat):
+    a, _ = chat
+    st = DialogState("s1")
+    a.turn(st, "my sister just got engaged!")
+    assert "5 years" in a.turn(st, "to her boyfriend of 5 years").text
+    assert "summer" in a.turn(st, "the wedding is next summer").text.lower()
+    a.turn(st, "i'm going to be the maid of honor")
+    r = a.turn(st, "what do i have to do?")
+    assert "hen party" in r.text, r.text
+    st2 = DialogState("s2")
+    a.turn(st2, "my best friend is having a baby")
+    assert "girl" in a.turn(st2, "it's a girl").text
+    assert "blanket" in a.turn(st2, "what should i get her?").text
+    st3 = DialogState("s3")
+    a.turn(st3, "i passed my driving test!")
+    assert "First try" in a.turn(st3, "first try").text
+    r = a.turn(st3, "thanks! now i need a car lol")
+    assert r.kind != "learned" and "used" in r.text, r.text
+    assert "insurance" in a.turn(st3, "any tips for a first car?").text
+    st4 = DialogState("s4")
+    a.turn(st4, "i had a fight with my best friend")
+    assert a.turn(st4, "she said i never listen to her").kind == "empathy"
+    assert "courage" in a.turn(st4, "maybe she's right").text
+    assert "sorry" in a.turn(st4, "how do i apologize?").text.lower()
+    st5 = DialogState("s5")
+    a.turn(st5, "my parents are getting divorced")
+    r = a.turn(st5, "i'm 25 so it's not like i'm a kid")
+    assert r.kind == "empathy" and "got it" not in r.text, r.text
+    assert a.turn(st5, "but it still hurts").kind == "empathy"
+
+
+def test_battery54_german_roles_are_not_names(chat):
+    a, _ = chat
+    st = DialogState("s6")
+    a.turn(st, "meine schwester hat sich verlobt!")
+    a.turn(st, "die hochzeit ist nächsten sommer")
+    r = a.turn(st, "ich bin trauzeugin")
+    assert "Hallo Trauzeugin" not in r.text and "Ehre" in r.text, r.text
+    st2 = DialogState("s7")
+    a.turn(st2, "ich hab mich mit meiner besten freundin gestritten")
+    assert "Entschuldigung" in a.turn(st2, "wie entschuldige ich mich?").text
+    assert "Glück" in a.turn(st2, "ok, ich ruf sie an").text
+
+
+def test_dialog_module_names_each_pattern_once():
+    """A pattern defined twice at module level silently replaces the first one (it happened once with _DE_CALL)."""
+    import re as _re
+    from collections import Counter
+    from pathlib import Path as _P
+    src = (_P(__file__).resolve().parents[1] / "engramm" / "chat" / "dialog.py").read_text(encoding="utf-8")
+    names = _re.findall(r"^(_[A-Z][A-Z0-9_]*) = ", src, _re.M)
+    twice = [n for n, c in Counter(names).items() if c > 1]
+    assert not twice, twice

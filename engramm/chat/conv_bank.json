@@ -5455,6 +5455,21 @@
      "tedious": "mühsam, langweilig",
      "versatile": "vielseitig"
     },
+    "wedding_when": [
+     "Nächsten Sommer – da habt ihr genug Zeit zum Planen und ein ganzes Jahr Vorfreude!"
+    ],
+    "trauzeugin": [
+     "Wie schön, Trauzeugin! Das ist eine echte Ehre. Typisch sind: bei der Planung helfen, den Junggesellinnenabschied organisieren, am Tag selbst für die Braut da sein und eine kleine Rede halten. Weißt du schon, was sie sich wünscht?"
+    ],
+    "first_try": [
+     "Beim ersten Mal – stark! Viele brauchen zwei oder drei Anläufe."
+    ],
+    "apologize": [
+     "Eine gute Entschuldigung ist einfach:\n\n• Sag konkret, was dir leidtut\n• Kein „aber“ – nicht rausreden\n• Zeig, dass du verstehst, wie es sich für sie angefühlt hat\n• Sag, was du anders machen willst\n\nUnd dann hör ihr richtig zu."
+    ],
+    "call_friend": [
+     "Viel Glück – ich hoffe, ihr kriegt das hin. Echte Freundschaften überstehen einen Streit. 💛"
+    ],
     "bot_human": [
      "Nein, ich bin kein Mensch – ich bin ENGRAMM, ein Programm auf deinem Rechner. Kein neuronales Netz, keine Cloud: Ich antworte aus dem, was ich gelesen habe, und aus dem, was du mir erzählst.",
      "Nein, ich bin ein Programm namens ENGRAMM. Aber ich höre dir trotzdem gern zu!"
@@ -10574,6 +10589,53 @@
   ],
   "tz_same": [
    "{a} and {b} are on the same time right now."
+  ],
+  "engaged_years": [
+   "{X} years together and now engaged — that's lovely. They clearly know each other well!"
+  ],
+  "wedding_when": [
+   "Next summer — plenty of time to plan, and something to look forward to all year!"
+  ],
+  "honour_duties": [
+   "As maid of honour you'd usually:\n\n• Help with the planning and be the bride's go-to person\n• Organise the hen party\n• Help with the dress and on the day itself (calm nerves, keep the timeline)\n• Give a short speech at the reception\n\nBut every couple is different, so ask your sister what matters most to her!",
+   "Typical jobs for the maid of honour: support the bride during planning, organise the hen party, help her get ready on the day, hold the bouquet during the ceremony, and give a speech. Ask your sister what she'd love you to take on."
+  ],
+  "baby_girl": [
+   "A little girl! How lovely. 🎀 When is she due?",
+   "Aww, a girl! Your friend must be so excited. 💕"
+  ],
+  "baby_gift": [
+   "For a baby on the way:\n\n• Something soft: a nice blanket or a cuddly toy\n• Practical things parents always need: muslin cloths, bodysuits in size 68–74\n• A meal voucher or cooking for them in the first weeks — new parents love that\n• A photo album or baby journal\n\nAnd a card for your friend — she's the one doing the hard work!"
+  ],
+  "first_try": [
+   "First try — impressive! Lots of people need two or three attempts."
+  ],
+  "need_car": [
+   "Ha, the next big step! Are you thinking new or used?"
+  ],
+  "first_car": [
+   "For a first car:\n\n• Used and reliable beats new and expensive — a small, popular model is cheap to insure and repair\n• Check insurance costs before you buy; they can be huge for new drivers\n• Get it checked by a mechanic, and look at the service history\n• Test drive it on different roads\n\nAnd enjoy the freedom! 🚗"
+  ],
+  "friend_said": [
+   "Ouch, that stings to hear. Do you think there's something to it, or did it feel unfair?"
+  ],
+  "maybe_right": [
+   "That takes courage to admit. It doesn't make you a bad friend — it means you care enough to think about it."
+  ],
+  "apologize": [
+   "A good apology is simple:\n\n• Say sorry for the specific thing (“I'm sorry I haven't been listening properly”)\n• No “but” — don't explain it away\n• Show you understand how it felt for her\n• Say what you'll do differently\n\nAnd then really listen to what she says."
+  ],
+  "call_friend": [
+   "Good luck — I hope you two sort it out. Real friendships survive a fight. 💛"
+  ],
+  "divorce_parents": [
+   "I'm sorry. That's hard at any age — it's still your family and your home that's changing. How are you feeling about it?"
+  ],
+  "not_a_kid": [
+   "Still — it's your family. Being an adult doesn't mean it doesn't hurt."
+  ],
+  "still_hurts": [
+   "Of course it does. You're allowed to feel sad about it, however old you are. Be kind to yourself, and talk to the people close to you."
   ]
  }
 }

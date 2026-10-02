@@ -2329,6 +2329,20 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     eine Banane?“ (vorher 3× unverstanden).
   - Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–52 und langes Gespräch: 0 Wiederholungen.
     Suite 729 bestanden, 7 übersprungen.
+- **Alltags-Batterie 54 (Neuigkeiten anderer, Streit, Scheidung der Eltern; Englisch und Deutsch)**:
+  - Verlobung der Schwester → „boyfriend of 5 years“ → „wedding next summer“ (vorher „How did it go?“) → Trauzeugin →
+    Aufgaben; Baby der besten Freundin → „it's a girl“ → Geschenkideen fürs Baby; Führerschein → „first try“ → „now i need
+    a car“ (vorher als Fakt „A need, nice!“ gespeichert) → Tipps fürs erste Auto; Streit mit der besten Freundin → was sie
+    sagte → „maybe she's right“ → Entschuldigung → Anruf; Scheidung der Eltern → „i'm 25“ (vorher „25 — got it!“) →
+    „but it still hurts“.
+  - Fehler aus Batterie 51 gefunden: „ich bin trauzeugin“ → „Hallo Trauzeugin!“. Ein Name wird jetzt nur angenommen, wenn
+    das Wort als Name bekannt ist oder Engramm gerade nach dem Namen gefragt hat.
+  - Zwei Fehler durch doppelte Namen im Code: Ein neuer Regex `_DE_CALL` überschrieb den gleichnamigen für das kranke
+    Haustier („ok ich ruf an“ war plötzlich unverstanden; von der Regressionsbatterie 44 abgefangen). Außerdem war
+    `_NOT_NAMES` seit Batterie 36 zweimal definiert, die zweite Liste ersetzte still die erste. Beide sind behoben; ein neuer
+    Test verbietet doppelte Musternamen in dialog.py.
+  - Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–53 und langes Gespräch: 0 Wiederholungen.
+    Suite 732 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

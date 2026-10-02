@@ -455,6 +455,16 @@ _BRING = re.compile(r"^(?:and |so )?what (?:should|do) i (?:bring|pack|take|carr
 _HOW_WATER = re.compile(r"^(?:and |so )?how much water(?: should i (?:bring|take|carry))?\??$")
 # battery 51: the long German conversation
 _DE_IM = re.compile(r"^(?:hi |hey |hallo |moin |servus )?(?:ich bin|ich bins|bin) (?P<x>[a-zäöüß]{2,15})[.!]*$")
+_COMMON_FIRST_NAMES = frozenset("""tom tim max paul felix leon lukas lucas jonas finn luca ben elias noah julian jan niklas david moritz
+philipp simon alexander daniel michael thomas andreas stefan markus christian peter frank jens sven tobias florian sebastian
+matthias martin oliver kai lars nils erik fabian dominik marcel patrick dennis kevin marco robin hannes anton emil oskar karl
+otto theo leo ole henrik jakob johannes mia emma hanna hannah sofia sophia lea lena anna laura sarah julia lisa marie maria
+katharina johanna clara klara lara luisa louisa emily nina sandra nicole jana sabine petra claudia andrea stefanie julia
+melanie anja kathrin christina vanessa jessica jennifer franziska carina sophie charlotte amelie ella frieda ida mila paula
+greta helena alina vivien selina jasmin jule merle marlene ronja finja mara pia tina eva ute heike karin monika susanne
+john james robert william richard joseph mark steven ryan jack harry george oscar charlie liam ethan mason alex sam chris
+mike nick adam luke matt josh dan jake olivia ava isabella amelia grace chloe zoe ellie lily ruby kate rose alice jane
+emily""".split())
 _DE_NOT_NAME = frozenset(("müde", "fertig", "hier", "da", "zurück", "wach", "krank", "gesund", "glücklich", "traurig", "sauer", "wütend",
                           "gestresst", "happy", "froh", "bereit", "dran", "unterwegs", "zuhause", "online", "gespannt", "nervös",
                           "verliebt", "single", "vegetarier", "vegetarierin", "veganer", "veganerin", "vegan", "student", "studentin",
@@ -510,6 +520,30 @@ _DE_FOOD_SHOWN = {"banana": "einer mittelgroßen Banane", "apple": "einem mittel
                   "beer": "einem Bier (0,33 l)", "glass of wine": "einem Glas Wein (150 ml)", "wine": "einem Glas Wein (150 ml)",
                   "coffee": "einem schwarzen Kaffee", "latte": "einem großen Latte", "yogurt": "einem Becher Naturjoghurt",
                   "salmon": "100 g Lachs", "cola": "einer Dose Cola (0,33 l)", "donut": "einem Donut"}
+# battery 54: other people's news (engaged, a baby, a driving test), a fight with a friend, parents divorcing
+_YEARS_TOGETHER = re.compile(r"^(?:to |with )?(?:her|his|their) (?:boyfriend|girlfriend|partner) of (?P<n>\d+|two|three|four|five|six|seven|eight|ten) years[.!]*$")
+_WEDDING_WHEN = re.compile(r"^(?:and )?the wedding(?: is| will be)? (?:next|this) (?:summer|spring|autumn|fall|winter|year|month)[.!]*$")
+_HONOUR_WHAT = re.compile(r"^(?:so |and )?what (?:do|does|will) (?:i|a maid of honou?r|a best man) (?:have to|need to|usually)? ?do\??$")
+_BABY = re.compile(r"\bmy (?:best friend|friend|sister|brother|cousin|colleague)(?:'s wife)? (?:is having|is expecting|'s having|'s expecting|is pregnant)")
+_BABY_SEX = re.compile(r"^(?:it'?s|its) a (?P<s>girl|boy)[.!]*$")
+_PASSED = re.compile(r"\bi (?:passed|just passed|finally passed) my (?:driving|driver'?s) (?:test|exam|license)\b")
+_FIRST_TRY = re.compile(r"^(?:on (?:the|my) )?first (?:try|time|attempt|go)[.!]*$")
+_NEED_CAR = re.compile(r"^(?:thanks!? |thank you!? )?(?:now )?i (?:need|want) (?:a|to get a|to buy a) car(?: lol| haha)?[.!]*$")
+_FIRST_CAR = re.compile(r"^(?:any )?tips (?:for|on) (?:a |my )?first car\??$|^what (?:should i|to) look (?:for|out for) (?:in|when buying) a (?:first |used )?car\??$")
+_FIGHT = re.compile(r"\bi (?:had|have had|got into) (?:a |an )?(?:fight|argument|row) with my (?:best friend|friend|sister|brother|mom|mum|dad|partner)\b")
+_SHE_SAID = re.compile(r"^(?:she|he|they) said (?:that )?i (?:never|don'?t|always) .+$")
+_MAYBE_RIGHT = re.compile(r"^(?:but )?(?:maybe|perhaps|i guess|honestly,?) (?:she'?s|he'?s|they'?re) (?:right|not wrong)[.!]*$")
+_APOLOGIZE = re.compile(r"^(?:so |but )?how (?:do|should|can) i (?:apologi[sz]e|say sorry|make it up to (?:her|him|them))\??$")
+_CALL_THEM = re.compile(r"^(?:ok(?:ay)?,? )?(?:i'?ll|ill|i will|gonna) (?:call|text|talk to|message) (?:her|him|them)(?: (?:now|tonight|tomorrow|later))?[.!]*$")
+_DIVORCE = re.compile(r"\bmy parents (?:are getting|got|are) (?:a )?divorc(?:ed|e|ing)\b|\bmy parents (?:are splitting up|split up|separated)\b")
+_NOT_KID = re.compile(r"^(?:i'?m|im|i am) (?P<n>\d{2})(?:,)? (?:so )?(?:it'?s not like i'?m a (?:kid|child)|i'?m not a (?:kid|child))[.!]*$")
+_STILL_HURTS = re.compile(r"^(?:but )?(?:it )?still hurts[.!]*$|^(?:but )?it still (?:hurts|sucks|feels bad)[.!]*$")
+_DE_WEDDING_WHEN = re.compile(r"^(?:und )?die hochzeit ist (?:nächsten|diesen|im) (?:sommer|frühling|herbst|winter|jahr|monat)[.!]*$")
+_DE_TRAUZEUGE = re.compile(r"^(?:und )?ich (?:bin|werde) (?:die |der )?(?:trauzeugin|trauzeuge|brautjungfer)(?: sein)?[.!]*$")
+_DE_FIRST_TRY = re.compile(r"^(?:und )?(?:beim|im) ersten (?:mal|anlauf|versuch)[.!]*$")
+_DE_FIGHT = re.compile(r"\bich (?:hab|habe) mich mit (?:meiner|meinem) (?:besten freundin|besten freund|freundin|freund|schwester|bruder|mutter|vater) (?:gestritten|verkracht)\b")
+_DE_APOLOGIZE = re.compile(r"^(?:und )?wie (?:entschuldige ich mich|soll ich mich entschuldigen|kann ich mich entschuldigen)\??$")
+_DE_CALL_FRIEND = re.compile(r"^(?:ok(?:ay)?,? |gut,? )?ich (?:ruf|rufe|schreib|schreibe) (?:sie|ihn|ihr|ihm) (?:gleich |jetzt |morgen |heute )?(?:an)?[.!]*$")
 _WEAR = re.compile(r"^(?:(?:and|so|ok|okay|hmm|fine|alright|cool|sure)[.,!]? )?what (?:should|do|can|could) i wear(?: (?:to|for|on|in) "
                    r"(?:the |a |my |an )?(?P<x>[a-z ]+?))?(?: tomorrow| today| tonight)?\??$")
 _OCCASIONS = [("interview", re.compile(r"\binterview")), ("wedding", re.compile(r"\bwedding|\bmarr")),
@@ -664,9 +698,6 @@ _NAME_FIX = re.compile(r"(?i)^(?:no,? |nope,? |sorry,? |oops,? )?(?:wait,? |actu
                        r"call me) (?P<x>[a-z][a-z'-]+)(?:,? (?:actually|sorry|lol|haha|not \w+))?[.!]*$")
 # "really? i thought it was sydney" after an answer
 # "it's hard", "i'm tired": never a corrected name
-_NOT_NAMES = frozenset("""hard easy fine good great ok okay okey tired bored busy sorry sure done ready here back home
-fun nice cool weird funny late early true right wrong bad sad happy hungry sick ill cold hot fair difficult tough boring
-alright annoying awful amazing everything nothing something complicated serious real okish""".split())
 _THOUGHT_IT_WAS = re.compile(r"^(?:really\??,? |wait,? |huh,? |oh,? |hm+,? )*i (?:thought|was sure|always thought) "
                              r"(?:it was|it's|its|the answer was|that it was) (?P<x>[a-z][a-z .'-]{1,40})$")
 # "and the second?" after a superlative
@@ -1155,7 +1186,9 @@ class Assistant:
                 and self.user_name() is None:
             x = m.group("x").capitalize()
             ls = self.bot.typer.lower_share(m.group("x")) if self.bot.typer is not None else None
-            if ls is None or ls < 0.5:                    # "ich bin tom": a name, not a mood
+            asked = re.search(r"\b(?:wie heißt du|dein name|what'?s your name|what should i call you)\b", (st.last_reply or "").lower())
+            if (ls is not None and ls < 0.5) or (ls is None and (asked or m.group("x") in _COMMON_FIRST_NAMES)):
+                # "ich bin tom": a name, never "Trauzeugin"
                 self._learn(st, [f"My name is {x}."], msg)
                 return Reply(msg, "learned", self._pick(st, "de:ctx:name_hi", dc["name_hi"], x=x), via="german")
         if _DE_LONG_WEEK.match(q):
@@ -1201,6 +1234,30 @@ class Assistant:
             items = [_RECAP_DE.get(r, _de_country(r)) for r in recap[-5:]]
             shown = ", ".join(items[:-1]) + " und " + items[-1] if len(items) > 1 else items[0]
             return Reply(msg, "smalltalk", self._pick(st, "de:ctx:recap", dc["recap"], x=shown), via="german")
+        if re.search(r"\bverlobt\b|\bheiraten\b", q):
+            st.uses["engaged_de"] = st.turn
+        ed = st.uses.get("engaged_de")
+        if ed is not None and st.turn - ed <= 5 and ed != st.turn:
+            if _DE_WEDDING_WHEN.match(q):
+                st.uses["engaged_de"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:wedding_when", dc["wedding_when"]), via="german")
+            if _DE_TRAUZEUGE.match(q):
+                st.uses["engaged_de"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:trauzeugin", dc["trauzeugin"]), via="german")
+        if re.search(r"\b(?:prüfung|führerschein\w*|examen) bestanden\b", q):
+            st.uses["passed_de"] = st.turn
+        pd_ = st.uses.get("passed_de")
+        if pd_ is not None and st.turn - pd_ <= 3 and pd_ != st.turn and _DE_FIRST_TRY.match(q):
+            return Reply(msg, "smalltalk", self._pick(st, "de:ctx:first_try", dc["first_try"]), via="german")
+        if _DE_FIGHT.search(q):
+            st.uses["fight_de"] = st.turn
+        fd = st.uses.get("fight_de")
+        if fd is not None and st.turn - fd <= 5 and fd != st.turn:
+            if _DE_APOLOGIZE.match(q):
+                st.uses["fight_de"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:apologize", dc["apologize"]), via="german")
+            if _DE_CALL_FRIEND.match(q):
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:call_friend", dc["call_friend"]), via="german")
         m = _DE_CONVERT.match(q)
         if m:
             from engramm.chat.tools import convert
@@ -3956,7 +4013,7 @@ class Assistant:
                         return self._dish_steps(st, msg, dish["name"])
         r2 = self._daily_ctx2(st, msg, norm) or self._daily_ctx3(st, msg, norm) or self._daily_ctx4(st, msg, norm) or \
             self._daily_ctx5(st, msg, norm) or self._daily_ctx6(st, msg, norm) or self._daily_ctx7(st, msg, norm) or \
-            self._daily_ctx8(st, msg, norm) or self._daily_ctx9(st, msg, norm)
+            self._daily_ctx8(st, msg, norm) or self._daily_ctx9(st, msg, norm) or self._daily_ctx10(st, msg, norm)
         if r2 is not None:
             return r2
         m = _WHAT_LIKES.match(norm)
@@ -4633,6 +4690,69 @@ class Assistant:
                 shown = f"{abs(n):g}"
                 key = "tz_ahead" if n > 0 else "tz_behind" if n < 0 else "tz_same"
                 return Reply(msg, "answer", self._pick(st, f"daily:{key}", d[key], a=a[0], b=b[0], n=shown), via="tool", confidence=1.0)
+        return None
+
+    def _daily_ctx10(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 54: good news about others (an engagement, a baby, a driving test) and what follows, a fight
+        with a friend (what she said, how to apologise), and parents divorcing."""
+        d = self.bank.daily
+        if re.search(r"\b(?:got engaged|is engaged|are engaged|getting married)\b", norm):
+            st.uses["engaged"] = st.turn
+        en = st.uses.get("engaged")
+        if en is not None and st.turn - en <= 5 and en != st.turn:
+            m = _YEARS_TOGETHER.match(norm)
+            if m:
+                st.uses["engaged"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:engaged_years", d["engaged_years"], x=m.group("n")), via="empathy")
+            if _WEDDING_WHEN.match(norm):
+                st.uses["engaged"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:wedding_when", d["wedding_when"]), via="empathy")
+        hw = st.uses.get("wedding")
+        if hw is not None and st.turn - hw <= 4 and _HONOUR_WHAT.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:honour_duties", d["honour_duties"]), via="everyday")
+        if _BABY.search(norm):
+            st.uses["baby"] = st.turn
+        bb = st.uses.get("baby")
+        if bb is not None and st.turn - bb <= 4 and bb != st.turn:
+            if _BABY_SEX.match(norm):
+                st.uses["baby"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:baby_girl", d["baby_girl"]).replace("girl", _BABY_SEX.match(norm).group("s"))
+                             .replace("🎀", "💙" if _BABY_SEX.match(norm).group("s") == "boy" else "🎀"), via="empathy")
+            if _GIFT_Q.match(norm):
+                return Reply(msg, "smalltalk", self._pick(st, "daily:baby_gift", d["baby_gift"]), via="everyday")
+        if _PASSED.search(norm):
+            st.uses["passed"] = st.turn
+        ps = st.uses.get("passed")
+        if ps is not None and st.turn - ps <= 4 and ps != st.turn:
+            if _FIRST_TRY.match(norm):
+                st.uses["passed"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:first_try", d["first_try"]), via="empathy")
+            if _NEED_CAR.match(norm):
+                st.uses["passed"] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:need_car", d["need_car"]), via="smalltalk")
+        if _FIRST_CAR.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:first_car", d["first_car"]), via="everyday")
+        if _FIGHT.search(norm):
+            st.uses["fight"] = st.turn
+        fg = st.uses.get("fight")
+        if fg is not None and st.turn - fg <= 5 and fg != st.turn:
+            for rx, key in ((_SHE_SAID, "friend_said"), (_MAYBE_RIGHT, "maybe_right"), (_APOLOGIZE, "apologize"), (_CALL_THEM, "call_friend")):
+                if rx.match(norm):
+                    st.uses["fight"] = st.turn
+                    return Reply(msg, "empathy" if key != "apologize" else "smalltalk", self._pick(st, f"daily:{key}", d[key]),
+                                 via="empathy" if key != "apologize" else "everyday")
+        if _DIVORCE.search(norm):
+            st.uses["divorce"] = st.turn
+            st.last_exp = {"valence": "negative", "topic": "your parents", "person": True, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "daily:divorce_parents", d["divorce_parents"]), via="empathy")
+        dv = st.uses.get("divorce")
+        if dv is not None and st.turn - dv <= 4:
+            if _NOT_KID.match(norm):
+                st.uses["divorce"] = st.turn
+                return Reply(msg, "empathy", self._pick(st, "daily:not_a_kid", d["not_a_kid"]), via="empathy")
+            if _STILL_HURTS.match(norm):
+                st.uses["divorce"] = st.turn
+                return Reply(msg, "empathy", self._pick(st, "daily:still_hurts", d["still_hurts"]), via="empathy")
         return None
 
     def _person_name(self, noun: str) -> str | None:
@@ -6401,7 +6521,8 @@ _FOLLOW_STATEMENT = re.compile(r"^(?:it's|its|it is|it was|this is|that was|that
 _FEELING_WORD = re.compile(r"\b(?:nervous|anxious|sad|happy|scared|worried|excited|angry|stressed|tired|upset|lonely|"
                            r"depressed|afraid|frustrated|glad|thrilled|devastated|heartbroken)\b")
 _CATEGORY_LABELS = frozenset(("#name", "#home", "#job", "#employer", "#birth", "#origin", "#food", "#colour", "#car"))
-_HONOUR = re.compile(r"^(?:and |so |guess what,? )?i(?:'m| am| was| got asked to be| was asked to be) (?:the |a |his |her )?"
+_HONOUR = re.compile(r"^(?:and |so |guess what,? )?i(?:'m| am| was| got asked to be| was asked to be|'m going to be| am going to be|'m gonna be|"
+                     r"'ll be| will be) (?:the |a |his |her )?"
                      r"(?:best man|maid of honou?r|bridesmaid|groomsman|godfather|godmother|witness)[.!]*$")
 _WEDDING = re.compile(r"\b(?:best man|maid of honou?r|wedding|bride|groom|married|marry|engaged)\b")
 _SPEECH = re.compile(r"\b(?:speech|toast|eulogy|presentation|talk at)\b")
@@ -6468,9 +6589,13 @@ _CORRECT_IT = re.compile(r"^(?:actually|no|nope|wait|sorry|oops|my bad|i mean|i 
                          r"(?P<x>[a-z][a-z' -]{1,30}?)(?: actually| instead| now| not that)?[.!]*$")
 _FAV_NOUN = {"#food": "food", "#colour": "colour", "#car": "car"}
 _HI_IM = re.compile(r"^((?:hi|hey|hello|yo|heya|hiya|hallo)[,!.]*\s+(?:i'?m|im|i am|it'?s|this is)\s+)([a-z][a-z'-]+)[.!]*$", re.I)
+# words that follow "I'm" / "it's" but are never a name (both former lists, merged: the second used to replace the first)
 _NOT_NAMES = frozenset(("back", "home", "here", "new", "fine", "good", "ok", "okay", "great", "well", "done", "bored", "tired",
                         "sad", "happy", "free", "busy", "sick", "ill", "hungry", "lost", "late", "early", "ready", "sorry",
-                        "confused", "stuck", "curious", "alone", "awake", "up", "out", "in", "off", "on", "so", "just"))
+                        "confused", "stuck", "curious", "alone", "awake", "up", "out", "in", "off", "on", "so", "just")) | \
+    frozenset("""hard easy fine good great ok okay okey tired bored busy sorry sure done ready here back home
+fun nice cool weird funny late early true right wrong bad sad happy hungry sick ill cold hot fair difficult tough boring
+alright annoying awful amazing everything nothing something complicated serious real okish""".split())
 _NAME_CUE = re.compile(r"\b((?:my name is|my name's|call me|i'm called|i am called|actually my name is) )"
                        r"([a-z][a-z'-]+(?: [a-z][a-z'-]+)?)\b(?=[.!,]|$)")
 _PLACE_CUE = re.compile(r"\b((?:live in|living in|moved to|move to|moving to|from|born in|grew up in|based in|"
