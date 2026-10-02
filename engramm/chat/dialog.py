@@ -418,6 +418,8 @@ class Assistant:
             st.last_action = {"kind": "dislike", "turn": st.turn, "x": x}
             return rep
         la_kind = (st.last_action or {}).get("kind")
+        if _DOUBT.fullmatch(norm) and st.last_kind == "answer" and st.last_fact and st.last_fact.get("evidence"):
+            return self._why(st, msg)
         mild = re.fullmatch(r"(?:cool|neat|nice|ok cool|oh nice)[!.]*", norm) is not None
         if _SURPRISE.fullmatch(norm) and st.last_reply and (
                 (st.last_kind in ("answer", "about") and not mild) or
@@ -836,6 +838,8 @@ class Assistant:
             return r
         if u.act == "tool":
             tr = u.data["result"]
+            if tr.value is not None:
+                st.uses["last_calc"] = [st.turn, str(tr.value)]
             return Reply(u.text, "tool", tr.text if tr.text.endswith((".", "!", "?")) else tr.text + ".",
                          answer=tr.value, via="tool", confidence=1.0)
         if u.act == "about":
@@ -963,6 +967,27 @@ class Assistant:
             rep.text = self._pick(st, "daily:workout_done", d["workout_done"])
             st.last_action = {"kind": "workout", "turn": st.turn}
             return rep
+        m = _WHICH_ONE.match(norm)
+        vals = [v for v in st.uses.get("kb_vals", []) if st.turn - v[0] <= 4]
+        if m and len(vals) >= 2 and vals[-1][1] != vals[-2][1]:
+            a, b = vals[-2][1], vals[-1][1]
+            ask = f"which is {m.group('w')}, {a} or {b}"
+            rep = self.everyday.compare(st, ask, ask.lower())
+            if rep is not None and rep.kind != "unknown":
+                rep.message = msg
+                return rep
+        lc = st.uses.get("last_calc")
+        m = _CALC_MORE.match(norm)
+        if m and lc and st.turn - lc[0] <= 3:
+            from engramm.chat.tools import calculate
+            sym = _CALC_OPS[m.group("op")]
+            n = m.group("n").replace(",", ".")
+            res = calculate(f"{lc[1]} {sym} {n}")
+            if res is not None and res.value is not None:
+                st.uses["last_calc"] = [st.turn, str(res.value)]
+                shown = {"*": "×", "/": "÷", "^": "^"}.get(sym, sym)
+                return Reply(msg, "tool", f"{lc[1]} {shown} {n} = {res.value}.", answer=res.value, via="tool",
+                             confidence=1.0)
         if _HOMEWORK.match(norm):
             st.uses["homework"] = st.turn
             return Reply(msg, "smalltalk", self._pick(st, "daily:homework", d["homework"]), via="smalltalk")
@@ -1430,6 +1455,8 @@ class Assistant:
                                  "mention": ans.entity.name})
         st.last_fact = {"evidence": ans.evidence, "source": src, "answer": value, "question": q, "sure": True}
         self.bot.context["kb_last"] = {"question": q, "names": [ans.entity.name, ans.entity.title]}
+        named = ans.values[0] if len(ans.values) == 1 and not re.search(r"\d", ans.values[0]) else ans.entity.name
+        st.uses["kb_vals"] = (st.uses.get("kb_vals", []) + [[st.turn, named]])[-4:]
         return Reply(text, "answer", ans.text, answer=value, guess=value, evidence=ans.evidence, source=src,
                      confidence=1.0, via="kb", resolved=q if q != text else None)
 
@@ -1552,6 +1579,10 @@ class Assistant:
             out = self._reply(st, "why.base", title=src.get("key") or "a text I read", evidence=lf["evidence"])
         if not lf.get("sure", True):
             out += self.bank.replies["why"]["unsure"]
+        if st.last_reply and out.strip() == st.last_reply.strip():
+            # "are you sure?" then "how do you know?": not the same words again
+            title = src.get("title") or src.get("key") or "my source"
+            out = self._pick(st, "daily:why_again", self.bank.daily["why_again"], title=title)
         return Reply(text, "answer", out, evidence=lf["evidence"], source=src, via="why")
 
     # -- memory -------------------------------------------------------------------------------
@@ -1792,6 +1823,11 @@ class Assistant:
             return None
         if slot == "correction":
             q = pending.get("question") or ""
+            value = re.sub(r"^(?:no,? |nope,? |actually,? |well,? )?(?:it's|its|it is|it was|that's|thats|that is|"
+                           r"the (?:right |correct )?answer is|the ceo is|he is|she is|they are)\s+", "", value.strip(),
+                           flags=re.I).strip(" .!")
+            if value.islower() and re.match(r"^\s*who\b", q, re.I):
+                value = " ".join(w[:1].upper() + w[1:] for w in value.split())
             sent = answer_sentence(q, value, _atype(q)) or f"The answer to “{q}” is {value}."
             r = self._learn(st, [sent], msg)
             r.text = self._reply(st, "correction.ok") + (f" ({sent})" if sent else "")
@@ -1996,6 +2032,18 @@ _REFINE = re.compile(r"^(?:maybe |how about |what about |ideally |preferably |do
                      r"a dish|a recipe|a meal|recipes)? ?(?:with|using|that has|containing|made with) (?P<x>[a-z ]{3,25})$")
 _NUMBERISH = re.compile(r"^(?:\d|(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
                         r"twenty|thirty|forty|fifty|hundred|thousand|million|several|many|few)\b)", re.I)
+_ROLE_Q = re.compile(r"^\s*who(?:'s| is| was| are| were)\s+(?:the\s+)?(?P<role>(?:current |new |present |former |first )?"
+                     r"[a-z][a-z -]{1,40}?) (?:of|at|for) (?P<x>.+?)\s*\??$", re.I)
+_ROLE_SYN = {"ceo": ["ceo", "chief executive"], "chief executive": ["ceo", "chief executive"],
+             "pm": ["prime minister"], "prime minister": ["prime minister", "premier"],
+             "head": ["head", "leader", "chief"], "boss": ["ceo", "chief executive", "head", "boss"],
+             "founder": ["found", "co-found", "established", "created"], "owner": ["own", "owner", "bought", "acquired"],
+             "leader": ["leader", "led", "head"], "coach": ["coach", "manager", "head coach"],
+             "manager": ["manager", "coach"], "chancellor": ["chancellor"], "mayor": ["mayor"],
+             "president": ["president"], "king": ["king"], "queen": ["queen"], "captain": ["captain"]}
+_TITLE_WORDS = re.compile(r"\b(?:general|minister|secretary|attorney|assistant|officer|council|department|ministry|"
+                          r"committee|board|director|commission|agency|office|government|administration|parliament|"
+                          r"party|company|corporation|division|bureau|court|forces|army)\b", re.I)
 _SUPERLATIVE_Q = re.compile(r"^\s*(?:what|which|who)(?:'s| is| was| are| were)\s+(?:the\s+)?"
                             r"(?P<sup>\w+est|most \w+|least \w+|biggest)\s+(?P<noun>[a-z]+(?: [a-z]+)?)"
                             r"(?P<rest>.*?)\s*\??\s*$", re.I)
@@ -2019,6 +2067,13 @@ def _implausible(q: str, answer: str | None, evidence: str | None) -> bool:
         return False
     if re.match(r"^\s*who\b", q, re.I) and _NUMBERISH.match(answer):
         return True
+    m = _ROLE_Q.match(q)
+    if m:
+        # "who is the CEO of Apple?": the evidence must name the role, and the answer is a person, not a title
+        role = re.sub(r"^(?:current|new|present|former|first)\s+", "", m.group("role").lower().strip())
+        syn = _ROLE_SYN.get(role, [role])
+        if not any(x in evidence.lower() for x in syn) or _TITLE_WORDS.search(answer):
+            return True
     m = _SUPERLATIVE_Q.match(q)
     if not m or m.group("rest").strip():
         return False
@@ -2077,6 +2132,12 @@ _DIET = re.compile(r"^(?:btw |by the way |oh |also )?i(?:'m| am) (?:a |actually 
 _POST_WORKOUT = re.compile(r"^what (?:should|can|could|do) i (?:eat|have)(?: after| post| before)(?: a| my| the)? "
                            r"(?:workout|work out|gym|training|run|exercise|session)\??$|^(?:good |any )?post[- ]workout "
                            r"(?:food|meal|snack)s?\??$")
+_WHICH_ONE = re.compile(r"^(?:and |so |ok )?which (?:one |of them |of the two |of those )?(?:is|was|has) (?:the )?"
+                        r"(?P<w>bigger|larger|smaller|older|younger|taller|higher|longer|shorter|more populous)\??$")
+_CALC_MORE = re.compile(r"^(?:and |then |now |ok )?(?P<op>times|x|\*|multiplied by|plus|\+|minus|-|divided by|/|over|"
+                        r"to the power of)\s*(?P<n>-?\d+(?:[.,]\d+)?)\??$")
+_CALC_OPS = {"times": "*", "x": "*", "*": "*", "multiplied by": "*", "plus": "+", "+": "+", "minus": "-", "-": "-",
+             "divided by": "/", "/": "/", "over": "/", "to the power of": "^"}
 _HOMEWORK = re.compile(r"^(?:can|could|would|will) you (?:please )?help me(?: out)?(?: with)? (?:my |some |this |an? )?"
                        r"(?:homework|assignment|essay|studies|studying|exam|test|project|school ?work|revision|math|maths|"
                        r"physics|chemistry|biology|history|english|geography|coursework)(?: please)?$|"
@@ -2142,6 +2203,8 @@ him her them his its their this that these those there here top best first last 
 _AGREE = re.compile(r"(?:yeah|yes|yep|yup|exactly|right|true|totally|definitely|absolutely|pretty much|kind of|kinda|"
                     r"sort of|i guess|i know|tell me about it|same|for real)(?:[ ,]+(?:yeah|exactly|right|true|totally|"
                     r"lol|haha|man|honestly))*[!. ]*")
+_DOUBT = re.compile(r"(?:really|seriously|are you sure|you sure|is that (?:true|right|correct)|for real|"
+                    r"no way|that can't be right|hm+ really|wait really)[?!.]*")
 _SURPRISE = re.compile(r"(?:wow+|whoa+|woah+|omg|no way|that's (?:crazy|insane|wild|amazing|incredible|nuts|"
                        r"so cool|cool|interesting|fascinating|surprising|mad)|really|seriously|crazy|wild|"
                        r"interesting|fascinating|huh,? interesting|i didn't know that|didn't know that|"

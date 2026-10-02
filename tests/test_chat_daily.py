@@ -502,3 +502,27 @@ def test_measure_units_fit_the_question():
     assert not _DIM_UNIT["big"].search("12 years")
     assert _DIM_UNIT["old"].search("4.6 billion years ago")
     assert _MEASURE_TOPIC.match("how far away is it").group("t") == "it"
+
+
+def test_role_questions_need_the_role_in_the_evidence():
+    from engramm.chat.dialog import _implausible
+    assert _implausible("who is the ceo of apple", "Power Mac",
+                        "Apple was a manufacturer of personal computers, including the Apple II and Power Mac lines.")
+    assert _implausible("who is the president of the united states", "Assistant Attorney General",
+                        "The Division is headed by an Assistant Attorney General, appointed by the President.")
+    assert not _implausible("who is the ceo of microsoft", "Satya Nadella",
+                            "Satya Nadella is the chief executive officer of Microsoft.")
+
+
+def test_doubt_follow_ups_and_continued_calculations(chat):
+    a, st = chat
+    a.turn(st, "what's 2+2")
+    r = a.turn(st, "and times 3")
+    assert "12" in r.text, r.text
+    r = a.turn(st, "minus 2")
+    assert "10" in r.text, r.text
+
+
+def test_answer_sentences_keep_acronyms():
+    from engramm.chat.realize import answer_sentence
+    assert "CEO" in (answer_sentence("who is the ceo of apple", "Tim Cook") or "")

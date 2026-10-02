@@ -271,8 +271,24 @@ def _agree(answer: str, verb: str) -> str:
     return verb
 
 
+_ACRONYMS = {w: w.upper() for w in ("ceo", "cfo", "cto", "coo", "usa", "uk", "eu", "un", "nasa", "fbi", "cia", "bbc",
+                                     "nba", "nfl", "nhl", "fifa", "uefa", "nato", "who", "unesco", "gdp", "dna", "rna",
+                                     "tv", "pc", "ai", "us")}
+
+
+def _acronyms(text: str) -> str:
+    """"Tim Cook is the ceo of apple." → "… the CEO of apple." (never "who" at the start of a question)."""
+    return re.sub(r"\b(ceo|cfo|cto|coo|usa|uk|eu|un|nasa|fbi|cia|bbc|nba|nfl|nhl|fifa|uefa|nato|unesco|gdp|dna|rna|tv|pc)\b",
+                  lambda m: _ACRONYMS[m.group(1)], text)
+
+
 def answer_sentence(question: str, answer: str, atype: str | None = None) -> str | None:
     """A statement that answers ``question`` with ``answer``, or None when no rule fits."""
+    out = _answer_sentence(question, answer, atype)
+    return _acronyms(out) if out else out
+
+
+def _answer_sentence(question: str, answer: str, atype: str | None = None) -> str | None:
     q = _clean_q(question)
     a = answer.strip().rstrip(".")
     if not q or not a:

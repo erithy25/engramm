@@ -816,3 +816,8 @@ measure_quote:
 
 measure_none:
   - "I don't know for sure — the article on {title} that I have doesn't give that clearly, and I'd rather not take a number from somewhere else."
+
+# "how do you know?" right after "are you sure?"
+why_again:
+  - "As I said, it comes from “{title}”."
+  - "Same source as before: “{title}”."
