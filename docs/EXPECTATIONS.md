@@ -2029,3 +2029,18 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 - **Alltags-Batterien 7–14** (Slang, Gefühle, Gedächtnis, Deutsch, Reisen, Hobbys): je Batterie die
   gefundenen Fehler behoben und als Tests festgehalten; Regressions-Batterien 1–6: 240 Antworten,
   0 wortgleiche Wiederholungen. Team-Dev-Satz (128 Dialoge): eine Antwort geändert (vage → ehrlich).
+- **Alltags-Batterien 20–29** (2. Oktober 2026; Krise, Unhöflichkeit, Kochen, Reise, Superlative, Deutsch,
+  Korrekturen, Emojis, Haustiere, lange Abendunterhaltung mit 29 Zügen): je Batterie die gefundenen Fehler
+  behoben und als Tests festgehalten (Suite 670 bestanden, 7 übersprungen). Schwere Fehler, die gefunden und
+  behoben wurden:
+  - passive Suizidgedanken („don't want to be here anymore“) wurden gespeichert statt mit Krisenhilfe beantwortet;
+  - „Bhutan is the tallest mountain“ (Textsuche) → jetzt aus der Faktenbank „Mount Everest … 8,849 m“;
+  - „You live in Leonardo da Vinci“ nach einer Korrektur;
+  - „George Challis wrote faust“ → „Johann Wolfgang von Goethe“;
+  - „I'll remember that you work as a studying“.
+  In den Wiederholungsläufen jeder Batterie: 0 wortgleiche Wiederholungen. Gezählt sind nur Wiederholungen
+  ohne Bitte; „say that again“ ist ausgenommen und beginnt jetzt mit „Sure — …“.
+- **NQ-open Dev, 400 Fragen** (Stand 98e4e1c, nach der notableWork-Rückwärtssuche): 22 beantwortet,
+  9 richtig (40,9 %); vorher 21/8. Team-Dev-Satz: 3 von 128 Antworten geändert, alle besser (Entschuldigung
+  erkannt, zweimal kein unpassender „closest article“-Titel mehr).
+- **Pakete gemessen** (Release-Lauf 36953606047): Lite ≈ 1,25 GB, Standard 2,73 GB (Schwelle ≤ 4,5 GB eingehalten).
