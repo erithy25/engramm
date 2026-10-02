@@ -265,3 +265,47 @@ def test_german_small_phrases(chat):
     assert "Wie geht es dir" not in r.text and r.text.endswith("?")
     r = a.turn(st, "hey")
     assert any(w in r.text for w in ("Hallo", "Hi", "Hey", "Schön")) and "How" not in r.text
+
+
+def test_contracted_question_words_without_question_mark():
+    from engramm.chat.bot import message_type
+    for m in ("what's the capital of australia", "who's the president of the usa", "wht is the time in tokyo"):
+        assert message_type(m) == "question", m
+
+
+def test_general_recommendation_forms(chat):
+    a, st = chat
+    for msg, word in (("what kind of music do you recommend", "listen"), ("can you recommend some good books", "“"),
+                      ("what should I watch tonight", "“")):
+        r = a.turn(st, msg)
+        assert r.via == "everyday" and "•" in r.text, (msg, r.text)
+
+
+def test_counts_of_people_and_their_names(chat):
+    a, st = chat
+    r = a.turn(st, "I have two kids")
+    assert "names" in r.text or "called" in r.text, r.text
+    assert "Two kids" in r.text or r.text.startswith(("Oh, two", "Two kids")), r.text
+    a.turn(st, "Mia and Leo")
+    r = a.turn(st, "what are my kids called?")
+    assert "Mia and Leo" in r.text and " are called" in r.text, r.text
+    r = a.turn(st, "how many kids do I have?")
+    assert "two" in r.text and "work as" not in r.text, r.text
+    r = a.turn(st, "my name is Sam and I'm a teacher")
+    r = a.turn(st, "what's my job?")
+    assert "teacher" in r.text, r.text
+
+
+def test_opinions_and_surprise(chat):
+    a, st = chat
+    r = a.turn(st, "what do you think about pineapple on pizza")
+    assert "pineapple on pizza" in r.text and r.text.rstrip().endswith("?"), r.text
+    a.turn(st, "tell me a fun fact")
+    r = a.turn(st, "that's crazy")
+    assert r.via == "smalltalk" and "Anything I can help" not in r.text, r.text
+
+
+def test_a_measure_needs_its_unit():
+    from engramm.chat.dialog import _MEASURE_Q
+    assert _MEASURE_Q.match("how far is the moon") and _MEASURE_Q.match("How tall is it?")
+    assert not _MEASURE_Q.match("how old is he")

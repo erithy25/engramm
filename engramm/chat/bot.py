@@ -147,7 +147,8 @@ _PERSONISH = frozenset(_PERSON_NOUNS)
 # a question about "my sibling" may be answered by what you said about your brother or sister
 _RELATED = {"sibling": ("brother", "sister"), "pet": ("dog", "cat"), "parent": ("mother", "father"),
             "child": ("son", "daughter"), "kid": ("son", "daughter"), "dog": ("pet",), "cat": ("pet",),
-            "brother": ("sibling",), "sister": ("sibling",)}
+            "brother": ("sibling",), "sister": ("sibling",), "children": ("kids", "child", "son", "daughter"),
+            "kids": ("children",), "siblings": ("brothers", "sisters"), "pets": ("dogs", "cats")}
 
 
 _FORGET_AFTER = re.compile(r"^(?:never mind|scratch|ignore|about)\s+(.+?)\s*[,;.:–—-]?\s*(?:just\s+|please\s+|so\s+)?"
@@ -163,6 +164,12 @@ def forget_topic(msg: str) -> str | None:
     return m.group(1) if m else None
 
 
+_CONTRACTED_Q = {"what's": "what", "who's": "who", "where's": "where", "when's": "when", "how's": "how",
+                 "why's": "why", "which's": "which", "what're": "what", "who're": "who", "how're": "how",
+                 "whats": "what", "whos": "who", "wheres": "where", "hows": "how", "wht": "what", "wat": "what",
+                 "wut": "what", "wer": "where", "hw": "how"}
+
+
 def message_type(msg: str) -> str:
     s = msg.strip()
     if not s:
@@ -173,6 +180,7 @@ def message_type(msg: str) -> str:
         if rx.match(s):
             return "smalltalk"
     first = words(s.lower())[0] if words(s) else ""
+    first = _CONTRACTED_Q.get(first, first)           # "what's the capital of australia" without "?"
     if s.endswith("?") or s.lower().startswith(("do you remember", "tell me")):
         return "question"
     if first == "say" and re.match(r"^say (?:hello|hi|hey|goodbye|bye)\b", s.lower()):

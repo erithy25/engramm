@@ -110,17 +110,21 @@ def concepts(text: str) -> list[str]:
     return out
 
 
+_COUNT_OF = re.compile(r"^(?:\d{1,2}|a|an|one|two|three|four|five|six|seven|eight|nine|ten|twin)\s+[a-z]+$", re.I)
 POSSESSED = frozenset((
     "brother", "sister", "mother", "mom", "mum", "father", "dad", "wife", "husband", "son", "daughter", "partner",
     "girlfriend", "boyfriend", "friend", "boss", "dog", "cat", "pet", "horse", "bird", "grandmother", "grandfather",
     "grandma", "grandpa", "uncle", "aunt", "cousin", "neighbour", "neighbor", "colleague", "baby", "child", "kid",
     "fiance", "fiancee", "roommate", "flatmate", "puppy", "pup", "doggy", "kitten", "kitty", "mommy", "daddy", "bro",
-    "sis", "hubby", "sibling", "parent", "pet"))
+    "sis", "hubby", "sibling", "parent", "pet",
+    # plurals ("My children are called Mia and Leo")
+    "children", "kids", "sons", "daughters", "parents", "brothers", "sisters", "siblings", "dogs", "cats", "pets",
+    "grandparents", "grandchildren", "twins"))
 # the same entity under another word ("my puppy" is "my dog")
 POSSESSED_CANON = {"puppy": "dog", "pup": "dog", "doggy": "dog", "kitten": "cat", "kitty": "cat", "mom": "mother",
                    "mum": "mother", "mommy": "mother", "dad": "father", "daddy": "father", "bro": "brother",
                    "sis": "sister", "hubby": "husband", "grandma": "grandmother", "grandpa": "grandfather",
-                   "neighbor": "neighbour", "fiancee": "fiance", "flatmate": "roommate"}
+                   "neighbor": "neighbour", "fiancee": "fiance", "flatmate": "roommate", "kids": "children"}
 _CONTRACTIONS = [(r"\bwhat's\b", "what is"), (r"\bwho's\b", "who is"), (r"\bwhere's\b", "where is"),
                  (r"\bwhen's\b", "when is"), (r"\bhow's\b", "how is"), (r"\bthat's\b", "that is"),
                  (r"\bit's\b", "it is"), (r"\bi'm\b", "i am"), (r"\bi've\b", "i have"), (r"\bi'd\b", "i would"),
@@ -603,6 +607,10 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
         if any(w in ("am", "was", "been", "became", "become", "becoming", "as", "remain", "remained") for w in before):
             rel += ["#job", "#work"]
             has_category = True
+    if value and _COUNT_OF.match(value) and value.split()[-1].lower() in POSSESSED:
+        vcat = None                      # "I have two kids": how many, not a job or a food
+        rel = [w for w in rel if w not in ("#job", "#work")] + ["have"]
+        has_category = True
     if vcat and value and value[:1].isupper() and first_v > 0 and vcat not in concepts(" ".join(lw)) and \
             vcat in ("#food", "#colour", "#car", "#job"):
         vcat = None             # a capitalised name with no food/colour/car/job word around it ("I watched Inception")

@@ -352,7 +352,20 @@ class Assistant:
                 return self._german(st, msg)      # "haha", "ok", "ja" in a German conversation stay German
             if len(re.findall(r"[a-z]+", msg.lower())) >= 2:
                 st.lang = "en"
+        msg = _split_self_statements(msg)                 # "my name is Sam and I'm a teacher": two facts
+        have = st.uses.get("have_noun")
+        if have and st.turn - have[1] <= 2:               # "their names are Mia and Leo" after "I have two kids"
+            m = _THEIR_NAMES.match(msg.strip()) or _BARE_NAMES.fullmatch(msg.strip(" .!"))
+            if m:
+                msg = f"My {have[0]} are called {(m.group(1) if m.re is _THEIR_NAMES else m.group(0)).strip(' .!')}."
         norm = normalise(msg)
+        if _SURPRISE.fullmatch(norm) and st.last_reply and (
+                st.last_kind in ("answer", "about") or "fact" in st.last_reply[:40].lower()):
+            # "that's crazy" right after a fact: go along with it, as a person would
+            return Reply(msg, "smalltalk", self._pick(st, "daily:surprise", self.bank.daily["surprise"]), via="smalltalk")
+        if _SURPRISE.fullmatch(norm) and st.last_kind == "unknown" and st.last_reply:
+            return Reply(msg, "smalltalk", self._pick(st, "daily:surprise_unknown", self.bank.daily["surprise_unknown"]),
+                         via="smalltalk")
         played = self.everyday.game_answer(st, msg, norm)          # a quiz question or riddle waiting
         if played is not None:
             return played
@@ -794,6 +807,10 @@ class Assistant:
             if later is not None:
                 return later
         q = rep.resolved or text
+        if rep.kind == "answer" and rep.answer and _MEASURE_Q.match(q) and re.fullmatch(r"[\d.,\s~≈-]+", rep.answer):
+            # "how far is the moon?" → "8": a measure without its unit is no answer
+            rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None
+            rep.text = "I don't know for sure."
         if rep.kind == "answer" and rep.via in ("facts", "memory") and rep.source and rep.source.get("kind") == "user":
             fact = self._fact_for(rep)
             if fact is not None:
@@ -1244,6 +1261,13 @@ class Assistant:
             plain = self.everyday.activity_reaction(st, text)      # "I watched Inception": ask how it was
             if plain is not None:
                 confirm = plain
+        hm = _HAVE_COUNT.match(text.strip())
+        if hm and hm.group(2).lower() in _FAMILY_PLURALS:     # "I have two kids": ask their names, like a person
+            noun = "children" if hm.group(2).lower() in ("kids", "children") else hm.group(2).lower()
+            st.uses["have_noun"] = (noun, st.turn)
+            confirm = self._pick(st, "daily:have_many", self.bank.daily["have_many"], x=hm.group(1).lower(),
+                                 noun=hm.group(2).lower())
+            confirm = confirm[:1].upper() + confirm[1:]
         from engramm.chat.events import find_event
         ev = find_event(text, self._today())
         if ev is not None:
@@ -1283,7 +1307,10 @@ class Assistant:
             elif f.subject.startswith(USER + ":"):
                 noun = f.subject.partition(":")[2]
                 if "#name" in f.relation:
-                    out.append(self._reply(st, "learned.owned_name", x=f.object, noun=noun))
+                    many = " and " in f.object or noun in ("children", "kids", "twins") or (
+                        noun.endswith("s") and noun not in ("boss",))
+                    out.append(self._reply(st, "learned.owned_names" if many else "learned.owned_name",
+                                           x=f.object, noun=noun))
                 elif f"owned:{noun}" not in used:
                     used.add(f"owned:{noun}")
                     out.append(self._reply(st, "learned.owned", noun=noun))
@@ -1525,6 +1552,29 @@ def _agreeing_sources(answer: str | None, rows: list, src: dict) -> list[str]:
     return out
 
 
+_SURPRISE = re.compile(r"(?:wow+|whoa+|woah+|omg|no way|that's (?:crazy|insane|wild|amazing|incredible|nuts|"
+                       r"so cool|cool|interesting|fascinating|surprising|mad)|really|seriously|crazy|wild|"
+                       r"interesting|fascinating|huh,? interesting|i didn't know that|didn't know that|"
+                       r"cool|neat|nice)(?: fact)?[!?.]*")
+_FAMILY_PLURALS = frozenset("kids children sons daughters brothers sisters siblings dogs cats pets twins "
+                            "grandchildren".split())
+_HAVE_COUNT = re.compile(r"^i (?:have|have got|'ve got|got) (two|three|four|five|six|seven|eight|nine|ten|\d{1,2}) "
+                         r"([a-z]+)[.!]*$", re.I)
+_THEIR_NAMES = re.compile(r"^(?:their names are|they are called|they're called|they are named|named|called)\s+(.+)$", re.I)
+_BARE_NAMES = re.compile(r"[A-Z][a-zà-ÿ'-]+(?:\s*,\s*[A-Z][a-zà-ÿ'-]+)*\s+(?:and|&)\s+[A-Z][a-zà-ÿ'-]+")
+_SELF_JOIN = re.compile(r"^((?:my name is|my name's|i'm|i am|call me)\s+[A-Za-z][\w'-]*)\s*(?:,\s*|\s+)and\s+"
+                        r"((?:i'm|i am|i work|i live|i have|i've got|i come|i'm from|my \w+ (?:is|are))\b.+)$", re.I)
+
+
+def _split_self_statements(msg: str) -> str:
+    """"My name is Sam and I'm a teacher" → "My name is Sam. I'm a teacher." (each part is learnt)."""
+    m = _SELF_JOIN.match(msg.strip())
+    if not m:
+        return msg
+    second = m.group(2)
+    return f"{m.group(1)}. {second[:1].upper() + second[1:]}"
+
+
 def _stems(text: str) -> set[str]:
     """Lower-case words with a plain English ending removed ("died" → "die", "formed" → "form")."""
     out = set()
@@ -1551,6 +1601,7 @@ def _full_name(answer: str | None, texts: list[str]) -> str | None:
     return answer
 
 
+_MEASURE_Q = re.compile(r"^\s*how (?:far|long|tall|high|big|large|deep|wide|heavy|fast|much does .+ weigh)\b", re.I)
 _LIFE_SPAN_RE = re.compile(r"\([^()]*\b\d{3,4}\s*[–—-]\s*[^()]*?\b\d{3,4}\)")
 _QUOTE_STOP = frozenset("when where who whom whose what which why how did doe do is are was were has had the a an of in on "
                         "at to for from by with and or".split())

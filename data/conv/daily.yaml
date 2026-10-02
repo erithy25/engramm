@@ -359,6 +359,15 @@ recommend:
     outro: "Is it a dog, a cat or something else?"
 
 opinion:
+  # "what do you think about X?" — {topic}; with a fact from the reading ({x}) or without
+  fact:
+    - "I don't really have opinions, but here's what I know: {x} What do you think?"
+    - "Hard for me to judge — I only know what I've read: {x} How about you?"
+    - "I'm not one for opinions, but here's the gist: {x} What's your take?"
+  open:
+    - "Ha, I'm staying neutral on {topic} — I don't have taste of my own! What's your take?"
+    - "People are really split on {topic}. Which side are you on?"
+    - "I can't have a favourite, but I'm curious: what do you think about {topic}?"
   topic:
     - "I don't have taste of my own, but here's what I know: {x}"
     - "I can't judge it myself — but {x}"
@@ -532,3 +541,20 @@ atlas_quote:
   - "I can't pin it down to a short answer — this is from {title}: “{evidence}”"
   - "{title} puts it like this: “{evidence}”"
   - "Rather than guess, I'll quote {title}: “{evidence}”"
+# "I have two kids": a count of people or pets ({x}: "Two", {noun}: "kids")
+have_many:
+  - "{x} {noun} — that must keep you busy! What are their names?"
+  - "Oh, {x} {noun}! What are they called?"
+  - "{x} {noun}, lovely. What are their names?"
+# a reaction of surprise right after a fact ("that's crazy")
+surprise:
+  - "Right? I found that surprising too."
+  - "Wild, isn't it?"
+  - "I know! The world is strange sometimes."
+  - "Isn't it? Want another one?"
+  - "Ha, right? That one surprised me as well."
+# the same reaction right after ENGRAMM could not answer
+surprise_unknown:
+  - "I know — I wish I could tell you! Want to ask me something else?"
+  - "Yeah, that one's beyond what I've read. Try me with another question?"
+  - "Sorry I couldn't help with that one. What else is on your mind?"

@@ -465,6 +465,7 @@ _CATEGORY_ANSWER = {
     "#origin": "You're from {x}.",
 }
 _OWNED_NAME = "Your {noun} is called {x}."
+_OWNED_NAMES = "Your {noun} are called {x}."
 
 
 def article(noun: str) -> str:
@@ -485,7 +486,9 @@ def personal_sentence(subject: str, relation, value: str, evidence: str | None) 
                 x = article(value) if cat == "#job" else value
                 return tpl.format(x=x)
     elif subject.startswith("USER:") and "#name" in rel:
-        return _OWNED_NAME.format(noun=subject.partition(":")[2], x=value)
+        noun = subject.partition(":")[2]
+        many = noun.endswith("s") and noun not in ("boss", "bus", "class") or noun == "children" or " and " in value
+        return (_OWNED_NAMES if many else _OWNED_NAME).format(noun=noun, x=value)
     if evidence:
         flipped = to_second_person(evidence)
         if flipped and value.lower() in flipped.lower() and len(flipped.split()) <= 30:

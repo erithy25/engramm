@@ -199,6 +199,33 @@ _KIND_NOUN = {"book": "book", "books": "book", "movie": "film", "movies": "film"
               "podcast": "podcast", "podcasts": "podcast"}
 
 
+_REC_NOUN = {"music": "music", "song": "music", "songs": "music", "album": "music", "albums": "music",
+             "band": "music", "bands": "music", "artist": "music", "artists": "music", "book": "book",
+             "books": "book", "novel": "book", "novels": "book", "read": "book", "movie": "movie", "movies": "movie",
+             "film": "movie", "films": "movie", "show": "series", "shows": "series", "series": "series",
+             "game": "game", "games": "game", "gift": "gift", "gifts": "gift", "present": "gift",
+             "presents": "gift", "place": "travel", "places": "travel", "destination": "travel",
+             "destinations": "travel", "hobby": "hobby", "hobbies": "hobby", "dish": "food", "recipe": "food",
+             "recipes": "food", "meal": "food", "food": "food"}
+_REC_FILLER = frozenset("a an some any good great nice new kind type sort of kinds types to the few".split())
+_REC_ANY = re.compile(
+    _LEAD + r"(?:what|which)(?: kind| kinds| type| types| sort)?(?: of)? (?P<n>[a-z\- ]{2,40}?) (?:do|would|can|could) you "
+    r"(?:recommend|suggest)(?: (?:to )?me)?(?: to (?:listen to|read|watch|play))?$|"
+    r"(?:recommend|suggest)(?: (?:to )?me)? (?:a |an |some |any )?(?:good |great |nice |new )?(?P<n2>[a-z\- ]{2,40}?)"
+    r"(?: to (?:listen to|read|watch|play))?$|"
+    r"(?:any|got any|do you have any|give me some|i need some|i want some) (?:good )?(?P<n3>[a-z\- ]{2,40}?) "
+    r"(?:recommendations?|suggestions?|recs|ideas)$")
+_REC_VERB = re.compile(_LEAD + r"what (?:should|can|could|do you think) i (?P<v>read|watch|listen to|play)(?: next| now| tonight)?$")
+_REC_VERB_KIND = {"read": "book", "watch": "movie", "listen to": "music", "play": "game"}
+
+
+_OPINION_ABOUT = re.compile(
+    _LEAD + r"(?:what do you think (?:about|of)|how do you feel about|what are your thoughts on|thoughts on|"
+    r"what(?:'s| is) your (?:opinion|take|view) (?:on|of|about)|your opinion on|do you have an opinion on|"
+    r"how do you like|is (?P<y>.+?) (?:good|bad|overrated|underrated) in your opinion|"
+    r"(?:are you|r u) (?:a fan of|into)) (?P<x>.+?)$")
+
+
 class Everyday:
     def __init__(self, assistant):
         self.a = assistant
@@ -222,6 +249,20 @@ class Everyday:
                         g = gd[k]
                 who = gd.get("who") or gd.get("who2")
                 return kind, g, who
+        # the general forms: "what kind of music do you recommend", "can you recommend some good books",
+        # "any podcast recommendations?", "what should I read next"
+        m = _REC_ANY.match(norm)
+        if m:
+            noun = (m.group("n") or m.group("n2") or m.group("n3") or "").strip()
+            words_ = noun.split()
+            for w in reversed(words_):
+                kind = _REC_NOUN.get(w)
+                if kind:
+                    genre = " ".join(x for x in words_ if x != w and x not in _REC_FILLER) or None
+                    return kind, genre, None
+        m = _REC_VERB.match(norm)
+        if m:
+            return _REC_VERB_KIND[m.group("v")], None, None
         return None
 
     def recommend(self, st, msg: str, kind: str, genre: str | None = None, more: bool = False,
@@ -550,6 +591,25 @@ class Everyday:
         return Reply(msg, "answer", c.text, evidence=c.evidence, source=src_a, confidence=1.0, via="kb",
                      alternatives=[{"text": b.title, "source": src_b}])
 
+    def opinion_about(self, st, msg: str, topic: str) -> Reply:
+        """"What do you think about pineapple on pizza?": no opinion of its own, but a reaction that
+        fits — a fact when it knows the thing, and the question back."""
+        topic = re.sub(r"^(?:the|a|an)\s+", "", topic).strip(" ?.!")
+        st.topic = {"title": topic, "name": topic, "turn": st.turn}
+        found = None
+        for cand in dict.fromkeys((topic, topic.title())):
+            found = self.a.about.find(cand, n=1)
+            if found is not None and found.sentences:
+                break
+            found = None
+        if found is not None:
+            fact = found.sentences[0].strip()
+            text = self.pick(st, "opinion:fact", self.d["opinion"]["fact"], topic=topic, x=fact)
+            return Reply(msg, "smalltalk", text, evidence=fact, source=found.source if hasattr(found, "source") else None,
+                         via="everyday")
+        return Reply(msg, "smalltalk", self.pick(st, "opinion:open", self.d["opinion"]["open"], topic=topic),
+                     via="everyday")
+
     def request(self, st, msg: str, norm: str) -> Reply | None:
         s = norm.strip(" .!?")
         r = self.pick_from_list(st, msg, s)
@@ -575,6 +635,9 @@ class Everyday:
         hit = self._recommend_kind(s)
         if hit is not None:
             return self.recommend(st, msg, hit[0], hit[1])
+        m = _OPINION_ABOUT.match(s)
+        if m:
+            return self.opinion_about(st, msg, m.group("x").strip())
         if _QUIZ.match(s):
             return self.start_quiz(st, msg)
         if _RIDDLE.match(s):

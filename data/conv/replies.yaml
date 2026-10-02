@@ -43,6 +43,10 @@ learned:
   owned_name:
     - "{x} — what a nice name! I'll remember your {noun}."
     - "Got it, your {noun} is called {x}."
+  owned_names:
+    - "{x} — lovely names! I'll remember your {noun}."
+    - "Got it, your {noun} are called {x}."
+    - "{x} — noted, I'll remember them."
   owned:
     - "Got it — I'll remember that about your {noun}."
     - "Noted, thanks for telling me about your {noun}."
