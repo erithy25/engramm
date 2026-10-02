@@ -2051,3 +2051,8 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   ungesehene Fragen. Die versiegelten Testsätze (ChatBench-Test, SearchBench) wurden nicht angesehen.
   Zusätzlich: Ja/Nein-Fragen bekommen keine herausgeschnittene Kurzantwort mehr, und Maß-/Anzahlfragen
   ohne Zahl in der Antwort gelten als unbeantwortet. NQ-open 400: unverändert 22/9.
+- **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
+  `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
+  Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
+  Schwellen aus dem Plan (A2): RAM ≤ 1,5 GB, p95 ≤ 1,5 s offline — beide eingehalten. Offen: dieselbe Messung
+  auf der 4-GB-VM und mit dem Standard-Paket (2,73 GB Download; nicht in diesem Container gemessen).
