@@ -207,6 +207,7 @@ recommend:
       - {x: "a warming soup with crusty bread", de: "eine wärmende Suppe mit knusprigem Brot", tags: "cosy healthy"}
       - {x: "a risotto, if you feel like stirring for twenty minutes", de: "ein Risotto, wenn du Lust hast, zwanzig Minuten zu rühren"}
     outro: "What are you in the mood for — something quick, healthy or comforting?"
+    outro_refined: "Does one of those sound good?"
   book:
     intro: ["A few books people love:", "Some books worth your time:", "Here are a few great reads:"]
     items:
@@ -293,16 +294,32 @@ recommend:
     intro: ["A few things you could do:", "Here are some ideas:", "How about one of these:"]
     items:
       - {x: "go for a walk somewhere you've never been, even nearby", de: "einen Spaziergang irgendwohin, wo du noch nie warst – auch in der Nähe"}
-      - {x: "cook something new from whatever is in the kitchen", de: "etwas Neues aus dem kochen, was in der Küche ist"}
-      - {x: "call or message someone you haven't talked to in a while", de: "jemanden anrufen, von dem du lange nichts gehört hast"}
-      - {x: "start a book or a series you've been meaning to try", de: "ein Buch oder eine Serie anfangen, die du schon lange ausprobieren wolltest"}
-      - {x: "learn a few words of a new language", de: "ein paar Wörter einer neuen Sprache lernen"}
-      - {x: "sort out one drawer or shelf — oddly satisfying", de: "eine Schublade oder ein Regal aufräumen – seltsam befriedigend"}
-      - {x: "draw, write or make something, just for fun", de: "einfach so etwas zeichnen, schreiben oder basteln"}
-      - {x: "do a short workout or some stretching", de: "ein kurzes Workout oder ein paar Dehnübungen"}
+      - {x: "cook something new from whatever is in the kitchen", de: "etwas Neues aus dem kochen, was in der Küche ist", tags: "home"}
+      - {x: "call or message someone you haven't talked to in a while", de: "jemanden anrufen, von dem du lange nichts gehört hast", tags: "home"}
+      - {x: "start a book or a series you've been meaning to try", de: "ein Buch oder eine Serie anfangen, die du schon lange ausprobieren wolltest", tags: "home"}
+      - {x: "learn a few words of a new language", de: "ein paar Wörter einer neuen Sprache lernen", tags: "home"}
+      - {x: "sort out one drawer or shelf — oddly satisfying", de: "eine Schublade oder ein Regal aufräumen – seltsam befriedigend", tags: "home"}
+      - {x: "draw, write or make something, just for fun", de: "einfach so etwas zeichnen, schreiben oder basteln", tags: "home"}
+      - {x: "do a short workout or some stretching", de: "ein kurzes Workout oder ein paar Dehnübungen", tags: "home"}
       - {x: "look up a museum, park or café nearby you've never visited", de: "ein Museum, einen Park oder ein Café in der Nähe entdecken"}
-      - {x: "ask me to quiz you — I've got questions ready", de: "mich fragen, ob ich dich quizzen soll"}
+      - {x: "ask me to quiz you — I've got questions ready", de: "mich fragen, ob ich dich quizzen soll", tags: "home"}
     outro: "Anything there sound good?"
+  podcast:
+    intro: ["A few podcasts people love:", "Some podcasts worth a listen:"]
+    items:
+      - {x: "“Hardcore History” by Dan Carlin — long, gripping episodes about big moments in history", tags: "history"}
+      - {x: "“The Rest Is History”, two historians chatting about everything from Rome to the Cold War", tags: "history"}
+      - {x: "“Revolutions” by Mike Duncan, one revolution per season", tags: "history"}
+      - {x: "“Radiolab”, curious stories about science and people", tags: "science"}
+      - {x: "“Science Vs”, which checks popular claims against the evidence", tags: "science"}
+      - {x: "“Hidden Brain”, about why people do what they do", tags: "psychology science"}
+      - {x: "“Freakonomics Radio”, economics behind everyday things", tags: "nonfiction"}
+      - {x: "“99% Invisible”, about the design all around us", tags: "nonfiction"}
+      - {x: "“Serial”, the podcast that made true crime huge", tags: "crime"}
+      - {x: "“This American Life”, a different set of true stories every week", tags: "nonfiction"}
+      - {x: "“Stuff You Should Know”, two friends explaining how things work", tags: "science nonfiction"}
+    outro: "Want something about a particular topic — history, science, true crime?"
+    outro_refined: "Does one of those sound like your thing?"
   gift:
     intro: ["Some gift ideas:", "A few gifts that usually go down well:", "Here are some gift ideas:"]
     items:
@@ -795,6 +812,65 @@ rec_exhausted:
 where_were_we:
   - "We were talking about {x}."
   - "Last thing was {x} — want to pick that up again?"
+without_skip:
+  - "No {x}, then — skip the {dish}. {rest} would work without it."
+  - "Okay, no {x} — then forget the {dish}. {rest} would be my pick."
+without_fine:
+  - "No problem — none of those need {x}."
+  - "That's fine, you won't need {x} for those."
+decided_food:
+  - "Good choice! Enjoy your {x}."
+  - "Sounds delicious — enjoy the {x}!"
+decided:
+  - "{x} it is! Good choice."
+  - "Sounds like a plan."
+got_home:
+  - "Welcome home! How was {x}?"
+  - "Nice to have you back. How was {x} today?"
+what_was_i:
+  - "You told me: {x}. Still on your mind?"
+  - "It was this: {x}. Want to talk about it a bit more?"
+talk_miss:
+  - "Of course you do. Missing someone shows how much they meant to you."
+  - "That makes so much sense. Is there something that reminds you of them most?"
+talk_try:
+  - "Sounds like a good idea — let me know how it goes!"
+  - "Good plan. I hope it helps!"
+  - "Nice, go for it. Tell me how it went later?"
+talk_heard:
+  - "Oh nice — what did you think of it?"
+  - "Ah, you know it already! Did you like it?"
+talk_tough:
+  - "Ugh, that sounds rough. What's been making it so hard?"
+  - "That sounds exhausting — are you getting any rest at all?"
+  - "Oof. How long has it been like that?"
+talk_plain:
+  - "Oh, interesting — tell me more."
+  - "Oh really? Tell me more about that."
+  - "Ah, okay. How's that going?"
+talk_nohave:
+  - "Ah, fair enough. There's plenty else to try."
+  - "No worries — we'll find something that works without it."
+talk_must:
+  - "Sure, go ahead — I'll be here."
+  - "No problem, take your time."
+norms:
+  coffee:
+    - "Health agencies say up to about 400 mg of caffeine a day — roughly four cups of filter coffee — is fine for most healthy adults. So that's around the upper limit. Less if it messes with your sleep!"
+  sleep:
+    - "Most adults need about 7 to 9 hours a night. Regularly much less than that tends to catch up with you."
+  water:
+    - "A common guideline is around 2 to 3 litres of fluid a day for adults, more when it's hot or you exercise — and food counts too."
+  screen:
+    - "There's no magic number, but if it eats into sleep, work or time with people, it's probably worth cutting back a little."
+  steps:
+    - "Around 7,000 to 10,000 steps a day is a common goal — but every bit more than usual already helps."
+judge_plain:
+  - "Hard to say in general — it really depends on you. How do you feel about it?"
+  - "That depends a lot on the person. Does it bother you?"
+howto_none:
+  - "I don't have a good guide for that one, sorry — I'd rather not make something up."
+  - "That's one I can't help with properly, I'm afraid. I don't have reliable tips for it."
 accomplished:
   - "Nice, well done! How does it feel to have {x} behind you?"
   - "That's great — {x}, done! Got anything fun planned now?"

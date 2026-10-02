@@ -763,3 +763,60 @@ def test_rudeness_apology_wrapup_and_achievement(chat):
     byes = ("Goodbye! It was nice talking to you.", "See you soon! Take care.",
             "Bye! Come back anytime — I'll remember what you told me.", "Take care! Talk to you later.")
     assert r.kind != "learned" and r.text in byes, r.text
+
+
+def test_everyday_cooking_flow_feels_human(chat):
+    a, st = chat
+    r = a.turn(st, "not much, just got home from work")
+    assert "How was work" in r.text, r.text
+    a.turn(st, "it was long. my manager kept changing the deadline")
+    r = a.turn(st, "yeah. anyway what should i cook tonight")
+    assert "•" in r.text and r.kind != "learned", r.text
+    r = a.turn(st, "something quick")
+    assert "•" in r.text and "in the mood" not in r.text, r.text
+    listed = r.text
+    r = a.turn(st, "i dont have eggs")
+    assert "eggs" in r.text and "remember" not in r.text.lower(), r.text
+    if "omelette" in listed:
+        assert "omelette" in r.text, r.text
+    r = a.turn(st, "ok pasta it is")
+    assert "pasta" in r.text and "answer" not in r.text.lower(), r.text
+    a.turn(st, "do you like pasta")
+    r = a.turn(st, "haha fair")
+    assert r.kind != "learned" and "good choice" not in r.text.lower(), r.text
+    r = a.turn(st, "what was i complaining about earlier")
+    assert "your manager kept changing the deadline" in r.text, r.text
+
+
+def test_battery22_natural_followups(chat):
+    a, st = chat
+    r = a.turn(st, "hi im sam")
+    assert "Sam" in r.text, r.text
+    a.turn(st, "im 29 and i work as a nurse")
+    r = a.turn(st, "night shifts are killing me")
+    assert "remember" not in r.text.lower(), r.text
+    a.turn(st, "i drink like 4 coffees")
+    r = a.turn(st, "is that too much")
+    assert "400 mg" in r.text, r.text
+    r = a.turn(st, "how old am i")
+    assert "29" in r.text, r.text
+    r = a.turn(st, "what's 15% of 80")
+    r = a.turn(st, "and 20%?")
+    assert "16" in r.text, r.text
+    r = a.turn(st, "what's a good podcast")
+    assert "•" in r.text and "answer is" not in r.text.lower(), r.text
+    r = a.turn(st, "something about history")
+    assert "History" in r.text or "Revolutions" in r.text, r.text
+    r = a.turn(st, "cool, any other?")
+    assert "•" in r.text, r.text
+    r = a.turn(st, "how do you stay awake on night shift")
+    assert "Saturday Night Fever" not in r.text, r.text
+    r = a.turn(st, "nice. gotta run, bye")
+    assert any(w in r.text for w in ("Bye", "Goodbye", "See you", "Take care")), r.text
+
+
+def test_german_refinement_stays_german(chat):
+    a, st = chat
+    a.turn(st, "was soll ich heute kochen")
+    r = a.turn(st, "etwas schnelles")
+    assert "•" in r.text and "schnell, gesund" not in r.text and "I don't" not in r.text, r.text

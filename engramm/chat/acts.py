@@ -166,7 +166,16 @@ def about_request(sentence: str) -> tuple[str, str] | None:
 # classification
 # ---------------------------------------------------------------------------
 
+# a filler before a question ("anyway what should I cook tonight", "ok so how far is Paris")
+_LEAD_IN = re.compile(r"(?i)^(?:(?:anyway|anyways|so|ok|okay|ok so|okay so|alright|well|oh|btw|by the way|hmm+|um+|uh+|right|"
+                      r"also|and)[,.!]*\s+)+(?=(?:what|who|whom|whose|which|where|when|why|how|should|can|could|would|"
+                      r"will|do|does|did|is|are|was|were|tell me|any)\b)")
+
+
 def classify_sentence(sentence: str, bank: Bank, now=None) -> Unit:
+    lead = _LEAD_IN.match(sentence)
+    if lead and lead.end() < len(sentence):     # "anyway what should I cook": the question after the filler
+        return classify_sentence(sentence[lead.end():], bank, now)
     n_full = normalise(sentence, fillers=False)
     n = normalise(sentence)
     if not n:

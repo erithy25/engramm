@@ -33,6 +33,7 @@ from engramm.chat.acts import Unit, classify
 from engramm.chat.bank import Bank, choose, expand_chat, load_bank, normalise
 from engramm.chat.bot import CHAT_PREFIX, Reply, message_type, source_id
 from engramm.chat.everyday import _GENRES
+from engramm.chat.tools import tool_answer
 from engramm.chat.facts import USER, facts_from_text
 from engramm.chat.german import is_german, understand
 from engramm.chat.realize import _acronyms as _acronym_case, answer_sentence, article, personal_sentence, to_second_person
@@ -63,6 +64,94 @@ _CAPS_NAME = re.compile(r"\b[A-Z][a-zA-Z'-]+")
 _DONE_WITH = re.compile(r"(?i:(?:i|i'm|im|i am|i've|ive|i have|we|we've|we're)\s+(?:just\s+|finally\s+|already\s+)*"
                         r"(?:done with|finished|completed|passed|submitted|handed in|got through|nailed)\s+)"
                         r"(?P<x>(?:my|the|our|all my|all the|that)\s+[a-z][a-z' -]{2,40})[.!]*$")
+# "I don't have eggs", "I'm out of rice", "no garlic": an ingredient missing
+_WITHOUT = re.compile(r"^(?:but |oh |hmm |ah )?(?:i (?:don't|dont|do not) have (?:any )?|i(?:'m| am|m) out of |i ran out of |"
+                      r"there(?:'s| is) no |no )(?P<x>[a-z][a-z ]{1,25}?)(?: at home| left| in the house| here)?[.!]*$")
+# dishes that need an ingredient without naming it
+_NEEDS = {"egg": ["omelette", "frittata", "carbonara", "shakshuka", "quiche", "pancake"],
+          "rice": ["risotto", "fried rice", "with rice", "paella", "sushi"],
+          "pasta": ["spaghetti", "aglio e olio", "carbonara", "lasagne", "bolognese"],
+          "cheese": ["feta", "pizza", "omelette with cheese", "quesadilla"],
+          "bread": ["toast", "sandwich", "crusty bread", "flatbread"],
+          "flatbread": ["pizza on a flatbread"], "tortilla": ["tacos", "burrito", "quesadilla"],
+          "potatoe": ["potato", "fries", "mash"], "potato": ["fries", "mash"], "tomatoe": ["tomato", "shakshuka", "salsa"],
+          "tomato": ["shakshuka", "salsa"], "garlic": ["aglio"], "meat": ["bolognese", "burger", "steak"]}
+# "ok pasta it is", "pizza it is then": a decision
+_DECIDED = re.compile(r"^(?:ok(?:ay)?|alright|fine|right|great|perfect|cool)?,? ?(?:then )?(?P<x>[a-z][a-z' ]{1,30}?) it is(?: then)?[.!]*$")
+# "something I can do at home", "any ideas what I could do inside"
+_THINGS_TO_DO = re.compile(r"^(?:maybe |ok |okay )?(?:something|anything|stuff|things?|ideas?|any ideas?)(?: (?:what|that))? "
+                           r"(?:i|we) (?:can|could|might) do(?P<g> at home| inside| indoors| outside| alone| today| tonight)?[.!?]*$")
+# "maybe reading then", "a movie i guess": a kind of thing to suggest
+_MAYBE_KIND = re.compile(r"^(?:maybe|perhaps|ok|okay|hmm|i guess|i think|probably|then)[, ]+(?P<w>reading|a book|books|a movie|movies|a film|films|"
+                         r"a series|a show|tv|music|a game|games|gaming|a podcast|podcasts|cooking|baking|a hobby)"
+                         r"(?: then| maybe| i guess| or something)?[.!?]*$")
+_MAYBE_KINDS = {"reading": "book", "book": "book", "books": "book", "movie": "movie", "movies": "movie", "film": "movie",
+                "films": "movie", "series": "series", "show": "series", "tv": "series", "music": "music", "game": "game",
+                "games": "game", "gaming": "game", "podcast": "podcast", "podcasts": "podcast", "cooking": "food",
+                "baking": "food", "hobby": "hobby"}
+# "just got home from work": a person arriving, not a fact to store
+_GOT_HOME = re.compile(r"^(?:not much,? |nothing much,? |nm,? )?(?:i )?(?:just )?(?:got|came|came back|got back|am|i'm) "
+                       r"(?:home|back) from (?:the )?(?P<x>work|school|uni|university|college|the gym|gym|practice|class|"
+                       r"training|the office|office|my shift|shift|a trip|vacation|holiday)[.!]*$")
+# laughter and short reactions: never the answer to "What's your favourite food?"
+_REACTION = re.compile(r"(?:(?:ha)+h?|he(?:he)+|lol|lmao|rofl|xd|:\)|:d|haha ?(?:fair|true|nice|ok(?:ay)?|yeah|yes|right)|"
+                       r"(?:fair|true|nice|right|cool|lol) ?(?:enough|haha|lol)?|fair point|good point|touch[eé]|"
+                       r"(?:that's|thats) (?:fair|true|funny|right)|true that|so true|lol (?:fair|true|ok(?:ay)?))")
+# "what was I complaining about earlier?": the last moment told
+_WHAT_WAS_I = re.compile(r"^(?:sorry,? |wait,? )?what (?:was|were|did) i (?:complaining|ranting|venting|moaning|talking|telling you|"
+                         r"say|said|upset|stressed|worried|mad|angry|happy|excited) ?(?:about)?(?: earlier| before| again)?\??$")
+# everyday remarks and how a person answers them (see DialogEngine._talk)
+_TALK_RULES = [
+    (re.compile(r"^(?:but |well |sadly |unfortunately )?(?:i )?(?:don'?t|do not|dont) (?:have|own) (?:a|an|any) \w+"), "talk_nohave"),
+    (re.compile(r"^(?:ok |okay |but )?(?:i )?(?:have to|need to|gotta|got to|must) (?:go |run |quickly |first )?(?:to )?\w+"), "talk_must"),
+    (re.compile(r"\bmiss(?:ing)? (?:him|her|them|home|my \w+|\w+ so much|\w+ a lot)\b"), "talk_miss"),
+    (re.compile(r"\b(?:i'?ll|i will|i might|i may|i could|i should|i'?m going to|im going to|i'?m gonna|gonna|maybe i'?ll) "
+                r"(?:try|give it a (?:go|try|shot)|check (?:it|that|them) out|do that|talk to|ask|look into|go for)\b"), "talk_try"),
+    (re.compile(r"\b(?:i'?ve|i have|ive) (?:already )?(?:heard|read|seen|watched|tried) (?:of |about )?(?:that|it|this|them)(?: one)?\b"),
+     "talk_heard"),
+    (re.compile(r"\b(?:killing me|exhausted|so tired|drained|slept (?:terribly|badly|awfully|horribly|like crap)|"
+                r"(?:barely|didn'?t|couldn'?t) sleep|no sleep|burn(?:ed|t)? out|wiped out|sucks?|so rough|so hard|"
+                r"too much (?:work|stress)|overwhelmed|swamped)\b"), "talk_tough"),
+]
+# remarks the plain chit-chat path should hand to DialogEngine._talk
+_TALK_FIRST = re.compile(r"\b(?:miss(?:ing)?|try|heard|read|seen|watched|killing|exhausted|tired|drained|slept|sleep|"
+                         r"burn(?:ed|t)?|wiped|sucks?|rough|hard|overwhelmed|swamped)\b")
+# "and 20%?" after a percentage
+_PCT_MORE = re.compile(r"^(?:and |what about |how about |now |ok |okay )?(\d+(?:\.\d+)?)\s?%(?: of (?:it|that))?\??$")
+# "is that too much?", "is that normal?": a judgement about what was just said
+_VAGUE_JUDGE = re.compile(r"^(?:but |so |and |hmm |ok )?(?:is|isn't|isnt|was|are|aren't) (?:that|this|it|those|these) (?:really |actually |way )?"
+                          r"(?:too much|too little|enough|normal|bad|ok|okay|alright|fine|healthy|unhealthy|a lot|weird|"
+                          r"strange|a problem|too many|too few|too long|too short|too late|too early|good|unusual)\??$")
+# everyday amounts people ask about, and what the general guidance says
+_NORMS = [(re.compile(r"\b(?:coffees?|espressos?|caffeine|energy drinks?|red bulls?)\b"), "coffee"),
+          (re.compile(r"\b(?:sleep|slept|hours? of sleep|hours? a night|bed at)\b"), "sleep"),
+          (re.compile(r"\b(?:water|litres?|liters?|glasses)\b"), "water"),
+          (re.compile(r"\b(?:screen time|phone|scroll|tiktok|instagram|gaming|video games?)\b"), "screen"),
+          (re.compile(r"\b(?:steps|walk(?:ed)?)\b"), "steps")]
+# "how do I …", "how can you …": a request for a guide
+_HOWTO_Q = re.compile(r"^(?:so |and |but )?how (?:do|can|could|should|would) (?:i|you|we|one|people) (?!know|say|spell|pronounce)\w+")
+
+
+_TITLE_FILLER = frozenset("of the a an in on at for and or to by list lists history geography".split())
+
+
+def _title_fits(question: str, title: str) -> bool:
+    """Name an article as "closest" only if most of its title words are in the question
+    ("LL Cool J" for "cool, any other?" would read as nonsense)."""
+    tw = [w for w in re.findall(r"[a-z0-9]+", re.sub(r"\([^)]*\)", "", title.lower()))
+          if w not in _STOP_CHAT and w not in _TITLE_FILLER and len(w) > 1]
+    qw = set(re.findall(r"[a-z0-9]+", question.lower()))
+    hits = sum(w in qw for w in tw)
+    return bool(tw) and hits * 2 >= len(tw) and hits >= min(2, len(tw))
+
+
+# German refinements of a suggestion ("etwas schnelles", "lieber was gesundes")
+_GENRE_DE = re.compile(r"^(?:lieber |eher |vielleicht |hmm |ok |dann )?(?:etwas |was |eins |einen |eine |ein )?(?:mehr |eher |richtig )?"
+                       r"(?P<g>[a-zäöüß]+)(?: bitte| vielleicht| lieber)?[.!?]*$")
+_GENRE_DE_MAP = {"schnell": "quick", "einfach": "quick", "gesund": "healthy", "leicht": "healthy", "gemütlich": "cosy",
+                 "warm": "warm", "lustig": "funny", "witzig": "funny", "spannend": "exciting", "gruselig": "scary",
+                 "romantisch": "romantic", "klassisch": "classic", "historisch": "history", "günstig": "cheap",
+                 "billig": "cheap", "sonnig": "sunny", "kalt": "cold"}
 # closing a chat ("i'm done for today") is a goodbye, not something to remember
 _WRAP_UP = re.compile(r"^(?:ok(?:ay)?,? )?(?:i'?m|i am|we'?re|we are) (?:done|finished|off)(?: here)?(?: for (?:today|now|tonight|the day))?[.!]*$|^that'?s (?:all|it) for (?:today|now|tonight)")
 
@@ -195,6 +284,14 @@ class Assistant:
                     return self.everyday.recommend(st, msg, la["kind"][4:], la.get("genre"), more=True, lang="de")
                 if la and la["kind"] in ("joke",):
                     return self._german(st, "erzähl mir einen witz")
+            la = st.last_action or {}
+            gm = _GENRE_DE.match(s)
+            if gm and la.get("kind", "").startswith("rec:") and st.turn - la.get("turn", -99) <= 3:
+                # "etwas schnelles" after cooking ideas: the same refinement as "something quick"
+                stem = re.sub(r"(?:es|e|er|en)$", "", gm.group("g"))
+                genre = _GENRE_DE_MAP.get(stem)
+                if genre:
+                    return self.everyday.recommend(st, msg, la["kind"][4:], genre, lang="de")
             exp_recent = st.last_exp if st.last_exp and st.turn - st.last_exp.get("turn", -99) <= 4 else None
             kind = rec_kind_de(s)
             if kind is not None and not (kind == "activity" and exp_recent and advice_de(s)):
@@ -418,7 +515,9 @@ class Assistant:
             from engramm.chat.german import neutral_de, normalise_de
             if neutral_de(normalise_de(msg)) is not None or re.fullmatch(r"(?:noch )?mehr|nochmal", normalise_de(msg)) \
                     or re.fullmatch(r"(?:hey|hi|hallo|hello|moin|servus|yo|huhu)+(?: (?:hey|hi|du|engramm))?", normalise_de(msg)) \
-                    or gibberish(msg, self.speller.known if self.speller is not None else None):
+                    or gibberish(msg, self.speller.known if self.speller is not None else None) \
+                    or (_GENRE_DE.match(normalise_de(msg)) and re.sub(r"(?:es|e|er|en)$", "", _GENRE_DE.match(
+                        normalise_de(msg)).group("g")) in _GENRE_DE_MAP and not re.search(r"\b(?:something|anything|quick)\b", msg.lower())):
                 return self._german(st, msg)      # "haha", "ok", "ja" in a German conversation stay German
             if len(re.findall(r"[a-z]+", msg.lower())) >= 2:
                 st.lang = "en"
@@ -440,6 +539,8 @@ class Assistant:
                 msg = f"{m.group('head')} my {pet[0]}{m.group('tail') or '?'}"
             elif m:
                 msg = f"what's my {pet[0]}'s {m.group('what')}?"
+        if re.fullmatch(r"(?i)(?:and |so )?(?:what'?s|what is|do you (?:know|remember)|tell me) my age\??", msg.strip()):
+            msg = "how old am i?"                       # the age is a number fact (#age)
         have = st.uses.get("have_noun")
         if have and st.turn - have[1] <= 2:               # "their names are Mia and Leo" after "I have two kids"
             m = _THEIR_NAMES.match(msg.strip()) or _BARE_NAMES.fullmatch(msg.strip(" .!"))
@@ -564,6 +665,10 @@ class Assistant:
             key = "first" if st.gib <= 1 else "again"
             return Reply(msg, "unknown", self._pick(st, f"daily:gib:{key}", self.bank.daily["gibberish"][key]),
                          via="gibberish")
+        if len(units) == 2 and units[0].act == "intent" and units[0].intent in ("yes", "no", "ack") and \
+                units[1].act == "question" and not (pending and pending.get("turn") == st.turn - 1):
+            units = units[1:]                  # "yeah. anyway what should I cook": the question is the message
+            msg = units[0].text
         if len(units) == 1 and units[0].act not in ("safety", "forget", "remember", "tool", "writing"):
             req = self.everyday.request(st, msg, normalise(msg))
             if req is not None:
@@ -915,6 +1020,9 @@ class Assistant:
             tr = u.data["result"]
             if tr.value is not None:
                 st.uses["last_calc"] = [st.turn, str(tr.value)]
+            pm = re.match(r"\s*\d+(?:[.,]\d+)?\s?% of (\d[\d,]*(?:\.\d+)?)", tr.text)
+            if pm:
+                st.uses["last_pct"] = [st.turn, pm.group(1)]         # "and 20%?" next
             return Reply(u.text, "tool", tr.text if tr.text.endswith((".", "!", "?")) else tr.text + ".",
                          answer=tr.value, via="tool", confidence=1.0)
         if u.act == "about":
@@ -925,6 +1033,22 @@ class Assistant:
 
     def _question(self, st: DialogState, text: str) -> Reply:
         bot = self.bot
+        pct = _PCT_MORE.match(text.strip().lower())
+        lp = st.uses.get("last_pct")
+        if pct and lp and st.turn - lp[0] <= 3:          # "15% of 80" … "and 20%?"
+            tr = tool_answer(f"{pct.group(1)}% of {lp[1]}", self._now())
+            if tr is not None:
+                st.uses["last_pct"] = [st.turn, lp[1]]
+                return Reply(text, "tool", tr.text if tr.text.endswith(".") else tr.text + ".", answer=tr.value,
+                             via="tool", confidence=1.0)
+        if _VAGUE_JUDGE.match(normalise(text)) and st.last_message:
+            # "is that too much?" about what was just said: never a lookup of the words "too much"
+            prev = normalise(st.last_message)
+            d_ = self.bank.daily
+            key = next((k for rx, k in _NORMS if rx.search(prev)), None)
+            if key:
+                return Reply(text, "smalltalk", self._pick(st, f"daily:norm:{key}", d_["norms"][key]), via="smalltalk")
+            return Reply(text, "smalltalk", self._pick(st, "daily:judge_plain", d_["judge_plain"]), via="smalltalk")
         pron = re.search(r"\b(he|she|him|his|her|hers|they|them|their)\b", text, re.I)
         gap = st.uses.get("person_gap") == st.turn - 1          # the last "who …?" found nobody
         if re.search(r"\b(?:it|its)\b", text, re.I) and not pron and st.last_kind == "unknown" and \
@@ -1059,7 +1183,10 @@ class Assistant:
                 rep.text = f"I don't know who the {_acronym_case(role.group(1))} is — I haven't read anything that says."
             else:
                 rep.text = self._reply(st, "answer.unknown_named", x=missing)
-        elif rep.guess and (rep.source or {}).get("key"):
+        elif _HOWTO_Q.match(normalise(q)) and "howto_none" in self.bank.daily:
+            # "how do you stay awake on night shift?" without a guide: no unrelated article title
+            rep.text = self._pick(st, "daily:howto_none", self.bank.daily["howto_none"])
+        elif rep.guess and (rep.source or {}).get("key") and _title_fits(q, rep.source["key"]):
             # unsure guesses were right only 7 of 25 times on the team prompts: say so and name the
             # closest source instead of offering the guess (the guess stays in the reply for evals)
             rep.text = self._reply(st, "answer.unknown_near", x=rep.source["key"])
@@ -1092,6 +1219,12 @@ class Assistant:
             if m:
                 return Reply(msg, "smalltalk", self._pick(st, "daily:grief_age", d["grief_age"], x=m.group("n")),
                              via="empathy")
+        if _WHAT_WAS_I.match(norm) and le and st.turn - le.get("turn", -99) <= 30 and le.get("text"):
+            told = le["text"].strip().rstrip(".!")
+            told = re.sub(r"\b(?:I'm|I am|im)\b", "you were", told, flags=re.I)
+            told = re.sub(r"\bmy\b", "your", re.sub(r"\bme\b", "you", re.sub(r"\bI\b", "you", told, flags=re.I),
+                                                    flags=re.I), flags=re.I)
+            return Reply(msg, "smalltalk", self._pick(st, "daily:what_was_i", d["what_was_i"], x=told), via="smalltalk")
         if _WEDDING.search(norm):
             st.uses["wedding"] = st.turn
         if _HONOUR.match(norm):
@@ -1247,6 +1380,45 @@ class Assistant:
             rep = self._learn(st, [msg], msg)
             rep.text = self._pick(st, "daily:diet_noted", d["diet_noted"], x=diet)
             return rep
+        ll = getattr(st, "last_list", None) or {}
+        nh = _WITHOUT.match(norm)
+        if nh and ll.get("kind") == "food" and st.turn - ll.get("turn", -99) <= 3:
+            # "I don't have eggs" after cooking ideas: drop what needs them, like a friend would
+            x = nh.group("x").strip(" .!")
+            stem = re.sub(r"(?:es|s)$", "", x) if len(x) > 3 else x
+            texts = ll.get("texts") or []
+            needs = [stem] + _NEEDS.get(stem, [])
+            hit = [t for t in texts if any(re.search(rf"\b{re.escape(w)}", t, re.I) for w in needs)]
+            rest = [t for t in texts if t not in hit]
+            if hit and rest:
+                def short(t: str) -> str:              # "a simple omelette with cheese and herbs" → "simple omelette"
+                    t = re.split(r" —|,| with | on a | if ", t)[0]
+                    return re.sub(r"^(?:a|an|the|some)\s+", "", t.strip(), flags=re.I)
+                rest_text = " or ".join(short(r) for r in rest)
+                return Reply(msg, "smalltalk", self._pick(st, "daily:without_skip", d["without_skip"], x=x,
+                                                          dish=short(hit[0]), rest=rest_text[:1].upper() + rest_text[1:]),
+                             via="everyday")
+            return Reply(msg, "smalltalk", self._pick(st, "daily:without_fine", d["without_fine"], x=x), via="everyday")
+        dc = _DECIDED.match(norm)
+        if dc and (ll.get("kind") == "food" and st.turn - ll.get("turn", -99) <= 4):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:decided_food", d["decided_food"],
+                                                      x=dc.group("x").strip()), via="everyday")
+        if dc:
+            return Reply(msg, "smalltalk", self._pick(st, "daily:decided", d["decided"], x=dc.group("x").strip()),
+                         via="everyday")
+        mk = _MAYBE_KIND.match(norm)
+        if mk:                                            # "maybe reading then" after ideas: books
+            kind = _MAYBE_KINDS.get(mk.group("w").replace("a ", "", 1))
+            if kind:
+                return self.everyday.recommend(st, msg, kind)
+        am = _THINGS_TO_DO.match(norm)
+        if am:                                            # "something I can do at home" (after "I'm bored")
+            g = (am.group("g") or "").strip()
+            return self.everyday.recommend(st, msg, "activity", genre="home" if g in ("at home", "inside", "indoors") else None)
+        hm = _GOT_HOME.match(norm)
+        if hm:
+            return Reply(msg, "smalltalk", self._pick(st, "daily:got_home", d["got_home"], x=hm.group("x").replace("my ", "your ")),
+                         via="everyday")
         if _POST_WORKOUT.match(norm):
             diet = st.uses.get("diet") or self._told_diet()
             items = d["post_workout"]["vegan" if diet == "vegan" else "vegetarian" if diet else "any"]
@@ -1799,6 +1971,11 @@ class Assistant:
         def name(m):
             return m.group(1) + " ".join(w[:1].upper() + w[1:] for w in m.group(2).split())
         text = _NAME_CUE.sub(name, text)
+        g = _HI_IM.match(text.strip())
+        if g and self.bank.feeling(g.group(2).lower()) is None and g.group(2).lower() not in _NOT_NAMES:
+            ls = self.bot.typer.lower_share(g.group(2)) if self.bot.typer is not None else None
+            if ls is None or ls < 0.5:                    # "hi im sam" → "hi im Sam"; "hi im tired" stays
+                text = g.group(1) + g.group(2)[:1].upper() + g.group(2)[1:] + text.strip()[g.end(2):]
         if self.kgqa is None:
             return text
 
@@ -2020,6 +2197,11 @@ class Assistant:
         if dm and self._generic_confirm:                  # "I finished my homework": cheer, like a friend
             confirm = self._pick(st, "daily:accomplished", self.bank.daily["accomplished"],
                                  x=re.sub(r"\b(?:my|our)\b", "your", dm.group("x").rstrip(" .!")))
+        if self._generic_confirm and confirm in self._plain_confirms() and \
+                not re.match(r"^(?:please )?(?:remember|note|keep in mind|don't forget|dont forget|save)\b", msg.strip(), re.I) and \
+                not any(f.subject != USER and not f.subject.startswith(USER) for f in fs):
+            talk = self._talk(st, text) or self._pick(st, "daily:talk_plain", self.bank.daily["talk_plain"])
+            confirm = talk                                # still remembered, but answered like a person
         pm = _HAVE_PET.match(text.strip())
         if pm:                                            # "I have a cat": ask its name, like a person would
             st.uses["pet"] = [pm.group(1).lower(), st.turn]
@@ -2037,6 +2219,30 @@ class Assistant:
             self.events.note(ev[0], ev[1], sid)
             confirm = self._reply(st, "event_noted", x=ev[0])
         return Reply(msg, "learned", confirm, source={"kind": "user", "source": sid}, via="memory")
+
+    def _plain_confirms(self) -> set[str]:
+        """The generic "Got it — I'll remember that." replies (learned.plain / learned.about_you)."""
+        r = self.bank.replies.get("learned", {})
+        return set(r.get("plain", [])) | set(r.get("about_you", []))
+
+    def _talk(self, st: DialogState, text: str) -> str | None:
+        """A statement with nothing to file under a category ("night shifts are killing me", "I'll try
+        that", "I just miss him"): answer it the way a person would, not with "I'll remember that"."""
+        norm = normalise(text)
+        d = self.bank.daily
+        le = st.last_exp or {}
+        for rx, key in _TALK_RULES:
+            if rx.search(norm):
+                if key == "talk_tough":
+                    st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": text, "turn": st.turn}
+                return self._pick(st, f"daily:{key}", d[key])
+        if le and st.turn - le.get("turn", -99) <= 2 and not re.search(r"\b(?:you|your)\b", norm):
+            key = "exp_follow_neg" if le.get("valence") == "negative" else "exp_follow_pos"
+            return self._pick(st, f"daily:{key}", d[key])
+        val = _valence(norm)
+        if val:
+            return self._reply(st, f"react.{val}")
+        return None
 
     def _confirm(self, st: DialogState, fs: list, name_before: str | None) -> str:
         self._generic_confirm = False
@@ -2136,6 +2342,8 @@ class Assistant:
             return None
         if gibberish(u.text) or is_mash(u.text):
             return None                          # "asdfgh" is no favourite food
+        if _REACTION.fullmatch(normalise(u.text).strip(" .!")):
+            return None                          # "haha fair" is a reaction, not an answer
         if pending.get("slot") not in ("who_mean", "correction") and \
                 re.match(r"^(?:my|i|i'm|im|i am|i've|we)\b", u.text.strip(), re.I) and len(u.text.split()) >= 3:
             return None                          # a whole sentence about you: normal learning reads it right
@@ -2249,6 +2457,12 @@ class Assistant:
             key = "exp_more_neg" if le.get("valence") == "negative" else "exp_more_pos"
             parts.append(_Part("main", self._pick(st, f"daily:{key}", self.bank.daily[key],
                                                   x=u.text.strip(" .!").lower())))
+            return
+        le_ = st.last_exp or {}
+        talk = self._talk(st, u.text) if _TALK_FIRST.search(u.norm) or (
+            le_ and st.turn - le_.get("turn", -99) <= 2 and len(words) > 5) else None
+        if talk:
+            parts.append(_Part("main", talk))
             return
         fe = self.bank.feeling(u.norm)
         val = fe[0].valence if fe and fe[0].valence in ("positive", "negative") else _valence(u.norm)
@@ -2685,10 +2899,10 @@ _DURATION_ANS = re.compile(r"^(?:for |since )?(?:about |around |almost |nearly |
                            r"(?P<n>\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty|"
                            r"a few|a couple of|a couple|several|many) (?P<u>years?|months?|weeks?|days?)(?: now| or so| already)?[.!]*$")
 _REC_SEEN = re.compile(r"^(?:oh |hmm |ah )?(?:i(?:'ve| have)? )?(?:already )?(?:read|seen|watched|tried|heard|played|been to|"
-                       r"visited|done|know) (?:that|it|those|them|all of (?:them|those)|these|all of these)"
+                       r"visited|done|know)(?: of| about)? (?:that|it|those|them|all of (?:them|those)|these|all of these)"
                        r"(?: one| ones)?(?: already)?[.!]*$")
 _REC_GENRE = re.compile(r"^(?:maybe |preferably |ideally |hmm |ok |okay |more like )?(?:something|somewhere|anything|one|ones|"
-                        r"a|an|more|some)?\s*(?:a bit |more |really |kinda |pretty )?(?P<g>[a-z-]+)"
+                        r"a|an|more|some)?\s*(?:about |on |with |in |related to |more about )?(?:a bit |more |really |kinda |pretty )?(?P<g>[a-z-]+)"
                         r"(?: one| ones| please| maybe| instead| stuff| place| places| book| books| movie| movies)?\??$")
 _I_LIKE = re.compile(r"^i (?:really |absolutely |just )?(?:love|like|adore|am into|'m into|am a big fan of|'m a big fan of) "
                      r"(?P<x>[a-z][a-z' .-]{1,40})$")
@@ -2714,6 +2928,10 @@ _RELATABLE_DE = re.compile(r"(?:montage?|montags|morgende?|frühes aufstehen|fr�
 _PREFER = re.compile(r"^(?:actually|no|well|hmm|wait)?,?\s*(?:i (?:think )?(?:prefer|like|love)|i'd say|make that|"
                      r"no wait,?) (?P<x>[a-z][a-z' -]{1,30}?)(?: more| better| instead| actually| now)?$")
 _FAV_NOUN = {"#food": "food", "#colour": "colour", "#car": "car"}
+_HI_IM = re.compile(r"^((?:hi|hey|hello|yo|heya|hiya|hallo)[,!.]*\s+(?:i'?m|im|i am|it'?s|this is)\s+)([a-z][a-z'-]+)[.!]*$", re.I)
+_NOT_NAMES = frozenset(("back", "home", "here", "new", "fine", "good", "ok", "okay", "great", "well", "done", "bored", "tired",
+                        "sad", "happy", "free", "busy", "sick", "ill", "hungry", "lost", "late", "early", "ready", "sorry",
+                        "confused", "stuck", "curious", "alone", "awake", "up", "out", "in", "off", "on", "so", "just"))
 _NAME_CUE = re.compile(r"\b((?:my name is|my name's|call me|i'm called|i am called|actually my name is) )"
                        r"([a-z][a-z'-]+(?: [a-z][a-z'-]+)?)\b(?=[.!,]|$)")
 _PLACE_CUE = re.compile(r"\b((?:live in|living in|moved to|move to|moving to|from|born in|grew up in|based in|"
@@ -2881,7 +3099,7 @@ def _name_match(asked: str, title: str) -> bool:
 
 _ANOTHER = re.compile(r"^(?:(?:ok|okay|yes|yeah|sure|haha|lol|nice|cool|great|wow)[ ,!]+)?(?:another(?: one)?|one more"
                       r"(?: please)?|again|more please|next(?: one)?|give me another(?: one)?|tell me another(?: one)?|"
-                      r"do another(?: one)?|more)(?: please)?$")
+                      r"do another(?: one)?|more|any others?|anything else|any more|anymore|got any others?|what else|others?)(?: please)?\??$")
 _GENERAL_MOODS = frozenset(("angry", "sad", "tired", "stress", "anxious", "happy", "excited", "calm", "lonely",
                             "conflict"))
 _PLAN = re.compile(r"\b(?:i'm|i am|im|we're|we are) (?:thinking (?:about|of)|planning (?:to|on)|considering|hoping to|"

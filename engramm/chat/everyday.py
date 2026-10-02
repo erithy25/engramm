@@ -105,7 +105,7 @@ _GENRES = {"sci-fi": "scifi", "scifi": "scifi", "science fiction": "scifi", "sci
            "light": "comedy", "lighthearted": "comedy", "spooky": "thriller", "horror": "thriller", "sad": "drama",
            "romcom": "romance", "quick": "quick", "fast": "quick", "easy": "quick", "simple": "quick",
            "healthy": "healthy", "light": "healthy", "cosy": "cosy", "cozy": "cosy", "comforting": "cosy",
-           "warm": "warm"}
+           "warm": "warm", "home": "home", "at home": "home", "indoors": "home", "inside": "home"}
 _ADVICE = re.compile(_LEAD + r"(?:so )?(?:what (?:should|can|could|do you think|would you suggest|would you recommend) i "
                      r"(?:do|say|try)(?: (?:about|with) (?P<about>.+?))?(?: now| then| next)?|what would you do(?: in my (?:place|shoes))?|"
                      r"i (?:don't|do not|dont) know (?:if|whether|what) (?:i should|to) (?:say|do|tell|talk)\b"
@@ -220,7 +220,8 @@ _REC_NOUN = {"music": "music", "song": "music", "songs": "music", "album": "musi
              "game": "game", "games": "game", "gift": "gift", "gifts": "gift", "present": "gift",
              "presents": "gift", "place": "travel", "places": "travel", "destination": "travel",
              "destinations": "travel", "hobby": "hobby", "hobbies": "hobby", "dish": "food", "recipe": "food",
-             "recipes": "food", "meal": "food", "food": "food"}
+             "recipes": "food", "meal": "food", "food": "food", "podcast": "podcast", "podcasts": "podcast",
+             "activity": "activity", "activities": "activity"}
 _REC_FILLER = frozenset("a an some any good great nice new kind type sort of kinds types to the few".split())
 _REC_ANY = re.compile(
     _LEAD + r"(?:what|which)(?: kind| kinds| type| types| sort)?(?: of)? (?P<n>[a-z\- ]{2,40}?) (?:do|would|can|could) you "
@@ -228,7 +229,9 @@ _REC_ANY = re.compile(
     r"(?:recommend|suggest)(?: (?:to )?me)? (?:a |an |some |any )?(?:good |great |nice |new )?(?P<n2>[a-z\- ]{2,40}?)"
     r"(?: to (?:listen to|read|watch|play))?$|"
     r"(?:any|got any|do you have any|give me some|i need some|i want some) (?:good )?(?P<n3>[a-z\- ]{2,40}?) "
-    r"(?:recommendations?|suggestions?|recs|ideas)$")
+    r"(?:recommendations?|suggestions?|recs|ideas)$|"
+    r"(?:what's|what is|whats|know|do you know) (?:a |an |some |any )?(?:good|great|nice|fun|decent) (?P<n4>[a-z\- ]{2,40}?)"
+    r"(?: to (?:listen to|read|watch|play))?$")
 _REC_VERB = re.compile(_LEAD + r"what (?:should|can|could|do you think) i (?P<v>read|watch|listen to|play)(?: next| now| tonight)?$")
 _REC_VERB_KIND = {"read": "book", "watch": "movie", "listen to": "music", "play": "game"}
 
@@ -267,7 +270,7 @@ class Everyday:
         # "any podcast recommendations?", "what should I read next"
         m = _REC_ANY.match(norm)
         if m:
-            noun = (m.group("n") or m.group("n2") or m.group("n3") or "").strip()
+            noun = (m.group("n") or m.group("n2") or m.group("n3") or m.group("n4") or "").strip()
             words_ = noun.split()
             for w in reversed(words_):
                 kind = _REC_NOUN.get(w)
@@ -293,6 +296,11 @@ class Everyday:
         order = [pool[i] for i in _order(len(pool), st.conversation, "rec", kind, tag)]
         seen = set(st.uses.get(f"rec_seen:{kind}", []))
         fresh = [i for i in order if i not in seen]
+        widened = False
+        if not fresh and tag:                        # every fitting one shown: others before repeating
+            every = [i for i in _order(len(items), st.conversation, "rec", kind, None) if i not in seen]
+            if every:
+                fresh, widened = every, True
         if not fresh:
             seen, fresh = set(), order               # all shown: start again from the top
         chosen = fresh[:3]
@@ -313,24 +321,30 @@ class Everyday:
                 texts.append(it)
                 titles.append(None)
         st.last_list = {"kind": kind, "titles": titles, "texts": texts, "turn": st.turn, "genre": tag}
-        st.last_action = {"kind": f"rec:{kind}", "genre": genre, "turn": st.turn, "lang": lang}
+        st.last_action = {"kind": f"rec:{kind}", "genre": None if widened else genre, "turn": st.turn, "lang": lang}
         intro = spec.get("intro")
         if isinstance(intro, list):                   # several openings: never the same one twice in a row
             intro = self.pick(st, f"rec_intro:{kind}", intro)
         intro = intro or self.pick(st, "rec_intro", self.d["recommend"]["intro"])
         if more:
             intro = "A few more:"
+        if widened:
+            intro = "That's all of that kind I know — here are a few others:"
         body = "\n".join(f"• {t[:1].upper() + t[1:]}" for t in texts)
         if any(titles) and not more:
             outro = self.pick(st, "rec_outro", self.d["recommend"]["outro"])
         else:
             outro = spec.get("outro") if not more else "Want even more?"
+            if tag and not more and spec.get("outro_refined"):
+                outro = spec["outro_refined"]   # asked already: don't ask "quick or healthy?" again
         if de is not None:
             k = de.get(kind, {})
             intro = de["more"] if more else k.get("intro", de["intro"])
             outro = de["outro"] if any(titles) and not more else k.get("outro", de["outro"])
+            if tag and not more and de.get("refined"):
+                outro = de["refined"]                    # asked already: no second "schnell, gesund oder gemütlich?"
         if len(fresh) > len(chosen):
-            st.offer = {"kind": "ideas", "rec": kind, "genre": genre, "turn": st.turn}
+            st.offer = {"kind": "ideas", "rec": kind, "genre": None if widened else genre, "turn": st.turn}
         return Reply(msg, "smalltalk", f"{intro}\n\n{body}\n\n{outro}", via="everyday")
 
     def pick_from_list(self, st, msg: str, norm: str) -> Reply | None:

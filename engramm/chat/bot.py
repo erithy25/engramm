@@ -191,7 +191,8 @@ def message_type(msg: str) -> str:
             return "statement"
         return "question"
     # an unfinished statement ("the capital of France is") asks for its end
-    if re.search(r"\b(is|are|was|were|by|of|called|named)\s*$", s.lower().rstrip(".!")):
+    if re.search(r"\b(is|are|was|were|by|of|called|named)\s*$", s.lower().rstrip(".!")) and \
+            not re.search(r"\b(?:it|that|this|so be it|there it|here it) (?:is|was)\s*$", s.lower().rstrip(".!")):
         return "question"
     return "statement"
 

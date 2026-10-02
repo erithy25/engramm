@@ -197,7 +197,7 @@
    {
     "id": "farewell",
     "patterns": [
-     "((ok(ay)?|alright|well|thanks|thank you|thx|that's (enough|all|it)( for (today|now|tonight))?|i'm done( for (today|now|tonight))?)[,.!]* (and |so )?)?(bye+|good ?bye|bye bye|see you|see ya|see you later|see you soon|later|catch you later|talk to you later|ttyl|i have to go|i've got to go|i gotta go|gotta go|i must go|i need to go|i'm leaving|i am leaving|got to go|i've got to go now|i'm off|i am off|farewell|ciao|cya|take care|have a nice day|have a good day|have a great day|until next time|peace out|i'm out|i'm done for (today|now|tonight|the day)|i am done for (today|now|tonight|the day)|that's (all|it) for (today|now|tonight))( now| then| for now| for today)?( then)?"
+     "((ok(ay)?|alright|well|thanks|thank you|thx|that's (enough|all|it)( for (today|now|tonight))?|i'm done( for (today|now|tonight))?)[,.!]* (and |so )?)?(bye+|good ?bye|bye bye|see you|see ya|see you later|see you soon|later|catch you later|talk to you later|ttyl|i have to go|i've got to go|i gotta go|gotta go|i must go|i need to go|i'm leaving|i am leaving|got to go|i've got to go now|i'm off|i am off|farewell|ciao|cya|take care|have a nice day|have a good day|have a great day|until next time|peace out|i'm out|i'm done for (today|now|tonight|the day)|i am done for (today|now|tonight|the day)|that's (all|it) for (today|now|tonight)|(i )?(gotta|got to|have to|need to|must) (run|dash|head out|head off|get going|bounce)|i should (go|get going|head out)|(i'm|i am|im) heading (out|off)|time to (go|head out)|gonna (head out|go))( now| then| for now| for today)?( then)?([,.!]* (bye+|good ?bye|see you( later| soon)?|see ya|cya|ttyl|later|take care|night))?"
     ],
     "examples": [
      "bye",
@@ -223,7 +223,7 @@
    {
     "id": "good_night",
     "patterns": [
-     "(good ?night|nighty night|night night|gn|sleep well|i'm going to bed|i am going to bed|going to bed|i'm going to sleep|time for bed|time to sleep)( now| then)?"
+     "((ok(ay)?|alright|well|right)[,.!]* )?(good ?night|nighty night|night night|gn|sleep well|i'm going to bed|im going to bed|i am going to bed|going to bed|i'm going to sleep|im going to sleep|off to bed|i'm off to bed|im off to bed|time for bed|time to sleep|gonna sleep|gonna go to bed|heading to bed)( now| then)?([,.!]* (good ?night|night|gn|bye|see you( tomorrow)?|nn))?"
     ],
     "examples": [
      "good night",
@@ -266,7 +266,7 @@
    {
     "id": "apology",
     "patterns": [
-     "(i'm |i am |i'm so |i am so |so |very )?(sorry|my bad|apologies|i apologi[sz]e|oops|whoops|pardon|excuse me)( about that| for that| for (the|my) (mistake|typo|confusion)|,? (typo|autocorrect|wrong button|wrong chat|wrong window|my fault|fat fingers|slipped))?"
+     "(i'm |i am |i'm so |i am so |so |very )?(sorry|my bad|apologies|i apologi[sz]e|oops|whoops|pardon|excuse me)( about that| for that| for (the|my) (mistake|typo|confusion)|,? (my bad|typo|autocorrect|wrong button|wrong chat|wrong window|my fault|fat fingers|slipped))?"
     ],
     "examples": [
      "sorry",
@@ -328,6 +328,23 @@
      "Happy to hear that!",
      "Nice! Anything else on your mind?",
      "I thought so too!"
+    ]
+   },
+   {
+    "id": "fair_point",
+    "patterns": [
+     "(haha|hah|lol|lmao|ha) (fair|true|right|exactly|fair enough|good point|so true|touch[eé])|(fair|true|so true|good point|fair point|touch[eé]) (haha|lol|lmao)"
+    ],
+    "examples": [
+     "haha fair",
+     "lol true",
+     "fair haha",
+     "haha good point"
+    ],
+    "responses": [
+     "Right? 😄",
+     "Ha, exactly.",
+     "Glad we agree! 😄"
     ]
    },
    {
@@ -4343,6 +4360,7 @@
     "intro": "Ein paar Ideen:",
     "outro": "Gefällt dir etwas davon? Ich kann dir zu jedem mehr erzählen.",
     "more": "Noch ein paar:",
+    "refined": "Klingt davon etwas gut?",
     "food": {
      "intro": "Ein paar Ideen für heute:",
      "outro": "Worauf hast du Lust – schnell, gesund oder gemütlich?"
@@ -4878,7 +4896,8 @@
       "de": "ein Risotto, wenn du Lust hast, zwanzig Minuten zu rühren"
      }
     ],
-    "outro": "What are you in the mood for — something quick, healthy or comforting?"
+    "outro": "What are you in the mood for — something quick, healthy or comforting?",
+    "outro_refined": "Does one of those sound good?"
    },
    "book": {
     "intro": [
@@ -5253,31 +5272,38 @@
      },
      {
       "x": "cook something new from whatever is in the kitchen",
-      "de": "etwas Neues aus dem kochen, was in der Küche ist"
+      "de": "etwas Neues aus dem kochen, was in der Küche ist",
+      "tags": "home"
      },
      {
       "x": "call or message someone you haven't talked to in a while",
-      "de": "jemanden anrufen, von dem du lange nichts gehört hast"
+      "de": "jemanden anrufen, von dem du lange nichts gehört hast",
+      "tags": "home"
      },
      {
       "x": "start a book or a series you've been meaning to try",
-      "de": "ein Buch oder eine Serie anfangen, die du schon lange ausprobieren wolltest"
+      "de": "ein Buch oder eine Serie anfangen, die du schon lange ausprobieren wolltest",
+      "tags": "home"
      },
      {
       "x": "learn a few words of a new language",
-      "de": "ein paar Wörter einer neuen Sprache lernen"
+      "de": "ein paar Wörter einer neuen Sprache lernen",
+      "tags": "home"
      },
      {
       "x": "sort out one drawer or shelf — oddly satisfying",
-      "de": "eine Schublade oder ein Regal aufräumen – seltsam befriedigend"
+      "de": "eine Schublade oder ein Regal aufräumen – seltsam befriedigend",
+      "tags": "home"
      },
      {
       "x": "draw, write or make something, just for fun",
-      "de": "einfach so etwas zeichnen, schreiben oder basteln"
+      "de": "einfach so etwas zeichnen, schreiben oder basteln",
+      "tags": "home"
      },
      {
       "x": "do a short workout or some stretching",
-      "de": "ein kurzes Workout oder ein paar Dehnübungen"
+      "de": "ein kurzes Workout oder ein paar Dehnübungen",
+      "tags": "home"
      },
      {
       "x": "look up a museum, park or café nearby you've never visited",
@@ -5285,10 +5311,65 @@
      },
      {
       "x": "ask me to quiz you — I've got questions ready",
-      "de": "mich fragen, ob ich dich quizzen soll"
+      "de": "mich fragen, ob ich dich quizzen soll",
+      "tags": "home"
      }
     ],
     "outro": "Anything there sound good?"
+   },
+   "podcast": {
+    "intro": [
+     "A few podcasts people love:",
+     "Some podcasts worth a listen:"
+    ],
+    "items": [
+     {
+      "x": "“Hardcore History” by Dan Carlin — long, gripping episodes about big moments in history",
+      "tags": "history"
+     },
+     {
+      "x": "“The Rest Is History”, two historians chatting about everything from Rome to the Cold War",
+      "tags": "history"
+     },
+     {
+      "x": "“Revolutions” by Mike Duncan, one revolution per season",
+      "tags": "history"
+     },
+     {
+      "x": "“Radiolab”, curious stories about science and people",
+      "tags": "science"
+     },
+     {
+      "x": "“Science Vs”, which checks popular claims against the evidence",
+      "tags": "science"
+     },
+     {
+      "x": "“Hidden Brain”, about why people do what they do",
+      "tags": "psychology science"
+     },
+     {
+      "x": "“Freakonomics Radio”, economics behind everyday things",
+      "tags": "nonfiction"
+     },
+     {
+      "x": "“99% Invisible”, about the design all around us",
+      "tags": "nonfiction"
+     },
+     {
+      "x": "“Serial”, the podcast that made true crime huge",
+      "tags": "crime"
+     },
+     {
+      "x": "“This American Life”, a different set of true stories every week",
+      "tags": "nonfiction"
+     },
+     {
+      "x": "“Stuff You Should Know”, two friends explaining how things work",
+      "tags": "science nonfiction"
+     }
+    ],
+    "outro": "Want something about a particular topic — history, science, true crime?",
+    "outro_refined": "Does one of those sound like your thing?"
    },
    "gift": {
     "intro": [
@@ -6296,6 +6377,86 @@
    "We were talking about {x}.",
    "Last thing was {x} — want to pick that up again?"
   ],
+  "without_skip": [
+   "No {x}, then — skip the {dish}. {rest} would work without it.",
+   "Okay, no {x} — then forget the {dish}. {rest} would be my pick."
+  ],
+  "without_fine": [
+   "No problem — none of those need {x}.",
+   "That's fine, you won't need {x} for those."
+  ],
+  "decided_food": [
+   "Good choice! Enjoy your {x}.",
+   "Sounds delicious — enjoy the {x}!"
+  ],
+  "decided": [
+   "{x} it is! Good choice.",
+   "Sounds like a plan."
+  ],
+  "got_home": [
+   "Welcome home! How was {x}?",
+   "Nice to have you back. How was {x} today?"
+  ],
+  "what_was_i": [
+   "You told me: {x}. Still on your mind?",
+   "It was this: {x}. Want to talk about it a bit more?"
+  ],
+  "talk_miss": [
+   "Of course you do. Missing someone shows how much they meant to you.",
+   "That makes so much sense. Is there something that reminds you of them most?"
+  ],
+  "talk_try": [
+   "Sounds like a good idea — let me know how it goes!",
+   "Good plan. I hope it helps!",
+   "Nice, go for it. Tell me how it went later?"
+  ],
+  "talk_heard": [
+   "Oh nice — what did you think of it?",
+   "Ah, you know it already! Did you like it?"
+  ],
+  "talk_tough": [
+   "Ugh, that sounds rough. What's been making it so hard?",
+   "That sounds exhausting — are you getting any rest at all?",
+   "Oof. How long has it been like that?"
+  ],
+  "talk_plain": [
+   "Oh, interesting — tell me more.",
+   "Oh really? Tell me more about that.",
+   "Ah, okay. How's that going?"
+  ],
+  "talk_nohave": [
+   "Ah, fair enough. There's plenty else to try.",
+   "No worries — we'll find something that works without it."
+  ],
+  "talk_must": [
+   "Sure, go ahead — I'll be here.",
+   "No problem, take your time."
+  ],
+  "norms": {
+   "coffee": [
+    "Health agencies say up to about 400 mg of caffeine a day — roughly four cups of filter coffee — is fine for most healthy adults. So that's around the upper limit. Less if it messes with your sleep!"
+   ],
+   "sleep": [
+    "Most adults need about 7 to 9 hours a night. Regularly much less than that tends to catch up with you."
+   ],
+   "water": [
+    "A common guideline is around 2 to 3 litres of fluid a day for adults, more when it's hot or you exercise — and food counts too."
+   ],
+   "screen": [
+    "There's no magic number, but if it eats into sleep, work or time with people, it's probably worth cutting back a little."
+   ],
+   "steps": [
+    "Around 7,000 to 10,000 steps a day is a common goal — but every bit more than usual already helps."
+   ]
+  },
+  "judge_plain": [
+   "Hard to say in general — it really depends on you. How do you feel about it?",
+   "That depends a lot on the person. Does it bother you?"
+  ],
+  "howto_none": [
+   "I don't have a good guide for that one, sorry. If it's about a thing or a topic, try “tell me about …” and I'll share what I've read.",
+   "I'm not sure how — that's not among the things I have practical tips for. I can tell you about the topic itself, though: just say “tell me about …”."
+  ],
   "accomplished": [
    "Nice, well done! How does it feel to have {x} behind you?",
    "That's great — {x}, done! Got anything fun planned now?",
@@ -6880,10 +7041,6 @@
   "howto_head": [
    "Here's how:",
    "Here's a simple way:"
-  ],
-  "howto_none": [
-   "I don't have a good guide for that one, sorry. If it's about a thing or a topic, try “tell me about …” and I'll share what I've read.",
-   "I'm not sure how — that's not among the things I have practical tips for. I can tell you about the topic itself, though: just say “tell me about …”."
   ],
   "have_pet": [
    "Aww, a {x}! What's their name?",

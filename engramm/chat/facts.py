@@ -46,6 +46,7 @@ PLACE_PREPS = frozenset(("in", "at", "near", "from", "to"))
 # Hand-written concept groups (general English, applied the same way to statements and
 # questions): a member word adds the group's label to the relation words.
 CONCEPTS = [
+    ("#age", re.compile(r"\b(?:how old|my age|your age|age)\b")),
     ("#job", re.compile(r"\b(job|jobs|profession|occupation|career|works? as|worked as|working as|living as|at work|"
                         r"earns? (?:a |my |his |her )?living|earning (?:a |my )?living|makes? (?:a |my )?living|"
                         r"making (?:a |my )?living|for a living|do for (?:a )?(?:work|living)|by trade|trade|"
@@ -400,7 +401,10 @@ NON_VALUES = frozenset(("favourite", "favorite", "best", "most", "one", "thing",
                         "got", "get", "gets", "getting", "went", "go", "goes", "going", "gone", "came", "come", "comes",
                         "coming", "back", "made", "make", "took", "take", "had", "did", "done", "been", "said", "saw",
                         "seen", "left", "felt", "feel", "tried", "try", "started", "start", "finished", "finish",
-                        "quit", "quitting", "fired", "retired", "resigned", "moved", "move"))
+                        "quit", "quitting", "fired", "retired", "resigned", "moved", "move",
+                        # "something I can do at home" names nothing
+                        "something", "anything", "nothing", "everything", "someone", "anyone", "somewhere",
+                        "anywhere", "whatever"))
 
 
 # words that are never the value of a personal statement: fillers, time phrases, evaluation cues
@@ -670,8 +674,26 @@ _NEGATED_LIKE = re.compile(r"\b(?:don'?t|do not|didn'?t|never|not|can'?t|cannot)
                            r"(?:like|love|enjoy|stand|care for|prefer)\b")
 
 
+_NEGATED_HAVE = re.compile(r"\b(?:don'?t|do not|didn'?t|did not|no longer|never) (?:have|own|got)\b|\bhave no\b|"
+                           r"\bhaven'?t got\b|\b(?:ran|run|running|am|i'm|im) out of\b")
+
+
+_AND_I = re.compile(r"(?i)(?<=\w),?\s+and\s+(?=i(?:'m|m| am| work| live| have| like| love| study| drive| was| go)\b)")
+
+
+def _with_age(f: Fact) -> Fact:
+    """"I'm 29", "I am 29 years old", "my dog is 3 years old": the number is an age (#age)."""
+    if f.kind == "NUMBER" and re.fullmatch(r"\d{1,3}", f.object) and 0 < int(f.object) < 120 and \
+            set(w for w in f.relation if not w.startswith("#")) <= {"am", "is", "old", "aged", "age", "years", "turned"} and \
+            "#age" not in f.relation:
+        return Fact(f.subject, tuple(sorted(f.relation + ("#age",))), f.object, f.source, f.sentence, f.kind)
+    return f
+
+
 def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None, typer=None) -> list[Fact]:
     sents = splitter(text) if splitter else re.split(r"(?<=[.!?])\s+", text.strip())
+    # "I'm 29 and I work as a nurse": two facts, not one
+    sents = [part for x in sents for part in (_AND_I.split(x) if re.match(r"(?i)\s*i(?:'m|m| am)\b", x) else [x])]
     out = []
     topic = None
     for s in sents:
@@ -694,11 +716,14 @@ def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None,
         low = norm.lower()
         if re.search(r"\b(i|my|me)\b", low):
             fp = personal_facts(s, source, initial_is_name, typer)
+            if _NEGATED_HAVE.search(low):
+                continue                     # "I don't have eggs": nothing owned, nothing liked
             if fp and _NEGATED_LIKE.search(low):
                 # "I don't like movies": a dislike, never a favourite
                 fp = [Fact(f.subject, tuple("#dislike" if r == "#fav" else r for r in f.relation)
                            + (() if "#fav" in f.relation else ("#dislike",)), f.object, f.source, f.sentence, f.kind)
                       for f in fp]
+            fp = [_with_age(f) for f in fp]
             out += fp if fp else third_person_facts(s, source, initial_is_name)
             continue
         tp = third_person_facts(s, source, initial_is_name)

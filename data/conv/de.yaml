@@ -249,6 +249,7 @@ daily:
     intro: "Ein paar Ideen:"
     outro: "Gefällt dir etwas davon? Ich kann dir zu jedem mehr erzählen."
     more: "Noch ein paar:"
+    refined: "Klingt davon etwas gut?"
     food: {intro: "Ein paar Ideen für heute:", outro: "Worauf hast du Lust – schnell, gesund oder gemütlich?"}
     book: {intro: "Ein paar Bücher, die viele lieben:", outro: "Lieber Roman oder Sachbuch?"}
     movie: {intro: "Ein paar Filme, die sich lohnen:", outro: "Eher leicht, spannend oder zum Nachdenken?"}

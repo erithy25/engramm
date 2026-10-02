@@ -117,7 +117,7 @@ intents:
 
   - id: farewell
     patterns:
-      - '((ok(ay)?|alright|well|thanks|thank you|thx|that''s (enough|all|it)( for (today|now|tonight))?|i''m done( for (today|now|tonight))?)[,.!]* (and |so )?)?(bye+|good ?bye|bye bye|see you|see ya|see you later|see you soon|later|catch you later|talk to you later|ttyl|i have to go|i''ve got to go|i gotta go|gotta go|i must go|i need to go|i''m leaving|i am leaving|got to go|i''ve got to go now|i''m off|i am off|farewell|ciao|cya|take care|have a nice day|have a good day|have a great day|until next time|peace out|i''m out|i''m done for (today|now|tonight|the day)|i am done for (today|now|tonight|the day)|that''s (all|it) for (today|now|tonight))( now| then| for now| for today)?( then)?'
+      - '((ok(ay)?|alright|well|thanks|thank you|thx|that''s (enough|all|it)( for (today|now|tonight))?|i''m done( for (today|now|tonight))?)[,.!]* (and |so )?)?(bye+|good ?bye|bye bye|see you|see ya|see you later|see you soon|later|catch you later|talk to you later|ttyl|i have to go|i''ve got to go|i gotta go|gotta go|i must go|i need to go|i''m leaving|i am leaving|got to go|i''ve got to go now|i''m off|i am off|farewell|ciao|cya|take care|have a nice day|have a good day|have a great day|until next time|peace out|i''m out|i''m done for (today|now|tonight|the day)|i am done for (today|now|tonight|the day)|that''s (all|it) for (today|now|tonight)|(i )?(gotta|got to|have to|need to|must) (run|dash|head out|head off|get going|bounce)|i should (go|get going|head out)|(i''m|i am|im) heading (out|off)|time to (go|head out)|gonna (head out|go))( now| then| for now| for today)?( then)?([,.!]* (bye+|good ?bye|see you( later| soon)?|see ya|cya|ttyl|later|take care|night))?'
     examples: [bye, goodbye, see you later, gotta go, talk to you later, take care, have a nice day]
     responses:
       - "Goodbye! It was nice talking to you."
@@ -130,7 +130,7 @@ intents:
       - "Bye, {name}! Come back anytime."
 
   - id: good_night
-    patterns: ['(good ?night|nighty night|night night|gn|sleep well|i''m going to bed|i am going to bed|going to bed|i''m going to sleep|time for bed|time to sleep)( now| then)?']
+    patterns: ['((ok(ay)?|alright|well|right)[,.!]* )?(good ?night|nighty night|night night|gn|sleep well|i''m going to bed|im going to bed|i am going to bed|going to bed|i''m going to sleep|im going to sleep|off to bed|i''m off to bed|im off to bed|time for bed|time to sleep|gonna sleep|gonna go to bed|heading to bed)( now| then)?([,.!]* (good ?night|night|gn|bye|see you( tomorrow)?|nn))?']
     examples: [good night, i'm going to bed, time for bed]
     responses:
       - "Good night! Sleep well."
@@ -153,7 +153,7 @@ intents:
       - "No problem at all."
 
   - id: apology
-    patterns: ['(i''m |i am |i''m so |i am so |so |very )?(sorry|my bad|apologies|i apologi[sz]e|oops|whoops|pardon|excuse me)( about that| for that| for (the|my) (mistake|typo|confusion)|,? (typo|autocorrect|wrong button|wrong chat|wrong window|my fault|fat fingers|slipped))?']
+    patterns: ['(i''m |i am |i''m so |i am so |so |very )?(sorry|my bad|apologies|i apologi[sz]e|oops|whoops|pardon|excuse me)( about that| for that| for (the|my) (mistake|typo|confusion)|,? (my bad|typo|autocorrect|wrong button|wrong chat|wrong window|my fault|fat fingers|slipped))?']
     examples: [sorry, my bad, oops, i apologize, sorry about that]
     responses:
       - "No worries at all!"
@@ -180,6 +180,14 @@ intents:
       - "Happy to hear that!"
       - "Nice! Anything else on your mind?"
       - "I thought so too!"
+
+  - id: fair_point
+    patterns: ['(haha|hah|lol|lmao|ha) (fair|true|right|exactly|fair enough|good point|so true|touch[eé])|(fair|true|so true|good point|fair point|touch[eé]) (haha|lol|lmao)']
+    examples: [haha fair, lol true, fair haha, haha good point]
+    responses:
+      - "Right? 😄"
+      - "Ha, exactly."
+      - "Glad we agree! 😄"
 
   - id: laugh
     patterns: ['(lo+l+|lmao+|lmfao|rofl|ha(ha)+h?|he(he)+|hah|xd+|:d+|:\)+|😂+|🤣+|😄+|😆+|that''s (so |really |very )?funny|so funny|very funny|you''re funny|you are funny|haha that''s (funny|good|great))']
