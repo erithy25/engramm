@@ -182,8 +182,10 @@ dmg arm64/x64, exe, msi — und SHA256SUMS.txt, nach jedem Lauf nachgeprüft):
 und Geschlecht), [v3.1.0-beta.10](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.10) (Lauf 36982843776,
 Batterien 41–42: Deutsch, Kontext über mehrere Züge, Turniere, Amtsinhaber),
 [v3.1.0-beta.11](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.11) (Lauf 36985675889, Batterien 43–44:
-Umgangssprache, Korrekturen, Planeten, deutscher Alltagskontext, WM auf Deutsch). beta.12 bringt die Batterien 45
-(Gedächtnis, Tippfehler, Folgefragen) und 46 (Stimmung, Sarkasmus, Kritik, deutsche Amtsinhaber).
+Umgangssprache, Korrekturen, Planeten, deutscher Alltagskontext, WM auf Deutsch),
+[v3.1.0-beta.12](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.12) (Lauf 36989493546, Batterien 45–46:
+Gedächtnis, Tippfehler, Folgefragen, Stimmung, Sarkasmus, deutsche Amtsinhaber). beta.13 bringt die Batterien 47
+(Reise, Folgefragen für Alltagsfakten) und 48 (Gesundheit, Geld, Arbeit, Geschenke, Entscheidungen).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
