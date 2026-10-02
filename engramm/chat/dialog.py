@@ -5570,6 +5570,8 @@ class Assistant:
         cm = re.fullmatch(r"(?:no,? |no wait,? |wait,? |sorry,? |oops,? |actually,? |i mean,? )+(?:i meant |it'?s |make that |not \w+,? )?(?P<x>[a-z][a-z ]{1,30})", n)
         if cm and st.last_kind == "learned" and self.bot.context.get("last_learned") and len(cm.group("x").split()) <= 3:
             old = facts_from_text(lm, "probe", self.bot.is_name_initial_fact, typer=self.bot.typer)
+            if any("#name" in f.relation for f in old):
+                old = []                                  # "no wait, it's alexander": the name fix answers
             obj = next((f.object for f in old if f.subject == USER and f.object), None)
             if obj and re.search(re.escape(obj), lm, re.I):
                 x = cm.group("x").strip()

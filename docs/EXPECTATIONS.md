@@ -2551,6 +2551,10 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - Eine Nachricht mit drei Sätzen über einen schweren Tag bekam drei Mitgefühls-Antworten hintereinander; jetzt eine,
     der Rest wird still gemerkt. „any ideas?“ nach „i just want to relax“ → Entspannungsideen; „do you know them?“ nach
     der Lieblingsband → Artikelanfang.
+  - Die erste Fassung der Korrekturregel fing auch „no wait, its alexander“ nach einem Namen ab („alexander it is“,
+    kleingeschrieben); ein alter Test schlug an, Namen bleiben beim eigenen Namens-Ablauf („Alexander“). Messung: Team-Dev-Satz
+    1 von 128 (team-0067), NQ 22/9, Suite 756 bestanden, Regressionen 32, 38–66 (33 Gespräche): 0 Wiederholungen;
+    Unterschiede: Batterie 41 (Trennungsantwort wie früher), 48 (kein doppelter Punkt im Vergessen-Zitat), Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
