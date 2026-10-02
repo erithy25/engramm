@@ -450,7 +450,9 @@ def date_answer(message: str, now: dt.datetime | None = None) -> ToolResult | No
                 return ToolResult("date", "That's today!", "0")
             if n < 0:
                 return ToolResult("date", f"That was {-n:,} days ago ({_fmt_date(d)}).", str(n))
-            weeks = f" — about {n / 7:.1f} weeks" if n >= 14 else ""
+            w = n / 7
+            weeks = (f" — exactly {round(w)} weeks" if n % 7 == 0 else f" — about {w:.1f} weeks".replace(".0 weeks", " weeks")) \
+                if n >= 14 else ""
             return ToolResult("date", f"{n:,} day{'s' if n != 1 else ''} until {_fmt_date(d)}{weeks}.", str(n))
     m = _DAYS_SINCE.match(s)
     if m:

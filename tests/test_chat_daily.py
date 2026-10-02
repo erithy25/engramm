@@ -2581,3 +2581,17 @@ def test_battery61_german_ordinary_evening(chat):
     assert "Müdigkeit" not in st.last_reply, st.last_reply
     r = a.turn(DialogState("ds61"), "die nachbarn haben heute wieder renoviert")
     assert not lost.search(r.text), r.text
+
+
+def test_english_question_after_german_switches_back(chat):
+    a, _ = chat
+    st = DialogState("sw61")
+    a.turn(st, "hast du tipps?")
+    r = a.turn(st, "how many days until christmas")
+    assert "days until" in r.text, r.text
+    r = a.turn(st, "and until new year?")
+    assert "days until" in r.text, r.text
+    from engramm.chat.tools import tool_answer
+    import datetime as _dt
+    t = tool_answer("how many days until christmas", _dt.datetime(2026, 10, 2, 12, 0))
+    assert ".0 weeks" not in t.text, t.text

@@ -28,7 +28,9 @@ detect:
             his, her, him, born, will, would, could, should, there, this, that, which, whom, was, were, been, be,
             from, at, by, in, as, so, if, then, than, also, just, like, what's, it's, i'm, don't, can't, live, lives,
             kinda, sorta, gonna, wanna, gotta, long, pretty, really, got, home, work, day, week, night, thanks,
-            yeah, yep, nope, my, me, you, your, not, is, are, am, and, the, a, an, had, has, went, said, feel, think]
+            yeah, yep, nope, my, me, you, your, not, is, are, am, and, the, a, an, had, has, went, said, feel, think,
+            many, much, until, till, new, year, years, days, christmas, month, months, time, people, here, weather, old,
+            big, tall, far, weekend, tonight, morning, evening, again, please, thank, sorry, maybe, really, any, some]
   # words that are German but also English (or English-looking): they count only next to a clearly German word
   ambiguous: [was, die, also, so, na, ja, hat, man, will, bin, gut, war, rot, arm, hand, kind, gift, fast, mist, er, alt,
              hoch, film, morgen, nach, sein, lang, okay, ok, hand, bad, tag, top, super, cool]
