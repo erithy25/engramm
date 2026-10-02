@@ -192,7 +192,8 @@ Veröffentlichungsschritt versucht es seitdem nach einer Minute ein zweites Mal.
 [v3.1.0-beta.15](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.15) (Lauf 36999697063, Batterien 49–54,
 Amtsinhaber aus dem eigenen Artikel).
 [v3.1.0-beta.16](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.16) (Lauf 37001703138, Batterie 55:
-Werk-Kontext; „who wrote it?“ ist nie Stephen Kings „It“; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
+Werk-Kontext; „who wrote it?“ ist nie Stephen Kings „It“; 45 Dateien, 6 Installer, SHA256SUMS geprüft). beta.17 bringt Batterien 56–59 (Wissens-Folgefragen,
+Alltagsmomente Englisch/Deutsch, Tastatursalat, Folgefragen mit Bezug auf den Satz davor).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 

@@ -2438,6 +2438,8 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - „i don't get it“ nach einem Witz → vorher „What are you trying to find out?“; „but i need the money“ / „what would you
     do?“ vor einer Kündigung → konkrete Abwägung statt allgemeiner Notiz-Tipps; „are you sure?“ → „Yes — Lima. That's
     straight from the infobox …“ statt der rohen Infobox-Zeile.
+  - Team-Dev-Satz: 1 von 128 geändert (team-0067, wie Runde 56). NQ-open 400: 22/9. Suite 748 bestanden, 7 übersprungen.
+    Regressionen 32, 38–59 (26 Gespräche, Englisch und Deutsch): 0 Wiederholungen, keine Unterschiede außer Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
