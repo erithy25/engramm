@@ -928,9 +928,6 @@ norms:
 judge_plain:
   - "Hard to say in general — it really depends on you. How do you feel about it?"
   - "That depends a lot on the person. Does it bother you?"
-howto_none:
-  - "I don't have a good guide for that one, sorry — I'd rather not make something up."
-  - "That's one I can't help with properly, I'm afraid. I don't have reliable tips for it."
 moved_new:
   - "Moving somewhere new is hard — the first months can feel really lonely. Which city did you move to?"
   - "That's a big change, and it takes time to feel at home. Where did you move to?"
@@ -1023,6 +1020,7 @@ yes_no_quote:
 # everyday facts the text look-up tends to get wrong; each checked by hand ("q" is matched against the
 # normalised question without the question mark)
 common:
+  - {q: "(?:and |so )?(?:has anyone|did anyone|has anybody|did people|have people) (?:ever )?(?:climbed|reached the (?:top|summit) of|been to the top of) (?:mount )?everest|who (?:was the first (?:person |man |one )?to climb|first climbed|first reached the summit of) (?:mount )?everest", a: "Yes — Edmund Hillary and Tenzing Norgay were the first to reach the summit, on 29 May 1953. Thousands have climbed it since.", v: "Edmund Hillary and Tenzing Norgay", t: "Mount Everest", first: "Edmund Hillary from New Zealand and Tenzing Norgay, a Sherpa from Nepal — they reached the top together on 29 May 1953.", when: "That was on 29 May 1953."}
   - {q: "(?:and |so )?(?:how (?:big|large) is (?:the planet )?mercury|what(?:'s| is) the (?:size|diameter) of (?:the planet )?mercury|how wide is mercury|how big is mercury compared to (?:the )?earth)", a: "Mercury is about 4,879 km across — about 38% of Earth's width — the smallest planet.", v: "4,879 km", t: "Mercury"}
   - {q: "(?:and |so )?how far (?:away )?is mercury from the sun|what(?:'s| is) the distance (?:between|from) (?:the sun and mercury|mercury (?:and|to) the sun)", a: "Mercury is on average about 58 million km (0.39 AU) from the Sun.", v: "58 million km (0.39 AU)", t: "Mercury"}
   - {q: "(?:and |so )?(?:how (?:big|large) is (?:the planet )?venus|what(?:'s| is) the (?:size|diameter) of (?:the planet )?venus|how wide is venus|how big is venus compared to (?:the )?earth)", a: "Venus is about 12,104 km across — almost exactly Earth's size (95%).", v: "12,104 km", t: "Venus"}
@@ -1756,3 +1754,50 @@ ideas_liked:
 exam_count:
   - "{X} exams — no wonder you're stressed. Which subjects are they?"
   - "Oof, {x} exams at once is a lot. What are the subjects?"
+interview_at:
+  - "{X} — impressive! What's the role? You must have done something right to get this far."
+  - "Ooh, {x}! That's exciting. Do you know what the interview will be like — technical, or more of a chat?"
+interview_q:
+  weakness:
+    - "Pick a real but harmless weakness and show what you do about it. For example: “I used to take on too much myself — now I plan my week and ask for help earlier.” Honest, short, and it ends on growth. Avoid fake ones like “I'm a perfectionist”."
+  strength:
+    - "Name one or two strengths that fit the job and back each with a short example: “I'm good at explaining complicated things — in my last job I trained all the new colleagues.” Examples beat adjectives."
+  salary:
+    - "Know your number before you go in — check typical salaries for the role. If they ask, give a range with your target near the bottom of it, and say you're flexible depending on the whole package."
+  why:
+    - "Keep it about them and about the future: what excites you about this company and role, and what you'd bring. Skip anything negative about your old job."
+interview_luck_at:
+  - "Good luck at {x} tomorrow — you've prepared, and you'll do great! 🍀 Tell me how it went."
+  - "Fingers crossed for {x}! Breathe, be yourself — they invited you for a reason. 🍀"
+interview_luck:
+  - "Good luck tomorrow — you've got this! 🍀 Tell me how it went."
+luck:
+  - "Good luck! You've got this. 🍀"
+  - "Fingers crossed for you! 🍀"
+list_author:
+  - "“{x}” was written by {y} ({z})."
+  - "That's {y} — “{x}” came out in {z}."
+bday_unknown:
+  - "You haven't told me your birthday yet — when is it?"
+bday_days:
+  - "{x} days until your birthday ({y})! 🎂"
+  - "Your birthday is in {x} days — on {y}. 🎉"
+bday_is_today:
+  - "It's today! Happy birthday! 🎂🎉"
+age_if:
+  - "You're {x} now, and you'll turn {y} on {z}. 🎂"
+age_if_nobday:
+  - "Born in that year, you're {x} or {y} now — {y} once you've had your birthday this year."
+food_time_known:
+  - "The quickest one takes about {x} minutes — the others around 20–30."
+food_time:
+  - "Most of these take about 15–30 minutes, so you'll be eating soon."
+trust_betrayed:
+  - "You're not stupid. Trusting someone you love is exactly what you're supposed to do — the one who broke that trust is him, not you."
+  - "Please don't blame yourself. Being able to trust is a good quality. What he did says everything about him and nothing about you."
+text_ex:
+  - "Honestly? I'd wait. Right now you're hurt, and anything you send might not say what you really mean. Give it a few days — and ask yourself what you'd want to get out of it."
+  - "I'd give it some time first. If you still want to say something in a few days, you'll say it more calmly. And you don't owe him a reply."
+interview_nerves:
+  - "Totally normal — being nervous means it matters to you. Remember: {x} already liked your application enough to invite you. Prepare two or three stories, get a good night's sleep, and you'll be fine."
+  - "Of course you are, that's a big one! Nerves usually fade after the first few minutes. Breathe slowly, and remember it's a conversation — you're checking them out too."

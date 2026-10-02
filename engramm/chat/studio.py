@@ -31,9 +31,28 @@ PLACEHOLDERS = {"name", "who", "x", "y", "dish", "rest", "noun", "pron", "subjec
 
 def load_sources(src: Path = SRC) -> dict:
     import yaml
-    # BaseLoader: every scalar stays a string ("yes", "no", "on" are words here, not booleans)
-    return {name: yaml.load((src / f"{name}.yaml").read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
-            for name in FILES}
+
+    dupes: list[str] = []
+
+    class _Loader(yaml.BaseLoader):
+        """BaseLoader (every scalar stays a string: "yes", "no", "on" are words here, not booleans) that
+        notes a key given twice in one mapping — YAML would silently keep only the last one."""
+
+    def _mapping(loader, node, deep=False):
+        seen_keys: set = set()
+        for knode, _v in node.value:
+            k = loader.construct_object(knode, deep=deep)
+            if k in seen_keys:
+                dupes.append(f"{name}.yaml line {knode.start_mark.line + 1}: key {k!r} given twice (only the last one counts)")
+            seen_keys.add(k)
+        return yaml.BaseLoader.construct_mapping(loader, node, deep=deep)
+
+    _Loader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _mapping)
+    data = {}
+    for name in FILES:
+        data[name] = yaml.load((src / f"{name}.yaml").read_text(encoding="utf-8"), Loader=_Loader)
+    data["_duplicates"] = dupes
+    return data
 
 
 def _placeholders(text: str) -> set[str]:
@@ -43,6 +62,7 @@ def _placeholders(text: str) -> set[str]:
 def check(data: dict) -> tuple[list[str], list[str]]:
     from engramm.chat.bank import normalise
     errors, warnings = [], []
+    errors.extend(data.get("_duplicates", []))
     seen = set()
     compiled = []
     for it in data["smalltalk"]["intents"]:

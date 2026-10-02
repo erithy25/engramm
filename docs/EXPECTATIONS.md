@@ -2223,6 +2223,20 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     Einsamkeit im Homeoffice → Ideen; „bist du ein Mensch?“.
   - Wiederholungen 5 → 0. Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–43 und langes
     Gespräch: 0 Wiederholungen. Suite 708 bestanden, 7 übersprungen.
+- **Alltags-Batterie 45 (Englisch, Gedächtnis und Folgefragen)** (Name und Beruf in einem Satz, Länderfakten, Buchliste,
+  Vorstellungsgespräch mit Tippfehlern, Geburtstag, vegetarisches Essen, Everest, Trennung):
+  - Schwer: „hey im lisa and i'm a nurse“ verlor den Namen (→ jetzt beides gemerkt); „who wrote the first one?“ nach einer
+    Buchliste nannte den Autor einer Fernsehserie (→ „“Good Omens” was written by Terry Pratchett and Neil Gaiman“);
+    „i hav a job interveiw tomorow“ → „you work as an interveiw“ (→ Tippfehler in Aussagen werden vor dem Merken
+    korrigiert, nie bei Namen); „should i text him?“ → Live-Daten-Absage (→ ehrlicher Rat).
+  - Folgefragen: „and its population?“ → Australien, „how about new zealand?“, „which one is bigger?“ (Fläche);
+    „is it good?“ → das eben genannte Buch; Vorstellungsgespräch: Firma → Kleidung → Schwächen-Frage → Nervosität → Glück;
+    „how many days until my birthday?“ und „how old will i be if i was born in 1995?“ aus dem gemerkten Geburtstag;
+    „how long does it take?“ nach Rezeptideen; Everest: „has anyone climbed it?“ → „who was first?“; „what shifts do i work?“.
+  - Werkzeug: `studio check` meldet jetzt Schlüssel, die in einer YAML-Datei doppelt vorkommen. Zweimal hatte ein neuer
+    Abschnitt still einen alten überschrieben (einmal mit Wirkung auf team-0040; vor dem Commit bemerkt und behoben).
+  - Wiederholungen 3 → 0. Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–44 und langes
+    Gespräch: 0 Wiederholungen. Suite 712 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

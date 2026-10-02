@@ -1691,3 +1691,83 @@ def test_battery44_german_world_cup_work_and_loneliness(chat):
     assert r.kind == "smalltalk", r.text
     r = a.turn(DialogState("h8"), "bist du ein mensch?")
     assert r.text.startswith("Nein"), r.text
+
+
+def test_battery45_name_job_interview_birthday_and_breakup(chat):
+    a, _ = chat
+    st = DialogState("i1")
+    a.turn(st, "hey im lisa and i'm a nurse")
+    assert "Lisa" in a.turn(st, "whats my name?").text
+    assert "nurse" in a.turn(st, "whats my job?").text
+    r = a.turn(st, "i work night shifts")
+    assert "shift" in r.text.lower() and "Tell me more" not in r.text, r.text
+    assert a.turn(st, "what shifts do i work?").text == "You work night shifts."
+    st2 = DialogState("i2")
+    r = a.turn(st2, "i hav a job interveiw tomorow")
+    assert "interveiw" not in r.text and "work as" not in r.text, r.text
+    r = a.turn(st2, "its at google")
+    assert "Google" in r.text, r.text
+    r = a.turn(st2, "what should i wear?")
+    assert "occasion" not in r.text, r.text
+    r = a.turn(st2, "what if they ask about my weaknesses?")
+    assert "weakness" in r.text, r.text
+    r = a.turn(st2, "im nervous")
+    assert "Google" in r.text or "big one" in r.text, r.text
+    r = a.turn(st2, "thanks, wish me luck")
+    assert "🍀" in r.text and "sorry" not in r.text.lower(), r.text
+    st3 = DialogState("i3")
+    a.turn(st3, "my birthday is on march 3")
+    r = a.turn(st3, "how many days until my birthday?")
+    assert "days" in r.text and "March" in r.text, r.text
+    r = a.turn(st3, "how old will i be if i was born in 1995?")
+    assert "turn" in r.text and "1995" not in r.text, r.text
+    st4 = DialogState("i4")
+    a.turn(st4, "i broke up with my boyfriend")
+    a.turn(st4, "he cheated on me")
+    r = a.turn(st4, "i feel stupid for trusting him")
+    assert r.kind == "empathy" and "not" in r.text, r.text
+    r = a.turn(st4, "should i text him?")
+    assert r.via != "device" and "internet" not in r.text.lower(), r.text
+
+
+def test_battery45_lists_food_time_and_everest(chat):
+    a, _ = chat
+    st = DialogState("i5")
+    a.turn(st, "recommend me a book")
+    r = a.turn(st, "who wrote the first one?")
+    assert "written by" in r.text or r.text.startswith("That's"), r.text
+    st2 = DialogState("i6")
+    st2.topic = {"title": "Mount Everest", "name": "Mount Everest", "turn": 0}
+    r = a.turn(st2, "has anyone climbed it?")
+    assert "Hillary" in r.text, r.text
+    assert "Tenzing" in a.turn(st2, "who was first?").text
+    st3 = DialogState("i7")
+    a.turn(st3, "what should i make for dinner?")
+    a.turn(st3, "something quick")
+    r = a.turn(st3, "how long does it take?")
+    assert "minutes" in r.text, r.text
+
+
+def test_typo_fixer_keeps_names():
+    from engramm.chat.dialog import Assistant
+
+    class Sp:
+        def known(self, w):
+            return w in ("interview", "tomorrow", "have", "a", "job")
+
+        def fix_word(self, w):
+            return {"interveiw": "interview", "xaver": "saver"}.get(w, w)
+    a = Assistant.__new__(Assistant)
+    a.speller = Sp()
+    assert a._fix_typos("i have a job interveiw") == "i have a job interview"
+    assert a._fix_typos("i'm xaver") == "i'm xaver"
+    assert a._fix_typos("Xaver is here") == "Xaver is here"
+
+
+def test_studio_reports_keys_given_twice(tmp_path):
+    from engramm.chat import studio
+    for name in studio.FILES:
+        (tmp_path / f"{name}.yaml").write_text("a: [x]\nb: [y]\n" if name != "daily" else "a: [x]\na: [y]\n", encoding="utf-8")
+    data = studio.load_sources(tmp_path)
+    assert any("daily.yaml line 2" in d and "'a'" in d for d in data["_duplicates"]), data["_duplicates"]
+    assert len(data["_duplicates"]) == 1
