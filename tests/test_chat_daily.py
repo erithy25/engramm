@@ -408,3 +408,21 @@ def test_implausible_lookup_answers():
 def test_kb_numbers_in_names_and_namesakes():
     from engramm.kb.kgqa import _ROMAN
     assert _ROMAN["2"] == "ii" and _ROMAN["two"] == "ii"
+
+
+def test_german_dislikes_jokes_and_moods(chat):
+    a, st = chat
+    r = a.turn(st, "erzähl mir einen witz")
+    first = r.text
+    r = a.turn(st, "noch einen")
+    assert r.text != first and "verstehe" not in r.text and "nicht ganz mit" not in r.text, r.text
+    r = a.turn(st, "ich mag keine pilze")
+    assert "Pilze" in r.text and "verstehe" not in r.text, r.text
+    r = a.turn(st, "ich hasse montage")
+    assert "Montage" in r.text and r.text.rstrip().endswith("?"), r.text
+    r = a.turn(st, "ich esse kein fleisch")
+    assert "Fleisch" in r.text and "keine Fleisch" not in r.text, r.text
+    r = a.turn(st, "mir geht's gut, danke")
+    assert "Erzähl mir mehr" not in r.text, r.text
+    r = a.turn(st, "ich bin müde")
+    assert "klingt schwer" not in r.text, r.text

@@ -200,7 +200,22 @@ class Assistant:
             bridged = self._german_question(st, msg, s)
             if bridged is not None:
                 return bridged
-            ex = experience_de(s)
+            dm = _DISLIKE_DE.match(s)
+            if dm:
+                # "ich mag keine pilze": a dislike, remembered (in English, like every fact)
+                x = (dm.group("x") or dm.group("z") or dm.group("y") or "").strip()
+                shown = " ".join(w[:1].upper() + w[1:] for w in x.split())     # German nouns: "Pilze"
+                if _RELATABLE_DE.fullmatch(x):
+                    return Reply(msg, "smalltalk", self._pick(st, "de:dislike_relatable", dd["dislike_relatable"],
+                                                              x=shown), via="german")
+                if x in ("fleisch", "fleisch und fisch"):
+                    st.uses["diet"] = "vegetarian"            # "ich esse kein Fleisch": food ideas without meat
+                    self._learn(st, ["I'm vegetarian."], msg)
+                    return Reply(msg, "learned", "Alles klar, kein Fleisch – das merke ich mir für Essensideen!",
+                                 via="german")
+                self._learn(st, [f"I don't like {x}."], msg)
+                return Reply(msg, "learned", self._pick(st, "de:dislike", dd["dislike"], x=shown), via="german")
+            ex = experience_de(s) if not (u.kind == "feeling" and len(s.split()) <= 4) else None
             if ex is not None:
                 val, topic, person, timeword = ex
                 shape = "person" if topic and person else "thing" if topic else "time" if timeword else "plain"
@@ -230,6 +245,8 @@ class Assistant:
                 return Reply(msg, "tool", f"{u.data['expr']} = {res.value.replace('.', ',')}", via="tool")
         if u.kind == "intent":
             it = next(i for i in de["intents"] if i["id"] == u.data["id"])
+            if it["id"] == "joke":
+                st.last_action = {"kind": "joke", "turn": st.turn}
             opts = it.get("responses_named") if name and it.get("responses_named") else it["responses"]
             return Reply(msg, "smalltalk", self._pick(st, f"de:{it['id']}", opts, name=name or ""), via="german")
         if u.kind == "feeling":
@@ -1920,6 +1937,15 @@ _RELATABLE = re.compile(r"(?:mondays?|tuesdays?|wednesdays?|thursdays?|fridays?|
                         r"the heat|hot weather|summer|traffic|commuting|the commute|homework|exams?|tests|waiting|queues|"
                         r"lines|cleaning|chores|housework|laundry|dishes|doing the dishes|meetings|emails|taxes|"
                         r"the dentist|dentists|spiders|mosquitos|mosquitoes|bugs|small talk|crowds|noise|snow)", re.I)
+_DISLIKE_DE = re.compile(r"^(?:also |ehrlich gesagt |ehrlich )?ich (?:mag|esse|trinke|schaue|höre|lese) "
+                         r"(?:(?:echt |wirklich |gar |überhaupt )?(?:keine?n?|nicht so gern|nicht gern|nicht)) "
+                         r"(?P<x>[a-zäöüß][a-zäöüß -]{1,30}?)(?: so gern| gern| so)?$|"
+                         r"^ich (?:hasse (?P<z>[a-zäöüß][a-zäöüß -]{1,30})|kann (?P<y>[a-zäöüß][a-zäöüß -]{1,30}?) "
+                         r"nicht (?:leiden|ausstehen))$")
+_RELATABLE_DE = re.compile(r"(?:montage?|montags|morgende?|frühes aufstehen|früh aufstehen|wecker|regen|regenwetter|winter|"
+                           r"kälte|hitze|stau|staus|pendeln|hausaufgaben|prüfungen|klausuren|warten|schlangen|putzen|"
+                           r"aufräumen|hausarbeit|wäsche|abwasch|meetings|e-mails|mails|steuern|zahnarzt|zahnärzte|"
+                           r"spinnen|mücken|insekten|smalltalk|menschenmassen|lärm|schnee)", re.I)
 _TOPIC_EDGE = set("""who whom whose what which when where why how is are was were be been do does did done has have had
 won win wins winning lost lose the a an of in on at for to by from with and or but about i me my you your he she it they
 him her them his its their this that these those there here top best first last most many much old""".split())

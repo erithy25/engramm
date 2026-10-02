@@ -3881,6 +3881,17 @@
     ]
    },
    {
+    "id": "user_fine",
+    "patterns": [
+     "(mir geht s|mir gehts|mir geht es|bei mir( ist)?( alles)?|alles|mir geht s auch|mir gehts auch) (gut|super|bestens|prima|klar|ok|okay|ganz gut|gut soweit)(,? danke|,? danke dir|,? danke der nachfrage)?(,? und dir)?[!.]*"
+    ],
+    "responses": [
+     "Freut mich zu hören! Was steht heute bei dir an?",
+     "Schön! Gibt's was Neues bei dir?",
+     "Das ist gut. Worüber wollen wir reden?"
+    ]
+   },
+   {
     "id": "joke",
     "patterns": [
      "(erzähl|erzähle|sag) (mir )?(einen|nen|mal einen|noch einen) witz|kennst du (einen|nen) witz|witz( bitte)?|mach (mal )?einen witz"
@@ -4248,7 +4259,15 @@
      "Freut mich, dass es dir gefällt!",
      "Finde ich auch!"
     ]
-   }
+   },
+   "dislike": [
+    "Okay, {x} also nicht – merk ich mir! Was magst du denn gern?",
+    "Notiert: {x} – lieber nicht. Was magst du stattdessen?"
+   ],
+   "dislike_relatable": [
+    "Ha, {x} können echt hart sein. Was nervt dich am meisten daran?",
+    "Oh, das höre ich oft über {x}. Was ist das Schlimmste daran?"
+   ]
   }
  },
  "daily": {
