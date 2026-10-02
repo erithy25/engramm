@@ -688,3 +688,15 @@ def test_small_talk_round_two(chat):
     assert r.text.rstrip().endswith("?"), r.text
     r = a.turn(st, "what's new with you")
     assert "new" in r.text.lower(), r.text
+
+
+def test_small_exact_tools():
+    from engramm.chat.tools import tool_answer
+    assert "Yes" in tool_answer("is 17 a prime number").text
+    assert "7 × 13" in tool_answer("is 91 a prime number").text
+    assert "remainder 1" in tool_answer("is 10 divisible by 3").text
+    assert "120" in tool_answer("factorial of 5").text
+    assert "hola" in tool_answer("translate hello to spanish").text
+    assert "merci" in tool_answer("how do you say thank you in french").text
+    assert "exchange rates" in tool_answer("what's 20 euros in dollars").text
+    assert "glad" in tool_answer("synonym for happy").text

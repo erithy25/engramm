@@ -461,6 +461,170 @@ def date_answer(message: str, now: dt.datetime | None = None) -> ToolResult | No
     return None
 
 
+# ---------------------------------------------------------------------------
+# small exact tools: number facts, currencies (honestly), phrases, synonyms
+# ---------------------------------------------------------------------------
+
+_NUMQ = re.compile(r"^(?:is|are)\s+(?P<n>-?\d{1,12})\s+(?:a\s+|an\s+)?(?P<what>prime(?: number)?|even(?: number)?|"
+                   r"odd(?: number)?|perfect square|square number)\s*\??$|"
+                   r"^(?:is|does)\s+(?P<a>\d{1,12})\s+(?:divisible by|divide by)\s+(?P<b>\d{1,9})\s*\??$|"
+                   r"^(?:what(?:'s| is)\s+)?(?:the\s+)?factorial of (?P<f>\d{1,3})\s*\??$|^(?P<f2>\d{1,3})\s*!\s*\??$", re.I)
+
+
+def _is_prime(n: int) -> bool:
+    if n < 2:
+        return False
+    if n % 2 == 0:
+        return n == 2
+    r = int(math.isqrt(n))
+    return all(n % k for k in range(3, r + 1, 2))
+
+
+def number_fact(message: str) -> ToolResult | None:
+    """"is 17 a prime number?", "is 10 divisible by 3?", "factorial of 5" — computed, never looked up."""
+    m = _NUMQ.match(message.strip().rstrip(".!"))
+    if not m:
+        return None
+    if m.group("n"):
+        n, what = int(m.group("n")), m.group("what").lower()
+        if what.startswith("prime"):
+            if _is_prime(n):
+                return ToolResult("calc", f"Yes — {n} is a prime number.", "yes")
+            if n < 2:
+                return ToolResult("calc", f"No — {n} is not a prime number (primes start at 2).", "no")
+            d = next(k for k in range(2, int(math.isqrt(n)) + 1) if n % k == 0)
+            return ToolResult("calc", f"No — {n} is not prime: it's {d} × {n // d}.", "no")
+        if what.startswith("even"):
+            return ToolResult("calc", f"{'Yes' if n % 2 == 0 else 'No'} — {n} is {'even' if n % 2 == 0 else 'odd'}.",
+                              "yes" if n % 2 == 0 else "no")
+        if what.startswith("odd"):
+            return ToolResult("calc", f"{'Yes' if n % 2 else 'No'} — {n} is {'odd' if n % 2 else 'even'}.",
+                              "yes" if n % 2 else "no")
+        r = math.isqrt(abs(n))
+        ok = n >= 0 and r * r == n
+        return ToolResult("calc", f"Yes — {n} = {r} × {r}." if ok else f"No — {n} is not a perfect square.",
+                          "yes" if ok else "no")
+    if m.group("a"):
+        a, b = int(m.group("a")), int(m.group("b"))
+        if b == 0:
+            return ToolResult("calc", "Nothing is divisible by 0 — dividing by zero isn't defined.", "no")
+        if a % b == 0:
+            return ToolResult("calc", f"Yes — {a} ÷ {b} = {a // b}.", "yes")
+        return ToolResult("calc", f"No — {a} ÷ {b} = {a // b} remainder {a % b}.", "no")
+    f = int(m.group("f") or m.group("f2"))
+    if f > 170:
+        return ToolResult("calc", f"{f}! is far too large to write out — it has more than 300 digits.", None)
+    return ToolResult("calc", f"{f}! = {fmt_number(math.factorial(f))}.", str(math.factorial(f)))
+
+
+_MONEY = re.compile(r"^(?:what(?:'s| is)\s+|how much is\s+|convert\s+)?\d[\d.,]*\s*(?:€|\$|£|¥)?\s*"
+                    r"(?:euros?|eur|dollars?|usd|pounds?|gbp|yen|jpy|francs?|chf|yuan|rupees?|pesos?|bitcoins?|btc)\s+"
+                    r"(?:in|to|into)\s+(?:euros?|eur|dollars?|usd|pounds?|gbp|yen|jpy|francs?|chf|yuan|rupees?|pesos?)\s*\??$|"
+                    r"^(?:what(?:'s| is) the )?exchange rate\b", re.I)
+
+
+def money(message: str) -> ToolResult | None:
+    """Currency conversions need today's rates — said honestly instead of a guess."""
+    if not _MONEY.match(message.strip()):
+        return None
+    return ToolResult("money", "I can't convert currencies reliably — exchange rates change every day, and I work "
+                               "offline without live data. A bank or currency app will have today's rate.", None)
+
+
+_PHRASES = {
+    "hello": {"spanish": "hola", "french": "bonjour", "german": "hallo", "italian": "ciao", "portuguese": "olá"},
+    "hi": {"spanish": "hola", "french": "salut", "german": "hallo", "italian": "ciao", "portuguese": "oi"},
+    "goodbye": {"spanish": "adiós", "french": "au revoir", "german": "auf Wiedersehen", "italian": "arrivederci",
+                "portuguese": "adeus"},
+    "bye": {"spanish": "adiós", "french": "salut", "german": "tschüss", "italian": "ciao", "portuguese": "tchau"},
+    "thank you": {"spanish": "gracias", "french": "merci", "german": "danke", "italian": "grazie",
+                  "portuguese": "obrigado / obrigada"},
+    "thanks": {"spanish": "gracias", "french": "merci", "german": "danke", "italian": "grazie",
+               "portuguese": "obrigado / obrigada"},
+    "please": {"spanish": "por favor", "french": "s'il vous plaît", "german": "bitte", "italian": "per favore",
+               "portuguese": "por favor"},
+    "yes": {"spanish": "sí", "french": "oui", "german": "ja", "italian": "sì", "portuguese": "sim"},
+    "no": {"spanish": "no", "french": "non", "german": "nein", "italian": "no", "portuguese": "não"},
+    "good morning": {"spanish": "buenos días", "french": "bonjour", "german": "guten Morgen", "italian": "buongiorno",
+                     "portuguese": "bom dia"},
+    "good night": {"spanish": "buenas noches", "french": "bonne nuit", "german": "gute Nacht", "italian": "buona notte",
+                   "portuguese": "boa noite"},
+    "how are you": {"spanish": "¿cómo estás?", "french": "comment ça va ?", "german": "wie geht's?",
+                    "italian": "come stai?", "portuguese": "como vai?"},
+    "i love you": {"spanish": "te quiero", "french": "je t'aime", "german": "ich liebe dich", "italian": "ti amo",
+                   "portuguese": "eu te amo"},
+    "sorry": {"spanish": "lo siento", "french": "désolé", "german": "Entschuldigung", "italian": "scusa",
+              "portuguese": "desculpa"},
+    "excuse me": {"spanish": "disculpe", "french": "excusez-moi", "german": "Entschuldigung", "italian": "mi scusi",
+                  "portuguese": "com licença"},
+    "cheers": {"spanish": "¡salud!", "french": "santé !", "german": "prost!", "italian": "salute!",
+               "portuguese": "saúde!"},
+    "welcome": {"spanish": "bienvenido", "french": "bienvenue", "german": "willkommen", "italian": "benvenuto",
+                "portuguese": "bem-vindo"},
+    "my name is": {"spanish": "me llamo", "french": "je m'appelle", "german": "ich heiße", "italian": "mi chiamo",
+                   "portuguese": "meu nome é"},
+}
+_LANGS = {"spanish": "Spanish", "french": "French", "german": "German", "italian": "Italian", "portuguese": "Portuguese"}
+_TRANSLATE = re.compile(r"^(?:how do (?:you|i) say|translate|what(?:'s| is))\s+[\"“']?(?P<p>[a-z' ]{1,30}?)[\"”']?\s+"
+                        r"(?:in|to|into)\s+(?P<l>[a-z]+)\s*\??$", re.I)
+
+
+def translate(message: str) -> ToolResult | None:
+    """"How do you say thank you in French?" from a small phrase list; anything else honestly."""
+    m = _TRANSLATE.match(message.strip().rstrip(".!"))
+    if not m:
+        return None
+    phrase, lang = m.group("p").strip().lower(), m.group("l").lower()
+    if lang not in _LANGS and lang not in ("english", "chinese", "japanese", "russian", "arabic", "dutch", "turkish",
+                                            "polish", "korean", "hindi", "swedish", "greek"):
+        return None
+    hit = _PHRASES.get(phrase, {}).get(lang)
+    if hit:
+        return ToolResult("translate", f"In {_LANGS[lang]}, “{phrase}” is “{hit}”.", hit)
+    return ToolResult("translate", f"I only know a few everyday phrases in other languages — “{phrase}” in "
+                                   f"{lang.capitalize()} isn't among them, sorry. A dictionary app will know.", None)
+
+
+_SYNONYMS = {
+    "happy": ["glad", "cheerful", "joyful", "content", "delighted"], "sad": ["unhappy", "down", "gloomy", "miserable"],
+    "big": ["large", "huge", "enormous", "vast"], "small": ["little", "tiny", "compact", "minor"],
+    "good": ["great", "fine", "excellent", "decent"], "bad": ["poor", "awful", "terrible", "unpleasant"],
+    "fast": ["quick", "rapid", "speedy", "swift"], "slow": ["unhurried", "sluggish", "leisurely"],
+    "smart": ["clever", "intelligent", "bright", "sharp"], "beautiful": ["lovely", "gorgeous", "pretty", "stunning"],
+    "important": ["significant", "essential", "key", "crucial"], "angry": ["annoyed", "furious", "irritated", "mad"],
+    "tired": ["exhausted", "weary", "worn out", "sleepy"], "funny": ["amusing", "hilarious", "witty", "comical"],
+    "easy": ["simple", "straightforward", "effortless"], "hard": ["difficult", "tough", "challenging"],
+    "interesting": ["fascinating", "intriguing", "engaging"], "boring": ["dull", "tedious", "monotonous"],
+    "scared": ["afraid", "frightened", "fearful"], "old": ["aged", "elderly", "ancient", "vintage"],
+    "new": ["fresh", "recent", "modern", "novel"], "rich": ["wealthy", "affluent", "well-off"],
+    "help": ["assist", "support", "aid"], "say": ["state", "mention", "tell", "remark"],
+    "use": ["employ", "utilise", "apply"], "show": ["display", "reveal", "demonstrate"],
+    "start": ["begin", "launch", "kick off"], "end": ["finish", "conclude", "close"],
+    "nice": ["pleasant", "kind", "lovely", "agreeable"], "great": ["excellent", "superb", "fantastic", "terrific"],
+    "love": ["adore", "cherish", "be fond of"], "hate": ["detest", "loathe", "dislike"],
+    "think": ["believe", "consider", "reckon"], "very": ["extremely", "really", "highly"],
+    "strong": ["powerful", "sturdy", "robust"], "weak": ["frail", "feeble", "fragile"],
+    "quiet": ["silent", "calm", "peaceful"], "loud": ["noisy", "booming", "deafening"],
+    "cold": ["chilly", "freezing", "icy"], "hot": ["warm", "boiling", "scorching"],
+    "sure": ["certain", "confident", "positive"], "problem": ["issue", "difficulty", "trouble"],
+}
+_SYN_Q = re.compile(r"^(?:what(?:'s| is| are)\s+)?(?:an?\s+|some\s+|another\s+)?(?:synonyms?|other words?|another word)\s+"
+                    r"(?:for|of)\s+[\"“']?(?P<w>[a-z-]+)[\"”']?\s*\??$|^(?:give me|tell me)\s+(?:a\s+)?synonyms?\s+for\s+"
+                    r"(?P<w2>[a-z-]+)\s*\??$", re.I)
+
+
+def synonyms(message: str) -> ToolResult | None:
+    m = _SYN_Q.match(message.strip().rstrip(".!"))
+    if not m:
+        return None
+    w = (m.group("w") or m.group("w2")).lower()
+    syn = _SYNONYMS.get(w)
+    if syn:
+        return ToolResult("words", f"Some other words for “{w}”: {', '.join(syn[:-1])} and {syn[-1]}.", syn[0])
+    return ToolResult("words", f"I don't have synonyms for “{w}” in my word list, sorry — a thesaurus will help.", None)
+
+
 def tool_answer(message: str, now: dt.datetime | None = None) -> ToolResult | None:
-    """The first tool that recognises the message (dates, units, then arithmetic)."""
-    return date_answer(message, now) or convert(message) or calculate(message)
+    """The first tool that recognises the message (dates, units, number facts, money, words, then arithmetic)."""
+    return (date_answer(message, now) or convert(message) or number_fact(message) or money(message)
+            or translate(message) or synonyms(message) or calculate(message))
