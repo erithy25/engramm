@@ -27,12 +27,15 @@ hyperdimensional vectors and counted linear models (averaged perceptrons).
 | Memory use | lite pack (727 MB): **0.53 GB peak** for the whole server while chatting (container measurement, `docs/EXPECTATIONS.md` E28) |
 | Start | 2–4 s until ready (container) |
 | Knowledge | lead sections of the 400 000 (lite) most-referenced Wikipedia articles + a fact bank from DBpedia and Wikidata |
-| Languages | English; German v0 for small talk, feelings, memory and crisis help |
+| Languages | English; German v1 for small talk, feelings, memory, advice, recommendations and common fact questions |
+| Internet (v3.1, optional) | **off by default**; three channels you switch on one by one — full Wikipedia articles from a static "shelf" (whole buckets plus decoys, no server of ours), news feeds fetched on a schedule, and single web pages over Tor. **The text of your question never leaves the computer**: ENGRAMM searches locally and fetches whole buckets, feeds or pages — the shelf host sees bucket numbers only; a page fetched by the messenger tells its site (anonymously, over Tor) which page was read. Every fetch is listed in the app's network log. Design and honest residual risks: `docs/SPEC_ATLAS.md` |
 
 **Honest limits.** It is *not* as good as ChatGPT at open conversation, explanation or writing — the plan's
 own estimate for full parity is ≤ 3 %, and the blind comparison (ChatBench, `docs/PREREG_CHATBENCH.md`) needs
 human raters and has not run yet. What it does better is measurable: sources, no invented facts, provable
-forgetting, offline, deterministic.
+forgetting, offline, deterministic. With internet access on, answers from fetched text name their source
+and date; when ENGRAMM is not sure of a short answer, it quotes the sentence instead of guessing
+(development measurements: `docs/EXPECTATIONS.md` E30; registered test: `docs/PREREG_SEARCH_V0.md`, not run yet).
 
 Build it yourself: `runtime/README.md`. Architecture: `docs/SPEC_CHAT_V3.md`. Data licences: `docs/DATA_LICENSES.md`.
 

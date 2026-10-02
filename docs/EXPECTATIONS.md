@@ -1994,3 +1994,24 @@ historischen Zahl; eine andere Shot-Ziehung; und die Möglichkeit, dass die
 **Nicht als Erfolg verbuchen.** Die direkte Ablation wäre ein Lauf mit
 gemeinsamem Tie-Vektor gegen denselben Seedsatz — er würde den Anteil der
 Tie-Regel isolieren. Nicht terminiert.
+
+---
+
+## E30 — Atlas (v3.1): Entwicklungsmessungen an echtem Regal und Lite-Paket (ohne Schwelle)
+
+**Eingetragen 2026-10-02.** Entwicklung auf verbrauchten Daten, keine Testmessung; die registrierte
+Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
+
+- **Regal aus Shard 0** des CirrusSearch-Dumps 2026-09-27: 292.378 Seiten → 96.211 Artikel (≥ 300 Zeichen
+  nach Abschneiden der Literaturzone; die Zone macht 31 % des Textes aus). Extraktion 232 s (ein Kern),
+  Bau 150 s (4 Worker), 112 Fächer à 1 MiB, 0,10 GB, Index (Format 2) 11,7 MB.
+  Hochrechnung auf 66 Shards (Untergrenze): ≈ 6,3 Mio. Artikel, ≈ 6,6 GB Volumes, Index ≈ 0,55–0,67 GB.
+- **Konfidenzmodell für Netz-Sätze** (`experiments/atlas_calib.py`): 11.046 SQuAD-train-Fragen über 442
+  Artikel (heutige Fassung) unter 96.648 Ablenkern. Gefragter Artikel unter den Kandidaten: 41 %
+  (88 % bei Fragen, die ihren Artikel nennen). Das lokale Modell: 59,7 % exakte Präzision auf Regal-Sätzen.
+  Neues Modell (Label Token-F1 ≥ 0,5), θ = 13,45: 22/24 kurze Antworten richtig auf zurückgehaltenen
+  Artikeln (91,7 %, Abdeckung 1,1 %).
+- **Ende-zu-Ende-Batterie** (12 Fragen zu Artikeln aus Shard 0, die das Lite-Paket nicht hat): vorher
+  5 richtig, 2 falsch; nachher 2 sichere Kurzantworten, 7 belegte Zitate, 1 aus der Faktenbank,
+  2 ehrlich unbeantwortet, **0 falsch**. Kein Abruf enthielt Fragetext.
+- **Alltags-Batterien** (4 Gespräche, 181 Antworten, Lite-Paket): 0 wortgleiche Wiederholungen (vorher 4).
