@@ -188,7 +188,9 @@ Gedächtnis, Tippfehler, Folgefragen, Stimmung, Sarkasmus, deutsche Amtsinhaber)
 [v3.1.0-beta.13](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.13) (Lauf 36992597545, Batterien 47–48:
 Reise, Folgefragen für Alltagsfakten, Gesundheit, Geld, Arbeit, Geschenke, Entscheidungen). beta.14 (Lauf 36996025621)
 scheiterte nur beim Hochladen („other side closed“ nach 45 von 46 Dateien, alle Installer gebaut und getestet); der
-Veröffentlichungsschritt versucht es seitdem nach einer Minute ein zweites Mal. beta.15 bringt die Batterien 49–54.
+Veröffentlichungsschritt versucht es seitdem nach einer Minute ein zweites Mal.
+[v3.1.0-beta.15](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.15) (Lauf 36999697063, Batterien 49–54,
+Amtsinhaber aus dem eigenen Artikel). beta.16 bringt Batterie 55 (Werk-Kontext; „who wrote it?“ ist nie Stephen Kings „It“).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
