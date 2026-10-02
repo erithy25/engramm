@@ -723,7 +723,7 @@
    {
     "id": "joke",
     "patterns": [
-     "((can you |could you |please )?(tell|give) me (a |another |one more )?(joke|pun)s?( please)?|(say|tell) (me )?something funny|make me laugh|do you know (a|any) jokes?|(another|one more) joke|joke|jokes|(tell me )?a (dad )?joke|i need a laugh|cheer me up with a joke|be funny)"
+     "((can you |could you |please )?(tell|give) me (a |another |one more )?(joke|pun)s?( please)?|(say|tell) (me )?something funny|make me laugh|do you know (a|any) (good |funny )?jokes?|got any (good )?jokes|know any (good )?jokes|(another|one more) joke|joke|jokes|(tell me )?a (dad )?joke|i need a laugh|cheer me up with a joke|be funny)"
     ],
     "examples": [
      "tell me a joke",
@@ -927,7 +927,7 @@
    {
     "id": "bot_name",
     "patterns": [
-     "(what's|what is|whats) your name|who are you|what are you called|what do they call you|what should i call you|do you have a name|tell me your name|your name\\?|your name|introduce yourself|who am i talking to|who is this|who's this|are you engramm|what does engramm mean|why are you called engramm|what does your name mean"
+     "(what's|what is|whats) your name|who are you|what are you called|what do they call you|what should i call you|do you have a name|tell me your name|your name\\?|your name|introduce yourself|who am i talking to|who is this|who's this|who are you again|who were you again|what was your name again|remind me who you are|are you engramm|what does engramm mean|why are you called engramm|what does your name mean"
     ],
     "examples": [
      "what's your name",
@@ -1253,6 +1253,22 @@
     ]
    },
    {
+    "id": "change_topic",
+    "patterns": [
+     "(ok |okay |alright |so )?(let's|lets|can we|could we|let us) (change|switch) (the )?(topic|subject)|(ok |okay )?(new|different|another) topic( please)?|change of topic|((can|could) we |(let's|lets) )?talk about something else|enough about (that|this|me)"
+    ],
+    "examples": [
+     "let's change topic",
+     "can we talk about something else",
+     "new topic"
+    ],
+    "responses": [
+     "Sure! What would you like to talk about?",
+     "Okay, fresh start — what's on your mind?",
+     "Happy to. Anything you're curious about, or shall I suggest something?"
+    ]
+   },
+   {
     "id": "bot_languages",
     "patterns": [
      "(what|which) languages? do you (speak|know|understand)|do you speak (?P<x>german|french|spanish|italian|dutch|portuguese|russian|chinese|japanese|arabic|turkish|polish|english|deutsch)|can you speak (?P<x2>german|french|spanish|italian|dutch|portuguese|russian|chinese|japanese|arabic|turkish|polish|english|deutsch)|sprichst du deutsch|kannst du deutsch|parlez-vous français|hablas español|do you understand (german|french|spanish)|can we talk in (german|french|spanish)"
@@ -1263,9 +1279,9 @@
      "sprichst du deutsch"
     ],
     "responses": [
-     "Only English at the moment. German support is being worked on!",
-     "I understand English for now. Other languages — German first — are planned.",
-     "For now I speak English only. German is next on my list!"
+     "English and German! My German is newer — chatting, advice, recommendations and common fact questions work. Just write to me in German.",
+     "I speak English, and German for everyday chat and the usual fact questions. Other languages aren't there yet.",
+     "English best, German pretty well for everyday things — sprich mich einfach auf Deutsch an!"
     ]
    },
    {
@@ -1280,9 +1296,9 @@
      "wer bist du"
     ],
     "responses": [
-     "Hallo! Ich spreche leider noch kein Deutsch — for now, English only. How can I help?",
-     "Hi! German isn't supported yet, but it's coming. Can we chat in English?",
-     "Hallo! I only speak English for now — German is coming soon. How can I help?"
+     "Hallo! Ja, wir können gern auf Deutsch reden. Worum geht's?",
+     "Hi! Klar, auch auf Deutsch. Was kann ich für dich tun?",
+     "Hallo! Auf Deutsch geht das auch – womit kann ich helfen?"
     ]
    },
    {
@@ -2042,7 +2058,7 @@
   },
   "chitchat": [
    "I see. Tell me more?",
-   "Interesting! What makes you say that?",
+   "Oh? Go on.",
    "Okay! Is there something you'd like to know?",
    "Mm-hm. What's on your mind?",
    "Got it. Anything I can help you with?"
@@ -4426,6 +4442,91 @@
      "How about one of these:",
      "Here's what I'd cook:"
     ],
+    "with": {
+     "chicken": [
+      "chicken fajitas with peppers and onions",
+      "lemon-garlic chicken with roast potatoes",
+      "a quick chicken curry with rice",
+      "chicken stir-fry with whatever vegetables you have"
+     ],
+     "beef": [
+      "chilli con carne with rice",
+      "beef tacos with salsa",
+      "spaghetti bolognese",
+      "a simple beef stir-fry with broccoli"
+     ],
+     "fish": [
+      "salmon with lemon, potatoes and green beans",
+      "fish tacos with lime slaw",
+      "a Thai-style fish curry",
+      "baked cod with tomatoes and olives"
+     ],
+     "salmon": [
+      "salmon with lemon, potatoes and green beans",
+      "teriyaki salmon with rice",
+      "salmon pasta with spinach"
+     ],
+     "pasta": [
+      "pasta aglio e olio",
+      "creamy mushroom pasta",
+      "pasta with cherry tomatoes and mozzarella",
+      "spaghetti carbonara"
+     ],
+     "rice": [
+      "egg fried rice",
+      "a vegetable risotto",
+      "chicken and rice one-pot",
+      "a burrito bowl"
+     ],
+     "eggs": [
+      "shakshuka",
+      "a cheese and herb omelette",
+      "egg fried rice",
+      "frittata with whatever vegetables you have"
+     ],
+     "egg": [
+      "shakshuka",
+      "a cheese and herb omelette",
+      "egg fried rice"
+     ],
+     "tofu": [
+      "crispy tofu stir-fry",
+      "tofu curry with coconut milk",
+      "teriyaki tofu bowls"
+     ],
+     "vegetables": [
+      "a big vegetable curry",
+      "roasted vegetable traybake with feta",
+      "minestrone soup",
+      "vegetable stir-fry with noodles"
+     ],
+     "potatoes": [
+      "oven-baked potato wedges with a dip",
+      "potato and leek soup",
+      "a Spanish tortilla",
+      "jacket potatoes with beans and cheese"
+     ],
+     "cheese": [
+      "mac and cheese",
+      "a cheese and herb omelette",
+      "grilled cheese with tomato soup"
+     ],
+     "mushrooms": [
+      "creamy mushroom pasta",
+      "mushroom risotto",
+      "mushrooms on toast with garlic"
+     ],
+     "shrimp": [
+      "garlic shrimp pasta",
+      "shrimp tacos",
+      "a quick shrimp stir-fry"
+     ],
+     "lentils": [
+      "red lentil dal with rice",
+      "lentil soup",
+      "lentil bolognese"
+     ]
+    },
     "items": [
      {
       "x": "pasta aglio e olio — garlic, olive oil and chilli, done in fifteen minutes",
@@ -5571,6 +5672,60 @@
    "I know — I wish I could tell you! Want to ask me something else?",
    "Yeah, that one's beyond what I've read. Try me with another question?",
    "Sorry I couldn't help with that one. What else is on your mind?"
+  ],
+  "exp_more_neg": [
+   "Ugh, {x}. What happened?",
+   "Ah, {x} — that can really wear you down. Want to tell me about it?",
+   "{x}, hm. What's going on there?"
+  ],
+  "exp_more_pos": [
+   "Oh nice, {x}! Tell me more?",
+   "{x} — love that. What was the best part?",
+   "Ooh, {x}. How did it go?"
+  ],
+  "bot_experience": [
+   "I can't {x} anything myself — I only know what I've read. Have you?",
+   "Not really — no eyes or ears here, just reading. What about you?",
+   "Sadly I can't {x} things, but I've read about plenty. Did you like {topic}?"
+  ],
+  "bot_limit": [
+   "Ha, true! I make up for it by reading a lot.",
+   "Fair point — no popcorn for me. But I know plenty about films, books and the rest.",
+   "Guilty as charged! Just counting and reading over here.",
+   "True! I'm a program, but a curious one."
+  ],
+  "recap": [
+   "So far we've talked about {x}.",
+   "Let's see — we covered {x}.",
+   "We've chatted about {x}. Want to pick one of them up again?"
+  ],
+  "recap_none": [
+   "We've only just started! What would you like to talk about?",
+   "Not much yet — we're just getting going. What's on your mind?"
+  ],
+  "joke_bad": [
+   "Ha, fair — my jokes are an acquired taste. Want another, better one?",
+   "Okay, okay, that one was weak. Shall I try again?",
+   "Tough crowd! Give me one more chance?"
+  ],
+  "joke_good": [
+   "Glad you liked it! Want another?",
+   "Ha, I'm on a roll! One more?",
+   "Thanks — I'll take it. Another one?"
+  ],
+  "refine_head": [
+   "Here are some ideas with {x}:",
+   "With {x}? How about:",
+   "Sure — {x} ideas:"
+  ],
+  "exp_agree_neg": [
+   "That sounds really frustrating. How did you react?",
+   "Ugh, I'm sorry. How are you feeling about it now?",
+   "That would bother me too. What's the hardest part about it?"
+  ],
+  "exp_agree_pos": [
+   "Love that! What made it so good?",
+   "Nice — that sounds really good. Tell me more?"
   ]
  }
 }

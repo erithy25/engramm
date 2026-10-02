@@ -337,6 +337,13 @@ class Assistant:
         if st.offer is None or st.offer.get("turn") != st.turn:
             kind = offer_in(rep.text)
             st.offer = {"kind": kind, "turn": st.turn} if kind else None
+        theme = _theme_of(st, rep)
+        if theme:
+            recap = st.uses.setdefault("recap", [])
+            if theme in recap:
+                recap.remove(theme)
+            recap.append(theme)
+            del recap[:-12]
 
     def _turn(self, st: DialogState, msg: str) -> Reply:
         if not msg:
@@ -359,6 +366,9 @@ class Assistant:
             if m:
                 msg = f"My {have[0]} are called {(m.group(1) if m.re is _THEIR_NAMES else m.group(0)).strip(' .!')}."
         norm = normalise(msg)
+        own = self._about_me(st, msg, norm)
+        if own is not None:
+            return own
         if _SURPRISE.fullmatch(norm) and st.last_reply and (
                 st.last_kind in ("answer", "about") or "fact" in st.last_reply[:40].lower()):
             # "that's crazy" right after a fact: go along with it, as a person would
@@ -910,6 +920,49 @@ class Assistant:
         st.last_fact = {"evidence": rep.evidence, "source": src, "answer": rep.answer, "question": q, "sure": True}
         return rep
 
+    def _about_me(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Lines about ENGRAMM itself or about the conversation, which must never go to the reading:
+        "have you seen it?", "you can't watch movies", "what did we talk about?", "that joke was bad",
+        and "something with chicken" after cooking ideas."""
+        d = self.bank.daily
+        la = st.last_action or {}
+        recent = st.turn - la.get("turn", -99) <= 3
+        m = _BOT_EXPERIENCE.match(norm)
+        if m:
+            what = (m.group("rest") or "").strip(" ?")
+            what = "it" if not what or what in ("it", "that", "this", "them", "this one", "that one") else what
+            return Reply(msg, "smalltalk", self._pick(st, "daily:bot_experience", d["bot_experience"],
+                                                      x=_VERB_BASE.get(m.group("v"), m.group("v")), topic=what),
+                         via="smalltalk")
+        if _BOT_LIMIT.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:bot_limit", d["bot_limit"]), via="smalltalk")
+        if _RECAP.match(norm):
+            themes = st.uses.get("recap", [])
+            if not themes:
+                return Reply(msg, "smalltalk", self._pick(st, "daily:recap_none", d["recap_none"]), via="smalltalk")
+            listed = themes[-6:]
+            joined = listed[0] if len(listed) == 1 else ", ".join(listed[:-1]) + " and " + listed[-1]
+            return Reply(msg, "smalltalk", self._pick(st, "daily:recap", d["recap"], x=joined), via="smalltalk")
+        if recent and la.get("kind") == "joke" and _JOKE_BAD.match(norm):
+            st.last_action = {"kind": "joke", "turn": st.turn}
+            st.offer = {"kind": "joke", "turn": st.turn}
+            return Reply(msg, "smalltalk", self._pick(st, "daily:joke_bad", d["joke_bad"]), via="smalltalk")
+        if recent and la.get("kind") == "joke" and _JOKE_GOOD.match(norm):
+            st.last_action = {"kind": "joke", "turn": st.turn}
+            st.offer = {"kind": "joke", "turn": st.turn}
+            return Reply(msg, "smalltalk", self._pick(st, "daily:joke_good", d["joke_good"]), via="smalltalk")
+        m = _REFINE.match(norm)
+        if m and recent and la.get("kind") == "rec:food":
+            x = m.group("x").strip()
+            ideas = d["recommend"]["food"].get("with", {}).get(x) or \
+                d["recommend"]["food"].get("with", {}).get(x.rstrip("s"))
+            if ideas:
+                st.last_action = {"kind": "rec:food", "turn": st.turn}
+                body = "\n".join("• " + i[:1].upper() + i[1:] for i in ideas[:3])
+                head = self._pick(st, "daily:refine_head", d["refine_head"], x=x)
+                return Reply(msg, "smalltalk", f"{head}\n\n{body}", via="everyday")
+        return None
+
     def _with_offline_view(self, st: DialogState, text: str, fresh: Reply) -> Reply:
         """A newer answer from the network that the offline fact bank contradicts: say both, with
         their dates, newer first — never silently one of them."""
@@ -1460,6 +1513,19 @@ class Assistant:
         # a mood word about something else ("the weather is terrible"): a short reaction
         if not alone:
             return
+        # a short phrase right after a moment ("a bit stressful" → "work stuff"): it continues that topic
+        le = st.last_exp
+        if le and st.turn - le.get("turn", -99) <= 2 and _AGREE.fullmatch(u.norm):
+            # "yeah exactly" after ENGRAMM's question about the moment: stay with it, don't echo it
+            key = "exp_agree_neg" if le.get("valence") == "negative" else "exp_agree_pos"
+            parts.append(_Part("main", self._pick(st, f"daily:{key}", self.bank.daily[key])))
+            return
+        if le and st.turn - le.get("turn", -99) <= 2 and len(words) <= 5 and \
+                not re.search(r"\b(?:you|your)\b", u.text, re.I):
+            key = "exp_more_neg" if le.get("valence") == "negative" else "exp_more_pos"
+            parts.append(_Part("main", self._pick(st, f"daily:{key}", self.bank.daily[key],
+                                                  x=u.text.strip(" .!").lower())))
+            return
         fe = self.bank.feeling(u.norm)
         val = fe[0].valence if fe and fe[0].valence in ("positive", "negative") else _valence(u.norm)
         if val:
@@ -1552,6 +1618,30 @@ def _agreeing_sources(answer: str | None, rows: list, src: dict) -> list[str]:
     return out
 
 
+_BOT_EXPERIENCE = re.compile(r"^(?:but |so |and |lol |haha )?(?:have|did|do) (?:you|u) (?:ever |even |actually )?"
+                             r"(?P<v>seen|watched|watch|read|heard|been to|been|tried|played|eaten|eat|visited|met|"
+                             r"listened to|see|hear|play|taste|tasted|smell|feel|dream|sleep)\b(?P<rest>.*)$")
+_VERB_BASE = {"seen": "see", "watched": "watch", "read": "read", "heard": "hear", "been to": "go anywhere",
+              "been": "go anywhere", "tried": "try", "played": "play", "eaten": "eat", "visited": "visit",
+              "met": "meet", "listened to": "listen to", "tasted": "taste"}
+_BOT_LIMIT = re.compile(r"^(?:lol |haha |but |well |oh )?(?:you|u) (?:can't|cant|cannot|can not|don't|dont|do not|"
+                        r"aren't|are not|have no|got no|wouldn't|won't) (?:even |really |actually )?"
+                        r"(?:watch|see|eat|taste|hear|listen|feel|sleep|go|travel|read|play|smell|have|know what it's like|"
+                        r"understand|be|leave)\b.*$|^(?:lol |haha )?(?:you're|youre|you are) (?:just |only )?(?:a |an )?"
+                        r"(?:bot|program|computer|machine|robot|ai)\b.*$")
+_RECAP = re.compile(r"^(?:can you )?(?:remind me |tell me )?(?:what|which things?) (?:did |have )?(?:we|we've) "
+                    r"(?:talk(?:ed)? about|discuss(?:ed)?|cover(?:ed)?)(?: so far| today| before| earlier)?$|"
+                    r"^what were we (?:talking about|saying)$|^(?:summarize|sum up|recap)(?: our| the)? (?:conversation|chat)$")
+_JOKE_BAD = re.compile(r"^(?:haha |lol |ha |ugh |oh no |omg )*(?:that's|thats|that was|that one was|it's|its|"
+                       r"so|that joke was|wow that's)? ?(?:so |really |pretty |kinda |very )?(?:bad|terrible|awful|lame|"
+                       r"cringe|cringy|corny|not funny|unfunny|dumb|stupid|the worst)(?: joke)?[!. ]*(?:lol|haha)?$")
+_JOKE_GOOD = re.compile(r"^(?:ok |okay |haha |lol |ha )*(?:that's|thats|that was|that one was|this one was)? ?"
+                        r"(?:actually |really |pretty |so )?(?:good|funny|great|hilarious|nice)(?: one)?[!. ]*$")
+_REFINE = re.compile(r"^(?:maybe |how about |what about |ideally |preferably |do you have )?(?:something|anything|one|ideas?|"
+                     r"a dish|a recipe|a meal|recipes)? ?(?:with|using|that has|containing|made with) (?P<x>[a-z ]{3,25})$")
+_AGREE = re.compile(r"(?:yeah|yes|yep|yup|exactly|right|true|totally|definitely|absolutely|pretty much|kind of|kinda|"
+                    r"sort of|i guess|i know|tell me about it|same|for real)(?:[ ,]+(?:yeah|exactly|right|true|totally|"
+                    r"lol|haha|man|honestly))*[!. ]*")
 _SURPRISE = re.compile(r"(?:wow+|whoa+|woah+|omg|no way|that's (?:crazy|insane|wild|amazing|incredible|nuts|"
                        r"so cool|cool|interesting|fascinating|surprising|mad)|really|seriously|crazy|wild|"
                        r"interesting|fascinating|huh,? interesting|i didn't know that|didn't know that|"
@@ -1573,6 +1663,25 @@ def _split_self_statements(msg: str) -> str:
         return msg
     second = m.group(2)
     return f"{m.group(1)}. {second[:1].upper() + second[1:]}"
+
+
+def _theme_of(st: DialogState, rep: Reply) -> str | None:
+    """A few words for "what did we talk about?"."""
+    la = st.last_action or {}
+    if rep.via == "everyday" and la.get("turn") == st.turn and str(la.get("kind", "")).startswith("rec:"):
+        return {"food": "what to cook", "book": "books", "movie": "films", "series": "series", "music": "music",
+                "game": "games", "activity": "things to do", "gift": "gift ideas", "travel": "travel",
+                "hobby": "hobbies", "sleep": "sleep", "study": "studying"}.get(la["kind"][4:], "some ideas")
+    if rep.via in ("empathy",) or rep.kind == "empathy":
+        topic = (st.last_exp or {}).get("topic")
+        return topic if topic else "how you're doing"
+    if rep.kind in ("learned", "memory"):
+        return "things about you"
+    if rep.via in ("kb", "lookup", "about", "atlas") and st.topic and st.topic.get("turn") == st.turn:
+        return st.topic.get("name")
+    if la.get("turn") == st.turn and la.get("kind") in ("joke", "quiz", "riddle", "fact"):
+        return {"joke": "jokes", "quiz": "a quiz", "riddle": "riddles", "fact": "fun facts"}[la["kind"]]
+    return None
 
 
 def _stems(text: str) -> set[str]:

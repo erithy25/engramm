@@ -174,7 +174,10 @@ _NEG_PHRASES = re.compile(r"\b(?:(?:long|rough|bad|hard|tough|terrible|awful|hor
                           r"barely slept|pulled an all-nighter|ran out of|went wrong|fell apart|let me down|"
                           r"gave me a hard time|is driving me crazy|drives me crazy|got on my nerves|gets on my nerves|"
                           r"so much work|too much work|a lot of work|tons of work|behind on|missed my|"
-                          r"broke down|got a ticket|got a parking ticket|spilled|locked out)\b")
+                          r"broke down|got a ticket|got a parking ticket|spilled|locked out|took credit|"
+                          r"stole my (?:idea|work|lunch|spot|thunder)|talked over me|threw me under the bus|"
+                          r"went behind my back|left me out|stood me up|ghosted me|cut me off|was rude to me|"
+                          r"made fun of me|laughed at me|don't appreciate|doesn't appreciate|didn't appreciate)\b")
 _POS_PHRASES = re.compile(r"\b(?:(?:good|great|nice|amazing|awesome|fun|lovely|perfect|productive|relaxing|"
                           r"wonderful|fantastic|chill|cozy) (?:day|week|night|morning|weekend|evening|time|trip|"
                           r"holiday|vacation)|went (?:really |so |very )?(?:well|great|fine|smoothly)|"

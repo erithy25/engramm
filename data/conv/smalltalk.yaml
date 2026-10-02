@@ -355,7 +355,7 @@ intents:
     action: more
 
   - id: joke
-    patterns: ['((can you |could you |please )?(tell|give) me (a |another |one more )?(joke|pun)s?( please)?|(say|tell) (me )?something funny|make me laugh|do you know (a|any) jokes?|(another|one more) joke|joke|jokes|(tell me )?a (dad )?joke|i need a laugh|cheer me up with a joke|be funny)']
+    patterns: ['((can you |could you |please )?(tell|give) me (a |another |one more )?(joke|pun)s?( please)?|(say|tell) (me )?something funny|make me laugh|do you know (a|any) (good |funny )?jokes?|got any (good )?jokes|know any (good )?jokes|(another|one more) joke|joke|jokes|(tell me )?a (dad )?joke|i need a laugh|cheer me up with a joke|be funny)']
     examples: [tell me a joke, make me laugh, another joke, say something funny, do you know any jokes]
     action: joke
 
@@ -444,7 +444,7 @@ intents:
       - "Here's what I can do:\n• Answer questions from what I've read (Wikipedia and more) — with the source.\n• Explain things: “Tell me about black holes”.\n• Remember what you tell me (“My sister is called Anna”) — and forget it exactly when you ask.\n• Chat, tell jokes and fun facts.\n• Calculate, convert units, tell the date.\nEverything runs on your computer — no internet, no neural network."
 
   - id: bot_name
-    patterns: ['(what''s|what is|whats) your name|who are you|what are you called|what do they call you|what should i call you|do you have a name|tell me your name|your name\?|your name|introduce yourself|who am i talking to|who is this|who''s this|are you engramm|what does engramm mean|why are you called engramm|what does your name mean']
+    patterns: ['(what''s|what is|whats) your name|who are you|what are you called|what do they call you|what should i call you|do you have a name|tell me your name|your name\?|your name|introduce yourself|who am i talking to|who is this|who''s this|who are you again|who were you again|what was your name again|remind me who you are|are you engramm|what does engramm mean|why are you called engramm|what does your name mean']
     examples: [what's your name, who are you, what should i call you, introduce yourself, who am i talking to]
     responses:
       - "ENGRAMM — nice to meet you! I'm a chat assistant that runs locally and shows its sources."
@@ -600,21 +600,29 @@ intents:
       - "Big question! I can't answer it for you, but I can tell you what philosophers like Aristotle or Camus thought — just ask."
       - "That's one of the biggest questions there is, and people have answered it very differently — through religion, philosophy, or simply the people and things they love. (Fans of “The Hitchhiker's Guide to the Galaxy” will tell you it's 42.) What do you think?"
 
+  - id: change_topic
+    patterns: ['(ok |okay |alright |so )?(let''s|lets|can we|could we|let us) (change|switch) (the )?(topic|subject)|(ok |okay )?(new|different|another) topic( please)?|change of topic|((can|could) we |(let''s|lets) )?talk about something else|enough about (that|this|me)']
+    examples: [let's change topic, can we talk about something else, new topic]
+    responses:
+      - "Sure! What would you like to talk about?"
+      - "Okay, fresh start — what's on your mind?"
+      - "Happy to. Anything you're curious about, or shall I suggest something?"
+
   - id: bot_languages
     patterns: ['(what|which) languages? do you (speak|know|understand)|do you speak (?P<x>german|french|spanish|italian|dutch|portuguese|russian|chinese|japanese|arabic|turkish|polish|english|deutsch)|can you speak (?P<x2>german|french|spanish|italian|dutch|portuguese|russian|chinese|japanese|arabic|turkish|polish|english|deutsch)|sprichst du deutsch|kannst du deutsch|parlez-vous français|hablas español|do you understand (german|french|spanish)|can we talk in (german|french|spanish)']
     examples: [what languages do you speak, do you speak german, sprichst du deutsch]
     responses:
-      - "Only English at the moment. German support is being worked on!"
-      - "I understand English for now. Other languages — German first — are planned."
-      - "For now I speak English only. German is next on my list!"
+      - "English and German! My German is newer — chatting, advice, recommendations and common fact questions work. Just write to me in German."
+      - "I speak English, and German for everyday chat and the usual fact questions. Other languages aren't there yet."
+      - "English best, German pretty well for everyday things — sprich mich einfach auf Deutsch an!"
 
   - id: german_hello
     patterns: ['(guten (morgen|tag|abend)|hallo|wie geht''s|wie geht es dir|was machst du|danke|tschüss|tschüs|wer bist du|was kannst du)( dir)?']
     examples: [guten morgen, wie geht es dir, danke, wer bist du]
     responses:
-      - "Hallo! Ich spreche leider noch kein Deutsch — for now, English only. How can I help?"
-      - "Hi! German isn't supported yet, but it's coming. Can we chat in English?"
-      - "Hallo! I only speak English for now — German is coming soon. How can I help?"
+      - "Hallo! Ja, wir können gern auf Deutsch reden. Worum geht's?"
+      - "Hi! Klar, auch auf Deutsch. Was kann ich für dich tun?"
+      - "Hallo! Auf Deutsch geht das auch – womit kann ich helfen?"
 
   - id: bot_learn
     patterns: ['can you learn|do you learn|do you learn from (me|us|our conversations?)|are you learning|will you remember (this|that|what i say|what i said)|do you remember (things|our (last )?conversations?)|can you remember things|do you have (a )?memory|what happens (to|with) what i tell you|do you store (my|our) (data|conversations?|messages?|chats?)|do you save (my|our) (data|conversations?|messages?|chats?)']

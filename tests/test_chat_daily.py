@@ -309,3 +309,27 @@ def test_a_measure_needs_its_unit():
     from engramm.chat.dialog import _MEASURE_Q
     assert _MEASURE_Q.match("how far is the moon") and _MEASURE_Q.match("How tall is it?")
     assert not _MEASURE_Q.match("how old is he")
+
+
+def test_agreement_topic_change_and_recap(chat):
+    a, st = chat
+    a.turn(st, "my coworker took credit for my idea")
+    r = a.turn(st, "yeah exactly")
+    assert "yeah exactly" not in r.text.lower() and r.text.rstrip().endswith("?"), r.text
+    r = a.turn(st, "ok lets change topic")
+    assert "Go on" not in r.text and "?" in r.text, r.text
+    a.turn(st, "tell me a joke")
+    r = a.turn(st, "remind me what we talked about")
+    assert "coworker" in r.text and "joke" in r.text and r.text.count("coworker") == 1, r.text
+
+
+def test_questions_about_the_bot_itself(chat):
+    a, st = chat
+    r = a.turn(st, "have you seen it")
+    assert "can't see" in r.text or "read" in r.text, r.text
+    a.turn(st, "tell me a joke")
+    r = a.turn(st, "haha thats bad")
+    assert r.text.rstrip().endswith("?"), r.text
+    a.turn(st, "what should I cook tonight")
+    r = a.turn(st, "something with chicken")
+    assert "hicken" in r.text, r.text

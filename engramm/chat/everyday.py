@@ -100,6 +100,10 @@ _GENRES = {"sci-fi": "scifi", "scifi": "scifi", "science fiction": "scifi", "sci
            "psychology": "psychology", "science": "science", "nature": "nature"}
 _ADVICE = re.compile(_LEAD + r"(?:so )?(?:what (?:should|can|could|do you think|would you suggest|would you recommend) i "
                      r"(?:do|say|try)(?: (?:about|with) (?P<about>.+?))?(?: now| then| next)?|what would you do(?: in my (?:place|shoes))?|"
+                     r"i (?:don't|do not|dont) know (?:if|whether|what) (?:i should|to) (?:say|do|tell|talk)\b.*|"
+                     r"(?:i'm|i am|im) not sure (?:if|whether|what) (?:i should|to) (?:say|do|tell|talk)\b.*|"
+                     r"should i (?:say something|say anything|tell (?:him|her|them|my \w+)|talk to (?:him|her|them|my \w+)|"
+                     r"confront (?:him|her|them)|speak up)\b.*|"
                      r"(?:any |some |got any |do you have any )?(?:advice|tips|suggestions)(?: for me)?(?: (?:on|about|for) (?P<about2>.+))?|"
                      r"give me (?:some |an? )?(?:advice|tip|tips)(?: (?:on|about|for) (?P<about3>.+))?|"
                      r"how (?:do|should|can) i (?:deal|cope) with (?P<about4>.+)|help me (?:with this|out|deal with (?P<about5>.+))|"
