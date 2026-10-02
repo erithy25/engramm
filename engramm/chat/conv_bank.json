@@ -7284,6 +7284,18 @@
    "funeral": [
     "Dark, simple and modest — black, navy or grey. Nobody will mind if it's plain."
    ],
+   "rain": [
+    "For rain: a waterproof jacket with a hood beats an umbrella when it's windy, plus shoes that can handle puddles — no suede! Layers underneath, so you don't overheat indoors."
+   ],
+   "cold": [
+    "For the cold: layers! A warm base, a jumper and a proper coat, plus hat, scarf and gloves. Warm socks make a huge difference."
+   ],
+   "hot": [
+    "For the heat: light, loose clothes in linen or cotton, light colours, sunglasses and a hat. And sunscreen!"
+   ],
+   "snow": [
+    "For snow: waterproof boots with grip, warm layers, a hat and gloves. Being dry is what keeps you warm."
+   ],
    "office": [
     "Look at what others there wear and go one step tidier for the first days. Comfortable shoes help too!"
    ],
@@ -8848,6 +8860,303 @@
    "As I mentioned before: ",
    "Same as before: ",
    "Just to repeat: "
+  ],
+  "check_out": [
+   "Enjoy! Let me know what you think of it.",
+   "Hope you like it — tell me how it was!",
+   "Have fun with it! I'm curious what you'll think."
+  ],
+  "promo_title": [
+   "{X} — that's a real step up. Congratulations, you deserve it!",
+   "Ooh, {x}! That sounds like a big deal. Well done, really.",
+   "{X} — nice! More responsibility, and proof they trust you. How do you feel about the new role?"
+  ],
+  "celebrate_plan": [
+   "That sounds perfect — celebrating with friends is the best way to mark it. Got a place in mind, or want some ideas?",
+   "Love that! You should definitely celebrate this properly. Dinner, drinks, something else?"
+  ],
+  "plan_week_start": [
+   "Sure! Tell me what's already fixed this week — work, appointments, workouts — and I'll help you lay it out.",
+   "Happy to! What's on your plate this week? Just list things like “gym on Monday” and I'll keep track."
+  ],
+  "plan_week_add": [
+   "Got it. Your week so far:\n{x}\n\nAnything else?",
+   "Noted! Here's what we have:\n{x}\n\nWhat else is coming up?"
+  ],
+  "plan_week_show": [
+   "Here's your week:\n{x}"
+  ],
+  "plan_week_tip": [
+   "Here's your week:\n{x}\n\nTip: keep the evening before {y} light, so you go in rested."
+  ],
+  "prepare": {
+   "presentation": [
+    "For the presentation:\n\n• Write down your three key points — everything else supports them\n• Practise out loud at least three times, once in front of someone\n• Know your first two sentences by heart\n• Check the tech and your slides the day before\n• Sleep well the night before — it matters more than one more run-through\n\nWant help with the opening?"
+   ],
+   "interview": [
+    "For the interview:\n\n• Read up on the company and the role — know why you want it\n• Prepare three short stories about things you achieved\n• Have two or three questions for them ready\n• Pick your outfit and route the day before\n\nYou'll do great!"
+   ],
+   "exam": [
+    "For the exam:\n\n• Make a plan: which topics on which day\n• Practise with old questions instead of only re-reading\n• Short breaks every 45–60 minutes\n• Sleep well the night before — no all-nighter\n\nWhat subject is it?"
+   ],
+   "meeting": [
+    "For the meeting:\n\n• Know what you want to get out of it — one sentence\n• Jot down your key points and any numbers you need\n• Think about the questions others might ask\n\nThat's usually enough to feel prepared."
+   ],
+   "date": [
+    "For the date:\n\n• Pick a place where you can talk — not too loud\n• Have a couple of easy questions in mind (travel, food, weekends)\n• Wear something you feel good in\n• And remember: they're probably just as nervous!"
+   ],
+   "none": [
+    "Prepare for what exactly — a presentation, an interview, an exam? Tell me and I'll give you a plan."
+   ]
+  },
+  "cuisine_ideas": {
+   "italian": [
+    {
+     "name": "Spaghetti carbonara",
+     "steps": [
+      "Cook the spaghetti in well-salted water.",
+      "Whisk 2 eggs plus 1 yolk with plenty of grated parmesan and black pepper.",
+      "Fry diced pancetta or bacon until crisp.",
+      "Drain the pasta (keep a cup of the water), toss it with the pancetta off the heat.",
+      "Stir in the egg mix quickly, adding a splash of pasta water until creamy — no scrambled eggs!"
+     ]
+    },
+    {
+     "name": "Mushroom risotto",
+     "steps": [
+      "Soften a chopped onion in butter, add 300 g risotto rice and toast for a minute.",
+      "Add a splash of white wine and let it cook away.",
+      "Add hot stock one ladle at a time, stirring, for about 18 minutes.",
+      "Fry sliced mushrooms separately and stir them in.",
+      "Finish with butter and parmesan, rest 2 minutes, serve."
+     ]
+    },
+    {
+     "name": "Homemade margherita pizza",
+     "steps": [
+      "Mix 500 g flour, 7 g yeast, 1 tsp salt and 325 ml warm water; knead 10 minutes.",
+      "Let it rise for 1–2 hours.",
+      "Stretch it thin, spread tomato sauce, add mozzarella.",
+      "Bake as hot as your oven goes (250 °C+) for 8–10 minutes.",
+      "Top with fresh basil and a little olive oil."
+     ]
+    }
+   ],
+   "mexican": [
+    {
+     "name": "Chicken tacos",
+     "steps": [
+      "Slice chicken and season with cumin, paprika, chilli, salt and lime.",
+      "Fry until cooked through.",
+      "Warm the tortillas in a dry pan.",
+      "Fill with chicken, salsa, avocado and a squeeze of lime."
+     ]
+    },
+    {
+     "name": "Bean burritos",
+     "steps": [
+      "Fry onion and garlic, add black beans, cumin and a little water; mash lightly.",
+      "Cook some rice.",
+      "Fill large tortillas with rice, beans, cheese and salsa.",
+      "Roll them up and toast in a pan until golden."
+     ]
+    },
+    {
+     "name": "Guacamole with nachos",
+     "steps": [
+      "Mash 2 ripe avocados.",
+      "Mix in lime juice, salt, finely chopped onion, tomato and coriander.",
+      "Serve right away with tortilla chips."
+     ]
+    }
+   ],
+   "indian": [
+    {
+     "name": "Chickpea curry",
+     "steps": [
+      "Fry onion, garlic and ginger in oil.",
+      "Add curry powder or garam masala and cook for a minute.",
+      "Add a tin of tomatoes, a tin of chickpeas and a little coconut milk.",
+      "Simmer 15–20 minutes, season, serve with rice or naan."
+     ]
+    },
+    {
+     "name": "Butter chicken",
+     "steps": [
+      "Marinate chicken in yoghurt, garam masala and garlic.",
+      "Fry it, then set aside.",
+      "Make a sauce of butter, onion, tomato passata and spices; simmer 10 minutes.",
+      "Add cream and the chicken, simmer 10 more minutes, serve with rice."
+     ]
+    },
+    {
+     "name": "Dal",
+     "steps": [
+      "Rinse 200 g red lentils.",
+      "Simmer them with turmeric and water for about 20 minutes until soft.",
+      "Fry garlic, cumin seeds and chilli in oil and pour it over.",
+      "Season with salt and lemon."
+     ]
+    }
+   ],
+   "japanese": [
+    {
+     "name": "Teriyaki salmon",
+     "steps": [
+      "Mix soy sauce, mirin and a little sugar.",
+      "Fry the salmon skin-side down until crisp, then flip.",
+      "Pour in the sauce and let it thicken into a glaze.",
+      "Serve with rice and sesame seeds."
+     ]
+    },
+    {
+     "name": "Simple ramen",
+     "steps": [
+      "Simmer stock with soy sauce, garlic and ginger.",
+      "Cook the noodles separately.",
+      "Soft-boil an egg (about 6½ minutes).",
+      "Put noodles in a bowl, pour over the broth, top with egg, spring onion and whatever you like."
+     ]
+    },
+    {
+     "name": "Homemade sushi bowls",
+     "steps": [
+      "Cook sushi rice and season with rice vinegar, sugar and salt.",
+      "Slice salmon or tuna, avocado and cucumber.",
+      "Arrange on the rice, top with sesame and soy sauce."
+     ]
+    }
+   ],
+   "chinese": [
+    {
+     "name": "Egg fried rice",
+     "steps": [
+      "Use cooked, cold rice.",
+      "Scramble 2 eggs in a hot wok and set aside.",
+      "Fry spring onion and garlic, add the rice, fry until hot.",
+      "Add soy sauce, peas and the egg, toss and serve."
+     ]
+    },
+    {
+     "name": "Kung pao chicken",
+     "steps": [
+      "Dice chicken and coat it with soy sauce and cornflour.",
+      "Fry dried chillies and peanuts briefly, then the chicken.",
+      "Add a sauce of soy, vinegar, sugar and a little water.",
+      "Toss until glossy, serve with rice."
+     ]
+    },
+    {
+     "name": "Veggie stir-fry with noodles",
+     "steps": [
+      "Cook the noodles.",
+      "Stir-fry sliced vegetables over high heat for 3–4 minutes.",
+      "Add garlic, ginger, soy and a little honey.",
+      "Toss in the noodles and serve."
+     ]
+    }
+   ],
+   "thai": [
+    {
+     "name": "Thai green curry",
+     "steps": [
+      "Fry 2 tbsp green curry paste in a little oil.",
+      "Add coconut milk and bring to a simmer.",
+      "Add chicken or tofu and vegetables; cook 10 minutes.",
+      "Season with fish sauce and lime, serve with rice."
+     ]
+    },
+    {
+     "name": "Pad thai",
+     "steps": [
+      "Soak rice noodles.",
+      "Fry garlic, then shrimp or tofu, then push aside and scramble an egg.",
+      "Add noodles and a sauce of tamarind, fish sauce and sugar.",
+      "Toss with bean sprouts, top with peanuts and lime."
+     ]
+    }
+   ],
+   "greek": [
+    {
+     "name": "Chicken souvlaki",
+     "steps": [
+      "Marinate chicken in olive oil, lemon, garlic and oregano.",
+      "Thread onto skewers and grill or pan-fry.",
+      "Serve in pita with tzatziki, tomato and onion."
+     ]
+    },
+    {
+     "name": "Greek salad",
+     "steps": [
+      "Chop tomatoes, cucumber, red onion and pepper.",
+      "Add olives and a block of feta.",
+      "Dress with olive oil and oregano."
+     ]
+    }
+   ],
+   "french": [
+    {
+     "name": "Coq au vin",
+     "steps": [
+      "Brown chicken pieces with bacon.",
+      "Add onion, garlic and mushrooms.",
+      "Pour in red wine and stock, add thyme.",
+      "Simmer about an hour until tender."
+     ]
+    },
+    {
+     "name": "Ratatouille",
+     "steps": [
+      "Dice aubergine, courgette, peppers and onion.",
+      "Fry them in olive oil one after another.",
+      "Add tomatoes, garlic and herbs; simmer 30 minutes."
+     ]
+    }
+   ]
+  },
+  "cuisine_for": [
+   "Since {who} loves {x}, how about:\n\n{y}\n\nWant the recipe for one of them?",
+   "{X} it is! A few ideas {who} would love:\n\n{y}\n\nShould I walk you through one?"
+  ],
+  "dish_which": [
+   "Which one — {x}? I'll walk you through it.",
+   "Sure! Which of them — {x}?"
+  ],
+  "dish_steps": [
+   "{X}:\n\n{y}\n\nEnjoy cooking!",
+   "Here's how to make {x}:\n\n{y}\n\nGood luck — it'll be great!"
+  ],
+  "person_likes_answer": [
+   "{X} loves {y} — you told me earlier.",
+   "From what you told me, {x} loves {y}."
+  ],
+  "no_worries_ack": [
+   "All good! Anything else on your mind?",
+   "No problem at all. What else is up?",
+   "👍 Just shout if you need anything."
+  ],
+  "racing_mind": [
+   "That's so common at night — the brain finally gets quiet time and decides to replay everything. Try writing the thoughts down on paper; once they're out of your head, it's easier to let go.",
+   "Ugh, the 3 a.m. thought spiral. A trick that helps many people: jot down what's bothering you and one next step for tomorrow. Then it's handled for tonight."
+  ],
+  "event_unknown": [
+   "I've read about the {x}, but the part that answers that isn't in my copy. Want me to tell you what I do know about it?",
+   "Hmm, my article on the {x} doesn't say that clearly, so I'd rather not guess. I can tell you what it does say, though."
+  ],
+  "office_dated": [
+   "As of my copy of Wikipedia ({z}), the {x} was {y}. That can change, so it's worth a quick check if it matters.",
+   "In my copy of Wikipedia ({z}), the {x} is {y} — but offices change, so that may be out of date by now."
+  ],
+  "office_undated": [
+   "According to my copy of Wikipedia, the {x} is {y} — offices change, though, so that may be out of date."
+  ],
+  "tip_try": [
+   "Hope it helps! Tell me how it went.",
+   "Good luck with it — let me know if it works for you."
+  ],
+  "tip_try_night": [
+   "Hope it helps. Sleep well when it comes! 🌙",
+   "Fingers crossed. Be gentle with yourself — even resting with your eyes closed helps. Good night!"
   ]
  }
 }

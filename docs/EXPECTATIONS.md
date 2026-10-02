@@ -2183,6 +2183,23 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - Trennung: eigene Antwort statt „das kommt dann noch dazu“; „wir waren 2 jahre zusammen“.
   - Wiederholungen 2 → 0. Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–40 und
     langes Gespräch: 0 Wiederholungen. Suite 695 bestanden, 7 übersprungen.
+- **Alltags-Batterie 42 (Englisch)** (Langeweile, Beförderung, Wochenplanung, Schwester zu Besuch, Regen, Schlaflosigkeit,
+  Fußball-WM, Name und Wohnort):
+  - „its mike“ wurde nicht als Name erkannt (→ „Your name is Mike.“). „my mind keeps racing“ wurde als Fakt gespeichert
+    („you drive a racing“); jetzt kommt eine Antwort auf das Gedankenkreisen. Aussagen der Form „my X keeps …ing“ sind nie Fakten.
+  - Neu ist Kontext über mehrere Züge: Beförderung → Titel („Senior analyst — that's a real step up“); Woche planen
+    (Termine je Wochentag gesammelt und angezeigt) → „how should I prepare?“ für die Präsentation; „she loves italian food“ →
+    „what should I cook for her?“ mit drei italienischen Gerichten → „how do I make that?“ → Rezept; „what does anna
+    like?“ → „Anna loves Italian food“. Kleidung bei Regen/Kälte/Hitze/Schnee kam vorher als Live-Daten-Absage.
+  - Turniere nach Jahr (WM, Frauen-WM, EM, Olympia): Sieger aus dem eigenen Artikel oder aus „defending champions“ der
+    Folge-Ausgabe, Austragungsort, Zeitraum, Folgefragen („and in 2018?“, „where was it held?“). Vorher 3× „weiß nicht“.
+  - Amtsinhaber, wenn die Faktenbank keinen hat: aus dem Artikel des Amts, immer mit Datum der Lesetexte („As of my copy of
+    Wikipedia (December 2022) …“), weil Ämter wechseln. Im langen Gespräch geht damit „president of france → how old is
+    he → who is his wife“ durch (vorher dreimal unbeantwortet). Lebende Ehepartner: „is married to“ statt „was“.
+  - Bekannte Grenze: „who is the president of the united states?“ bleibt offen (weder Faktenbank noch Artikelanfang
+    nennen den Amtsinhaber). Text-Antworten zu Ämtern können veraltet sein; das sagt die Antwort selbst.
+  - Wiederholungen 1 → 0. Team-Dev-Satz: 1 von 128 geändert (team-0074: Macron statt „weiß nicht“). NQ-open 400: 22/9.
+    Regressionen 32, 38–41 und langes Gespräch: 0 Wiederholungen. Suite 702 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

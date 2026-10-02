@@ -1406,3 +1406,143 @@ def test_german_dates_for_buildings():
     from engramm.chat.german_bridge import de_sentence
     assert de_sentence("built_when", "Der Eiffelturm", "31 March 1889") == "Der Eiffelturm wurde am 31. März 1889 fertiggestellt."
     assert de_sentence("built_when", "Der Kölner Dom", "1880") == "Der Kölner Dom wurde 1880 fertiggestellt."
+
+
+def test_battery42_promotion_week_dish_for_someone_and_names(chat):
+    a, _ = chat
+    st = DialogState("e1")
+    r = a.turn(st, "idk, what do you do for fun?")
+    assert r.kind != "unknown", r.text
+    a.turn(st, "i got promoted today!!")
+    r = a.turn(st, "senior analyst")
+    assert r.text.startswith("Senior analyst") or "senior analyst" in r.text.lower(), r.text
+    assert "{" not in r.text, r.text
+    r = a.turn(st, "thinking about celebrating with friends")
+    assert "best part" not in r.text and "celebrat" in r.text.lower(), r.text
+    st2 = DialogState("e2")
+    r = a.turn(st2, "can you help me plan my week?")
+    assert "week" in r.text.lower() and r.kind != "unknown", r.text
+    r = a.turn(st2, "i have gym monday wednesday friday")
+    assert "Monday: gym" in r.text and "Friday: gym" in r.text, r.text
+    r = a.turn(st2, "and a big presentation on thursday")
+    assert "Thursday: big presentation" in r.text, r.text
+    r = a.turn(st2, "how should i prepare?")
+    assert "presentation" in r.text.lower() and "•" in r.text, r.text
+    st3 = DialogState("e3")
+    a.turn(st3, "my sister is visiting this weekend")
+    a.turn(st3, "her name is anna")
+    a.turn(st3, "she loves italian food")
+    r = a.turn(st3, "what should i cook for her?")
+    assert "Carbonara" in r.text or "carbonara" in r.text, r.text
+    assert "Anna" in r.text and "{" not in r.text, r.text
+    r = a.turn(st3, "how do i make that?")
+    assert "Which" in r.text or "which" in r.text, r.text
+    r = a.turn(st3, "the first one")
+    assert "1." in r.text and "egg" in r.text.lower(), r.text
+    r = a.turn(st3, "what does anna like?")
+    assert "Anna loves Italian food" in r.text, r.text
+    st4 = DialogState("e4")
+    a.turn(st4, "do you remember my name?")
+    r = a.turn(st4, "its mike")
+    assert "Mike" in r.text, r.text
+    assert "Mike" in a.turn(st4, "whats my name?").text
+
+
+def test_battery42_feelings_rain_and_acknowledgements(chat):
+    a, _ = chat
+    st = DialogState("f1")
+    a.turn(st, "i cant sleep")
+    r = a.turn(st, "my mind keeps racing")
+    assert "drive" not in r.text and r.kind == "empathy", r.text
+    r = a.turn(st, "any tips?")
+    r = a.turn(st, "ill try that")
+    assert "last time" not in r.text, r.text
+    st2 = DialogState("f2")
+    r = a.turn(st2, "ok no worries")
+    assert "Go on" not in r.text, r.text
+    r = a.turn(st2, "fine. what should i wear for a rainy day?")
+    assert "waterproof" in r.text, r.text
+    st3 = DialogState("f3")
+    a.turn(st3, "got any game recommendations?")
+    r = a.turn(st3, "nice, ill check it out")
+    assert "Tell me more" not in r.text, r.text
+
+
+def test_mind_racing_and_keeps_are_not_facts():
+    from engramm.chat.facts import personal_facts
+    for s in ("my mind keeps racing", "my phone keeps dying", "my brother keeps calling me"):
+        assert personal_facts(s, "u") == [], s
+    assert personal_facts("my favourite food is pizza", "u")
+
+
+def test_week_items_and_slot_names():
+    from engramm.chat.dialog import Assistant, _slot_value
+    assert Assistant._week_items("i have gym monday wednesday friday") == \
+        [("Monday", "gym"), ("Wednesday", "gym"), ("Friday", "gym")]
+    assert Assistant._week_items("and a big presentation on thursday") == [("Thursday", "big presentation")]
+    assert Assistant._week_items("i am tired") == []
+    assert _slot_value("its mike", "name") == "mike"
+    assert _slot_value("im mike", "name") == "mike"
+    assert _slot_value("its hard", "name") is None
+
+
+def _about(title, sentences):
+    from engramm.chat.about import About
+    return About(title, 0, sentences, 0, 0, {"kind": "base", "source": "wikipedia", "key": title})
+
+
+def test_tournament_winner_host_and_follow_ups(chat):
+    a, _ = chat
+    pages = {
+        "2014 FIFA World Cup": _about("2014 FIFA World Cup", [
+            "The 2014 FIFA World Cup was the 20th FIFA World Cup.",
+            "It took place in Brazil from 12 June to 13 July 2014, after the country was awarded the hosting rights in 2007."]),
+        "2018 FIFA World Cup": _about("2018 FIFA World Cup", [
+            "The 2018 FIFA World Cup was the 21st FIFA World Cup.",
+            "It took place in Russia from 14 June to 15 July 2018.",
+            "Germany, the defending champions, were eliminated in the group stage."]),
+        "2022 FIFA World Cup": _about("2022 FIFA World Cup", [
+            "France are the defending champions, having defeated Croatia 4–2 in the 2018 final."]),
+        "UEFA Euro 2016": _about("UEFA Euro 2016", [
+            "It was held in France from 10 June to 10 July 2016.",
+            "Portugal won the tournament for the first time, following a 1–0 victory after extra time over the host team, France."]),
+    }
+    a.about.find = lambda t, **kw: pages.get(t)
+    st = DialogState("wc")
+    r = a.turn(st, "who won the world cup in 2014?")
+    assert r.text == "Germany won the 2014 FIFA World Cup.", r.text
+    r = a.turn(st, "who was the top scorer?")
+    assert "2014 FIFA World Cup" in r.text and r.kind == "unknown", r.text
+    assert a.turn(st, "and in 2018?").text == "France won the 2018 FIFA World Cup."
+    assert a.turn(st, "where was it held?").text == "The 2018 FIFA World Cup was held in Russia."
+    assert a.turn(DialogState("eu"), "who won euro 2016?").text == "Portugal won the UEFA Euro 2016."
+    assert a.turn(DialogState("w2"), "when was the 2014 world cup?").text == \
+        "The 2014 FIFA World Cup ran from 12 June to 13 July 2014."
+
+
+def test_officeholder_from_the_office_article_with_its_date(chat):
+    a, _ = chat
+
+    class NoKB:
+        kb = None
+
+        def answer(self, q):
+            return None
+    a.kgqa = NoKB()
+    a.reading_as_of = "December 2022"
+    pages = {"President of France": _about("President of France", [
+        "The president of France is the head of state of France.",
+        "The incumbent is Emmanuel Macron, who succeeded François Hollande on 14 May 2017."])}
+    a.about.find = lambda t, **kw: pages.get(t)
+    r = a.turn(DialogState("pf"), "who is the president of france?")
+    assert "Emmanuel Macron" in r.text and "December 2022" in r.text and r.kind == "answer", r.text
+    assert a._officeholder(DialogState("pu"), "who is the president of narnia?", "who is the president of narnia") is None
+    a.kgqa = None
+
+
+def test_reading_date_from_pack_info(tmp_path):
+    import json
+    from engramm.app.server import reading_as_of
+    (tmp_path / "info.json").write_text(json.dumps({"reading": "article leads, top 400,000 (DBpedia 2022.12 abstracts)"}))
+    assert reading_as_of(tmp_path) == "December 2022"
+    assert reading_as_of(tmp_path / "missing") is None

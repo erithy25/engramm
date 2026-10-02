@@ -542,7 +542,10 @@ class KGQA:
             vals = [v for v in vals if v not in own]
         if not vals:
             return None
-        text = rule.template.replace("{E}", name).replace("{v}", _join(vals))
+        template = rule.template
+        if prop == "spouse" and len(vals) == 1 and not self.kb.facts(ent.id, ("deathDate", "deathYear")):
+            template = "{E} is married to {v}."         # a living person with one spouse: not "was"
+        text = template.replace("{E}", name).replace("{v}", _join(vals))
         text = text[:1].upper() + text[1:]
         evidence = f"{ent.title} — {prop}: " + "; ".join(f.value for f in fs[:4])
         return KBAnswer(ent, prop, vals, text, evidence, rule.snapshot)

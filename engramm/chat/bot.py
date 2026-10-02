@@ -395,7 +395,8 @@ class ChatBot:
         for sid in gone:
             self.memory.forget(sid)
         self.refresh()
-        what = "; ".join(f"“{texts[s]}”" for s in gone[:3]) + (" …" if len(gone) > 3 else "")
+        shown = [re.sub(r"^(?:and|also|oh|plus|but|so|well)[,]?\s+(?=\w)", "", texts[s], flags=re.I) for s in gone[:3]]
+        what = "; ".join(f"“{x[:1].upper() + x[1:]}”" for x in shown) + (" …" if len(gone) > 3 else "")
         return Reply(msg, "forgot", f"Done — I have forgotten {what}. It is gone from my memory, not just hidden.",
                      via="memory")
 

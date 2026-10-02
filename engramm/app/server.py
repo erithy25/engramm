@@ -62,6 +62,20 @@ def openable(url: str) -> bool:
             and bool(OPEN_HOSTS.match(u.hostname or "")) and len(url) <= 2000)
 
 
+_MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November",
+           "December")
+
+
+def reading_as_of(idx: Path) -> str | None:
+    """The date of the pack's reading text ("DBpedia 2022.12 abstracts" → "December 2022"), or None."""
+    try:
+        info = json.loads((Path(idx) / "info.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    m = re.search(r"\b(19\d\d|20\d\d)[.-](0[1-9]|1[0-2])\b", str(info.get("reading", "")))
+    return f"{_MONTHS[int(m.group(2)) - 1]} {m.group(1)}" if m else None
+
+
 def source_view(src: dict | None) -> dict | None:
     """Where an answer comes from, in a form the page can show and link."""
     if not src:
@@ -147,6 +161,7 @@ class ChatService:
             bot = ChatBot(memory, corpus, config, cap_ratio(idx), retriever=Retriever(corpus))
             kb = idx / "kb.sqlite" if (idx / "kb.sqlite").exists() else None
             assistant = Assistant(bot, kb_path=kb)
+            assistant.reading_as_of = reading_as_of(idx)
             try:                                     # Atlas: network channels, all off until switched on
                 from engramm.web.atlas import Atlas
                 from engramm.web.egress import Egress

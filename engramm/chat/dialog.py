@@ -28,7 +28,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-from engramm.chat.about import About, AboutFinder, clean_sentence
+from engramm.chat.about import About, AboutFinder, clean_sentence, title_key
 from engramm.chat.acts import Unit, classify
 from engramm.chat.bank import Bank, choose, expand_chat, load_bank, normalise
 from engramm.chat.bot import CHAT_PREFIX, Reply, message_type, source_id
@@ -120,8 +120,9 @@ _WILL_THEY = re.compile(r"^(?:but |so |and )?(?:do you think|you think|will|woul
                         r"(?:'ll| will| would|'d)? ?(?:ever |still |actually )?(?:come back|forgive me|text me|call me(?: back)?|"
                         r"miss(?:es)? me|want(?:s)? me back|get back together|love(?:s)? me|change|regret(?:s)? it|apologi[sz]e)"
                         r"(?: (?:to me|again|one day|someday|eventually))?\??$")
-_BOT_LIKES = re.compile(r"^(?:so |and |but )?(?:do you (?:like|enjoy|love) (?:anything|stuff|things|something)|what do you "
-                        r"(?:like|enjoy|love)(?: doing| to do)?|what are you into|what makes you happy|do you have "
+_BOT_LIKES = re.compile(r"^(?:idk,? |so,? |and |but |ok,? |lol,? )?(?:do you (?:like|enjoy|love) (?:anything|stuff|things|something)|what do you "
+                        r"(?:like|enjoy|love)(?: doing| to do)?|what do you do (?:for fun|in your (?:free|spare) time|all day)|"
+                        r"what are your hobbies|what'?s your (?:hobby|favou?rite hobby)|what are you into|what makes you happy|do you have "
                         r"(?:hobbies|a hobby|interests|any hobbies|any interests))\??$")
 _SLEPT_GOOD = re.compile(r"^(?:oh |well |yeah |actually |honestly )?(?:i )?(?:slept|had (?:a )?(?:really |super |pretty |very )?"
                          r"(?:great|good|amazing|fantastic|wonderful|solid|deep) (?:sleep|night(?:'?s sleep)?))(?: (?:really|so|super|pretty|very|"
@@ -156,10 +157,76 @@ _JOB_START = re.compile(r"(?:and )?i (?:start|begin|'?ll start|will start|am sta
                         r"october|november|december)[\w ]{0,30})")
 _MOVED_NEW = re.compile(r"\bi (?:just |recently )?(?:moved|relocated) (?:to|into) (?:a |another )?(?:new|different|another) (?:city|town|country|place)\b")
 # "what should I wear (to the interview)?"
-_WEAR = re.compile(r"^(?:and |so |ok |hmm )?what (?:should|do|can) i wear(?: (?:to|for|on) (?:the |a |my )?(?P<x>[a-z ]+?))?\??$")
+# everyday context (battery 42): a promotion and its title, a week to plan, a dish for someone, "I'll check it out"
+_PROMOTED = re.compile(r"\b(?:i |i've |ive |i have )?(?:just |finally |officially )?(?:got|been|was|have been|'ve been) promoted\b")
+_TITLE = re.compile(r"(?:to |as |it'?s |its |now |i'?m (?:now |a |an )?)?(?:a |an |the )?(?P<x>(?:senior |junior |lead |head |chief |principal |"
+                    r"assistant |associate |deputy |vice |regional |team |general )?[a-z]+(?: [a-z]+)?(?: manager| director| lead| engineer"
+                    r"| analyst| partner| officer| president| consultant| supervisor| developer| designer)?)[.!]*")
+_CELEBRATE_PLAN = re.compile(r"^(?:yeah,? |so |and )?(?:i'?m |im |i am |we'?re |were )?(?:thinking (?:about|of)|planning (?:on|to)?|going to|"
+                             r"gonna|want to|wanna|might|hoping to) (?:celebrat\w*|go(?:ing)? out|have a party|throw a party)"
+                             r"(?: it)?(?: with (?:my |some )?(?:friends|the team|family|colleagues|my partner|my girlfriend|my boyfriend|"
+                             r"my wife|my husband))?(?: (?:tonight|this weekend|on (?:friday|saturday)))?[.!]*$")
+_CHECK_OUT = re.compile(r"^(?:(?:nice|cool|ok|okay|great|awesome|sounds good|perfect|thanks|ty|oh nice|ooh)[,!.]? )*(?:i'?ll|ill|i will|"
+                        r"gonna|going to|will|i'?m gonna|im gonna|might) (?:definitely |totally |probably )?(?:check (?:it|them|that|those|this|"
+                        r"one) out|give (?:it|them|that|one) a (?:try|go|shot|look)|try (?:it|them|that|one)(?: out)?|look (?:it|them|that) up|"
+                        r"watch (?:it|that|one)|read (?:it|that|one)|play (?:it|that|one))(?: (?:later|tonight|soon|this weekend|then))?"
+                        r"(?: thanks?| ty)?[.!]*$")
+_PLAN_WEEK = re.compile(r"^(?:hey,? |so,? |ok,? )?(?:can|could|would|will) you (?:please )?help me (?:to )?(?:plan|organi[sz]e|structure|sort out|"
+                        r"schedule) my (?P<p>week|weekend|schedule|next week|days?)(?: please)?\??$|^help me plan my (?P<q>week|weekend)\??$")
+_DAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
+_DAY_RX = re.compile(r"\b(mon|tues?|wed(?:nes)?|thu(?:rs?)?|fri|sat(?:ur)?|sun)(?:day)?s?\b")
+_WEEK_SHOW = re.compile(r"^(?:so,? |ok,? )?(?:what(?:'s| is| does) my (?:week|schedule)(?: look(?:s)? like)?|what do i have (?:this|next) week|"
+                        r"show me my (?:week|schedule)|can you (?:show|summari[sz]e) my week)\??$")
+_PREP_TOPICS = (("presentation", r"presentation|pitch|talk\b|speech"), ("interview", r"interview"),
+                ("exam", r"exam|test\b|finals?\b|midterm"), ("meeting", r"meeting"), ("date", r"\bdate\b"))
+_PREPARE = re.compile(r"^(?:so |and |ok |okay |but |any tips on )?how (?:should|do|can|could|would) i (?:best |even )?prep(?:are)?"
+                      r"(?: (?:for|myself for) (?:it|that|this|the (?P<x>[a-z]+)|my (?P<y>[a-z]+)))?\??$|"
+                      r"^(?:any )?tips (?:for|on) (?:preparing|prepping)(?: for (?:it|that))?\??$")
+_COOK_FOR = re.compile(r"^(?:so |and |ok )?what (?:should|could|can|do you think i should) i (?:cook|make)(?: for (?:her|him|them|my \w+|"
+                       r"[a-z]+))?(?: (?:tonight|this weekend|for dinner|then))?\??$")
+_MAKE_THAT = re.compile(r"^(?:ok |and |so |cool,? )?how (?:do|can|would|should) i (?:make|cook|prepare) (?:that|it|this|those|them|one of (?:those|them))"
+                        r"(?: one)?\??$|^(?:can i have|can you give me|give me) (?:the |a )?recipe\??$")
+_MAKE_DISH = re.compile(r"^(?:ok |and |so )?(?:how (?:do|can|would|should) i (?:make|cook|prepare)|recipe for|how to (?:make|cook)) "
+                        r"(?:a |an |some |the )?(?P<x>[a-z ]{3,40}?)\??$")
+_WHAT_LIKES = re.compile(r"^(?:and |so )?what does (?P<x>my [a-z]+|[a-z]+) (?:like|love|enjoy|like to eat)\??$")
+_NO_WORRIES = re.compile(r"^(?:(?:ok|okay|alright|ah ok|oh ok|ah|oh|fair enough|fine|haha|lol)[,!.]? )?(?:no worries|no problem|np|all good|"
+                         r"that'?s (?:fine|ok|okay|alright)|thats (?:fine|ok|okay)|never ?mind|nvm|it'?s fine|its fine|it'?s ok(?:ay)?)[.!]*$")
+_RACING = re.compile(r"^(?:and |but |it'?s just |just )?(?:my )?(?:mind|head|brain|thoughts?)(?: (?:keeps?|is|are|won'?t stop|keep))? "
+                     r"(?:racing|spinning|going|overthinking|running)(?: (?:all night|nonstop|non stop|in circles))?[.!]*$|"
+                     r"^(?:i )?(?:keep|can'?t stop) (?:overthinking|thinking about (?:everything|stuff|work))[.!]*$")
+# a tournament by its year ("who won the world cup in 2014?", "where were the 2016 olympics held?", "and in 2018?")
+_EVENT_NAMES = (("world cup", r"(?:fifa )?(?:football |soccer )?world cup", "{y} FIFA World Cup"),
+                ("women's world cup", r"(?:fifa )?women'?s world cup", "{y} FIFA Women's World Cup"),
+                ("euro", r"(?:uefa )?euros?(?: cup)?|european championship", "UEFA Euro {y}"),
+                ("summer olympics", r"(?:summer )?olympics|olympic games", "{y} Summer Olympics"),
+                ("winter olympics", r"winter olympics", "{y} Winter Olympics"))
+_EVENT_Q = re.compile(r"^(?:and |so |ok |hey )?(?P<q>who won|who was the winner of|which (?:team|country) won|who were the champions of|"
+                      r"where (?:was|were|is|are)|which country hosted|who hosted|when (?:was|were|did)) (?:the )?"
+                      r"(?P<e>(?:\d{4} )?[a-z' ]+?(?: in \d{4}| \d{4})?)(?: (?:held|hosted|played|take place|happen))?\??$")
+_EVENT_AGAIN = re.compile(r"^(?:(?:and|what about|how about|and what about)\s+)?(?:in |the )?(?P<y>(?:19|20)\d\d)(?: one)?\??$")
+_EVENT_IT = re.compile(r"^(?:and |so )?(?P<q>where|who won|who hosted|when) (?:was|were|did) (?:it|that|they)(?: (?:held|hosted|played|take place|happen))?\??$|"
+                       r"^(?:and |so )?who won (?:it|that)\??$")
+# "who is the president of France?" when the fact bank has no holder: the office's own article, with its date
+_OFFICE_Q = re.compile(r"^(?:and |so |ok |hey )?who(?:'s| is| was)? (?:the )?(?:current |present |new )?(?P<o>president|prime minister|pm|"
+                       r"chancellor|king|queen|monarch|pope|secretary[- ]general|first minister|premier)(?: of (?:the )?(?P<x>[a-z .'-]+?))?"
+                       r"(?: (?:right now|now|currently|today|at the moment))?\??$")
+_OFFICE_ALIAS = {"us": "United States", "usa": "United States", "america": "United States", "united states": "United States",
+                 "united states of america": "United States", "uk": "United Kingdom", "britain": "United Kingdom",
+                 "great britain": "United Kingdom", "england": "United Kingdom", "united kingdom": "United Kingdom",
+                 "un": "United Nations", "united nations": "United Nations"}
+_THE_PLACES = {"United States", "United Kingdom", "United Nations", "Netherlands", "Philippines", "Czech Republic",
+               "Republic of Ireland", "United Arab Emirates", "Bahamas", "Gambia"}
+_HOLDER = re.compile(r"\b(?:incumbent|current (?:officeholder|holder|office-holder|monarch|pope|president|prime minister|chancellor|"
+                     r"secretary-general)) is (?P<a>(?:King |Queen |Pope )?[A-Z][\w.'’-]+(?: (?:de |von |van |da |bin )?[A-Z][\w.'’-]+){0,3})|"
+                     r"(?P<b>[A-Z][\w.'’-]+(?: [A-Z][\w.'’-]+){1,3}) is the (?:\d+\w* (?:and )?)?(?:current|incumbent)\b")
+_WEAR = re.compile(r"^(?:(?:and|so|ok|okay|hmm|fine|alright|cool|sure)[.,!]? )?what (?:should|do|can|could) i wear(?: (?:to|for|on|in) "
+                   r"(?:the |a |my |an )?(?P<x>[a-z ]+?))?(?: tomorrow| today| tonight)?\??$")
 _OCCASIONS = [("interview", re.compile(r"\binterview")), ("wedding", re.compile(r"\bwedding|\bmarr")),
               ("date", re.compile(r"\bdate\b|\bfirst date")), ("dinner", re.compile(r"\bdinner|\bcelebrat|\brestaurant|\bparty|going out")),
-              ("funeral", re.compile(r"\bfuneral")), ("office", re.compile(r"\boffice|\bfirst day|\bwork\b"))]
+              ("funeral", re.compile(r"\bfuneral")), ("office", re.compile(r"\boffice|\bfirst day|\bwork\b")),
+              ("rain", re.compile(r"\brain|\bwet\b|\bstorm")), ("snow", re.compile(r"\bsnow")),
+              ("cold", re.compile(r"\bcold\b|\bwinter|\bfreezing|\bchilly")),
+              ("hot", re.compile(r"\bhot\b|\bheat\b|\bsummer|\bbeach|\bwarm\b"))]
 # light everyday debates and the words that name them
 _DEBATES = [("pineapple", ("pineapple", "pizza")), ("cats_dogs", ("cats?", "dogs?")), ("tea_coffee", ("tea", "coffee")),
             ("books_movies", ("books?", "(?:movies?|films?)")), ("summer_winter", ("summer", "winter")),
@@ -450,6 +517,7 @@ class Assistant:
         self.clock = clock                      # callable → datetime (tests fix the date)
         self.about = AboutFinder(bot.c, getattr(bot, "r", None))
         self.kgqa = None
+        self.reading_as_of: str | None = None        # the date of the pack's reading text ("December 2022")
         path = kb_path
         if path is None and getattr(bot.c, "index_dir", None) is not None:
             for cand in (bot.c.index_dir / "kb.sqlite", bot.c.index_dir.parent / "kb.sqlite"):
@@ -1215,10 +1283,18 @@ class Assistant:
                         message.lower())
         if rep.via == "tool" and trm:
             st.uses["tr_lang"] = [trm.group(1), st.turn]      # "and good morning?" may follow
+        nm_ = normalise(message)
+        if rep.kind != "safety" and _PROMOTED.search(nm_):
+            st.uses["promo"] = st.turn                   # "senior analyst" may follow
+        if rep.kind != "safety" and message_type(message) != "question":
+            pt = next((k for k, rx in _PREP_TOPICS if re.search(rx, nm_)), None)
+            if pt:
+                st.uses["prep"] = [pt, st.turn]          # "how should I prepare?" may follow
         if rep.kind != "safety" and _NEW_JOB.search(normalise(message)):
             st.uses["new_job"] = st.turn                 # "it's at a bank" / "I start monday" may follow
         st.last_message = message
         st.last_kind = rep.kind
+        st.uses["last_via"], st.uses["last_via_turn"] = rep.via, st.turn
         self._track(st, rep, msg)
         if rep.via != "gibberish":
             st.gib = 0
@@ -1289,6 +1365,10 @@ class Assistant:
             elif len(re.findall(r"[a-zäöüß]+", msg.lower())) >= 2:
                 return self._german(st, msg)      # "die nachbarn waren laut": no English word, stays German
         msg = expand_chat(msg)                            # "wats ur name" → "what's your name"
+        if st.lang != "de":
+            dc = self._daily_ctx(st, msg)                 # everyday context: a promotion, a week, a dish, a tournament
+            if dc is not None:
+                return dc
         msg = self._prefer_correction(msg)                # "actually i prefer ramen" right after a favourite
         li = re.fullmatch(r"(?i)((?:hi|hey|hello|yo|hiya)?[,!.]* ?(?:i'?m|im|i am|my name'?s|name'?s|this is) )([a-z][a-z'-]{1,20})"
                           r"((?: here| btw| by the way)?[.!]*)", msg.strip())
@@ -1512,7 +1592,8 @@ class Assistant:
             mt = _MEASURE_TOPIC.match(msg.strip())
             if hit is not None and mt and not re.fullmatch(r"(?:it|outside|today|the weather|out)", mt.group("t").strip(), re.I):
                 hit = None
-            if hit is not None and (_SEE_THERE.match(normalise(msg).strip()) or _EAT_THERE.match(normalise(msg).strip())):
+            if hit is not None and (_SEE_THERE.match(normalise(msg).strip()) or _EAT_THERE.match(normalise(msg).strip())
+                                    or _WEAR.match(normalise(msg).strip())):
                 hit = None                                # "what should I see in Tokyo?": travel tips, not live data
             # "I have an exam tomorrow" tells ENGRAMM something to remember; only requests are commands
             if hit is not None and units[0].act == "statement" and re.match(r"(?:i|i'm|im|i've|my|we|we're|our)\b", msg, re.I):
@@ -2896,6 +2977,279 @@ class Assistant:
         return Reply(text, "tool", self._pick(st, "daily:worldtime", d["worldtime"], x=shown, y=local.strftime("%H:%M"),
                                               z=local.strftime("%A")), via="tool")
 
+    def _event_q(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """A tournament by its year: who won, where it was held — read from the article's own lead, and
+        for the winner also from the next edition's ("France are the defending champions")."""
+        q = year = kind = None
+        ev = st.uses.get("event_q")
+        m = _EVENT_Q.match(norm)
+        if m:
+            e = m.group("e")
+            ym = re.search(r"\b(19\d\d|20\d\d)\b", e)
+            name = re.sub(r"\b(?:in )?\d{4}\b", "", e).strip()
+            hit = next((k for k, rx, _f in _EVENT_NAMES if re.fullmatch(rx, name)), None)
+            if ym and hit:
+                q, year, kind = m.group("q"), int(ym.group(1)), hit
+            elif ev and st.turn - ev["turn"] <= 4 and hit and not ym:
+                q, year, kind = m.group("q"), ev["year"], hit       # "where was the world cup held?" right after
+        recent = ev is not None and st.turn - ev["turn"] <= 4
+        if q is None and recent:
+            m = _EVENT_AGAIN.match(norm)
+            mi = _EVENT_IT.match(norm)
+            if m:
+                q, year, kind = ev["q"], int(m.group("y")), ev["kind"]
+            elif mi:
+                q, year, kind = (mi.group("q") or "who won"), ev["year"], ev["kind"]
+            elif re.search(r"\b(?:top (?:goal ?)?scorer|golden (?:boot|ball)|best player|mvp|most goals|final score)\b", norm):
+                title = next(f for k, _rx, f in _EVENT_NAMES if k == ev["kind"]).format(y=ev["year"])
+                ev["turn"] = st.turn
+                return Reply(msg, "unknown", self._pick(st, "daily:event_unknown", self.bank.daily["event_unknown"], x=title),
+                             via="about")
+        if q is None:
+            return None
+        fmt = next(f for k, _rx, f in _EVENT_NAMES if k == kind)
+        title = fmt.format(y=year)
+        found = self.about.find(title, n=14, max_chars=4000)
+        if found is None or title_key(found.title) != title_key(title):
+            return None
+        st.uses["event_q"] = {"q": q, "year": year, "kind": kind, "turn": st.turn}
+        text = " ".join(found.sentences)
+        ans = evidence = None
+        source = found.source
+        if q.startswith("where") or "host" in q:
+            mm = re.search(r"(?:took place|was held|were held|is taking place|is being held|held)(?: from [^.]*?)? in ([A-Z][\w'’. -]+?)"
+                           r"(?: from| between| on|,|\.|;| after)", text)
+            if mm:
+                place = mm.group(1).strip()
+                ans = f"The {title} was held in {place}." if not kind.endswith("olympics") else f"The {title} were held in {place}."
+                evidence = next((s for s in found.sentences if place in s), None)
+        elif q.startswith("when"):
+            mm = re.search(r"\bfrom (\d{1,2} \w+(?: \d{4})? to \d{1,2} \w+ \d{4})", text)
+            if mm:
+                ans = f"The {title} ran from {mm.group(1)}."
+                evidence = next((s for s in found.sentences if mm.group(1) in s), None)
+        else:
+            mm = re.search(r"([A-Z][\w'’ -]+?) won the (?:tournament|final|title|cup|competition|championship)", text)
+            if mm:
+                ans, evidence = f"{mm.group(1).strip()} won the {title}.", next((s for s in found.sentences if mm.group(0) in s), None)
+            else:
+                nxt_t = fmt.format(y=year + 4)
+                nxt = self.about.find(nxt_t, n=14, max_chars=4000)
+                if nxt is not None and title_key(nxt.title) == title_key(nxt_t):
+                    nt = " ".join(nxt.sentences)
+                    mm = re.search(r"([A-Z][\w'’ -]+?),? (?:are|were) the defending champions|([A-Z][\w'’ -]+?), the defending champions", nt)
+                    if mm:
+                        team = (mm.group(1) or mm.group(2)).strip()
+                        team = re.sub(r"^(?:The|Hosts|Holders)\s+", "", team)
+                        ans = f"{team} won the {title}."
+                        evidence = next((s for s in nxt.sentences if team in s and "defending" in s), None)
+                        source = nxt.source
+        if ans is None:
+            return Reply(msg, "unknown", self._pick(st, "daily:event_unknown", self.bank.daily["event_unknown"], x=title),
+                         via="about", source=found.source)
+        st.topic = {"title": found.title, "name": found.title, "turn": st.turn}
+        st.last_fact = {"evidence": evidence or found.sentences[0], "source": source, "answer": ans, "question": msg,
+                        "sure": True}
+        self.bot.context.update({"answer": None, "atype": None, "mention": found.title, "kb_last": None})
+        return Reply(msg, "answer", ans, evidence=evidence, source=source, via="about", confidence=0.9)
+
+    def _officeholder(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """"Who is the president of France?" when the fact bank has no holder: the office's article
+        names the incumbent — said with the date of my copy, because offices change."""
+        m = _OFFICE_Q.match(norm)
+        if not m or self.kgqa is None:
+            return None
+        office, place = m.group("o"), (m.group("x") or "").strip()
+        if self.kgqa.answer(msg) is not None:
+            return None                                   # the fact bank knows it: the normal path answers
+        office = {"pm": "prime minister", "secretary general": "secretary-general"}.get(office, office)
+        place = _OFFICE_ALIAS.get(place, place.title()) if place else ""
+        if office in ("king", "queen", "monarch"):
+            titles = [f"Monarchy of the {place}" if place in _THE_PLACES else f"Monarchy of {place}"] if place else []
+        elif office == "pope":
+            titles = ["Pope"]
+        elif not place:
+            return None
+        else:
+            o = "-".join(w.capitalize() for w in office.split("-")) if "-" in office else office.capitalize()
+            o = o.replace("Prime minister", "Prime Minister").replace("First minister", "First Minister")
+            titles = [f"{o} of the {place}", f"{o} of {place}"] if place in _THE_PLACES else [f"{o} of {place}", f"{o} of the {place}"]
+        for title in titles:
+            found = self.about.find(title, n=14, max_chars=5000)
+            if found is None or title_key(found.title) != title_key(title):
+                continue
+            for s in found.sentences:
+                hm = _HOLDER.search(s)
+                if hm:
+                    who = (hm.group("a") or hm.group("b")).strip()
+                    role = office if not place or office == "pope" else f"{office} of {'the ' if place in _THE_PLACES else ''}{place}"
+                    when = getattr(self, "reading_as_of", None)
+                    st.last_fact = {"evidence": s, "source": found.source, "answer": who, "question": msg, "sure": False}
+                    self.bot.context.update({"answer": who, "atype": "PERSON", "mention": who, "kb_last": None})
+                    text = self._pick(st, "daily:office_dated" if when else "daily:office_undated",
+                                      self.bank.daily["office_dated" if when else "office_undated"], x=role, y=who, z=when)
+                    return Reply(msg, "answer", text, answer=who, evidence=s, source=found.source, via="about", confidence=0.6)
+        return None
+
+    def _daily_ctx(self, st: DialogState, msg: str) -> Reply | None:
+        """Everyday context a person keeps in mind: the title after "I got promoted", "I'll check it out"
+        after a tip, a week being planned, "how should I prepare?" for what is coming up, a dish for
+        someone whose taste you told me, and "what does Anna like?"."""
+        d = self.bank.daily
+        norm = normalise(msg).strip()
+        la = st.last_action or {}
+        evr = self._event_q(st, msg, norm) or self._officeholder(st, msg, norm)
+        if evr is not None:
+            return evr
+        pr = st.uses.get("promo")
+        if pr is not None and st.turn - pr <= 2:
+            m = _TITLE.fullmatch(norm)
+            if m and len(m.group("x").split()) <= 4 and not _REACTION.fullmatch(norm.strip(" .!")) and \
+                    not _NOT_A_NAME.search(m.group("x")) and not re.search(r"\b(?:yes|yeah|no|nope|thanks|why|what|how|lol|haha)\b", norm):
+                st.uses.pop("promo", None)
+                return Reply(msg, "smalltalk", self._pick(st, "daily:promo_title", d["promo_title"], x=m.group("x")), via="empathy")
+        if _CELEBRATE_PLAN.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:celebrate_plan", d["celebrate_plan"]), via="empathy")
+        if _CHECK_OUT.match(norm) and ((la.get("kind") or "").startswith("rec:") and st.turn - la.get("turn", -99) <= 3
+                                       or re.search(r"\b(?:check|look|watch|read|play)\b", norm)):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:check_out", d["check_out"]), via="smalltalk")
+        if re.fullmatch(r"(?:(?:ok|okay|thanks|thank you|alright|good idea|cool)[,!.]? )*(?:i'?ll|ill|i will|gonna|will|i'?m gonna|im gonna) "
+                        r"(?:definitely |totally )?try (?:that|it|this|those|them|these)(?: out)?(?: tonight| later| then| now)?(?: thanks?)?[.!]*",
+                        norm) and st.uses.get("last_via") == "everyday" and st.turn - st.uses.get("last_via_turn", -99) <= 1:
+            night = re.search(r"\b(?:sleep|asleep|bed|clock|night|breathing)\b", st.last_reply or "")
+            key = "tip_try_night" if night else "tip_try"
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key]), via="smalltalk")
+        if _NO_WORRIES.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:no_worries_ack", d["no_worries_ack"]), via="smalltalk")
+        if _RACING.match(norm):
+            return Reply(msg, "empathy", self._pick(st, "daily:racing_mind", d["racing_mind"]), via="empathy")
+        if _PLAN_WEEK.match(norm):
+            st.uses["week"] = {"items": [], "turn": st.turn}
+            return Reply(msg, "smalltalk", self._pick(st, "daily:plan_week_start", d["plan_week_start"]), via="everyday")
+        wk = st.uses.get("week")
+        if wk and _WEEK_SHOW.match(norm):
+            if wk["items"]:
+                return Reply(msg, "smalltalk", self._week_text(st, wk, "plan_week_show"), via="everyday")
+        if wk and st.turn - wk["turn"] <= 6 and "?" not in msg and _DAY_RX.search(norm):
+            items = self._week_items(norm)
+            if items:
+                wk["items"].extend(items)
+                wk["turn"] = st.turn
+                self._learn(st, [msg], msg)
+                return Reply(msg, "learned", self._week_text(st, wk, "plan_week_add"), via="memory")
+        m = _PREPARE.match(norm)
+        if m:
+            topic = None
+            said = " ".join(filter(None, [m.group("x"), m.group("y")]))
+            pp = st.uses.get("prep")
+            if said:
+                topic = next((k for k, rx in _PREP_TOPICS if re.search(rx, said)), None)
+            if topic is None and pp and st.turn - pp[1] <= 8:
+                topic = pp[0]
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:prepare:{topic or 'none'}", d["prepare"][topic or "none"]),
+                         via="everyday")
+        pl = st.uses.get("person_likes")
+        if _COOK_FOR.match(norm) and pl and st.turn - pl[1] <= 10:
+            cuisine = next((c for c in d["cuisine_ideas"] if c in pl[0]), None)
+            if cuisine:
+                dishes = d["cuisine_ideas"][cuisine]
+                pn = st.uses.get("person_noun")
+                who = self._person_name(pn[0]) if pn else None
+                who = who or (f"your {pn[0]}" if pn else "they")
+                st.uses["dishes"] = [[x["name"] for x in dishes], st.turn]
+                st.uses["food_ctx"] = st.turn
+                lines = "\n".join("• " + x["name"] for x in dishes)
+                return Reply(msg, "smalltalk", self._pick(st, "daily:cuisine_for", d["cuisine_for"], who=who,
+                                                          x=f"{cuisine.capitalize()} food",
+                                                          y=lines), via="everyday")
+        ds = st.uses.get("dishes")
+        if ds and st.turn - ds[1] <= 4:
+            if _MAKE_THAT.match(norm):
+                if len(ds[0]) == 1:
+                    return self._dish_steps(st, msg, ds[0][0])
+                st.uses["dishes"] = [ds[0], st.turn]
+                names = ", ".join(n.lower() for n in ds[0][:-1]) + " or " + ds[0][-1].lower()
+                return Reply(msg, "smalltalk", self._pick(st, "daily:dish_which", d["dish_which"], x="the " + names), via="everyday")
+            pick = _ordinal_pick(norm, ds[0])
+            if pick is None:
+                pick = next((n for n in ds[0] if all(w in norm for w in n.lower().split()[-1:])), None)
+            if pick is not None and len(norm.split()) <= 8:
+                return self._dish_steps(st, msg, pick)
+        m = _MAKE_DISH.match(norm)
+        if m:
+            x = m.group("x").strip()
+            for dishes in d["cuisine_ideas"].values():
+                for dish in dishes:
+                    if dish["name"].lower() == x or dish["name"].lower().replace("homemade ", "") == x:
+                        return self._dish_steps(st, msg, dish["name"])
+        m = _WHAT_LIKES.match(norm)
+        if m:
+            who = m.group("x")
+            texts = list(self.bot.user_texts().values())
+            noun = who[3:] if who.startswith("my ") else None
+            if noun is None:
+                for tx in texts:
+                    cm = re.match(rf"^My ([a-z ]+?) is called {re.escape(who)}\.?$", tx, re.I)
+                    if cm:
+                        noun = cm.group(1).lower()
+            if noun:
+                for tx in reversed(texts):
+                    lm = re.match(rf"^My {re.escape(noun)} (?:loves|likes|enjoys|adores|is into|is crazy about) (.+?)\.?$", tx, re.I)
+                    if lm:
+                        name = who if noun != who[3:] else f"your {noun}"
+                        name = self._person_name(noun) or name
+                        return Reply(msg, "answer", self._pick(st, "daily:person_likes_answer", d["person_likes_answer"],
+                                                               x=name, y=_cuisine_case(lm.group(1))), via="facts")
+        return None
+
+    def _person_name(self, noun: str) -> str | None:
+        for tx in self.bot.user_texts().values():
+            m = re.match(rf"^My {re.escape(noun)} is called ([A-Z][\w'-]*)\.?$", tx)
+            if m:
+                return m.group(1)
+        return None
+
+    def _dish_steps(self, st: DialogState, msg: str, name: str) -> Reply:
+        d = self.bank.daily
+        dish = next(x for v in d["cuisine_ideas"].values() for x in v if x["name"] == name)
+        st.uses.pop("dishes", None)
+        st.last_action = {"kind": "howto", "title": name, "turn": st.turn}
+        steps = "\n".join(f"{i}. {s}" for i, s in enumerate(dish["steps"], 1))
+        return Reply(msg, "smalltalk", self._pick(st, "daily:dish_steps", d["dish_steps"], x=name, y=steps), via="everyday")
+
+    @staticmethod
+    def _week_items(norm: str) -> list[tuple[str, str]]:
+        """"i have gym monday wednesday friday" → [("Monday", "gym"), …]; "a big presentation on thursday"."""
+        days = []
+        for m in _DAY_RX.finditer(norm):
+            k = m.group(1)[:3]
+            day = next(x for x in _DAYS if x.startswith(k))
+            if day not in days:
+                days.append(day)
+        what = _DAY_RX.sub(" ", norm)
+        what = re.sub(r"\b(?:i have|i've got|i got|ive got|i'?ve|i|have|got|and|also|plus|then|on|every|each|at|the|this|next|"
+                      r"week|is|there'?s|a|an|my|in|morning|evening|afternoon|night)\b", " ", what)
+        what = re.sub(r"[,.!]", " ", what)
+        what = re.sub(r"\s+", " ", what).strip()
+        if not what or not days or len(what.split()) > 6:
+            return []
+        return [(day.capitalize(), what) for day in days]
+
+    def _week_text(self, st: DialogState, wk: dict, key: str) -> str:
+        d = self.bank.daily
+        by = {}
+        for day, what in wk["items"]:
+            by.setdefault(day, [])
+            if what not in by[day]:
+                by[day].append(what)
+        order = [x.capitalize() for x in _DAYS]
+        lines = "\n".join(f"• {day}: {', '.join(by[day])}" for day in order if day in by)
+        big = next(((day, w) for day in order if day in by for w in by[day]
+                    if any(re.search(rx, w) for _k, rx in _PREP_TOPICS)), None)
+        if key == "plan_week_show" and big:
+            return self._pick(st, "daily:plan_week_tip", d["plan_week_tip"], x=lines, y=f"the {big[1]} on {big[0]}")
+        return self._pick(st, f"daily:{key}", d[key], x=lines)
+
     def _howto_follow(self, st: DialogState, text: str) -> Reply | None:
         """A question right after a guide ("how long do I cook them?", "do I need baking powder?"):
         answered from the guide's own steps, never from unrelated advice."""
@@ -4211,6 +4565,9 @@ _QUESTION_WORDS = {"what", "who", "where", "when", "why", "how", "which", "whose
 
 
 def _fill(text: str, **fmt) -> str:
+    if fmt.get("X") is None and fmt.get("x") is not None:
+        x = str(fmt["x"])
+        fmt["X"] = x[:1].upper() + x[1:]                 # "{X}" opens a sentence with the same value
     def rep(m):
         v = fmt.get(m.group(1))
         return m.group(0) if v is None else str(v)
@@ -4997,6 +5354,23 @@ def _asked_category(q: str) -> str | None:
     return None
 
 
+def _ordinal_pick(norm: str, names: list[str]) -> str | None:
+    m = re.search(r"\b(?:the )?(first|1st|second|2nd|third|3rd|last)(?: one)?\b", norm)
+    if not m:
+        return None
+    idx = {"first": 0, "1st": 0, "second": 1, "2nd": 1, "third": 2, "3rd": 2, "last": -1}[m.group(1)]
+    try:
+        return names[idx]
+    except IndexError:
+        return None
+
+
+def _cuisine_case(x: str) -> str:
+    """"italian food" → "Italian food": nationality adjectives keep their capital."""
+    return re.sub(r"\b(italian|mexican|indian|japanese|chinese|thai|greek|french|spanish|korean|vietnamese|turkish|lebanese)\b",
+                  lambda m: m.group(1).capitalize(), x)
+
+
 def _user_answer_text(answer: str, evidence: str | None) -> str:
     if evidence:
         flipped = to_second_person(evidence)
@@ -5007,7 +5381,8 @@ def _user_answer_text(answer: str, evidence: str | None) -> str:
 
 
 _SLOT_STRIP = re.compile(r"^(?:(?:well|so|oh|ok|okay|sure|yes|yeah|um+|uh+|hmm+)[,!.]?\s+)*"
-                         r"(?:it's|it is|that's|that is|i'm|i am|my name is|my name's|the name's|the name is|"
+                         r"(?:it's|its|it is|that's|thats|that is|i'm|im|i am|i'm called|im called|my name is|my name's|my names|"
+                         r"the name's|the name is|"
                          r"call me|you can call me|just call me|i live in|i'm from|i am from|in|i work as|i'm a|i am a|"
                          r"i am an|i'm an|i like|i love|i enjoy|my favou?rite (?:food|colou?r) is|i have)\s+", re.I)
 
@@ -5015,7 +5390,9 @@ _SLOT_STRIP = re.compile(r"^(?:(?:well|so|oh|ok|okay|sure|yes|yeah|um+|uh+|hmm+)
 _NOT_A_NAME = re.compile(r"\b(?:not|doing|feeling|feel|good|great|fine|ok|okay|alright|bad|sad|tired|happy|so|very|"
                          r"really|well|busy|bored|sick|ill|stressed|excited|thanks|thank|hungry|here|back|sure|sorry|"
                          r"just|kinda|pretty|awful|terrible|meh|exhausted|upset|angry|lonely|nervous|was|is|are|am|"
-                         r"his|her|their|its|my|your|the|a|an)\b", re.I)
+                         r"his|her|their|its|my|your|the|a|an|hard|easy|difficult|complicated|simple|late|early|cold|hot|"
+                         r"raining|sunny|boring|weird|funny|crazy|true|wrong|right|over|done|nothing|everything|enough|"
+                         r"impossible|possible|serious|complicated|annoying|amazing|awesome|cool|nice|lovely|perfect)\b", re.I)
 
 
 def _slot_value(msg: str, slot: str | None) -> str | None:
