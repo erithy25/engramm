@@ -2453,6 +2453,8 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     „You're welcome! Oh, interesting — tell me more.“ Uhrzeit: „and in tokyo?“ → Weltzeit, „is it night there?“ aus der
     Ortszeit. Prüfungen: „they went well“, „3 months off“, „what should i do with all that time?“ → Ideenliste statt
     „sleep on it“. „any plans for the weekend? oh wait you're a bot lol“ → Antwort statt Nachschlagefehler.
+  - Team-Dev-Satz: 1 von 128 geändert (team-0067). NQ-open 400: 22/9. Suite 749 bestanden, 7 übersprungen. Regressionen
+    32, 38–60 (27 Gespräche): 0 Wiederholungen, keine Unterschiede.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
