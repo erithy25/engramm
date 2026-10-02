@@ -2164,6 +2164,15 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     der eigene ist; „yeah night shifts are tough“.
   - Team-Dev-Satz: 0 von 128 Antworten geändert. NQ-open 400: unverändert 22/9. Regressions-Batterien 35–39:
     0 Wiederholungen. Suite 685 bestanden, 7 übersprungen.
+- **Langes Gespräch** (alle englischen Züge der Batterien 34–40 in *einer* Unterhaltung, 212 Züge): vorher 6 wortgleiche
+  Wiederholungen. 5 davon waren Dankesantworten mit nur 6 Varianten, eine war ein wiederholter Artikelabsatz auf dieselbe
+  Frage. Jetzt gibt es 16 Dankesvarianten; dieselbe längere Sachantwort kommt mit „Like I said earlier — …“ statt als
+  Kopie. Ergebnis: **0 Wiederholungen**. Gefundene Kontextfehler:
+  - „who is his wife“ nach dem Roman „Good Omens“ suchte „Good Omens's wife“. „he/his/she/her“ verweisen jetzt nur auf
+    Personen (Werk/Ort/Organisation laut Faktenbank oder Artikelanfang → Rückfrage).
+  - „how old is he“ nach „Obama's wife is Michelle“ → Michelle. Das Geschlecht aus dem Artikelanfang entscheidet jetzt
+    zwischen letzter Antwort und genannter Person → Barack Obama, 65.
+  - Team-Dev-Satz: 0 von 128 Antworten geändert. NQ-open 400: unverändert 22/9. Suite 687 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

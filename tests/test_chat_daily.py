@@ -1355,3 +1355,25 @@ def test_battery40_names_movies_trip_followups_dinner_and_jobs(chat):
     st6 = DialogState("de")
     r = a.turn(st6, "danke, das hilft")
     assert "nicht ganz verstanden" not in r.text and "verstehe ich leider nicht" not in r.text, r.text
+
+
+def test_long_conversation_never_repeats_a_thanks_word_for_word(chat):
+    a, st = chat
+    seen = set()
+    for i in range(14):
+        r = a.turn(st, "thanks")
+        assert r.text not in seen, (i, r.text)
+        seen.add(r.text)
+
+
+def test_he_and_she_follow_the_right_person():
+    from engramm.chat.bot import ChatBot
+    bot = ChatBot.__new__(ChatBot)
+    bot.context = {"answer": "Michelle Obama", "atype": "PERSON", "mention": "Barack Obama"}
+    bot.person_gender = lambda n: {"Michelle Obama": "female"}.get(n)
+    bot.not_a_person = lambda n: False
+    assert bot.resolve("how old is he") == "how old is Barack Obama"
+    assert bot.resolve("how old is she") == "how old is Michelle Obama"
+    bot.not_a_person = lambda n: n == "Good Omens"
+    bot.context = {"answer": None, "atype": None, "mention": "Good Omens"}
+    assert bot.resolve("who is his wife") == "who is his wife"

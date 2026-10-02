@@ -1561,3 +1561,8 @@ opinion_job_mine:
 shifts_tough:
   - "Night shifts are brutal — your body never really gets used to them. Do you get some proper rest days in between?"
   - "I can imagine. Sleeping during the day is so hard. How do you manage — blackout curtains, earplugs?"
+again_lead:
+  - "Like I said earlier — "
+  - "As I mentioned before: "
+  - "Same as before: "
+  - "Just to repeat: "

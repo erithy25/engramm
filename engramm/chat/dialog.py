@@ -461,6 +461,9 @@ class Assistant:
             from engramm.kb.store import FactBank
             today = clock().date() if clock else None
             self.kgqa = KGQA(FactBank(path), today=today)
+        bot.not_a_person = self._not_a_person        # "who is his wife?" never resolves "his" to a book
+        bot.person_gender = self._gender
+        self._kind_cache: dict[str, str | None] = {}
         # requests ENGRAMM cannot carry out (alarms, music, live data): the counted intent classifier
         from engramm.chat.device import DeviceRequests, find_model
         index_dir = getattr(bot.c, "index_dir", None)
@@ -1095,6 +1098,11 @@ class Assistant:
                 de_again = (self.bank.de or {}).get("daily", {}).get("unknown_again") if st.lang == "de" else None
                 rep.text = self._pick(st, "de:unknown_again" if de_again else "daily:unknown_again",
                                       de_again or self.bank.daily["unknown_again"])
+        if rep.text and rep.kind in ("answer", "about", "tool") and rep.text in st.recent and len(rep.text) > 80 and \
+                rep.via not in ("facts", "memory", "facts-bank") and normalise(message) != normalise(st.last_message or ""):
+            # the same answer again (the question came up twice): said like a person, not a copy
+            lead = self._pick(st, "daily:again_lead", self.bank.daily["again_lead"])
+            rep.text = lead + rep.text[:1].lower() + rep.text[1:] if rep.text[:2] not in ("I ", "I'") else lead + rep.text
         if rep.via == "facts" and rep.text:
             rep.text = _MONTH_LOW.sub(lambda m: m.group(0)[:1].upper() + m.group(0)[1:], rep.text)  # "on june 5" → "June 5"
         if rep.kind != "safety" and re.search(r"\b(?:getting sick|i'?m sick|i am sick|feel(?:ing)? sick|i have (?:a |the )?(?:cold|flu|fever|"
@@ -3671,6 +3679,55 @@ class Assistant:
             return self._pick(st, f"daily:{key}", self.bank.daily[key], x=head)
         return self._pick(st, "daily:plan_plain", self.bank.daily["plan_plain"])
 
+    def _entity_kind(self, name: str) -> str | None:
+        """"thing", "female", "male" or None, from the opening of the article about ``name``."""
+        if not name:
+            return None
+        key = name.lower()
+        if key in self._kind_cache:
+            return self._kind_cache[key]
+        kind = None
+        try:
+            found = self.about.find(name, n=2)
+        except Exception:
+            found = None
+        if found is not None and found.sentences:
+            text = " ".join(found.sentences)
+            if re.search(r"\b(?:is|was) an? (?:\d{4} )?(?:[\w'-]+ ){0,4}(?:novel|book|film|movie|album|song|single|series|sitcom|"
+                         r"video game|game|play|opera|musical|painting|poem|company|corporation|band|group|city|town|country|"
+                         r"river|mountain|building|tower|bridge|brand|franchise|newspaper|magazine|website|organi[sz]ation|"
+                         r"university|school|team|club|ship|car|language|religion|empire|kingdom|island|lake|church)\b", text[:400]):
+                kind = "thing"
+            else:
+                she = len(re.findall(r"\b(?:she|her|hers|herself)\b", text, re.I))
+                he = len(re.findall(r"\b(?:he|his|him|himself)\b", text, re.I))
+                kind = "female" if she > he else "male" if he > she else None
+        self._kind_cache[key] = kind
+        return kind
+
+    def _gender(self, name: str) -> str | None:
+        k = self._entity_kind(name)
+        return k if k in ("female", "male") else None
+
+    def _not_a_person(self, name: str) -> bool:
+        """True when the fact bank or the reading knows ``name`` as a work, place, organisation or thing
+        (not a person); unknown names count as possible persons."""
+        if self._entity_kind(name) == "thing":
+            return True
+        if self.kgqa is None or not name:
+            return False
+        try:
+            hits = self.kgqa.kb.link(name, limit=1)
+        except Exception:
+            return False
+        if not hits:
+            return False
+        ent = hits[0][0]
+        typ = ent.type or ""
+        if typ in _PERSON_TYPES:
+            return False
+        return bool(typ) and ent.title.lower().startswith(name.lower()[:6])
+
     def _is_place(self, name: str) -> bool:
         """A place the fact bank knows ("berlin", "south korea")."""
         if self.kgqa is None:
@@ -4523,6 +4580,10 @@ _NAME_CUE = re.compile(r"\b((?:my name is|my name's|call me|i'm called|i am call
                        r"([a-z][a-z'-]+(?: [a-z][a-z'-]+)?)\b(?=[.!,]|$)")
 _PLACE_CUE = re.compile(r"\b((?:live in|living in|moved to|move to|moving to|from|born in|grew up in|based in|"
                         r"lives in|visited|went to|stay in|staying in) )([a-z][a-z' -]{1,40})")
+_PERSON_TYPES = frozenset(("Person", "Artist", "MusicalArtist", "Athlete", "SoccerPlayer", "Politician", "Scientist",
+                           "Writer", "Actor", "OfficeHolder", "Royalty", "Monarch", "Philosopher", "Painter", "Model",
+                           "BasketballPlayer", "TennisPlayer", "Comedian", "Journalist", "Cleric", "Saint", "Astronaut",
+                           "MilitaryPerson", "Engineer", "Economist", "Architect", "Chef", "Director", "Musician"))
 _PLACE_TYPES = frozenset(("City", "Town", "Village", "Settlement", "Country", "AdministrativeRegion", "Island",
                           "CityDistrict", "Region", "State", "Place", "Location", "PopulatedPlace", "Continent"))
 _THING_TYPES = frozenset(("Album", "Single", "Song", "Film", "Book", "TelevisionShow", "TelevisionSeason", "VideoGame",

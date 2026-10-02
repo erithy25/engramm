@@ -158,6 +158,16 @@ intents:
       - "My pleasure. Anything else?"
       - "Glad I could help!"
       - "No problem at all."
+      - "Of course! That's what I'm here for."
+      - "You're very welcome."
+      - "Any time — just ask."
+      - "Glad it was useful!"
+      - "No worries!"
+      - "Sure thing!"
+      - "Happy I could help. 😊"
+      - "Always a pleasure."
+      - "Don't mention it!"
+      - "You got it!"
 
   - id: apology
     patterns: ['(i''m |i am |i''m so |i am so |so |very )?(sorry|my bad|apologies|i apologi[sz]e|oops|whoops|pardon|excuse me)( about that| for that| for (the|my) (mistake|typo|confusion)|,? (my bad|typo|autocorrect|wrong button|wrong chat|wrong window|my fault|fat fingers|slipped))?']

@@ -277,7 +277,17 @@
      "Anytime!",
      "My pleasure. Anything else?",
      "Glad I could help!",
-     "No problem at all."
+     "No problem at all.",
+     "Of course! That's what I'm here for.",
+     "You're very welcome.",
+     "Any time — just ask.",
+     "Glad it was useful!",
+     "No worries!",
+     "Sure thing!",
+     "Happy I could help. 😊",
+     "Always a pleasure.",
+     "Don't mention it!",
+     "You got it!"
     ]
    },
    {
@@ -8608,6 +8618,12 @@
   "shifts_tough": [
    "Night shifts are brutal — your body never really gets used to them. Do you get some proper rest days in between?",
    "I can imagine. Sleeping during the day is so hard. How do you manage — blackout curtains, earplugs?"
+  ],
+  "again_lead": [
+   "Like I said earlier — ",
+   "As I mentioned before: ",
+   "Same as before: ",
+   "Just to repeat: "
   ]
  }
 }

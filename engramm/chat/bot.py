@@ -496,6 +496,15 @@ class ChatBot:
         if not ctx["answer"] and not ctx["mention"]:
             return q
         person = ctx["answer"] if ctx["atype"] == PERSON and ctx["answer"] else ctx["mention"]
+        gender = getattr(self, "person_gender", None)
+        pm = re.search(r"\b(he|him|his|she|her|hers)\b", q, re.I)
+        if gender is not None and pm and ctx["answer"] and ctx["mention"] and ctx["answer"] != ctx["mention"]:
+            want = "female" if pm.group(1).lower() in ("she", "her", "hers") else "male"
+            ga, gm = gender(ctx["answer"]), gender(ctx["mention"])
+            if ga and ga != want and gm != ga:
+                person = ctx["mention"]               # "how old is he?" after "Obama's wife is Michelle": Obama
+            elif gm and gm != want and ga != gm:
+                person = ctx["answer"]
         thing = ctx["answer"] if ctx["atype"] in (LOCATION, PROPER, OTHER) and ctx["answer"] else ctx["mention"]
         m = _DEMONSTRATIVE.search(q)
         if m:
@@ -509,6 +518,9 @@ class ChatBot:
         for i, w in enumerate(ws):
             core = re.sub(r"[^\w']", "", w).lower()
             tail = w[len(w.rstrip("?.!,")):]
+            if core in (*_PERSON_PRON, "her") and person and getattr(self, "not_a_person", None) is not None \
+                    and core not in ("they", "them", "their") and self.not_a_person(person):
+                return q                             # "who is his wife?" after a book: not about the book
             if core in _PERSON_PRON and person:
                 rep = person + "'s" if core in ("his", "their", "hers") else person
                 ws[i] = rep + tail
