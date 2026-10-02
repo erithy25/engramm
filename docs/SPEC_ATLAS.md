@@ -156,7 +156,9 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
 
 Bauzeit auf GitHub-Runnern: Lite 63 min, Standard 49 min. Lite im Container gemessen: Spitzen-RSS 555 MB,
 p95 0,093 s; Standard aus dem Release: Spitzen-RSS 1.053 MB, p95 0,174 s (Schwellen ≤ 1,5 GB / ≤ 1,5 s
-eingehalten; alle 36 Dateien gegen das Manifest geprüft). Offen: die 4-GB-VM. Die Installer jenes Laufs wurden abgebrochen, weil ein gleichzeitiger Push den
+eingehalten; alle 36 Dateien gegen das Manifest geprüft). Unter einer harten Speichergrenze (cgroup, 1,5 GiB und
+3 GiB) liefen beide Pakete ohne ein einziges Erreichen der Grenze (Standard: Spitzen-RSS 1.073 MB, p95 0,055 s;
+Details in EXPECTATIONS.md). Offen: dieselbe Messung auf echter 4-GB-Hardware mit Festplatte. Die Installer jenes Laufs wurden abgebrochen, weil ein gleichzeitiger Push den
 Installer-Job aus der gemeinsamen Concurrency-Gruppe verdrängte; seitdem hat der aus dem Release
 aufgerufene Desktop-Bau eine eigene Gruppe, und `release/request.json` kann mit `reuse_run` die Pakete
 eines früheren Laufs übernehmen und nur die Installer neu bauen.

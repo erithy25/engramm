@@ -2174,3 +2174,18 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   **p95 0,174 s**, Maximum 6,1 s (die erste Textsuche nach dem Start, kalte Index-Dateien); **Spitzen-RSS 1.053 MB**.
   Schwellen (RAM ≤ 1,5 GB, p95 ≤ 1,5 s) eingehalten. Wissensbatterie 30 gibt mit dem Standard-Paket dieselben
   Antworten wie mit dem Lite-Paket. Offen bleibt nur die 4-GB-VM.
+- **Messung mit harter Speichergrenze (Ersatz für die 4-GB-VM, 2. Oktober 2026)**: eigene cgroup (v1, `memory.limit_in_bytes`)
+  im Container, 300 gemischte Alltagsnachrichten aus den Batterien 21–40 (`scratchpad/perf4g.py`), Stand d26a277+.
+
+  | Grenze | Paket | Laden | p50 | p95 | Max | Spitzen-RSS | Grenze erreicht / OOM |
+  |---|---|---|---|---|---|---|---|
+  | 3 GiB (4-GB-Rechner abzüglich ≈ 1 GB System) | Lite | 5,8 s | 0,001 s | 0,023 s | 1,49 s | 559 MB | 0 / 0 |
+  | 3 GiB | Standard | 8,6 s | 0,001 s | 0,058 s | 6,82 s | 1.077 MB | 0 / 0 |
+  | 1,5 GiB (Plan-Schwelle A2) | Lite | 6,2 s | 0,001 s | 0,018 s | 1,68 s | 553 MB | 0 / 0 |
+  | 1,5 GiB | Standard | 8,5 s | 0,001 s | 0,055 s | 6,30 s | 1.073 MB | 0 / 0 |
+
+  Einschränkung: Die Paketdateien liegen in `/dev/shm` und waren schon der übergeordneten cgroup angerechnet; der
+  Seiten-Cache beim ersten Lesen von einer langsamen Platte ist daher nicht mitgemessen (die cgroup zählte 299 bzw.
+  455 MB neu angerechneten Speicher). Maßgeblich ist der Spitzen-RSS (inklusive gemappter Paketseiten), der unter
+  1,1 GB bleibt. Das Maximum von ≈ 6 s beim Standard-Paket ist die erste Textsuche mit kalten Index-Dateien. Eine Messung
+  auf echter 4-GB-Hardware mit Festplatte steht weiterhin aus.
