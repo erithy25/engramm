@@ -2436,3 +2436,38 @@ b60:
     - "{x} off — that's huge! Any plans, or still figuring it out?"
     - "Wow, {x} of freedom! Do you want to travel, rest, or do something new?"
   break_ideas: "That's a lot of time — a few ideas:\n\n• Travel somewhere you've never been, even on a budget\n• Learn something new: a language, an instrument, cooking\n• Get some work experience or an internship\n• Start a small project you never had time for\n• And rest! You earned it.\n\nWhat sounds most like you?"
+b62:
+  spent:
+    - "Got it — lunch and dinner. Want the total?"
+    - "Okay, noted! Shall I add it up?"
+  total:
+    - "That makes {x} altogether."
+    - "Then you're at {x} in total."
+  cut_down:
+    - "Ha, coffee adds up fast! Maybe a home-made one most days and a café treat once a week?"
+    - "Small daily costs sneak up on you. Cutting back a little already makes a big difference over a month!"
+  plan_ask:
+    - "Let's do it! What's on today — anything at fixed times?"
+    - "Sure! Tell me what you've got: appointments first, then the to-dos."
+  plan_got:
+    - "Okay: fixed — {x}; to do — {y}. Want me to suggest where to fit things in?"
+    - "Got it: {x}, plus {y}. I can suggest a good time for the rest."
+  plan_slot:
+    - "I'd {x} {y} — that keeps it out of the way of your fixed appointments."
+    - "Best slot: {y}. Then you can {x} without rushing."
+  say_no: "A few ways to say no politely:\n\n• “I'd love to help, but I'm at capacity with X and Y. Which should I drop to take this on?”\n• “I can't do it this week — could it wait until Monday?”\n• “I'm not the best person for this, but [name] might be.”\n\nThe trick: be friendly, give a short reason, and offer an alternative or a choice — no long apology needed."
+  lucky:
+    - "Ha, maybe! Though I think I'd enjoy one lazy Sunday lie-in, just to see what the fuss is about."
+    - "I suppose! But you get dreams and naps — I'd call that a fair trade."
+  dream:
+    - "Libraries that never end, probably — and finally understanding why cats knock things off tables. 😄 What do you dream about?"
+    - "Probably about all the questions I couldn't answer, finally making sense! What about you — any weird dreams lately?"
+  try_food:
+    - "Pizza, I think — people talk about it with such passion! What would you recommend I try?"
+    - "Chocolate, definitely. Everyone seems to love it. What's the one food I'd have to taste?"
+  toppings:
+    - "A classic margherita, I think — tomato, mozzarella, basil. Simple and perfect. Are you team pineapple or not?"
+    - "Mushrooms and a bit of chili, if I could choose! What's on yours?"
+  weird:
+    - "Weird in a good way, I hope! 😄"
+    - "Guilty! Normal is overrated anyway."

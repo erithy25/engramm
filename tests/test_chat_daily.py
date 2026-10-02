@@ -2595,3 +2595,23 @@ def test_english_question_after_german_switches_back(chat):
     import datetime as _dt
     t = tool_answer("how many days until christmas", _dt.datetime(2026, 10, 2, 12, 0))
     assert ".0 weeks" not in t.text, t.text
+
+
+def test_battery62_sums_plans_and_saying_no(chat):
+    a, _ = chat
+    st = DialogState("m62")
+    a.turn(st, "i spent 20 on lunch and 15 on dinner")
+    assert "35" in a.turn(st, "how much is that?").text
+    assert "47" in a.turn(st, "and if i add 12 for coffee?").text
+    r = a.turn(st, "wow i should stop buying coffee")
+    assert r.kind != "learned", r.text
+    st = DialogState("p62")
+    a.turn(st, "i need to plan my day")
+    r = a.turn(st, "i have a meeting at 10, gym at 6 and i need to buy groceries")
+    assert "meeting at 10" in r.text and r.kind != "learned", r.text
+    r = a.turn(st, "when should i buy groceries?")
+    assert "between" in r.text or "after" in r.text, r.text
+    r = a.turn(DialogState("n62"), "how do i say no politely?")
+    assert "•" in r.text, r.text
+    r = a.turn(DialogState("f62"), "tell me something funny then")
+    assert r.kind == "smalltalk" and "answer is" not in r.text, r.text

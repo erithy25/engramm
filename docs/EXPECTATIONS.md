@@ -2474,6 +2474,16 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     auch „sorry“ als englisch; dann sprang „sorry, war nicht so gemeint“ ins Englische (Batterie 46 und ein Test fingen
     das ab, „sorry“ ist wieder neutral). Danach: Suite 751 bestanden, 28 Gespräche ohne Wiederholung, Unterschiede nur
     die beabsichtigten (Batterie 40, langes Gespräch).
+- **Alltags-Batterie 62 (Neckereien, Rechnen nebenbei, Tagesplan, Nein sagen)**:
+  - „i spent 20 on lunch and 15 on dinner“ → „how much is that?“ → vorher Nachschlagefehler, dann „You spent 20 on lunch
+    and 15 on dinner.“; jetzt „20 + 15 = 35.“ → „and if i add 12 for coffee?“ → 47 → „i should stop buying coffee“ wird
+    nicht als Vorliebe „coffee — yum!“ gespeichert.
+  - Tagesplan: „i have a meeting at 10, gym at 6 and i need to buy groceries“ wurde nur als Termin gespeichert; jetzt
+    Zusammenfassung und „when should i buy groceries?“ → Lücke zwischen den festen Terminen.
+  - „tell me something funny then“ → „The answer is predicative.“ (Nachschlagen) → jetzt ein Witz; „how do i say no
+    politely?“ → drei Formulierungen; „lucky you“ nach „Never sleep“ → „That's really nice to hear!“ → jetzt passend;
+    „what would you dream about?“, „if you could eat, what would you try first?“, „what toppings?“, „you're weird“ mit
+    eigenen, menschlichen Antworten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

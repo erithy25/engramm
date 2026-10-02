@@ -4520,7 +4520,7 @@ class Assistant:
             self._daily_ctx5(st, msg, norm) or self._daily_ctx6(st, msg, norm) or self._daily_ctx7(st, msg, norm) or \
             self._daily_ctx8(st, msg, norm) or self._daily_ctx9(st, msg, norm) or self._daily_ctx10(st, msg, norm) or \
             self._daily_ctx11(st, msg, norm) or self._daily_ctx12(st, msg, norm) or self._daily_ctx13(st, msg, norm) or \
-            self._daily_ctx14(st, msg, norm)
+            self._daily_ctx14(st, msg, norm) or self._daily_ctx15(st, msg, norm)
         if r2 is not None:
             return r2
         m = _WHAT_LIKES.match(norm)
@@ -5342,6 +5342,80 @@ class Assistant:
                 return Reply(msg, "smalltalk", self._pick(st, "daily:sound:gib_sorry", self.bank.daily["sounds"]["gib_sorry"]), via="smalltalk")
             return None
         return Reply(msg, "smalltalk", self._pick(st, f"daily:sound:{key}", self.bank.daily["sounds"][key]), via="smalltalk")
+
+    def _daily_ctx15(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 62: sums said in passing ("20 on lunch and 15 on dinner" → "how much is that?" → "and if i add
+        12?"), planning a day, saying no politely, "tell me something funny", and the bot's own imagined tastes."""
+        b = self.bank.daily["b62"]
+        n = norm.strip(" .!?")
+        recent = lambda key, k=3: (st.uses.get(key) and st.turn - st.uses[key][-1] <= k)   # noqa: E731
+        sp = re.findall(r"(?:€|\$|£)?(\d+(?:[.,]\d{1,2})?)(?: ?(?:euros?|dollars?|bucks|pounds|€|\$))? (?:on|for) [a-z]+", n)
+        if len(sp) >= 2 and re.match(r"(?:i |we )?(?:spent|paid|spend|gave)\b", n):
+            st.uses["sum62"] = [[float(x.replace(",", ".")) for x in sp], st.turn]
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b62:spent", b["spent"]), via="smalltalk")
+        sm = st.uses.get("sum62")
+        if sm and st.turn - sm[1] <= 3:
+            fmt = lambda v: f"{v:,.2f}".rstrip("0").rstrip(".")                              # noqa: E731
+            if re.fullmatch(r"(?:so )?(?:how much (?:is|was) (?:that|it)(?: (?:altogether|in total|total))?|what'?s the total|how much in total|"
+                            r"how much did i spend(?: in total)?)", n):
+                total = sum(sm[0])
+                sm[1] = st.turn
+                return Reply(msg, "tool", f"{' + '.join(fmt(v) for v in sm[0])} = {fmt(total)}.", answer=fmt(total), via="tool", confidence=1.0)
+            am = re.fullmatch(r"(?:and |plus )?(?:what )?(?:if i add|plus|and another|add) (?:€|\$|£)?(?P<v>\d+(?:[.,]\d{1,2})?)(?: (?:for|on) [a-z ]+)?", n)
+            if am:
+                sm[0].append(float(am.group("v").replace(",", ".")))
+                sm[1] = st.turn
+                total = sum(sm[0])
+                return Reply(msg, "tool", self._pick(st, "daily:b62:total", b["total"], x=fmt(total)), answer=fmt(total), via="tool",
+                             confidence=1.0)
+            if re.search(r"\b(?:should|need to|gotta|have to) (?:stop|cut down on|quit) (?:buying |drinking |spending on )?(?P<x>[a-z]+)", n):
+                return Reply(msg, "smalltalk", self._pick(st, "daily:b62:cut_down", b["cut_down"]), via="smalltalk")
+        if re.fullmatch(r"(?:i need to|help me|can you help me|let'?s) plan (?:my|the) day|(?:i need to|let'?s) plan (?:today|tomorrow)", n):
+            st.uses["plan62"] = [[], st.turn]
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b62:plan_ask", b["plan_ask"]), via="smalltalk")
+        pl = st.uses.get("plan62")
+        if pl and st.turn - pl[1] <= 3:
+            items = re.findall(r"(?:(?:a |the )?(?P<w>meeting|gym|dentist|doctor|lunch|call|class|appointment|workout|interview|dinner|date)"
+                               r" (?:at|@) (?P<t>\d{1,2}(?::\d\d)?(?: ?(?:am|pm))?))", n)
+            todo = re.findall(r"(?:need to|have to|gotta|must) (?P<x>(?:buy|get|do|pick up|call|clean|write|send) [a-z ]{2,25}?)(?=,| and |$)", n)
+            if items or todo:
+                pl[0] = [(w, t) for w, t in items]
+                pl.append(todo)
+                pl[1] = st.turn
+                fixed = ", ".join(f"{w} at {t}" for w, t in items)
+                return Reply(msg, "smalltalk", self._pick(st, "daily:b62:plan_got", b["plan_got"], x=fixed or "nothing fixed",
+                                                          y=" and ".join(todo) or "a free day"), via="smalltalk")
+            if re.search(r"\bwhen should i\b", n) and pl[0]:
+                hours = sorted(int(re.match(r"\d+", t).group(0)) % 12 + (12 if (re.search(r"pm", t) or int(re.match(r"\d+", t).group(0)) < 8) else 0)
+                               for _w, t in pl[0])
+                gap = None
+                for h1, h2 in zip(hours, hours[1:]):
+                    if h2 - h1 >= 3:
+                        gap = (h1 + 1, h2 - 1)
+                        break
+                slot = f"between {gap[0]}:00 and {gap[1]}:00" if gap else f"after {hours[-1] + 1}:00"
+                act = re.sub(r"^when should i ", "", n)
+                pl[1] = st.turn
+                return Reply(msg, "smalltalk", self._pick(st, "daily:b62:plan_slot", b["plan_slot"], x=act, y=slot), via="smalltalk")
+        if re.fullmatch(r"how (?:do|can|should) i (?:say no|decline|turn (?:it|them|him|her) down|push back)(?: (?:politely|nicely|to my boss|at work|"
+                        r"without being rude))*", n):
+            return Reply(msg, "smalltalk", b["say_no"], via="everyday")
+        if re.fullmatch(r"(?:then )?(?:tell me|say) something funny(?: then)?|make me laugh|cheer me up with a joke", n):
+            return self._turn(st, "tell me a joke")
+        last = (st.last_reply or "").lower()
+        if re.fullmatch(r"(?:lucky you|must be nice|jealous|i wish|so jealous|nice for you)", n) and re.search(r"sleep|dream|tired|eat|food", last):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b62:lucky", b["lucky"]), via="smalltalk")
+        if re.fullmatch(r"(?:but )?what would you dream (?:about|of)|if you could dream,? what would (?:it be|you dream about)", n):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b62:dream", b["dream"]), via="smalltalk")
+        if re.fullmatch(r"(?:but )?if you could (?:eat|taste)(?: anything)?,? what would you (?:try|eat|have)(?: first)?", n):
+            st.uses["bot_food"] = [st.turn]
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b62:try_food", b["try_food"]), via="smalltalk")
+        if re.fullmatch(r"(?:and )?(?:what|which) toppings?(?: would you (?:pick|choose|get|want))?|what (?:kind|toppings) on (?:it|yours|your pizza)", n) and \
+                re.search(r"pizza", " ".join(st.recent[-3:]).lower() + " " + (st.last_message or "")):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b62:toppings", b["toppings"]), via="smalltalk")
+        if re.fullmatch(r"(?:you'?re|you are|ur) (?:so |kinda |a bit |really |pretty )?(?:weird|strange|odd|a weirdo)(?: lol| haha)?", n):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b62:weird", b["weird"]), via="smalltalk")
+        return None
 
     def _daily_ctx14(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 60: a hike and sore legs, a band ("have you heard of queen?" → "who was their singer?"),
