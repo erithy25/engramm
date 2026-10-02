@@ -1146,6 +1146,8 @@ class Assistant:
             return Reply(msg, "empathy", pk("mess_up", g["mess_up"]), via="german")
         if re.search(r"\b(?:schluss gemacht|getrennt|trennung)\b", q):
             st.uses["breakup65"] = [st.turn]
+            if not re.match(r"^(?:ich|wir)\b", q):
+                return None                               # "meine freundin hat schluss gemacht": the feeling answers
             st.last_exp = {"valence": "negative", "topic": None, "person": True, "text": msg, "text_en": _de_advice_hint(s),
                            "turn": st.turn}                # "wir waren 2 jahre zusammen" follows
             return Reply(msg, "empathy", pk("breakup", g["breakup"]), via="german")

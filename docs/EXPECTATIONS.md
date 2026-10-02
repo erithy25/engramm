@@ -2529,6 +2529,9 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     Schweiz 143, Notruf 112), Panikattacke, Präsentationsangst, Trennung („soll ich mit ihm befreundet bleiben?“).
   - Erste Fassung fing „meine freundin hat schluss gemacht“ ab, ohne den Gesprächszustand zu setzen; die bestehende
     Folgefrage „wir waren 2 jahre zusammen“ ging verloren (alter Test fing das ab, vor dem Commit behoben).
+  - Messung: Team-Dev-Satz 1 von 128 (team-0067). NQ-open 400: 22/9. Suite 755 bestanden. Regressionen 32, 38–65
+    (32 Gespräche): 0 Wiederholungen. Batterie 41 zeigte, dass „meine freundin hat schluss gemacht“ nun „auch wenn sie richtig
+    sind“ hörte – die eigene Trennungsantwort gilt jetzt nur, wenn man selbst Schluss gemacht hat (Batterie 41 wieder wie vorher).
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
