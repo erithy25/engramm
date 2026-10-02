@@ -192,6 +192,7 @@ jobs:
     needs: request
     if: ${{ needs.request.outputs.reuse != '' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20            # an artifact download that hangs fails fast instead of blocking the release queue for 6 hours
     permissions:
       actions: read
       contents: read
