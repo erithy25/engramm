@@ -226,3 +226,42 @@ def test_no_word_for_word_repeats_in_small_talk(chat):
     replies = [a.turn(st, m).text for m in msgs]
     for i in range(1, len(replies)):
         assert replies[i] != replies[i - 1], (msgs[i], replies[i])
+
+
+def test_an_unknown_title_gets_a_question_not_a_receipt(chat):
+    a, st = chat
+    r = a.turn(st, "I watched Zorblax Returns yesterday")
+    assert "Zorblax Returns" in r.text and r.text.rstrip().endswith("?"), r.text
+    assert "remember" not in r.text.lower() and "noted" not in r.text.lower()
+    r = a.turn(st, "I just finished The Quiet Orchard")
+    assert "The Quiet Orchard" in r.text and r.text.rstrip().endswith("?"), r.text
+    r = a.turn(st, "I went to the gym")
+    assert "the gym" not in r.text.split("—")[0] or "?" in r.text      # no title reaction for errands
+
+
+def test_picking_from_a_list_always_says_something(chat):
+    a, st = chat
+    a.turn(st, "recommend a sci-fi book")
+    r = a.turn(st, "tell me about the second one")
+    assert r.text and len(r.text) > 40 and "“" in r.text, r.text
+    assert r.text != "Good choice"
+
+
+def test_who_do_you_mean_takes_the_name_as_the_answer(chat):
+    a, st = chat
+    a.turn(st, "who is the president of Zorblaxia?")
+    r = a.turn(st, "where was he born?")
+    assert r.via == "clarify" and "he" in r.text.lower()
+    r = a.turn(st, "Alexander Graham Bell")
+    assert "Edinburgh" in r.text, r.text                      # the question again, now with the name
+    assert not any("Alexander" in t for t in _stored(a))       # not stored as the user's name
+
+
+def test_german_small_phrases(chat):
+    a, st = chat
+    a.turn(st, "Hallo")
+    assert "Gute Nacht" in a.turn(st, "gute nacht").text or "Schlaf" in a.turn(st, "gute nacht").text
+    r = a.turn(st, "was machst du so?")
+    assert "Wie geht es dir" not in r.text and r.text.endswith("?")
+    r = a.turn(st, "hey")
+    assert any(w in r.text for w in ("Hallo", "Hi", "Hey", "Schön")) and "How" not in r.text

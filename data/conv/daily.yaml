@@ -17,6 +17,8 @@ gibberish:
   again:
     - "Still not quite getting it — try a few words, like “tell me a joke” or “who painted the Mona Lisa?”."
     - "I'm lost, sorry! Type a question or tell me what's on your mind, and I'll do my best."
+    - "Hmm, still not getting that one. Could you say it a different way?"
+    - "I think the keyboard got there first! What did you mean?"
 
 discourse:
   # "idk", "not sure" after ENGRAMM asked something
@@ -31,6 +33,8 @@ discourse:
   agree:
     - "Glad we're on the same page!"
     - "Great minds think alike."
+    - "Exactly!"
+    - "Yes — I think so too."
   question_coming:
     - "Sure — go ahead and ask!"
     - "Of course. What would you like to know?"
@@ -38,9 +42,14 @@ discourse:
   help:
     - "I'm here to help. What's going on?"
     - "Of course — tell me what you need, and we'll figure it out together."
+    - "Happy to help. What do you need?"
+    - "Sure thing. What's up?"
   confused:
     - "Sorry — that's on me. Let's start again: what would you like to know or talk about?"
     - "No problem, let's untangle it. What are you trying to find out?"
+    - "My fault — I wasn't clear. What would you like to know?"
+    - "Let me try again. What were you asking about?"
+    - "Hm, I think I lost the thread. Can you say it another way?"
 
 experience:
   negative:
@@ -88,6 +97,8 @@ offers:
   listen:
     - "I'm listening — go ahead."
     - "Of course. Take your time, I'm here."
+    - "I'm listening — tell me whenever you're ready."
+    - "Go ahead, I'm all ears."
   ideas_none:
     - "Tell me what you'd like ideas for — food, a film, something to do — and I'll suggest a few."
 
@@ -120,9 +131,13 @@ advice:
   sad:
     - "Be gentle with yourself today. Reaching out to someone you trust — even a short message — can help more than you'd expect."
     - "It's okay to have a bad day. Do something kind for yourself: a walk, a favourite song, a good meal. And if it keeps weighing on you, talking to someone helps."
+    - "Be gentle with yourself today. A short walk, some music, or talking to someone you trust can help a bit."
+    - "Sometimes it helps to name what's weighing on you — and to do one small, kind thing for yourself."
   failure:
     - "One result doesn't define you. Find out where it went wrong, make a plan for next time, and give yourself credit for trying."
     - "Take a breath first. Then look at what you can learn from it — and what you'd do differently. Most people who succeed failed first."
+    - "One setback doesn't define you. What would you do differently next time?"
+    - "That's frustrating — but it's also information. What's one thing you learned from it?"
   career:
     - "Before you decide, write down what you'd miss and what you wouldn't — and what you'd want from the next job. If the list of “wouldn't miss” is long, start looking quietly before you quit."
     - "It's worth asking: is it the job, the people, or the workload? Sometimes a talk with your manager or a change of team fixes it; sometimes it's time to move on."
@@ -134,6 +149,7 @@ advice:
   none:
     - "About what? Tell me what's going on, and I'll help you think it through."
     - "Happy to help — what's the situation?"
+    - "Tell me a bit more about what's going on, and I'll think it through with you."
 
 decide:
   - "Both sound good! Quick trick: imagine I flipped a coin and it said “{x}”. Do you feel relieved or a little disappointed? That feeling is usually your answer."
@@ -141,6 +157,15 @@ decide:
   - "Let me pick for you: “{x}”. If that makes you want to argue for the other one, go with the other one!"
 
 recommend:
+  # "tell me about the second one": a fact from the fact bank ({fact}), or the plain pick ({noun}: "science-fiction book")
+  pick_fact:
+    - "Good choice — {x}. {fact} Want something similar?"
+    - "{x} — nice pick! {fact} Shall I find you more like it?"
+    - "Ah, {x}. {fact} Want another one along those lines?"
+  pick_plain:
+    - "Good choice — {x}. It's a much-loved {noun}; I don't have more details offline. Want something similar?"
+    - "{x} is a great {noun} to start with. I can't tell you more about it offline — shall I suggest another?"
+    - "Nice pick: {x}. That's all I know about it offline, but I can find you more {noun}s like it."
   intro:
     - "Here are a few ideas:"
     - "Some suggestions:"
@@ -148,8 +173,9 @@ recommend:
   outro:
     - "Want more, or should I tell you about one of them?"
     - "Anything there you like? I can tell you more about any of them."
+    - "Want more, or shall I tell you about one of them?"
   food:
-    intro: "A few ideas for tonight:"
+    intro: ["A few ideas for tonight:", "How about one of these:", "Here's what I'd cook:"]
     items:
       - {x: "pasta aglio e olio — garlic, olive oil and chilli, done in fifteen minutes", de: "Pasta aglio e olio – Knoblauch, Olivenöl und Chili, in fünfzehn Minuten fertig"}
       - {x: "a quick stir-fry with whatever vegetables you have", de: "eine schnelle Gemüsepfanne mit allem, was du da hast"}
@@ -165,7 +191,7 @@ recommend:
       - {x: "a risotto, if you feel like stirring for twenty minutes", de: "ein Risotto, wenn du Lust hast, zwanzig Minuten zu rühren"}
     outro: "What are you in the mood for — something quick, healthy or comforting?"
   book:
-    intro: "A few books people love:"
+    intro: ["A few books people love:", "Some books worth your time:", "Here are a few great reads:"]
     items:
       - {x: "“To Kill a Mockingbird” by Harper Lee (1960)", tags: "fiction classic", title: "To Kill a Mockingbird"}
       - {x: "“1984” by George Orwell (1949)", tags: "fiction classic dystopia", title: "Nineteen Eighty-Four"}
@@ -184,7 +210,7 @@ recommend:
       - {x: "“Harry Potter and the Philosopher's Stone” by J. K. Rowling (1997)", tags: "fiction fantasy", title: "Harry Potter and the Philosopher's Stone"}
     outro: "Fiction or non-fiction? I can narrow it down."
   movie:
-    intro: "A few films worth watching:"
+    intro: ["A few films worth watching:", "Here are some films I'd suggest:", "How about one of these films:"]
     items:
       - {x: "“The Shawshank Redemption” (1994)", tags: "drama classic", title: "The Shawshank Redemption"}
       - {x: "“Inception” (2010) by Christopher Nolan", tags: "scifi thriller", title: "Inception"}
@@ -202,7 +228,7 @@ recommend:
       - {x: "“The Lord of the Rings: The Fellowship of the Ring” (2001)", tags: "fantasy action", title: "The Lord of the Rings: The Fellowship of the Ring"}
     outro: "Are you in the mood for something light, exciting or thought-provoking?"
   series:
-    intro: "A few series people can't stop talking about:"
+    intro: ["A few series people can't stop talking about:", "Some series worth bingeing:", "Here are a few great shows:"]
     items:
       - {x: "“Breaking Bad”", tags: "drama crime", title: "Breaking Bad"}
       - {x: "“The Office” (the US version)", tags: "comedy", title: "The Office (American TV series)"}
@@ -216,7 +242,7 @@ recommend:
       - {x: "“Friends”", tags: "comedy classic", title: "Friends"}
     outro: "Want something funny, gripping or relaxing?"
   music:
-    intro: "A few albums worth a listen:"
+    intro: ["A few albums worth a listen:", "Some albums to put on:", "Give one of these a listen:"]
     items:
       - {x: "“Abbey Road” by the Beatles (1969)", tags: "rock classic", title: "Abbey Road"}
       - {x: "“Kind of Blue” by Miles Davis (1959)", tags: "jazz classic", title: "Kind of Blue"}
@@ -229,7 +255,7 @@ recommend:
       - {x: "“Nevermind” by Nirvana (1991)", tags: "rock grunge", title: "Nevermind"}
     outro: "What kind of music do you usually like?"
   game:
-    intro: "A few games to try:"
+    intro: ["A few games to try:", "Some games worth playing:", "Here are a few games people love:"]
     items:
       - {x: "Catan, a classic board game for 3–4 players", tags: "board", title: "Catan"}
       - {x: "Codenames, perfect for a group", tags: "board party", title: "Codenames (board game)"}
@@ -241,7 +267,7 @@ recommend:
       - {x: "Tetris — a classic for a reason", tags: "video classic puzzle", title: "Tetris"}
     outro: "Board games or video games?"
   activity:
-    intro: "A few things you could do:"
+    intro: ["A few things you could do:", "Here are some ideas:", "How about one of these:"]
     items:
       - {x: "go for a walk somewhere you've never been, even nearby", de: "einen Spaziergang irgendwohin, wo du noch nie warst – auch in der Nähe"}
       - {x: "cook something new from whatever is in the kitchen", de: "etwas Neues aus dem kochen, was in der Küche ist"}
@@ -255,7 +281,7 @@ recommend:
       - {x: "ask me to quiz you — I've got questions ready", de: "mich fragen, ob ich dich quizzen soll"}
     outro: "Anything there sound good?"
   gift:
-    intro: "Some gift ideas:"
+    intro: ["Some gift ideas:", "A few gifts that usually go down well:", "Here are some gift ideas:"]
     items:
       - {x: "a book by their favourite author, or one you loved", de: "ein Buch ihres Lieblingsautors – oder eins, das du geliebt hast"}
       - {x: "an experience — tickets, a class or a day trip together", de: "ein Erlebnis – Tickets, ein Kurs oder ein Ausflug zusammen"}
@@ -266,7 +292,7 @@ recommend:
       - {x: "a handwritten letter — free and often the most treasured", de: "ein handgeschriebener Brief – kostenlos und oft am wertvollsten"}
     outro: "Who is it for? Tell me a bit about them and I'll narrow it down."
   travel:
-    intro: "Some places people love:"
+    intro: ["Some places people love:", "A few places worth the trip:", "Here are some great destinations:"]
     items:
       - {x: "Lisbon, for its hills, trams and pastéis de nata", title: "Lisbon"}
       - {x: "Kyoto, for temples and gardens", title: "Kyoto"}
@@ -279,7 +305,7 @@ recommend:
       - {x: "Hanoi, for street food and Ha Long Bay nearby", title: "Hanoi"}
     outro: "City, beach or nature? I can tell you more about any of them."
   hobby:
-    intro: "Some hobbies that are easy to start:"
+    intro: ["Some hobbies that are easy to start:", "A few hobbies you could pick up:", "Here are some easy hobbies to try:"]
     items:
       - {x: "running or cycling — cheap and great for your head", de: "Laufen oder Radfahren – günstig und gut für den Kopf"}
       - {x: "cooking new recipes from different countries", de: "Rezepte aus verschiedenen Ländern kochen"}
@@ -292,7 +318,7 @@ recommend:
       - {x: "writing — a journal, stories or a blog", de: "Schreiben – Tagebuch, Geschichten oder ein Blog"}
     outro: "Something active, creative or relaxing?"
   sleep:
-    intro: "Things that help with sleep:"
+    intro: ["Things that help with sleep:", "A few things that make sleep easier:", "These usually help with sleep:"]
     items:
       - {x: "keep the same bedtime and wake-up time, even at weekends", de: "jeden Tag zur gleichen Zeit ins Bett gehen und aufstehen, auch am Wochenende"}
       - {x: "no screens for the last half hour — read something on paper instead", de: "die letzte halbe Stunde keine Bildschirme – lieber etwas auf Papier lesen"}
@@ -301,7 +327,7 @@ recommend:
       - {x: "if you can't sleep after twenty minutes, get up and do something calm until you feel sleepy", de: "wenn du nach zwanzig Minuten nicht schläfst: aufstehen und etwas Ruhiges machen, bis du müde wirst"}
     outro: "Is it falling asleep or staying asleep that's hard?"
   study:
-    intro: "A few study tips that work:"
+    intro: ["A few study tips that work:", "Some study tricks that actually work:", "Here's what helps when studying:"]
     items:
       - {x: "test yourself instead of re-reading — recalling is what makes it stick", de: "dich selbst abfragen statt nur nochmal zu lesen – Erinnern lässt es haften"}
       - {x: "spread it out: a little every day beats one long session", de: "lieber jeden Tag ein bisschen als einmal sehr lange"}
@@ -310,7 +336,7 @@ recommend:
       - {x: "put your phone in another room", de: "das Handy in einen anderen Raum legen"}
     outro: "What are you studying for?"
   focus:
-    intro: "A few ways to get things done:"
+    intro: ["A few ways to get things done:", "Some ways to get going:", "A few tricks against procrastination:"]
     items:
       - {x: "pick the three most important tasks for today and do the hardest one first", de: "die drei wichtigsten Aufgaben des Tages auswählen und mit der schwersten anfangen"}
       - {x: "work for 25 minutes, then take a 5-minute break", de: "25 Minuten arbeiten, dann 5 Minuten Pause"}
@@ -319,7 +345,7 @@ recommend:
       - {x: "write tomorrow's to-do list before you stop today", de: "die To-do-Liste für morgen schreiben, bevor du heute aufhörst"}
     outro: "What are you trying to get done?"
   exercise:
-    intro: "A few easy ways to move more:"
+    intro: ["A few easy ways to move more:", "Some easy ways to get moving:", "A few small ways to be more active:"]
     items:
       - {x: "a brisk 20-minute walk every day", de: "jeden Tag 20 Minuten zügig spazieren"}
       - {x: "bodyweight basics: squats, push-ups and planks, ten minutes", de: "Grundübungen mit dem eigenen Körpergewicht: Kniebeugen, Liegestütze, Planks – zehn Minuten"}
@@ -328,7 +354,7 @@ recommend:
       - {x: "cycling instead of driving for short trips", de: "kurze Strecken mit dem Rad statt mit dem Auto"}
     outro: "Are you looking for something at home or outside?"
   petname:
-    intro: "Some pet names people love:"
+    intro: ["Some pet names people love:", "A few pet names you might like:", "Here are some lovely pet names:"]
     items: ["Luna", "Milo", "Bella", "Oscar", "Pepper", "Nala", "Teddy", "Mochi", "Ziggy", "Biscuit", "Olive", "Loki"]
     outro: "Is it a dog, a cat or something else?"
 
@@ -336,6 +362,7 @@ opinion:
   topic:
     - "I don't have taste of my own, but here's what I know: {x}"
     - "I can't judge it myself — but {x}"
+    - "I don't have opinions of my own, but I can tell you what I've read about {topic}."
   none:
     - "Which one do you mean? Tell me the name and I'll tell you what I know."
 
@@ -345,21 +372,26 @@ entity:
     - "{title}! {fact}"
     - "Oh, {title}. {fact}"
     - "Nice — {title}. {fact}"
+  lead_plain:
+    - "Oh, {title}!"
+    - "Ooh, {title}."
+    - "Nice — {title}!"
+    - "{title}, cool."
   ask:
     visited: ["How was it?", "What did you like most about it?", "Would you go back?"]
-    met: ["What was that like?", "How did that happen?"]
-    watched: ["Did you enjoy it?", "What did you think of it?"]
-    reading: ["How are you finding it?", "Is it any good so far?"]
-    read: ["Did you like it?", "Would you recommend it?"]
-    listening: ["What's your favourite song?", "How long have you been listening to them?"]
-    playing: ["Are you enjoying it?", "How far have you got?"]
-    like: ["What do you like most about it?", "How did you get into it?"]
-    Film: ["Have you seen it?", "Do you like it?"]
-    Book: ["Have you read it?", "Would you recommend it?"]
-    Place: ["Have you been there?", "What brings it up?"]
-    Person: ["What do you think of them?", "What made you think of them?"]
-    Music: ["Do you listen to them a lot?", "What's your favourite song?"]
-    Thing: ["What made you think of it?", "Tell me more?"]
+    met: ["What was that like?", "How did that happen?", "Where did you meet?"]
+    watched: ["Did you enjoy it?", "What did you think of it?", "How was it?", "Would you watch it again?"]
+    reading: ["How are you finding it?", "Is it any good so far?", "What do you think so far?"]
+    read: ["Did you like it?", "Would you recommend it?", "What did you think of the ending?"]
+    listening: ["What's your favourite song?", "How long have you been listening to them?", "Do you have a favourite album?"]
+    playing: ["Are you enjoying it?", "How far have you got?", "What do you like about it?"]
+    like: ["What do you like most about it?", "How did you get into it?", "What got you into it?"]
+    Film: ["Have you seen it?", "Do you like it?", "What made you think of it?"]
+    Book: ["Have you read it?", "Would you recommend it?", "What made you pick it up?"]
+    Place: ["Have you been there?", "What brings it up?", "Would you like to go?"]
+    Person: ["What do you think of them?", "What made you think of them?", "Do you follow them?"]
+    Music: ["Do you listen to them a lot?", "What's your favourite song?", "How did you discover them?"]
+    Thing: ["What made you think of it?", "Tell me more?", "What about it?"]
 
 quiz:
   intro:
@@ -477,6 +509,7 @@ news_none_topic:
 who_mean:
   - "Who do you mean by “{x}”? Give me the name and I'll look it up."
   - "Sorry — who's “{x}”? Tell me the name and I'll help."
+  - "Sorry, who's ‘{x}’? Give me the name and I'll look it up."
 
 unknown_again:
   - "I still don't know that one, sorry — I couldn't find it in what I've read."
@@ -486,6 +519,7 @@ unknown_again:
 moment_no:
   - "That's okay. Want a distraction instead — a joke or a fun fact?"
   - "No problem. I'm here if you change your mind. Would a joke or a fun fact help?"
+  - "Alright. I'm here if you change your mind."
 
 topic_more:
   none:

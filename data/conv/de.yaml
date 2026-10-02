@@ -49,19 +49,34 @@ intents:
     responses_named:
       - "Hallo {name}! Wie geht es dir heute?"
   - id: how_are_you
-    patterns: ['wie gehts( dir)?|wie geht es dir|wie geht s dir|wie geht s|wie gehts so|alles (gut|klar)( bei dir)?|was geht|was machst du( so)?']
+    patterns: ['wie gehts( dir)?|wie geht es dir|wie geht s dir|wie geht s|wie gehts so|alles (gut|klar)( bei dir)?|was geht']
     responses:
       - "Mir geht es gut, danke! Ich bin ein Programm, also ist jeder Tag ziemlich gleich – aber ein guter. Und dir?"
       - "Danke der Nachfrage – alles bestens hier. Wie geht es dir?"
       - "Gut! Ich zähle gerade Wörter, wie immer. Und wie läuft es bei dir?"
+  - id: what_doing
+    patterns: ['was machst du( so| gerade| heute)?( so)?|was treibst du( so)?|womit beschäftigst du dich']
+    responses:
+      - "Ich warte auf deine Fragen und sortiere im Kopf Wikipedia-Sätze. Und was machst du gerade?"
+      - "Nicht viel – ich bin da, wenn du mich brauchst. Was hast du heute so vor?"
+      - "Ich zähle Wörter und merke mir, was du mir erzählst. Was steht bei dir an?"
   - id: thanks
     patterns: ['(danke|vielen dank|danke schön|dankeschön|danke sehr|merci|dank dir)( dir| engramm| schön)?']
     responses:
       - "Gern geschehen!"
       - "Sehr gerne! Sag Bescheid, wenn du noch etwas brauchst."
       - "Kein Problem – dafür bin ich da."
+  - id: good_night
+    patterns: ['(gute nacht|gut nacht|n8|nacht|schlaf gut|ich geh (jetzt )?schlafen|ich geh ins bett)( engramm| dir)?']
+    responses:
+      - "Gute Nacht! Schlaf gut."
+      - "Schlaf schön! Bis morgen."
+      - "Gute Nacht – träum was Schönes!"
+    responses_named:
+      - "Gute Nacht, {name}! Schlaf gut."
+      - "Schlaf schön, {name}! Bis morgen."
   - id: bye
-    patterns: ['(tschüss|tschüs|tschau|ciao|bis bald|bis später|bis dann|bis morgen|auf wiedersehen|gute nacht|ich geh dann|mach s gut|machs gut)( engramm)?']
+    patterns: ['(tschüss|tschüs|tschau|ciao|bis bald|bis später|bis dann|bis morgen|auf wiedersehen|ich geh dann|mach s gut|machs gut)( engramm)?']
     responses:
       - "Tschüss! Bis zum nächsten Mal."
       - "Mach's gut! Ich bin hier, wenn du mich brauchst."
@@ -226,11 +241,11 @@ daily:
     negative:
       person:
         - "Oh je, das klingt anstrengend. Was hat {topic} gemacht?"
-        - "Das klingt echt nervig. Was ist mit {topic} passiert?"
-        - "Das tut mir leid. Ist das mit {topic} das erste Mal, oder passiert das öfter?"
+        - "Das klingt echt nervig. Was hat {topic} denn diesmal angestellt?"
+        - "Das tut mir leid. Ist {topic} öfter so, oder war das das erste Mal?"
       thing:
         - "Oh nein – klingt, als wäre {topic} heftig gewesen. Was ist passiert?"
-        - "Das klingt zermürbend. Was war an {topic} so schwierig?"
+        - "Das klingt zermürbend. Was war denn so schwierig daran?"
         - "Oh je. Magst du darüber reden, oder hilft dir eher Ablenkung?"
       time:
         - "Klingt nach einem langen Tag. Was war denn los?"

@@ -67,7 +67,7 @@ def kb(tmp_path):
     ("Where was Einstein born?", "Albert Einstein was born in Ulm."),
     ("Where did Einstein die?", "Albert Einstein died in Princeton, New Jersey."),
     ("How old was Einstein?", "Albert Einstein died at the age of 76 (14 March 1879 – 18 April 1955)."),
-    ("How old is Bill Gates?", "Bill Gates was born on 28 October 1955, so Bill Gates is 70 years old."),
+    ("How old is Bill Gates?", "Bill Gates is 70 years old (born 28 October 1955)."),
     ("Who was Einstein married to?", "Albert Einstein was married to Mileva Marić."),
     ("Who wrote Hamlet?", "Hamlet was written by William Shakespeare."),
     ("When was the bard born?", "William Shakespeare was born in 1564."),

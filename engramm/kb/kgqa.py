@@ -412,7 +412,7 @@ class KGQA:
                 age = today.year - b.year - ((today.month, today.day) < (b.month, b.day))
                 if age > 120:
                     return None
-                text = f"{name} was born on {_fmt_date(born[0].value, 'date')[1]}, so {name} is {age} years old."
+                text = f"{name} is {age} years old (born {_fmt_date(born[0].value, 'date')[1]})."
                 vals = [str(age)]
             return KBAnswer(ent, "age", vals, text, f"{name}: born {born[0].value}", False)
         prop = next(p for p in rule.props if p in by_prop)

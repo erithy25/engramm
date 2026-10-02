@@ -39,7 +39,7 @@ from engramm.chat.smart import (bare_followup, experience, gibberish, is_discour
                                 short_answer, swap_person)
 
 FRESH_CTX = {"answer": None, "atype": None, "mention": None, "last_learned": None}
-RECENT = 12                                  # replies remembered to avoid repeats
+RECENT = 40                                  # replies remembered to avoid repeats
 # intents that only add a short word when the message also asks something else
 _SHORT = {"greeting": ["Hi!", "Hello!", "Hey!"], "greeting_morning": ["Good morning!"],
           "greeting_afternoon": ["Good afternoon!"], "greeting_evening": ["Good evening!"],
@@ -141,7 +141,11 @@ class Assistant:
     def _pick(self, st: DialogState, key: str, options: list[str], **fmt) -> str:
         n = st.uses.get(key, 0)
         st.uses[key] = n + 1
-        text = choose(options, f"{st.conversation}|{key}|{n}", st.recent)
+        # the variants this key gave lately count as recent too: a part of a longer reply (an opening
+        # line) is never in st.recent as such
+        mine = st.uses.get(key + "#last", [])
+        text = choose(options, f"{st.conversation}|{key}|{n}", st.recent + mine)
+        st.uses[key + "#last"] = (mine + [text])[-max(1, len(options) - 1):]
         return _fill(text, **fmt)
 
     def _reply(self, st: DialogState, path: str, **fmt) -> str:
@@ -343,6 +347,7 @@ class Assistant:
         if de and st.lang == "de":
             from engramm.chat.german import neutral_de, normalise_de
             if neutral_de(normalise_de(msg)) is not None or re.fullmatch(r"(?:noch )?mehr|nochmal", normalise_de(msg)) \
+                    or re.fullmatch(r"(?:hey|hi|hallo|hello|moin|servus|yo|huhu)+(?: (?:hey|hi|du|engramm))?", normalise_de(msg)) \
                     or gibberish(msg, self.speller.known if self.speller is not None else None):
                 return self._german(st, msg)      # "haha", "ok", "ja" in a German conversation stay German
             if len(re.findall(r"[a-z]+", msg.lower())) >= 2:
@@ -447,6 +452,9 @@ class Assistant:
         content = any(u.act not in ("intent", "empty") or (u.intent and self._is_content_intent(u.intent))
                       for u in units)
         for u in units:
+            if u.act in ("statement", "feeling") and self.everyday.activity_title(u.text):
+                learn.append(u)                  # "I just finished The Quiet Orchard": ask about it (see _learn)
+                continue
             if u.act == "intent":
                 r = self._intent(st, u, content, parts)
                 if r is not None and main is None:
@@ -762,7 +770,9 @@ class Assistant:
     def _question(self, st: DialogState, text: str) -> Reply:
         bot = self.bot
         pron = re.search(r"\b(he|she|him|his|her|hers|they|them|their)\b", text, re.I)
-        if pron and not re.search(r"\b(?:i|me|my|you|your)\b", text, re.I) and bot.resolve(text) == text:
+        gap = st.uses.get("person_gap") == st.turn - 1          # the last "who …?" found nobody
+        if pron and not re.search(r"\b(?:i|me|my|you|your)\b", text, re.I) and (bot.resolve(text) == text or gap):
+            st.pending = {"slot": "who_mean", "question": text, "pron": pron.group(1), "turn": st.turn}
             return Reply(text, "unknown", self._pick(st, "daily:who_mean", self.bank.daily["who_mean"],
                                                      x=pron.group(1).lower()), via="clarify")
         atlas_on = self.atlas is not None and self.atlas.any_on() and not re.search(r"\b(?:i|me|my|mine)\b", text, re.I)
@@ -834,6 +844,9 @@ class Assistant:
             rep.text = self._reply(st, "answer.unknown")
         st.last_fact = ({"evidence": rep.evidence, "source": rep.source, "answer": rep.guess, "question": q,
                          "sure": False} if rep.evidence else None)
+        if re.match(r"^\s*who\b", q, re.I):
+            st.uses["person_gap"] = st.turn                    # "how old is he?" next: ask who is meant
+        self.bot.context.update({"answer": None, "atype": None})   # a guess not shown is no referent
         return rep
 
     def _atlas_answer(self, st: DialogState, text: str) -> Reply | None:
@@ -1202,11 +1215,16 @@ class Assistant:
         bot.context["last_learned"] = sid
         fs = [f for f in bot.facts.facts if f.source == sid]
         confirm = self._confirm(st, fs, name_before)
+        found = None
         if self._generic_confirm and self.kgqa is not None:
             # "I watched Inception yesterday": say something about the film instead of "Noted."
             found = self.everyday.entity_reaction(st, text)
             if found is not None:
                 confirm = found[0]
+        if self._generic_confirm and (self.kgqa is None or found is None):
+            plain = self.everyday.activity_reaction(st, text)      # "I watched Inception": ask how it was
+            if plain is not None:
+                confirm = plain
         from engramm.chat.events import find_event
         ev = find_event(text, self._today())
         if ev is not None:
@@ -1304,6 +1322,19 @@ class Assistant:
         if u.act == "intent" and u.intent not in ("yes",):
             return None
         slot = pending.get("slot")
+        if slot == "who_mean":                   # "Sorry, who's ‘he’?" → "Emmanuel Macron": the question again
+            name = msg.strip(" .!?")
+            if not name or len(name.split()) > 6 or name.endswith("?"):
+                return None
+            name = re.sub(r"^(?:i mean|i meant|meant|it's|its|he's|she's|the one called)\s+", "", name, flags=re.I)
+            pron = pending.get("pron", "he")
+            poss = pron.lower() in ("his", "their", "hers") or (
+                pron.lower() == "her" and re.search(r"\bher\s+[a-z]", pending.get("question", ""), re.I))
+            q = re.sub(rf"\b{re.escape(pron)}\b", name + ("'s" if poss else ""), pending.get("question", ""),
+                       count=1, flags=re.I)
+            self._spelled = q
+            st.uses.pop("person_gap", None)
+            return self._question(st, q)
         value = _slot_value(msg, slot)
         if value is None:
             return None
@@ -1541,7 +1572,13 @@ _DE_COMPARE = [(r"^(.+?) vs (.+?):", r"\1 im Vergleich mit \2:"), (r"• Populat
                (r"^(.+?) is longer: (.+?), compared with (.+?) for (.+?)\.$", r"\1 ist länger: \2, im Vergleich zu \3 bei \4."),
                (r"^(.+?) is older: (.+?) was born (.+?), (.+?) (.+?)\.$", r"\1 ist älter: \2 wurde \3 geboren, \4 \5."),
                (r"^(.+?) is younger: (.+?) was born (.+?), (.+?) (.+?)\.$", r"\1 ist jünger: \2 wurde \3 geboren, \4 \5."),
-               (r" million", " Millionen")]
+               (r" million", " Millionen"),
+               (r"\bFrench\b", "Französisch"), (r"\bGerman\b", "Deutsch"), (r"\bEnglish\b", "Englisch"),
+               (r"\bItalian\b", "Italienisch"), (r"\bSpanish\b", "Spanisch"), (r"\bDutch\b", "Niederländisch"),
+               (r"\bPortuguese\b", "Portugiesisch"), (r"\bPolish\b", "Polnisch"), (r"\bRussian\b", "Russisch"),
+               (r"\bJapanese\b", "Japanisch"), (r"\bChinese\b", "Chinesisch"), (r"\bSwedish\b", "Schwedisch"),
+               (r"\bPound sterling\b", "Pfund Sterling"), (r"\bSwiss franc\b", "Schweizer Franken"),
+               (r"\bUnited States dollar\b", "US-Dollar"), (r"\bJapanese yen\b", "Japanischer Yen")]
 
 
 def _de_compare(text: str, said: str = "") -> str:
@@ -1551,7 +1588,8 @@ def _de_compare(text: str, said: str = "") -> str:
     for line in text.split("\n"):
         for pat, rep in _DE_COMPARE:
             line = re.sub(pat, rep, line)
-        out.append(de_value(line) if line.startswith("•") or " ist " in line or " hat " in line else line)
+        line = de_value(line) if line.startswith("•") or " ist " in line or " hat " in line else line
+        out.append(re.sub(r"\b(\d+)\.(\d) Millionen", r"\1,\2 Millionen", line))   # 68.6 → 68,6
     text = "\n".join(out)
     for de_name, en_name in EXONYMS.items():
         if re.search(rf"\b{re.escape(de_name)}\b", said):

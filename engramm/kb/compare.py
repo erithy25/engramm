@@ -64,6 +64,11 @@ class Comparison:
     evidence: str
 
 
+# values of the lite fact bank known to be wrong (DBpedia lists France's overseas CFP franc as its only
+# currency, the euro was lost when the bank was slimmed) — shown as missing rather than wrong
+_KNOWN_WRONG = {("France", "currency"): {"CFP Franc"}}
+
+
 class Comparer:
     def __init__(self, kgqa: KGQA):
         self.q = kgqa
@@ -102,7 +107,7 @@ class Comparer:
     def _value(self, ent: Entity, prop: str):
         fs = self.kb.facts(ent.id, (prop,))
         for f in fs:
-            if f.value:
+            if f.value and f.value not in _KNOWN_WRONG.get((ent.title, prop), ()):
                 return f
         return None
 
@@ -134,9 +139,21 @@ class Comparer:
     def _render_all(self, ent: Entity, prop: str, kind: str) -> str:
         if kind != "text":
             return self._render(self._value(ent, prop), kind)
-        vals = list(dict.fromkeys(self._render(f, kind) for f in self.kb.facts(ent.id, (prop,)) if f.value))
-        # a country's main currency/language first: the one named like the country's people, else the shortest
+        vals = list(dict.fromkeys(self._render(f, kind) for f in self.kb.facts(ent.id, (prop,))
+                                  if f.value and f.value not in _KNOWN_WRONG.get((ent.title, prop), ())))
+        # the main one first: the best-known value in the fact bank (France: Euro before CFP franc)
+        vals.sort(key=lambda v: -self._popularity(v))
         return ", ".join(vals[:2]) if len(vals) <= 2 else ", ".join(vals[:2]) + " …"
+
+    def _popularity(self, name: str) -> float:
+        for cand in (name, name + " language"):   # "German" → the article "German language"
+            try:
+                hits = self.kb.link(cand, limit=1)
+            except Exception:                    # a value that is no entity
+                hits = []
+            if hits:
+                return float(hits[0][0].popularity or 0)
+        return 0.0
 
     @staticmethod
     def _kind(ent: Entity) -> str | None:

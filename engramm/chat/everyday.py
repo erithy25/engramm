@@ -189,6 +189,16 @@ def _join_list(xs: list[str]) -> str:
     return ", ".join(xs[:-1]) + " or " + xs[-1]
 
 
+_GENRE_WORDS = {"scifi": "science-fiction", "fantasy": "fantasy", "comedy": "comedy", "drama": "drama",
+                "thriller": "thriller", "classic": "classic", "romance": "romance", "crime": "crime",
+                "animation": "animated", "horror": "horror", "dystopia": "dystopian", "mystery": "mystery"}
+_ERRANDS = frozenset("gym doctor dentist shop store office park beach movies cinema supermarket bank pub bar "
+                     "library mall hospital".split())
+_KIND_NOUN = {"book": "book", "books": "book", "movie": "film", "movies": "film", "film": "film", "show": "series",
+              "shows": "series", "series": "series", "music": "pick", "game": "game", "games": "game",
+              "podcast": "podcast", "podcasts": "podcast"}
+
+
 class Everyday:
     def __init__(self, assistant):
         self.a = assistant
@@ -249,7 +259,10 @@ class Everyday:
                 titles.append(None)
         st.last_list = {"kind": kind, "titles": titles, "texts": texts, "turn": st.turn, "genre": tag}
         st.last_action = {"kind": f"rec:{kind}", "genre": genre, "turn": st.turn, "lang": lang}
-        intro = spec.get("intro") or self.pick(st, "rec_intro", self.d["recommend"]["intro"])
+        intro = spec.get("intro")
+        if isinstance(intro, list):                   # several openings: never the same one twice in a row
+            intro = self.pick(st, f"rec_intro:{kind}", intro)
+        intro = intro or self.pick(st, "rec_intro", self.d["recommend"]["intro"])
         if more:
             intro = "A few more:"
         body = "\n".join(f"• {t[:1].upper() + t[1:]}" for t in texts)
@@ -285,10 +298,37 @@ class Everyday:
             return None
         title = titles[i] if i < len(titles) else None
         if title:
-            found = self.a.about.find(title)
-            if found is not None:
-                return self.a._about_reply(st, msg, found, "tell")
-        return Reply(msg, "smalltalk", f"Good choice — {texts[i]}!", via="everyday")
+            bare = re.sub(r"\s*\([^)]*\)$", "", title)
+            for cand in dict.fromkeys((title, bare)):
+                found = self.a.about.find(cand)
+                if found is not None:
+                    return self.a._about_reply(st, msg, found, "tell")
+            shelf = self.a._atlas_about(st, msg, title)          # the shelf, when it is switched on
+            if shelf is not None:
+                return shelf
+            fact = self._list_fact(bare, ll.get("kind"))
+            if fact:
+                st.topic = {"title": title, "name": bare, "turn": st.turn}
+                return Reply(msg, "smalltalk", self.pick(st, "rec:pick_fact", self.d["recommend"]["pick_fact"],
+                                                         x=texts[i], fact=fact), via="everyday")
+        genre = _GENRE_WORDS.get(ll.get("genre") or "", "")
+        return Reply(msg, "smalltalk", self.pick(st, "rec:pick_plain", self.d["recommend"]["pick_plain"],
+                                                 x=texts[i], noun=(genre + " " if genre else "") + _KIND_NOUN.get(
+                                                     ll.get("kind") or "", "pick")), via="everyday")
+
+    def _list_fact(self, name: str, kind: str | None) -> str | None:
+        """One fact about a recommended work from the fact bank (genre, author, director …)."""
+        kg = self.a.kgqa
+        if kg is None:
+            return None
+        for ent, k in kg.kb.link(name, limit=3):
+            group = self._ENTITY_KIND.get(ent.type or "")
+            if group is None:
+                continue
+            fact = self._entity_fact(ent, group)
+            if fact:
+                return fact
+        return None
 
     # -- advice -------------------------------------------------------------------------------
 
@@ -660,6 +700,42 @@ class Everyday:
                  ("listening", r"\b(?:listening to|listen to|listened to|concert)\b"),
                  ("playing", r"\b(?:playing|played|play)\b"),
                  ("like", r"\b(?:love|like|adore|enjoy|obsessed with|fan of|favou?rite)\b")]
+
+    _ACTIVITY = re.compile(
+        r"^(?i:(?:(?:so|well|oh|btw|today|yesterday)[, ]+)?i(?:'ve| have)? (?:just |finally |recently |also )?"
+        r"(?P<v>watched|saw|read|finished|played|visited|went to|listened to|tried|started|am reading|'m reading|"
+        r"have been reading|binged|rewatched|reread) (?:the (?:movie|film|book|show|series|game|album) )?)"
+        r"(?P<x>[A-Z0-9][\w'’:&.\-]*(?: [A-Za-z0-9][\w'’:&.\-]*){0,6}?)"
+        r"(?: (?:yesterday|today|tonight|last \w+|this \w+|again|on \w+|for the \w+ time|with \w+|all \w+|over the \w+))*[.!]*$")
+
+    def activity_title(self, text: str) -> str | None:
+        """The title in "I watched/read/played/visited <Title> …", or None."""
+        m = self._ACTIVITY.match(text.strip())
+        if not m:
+            return None
+        title = m.group("x").strip(" .!")
+        low = title.lower()
+        if low in ("it", "that", "this", "them", "him", "her", "tv", "a", "an") or \
+                (low.startswith("the ") and low[4:] in _ERRANDS):
+            return None
+        return title
+
+    def activity_reaction(self, st, text: str) -> str | None:
+        """"I watched Inception yesterday" when nothing is known about Inception: a fitting
+        question, as a person would ask — not "Noted, I'll remember that"."""
+        title = self.activity_title(text)
+        if title is None:
+            return None
+        verb = self._ACTIVITY.match(text.strip()).group("v").lower().replace("'m reading", "am reading")
+        kind = {"watched": "watched", "saw": "watched", "binged": "watched", "rewatched": "watched", "read": "read",
+                "finished": "read", "reread": "read", "played": "playing", "visited": "visited", "went to": "visited",
+                "listened to": "listening", "am reading": "reading", "have been reading": "reading",
+                "started": "reading", "tried": "like"}.get(verb, "Thing")
+        lead = self.pick(st, "entity:lead_plain", self.d["entity"]["lead_plain"], title=title)
+        asks = self.d["entity"]["ask"]
+        ask = self.pick(st, f"entity:ask:{kind}", asks.get(kind) or asks["Thing"])
+        st.topic = {"title": title, "name": title, "turn": st.turn}
+        return f"{lead} {ask}"
 
     def _entity_text(self, st, text: str, group: str, title: str, fact: str) -> str:
         low = text.lower()
