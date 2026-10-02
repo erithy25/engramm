@@ -853,3 +853,15 @@ daily:
         größte tier: "Das größte Tier ist der Blauwal – bis zu 30 Meter lang und schwerer als jeder Dinosaurier."
         größte wüste: "Die größte Wüste ist die Antarktis (Wüste heißt: kaum Niederschlag); die größte heiße Wüste ist die Sahara."
       macher: ["Das ENGRAMM-Projekt hat mich gemacht. Die Idee: ein hilfreicher Assistent, der offline läuft, seine Quellen zeigt und wirklich vergisst, wenn du es willst."]
+    g73:
+      eingeschlafen: ["Aww, wie gemütlich. 😊", "Haha, das Sofa gewinnt mal wieder. Gemütlich!"]
+      kaffee: ["Ah, Kaffeepause! ☕ Wie trinkst du ihn – schwarz oder mit Milch?", "Kaffee geht immer! ☕"]
+      tee: ["Teezeit! 🍵 Welcher denn?", "Schön, eine Tasse Tee. Grün, schwarz oder Kräuter?"]
+      essen: ["Guten Appetit! 😋", "Lass es dir schmecken!"]
+      fernsehen: ["Oh, was läuft denn?", "Schön! Was schaust du?"]
+      angerufen: ["Wie schön! Wie geht's {x}?", "Schön, dass {y} sich gemeldet hat. Alles gut bei {x}?"]
+      verspaetung: ["Ach nee, schon wieder? Das nervt, gerade wenn man es eilig hat.", "Nicht schon wieder! Hast du es noch rechtzeitig geschafft?"]
+      allergie: ["Gut zu wissen – ich merke mir, dass du allergisch gegen {x} bist.", "Notiert: Allergie gegen {x}. Behalte ich im Kopf."]
+      kinder: ["Oh, {x}! Wie heißen sie?", "{X} – schön! Wie alt sind sie?"]
+      geburtstag: ["{x} – notiert! 🎂 Ich merke mir deinen Geburtstag.", "Dein Geburtstag ist am {x}? Merk ich mir! 🎂"]
+      wohnen: ["Schön, ihr wohnt zusammen! Wie lange schon?", "Alles klar, du wohnst mit {x} zusammen. Merk ich mir."]

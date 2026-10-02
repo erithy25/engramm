@@ -828,7 +828,7 @@ _DE_DAY = {"monday": "Montag", "tuesday": "Dienstag", "wednesday": "Mittwoch", "
            "saturday": "Samstag", "sunday": "Sonntag", "tomorrow": "morgen", "today": "heute"}
 
 
-def _de_your(sent: str) -> str:
+def _de_your(sent: str, gender=None) -> str:
     """The English sentences the German memory layer stores ("Your sister is called Anna.", "Your zahnarzttermin is on
     monday.") rendered back in German; anything else stays as it is."""
     m = re.fullmatch(r"Your (\w+) is called (.+)\.", sent)
@@ -837,6 +837,32 @@ def _de_your(sent: str) -> str:
     m = re.fullmatch(r"Your (\w+) works as an? (.+)\.", sent)
     if m and m.group(1).lower() in _DE_REL:
         return f"{_DE_REL[m.group(1).lower()]} arbeitet als {m.group(2)[:1].upper() + m.group(2)[1:]}."
+    m = re.fullmatch(r"You live with your (.+)\.", sent)
+    if m:
+        de_w = {"girlfriend": "deiner Freundin", "boyfriend": "deinem Freund", "wife": "deiner Frau", "husband": "deinem Mann",
+                "partner": "deinem Partner", "parents": "deinen Eltern", "mom": "deiner Mutter", "family": "deiner Familie",
+                "roommates": "deinen Mitbewohnern", "roommate": "deiner Mitbewohnerin", "sister": "deiner Schwester", "brother": "deinem Bruder",
+                "grandma": "deiner Oma"}.get(m.group(1).lower())
+        if de_w:
+            return f"Du wohnst mit {de_w} zusammen."
+    m = re.fullmatch(r"You have (one|two|three|four|five) (kids?|sons?|daughters?)\.", sent)
+    if m:
+        n_de = {"one": "ein", "two": "zwei", "three": "drei", "four": "vier", "five": "fünf"}[m.group(1)]
+        k_de = {"kid": "Kind", "kids": "Kinder", "son": "Sohn", "sons": "Söhne", "daughter": "Tochter", "daughters": "Töchter"}[m.group(2)]
+        return f"Du hast {n_de}{'e' if n_de == 'ein' and k_de == 'Tochter' else ''} {k_de}."
+    m = re.fullmatch(r"Your (?:best )?friend is called (.+)\.", sent)
+    if m:
+        g = gender(m.group(1)) if gender else None
+        return f"Dein bester Freund heißt {m.group(1)}." if g == "male" else f"Deine beste Freundin heißt {m.group(1)}." if g == "female" else \
+            f"{m.group(1)} ist dein bester Freund bzw. deine beste Freundin."
+    m = re.fullmatch(r"You(?:'re| are) allergic to (.+)\.", sent)
+    if m:
+        return f"Du bist allergisch gegen {m.group(1)}."
+    m = re.fullmatch(r"Your birthday is (?:on )?(\w+) (\d+)\.", sent)
+    de_mon = {"January": "Januar", "February": "Februar", "March": "März", "April": "April", "May": "Mai", "June": "Juni", "July": "Juli",
+              "August": "August", "September": "September", "October": "Oktober", "November": "November", "December": "Dezember"}
+    if m and m.group(1) in de_mon:
+        return f"Dein Geburtstag ist am {m.group(2)}. {de_mon[m.group(1)]}."
     m = re.fullmatch(r"Your (\w+) is on (\w+)\.", sent)
     if m and m.group(2).lower() in _DE_DAY and re.fullmatch(r"[a-zäöüß]+", m.group(1).lower()):
         word = m.group(1)[:1].upper() + m.group(1)[1:]
@@ -974,7 +1000,7 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_mem67(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
@@ -1236,6 +1262,71 @@ class Assistant:
                 return Reply(msg, "forgot", f"Erledigt – ich habe vergessen, dass du {cap(x)} {'nicht magst' if neg else 'magst'}. Es ist wirklich weg, "
                              "nicht nur versteckt.", via="memory")
             return Reply(msg, "nothing", f"Dazu habe ich nichts gespeichert, was ich vergessen könnte.", via="memory")
+        return None
+
+    def _german_ctx73(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 73 in German: what passes ("ich trinke gerade Kaffee", "meine Mama ist auf dem Sofa eingeschlafen",
+        "mein Papa hat mich angerufen", "der Zug hatte Verspätung") and what is kept (an allergy, children, a birthday,
+        who you live with)."""
+        g = (self.bank.de["daily"].get("ctx") or {}).get("g73")
+        if not g:
+            return None
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',.-]", " ", s)).strip(" !?")
+        q = q.rstrip(".")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:g73:{key}", g[key], **kw), via="german")  # noqa: E731
+        fem = ("mama", "mutter", "schwester", "oma", "frau", "freundin", "tochter", "tante", "chefin")
+        if re.fullmatch(r"mein(?:e)? (?:mama|mutter|papa|vater|bruder|schwester|oma|opa|mann|frau|freund|freundin|sohn|tochter|katze|hund) "
+                        r"(?:ist|sind) (?:gerade |schon |wieder )?(?:auf dem sofa |auf der couch |vor dem fernseher |beim film )?eingeschlafen", q):
+            return say("eingeschlafen")
+        m = re.fullmatch(r"ich trinke (?:gerade |grad |jetzt )?(?:einen |eine |ein |meinen |meine )?(?:tasse |becher |glas )?(?P<x>kaffee|cappuccino|latte|espresso|"
+                         r"tee|grünen tee|schwarztee|kräutertee|kakao|wasser|saft|bier|wein|cola)", q)
+        if m:
+            x = m.group("x")
+            return say("kaffee" if x in ("kaffee", "cappuccino", "latte", "espresso") else "tee" if "tee" in x else "essen")
+        if re.fullmatch(r"ich esse (?:gerade|grad|jetzt) [a-zäöüß ]{2,30}", q):
+            return say("essen")
+        if re.fullmatch(r"ich (?:schaue|schau|gucke|guck|sehe) (?:gerade |grad |jetzt )?(?:fern|fernsehen|tv|netflix|eine serie|einen film|ein spiel)", q):
+            return say("fernsehen")
+        m = re.fullmatch(r"mein(?:e)? (?P<w>mama|mutter|papa|vater|bruder|schwester|oma|opa|freund|freundin|chef|chefin|sohn|tochter) "
+                         r"hat (?:mich )?(?:heute |gerade |eben |vorhin )?(?:mich )?(?:angerufen|geschrieben|besucht)", q)
+        if m:
+            w = m.group("w")
+            dat = ("deiner " if w in fem else "deinem ") + w[:1].upper() + w[1:]
+            nom = "sie" if w in fem else "er"
+            return say("angerufen", x=dat, y=nom)
+        if re.fullmatch(r"(?:ugh,? |boah,? )?(?:der |die |mein |meine )?(?:bus|zug|bahn|s-bahn|u-bahn|flug|flieger) (?:war|ist|hatte|hat) (?:schon wieder |wieder |mal wieder )?"
+                        r"(?:zu spät|verspätung|verspätet|ausgefallen)(?: heute)?", q):
+            return say("verspaetung")
+        m = re.fullmatch(r"ich bin (?:sehr |stark |leicht )?allergisch (?:gegen|auf) (?P<x>[a-zäöüß ]{2,30})", q)
+        if m:
+            x = " ".join(w[:1].upper() + w[1:] if w not in ("und", "oder") else w for w in m.group("x").split())
+            self._learn(st, [f"I am allergic to {x}."], msg)
+            return Reply(msg, "learned", self._pick(st, "de:g73:allergie", g["allergie"], x=x), via="german")
+        nums = {"ein": 1, "einen": 1, "eine": 1, "zwei": 2, "drei": 3, "vier": 4, "fünf": 5, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5}
+        m = re.fullmatch(r"ich habe (?P<n>ein|einen|eine|zwei|drei|vier|fünf|[1-5]) (?P<k>kind|kinder|sohn|söhne|tochter|töchter)", q)
+        if m:
+            k = m.group("k")
+            en = {"kind": "kid", "kinder": "kids", "sohn": "son", "söhne": "sons", "tochter": "daughter", "töchter": "daughters"}[k]
+            num = nums[m.group("n")]
+            self._learn(st, [f"I have {['', 'one', 'two', 'three', 'four', 'five'][num]} {en}."], msg)
+            de_n = f"{m.group('n')} {k[:1].upper() + k[1:]}"
+            return Reply(msg, "learned", self._pick(st, "de:g73:kinder", g["kinder"], x=de_n, X=de_n[:1].upper() + de_n[1:]), via="german")
+        mon = {"januar": "January", "februar": "February", "märz": "March", "april": "April", "mai": "May", "juni": "June", "juli": "July",
+               "august": "August", "september": "September", "oktober": "October", "november": "November", "dezember": "December"}
+        m = re.fullmatch(r"mein geburtstag ist am (?P<d>\d{1,2})\.? (?P<m>" + "|".join(mon) + r")", q)
+        if m:
+            d = int(m.group("d"))
+            self._learn(st, [f"My birthday is on {mon[m.group('m')]} {d}."], msg)
+            return Reply(msg, "learned", self._pick(st, "de:g73:geburtstag", g["geburtstag"], x=f"{d}. {m.group('m').capitalize()}"), via="german")
+        m = re.fullmatch(r"ich wohne (?:mit|bei) (?P<p>meiner|meinem|meinen) (?P<w>freundin|freund|frau|mann|partner|partnerin|eltern|mutter|mama|familie|"
+                         r"oma|schwester|bruder|mitbewohnern|mitbewohner|mitbewohnerin)(?: zusammen)?", q)
+        if m:
+            en = {"freundin": "girlfriend", "freund": "boyfriend", "frau": "wife", "mann": "husband", "partner": "partner", "partnerin": "partner",
+                  "eltern": "parents", "mutter": "mom", "mama": "mom", "familie": "family", "oma": "grandma", "schwester": "sister", "bruder": "brother",
+                  "mitbewohnern": "roommates", "mitbewohner": "roommates", "mitbewohnerin": "roommate"}[m.group("w")]
+            self._learn(st, [f"I live with my {en}."], msg)
+            return Reply(msg, "learned", self._pick(st, "de:g73:wohnen", g["wohnen"], x=f"{m.group('p')} {m.group('w')[:1].upper() + m.group('w')[1:]}"),
+                         via="german")
         return None
 
     def _german_ctx70(self, st: DialogState, msg: str, s: str) -> Reply | None:
@@ -2601,7 +2692,7 @@ class Assistant:
                 line = None
             if line is None:
                 sent = personal_sentence(f.subject, f.relation, f.object, f.sentence)
-                line = _de_your(sent) if sent else sent
+                line = _de_your(sent, self._gender) if sent else sent
             if line and line not in lines:
                 lines.append(line)
         if not lines:
@@ -5000,7 +5091,7 @@ class Assistant:
                                                      r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
             # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
             return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
-        evr = self._sounds(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
+        evr = self._sounds(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
             self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
@@ -5915,6 +6006,74 @@ class Assistant:
                 return Reply(msg, "smalltalk", self._pick(st, "daily:sound:gib_sorry", self.bank.daily["sounds"]["gib_sorry"]), via="smalltalk")
             return None
         return Reply(msg, "smalltalk", self._pick(st, f"daily:sound:{key}", self.bank.daily["sounds"][key]), via="smalltalk")
+
+    def _daily_ctx20(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 73: what a person keeps and what passes — "I'm drinking coffee", "my mom fell asleep on the couch",
+        "my dad called me" (a phone call, not a name), "the bus was late" get a reaction and are not stored;
+        "I'm allergic to peanuts", "my birthday is on May 3rd", "I live with my girlfriend" are stored as what they are."""
+        b = self.bank.daily["b73"]
+        n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", norm)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b73:{key}", b[key], **kw), via="smalltalk")  # noqa: E731
+        fam = r"(?P<w>mom|mum|mother|dad|father|brother|sister|grandma|grandpa|wife|husband|boyfriend|girlfriend|son|daughter|friend|best friend|aunt|uncle)"
+        he = lambda w: "she" if w in ("mom", "mum", "mother", "sister", "grandma", "wife", "girlfriend", "daughter", "aunt") else \
+            "he" if w not in ("friend", "best friend") else "they"                                                         # noqa: E731
+        m = re.fullmatch(r"(?:i'?m|i am|im) (?:just |currently |now |busy )?watching (?:some |a |the )?(?P<x>[a-z0-9' ]{1,30})", n)
+        if m and not re.match(r"(?:my|you|it|that|this)\b", m.group("x")):
+            return say("watching")
+        m = re.fullmatch(r"(?:i'?m|i am|im) (?:just |currently |now )?(?:drinking|having|sipping) (?:a |my |some |an )?(?:cup of |glass of |mug of )?"
+                         r"(?P<x>coffee|tea|green tea|beer|wine|water|juice|lemonade|cola|coke|latte|cappuccino|espresso|hot chocolate|smoothie)", n)
+        if m:
+            x = m.group("x")
+            return say("drinking_coffee" if x in ("coffee", "latte", "cappuccino", "espresso") else "drinking_tea" if "tea" in x else "drinking")
+        m = re.fullmatch(r"(?:i'?m|i am|im) (?:just |currently |now )?eating (?:a |an |some |my )?(?P<x>[a-z ]{2,25}?)(?: right now| now)?", n)
+        if m and m.group("x") not in ("healthy", "well", "less", "more", "out", "too much", "a lot", "lunch", "dinner", "breakfast") and \
+                len(m.group("x").split()) <= 3:
+            return say("eating", x=m.group("x"))
+        m = re.fullmatch(r"i (?:just |already )?(?:ate|had) (?P<a>a |an |some |my )?(?P<x>[a-z ]{2,25}?)(?: for (?:lunch|dinner|breakfast))?", n)
+        if m and n.startswith("i just") and len(m.group("x").split()) <= 3 and \
+                not re.search(r"\b(?:at|with|in|on|for|about|day|days|week|night|time|morning|evening|meeting|call|talk|chat|nap|shower|bath|fight|"
+                              r"argument|baby|idea|thought|dream|accident|exam|test|interview|date|lunch|dinner|breakfast|enough|it|that|this|"
+                              r"good|bad|great|long|rough|hard|crazy|weird)\b", m.group("x")):
+            return say("ate", x=(m.group("a") or "") + m.group("x"))
+        if re.fullmatch(r"(?:i'?m|i am|im) (?:just |currently )?listening to (?:some |my |a )?[a-z0-9' ]{2,30}", n):
+            return None if re.search(r"\bpodcast|audiobook\b", n) else say("listening")
+        if re.fullmatch(r"(?:i'?m|i am|im) (?:just |currently )?playing (?:some |a |the )?(?:video ?games?|games?|minecraft|fortnite|fifa|chess|the guitar|guitar|piano|the piano|cards|zelda|mario kart)", n):
+            return say("playing")
+        m = re.fullmatch(rf"my {fam} (?:just |finally )?(?:fell asleep|is asleep|is sleeping|is napping|dozed off)(?: on the (?:couch|sofa)| in front of the tv| again)?", n)
+        if m:
+            return say("asleep")
+        m = re.fullmatch(rf"my {fam} (?:just )?(?:called|phoned|rang|texted|messaged|facetimed) me(?: today| earlier| this morning| last night| yesterday)?", n)
+        if m:
+            h = he(m.group("w"))
+            return say("called", y=h, z={"she": "her", "he": "him", "they": "them"}[h])
+        if re.fullmatch(rf"my {fam} (?:is|are) (?:coming over|visiting|coming to visit|stopping by)(?: later| tonight| today| tomorrow| this weekend)?", n):
+            return say("coming")
+        if re.fullmatch(r"my (?:cat|dog|kitten|puppy) is (?:sleeping|lying|sitting|purring|snoring|curled up|napping) (?:on|in) my (?:lap|bed|feet|keyboard|chest|arms)", n):
+            return say("pet_lap")
+        if re.fullmatch(r"(?:ugh,? )?(?:the |my )?(?:bus|train|tram|subway|metro|flight|plane) (?:was|is) (?:late|delayed|cancelled|canceled)(?: again| today| this morning)?", n):
+            return say("late")
+        m = re.fullmatch(r"(?:i'?m|i am|im) (?:very |really |severely |a bit )?allergic to (?P<x>[a-z ]{2,30})", n)
+        if m:
+            x = m.group("x").strip()
+            self._learn(st, [f"I am allergic to {x}."], msg)
+            return Reply(msg, "learned", self._pick(st, "daily:b73:allergy", b["allergy"], x=x), via="memory")
+        mon = r"january|february|march|april|may|june|july|august|september|october|november|december"
+        m = re.fullmatch(rf"my birthday is (?:on )?(?:the )?(?:(?P<m1>{mon}) (?P<d1>\d{{1,2}})(?:st|nd|rd|th)?|(?P<d2>\d{{1,2}})(?:st|nd|rd|th)? (?:of )?(?P<m2>{mon}))", n)
+        if m:
+            mo, d = (m.group("m1") or m.group("m2")).capitalize(), int(m.group("d1") or m.group("d2"))
+            self._learn(st, [f"My birthday is on {d} {mo}." if m.group("d2") else f"My birthday is on {mo} {d}."], msg)   # as you wrote it
+            suf = "th" if 10 <= d % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(d % 10, "th")
+            return Reply(msg, "learned", self._pick(st, "daily:b73:birthday", b["birthday"], x=f"{mo} {d}{suf}"), via="memory")
+        m = re.fullmatch(r"i live with my (?P<x>girlfriend|boyfriend|wife|husband|partner|parents|mom|mum|dad|family|roommates?|flatmates?|sister|brother|grandma|kids|children|dog|cat)", n)
+        if m:
+            self._learn(st, [f"I live with my {m.group('x')}."], msg)
+            return Reply(msg, "learned", self._pick(st, "daily:b73:live_with", b["live_with"], x=m.group("x")), via="memory")
+        m = re.fullmatch(r"my best friend(?:'s name)? is (?:called |named )?(?P<x>[a-z]+)", n)
+        if m and m.group("x") not in _NOT_NAMES and m.group("x") not in ("my", "a", "the", "very", "so", "really"):
+            x = m.group("x").capitalize()
+            self._learn(st, [f"My best friend is called {x}."], msg)
+            return Reply(msg, "learned", self._pick(st, "daily:b73:friend_name", b["friend_name"], x=x), via="memory")
+        return None
 
     def _daily_ctx19(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 69: messy real messages — "im good hbu" answered both ways, "what was the height again?" asked
@@ -9010,6 +9169,10 @@ def _asked_category(q: str) -> str | None:
         return "#name"
     if re.search(r"\bwhere (?:do|did) i work\b|\bemployer\b|\bcompany\b|\bfirm\b|\bwork for\b", low):
         return "#employer"
+    if re.search(r"\ballerg", low):
+        return "#allergy"
+    if re.search(r"\b(?:live|living) with\b", low):
+        return "#housemate"
     if re.search(r"\b(?:live|home|city|town|reside)\b", low):
         return "#home"
     if re.search(r"\b(?:job|work|profession|occupation|do for a living)\b", low):

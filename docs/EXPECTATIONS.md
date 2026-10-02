@@ -2658,6 +2658,24 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Tesla-Chef – zeitabhängig, ohne Beleg lieber ehrlich offen). Batterie 71 danach unverändert 39/0/1.
   Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 763 bestanden, Regressionen 32, 38–70: 0 Wiederholungen;
   Unterschiede nur Uhrzeiten. Skript: `scratchpad/kq72.py`.
+- **Alltags-Batterie 73 (was man sich merkt und was vorbeigeht; EN + DE)**:
+  - Schwerer Fehler: „I'm allergic to peanuts“ wurde zum Lieblingsessen („Peanuts — good choice!“, später „Your favourite food
+    is peanuts.“). Allergien sind jetzt eine eigene Art von Fakt (`#allergy`, nie Vorliebe oder Essen), „what am i allergic
+    to?“ → „You're allergic to peanuts.“. „I live with my girlfriend“ wurde zum Wohnort („You live in girlfriend.“); jetzt
+    `#housemate` („You live with your girlfriend.“, „who do i live with?“).
+  - „my dad called me today“ → „Got it, your father is called dad.“ (anrufen als Name gelesen); jetzt „That's nice! How's he
+    doing?“. „i'm drinking coffee“ (vorher „Drinking — good choice!“), „my mom fell asleep on the couch“, „my cat is sleeping
+    on my lap“, „i'm watching tv“, „i just ate a sandwich“, „my brother is coming over later“ wurden als Fakten gespeichert;
+    jetzt eine passende Reaktion ohne Speichern. „the bus was late again“ (vorher „Anything I can help you with?“).
+  - „my birthday is on may 3rd“ (vorher „Noted: may.“) → Geburtstag, im Format wie geschrieben („3 May“ bleibt „3 May“,
+    team-0067-Dev-Antwort unverändert). „my best friend is called jonas“ → „Jonas“ großgeschrieben.
+  - Deutsch: Allergie, „ich habe zwei kinder“, Geburtstag, „ich wohne mit meiner freundin zusammen“ werden gespeichert und
+    in „was weißt du über mich?“ deutsch ausgegeben; Kaffee, eingeschlafene Mama, Anruf vom Papa, Zugverspätung bekommen
+    eine Reaktion (vorher „Erzähl ruhig mehr!“ bzw. „Und wie war's?“).
+  - Die erste Fassung las „I just had a long day at work“ als Essen (ein alter Test schlug an); die Regel verlangt jetzt
+    höchstens drei Wörter ohne Präposition oder Zeit- und Ereigniswort.
+  - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 764 bestanden, Regressionen 32, 38–73 (41 Gespräche):
+    0 Wiederholungen; Unterschiede: Batterie 42 (Besuch der Schwester ohne Speichern), 45 (Geburtstag), Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

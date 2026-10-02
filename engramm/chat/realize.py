@@ -498,6 +498,11 @@ def personal_sentence(subject: str, relation, value: str, evidence: str | None) 
     rel = set(relation or ())
     if subject == "USER" and "#dislike" in rel:
         return f"You don't like {value}."               # "I don't like mushrooms" is no favourite food
+    if subject == "USER" and "#allergy" in rel:
+        return f"You're allergic to {value}."
+    if subject == "USER" and "#housemate" in rel:
+        own = re.sub(r"^(?:my|your) ", "", value, flags=re.I)
+        return f"You live with your {own}."
     if subject == "USER":
         for cat, tpl in _CATEGORY_ANSWER.items():
             if cat in rel:

@@ -776,6 +776,15 @@ def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None,
                            + (() if "#fav" in f.relation else ("#dislike",)), f.object, f.source, f.sentence, f.kind)
                       for f in fp]
             fp = [_with_age(f) for f in fp if not ("#home" in f.relation and _GENERIC_PLACE.match(f.object))]
+            if re.search(r"\ballergic\b|\ballergy\b", low):
+                # "I'm allergic to peanuts": an allergy, never a favourite food
+                fp = [Fact(f.subject, tuple(sorted({r for r in f.relation if r not in ("#fav", "#food", "#dislike", "#home", "#place", "#job",
+                                                                                         "#work")} | {"#allergy"})), f.object, f.source, f.sentence, f.kind)
+                      for f in fp]
+            if re.search(r"\b(?:live|lives|lived|living) (?:together )?with\b", low):
+                # "I live with my girlfriend": who you live with, not where
+                fp = [Fact(f.subject, tuple(sorted({r for r in f.relation if r not in ("#home", "#place", "#origin")} | {"#housemate"})),
+                           f.object, f.source, f.sentence, f.kind) for f in fp]
             if re.search(r"\b(?:haven'?t|havent|have not|hasn'?t|didn'?t|did not|not yet|never)\b", low):
                 # "I haven't started studying": no job called "studying"
                 fp = [f for f in fp if "#job" not in f.relation]

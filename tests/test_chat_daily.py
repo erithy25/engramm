@@ -2968,3 +2968,25 @@ def test_battery72_counts_and_more_everyday_knowledge(chat):
         assert want in r.text, (q, r.text)
     r = a.turn(DialogState("k72-x"), "the ship sank in 1912")
     assert r.text.isascii() or "Tell me" in r.text, r.text              # an English sentence stays English
+
+
+def test_battery73_what_passes_and_what_is_kept(chat):
+    a, _ = chat
+    for i, msg in enumerate(["my mom fell asleep on the couch", "i'm drinking coffee", "my dad called me today", "the bus was late again",
+                             "my cat is sleeping on my lap", "i'm watching tv", "i just ate a sandwich"]):
+        r = a.turn(DialogState(f"t73-{i}"), msg)
+        assert r.kind != "learned" and "called dad" not in r.text and "good choice" not in r.text.lower(), (msg, r.text)
+    st = DialogState("m73")
+    a.turn(st, "i'm allergic to peanuts")
+    a.turn(st, "my birthday is on may 3rd")
+    a.turn(st, "i live with my girlfriend")
+    assert "peanuts" in a.turn(st, "what am i allergic to?").text
+    assert "May 3" in a.turn(st, "when is my birthday?").text
+    assert "girlfriend" in a.turn(st, "who do i live with?").text
+    known = a.turn(st, "what do you know about me?").text
+    assert "favourite food" not in known and "live in girlfriend" not in known.lower(), known
+    st = DialogState("g73")
+    assert "Nüsse" in a.turn(st, "ich bin allergisch gegen nüsse").text
+    assert "Kinder" in a.turn(st, "ich habe zwei kinder").text
+    assert a.turn(st, "ich trinke gerade kaffee").kind == "smalltalk"
+    assert "Papa" in a.turn(st, "mein papa hat mich heute angerufen").text
