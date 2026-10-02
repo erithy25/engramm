@@ -989,3 +989,15 @@ def test_battery29_pets_luck_and_no_fake_jobs(chat):
     assert "puppy" in r.text.lower() and "•" in r.text, r.text
     r = a.turn(st, "night")
     assert "darkness" not in r.text, r.text
+
+
+def test_everyday_facts_are_right_or_honest(chat):
+    a, st = chat
+    r = a.turn(st, "how many continents are there")
+    assert "seven" in r.text, r.text
+    r = a.turn(st, "is a tomato a fruit")
+    assert "fruit" in r.text and "Sweet" not in r.text, r.text
+    r = a.turn(st, "what is the boiling point of water")
+    assert "100" in r.text, r.text
+    r = a.turn(st, "who invented the light bulb")
+    assert "Edison" in r.text, r.text

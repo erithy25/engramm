@@ -973,6 +973,36 @@ wish_luck:
 pet_young:
   - "Aww, {x} — a real baby! Lots of cuddles and chewed socks ahead."
   - "So little! {x} is such a sweet age."
+yes_no_quote:
+  - "Here's what I read: “{x}”"
+  - "I can't give a simple yes or no, but here's what my sources say: “{x}”"
+# everyday facts the text look-up tends to get wrong; each checked by hand ("q" is matched against the
+# normalised question without the question mark)
+common:
+  - {q: "(?:so )?how many continents (?:are there|(?:are|is) there in the world|does the (?:world|earth) have)", a: "There are seven continents: Africa, Antarctica, Asia, Australia (Oceania), Europe, North America and South America.", v: "seven"}
+  - {q: "how many oceans (?:are there|does the (?:world|earth) have)(?: in the world)?", a: "There are five oceans: the Pacific, Atlantic, Indian, Southern and Arctic Ocean.", v: "five"}
+  - {q: "how many planets (?:are there |are )?(?:in (?:our|the) solar system|are there)", a: "There are eight planets in our solar system: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus and Neptune.", v: "eight"}
+  - {q: "how many legs (?:does|do) (?:a |an )?spiders? have", a: "Spiders have eight legs.", v: "eight"}
+  - {q: "how many legs (?:does|do) (?:an? )?insects? have", a: "Insects have six legs.", v: "six"}
+  - {q: "how many players (?:are )?(?:on|in) (?:a |one )?(?:soccer|football) team", a: "A football (soccer) team has eleven players on the field, including the goalkeeper.", v: "eleven"}
+  - {q: "how many players (?:are )?(?:on|in) (?:a |one )?basketball team", a: "A basketball team has five players on the court.", v: "five"}
+  - {q: "how many bones (?:are )?(?:in|does) (?:the |an adult )?(?:adult )?human body(?: have)?", a: "An adult human has 206 bones (babies are born with around 270, some of which fuse).", v: "206"}
+  - {q: "how many teeth (?:does an adult|do adults|does a human) have", a: "Adults usually have 32 teeth, including the wisdom teeth.", v: "32"}
+  - {q: "how many hearts (?:does|do) (?:an |the )?octopus(?:es)? have", a: "An octopus has three hearts.", v: "three"}
+  - {q: "how many days (?:are )?(?:in|does) a week(?: have)?", a: "A week has seven days.", v: "seven"}
+  - {q: "how many hours (?:are )?(?:in|does) a day(?: have)?", a: "A day has 24 hours.", v: "24"}
+  - {q: "what(?:'s| is) the boiling point of water", a: "Water boils at 100 °C (212 °F) at sea level — a bit lower up in the mountains.", v: "100 °C"}
+  - {q: "what(?:'s| is) the freezing point of water|at what temperature does water freeze", a: "Water freezes at 0 °C (32 °F).", v: "0 °C"}
+  - {q: "what(?:'s| is) the speed of light|how fast is light|how fast does light travel", a: "Light travels at about 299,792 km per second in a vacuum — roughly 300,000 km/s.", v: "299,792 km/s"}
+  - {q: "is (?:a )?tomato(?:es)? (?:a )?fruits?(?: or (?:a )?vegetables?)?|is (?:a )?tomato(?:es)? (?:a )?vegetables?", a: "Botanically, yes — a tomato is a fruit, because it grows from the flower and holds the seeds. In the kitchen it's usually treated as a vegetable.", v: "a fruit"}
+  - {q: "what(?:'s| is) bigger,? the sun or the earth|is the sun bigger than the earth|what(?:'s| is) bigger,? the earth or the sun", a: "The Sun, by far: it's about 109 times wider than Earth, and more than a million Earths would fit inside it.", v: "the Sun"}
+  - {q: "who invented the (?:light ?bulb|lightbulb|incandescent light bulb)", a: "Many inventors worked on it, but Thomas Edison's carbon-filament bulb of 1879 was the first practical, long-lasting one; Joseph Swan built a similar bulb in England at the same time.", v: "Thomas Edison"}
+  - {q: "what(?:'s| is) the largest planet(?: in (?:our|the) solar system)?|which planet is the (?:largest|biggest)", a: "Jupiter is the largest planet in our solar system.", v: "Jupiter"}
+  - {q: "what(?:'s| is) the fastest (?:land )?animal(?: in the world| on earth)?", a: "The cheetah is the fastest land animal — up to about 100–120 km/h in short sprints. (The fastest of all is the peregrine falcon in a dive.)", v: "the cheetah"}
+  - {q: "what(?:'s| is) the (?:tallest|biggest) animal(?: in the world| on earth)?", a: "The tallest animal is the giraffe; the biggest is the blue whale.", v: "the giraffe"}
+  - {q: "why is the sky blue", a: "Sunlight is scattered by the air, and blue light is scattered much more than red light because of its shorter wavelength — so blue comes at us from all over the sky.", v: "scattering"}
+  - {q: "why do cats pur+", a: "Cats mostly purr when they're relaxed and content, but also to calm themselves when stressed or hurt; the sound comes from rapid twitching of the muscles in the voice box.", v: "contentment"}
+  - {q: "how many days (?:are )?(?:in|does) a leap year(?: have)?", a: "A leap year has 366 days.", v: "366"}
 accomplished:
   - "Nice, well done! How does it feel to have {x} behind you?"
   - "That's great — {x}, done! Got anything fun planned now?"

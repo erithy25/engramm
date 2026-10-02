@@ -197,6 +197,11 @@ _MONTH_LOW = re.compile(r"\b(?:january|february|march|april|june|july|august|sep
 # two questions joined by "and"
 _TWO_QUESTIONS = re.compile(r"(?i)^(?P<a>(?:what|who|when|where|which|how)\b.+?),?\s+and\s+"
                             r"(?P<b>(?:how|what|who|when|where|which|is|are|was|were|does|did|do)\b.+)$")
+# questions whose answer is a measurement or a count
+_NEEDS_NUMBER = re.compile(r"(?i)\b(?:boiling point|melting point|freezing point|temperature|speed of|how many|how much|"
+                           r"how far|how long|how tall|how high|how deep|how old|how heavy|population of|distance)\b")
+# yes/no questions
+_YES_NO_Q = re.compile(r"(?i)^(?:is|are|was|were|does|do|did|can|could|has|have|will|would|should)\b(?!.*\b(?:or)\b)")
 # "no wait, it's alexander" right after telling the name
 _NAME_FIX = re.compile(r"(?i)^(?:no,? |nope,? |sorry,? |oops,? )?(?:wait,? |actually,? |i mean,? )*(?:it'?s|its|i'?m|im|my name is|"
                        r"call me) (?P<x>[a-z][a-z'-]+)[.!]*$")
@@ -1477,6 +1482,8 @@ class Assistant:
 
     def _question(self, st: DialogState, text: str) -> Reply:
         bot = self.bot
+        # "what language do they speak in Brazil?": a generic "they", not the last person or thing
+        text = re.sub(r"(?i)\b(do|did|does) they (speak|use|eat|celebrate|drive|call|pay|play)\b(?=.*\bin\b)", r"\1 people \2", text)
         pct = _PCT_MORE.match(text.strip().lower())
         lp = st.uses.get("last_pct")
         if pct and lp and st.turn - lp[0] <= 3:          # "15% of 80" … "and 20%?"
@@ -1534,6 +1541,9 @@ class Assistant:
         if _DISTANCE_Q.match(normalise(text)):
             return Reply(text, "unknown", self._pick(st, "daily:distance_none", self.bank.daily["distance_none"]),
                          via="clarify")
+        common = self._common_fact(st, text)
+        if common is not None:
+            return common
         sup = self._superlative(st, text)
         if sup is not None:
             return sup
@@ -1556,6 +1566,21 @@ class Assistant:
             self.bot.context.update({"answer": None, "atype": None})   # a rejected answer is no "it" later
         if rep.kind == "answer" and rep.via == "lookup" and self._wrong_kind(rep.resolved or text, rep.answer):
             rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None
+        qq = (rep.resolved or text).strip()
+        if rep.kind == "answer" and rep.via == "lookup" and _NEEDS_NUMBER.search(qq) and \
+                not re.search(r"\d|\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|"
+                              r"forty|fifty|hundred|thousand|million|billion|dozen|half)\b", str(rep.answer), re.I):
+            rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None   # "the boiling point of water" → "grease"
+        if rep.kind == "answer" and rep.via == "lookup" and _YES_NO_Q.match(qq):
+            # "is a tomato a fruit?" has no short answer to cut out ("Sweet"): show the sentence instead
+            ev = (rep.evidence or "").strip()
+            content = [w for w in re.findall(r"[a-z]+", qq.lower()) if len(w) > 3 and w not in _STOP_CHAT]
+            if ev and content and all(re.search(rf"\b{re.escape(w[:5])}", ev.lower()) for w in content):
+                rep.text = self._pick(st, "daily:yes_no_quote", self.bank.daily["yes_no_quote"], x=ev)
+                rep.kind, rep.guess, rep.answer = "about", rep.answer, None   # a quote, not a short answer
+                return rep
+            else:
+                rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None
         if rep.kind == "answer" and rep.via == "lookup" and _WINNER_Q.match(rep.resolved or text) and not any(
                 rep.answer.lower() in next(g for g in m.groups() if g).lower()
                 for m in _WINNER_RX.finditer(rep.evidence or "")):
@@ -2439,6 +2464,18 @@ class Assistant:
                      via="news", confidence=1.0, alternatives=[{"text": it["title"], "source": {
                          "kind": "feed", "source": it["feed"], "key": it["link"] or it["title"], "title": it["title"]}}
                          for it in items[1:4]])
+
+    def _common_fact(self, st: DialogState, text: str) -> Reply | None:
+        """"How many continents are there?", "is a tomato a fruit?": a short list of everyday facts checked
+        by hand (data/conv/daily.yaml `common`), because the text look-up gets exactly these wrong
+        ("two continents", "Sweet")."""
+        q = normalise(text).strip(" ?!.")
+        for item in self.bank.daily.get("common", []):
+            if re.fullmatch(item["q"], q):
+                src = {"kind": "common", "source": "everyday facts", "key": item.get("key", "")}
+                return Reply(text, "answer", item["a"], answer=item.get("v", item["a"]), source=src, confidence=1.0,
+                             via="common")
+        return None
 
     def _superlative(self, st: DialogState, text: str) -> Reply | None:
         """"What is the tallest mountain in the world?" from the measured values in the fact bank

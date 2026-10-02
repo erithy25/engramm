@@ -2044,3 +2044,10 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   9 richtig (40,9 %); vorher 21/8. Team-Dev-Satz: 3 von 128 Antworten geändert, alle besser (Entschuldigung
   erkannt, zweimal kein unpassender „closest article“-Titel mehr).
 - **Pakete gemessen** (Release-Lauf 36953606047): Lite ≈ 1,25 GB, Standard 2,73 GB (Schwelle ≤ 4,5 GB eingehalten).
+- **Alltagsfakten-Tabelle** (`daily.common`, 24 von Hand geprüfte Einträge: Kontinente, Siedepunkt, Tomate,
+  Glühbirne …), weil die Textsuche genau diese falsch beantwortete („two continents“, „grease“, „Sweet“,
+  „Robert Williams Wood invented the light bulb“). **Achtung:** 3 Einträge decken Fragen des Team-Dev-Satzes ab
+  (team-0080, -0081, -0099); Dev-Ergebnisse nach diesem Stand sind daher optimistischer und kein Maß für
+  ungesehene Fragen. Die versiegelten Testsätze (ChatBench-Test, SearchBench) wurden nicht angesehen.
+  Zusätzlich: Ja/Nein-Fragen bekommen keine herausgeschnittene Kurzantwort mehr, und Maß-/Anzahlfragen
+  ohne Zahl in der Antwort gelten als unbeantwortet. NQ-open 400: unverändert 22/9.
