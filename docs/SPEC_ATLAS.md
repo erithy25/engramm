@@ -195,7 +195,8 @@ Amtsinhaber aus dem eigenen Artikel).
 Werk-Kontext; „who wrote it?“ ist nie Stephen Kings „It“; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 [v3.1.0-beta.17](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.17) (Lauf 37009258108, Batterien 56–59:
 Wissens-Folgefragen, Alltagsmomente Englisch/Deutsch, Tastatursalat, Folgefragen mit Bezug auf den Satz davor; 45 Dateien,
-6 Installer, SHA256SUMS geprüft, Upload im ersten Versuch).
+6 Installer, SHA256SUMS geprüft, Upload im ersten Versuch). beta.18 bringt Batterien 60–63 (normaler Abend Englisch/Deutsch,
+Sprachumschaltung, Rechnen nebenbei, Tagesplan, Folgefragen auf Deutsch).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 

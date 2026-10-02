@@ -2498,6 +2498,8 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     „du glücklicher“, „du bist komisch“.
   - Die neutrale Grundantwort gilt nur noch für Erzählungen (Ich-Sätze oder „die Nachbarn haben …“), nie für Sätze mit
     „nicht“, „meinte“, „überlege“; sonst bleibt es bei der ehrlichen Rückfrage.
+  - Messung: Team-Dev-Satz 1 von 128 (team-0067). NQ-open 400: 22/9. Suite 753 bestanden, 7 übersprungen. Regressionen
+    32, 38–63 (30 Gespräche, Englisch und Deutsch): 0 Wiederholungen, Unterschiede nur Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
