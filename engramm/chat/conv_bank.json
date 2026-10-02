@@ -5214,6 +5214,94 @@
     "event_unknown": [
      "Das steht in meinem Artikel über {x} leider nicht drin – raten möchte ich nicht."
     ],
+    "misunderstood": [
+     "Oh, sorry! Was meintest du? Sag's gern noch mal anders, dann versuch ich's besser.",
+     "Mein Fehler. Noch mal von vorn: Was brauchst du?"
+    ],
+    "sorry_ok": [
+     "Schon gut, kein Problem! Wobei kann ich dir helfen?",
+     "Alles gut, ich nehm's dir nicht übel. Was ist los?"
+    ],
+    "help_ask": [
+     "Klar! Worum geht's?",
+     "Natürlich, gern. Was brauchst du?"
+    ],
+    "office_dated": [
+     "Laut meiner Wikipedia-Kopie (Stand {z}) ist das {x}. Ämter wechseln aber, das kann inzwischen veraltet sein."
+    ],
+    "office_undated": [
+     "Laut meiner Wikipedia-Kopie ist das {x}. Ämter wechseln aber, das kann inzwischen veraltet sein."
+    ],
+    "ingredient_lead": [
+     "{X}? Daraus kannst du zum Beispiel machen: {y}",
+     "Mit dem, was du da hast, geht super: {y}"
+    ],
+    "ingredient_none": [
+     "{X}? Da wird's knifflig – hast du noch Nudeln, Reis, Kartoffeln oder Brot da? Dann fällt mir mehr ein."
+    ],
+    "food_time": [
+     "Das meiste davon ist in 15–30 Minuten fertig.",
+     "Rechne mit etwa 15–30 Minuten, je nachdem, was du nimmst."
+    ],
+    "food_time_known": [
+     "Das Schnellste dauert etwa {x} Minuten, der Rest so 20–30."
+    ],
+    "ingredients": [
+     {
+      "need": [
+       "ei",
+       "spinat"
+      ],
+      "idea": "ein Spinat-Omelett oder Rührei mit Spinat – in 10 Minuten fertig. Mit etwas Käse und Pfeffer richtig lecker!"
+     },
+     {
+      "need": [
+       "nudel",
+       "tomate"
+      ],
+      "idea": "Nudeln mit schneller Tomatensoße: Tomaten mit Knoblauch und Olivenöl einkochen, salzen, fertig."
+     },
+     {
+      "need": [
+       "kartoffel",
+       "ei"
+      ],
+      "idea": "Bratkartoffeln mit Spiegelei – ein Klassiker."
+     },
+     {
+      "need": [
+       "reis",
+       "gemüse"
+      ],
+      "idea": "gebratener Reis mit Gemüse – am besten mit Reis vom Vortag und etwas Sojasoße."
+     },
+     {
+      "need": [
+       "brot",
+       "käse"
+      ],
+      "idea": "überbackene Käsetoasts, vielleicht mit Tomate oder Schinken."
+     },
+     {
+      "need": [
+       "nudel",
+       "käse"
+      ],
+      "idea": "Käsespätzle-Style: Nudeln mit geschmolzenem Käse und Röstzwiebeln."
+     },
+     {
+      "need": [
+       "ei"
+      ],
+      "idea": "Rührei, Omelett oder Pfannkuchen – Eier sind echte Retter."
+     },
+     {
+      "need": [
+       "nudel"
+      ],
+      "idea": "Pasta aglio e olio: nur Knoblauch, Olivenöl, Chili und Nudeln."
+     }
+    ],
     "bot_human": [
      "Nein, ich bin kein Mensch – ich bin ENGRAMM, ein Programm auf deinem Rechner. Kein neuronales Netz, keine Cloud: Ich antworte aus dem, was ich gelesen habe, und aus dem, was du mir erzählst.",
      "Nein, ich bin ein Programm namens ENGRAMM. Aber ich höre dir trotzdem gern zu!"
@@ -9573,6 +9661,44 @@
   "interview_nerves": [
    "Totally normal — being nervous means it matters to you. Remember: {x} already liked your application enough to invite you. Prepare two or three stories, get a good night's sleep, and you'll be fine.",
    "Of course you are, that's a big one! Nerves usually fade after the first few minutes. Breathe slowly, and remember it's a conversation — you're checking them out too."
+  ],
+  "down_vague": [
+   "That kind of heaviness, where it's not one thing but everything, is really draining. You don't need a reason to feel like this.",
+   "Yeah, sometimes it's not one big thing, just everything piling up. That's still real, and it's okay to feel worn down by it."
+  ],
+  "talk_helps": [
+   "I'm here, take your time. What have your days been like lately?",
+   "Then let's talk. Is there one moment from this week that felt especially heavy?"
+  ],
+  "sarc_monday": [
+   "Ha, the enthusiasm is overwhelming! 😄 Mondays are rough. Anything nice planned to get you through the week?",
+   "Oh yes, everyone's favourite day. 🙃 Hang in there, it gets better from Tuesday."
+  ],
+  "sarcasm": [
+   "Ha, I can hear the enthusiasm from here! 😄 That sounds rough.",
+   "Sounds like a real highlight. 🙃 Early starts are tough. How are you holding up?"
+  ],
+  "weekend_wish": [
+   "Same! Hang in there, it'll be here before you know it. Any plans for it?",
+   "The weekend can't come soon enough, right? What would make it a good one?"
+  ],
+  "misunderstood": [
+   "Sorry about that! What did you mean? Try saying it a little differently and I'll do my best.",
+   "My bad. Let's try again: what do you need?"
+  ],
+  "help_ask": [
+   "Of course! What do you need?",
+   "Sure, I'm happy to help. What's up?"
+  ],
+  "alarm": [
+   "I can't set alarms or timers: I don't control your phone or computer. But I can remember things for you. Say “remind me to …” and ask me “what do I need to do?” later."
+  ],
+  "what_else": [
+   "A few more things I'm good at:\n• Quizzes, riddles and fun facts\n• Recipes and what to cook with what you have\n• Book, film and game tips\n• Calculations, percentages, time zones and days until a date\n• Comparing countries, cities and people (“compare France and Germany”)\n\nWhat sounds good?"
+  ],
+  "sarcasm_ack": [
+   "Ha, I figured! 😄 Hang in there. Coffee helps.",
+   "Yeah, I didn't think so. 😄 What would make today a bit better?"
   ]
  }
 }

@@ -509,6 +509,24 @@ daily:
     event_where_pl: ["{Y} fanden in {x} statt."]
     event_when: ["{Y} lief vom {x}."]
     event_unknown: ["Das steht in meinem Artikel über {x} leider nicht drin – raten möchte ich nicht."]
+    misunderstood: ["Oh, sorry! Was meintest du? Sag's gern noch mal anders, dann versuch ich's besser.", "Mein Fehler. Noch mal von vorn: Was brauchst du?"]
+    sorry_ok: ["Schon gut, kein Problem! Wobei kann ich dir helfen?", "Alles gut, ich nehm's dir nicht übel. Was ist los?"]
+    help_ask: ["Klar! Worum geht's?", "Natürlich, gern. Was brauchst du?"]
+    office_dated: ["Laut meiner Wikipedia-Kopie (Stand {z}) ist das {x}. Ämter wechseln aber, das kann inzwischen veraltet sein."]
+    office_undated: ["Laut meiner Wikipedia-Kopie ist das {x}. Ämter wechseln aber, das kann inzwischen veraltet sein."]
+    ingredient_lead: ["{X}? Daraus kannst du zum Beispiel machen: {y}", "Mit dem, was du da hast, geht super: {y}"]
+    ingredient_none: ["{X}? Da wird's knifflig – hast du noch Nudeln, Reis, Kartoffeln oder Brot da? Dann fällt mir mehr ein."]
+    food_time: ["Das meiste davon ist in 15–30 Minuten fertig.", "Rechne mit etwa 15–30 Minuten, je nachdem, was du nimmst."]
+    food_time_known: ["Das Schnellste dauert etwa {x} Minuten, der Rest so 20–30."]
+    ingredients:
+      - {need: [ei, spinat], idea: "ein Spinat-Omelett oder Rührei mit Spinat – in 10 Minuten fertig. Mit etwas Käse und Pfeffer richtig lecker!"}
+      - {need: [nudel, tomate], idea: "Nudeln mit schneller Tomatensoße: Tomaten mit Knoblauch und Olivenöl einkochen, salzen, fertig."}
+      - {need: [kartoffel, ei], idea: "Bratkartoffeln mit Spiegelei – ein Klassiker."}
+      - {need: [reis, gemüse], idea: "gebratener Reis mit Gemüse – am besten mit Reis vom Vortag und etwas Sojasoße."}
+      - {need: [brot, käse], idea: "überbackene Käsetoasts, vielleicht mit Tomate oder Schinken."}
+      - {need: [nudel, käse], idea: "Käsespätzle-Style: Nudeln mit geschmolzenem Käse und Röstzwiebeln."}
+      - {need: [ei], idea: "Rührei, Omelett oder Pfannkuchen – Eier sind echte Retter."}
+      - {need: [nudel], idea: "Pasta aglio e olio: nur Knoblauch, Olivenöl, Chili und Nudeln."}
     bot_human: ["Nein, ich bin kein Mensch – ich bin ENGRAMM, ein Programm auf deinem Rechner. Kein neuronales Netz, keine Cloud: Ich antworte aus dem, was ich gelesen habe, und aus dem, was du mir erzählst.", "Nein, ich bin ein Programm namens ENGRAMM. Aber ich höre dir trotzdem gern zu!"]
     wfh_lonely: ["Das kann ich gut verstehen – Homeoffice kann richtig einsam machen. Ganze Tage ohne ein echtes Gespräch.", "Ja, zu Hause arbeiten ist praktisch, aber man sieht kaum Leute. Kein Plausch an der Kaffeemaschine."]
     maybe_should: ["Das ist eine gute Idee – auch kleine Schritte zählen. Soll ich dir ein paar Ideen geben?", "Finde ich gut! Klein anfangen ist völlig okay. Magst du ein paar Vorschläge?"]

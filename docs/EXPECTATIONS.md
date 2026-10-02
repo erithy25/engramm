@@ -2237,6 +2237,18 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     Abschnitt still einen alten überschrieben (einmal mit Wirkung auf team-0040; vor dem Commit bemerkt und behoben).
   - Wiederholungen 3 → 0. Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–44 und langes
     Gespräch: 0 Wiederholungen. Suite 712 bestanden, 7 übersprungen.
+- **Alltags-Batterie 46 (Englisch und Deutsch: Kritik, Sarkasmus, Stimmung, Fähigkeiten)**:
+  - Schwer: „i've been feeling really down lately“ wurde als Fakt gespeichert („Oh really? Tell me more“), jetzt kommt
+    Anteilnahme, dann „nothing specific, just everything“ und „maybe talking helps“ im Zusammenhang. Sarkasmus („yeah sure,
+    i love waking up at 6“) wurde als Vorliebe gemerkt („Waking — good choice!“), jetzt wird er erkannt.
+  - „you didn't even understand me“, „can you help me with something?“ (vorher Wissenssuche ohne Treffer), „can you set
+    an alarm?“ (ehrliche Grenze und Hinweis auf „remind me to …“), „ok what else?“ nach den Fähigkeiten.
+  - Deutsch: „du verstehst gar nichts“, „sorry, war nicht so gemeint“, „kannst du mir helfen?“ (vorher 3× unverstanden);
+    „wer ist der Präsident von Frankreich?“ → Amtsinhaber mit Stand der Lesetexte → „wie alt ist er?“ → „und wer ist seine
+    Frau?“ (Possessivpronomen; „ist mit … verheiratet“ statt „ist bzw. war“); „ich hab nur Eier und Spinat“ → Rezeptidee →
+    „wie lange dauert das?“.
+  - Wiederholungen 1 → 0. Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–45 und langes
+    Gespräch: 0 Wiederholungen. Suite 715 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

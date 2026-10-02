@@ -226,6 +226,11 @@ def de_sentence(kind: str, x: str, value: str, age_text: str | None = None) -> s
             tmpl = tmpl.replace("{v}", "am {v}")         # "wurde am 31. März 1889 fertiggestellt"
         elif re.match(r"^[A-ZÄÖÜ][a-zäöü]+ \d{3,4}$", v):
             tmpl = tmpl.replace("{v}", "im {v}")
+    if kind == "spouse" and age_text:
+        if re.search(r"\bis married to\b", age_text):
+            tmpl = "{x} ist mit {v} verheiratet."        # the English answer knows the person is alive
+        elif re.search(r"\bwas married to\b", age_text):
+            tmpl = "{x} war mit {v} verheiratet."
     if kind in ("born_when", "died_when") and not re.match(r"^\d{1,2}\.", v):
         tmpl = tmpl.replace("am {v}", "{v}")
         if re.match(r"^[A-ZÄÖÜ][a-zäöü]+ \d{3,4}$", v):

@@ -1771,3 +1771,55 @@ def test_studio_reports_keys_given_twice(tmp_path):
     data = studio.load_sources(tmp_path)
     assert any("daily.yaml line 2" in d and "'a'" in d for d in data["_duplicates"]), data["_duplicates"]
     assert len(data["_duplicates"]) == 1
+
+
+def test_battery46_low_mood_sarcasm_help_and_alarm(chat):
+    a, _ = chat
+    st = DialogState("j1")
+    r = a.turn(st, "i've been feeling really down lately")
+    assert r.kind == "empathy", r.text
+    r = a.turn(st, "nothing specific, just everything")
+    assert r.kind == "empathy" and "Go on" not in r.text, r.text
+    r = a.turn(st, "maybe talking helps")
+    assert r.kind == "empathy", r.text
+    st2 = DialogState("j2")
+    r = a.turn(st2, "oh great, another monday")
+    assert "Monday" in r.text or "Tuesday" in r.text, r.text
+    r = a.turn(st2, "yeah sure, i love waking up at 6")
+    assert r.kind != "learned" and "good choice" not in r.text.lower(), r.text
+    r = a.turn(st2, "lol not really")
+    assert "I'm here whenever" not in r.text, r.text
+    r = a.turn(st2, "i just want the weekend")
+    assert r.kind != "learned" and ("weekend" in r.text.lower() or r.text.startswith("Same!")), r.text
+    st3 = DialogState("j3")
+    r = a.turn(st3, "you didn't even understand me")
+    assert r.kind != "learned" and ("Sorry" in r.text or "My bad" in r.text), r.text
+    r = a.turn(st3, "can you help me with something?")
+    assert r.kind == "smalltalk" and "?" in r.text, r.text
+    r = a.turn(DialogState("j4"), "can you set an alarm?")
+    assert "alarm" in r.text and "remind me" in r.text, r.text
+
+
+def test_battery46_german_apology_help_office_and_ingredients(chat):
+    a, _ = chat
+    st = DialogState("j5")
+    r = a.turn(st, "du verstehst gar nichts")
+    assert r.kind == "smalltalk", r.text
+    r = a.turn(st, "sorry, war nicht so gemeint")
+    assert "nicht übel" in r.text or "kein Problem" in r.text, r.text
+    r = a.turn(st, "kannst du mir helfen?")
+    assert r.text in ("Klar! Worum geht's?", "Natürlich, gern. Was brauchst du?"), r.text
+    st2 = DialogState("j6")
+    a.turn(st2, "was soll ich heute kochen?")
+    r = a.turn(st2, "ich hab nur eier und spinat")
+    assert "Omelett" in r.text and "Eier und Spinat" in r.text, r.text
+    r = a.turn(st2, "wie lange dauert das?")
+    assert "Minuten" in r.text, r.text
+
+
+def test_german_spouse_tense():
+    from engramm.chat.german_bridge import de_sentence
+    assert de_sentence("spouse", "Emmanuel Macron", "Brigitte Macron", "Emmanuel Macron is married to Brigitte Macron.") == \
+        "Emmanuel Macron ist mit Brigitte Macron verheiratet."
+    assert de_sentence("spouse", "Albert Einstein", "Elsa Einstein", "Albert Einstein was married to Elsa Einstein.") == \
+        "Albert Einstein war mit Elsa Einstein verheiratet."

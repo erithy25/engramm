@@ -326,6 +326,32 @@ _TRUST_BETRAYED = re.compile(r"^(?:i )?(?:feel|felt|am|'m) (?:so |really |such a
                              r"(?: (?:him|her|them|it))?[.!]*$")
 _TEXT_EX = re.compile(r"^(?:so |but |and )?(?:should|do|can) i (?:text|call|message|dm|contact|reach out to|write to|answer) (?:him|her|them|my ex)"
                       r"(?: (?:back|again|now|tonight|first))?\??$")
+# battery 46: feeling low for a while, sarcasm, being told off, asking for help, an alarm
+_BEEN_FEELING = re.compile(r"^(?:honestly,? |tbh,? |so,? )?(?:i'?ve|i have|ive) been (?:feeling |so |really |pretty |kinda |super |a bit |quite |very )*"
+                           r"(?P<f>down|low|sad|depressed|lonely|anxious|stressed|exhausted|tired|overwhelmed|off|meh|empty|lost|"
+                           r"unmotivated|burnt out|burned out|hopeless|numb|miserable)(?: (?:lately|recently|these days|all week|"
+                           r"for (?:a while|weeks|days|months|ages)))?[.!]*$")
+_DOWN_VAGUE = re.compile(r"^(?:nothing (?:specific|in particular|really)|i don'?t know,? )?(?:,? ?(?:just )?(?:everything|life|all of it|"
+                         r"a bit of everything|it'?s just everything|everything really))[.!]*$|^nothing specific[.!]*$")
+_TALK_HELPS = re.compile(r"^(?:maybe |i guess |i think )?(?:talking|talking about it|just talking) (?:helps|might help|could help|would help)[.!]*$")
+_SARCASM = re.compile(r"^(?:yeah|oh|ah|yep|sure)[,!.]? (?:sure|right|totally|definitely)[,!.]* i (?:just )?(?:love|adore|enjoy|really love)"
+                      r" (?P<x>[a-z0-9 ',-]{2,40}?)[.!]*(?: ?(?:lol|haha|🙄|😒))?$")
+_SARC_MONDAY = re.compile(r"^(?:oh |ah |ugh,? )?(?:great|yay|fantastic|wonderful|perfect|lovely|awesome|brilliant)[,!.]* (?:another|it'?s|its) "
+                          r"(?:monday|mondays)(?: again)?[.!]*$")
+_WEEKEND_WISH = re.compile(r"^(?:i )?(?:just |really |so )?(?:want|need|wish it was|wish it were|can'?t wait for) (?:the |it to be )?(?:weekend|friday)"
+                           r"(?: already)?[.!]*$")
+_MISUNDERSTOOD = re.compile(r"^(?:you )?(?:didn'?t|did not|don'?t|do not) (?:even )?(?:understand|get|listen to) (?:me|what i (?:said|meant|mean)|it)"
+                            r"(?: at all)?[.!]*$|^that'?s not what i (?:said|meant|asked)[.!]*$|^you'?re not (?:listening|getting it)[.!]*$")
+_HELP_ASK = re.compile(r"^(?:hey,? |so,? |um,? )?(?:can|could|will|would) you (?:please )?help me(?: (?:with|out with) (?:something|a thing|stuff|this|"
+                       r"a problem)| out)?(?: please)?\??$|^i need (?:your |some )?help(?: with something)?[.!?]*$")
+_ALARM = re.compile(r"^(?:can|could|will) you (?:please )?(?:set|make|create|start) (?:an? |my )?(?:alarm|timer|countdown|stopwatch)"
+                    r"(?: for [a-z0-9: ]+)?\??$|^(?:set|start) (?:an? )?(?:alarm|timer)(?: for [a-z0-9: ]+)?$")
+_WHAT_ELSE = re.compile(r"^(?:ok |okay |and |so |cool,? )?what else(?: can you do)?\??$")
+_DE_MISUNDERSTOOD = re.compile(r"^du (?:verstehst|kapierst) (?:mich |ja |echt |gar |überhaupt )*(?:nicht|nichts|gar nichts|überhaupt nichts)[.!]*$|"
+                               r"^das (?:habe|hab) ich (?:so )?nicht gemeint[.!]*$")
+_DE_SORRY = re.compile(r"^(?:sorry|entschuldigung|tut mir leid|sry)[,!.]* ?(?:das )?(?:war|ist) (?:nicht so|nicht böse) gemeint[.!]*$|"
+                       r"^(?:sorry|entschuldige|entschuldigung|tut mir leid)(?:,? (?:das war gemein|ich war gemein|war blöd von mir))?[.!]*$")
+_DE_HELP = re.compile(r"^(?:hey,? |du,? )?(?:kannst|könntest) du mir (?:bitte |mal )?(?:bei etwas |bei was |mit etwas )?helfen\??$|^ich brauche (?:deine |mal )?hilfe[.!?]*$")
 _WEAR = re.compile(r"^(?:(?:and|so|ok|okay|hmm|fine|alright|cool|sure)[.,!]? )?what (?:should|do|can|could) i wear(?: (?:to|for|on|in) "
                    r"(?:the |a |my |an )?(?P<x>[a-z ]+?))?(?: tomorrow| today| tonight)?\??$")
 _OCCASIONS = [("interview", re.compile(r"\binterview")), ("wedding", re.compile(r"\bwedding|\bmarr")),
@@ -830,6 +856,9 @@ class Assistant:
         q = s.rstrip("?").strip()
         if _DE_BOT_HUMAN.match(s):
             return Reply(msg, "smalltalk", self._pick(st, "de:ctx:bot_human", dc["bot_human"]), via="german")
+        for rx, key in ((_DE_MISUNDERSTOOD, "misunderstood"), (_DE_SORRY, "sorry_ok"), (_DE_HELP, "help_ask")):
+            if rx.match(q):
+                return Reply(msg, "smalltalk", self._pick(st, f"de:ctx:{key}", dc[key]), via="german")
         m = _DE_MOVING.match(q)
         if m and m.group("x") not in ("hause", "bett", "ruhe", "der stadt", "die stadt"):
             city = _de_place_case(m.group("x"))
@@ -925,6 +954,26 @@ class Assistant:
         r = self._german_event(st, msg, q, dc)
         if r is not None:
             return r
+        la = st.last_action or {}
+        food = (la.get("kind") == "rec:food" and st.turn - la.get("turn", -99) <= 3) or \
+            (st.uses.get("food_de") is not None and st.turn - st.uses["food_de"] <= 3)
+        ih = re.fullmatch(r"(?:ich )?(?:hab|habe|hätte) (?:nur |noch |bloß |leider nur )?(?P<x>[a-zäöüß][a-zäöüß ,]{2,50}?)"
+                          r"(?: da| zu hause| im kühlschrank| übrig)?", q)
+        if food and ih:
+            items = [i.strip() for i in re.split(r",|\bund\b", ih.group("x")) if i.strip()]
+            x = " und ".join(", ".join(w[:1].upper() + w[1:] for w in items).rsplit(", ", 1))   # German nouns: "Eier und Spinat"
+            stems = {re.sub(r"(?:n|en|er|e|s)$", "", i.split()[-1]) for i in items} | {i.split()[-1] for i in items}
+            st.uses["food_de"] = st.turn
+            for row in dc["ingredients"]:
+                if all(any(s_.startswith(n) for s_ in stems) for n in row["need"]):
+                    return Reply(msg, "smalltalk", self._pick(st, "de:ctx:ingredient_lead", dc["ingredient_lead"], x=x, y=row["idea"]),
+                                 via="german")
+            return Reply(msg, "smalltalk", self._pick(st, "de:ctx:ingredient_none", dc["ingredient_none"], x=x), via="german")
+        if food and re.fullmatch(r"(?:und )?wie lange (?:dauert|braucht) (?:das|es|die zubereitung)(?: ungefähr| etwa)?", q):
+            mins = re.findall(r"in (\w+) minuten", st.last_reply or "", re.I)
+            if mins:
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:food_time_known", dc["food_time_known"], x=mins[0]), via="german")
+            return Reply(msg, "smalltalk", self._pick(st, "de:ctx:food_time", dc["food_time"]), via="german")
         if _DE_WORK_STRESS.match(q):
             st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "text_en": "work is too much",
                            "turn": st.turn}
@@ -1444,6 +1493,13 @@ class Assistant:
         s = re.sub(r"^(?:und|also|ok|okay) ", "", s)
         if ment and re.search(r"\b(?:leben|wohnen) (?:da|dort)\b|\b(?:da|dort) (?:leben|wohnen)\b", s):
             s = re.sub(r"\bwie viele (?:leute|menschen) (?:leben|wohnen) (?:da|dort)\b", f"wie viele einwohner hat {ment.lower()}", s)
+        pm = re.search(r"\b(?:seine|ihre) (frau|mann|ehefrau|ehemann|partnerin|partner|mutter|vater|kinder|hauptstadt|einwohnerzahl|"
+                       r"frau|bevölkerung|größe|fläche|währung|sprache)\b", s)
+        if ment and pm:                                   # "wer ist seine frau?" after Macron → "wer ist die frau von macron"
+            art = "die" if pm.group(1) in ("frau", "ehefrau", "partnerin", "mutter", "hauptstadt", "einwohnerzahl", "bevölkerung",
+                                           "größe", "fläche", "währung", "sprache") else "der" if pm.group(1) in (
+                                               "mann", "ehemann", "partner", "vater") else "die"
+            s = s.replace(pm.group(0), f"{art} {pm.group(1)} von {ment.lower()}", 1)
         if ment and re.search(r"\b(?:hat|ist|liegt|wurde|war|heißt) (?:sie|er|es|ihn)\b|\b(?:sie|er|es) (?:hat|ist|liegt)\b", s) and \
                 not re.search(r"\bgeboren|gestorben\b", s):
             # "und wie viele einwohner hat sie?" after Canberra, "wer hat ihn entworfen?" after the Eiffel Tower
@@ -1476,6 +1532,14 @@ class Assistant:
             return rep
         else:
             pron = re.search(r"\b(?:er|sie|ihn|ihm|ihr|sein|seine|ihre)\b", s)
+            office = self._officeholder(st, english, normalise(english))
+            if office is not None:                        # "wer ist der Präsident von Frankreich?": the office's article
+                when = getattr(self, "reading_as_of", None)
+                when_de = _de_month_year(when) if when else None
+                key = "office_dated" if when_de else "office_undated"
+                text = self._pick(st, f"de:ctx:{key}", self.bank.de["daily"]["ctx"][key], x=office.answer, z=when_de or "")
+                return Reply(msg, "answer", text, answer=office.answer, evidence=office.evidence, source=office.source,
+                             via="german", confidence=office.confidence)
             rep = self._question(st, english + "?")
             if rep.via == "clarify" or (pron and rep.kind != "answer"):
                 return Reply(msg, "unknown", dd["who_mean"].replace("{x}", pron.group(0) if pron else x_en), via="clarify")
@@ -3525,7 +3589,7 @@ class Assistant:
                 for dish in dishes:
                     if dish["name"].lower() == x or dish["name"].lower().replace("homemade ", "") == x:
                         return self._dish_steps(st, msg, dish["name"])
-        r2 = self._daily_ctx2(st, msg, norm) or self._daily_ctx3(st, msg, norm)
+        r2 = self._daily_ctx2(st, msg, norm) or self._daily_ctx3(st, msg, norm) or self._daily_ctx4(st, msg, norm)
         if r2 is not None:
             return r2
         m = _WHAT_LIKES.match(norm)
@@ -3801,6 +3865,47 @@ class Assistant:
                 day = int(m.group("d1") or m.group("d2"))
                 if mon and 1 <= day <= 31:
                     return mon, day
+        return None
+
+    def _daily_ctx4(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 46: low for a while ("i've been feeling really down lately") and what follows, sarcasm
+        ("yeah sure, i love waking up at 6"), being told ENGRAMM didn't understand, asking for help, alarms,
+        and "what else?" after the list of what ENGRAMM can do."""
+        d = self.bank.daily
+        m = _BEEN_FEELING.match(norm)
+        if m:
+            rep = self._turn(st, f"I feel {m.group('f')}.")   # the same care as "I feel down" — not a fact to keep
+            rep.message = msg
+            st.uses["low_for_a_while"] = st.turn
+            return rep
+        lw = st.uses.get("low_for_a_while")
+        if lw is not None and st.turn - lw <= 4:
+            if _DOWN_VAGUE.match(norm):
+                st.uses["low_for_a_while"] = st.turn
+                return Reply(msg, "empathy", self._pick(st, "daily:down_vague", d["down_vague"]), via="empathy")
+            if _TALK_HELPS.match(norm):
+                st.uses["low_for_a_while"] = st.turn
+                return Reply(msg, "empathy", self._pick(st, "daily:talk_helps", d["talk_helps"]), via="empathy")
+        if re.fullmatch(r"(?:lol |haha |ha |nah,? )?(?:not really|of course not|nope|obviously not|definitely not|no)(?: lol| haha)?[.!]*", norm) \
+                and re.search(r"🙃|😄", st.last_reply or "") and st.uses.get("last_via") == "empathy":
+            return Reply(msg, "smalltalk", self._pick(st, "daily:sarcasm_ack", d["sarcasm_ack"]), via="smalltalk")
+        if _SARC_MONDAY.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:sarc_monday", d["sarc_monday"]), via="empathy")
+        m = _SARCASM.match(norm)
+        if m:
+            return Reply(msg, "smalltalk", self._pick(st, "daily:sarcasm", d["sarcasm"], x=m.group("x")), via="empathy")
+        if _WEEKEND_WISH.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:weekend_wish", d["weekend_wish"]), via="empathy")
+        if _MISUNDERSTOOD.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:misunderstood", d["misunderstood"]), via="smalltalk")
+        sp = st.uses.get("speech")
+        if _HELP_ASK.match(norm) and not (sp is not None and st.turn - sp <= 3):   # "can you help me?" with a speech: the speech
+            return Reply(msg, "smalltalk", self._pick(st, "daily:help_ask", d["help_ask"]), via="smalltalk")
+        if _ALARM.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:alarm", d["alarm"]), via="device")
+        li = st.uses.get("last_intent") or ["", -99]
+        if _WHAT_ELSE.match(norm) and li[0] == "help" and st.turn - li[1] <= 2:
+            return Reply(msg, "smalltalk", self._pick(st, "daily:what_else", d["what_else"]), via="smalltalk")
         return None
 
     def _person_name(self, noun: str) -> str | None:
@@ -5967,6 +6072,15 @@ def _asked_category(q: str) -> str | None:
     if re.search(r"\bwhere am i from\b|\bwhere do i come from\b|\borigin\b", low):
         return "#origin"
     return None
+
+
+def _de_month_year(text: str) -> str:
+    """"December 2022" → "Dezember 2022"."""
+    en = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
+    de = ("Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember")
+    for a, b in zip(en, de):
+        text = text.replace(a, b)
+    return text
 
 
 def _de_place_case(x: str) -> str:
