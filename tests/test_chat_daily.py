@@ -700,3 +700,17 @@ def test_small_exact_tools():
     assert "merci" in tool_answer("how do you say thank you in french").text
     assert "exchange rates" in tool_answer("what's 20 euros in dollars").text
     assert "glad" in tool_answer("synonym for happy").text
+
+
+def test_privacy_and_network_answers_are_accurate(chat):
+    a, st = chat
+    r = a.turn(st, "do you send my data anywhere")
+    assert "about you yet" not in r.text and "computer" in r.text, r.text
+    r = a.turn(st, "how do i turn on internet access")
+    assert "Internet access" in r.text, r.text
+    r = a.turn(st, "what is tor")
+    assert "relays" in r.text, r.text
+    r = a.turn(st, "do you use ai")
+    assert "neural network" in r.text, r.text
+    r = a.turn(st, "where do you get your information")
+    assert "Wikipedia" in r.text, r.text

@@ -884,7 +884,7 @@
     ],
     "responses": [
      "I wish I could look outside! But I'm offline and have no weather data. Your weather app knows more.",
-     "I can't check the weather — I run completely offline on your computer, without internet access. A weather app or website will know better!",
+     "I can't check the weather — I have no live weather data. A weather app or website will know better!",
      "Sorry, I don't have live data like the weather. Everything I know comes from what I've read and what you've told me."
     ]
    },
@@ -940,7 +940,7 @@
     "responses": [
      "I can answer questions (with sources), explain topics (“Tell me about the Moon”), remember what you tell me and forget it on request, calculate and convert units, and chat. Just type naturally!",
      "Try things like: “Who invented the telephone?”, “Tell me about volcanoes”, “My sister is called Anna”, “What do you know about me?”, “How many km is 10 miles?” or “Tell me a joke”.",
-     "Here's what I can do:\n• Answer questions from what I've read (Wikipedia and more) — with the source.\n• Explain things: “Tell me about black holes”.\n• Remember what you tell me (“My sister is called Anna”) — and forget it exactly when you ask.\n• Chat, tell jokes and fun facts.\n• Calculate, convert units, tell the date.\nEverything runs on your computer — no internet, no neural network."
+     "Here's what I can do:\n• Answer questions from what I've read (Wikipedia and more) — with the source.\n• Explain things: “Tell me about black holes”.\n• Remember what you tell me (“My sister is called Anna”) — and forget it exactly when you ask.\n• Chat, tell jokes and fun facts.\n• Calculate, convert units, tell the date, give practical how-tos and suggestions.\nEverything runs on your computer, offline by default and without a neural network. With Internet access switched on, I can also read full, current Wikipedia articles and news feeds — your questions still never leave the computer."
     ]
    },
    {
@@ -978,7 +978,7 @@
     "responses": [
      "A computer program — specifically ENGRAMM, an offline chat assistant. I don't use neural networks; I count, look things up and remember what you tell me.",
      "I'm a program, not a person — a chat assistant called ENGRAMM. Unlike ChatGPT, I'm not built on a neural network: I work by counting, rules and a memory you can inspect.",
-     "I'm software — ENGRAMM, a chat assistant that runs locally on your computer. No neural network, no internet: I answer from what I've read and what you tell me."
+     "I'm software — ENGRAMM, a chat assistant that runs locally on your computer. No neural network, and offline unless you switch on Internet access: I answer from what I've read and what you tell me."
     ]
    },
    {
@@ -1062,7 +1062,7 @@
      "are you in the cloud"
     ],
     "responses": [
-     "On your computer — not in the cloud. That's why I work without internet.",
+     "On your computer — not in the cloud. That's why I work without internet (unless you switch it on).",
      "I live on your device. Everything happens locally; nothing you tell me is sent anywhere.",
      "Right here on your computer! I don't run in the cloud — everything I do happens locally, and nothing you say leaves your machine."
     ]
@@ -1385,19 +1385,86 @@
    {
     "id": "bot_privacy",
     "patterns": [
-     "is (my data|this|this chat|this conversation|what i say|everything) (safe|private|secure|encrypted)|(do|will) you (share|sell|send|upload) (my|our) (data|information|messages|conversations?)|who can (see|read) (this|my messages|our chat|what i write)|are you (spying|listening|recording|watching)( on me)?|is anyone (reading|listening|watching)|privacy|data protection|do you track me|are you connected to the internet|do you have internet( access)?|can you (browse|search) the (web|internet)|are you online|do you need (the )?internet|do you work offline"
+     "is (my data|this|this chat|this conversation|what i say|everything) (safe|private|secure|encrypted)|(do|will) you (share|sell|send|upload|pass on) (my|our) (data|information|messages|conversations?|questions?)( anywhere| to anyone)?|do you send (my|our) (data|messages|questions?|chats?) (anywhere|to anyone|online)|who can (see|read) (this|my messages|our chat|what i write|our conversation)|are you (spying|listening|recording|watching)( on me)?|is anyone (reading|listening|watching)|privacy|data protection|do you track me|do you collect (my )?data"
     ],
     "examples": [
      "is my data safe",
      "do you share my data",
      "who can see this",
-     "are you connected to the internet",
-     "can you search the web"
+     "do you send my data anywhere"
     ],
     "responses": [
-     "Everything stays on your computer. I have no internet connection, no account and no tracking. You can see and delete everything I remember.",
-     "Completely private: I run offline, nothing is uploaded, and your memory lives in a local file you control.",
-     "Your data stays with you: I run completely offline on your computer. Nothing you write is sent anywhere, there's no account and no tracking. What I remember is stored in a file on your machine — and you can make me forget anything."
+     "Your data stays with you: everything you write and everything I remember lives on this computer. There's no account and no tracking, and you can make me forget anything.",
+     "Nobody else can see our chat — it never leaves this computer. Even with Internet access switched on, I only download (Wikipedia buckets, news feeds) and never send what you type.",
+     "It's just you and me here: no cloud, no account, no analytics. What I remember is a file on your computer — ask “What do you know about me?” to see it, and I'll forget anything you like."
+    ]
+   },
+   {
+    "id": "bot_internet",
+    "patterns": [
+     "are you connected to the internet|do you have internet( access)?|are you online|do you need (the )?internet|do you work offline|can you (browse|search|use|access) the (web|internet)|can you go online|do you use the internet|can you google (things|stuff|that|it)?"
+    ],
+    "examples": [
+     "are you connected to the internet",
+     "can you search the web",
+     "do you work offline"
+    ],
+    "responses": [
+     "By default I work completely offline. You can switch on Internet access (“Internet access” in the sidebar): then I can fetch full Wikipedia articles, news feeds you pick, or single pages over Tor — but your questions never leave this computer, and every download shows up in the network log.",
+     "Not like a search engine — no question ever leaves your computer. If you switch on Internet access, I can download whole Wikipedia buckets (with decoys), news feeds or pages over Tor and read them here."
+    ]
+   },
+   {
+    "id": "bot_net_howto",
+    "patterns": [
+     "how (do|can) i (turn|switch) on (the )?(internet|internet access|network|online mode|the shelf)|how (do|can) i (enable|activate) (the )?(internet|internet access|network|online mode)|how do you get (online|internet access)|(turn|switch) on (the )?internet( access)?"
+    ],
+    "examples": [
+     "how do i turn on internet access",
+     "how can i enable the internet"
+    ],
+    "responses": [
+     "Open “Internet access” in the sidebar and switch on the channels you want: the Wikipedia shelf, news feeds, or the messenger over Tor. Each one has its own switch, and the network log shows every download."
+    ]
+   },
+   {
+    "id": "bot_sources",
+    "patterns": [
+     "where do you get (your|the|all your|that) (information|info|knowledge|facts|answers)( from)?|how do you know (so much|all this|everything|things)|what are your sources|how (up to date|current|recent|old) is your (knowledge|information|data|info)|when (is|was) your (knowledge|data) from|how current are you|what do you know about recent (events|news)"
+    ],
+    "examples": [
+     "where do you get your information",
+     "how up to date is your knowledge",
+     "what are your sources"
+    ],
+    "responses": [
+     "From what I've read: the opening sections of Wikipedia articles and facts from Wikidata that come with my knowledge pack, plus what you tell me. The pack is a snapshot, so recent events may be missing — with Internet access on I can read the full Wikipedia shelf (as of 27 September 2026) and news feeds you choose. I show the source with every fact."
+    ]
+   },
+   {
+    "id": "bot_ai",
+    "patterns": [
+     "(do|are) you (use |an |a )?(ai|a\\.?i\\.?|artificial intelligence|chatgpt|gpt|an llm|a language model|machine learning)|is this (ai|chatgpt|gpt|an ai)|are you like chatgpt|do you have a neural network"
+    ],
+    "examples": [
+     "do you use ai",
+     "do you use artificial intelligence"
+    ],
+    "responses": [
+     "Not the kind you might think: there's no neural network or language model inside me. I count words, follow rules and look things up in what I've read — which is why I can show you a source for each fact, and why I sometimes say “I don't know”."
+    ]
+   },
+   {
+    "id": "bot_tor",
+    "patterns": [
+     "what is tor|what's tor|what does tor do|why tor|how does tor work|what is the tor network"
+    ],
+    "examples": [
+     "what is tor",
+     "how does tor work"
+    ],
+    "responses": [
+     "Tor is a network that passes your connection through three relays run by volunteers, so the website you visit doesn't see your address and nobody along the way sees both who you are and where you go. I use it (if you switch it on) to fetch pages without revealing your IP."
     ]
    },
    {
@@ -1414,7 +1481,7 @@
     "responses": [
      "I don't have internet access, I only know what I've read, and I can misunderstand complicated sentences. When I'm unsure, I say so — and I show my sources so you can check.",
      "I'm good with facts and remembering things you tell me, but weaker at creative writing, long reasoning and anything after my reading stopped. I'll tell you when I don't know.",
-     "Plenty! I only know what I've read and what you've told me, I have no internet access, and I'm less flexible with language than a neural network. I can be wrong — that's why I show a source for every fact, and why I say “I don't know” when I'm not sure."
+     "Plenty! I only know what I've read and what you've told me, I'm offline unless you switch on Internet access, and I'm less flexible with language than a neural network. I can be wrong — that's why I show a source for every fact, and why I say “I don't know” when I'm not sure."
     ]
    },
    {
