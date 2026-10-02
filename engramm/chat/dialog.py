@@ -950,7 +950,8 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_ctx57(st, msg, s) or self._german_ctx(st, msg, s) or self._german_life(st, msg, s)
+            life = self._german_ctx57(st, msg, s) or self._german_ctx61(st, msg, s) or self._german_ctx(st, msg, s) or \
+                self._german_life(st, msg, s)
             if life is not None:
                 return life
         if u.kind == "fallback" or u.kind == "feeling":
@@ -1069,7 +1070,145 @@ class Assistant:
             key = "follow_neg" if le.get("valence") == "negative" else "follow_pos"
             st.last_exp = dict(le, turn=st.turn, text_en=(le.get("text_en") or "") + " " + _de_advice_hint(s))
             return Reply(msg, "empathy", self._pick(st, f"de:life:{key}", dd["life"][key]), via="german")
+        stmt = self._de_statement(st, msg, s)
+        if stmt is not None:
+            return stmt
         return Reply(msg, "unknown", self._pick(st, "de:fallback", de["replies"]["fallback"]), via="german")
+
+    def _german_ctx61(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 61 in German: home from work and a long day, "und bei dir?", a hike and sore legs, music and a
+        band ("kennst du queen?" → "wer war ihr sänger?"), a cold, the time in Tokyo, and the long break after exams."""
+        g = (self.bank.de["daily"].get("ctx") or {}).get("g61")
+        if not g:
+            return None
+        q = s.strip(" .!?")
+        recent = lambda key, k=3: (st.uses.get(key) and st.turn - st.uses[key][-1] <= k)   # noqa: E731
+        pk = lambda key, opts, **kw: self._pick(st, f"de:g61:{key}", opts, **kw)          # noqa: E731
+        if re.search(r"\b(?:bin|komme) (?:gerade |eben |grad )?(?:von der arbeit|aus dem büro|von der schicht) (?:heim|zurück|nach hause|gekommen)\b|"
+                     r"\bbin (?:gerade |eben )?(?:heim|nach hause) gekommen\b|\bgerade feierabend\b", q):
+            st.uses["home_de61"] = [st.turn]
+            return Reply(msg, "smalltalk", pk("home", g["home"]), via="german")
+        if recent("home_de61", 2) and re.fullmatch(r"(?:war |ganz |eigentlich )?(?:ok|okay|gut|ganz gut|geht so|so lala)?,? ?(?:aber )?(?:ein )?(?:bisschen|bissl|etwas|ziemlich|echt|sehr) "
+                                                  r"(?:lang|anstrengend|stressig|viel|zäh)", q):
+            return Reply(msg, "smalltalk", pk("long_day", g["long_day"]), via="german")
+        if re.fullmatch(r"(?:und )?(?:bei dir|du|dir|wie ist es bei dir|und selbst)", q):
+            return Reply(msg, "smalltalk", pk("me", g["me"]), via="german")
+        if re.search(r"\b(?:war|bin|waren|gehe|ging) (?:gestern |heute |am wochenende )?(?:wandern|bergsteigen|auf (?:einem|einen|dem) berg|in den bergen)\b", q):
+            st.uses["hike_de61"] = [st.turn]
+            return Reply(msg, "smalltalk", pk("hike", g["hike"]), via="german")
+        if recent("hike_de61", 4):
+            if re.fullmatch(r"(?:es )?war (?:echt |richtig |total |einfach )?(?:mega|super|toll|schön|herrlich|genial|klasse|der hammer|wunderschön)", q):
+                st.uses["hike_de61"] = [st.turn]
+                return Reply(msg, "smalltalk", pk("hike_good", g["hike_good"]), via="german")
+            hm = re.fullmatch(r"(?:wir waren |ich war )?(?:auf (?:einem|einen|dem) )?(?:berg|gipfel|hügel)? ?(?:bei|nahe|in der nähe von|um) (?P<p>[a-zäöüß ]{3,25})", q)
+            if hm:
+                st.uses["hike_de61"] = [st.turn]
+                return Reply(msg, "smalltalk", pk("hike_where", g["hike_where"], x=_de_place_case(hm.group("p"))), via="german")
+            hh = re.fullmatch(r"(?:so |etwa |ungefähr |fast |knapp |circa )?(?P<h>\d+|zwei|drei|vier|fünf|sechs|sieben|acht)(?:einhalb)? stunden?", q)
+            if hh:
+                st.uses["hike_de61"] = [st.turn]
+                return Reply(msg, "smalltalk", pk("hike_hours", g["hike_hours"], x=hh.group("h")), via="german")
+            if re.search(r"\b(?:beine|füße|knie|waden) (?:tun|tut) (?:mir )?(?:so |voll |echt )?weh\b|\bmuskelkater\b|\btun mir die (?:beine|füße|waden) weh\b", q):
+                return Reply(msg, "smalltalk", pk("hike_sore", g["hike_sore"]), via="german")
+        if re.fullmatch(r"(?:magst|hörst) du (?:gern |gerne )?musik", q):
+            st.uses["music_de61"] = [st.turn]
+            return Reply(msg, "smalltalk", pk("music", g["music"]), via="german")
+        if recent("music_de61", 2) and re.fullmatch(r"(?:und )?(?:welche|was für welche|welche denn|was hörst du|und du)", q):
+            return Reply(msg, "smalltalk", pk("music_mine", g["music_mine"]), via="german")
+        kb_ = re.fullmatch(r"kennst du (?:die band |die gruppe )?(?P<x>[a-z0-9][a-z0-9 .&'-]{1,30})", q)
+        if kb_ and self.kgqa is not None:
+            try:
+                hits = self.kgqa.kb.link(kb_.group("x"), limit=3)
+            except Exception:
+                hits = []
+            ent = next((e for e, _ in hits if (e.type or "") in ("Band", "MusicalArtist", "Group") and
+                        title_key(re.sub(r"\s*\([^)]*\)$", "", e.title)) == title_key(kb_.group("x"))), None)
+            if ent is not None:
+                name = re.sub(r"\s*\([^)]*\)$", "", ent.title)
+                found = self.about.find(ent.title, n=1)
+                line = found.sentences[0] if found is not None and found.sentences else ""
+                st.topic = {"title": ent.title, "name": name, "turn": st.turn}
+                self.bot.context.update({"answer": None, "atype": None, "mention": name, "kb_last": None})
+                return Reply(msg, "smalltalk", pk("band", g["band"] if line else g["band"][1:], x=name, y=line), via="german")
+        tp_ = st.topic or {}
+        sm = re.fullmatch(r"(?:und )?wer (?:ist|war) (?:ihr|der|sein|deren) (?:leadsänger|sänger|frontmann|sängerin)", q)
+        if sm and tp_.get("name") and st.turn - tp_.get("turn", -99) <= 3:
+            rep = self._question(st, f"who was the lead singer of {tp_['name']}?")
+            if rep.kind == "answer" and rep.answer:
+                return Reply(msg, "answer", pk("singer", g["singer"], x=rep.answer), answer=rep.answer, evidence=rep.evidence,
+                             source=rep.source, via="german", confidence=rep.confidence)
+        if re.search(r"\b(?:ich )?(?:glaub|glaube|denke) ich werde krank\b|\bwerde (?:wohl )?krank\b|\bbin (?:wohl )?krank\b|\bmir geht'?s nicht gut\b", q):
+            st.uses["sick_de61"] = [st.turn]
+            if re.fullmatch(r"(?:oh mann,? |mist,? )?(?:ich )?(?:glaub|glaube|denke),? ich werde (?:wohl )?krank|ich werde (?:wohl )?krank", q):
+                return Reply(msg, "empathy", pk("sick", g["sick"]), via="german")
+        if recent("sick_de61", 4):
+            if re.fullmatch(r"(?:ich hab |hab )?(?:(?:halsweh|halsschmerzen|kopfweh|kopfschmerzen|schnupfen|husten|fieber|gliederschmerzen)(?:,? (?:und )?)?)+", q):
+                st.uses["sick_de61"] = [st.turn]
+                return Reply(msg, "smalltalk", pk("symptoms", g["symptoms"]), via="german")
+            if re.search(r"\bsoll ich (?:morgen |heute )?(?:arbeiten|zur arbeit|in die arbeit|ins büro)(?: gehen)?\b", q):
+                st.uses["sick_de61"] = [st.turn]
+                return Reply(msg, "smalltalk", pk("work_sick", g["work_sick"]), via="german")
+        if re.fullmatch(r"(?:ok,? )?(?:danke,? )?(?:ich bleib|ich bleibe|bleib) (?:dann )?(?:zu ?hause|daheim|im bett)(?: dann)?", q):
+            return Reply(msg, "smalltalk", pk("stay_home", g["stay_home"]), via="german")
+        tq = re.fullmatch(r"(?:und |wie ist es |wie spät ist es )?in (?P<p>[a-zäöüß .'-]{2,25})", q)
+        if tq and re.search(r"\d{1,2}:\d\d Uhr", st.last_reply or ""):
+            from engramm.chat.german_bridge import EXONYMS
+            p_en = EXONYMS.get(tq.group("p"), tq.group("p")).lower()
+            wt = self._world_time(st, f"what time is it in {p_en}?")
+            hm2 = re.search(r"\b(\d{1,2}):(\d\d)\b", wt.text) if wt is not None else None
+            if hm2:
+                st.uses["time_place_de61"] = [p_en, tq.group("p"), st.turn]
+                return Reply(msg, "tool", f"In {_de_place_case(tq.group('p'))} ist es gerade {hm2.group(1)}:{hm2.group(2)} Uhr.", via="tool",
+                             confidence=1.0)
+        nm = re.fullmatch(r"ist (?:es )?(?:dort|da|da drüben) (?:jetzt |gerade )?(?P<w>nacht|tag|morgen|abend|dunkel|spät)", q)
+        tp = st.uses.get("time_place_de61")
+        if nm and tp and st.turn - tp[2] <= 4:
+            wt = self._world_time(st, f"what time is it in {tp[0]}?")
+            hm2 = re.search(r"\b(\d{1,2}):(\d\d)\b", wt.text) if wt is not None else None
+            if hm2:
+                h = int(hm2.group(1))
+                part = "Nacht" if h >= 21 or h < 5 else "Morgen" if h < 12 else "Nachmittag" if h < 18 else "Abend"
+                w = nm.group("w")
+                yes = (w in ("nacht", "dunkel", "spät") and part in ("Nacht", "Abend")) or (w == "tag" and part in ("Morgen", "Nachmittag")) or \
+                    w == part.lower()
+                key = "part_yes" if yes else "part_no"
+                y = {"Nacht": "Nacht", "Morgen": "Vormittag", "Nachmittag": "Nachmittag", "Abend": "Abend"}[part]
+                return Reply(msg, "tool", pk(key, g[key], x=f"{hm2.group(1)}:{hm2.group(2)}", y=y, z=_de_place_case(tp[1])), via="tool",
+                             confidence=1.0)
+        if re.search(r"\b(?:prüfungen|klausuren|examen|abschlussprüfung|abitur|abi) (?:sind )?(?:fertig|geschafft|vorbei|durch|hinter mir|bestanden)\b|"
+                     r"\b(?:hab|habe) (?:meine |die |alle )?(?:prüfungen|klausuren|examen) (?:fertig|geschafft|hinter mir|bestanden)\b", q):
+            st.uses["exams_de61"] = [st.turn]
+            return Reply(msg, "smalltalk", pk("exams", g["exams"]), via="german")
+        if recent("exams_de61", 4):
+            if re.fullmatch(r"(?:ich )?(?:glaub|glaube|denke|hoffe)?,? ?(?:sie|die|es|alle) (?:liefen|lief|sind|waren|gingen) (?:ganz |echt |richtig )?(?:gut|super|okay|ok)(?: gelaufen)?", q):
+                st.uses["exams_de61"] = [st.turn]
+                return Reply(msg, "smalltalk", pk("exams_well", g["exams_well"]), via="german")
+            om = re.fullmatch(r"(?:und )?(?:jetzt )?(?:hab|habe) ich (?P<x>(?:\d+|ein paar|zwei|drei|vier|sechs) (?:wochen|monate|tage)) (?:frei|ferien|urlaub|pause)", q)
+            if om:
+                st.uses["exams_de61"] = [st.turn]
+                st.uses["break_de61"] = [st.turn]
+                return Reply(msg, "smalltalk", pk("time_off", g["time_off"], x=om.group("x").replace("monate", "Monate").replace("wochen", "Wochen")),
+                             via="german")
+        if recent("break_de61", 3) and re.search(r"\bwas (?:soll|kann|könnte) ich\b.*\bmachen\b", q):
+            return Reply(msg, "smalltalk", g["break_ideas"], via="german")
+        return None
+
+    def _de_statement(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """A German statement nothing else understood: a reply to its mood, never "Das verstehe ich leider nicht"."""
+        g = (self.bank.de["daily"].get("ctx") or {}).get("g61")
+        q = s.strip(" .!")
+        if not g or "?" in msg or len(q.split()) < 2 or re.match(r"^(?:wer|was|wann|wo|wie|welche[rsmn]?|warum|wieso|weshalb|woher|wohin|kannst|könntest|"
+                                                                r"hast du|bist du|weißt du|magst du|kennst du)\b", q):
+            return None
+        if re.search(r"\b(?:mega|super|toll|schön|geil|klasse|cool|spitze|genial|lustig|spaß|perfekt|wunderbar|herrlich|gut gelaufen|gefreut|glücklich)\b", q):
+            key = "stmt_pos"
+        elif re.search(r"\b(?:weh|krank|müde|stress|stressig|schlecht|mies|doof|nervig|anstrengend|kaputt|traurig|ärger|blöd|scheiße|mist|sauer|genervt)\b", q):
+            key = "stmt_neg"
+        else:
+            key = "stmt_plain"
+        st.last_exp = {"valence": "negative" if key == "stmt_neg" else "positive", "topic": None, "person": False, "text": msg,
+                       "text_en": _de_advice_hint(s), "turn": st.turn}
+        return Reply(msg, "smalltalk", self._pick(st, f"de:g61:{key}", g[key]), via="german")
 
     def _german_ctx57(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """Battery 57 in German: a new puppy and its name, an empty fridge, work after a sleepless night, a dead

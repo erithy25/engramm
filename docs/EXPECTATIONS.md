@@ -2455,6 +2455,17 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     „sleep on it“. „any plans for the weekend? oh wait you're a bot lol“ → Antwort statt Nachschlagefehler.
   - Team-Dev-Satz: 1 von 128 geändert (team-0067). NQ-open 400: 22/9. Suite 749 bestanden, 7 übersprungen. Regressionen
     32, 38–60 (27 Gespräche): 0 Wiederholungen, keine Unterschiede.
+- **Alltags-Batterie 61 (derselbe Abend auf Deutsch)**:
+  - Vorher waren 13 von 27 Antworten „Das verstehe ich leider nicht …“/„Das habe ich nicht ganz verstanden …“, eine
+    davon wörtlich wiederholt; „so 5 stunden“ sprang ins Englische („Mm-hm. What's on your mind?“), „ich hab meine
+    prüfungen fertig!“ bekam „Müdigkeit ist fies“ (das Wort „fertig“ zählte als müde), „kennst du queen?“ → „Hat er dir
+    gefallen?“ (als Film gelesen).
+  - Jetzt: Feierabend und langer Tag, „und bei dir?“, Wandern (Ort, Dauer, Muskelkater), Musik und Band („wer war ihr
+    sänger?“ → Freddie Mercury → „wann ist er gestorben?“), Erkältung mit Rückfrage, Symptomen und Rat, „und in
+    tokio?“/„ist es dort nacht?“, Prüfungen und Ideen für die freie Zeit – 0 Wiederholungen.
+  - Neu als Grundregel: Eine deutsche Aussage, die nichts anderes versteht, bekommt eine Antwort passend zur Stimmung
+    (positiv, negativ, neutral) statt „Das verstehe ich leider nicht“; Fragen bleiben ehrlich („nachschlagen kann ich das
+    auf Deutsch noch nicht“). „fertig“ zählt nur noch als müde in „ich bin (so) fertig“, nicht in „Prüfungen fertig“.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

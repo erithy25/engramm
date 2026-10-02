@@ -3788,6 +3788,18 @@
     "mich",
     "dir",
     "dich",
+    "stunden",
+    "stunde",
+    "minuten",
+    "tage",
+    "wochen",
+    "monate",
+    "jahre",
+    "ungefähr",
+    "etwa",
+    "circa",
+    "knapp",
+    "halbe",
     "wie",
     "was",
     "wer",
@@ -4420,7 +4432,7 @@
      "id": "tired",
      "valence": "negative",
      "triggers": [
-      "\\b(müde|erschöpft|kaputt|fertig|ausgelaugt|schlapp)\\b"
+      "\\b(müde|erschöpft|kaputt|ausgelaugt|schlapp)\\b|\\b(?:ich bin|bin) (?:so |total |völlig |echt |richtig )?fertig\\b(?! mit)"
      ],
      "responses": [
       "Klingt nach einem langen Tag. Gönn dir eine Pause, wenn du kannst.",
@@ -5764,6 +5776,108 @@
        "Keks"
       ]
      }
+    },
+    "g61": {
+     "sick": [
+      "Oh nein – was hast du denn? Hals, Kopf, Fieber?",
+      "Ach Mist. Was genau – Halsweh, Kopfweh, Fieber?"
+     ],
+     "home": [
+      "Willkommen zurück! Wie war's bei der Arbeit?",
+      "Schön, dass du da bist. Wie war dein Tag?"
+     ],
+     "long_day": [
+      "Lange Tage schlauchen. Jetzt erstmal die Füße hochlegen?",
+      "Klingt nach einem zähen Tag. Hast du jetzt Feierabend und Zeit für dich?"
+     ],
+     "me": [
+      "Mir geht's gut, danke! Ich hab den ganzen Tag gelesen – wie immer. 😄",
+      "Alles bestens hier – ich warte auf gute Fragen. Und was machst du heute Abend noch?"
+     ],
+     "hike": [
+      "Oh, wie schön! Wo warst du denn?",
+      "Wandern – herrlich! Wie war's?"
+     ],
+     "hike_good": [
+      "Herrlich! Wo seid ihr hin?",
+      "Das klingt toll! Wo wart ihr unterwegs?"
+     ],
+     "hike_where": [
+      "Bei {x} – mit den Bergen so nah, Glück gehabt! Wie lange wart ihr unterwegs?",
+      "Ein Berg bei {x}! Wie lange hat's gedauert?"
+     ],
+     "hike_hours": [
+      "{x} Stunden – das ist eine ordentliche Tour! Die Aussicht oben war's bestimmt wert.",
+      "Wow, {x} Stunden! Kein Wunder, dass es mega war."
+     ],
+     "hike_sore": [
+      "Haha, das ist der gute Muskelkater – verdient! Leicht dehnen, viel trinken und eine warme Dusche helfen.",
+      "Der Preis einer tollen Tour! 😄 Ein kleiner Spaziergang heute hilft den Beinen sogar beim Erholen."
+     ],
+     "music": [
+      "Hören kann ich nicht, aber ich lese gern über Musik. Was hörst du denn gern?",
+      "Selbst hören geht nicht, aber erzähl mir: Was ist deine Lieblingsmusik?"
+     ],
+     "music_mine": [
+      "Wenn ich hören könnte: Klassik – Bach ist wie wunderschöne Muster, und Muster sind mein Ding. Und du?",
+      "Ich glaube, Jazz – das Improvisieren klingt spannend. Was hörst du?"
+     ],
+     "band": [
+      "Klar, {x}! Ich habe über sie gelesen (auf Englisch): „{y}“ Bist du ein großer Fan?",
+      "Natürlich kenne ich {x}! Hast du ein Lieblingslied?"
+     ],
+     "singer": [
+      "Das war {x}.",
+      "{x} war der Sänger."
+     ],
+     "symptoms": [
+      "Halsweh und Kopfweh – klingt nach einer Erkältung. Ruhe, warmer Tee mit Honig und viel trinken helfen. Bei hohem Fieber oder wenn es nach ein paar Tagen nicht besser wird: ab zum Arzt.",
+      "Das klingt nach einer beginnenden Erkältung. Viel trinken, schlafen, vielleicht mit Salzwasser gurgeln. Wird's schlimmer, lieber zum Arzt."
+     ],
+     "work_sick": [
+      "Wenn du Fieber hast oder dich richtig schlecht fühlst: zu Hause bleiben – du wirst schneller gesund und steckst niemanden an. Ist es nur leicht, frag vielleicht nach Homeoffice.",
+      "Lieber nicht, wenn's dir richtig schlecht geht. Gesund werden geht vor – und die Kollegen danken es dir."
+     ],
+     "stay_home": [
+      "Gute Entscheidung – gute Besserung! 🍵",
+      "Vernünftig. Tee, Decke, Schlaf – und gute Besserung!"
+     ],
+     "part_yes": [
+      "Ja – in {z} ist es gerade {x} Uhr, also {y}.",
+      "Stimmt! {x} Uhr in {z}, also {y}."
+     ],
+     "part_no": [
+      "Nicht wirklich – in {z} ist es {x} Uhr, also {y}.",
+      "Nein, in {z} ist es {x} Uhr – dort ist {y}."
+     ],
+     "exams": [
+      "Glückwunsch, geschafft! Die Erleichterung muss riesig sein. Wie liefen sie?",
+      "Endlich vorbei – herzlichen Glückwunsch! Wie fühlst du dich?"
+     ],
+     "exams_well": [
+      "Das ist das beste Gefühl! Wie feierst du?",
+      "Super – Daumen drücken für die Ergebnisse! Jetzt erstmal entspannen."
+     ],
+     "time_off": [
+      "{x} frei – das ist riesig! Schon Pläne, oder noch offen?",
+      "Wow, {x} Freiheit! Reisen, ausruhen oder etwas Neues lernen?"
+     ],
+     "break_ideas": "So viel Zeit – ein paar Ideen:\n\n• Reise irgendwohin, wo du noch nie warst, auch mit kleinem Budget\n• Lerne etwas Neues: eine Sprache, ein Instrument, Kochen\n• Sammle Arbeitserfahrung oder mach ein Praktikum\n• Starte ein kleines Projekt, für das nie Zeit war\n• Und: ausruhen! Du hast es dir verdient.\n\nWas davon passt am ehesten zu dir?",
+     "stmt_pos": [
+      "Klingt richtig gut! Erzähl mehr – was war das Beste daran?",
+      "Wie schön! Das freut mich für dich.",
+      "Super! Wie kam's dazu?"
+     ],
+     "stmt_neg": [
+      "Oh je, das klingt anstrengend. Magst du erzählen, was los ist?",
+      "Das ist blöd. Was ist passiert?",
+      "Hm, das klingt nicht so toll. Wie geht's dir damit?"
+     ],
+     "stmt_plain": [
+      "Ah, verstehe. Erzähl ruhig mehr!",
+      "Okay! Und wie war's?",
+      "Interessant – wie ging's weiter?"
+     ]
     }
    }
   }

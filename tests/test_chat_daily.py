@@ -2558,3 +2558,26 @@ def test_battery60_natural_everyday_follow_ups(chat):
     assert "3 months" in a.turn(st, "now i have 3 months off").text
     r = a.turn(st, "what should i do with all that time?")
     assert "•" in r.text and "sleep on it" not in r.text, r.text
+
+
+def test_battery61_german_ordinary_evening(chat):
+    import re as _re
+    a, _ = chat
+    lost = _re.compile(r"verstehe ich leider nicht|nicht ganz verstanden|nicht ganz mit|on your mind")
+    st = DialogState("dg61")
+    a.turn(st, "hey, was geht")
+    r = a.turn(st, "nicht viel, bin gerade von der arbeit heim")
+    assert not lost.search(r.text), r.text
+    r = a.turn(st, "war ok, bisschen lang")
+    assert not lost.search(r.text), r.text
+    r = a.turn(st, "und bei dir?")
+    assert not lost.search(r.text), r.text
+    st = DialogState("dh61")
+    for msg in ("ich war gestern wandern", "es war mega", "auf einen berg bei münchen", "so 5 stunden", "jetzt tun mir die beine weh"):
+        r = a.turn(st, msg)
+        assert r.via == "german" and not lost.search(r.text), (msg, r.text)
+    st = DialogState("dk61")
+    a.turn(st, "ich hab meine prüfungen fertig!")
+    assert "Müdigkeit" not in st.last_reply, st.last_reply
+    r = a.turn(DialogState("ds61"), "die nachbarn haben heute wieder renoviert")
+    assert not lost.search(r.text), r.text
