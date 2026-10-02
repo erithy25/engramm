@@ -3053,3 +3053,16 @@ def test_battery76_sarcasm_and_short_answers(chat):
     st = DialogState("s76h")
     a.turn(st, "mir gehts gut.")
     assert a.turn(st, "naja, nicht so ganz").kind == "empathy"
+
+
+def test_battery77_third_knowledge_sample(chat):
+    a, _ = chat
+    from engramm.kb.superlative import SUPERLATIVE_Q
+    cases = [("which country has the most people?", "India"), ("who was the first woman to win a nobel prize?", "Curie"),
+             ("what is the largest mammal?", "blue whale"), ("what is the hottest planet?", "Venus"),
+             ("when did the first world war start?", "1914"), ("who invented the airplane?", "Wright"),
+             ("how many states does the usa have?", "50"), ("wie viele bundesländer hat deutschland?", "16"),
+             ("wer war der erste bundeskanzler?", "Adenauer"), ("was ist das schnellste landtier?", "Gepard")]
+    for i, (q, want) in enumerate(cases):
+        r = a.turn(DialogState(f"k77-{i}"), q)
+        assert want in r.text and "Nigeria" not in r.text, (q, r.text)

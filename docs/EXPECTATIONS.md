@@ -2715,6 +2715,18 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     (team-0016 im Dev-Satz änderte sich) – zurückgenommen, nur die Frage „are you dumb?“ bekommt diese Antwort.
   - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 767 bestanden, Regressionen 32, 38–76 (44 Gespräche):
     0 Wiederholungen; Unterschiede nur Uhrzeiten.
+- **Alltags-Batterie 77 (dritte Wissensstichprobe: 40 neue feste Fragen, EN + DE)**: erster Lauf 19 richtig, **1 falsch**,
+  20 „weiß ich nicht“. Der Fehler: „which country has the most people?“ → „Nigeria has the most people.“ (Textsuche; die
+  Superlativ-Logik kannte die Formulierung nicht). Die Superlativ-Logik versteht jetzt „which country has the most people“;
+  ihr Datenstand (Ende 2022) sagt aber China – seit 2023 ist es laut UN-Schätzung Indien, deshalb ein Standardfakt mit
+  diesem Hinweis (EN + DE). Ergänzt: erste Nobelpreisträgerin, Evolution, größtes Säugetier, heißester und sonnennächster
+  Planet, Lichtlaufzeit Sonne–Erde, Beginn des Ersten Weltkriegs, erster (Bundes-)Kanzler, längster Fluss Deutschlands,
+  Flugzeug, „Entdeckung“ Amerikas (mit Hinweis auf indigene Völker und Leif Erikson), US-Bundesstaaten, Minuten pro Tag;
+  Deutsch: Glühbirne, Bundesländer, Kilimandscharo, Oktopusherzen, Merkur, Gepard, Zweiter Weltkrieg. Bewusst offen:
+  „most populous city“ (je nach Definition Tokio, Delhi oder Chongqing). Endstand: 40 richtig, 0 falsch, 0 offen;
+  Batterien 71/72 danach unverändert (39/0/1, 38/0/2). Zusammen 120 feste Wissensfragen: 117 richtig, 0 falsch, 3 offen.
+  Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 768 bestanden, Regressionen 32, 38–76: 0 Wiederholungen;
+  Unterschiede nur Uhrzeiten. Skript: `scratchpad/kq77.py`.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

@@ -110,7 +110,10 @@ def _value_text(kind: str, v: float) -> str:
 def answer(db, question: str, rank: int = 1) -> Superlative | None:
     """The answer to a superlative question from the fact bank's sqlite connection, or None;
     ``rank`` 2 is the runner-up ("and the second?")."""
-    m = SUPERLATIVE_Q.match(" ".join(question.strip().split()))
+    q = " ".join(question.strip().split())
+    q = re.sub(r"^((?:(?:and|so|ok|okay|hey)[, ]+)?)(?:which|what) (country|city) has the (?:most people|most inhabitants|largest population|"
+               r"biggest population|highest population)", r"\1which is the most populous \2", q, flags=re.I)   # "which country has the most people?"
+    m = SUPERLATIVE_Q.match(q)
     if not m:
         return None
     noun, adj = _singular(m.group("noun")), m.group("adj").lower()

@@ -6348,6 +6348,56 @@
        "v": "27"
       },
       {
+       "q": "(?:und )?wer hat die glühbirne erfunden",
+       "a": "Viele haben daran getüftelt – aber Thomas Edisons Kohlefaden-Glühbirne von 1879 war die erste praktische, langlebige; Joseph Swan baute fast zeitgleich eine ähnliche in England.",
+       "v": "Thomas Edison"
+      },
+      {
+       "q": "(?:und )?wie viele bundesländer hat deutschland|wie viele bundesländer gibt es",
+       "a": "Deutschland hat 16 Bundesländer.",
+       "v": "16"
+      },
+      {
+       "q": "(?:und )?wer war der erste bundeskanzler(?: deutschlands| der bundesrepublik)?",
+       "a": "Konrad Adenauer – er war von 1949 bis 1963 der erste Bundeskanzler der Bundesrepublik Deutschland.",
+       "v": "Konrad Adenauer"
+      },
+      {
+       "q": "(?:und )?wann (?:begann|startete|fing) der erste weltkrieg(?: an)?",
+       "a": "Der Erste Weltkrieg begann am 28. Juli 1914, einen Monat nach dem Attentat von Sarajevo.",
+       "v": "1914"
+      },
+      {
+       "q": "(?:und )?wann (?:begann|startete|fing) der zweite weltkrieg(?: an)?",
+       "a": "Der Zweite Weltkrieg begann am 1. September 1939 mit dem deutschen Überfall auf Polen.",
+       "v": "1939"
+      },
+      {
+       "q": "(?:und )?(?:wie heißt|was ist|welcher ist) der höchste berg afrikas|(?:was ist|welcher ist) der höchste berg in afrika",
+       "a": "Der Kilimandscharo in Tansania – mit 5.895 m der höchste Berg Afrikas.",
+       "v": "Kilimandscharo"
+      },
+      {
+       "q": "(?:und )?wie viele herzen hat (?:ein|der) (?:oktopus|krake)",
+       "a": "Drei! Zwei pumpen Blut durch die Kiemen, eins durch den restlichen Körper.",
+       "v": "3"
+      },
+      {
+       "q": "(?:und )?(?:welcher planet ist der sonne am nächsten|was ist der sonnennächste planet)",
+       "a": "Merkur ist der Planet, der der Sonne am nächsten ist.",
+       "v": "Merkur"
+      },
+      {
+       "q": "(?:und )?(?:was|welches) ist das schnellste landtier|welches tier ist (?:an land )?am schnellsten",
+       "a": "Der Gepard – auf kurzen Strecken schafft er rund 100 km/h.",
+       "v": "Gepard"
+      },
+      {
+       "q": "(?:und )?welches land hat die meisten (?:einwohner|menschen)|was ist das bevölkerungsreichste land(?: der welt)?",
+       "a": "Indien – rund 1,43 Milliarden Menschen. Laut UN-Schätzung hat es 2023 China (rund 1,41 Milliarden) überholt.",
+       "v": "Indien"
+      },
+      {
        "q": "(?:und )?was ist h2o",
        "a": "H₂O ist Wasser – zwei Wasserstoffatome und ein Sauerstoffatom.",
        "v": "Wasser"
@@ -8717,6 +8767,96 @@
     "a": "Mont Blanc is the highest mountain in the Alps, at about 4,806 m (15,768 ft).",
     "v": "Mont Blanc",
     "t": "Mont Blanc"
+   },
+   {
+    "q": "(?:and |so )?(?:which|what) country has the (?:most people|most inhabitants|largest population|biggest population|highest population)|(?:what(?:'s| is) the |which is the )?most populous country(?: in the world| on earth)?",
+    "a": "India has the most people — about 1.43 billion. It overtook China (about 1.41 billion) in 2023, according to UN estimates.",
+    "v": "India",
+    "t": "India"
+   },
+   {
+    "q": "(?:and |so )?who was the first woman to win (?:a|the) nobel prize|first woman (?:to win|with) (?:a )?nobel prize",
+    "a": "Marie Curie — she won the Nobel Prize in Physics in 1903, and later a second one in Chemistry (1911).",
+    "v": "Marie Curie",
+    "t": "Marie Curie"
+   },
+   {
+    "q": "(?:and |so )?who (?:developed|came up with|discovered|invented|proposed) (?:the )?(?:theory of )?evolution(?: by natural selection)?",
+    "a": "Charles Darwin, in On the Origin of Species (1859) — Alfred Russel Wallace came up with the same idea independently.",
+    "v": "Charles Darwin",
+    "t": "Charles Darwin"
+   },
+   {
+    "q": "(?:and |so )?(?:what(?:'s| is) the |which is the )?(?:largest|biggest) (?:mammal|animal)(?: in the world| on earth| ever)?",
+    "a": "The blue whale — up to about 30 m long and around 150 tonnes, the largest animal that has ever lived.",
+    "v": "the blue whale",
+    "t": "Blue whale"
+   },
+   {
+    "q": "(?:and |so )?(?:what(?:'s| is) the |which is the )?hottest planet(?: in (?:our|the) solar system)?|which planet is the hottest",
+    "a": "Venus is the hottest planet — about 465 °C on the surface, because its thick CO₂ atmosphere traps heat.",
+    "v": "Venus",
+    "t": "Venus"
+   },
+   {
+    "q": "(?:and |so )?(?:what|which) planet is (?:the )?closest to the sun|(?:what(?:'s| is) the )?closest planet to the sun",
+    "a": "Mercury is the closest planet to the Sun.",
+    "v": "Mercury",
+    "t": "Mercury (planet)"
+   },
+   {
+    "q": "(?:and |so )?how long does (?:it take )?(?:sun)?light (?:take )?(?:to (?:get|travel|reach) (?:to )?(?:the )?earth )?from the sun(?: to (?:reach )?(?:the )?earth)?|how long does light take to reach earth from the sun",
+    "a": "About 8 minutes and 20 seconds — sunlight travels roughly 150 million km to reach us.",
+    "v": "8 minutes",
+    "t": "Sunlight"
+   },
+   {
+    "q": "(?:and |so )?(?:when|what year|in what year|which year) did (?:the )?(?:first world war|world war (?:1|one|i))(?: start| begin| break out)",
+    "a": "World War I began on 28 July 1914, a month after Archduke Franz Ferdinand was assassinated in Sarajevo.",
+    "v": "28 July 1914",
+    "t": "World War I"
+   },
+   {
+    "q": "(?:and |so )?who was the first chancellor of (?:west )?germany",
+    "a": "Otto von Bismarck was the first chancellor of the German Empire (1871); Konrad Adenauer was the first chancellor of the Federal Republic of Germany (1949).",
+    "v": "Otto von Bismarck",
+    "t": "Chancellor of Germany"
+   },
+   {
+    "q": "(?:and |so )?(?:what(?:'s| is) the |which is the )?longest river (?:in|of) germany",
+    "a": "The Rhine is the longest river flowing through Germany (about 865 km of it in Germany); the Danube is longer overall but most of it lies outside Germany.",
+    "v": "the Rhine",
+    "t": "Rhine"
+   },
+   {
+    "q": "(?:and |so )?who invented the (?:airplane|aeroplane|plane)|who made the first (?:airplane|plane) flight",
+    "a": "The Wright brothers, Orville and Wilbur — they made the first powered, controlled airplane flight on 17 December 1903.",
+    "v": "the Wright brothers",
+    "t": "Wright brothers"
+   },
+   {
+    "q": "(?:and |so )?who discovered america",
+    "a": "Christopher Columbus reached the Americas in 1492 — but Indigenous peoples had lived there for thousands of years, and the Norse explorer Leif Erikson got there around the year 1000.",
+    "v": "Christopher Columbus",
+    "t": "Christopher Columbus"
+   },
+   {
+    "q": "(?:and |so )?how many states (?:does|do|are (?:there )?in) the (?:usa|us|united states)(?: of america)?(?: have)?",
+    "a": "The United States has 50 states (plus Washington, D.C., which isn't a state).",
+    "v": "50",
+    "t": "United States"
+   },
+   {
+    "q": "(?:and |so )?how many minutes (?:are )?in a day",
+    "a": "There are 1,440 minutes in a day (24 × 60).",
+    "v": "1,440",
+    "t": "Day"
+   },
+   {
+    "q": "(?:and |so )?how many countries are in the eu|how many countries are (?:in|part of) the (?:eu|european union)",
+    "a": "The EU has 27 member countries (since the United Kingdom left in 2020).",
+    "v": "27",
+    "t": "European Union"
    },
    {
     "q": "(?:and |so )?how many (?:countries|member states|members|nations|states) (?:are (?:there )?in|does) the (?:eu|european union)(?: have)?|how many countries are (?:in|part of) the (?:eu|european union)",

@@ -843,6 +843,16 @@ daily:
         - {q: "(?:und )?wie viele beine hat (?:eine )?spinne|wie viele beine haben spinnen", a: "Spinnen haben acht Beine – deshalb zählen sie nicht zu den Insekten (die haben sechs).", v: "8"}
         - {q: "(?:und )?wer hat (?:das buch |den roman )?1984 geschrieben|wer ist der autor von 1984", a: "George Orwell hat „1984“ geschrieben, erschienen 1949.", v: "George Orwell"}
         - {q: "(?:und )?wie viele (?:länder|staaten|mitglieder|mitgliedsstaaten) (?:hat die eu|sind in der eu|gibt es in der eu)", a: "Die EU hat 27 Mitgliedsstaaten (seit dem Austritt Großbritanniens 2020).", v: "27"}
+        - {q: "(?:und )?wer hat die glühbirne erfunden", a: "Viele haben daran getüftelt – aber Thomas Edisons Kohlefaden-Glühbirne von 1879 war die erste praktische, langlebige; Joseph Swan baute fast zeitgleich eine ähnliche in England.", v: "Thomas Edison"}
+        - {q: "(?:und )?wie viele bundesländer hat deutschland|wie viele bundesländer gibt es", a: "Deutschland hat 16 Bundesländer.", v: "16"}
+        - {q: "(?:und )?wer war der erste bundeskanzler(?: deutschlands| der bundesrepublik)?", a: "Konrad Adenauer – er war von 1949 bis 1963 der erste Bundeskanzler der Bundesrepublik Deutschland.", v: "Konrad Adenauer"}
+        - {q: "(?:und )?wann (?:begann|startete|fing) der erste weltkrieg(?: an)?", a: "Der Erste Weltkrieg begann am 28. Juli 1914, einen Monat nach dem Attentat von Sarajevo.", v: "1914"}
+        - {q: "(?:und )?wann (?:begann|startete|fing) der zweite weltkrieg(?: an)?", a: "Der Zweite Weltkrieg begann am 1. September 1939 mit dem deutschen Überfall auf Polen.", v: "1939"}
+        - {q: "(?:und )?(?:wie heißt|was ist|welcher ist) der höchste berg afrikas|(?:was ist|welcher ist) der höchste berg in afrika", a: "Der Kilimandscharo in Tansania – mit 5.895 m der höchste Berg Afrikas.", v: "Kilimandscharo"}
+        - {q: "(?:und )?wie viele herzen hat (?:ein|der) (?:oktopus|krake)", a: "Drei! Zwei pumpen Blut durch die Kiemen, eins durch den restlichen Körper.", v: "3"}
+        - {q: "(?:und )?(?:welcher planet ist der sonne am nächsten|was ist der sonnennächste planet)", a: "Merkur ist der Planet, der der Sonne am nächsten ist.", v: "Merkur"}
+        - {q: "(?:und )?(?:was|welches) ist das schnellste landtier|welches tier ist (?:an land )?am schnellsten", a: "Der Gepard – auf kurzen Strecken schafft er rund 100 km/h.", v: "Gepard"}
+        - {q: "(?:und )?welches land hat die meisten (?:einwohner|menschen)|was ist das bevölkerungsreichste land(?: der welt)?", a: "Indien – rund 1,43 Milliarden Menschen. Laut UN-Schätzung hat es 2023 China (rund 1,41 Milliarden) überholt.", v: "Indien"}
         - {q: "(?:und )?was ist h2o", a: "H₂O ist Wasser – zwei Wasserstoffatome und ein Sauerstoffatom.", v: "Wasser"}
         - {q: "(?:und )?wie weit ist der mond (?:von der erde )?(?:weg|entfernt)", a: "Der Mond ist im Schnitt etwa 384.400 km von der Erde entfernt – Licht braucht dafür rund 1,3 Sekunden.", v: "384.400 km"}
       superlativ:
