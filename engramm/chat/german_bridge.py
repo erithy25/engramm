@@ -99,6 +99,9 @@ RULES = [
     (rf"wie lang ist {_X}", "how long is {x}", "length"),
     (rf"wie tief ist {_X}", "how deep is {x}", "depth"),
     (rf"wann fiel {_X}", "when did {x} fall", "fell"),
+    (rf"wann sank {_X}", "when did {x} sink", "sank"),
+    (rf"welche sprachen? spricht man in {_X}", "what language is spoken in {x}", "language"),
+    (rf"was (?:für eine sprache|spricht man) (?:spricht man )?in {_X}", "what language is spoken in {x}", "language"),
     (rf"wann ist {_X} gefallen", "when did {x} fall", "fell"),
     (rf"wie alt (?:ist|war|wurde) {_X}", "how old is {x}", "age"),
     (rf"wann (?:wurde|ist|war) {_X} geboren", "when was {x} born", "born_when"),
@@ -218,7 +221,7 @@ SENTENCES = {
     "mayor": "Bürgermeister von {x} ist {v} (Stand meiner Daten).",
     "ceo": "Zu den Schlüsselpersonen bei {x} gehört {v} (Stand meiner Daten).",
     "capital": "Die Hauptstadt von {x} ist {v}.", "population": "{x} hat {v} Einwohner (Stand meiner Daten).",
-    "area": "{x} ist {v} groß.", "height": "{x} ist {v} hoch.", "length": "{x} ist {v} lang.", "depth": "{x} ist {v} tief.", "fell": "{x} fiel {v}.",
+    "area": "{x} ist {v} groß.", "height": "{x} ist {v} hoch.", "length": "{x} ist {v} lang.", "depth": "{x} ist {v} tief.", "fell": "{x} fiel {v}.", "sank": "{x} sank {v}.", "language": "In {x} spricht man {v}.",
     "born_when": "{x} wurde am {v} geboren.", "born_where": "{x} wurde in {v} geboren.",
     "died_when": "{x} starb am {v}.", "died_how": "Todesursache bei {x}: {v}.",
     "founded_when": "{x} wurde {v} gegründet.", "built_when": "{x} wurde {v} fertiggestellt.",
@@ -244,7 +247,16 @@ def de_sentence(kind: str, x: str, value: str, age_text: str | None = None) -> s
     v = de_value(value)
     if kind == "born_when" and re.fullmatch(r"\d{3,4}", v):
         tmpl = "{x} wurde {v} geboren."
-    if kind in ("built_when", "founded_when", "released", "fell"):
+    if kind == "language":
+        langs = {"Portuguese": "Portugiesisch", "German": "Deutsch", "French": "Französisch", "Spanish": "Spanisch", "English": "Englisch",
+                 "Italian": "Italienisch", "Dutch": "Niederländisch", "Russian": "Russisch", "Japanese": "Japanisch", "Chinese": "Chinesisch",
+                 "Mandarin": "Mandarin", "Arabic": "Arabisch", "Turkish": "Türkisch", "Polish": "Polnisch", "Swedish": "Schwedisch",
+                 "Greek": "Griechisch", "Korean": "Koreanisch", "Hindi": "Hindi", "Danish": "Dänisch", "Norwegian": "Norwegisch",
+                 "Finnish": "Finnisch", "Czech": "Tschechisch", "Hungarian": "Ungarisch"}
+        v = re.sub(r"\b[A-Z][a-z]+\b", lambda m: langs.get(m.group(0), m.group(0)), v)
+        if re.search(r"\b(?:Portuguese|French|Spanish|English|Italian|Dutch|Russian|Japanese|Chinese|Arabic)\b", v):
+            return None                                   # an unknown language name: rather the English sentence
+    if kind in ("built_when", "founded_when", "released", "fell", "sank"):
         if re.match(r"^\d{1,2}\. ", v):
             tmpl = tmpl.replace("{v}", "am {v}")         # "wurde am 31. März 1889 fertiggestellt"
         elif re.match(r"^[A-ZÄÖÜ][a-zäöü]+ \d{3,4}$", v):

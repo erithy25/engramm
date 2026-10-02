@@ -11,6 +11,7 @@ detect:
   german: [ich, du, bin, bist, ist, nicht, und, das, der, die, den, dem, ein, eine, einen, mir, mich, dir, dich,
            stunden, stunde, minuten, tage, wochen, monate, jahre, ungefähr, etwa, circa, knapp, halbe,
            wohne, lebe, arbeite, heiße, hasse, schwester, bruder, mutter, vater, meinte, merk, vergiss, verschoben, termin,
+           sprache, sprachen, spricht, sprechen, welche, welcher, welches, fiel, tief, beine, mensch, mond, erfunden,
            wie, was, wer, wo, warum, wieso, geht, gehts, heiße, heisse, danke, bitte, gut, schlecht, auch, noch,
            schon, aber, oder, sehr, heute, morgen, gestern, hast, habe, kannst, kann, bitte, mein, meine, dein,
            deine, sind, wir, ihr, sie, es, zu, mit, für, über, von, auf, nein, ja, doch, genau, tschüss, tschüs,
@@ -836,6 +837,13 @@ daily:
       gefuehle: ["Ehrlich gesagt nein – ich bin Software, die liest, zählt und sich Dinge merkt. Aber ich leiste dir gern Gesellschaft.", "Nein, Gefühle habe ich nicht. Aber ich höre gern zu und merke mir, was dir wichtig ist."]
       name: ["Ich bin ENGRAMM!", "ENGRAMM – schön, dass du fragst!"]
       again_lead: ["Wie gesagt: ", "Wie vorhin schon: "]
+      fakten:
+        - {q: "(?:und )?wer (?:war|ist) (?:der )?erste mensch auf dem mond|wer (?:war|ist) als erster auf dem mond|wer hat als erster den mond betreten", a: "Neil Armstrong – er betrat am 20. Juli 1969 mit Apollo 11 als Erster den Mond. Buzz Aldrin folgte ihm etwa 20 Minuten später.", v: "Neil Armstrong"}
+        - {q: "(?:und )?wie viele beine hat (?:eine )?spinne|wie viele beine haben spinnen", a: "Spinnen haben acht Beine – deshalb zählen sie nicht zu den Insekten (die haben sechs).", v: "8"}
+        - {q: "(?:und )?wer hat (?:das buch |den roman )?1984 geschrieben|wer ist der autor von 1984", a: "George Orwell hat „1984“ geschrieben, erschienen 1949.", v: "George Orwell"}
+        - {q: "(?:und )?wie viele (?:länder|staaten|mitglieder|mitgliedsstaaten) (?:hat die eu|sind in der eu|gibt es in der eu)", a: "Die EU hat 27 Mitgliedsstaaten (seit dem Austritt Großbritanniens 2020).", v: "27"}
+        - {q: "(?:und )?was ist h2o", a: "H₂O ist Wasser – zwei Wasserstoffatome und ein Sauerstoffatom.", v: "Wasser"}
+        - {q: "(?:und )?wie weit ist der mond (?:von der erde )?(?:weg|entfernt)", a: "Der Mond ist im Schnitt etwa 384.400 km von der Erde entfernt – Licht braucht dafür rund 1,3 Sekunden.", v: "384.400 km"}
       superlativ:
         größte planet: "Der größte Planet ist Jupiter – etwa elfmal so breit wie die Erde."
         kleinste planet: "Der kleinste Planet ist Merkur – nur etwa 4.880 km breit."

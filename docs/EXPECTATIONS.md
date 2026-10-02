@@ -2646,6 +2646,18 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   ehrlich unbeantwortet).
   Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 762 bestanden, Regressionen 32, 38–70 (40 Gespräche):
   0 Wiederholungen; Unterschiede nur Uhrzeiten. Skript: `scratchpad/kq71.py` (Fragen und Antwortmuster im Kopf der Datei).
+- **Alltags-Batterie 72 (zweite Stichprobe: 40 neue feste Wissensfragen, Personen, Geschichte, Geografie, Wissenschaft)**:
+  erster Lauf 26 richtig, **1 falsch**, 13 „weiß ich nicht“. Der Fehler: „how many countries are in the eu?“ → „The answer
+  is two.“ aus „The two countries are EU, UN and NATO member states“ – „the two countries“ meint ein bestimmtes Paar, keine
+  Anzahl. Bei „how many X …“ zählt „the/these/both N X“ im Beleg jetzt nicht mehr als Antwort (Unit-Test). Ergänzt:
+  EU-Mitglieder (27, seit 2020), Sonne ein Stern, Kolumbus 1492, Entfernung zum Mond (vorher „I can't measure distances
+  between places“), H₂O, größte Wüste, 1984 → Orwell, Titanic; Deutsch: „wann sank …“, „welche Sprache spricht man in …“
+  (Sprachnamen auf Deutsch: „In Brasilien spricht man Portugiesisch.“), erster Mensch auf dem Mond, Spinnenbeine, EU,
+  Mond-Entfernung. „welche sprache spricht man in brasilien?“ wurde als Englisch erkannt (Wortliste ergänzt; „sank“ bewusst
+  nicht, weil auch englisch). Endstand: 38 richtig, 0 falsch, 2 „weiß ich nicht“ (Sternennacht – nicht im Lite-Paket;
+  Tesla-Chef – zeitabhängig, ohne Beleg lieber ehrlich offen). Batterie 71 danach unverändert 39/0/1.
+  Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 763 bestanden, Regressionen 32, 38–70: 0 Wiederholungen;
+  Unterschiede nur Uhrzeiten. Skript: `scratchpad/kq72.py`.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

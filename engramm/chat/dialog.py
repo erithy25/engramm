@@ -1363,6 +1363,9 @@ class Assistant:
             return say("name")
         if re.fullmatch(r"wer hat dich (?:gemacht|gebaut|programmiert|erfunden|entwickelt|erschaffen)|wer ist dein (?:erfinder|entwickler|schöpfer)", q):
             return say("macher")
+        for fk in g.get("fakten", []):
+            if re.fullmatch(fk["q"], q):
+                return Reply(msg, "answer", fk["a"], answer=fk.get("v"), via="common", confidence=1.0)
         sup = re.fullmatch(r"(?:und )?(?:was|welche[rs]?|wie heißt) (?:ist )?(?:der|die|das) (?P<a>größte|grösste|kleinste) (?P<n>planet|ozean|kontinent|tier|wüste)"
                            r"(?: der welt| auf der welt| der erde| im sonnensystem| unseres sonnensystems)?", q)
         if sup:
@@ -2838,7 +2841,7 @@ class Assistant:
             plural = re.match(r"(?:die )?(?:zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|zwölf)\b", (art + " " + thing).lower().strip())
             rep.text = f"{head} {'wurden' if plural else 'wurde'} von {de_value(str(rep.answer))} {wm.group('v')}."
             return rep
-        measure = rep.via in ("lookup", "common") and rep.kind == "answer" and kind in ("height", "length", "area", "depth", "fell") and \
+        measure = rep.via in ("lookup", "common") and rep.kind == "answer" and kind in ("height", "length", "area", "depth", "fell", "sank", "language") and \
             re.search(r"\d", str(rep.answer or ""))
         if rep.via == "kb" or measure:
             name = re.sub(r"\s*\([^)]*\)$", "", (rep.source or {}).get("key") or x_en) if rep.via == "kb" else (x_de or x_en)
@@ -8483,6 +8486,9 @@ def _implausible(q: str, answer: str | None, evidence: str | None, title: str = 
         return False
     if re.match(r"^\s*who\b", q, re.I) and _NUMBERISH.match(answer):
         return True
+    hm = re.match(r"^\s*how many (?P<n>[a-z]+)", q, re.I)
+    if hm and re.search(rf"\b(?:the|these|those|both) {re.escape(answer)} {re.escape(hm.group('n').rstrip('s'))}", evidence, re.I):
+        return True                                   # "the two countries are EU members" counts a pair, not the EU
     if not _covers(q, evidence, answer, title, before):
         return True                                   # "who painted the starry night?" ← a sentence without "painted"
     if _HOW_Q.match(q) and len(answer.split()) <= 3:

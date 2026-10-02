@@ -2951,3 +2951,20 @@ def test_battery71_everyday_knowledge_without_wrong_answers(chat):
     for i, (q, want) in enumerate(cases):
         r = a.turn(DialogState(f"k71-{i}"), q)
         assert want in r.text and "Harris" not in r.text, (q, r.text)
+
+
+def test_battery72_counts_and_more_everyday_knowledge(chat):
+    a, _ = chat
+    from engramm.chat.dialog import _implausible
+    assert _implausible("how many countries are in the eu?", "two",
+                        "The two countries are EU, UN and NATO member states and cooperate in many organizations.")
+    assert not _implausible("how many countries are in the eu?", "27", "The EU has 27 member countries.")
+    cases = [("how many countries are in the eu?", "27"), ("is the sun a star?", "Yes"), ("when did columbus reach america?", "1492"),
+             ("how far is the moon from earth?", "384,400"), ("what is h2o?", "water"), ("who wrote 1984?", "Orwell"),
+             ("when did the titanic sink?", "1912"), ("wann sank die titanic?", "15. April 1912"),
+             ("wer war der erste mensch auf dem mond?", "Armstrong"), ("wie viele beine hat eine spinne?", "acht")]
+    for i, (q, want) in enumerate(cases):
+        r = a.turn(DialogState(f"k72-{i}"), q)
+        assert want in r.text, (q, r.text)
+    r = a.turn(DialogState("k72-x"), "the ship sank in 1912")
+    assert r.text.isascii() or "Tell me" in r.text, r.text              # an English sentence stays English

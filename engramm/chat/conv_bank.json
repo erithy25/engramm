@@ -3814,6 +3814,19 @@
     "vergiss",
     "verschoben",
     "termin",
+    "sprache",
+    "sprachen",
+    "spricht",
+    "sprechen",
+    "welche",
+    "welcher",
+    "welches",
+    "fiel",
+    "tief",
+    "beine",
+    "mensch",
+    "mond",
+    "erfunden",
     "wie",
     "was",
     "wer",
@@ -6304,6 +6317,38 @@
       "Wie gesagt: ",
       "Wie vorhin schon: "
      ],
+     "fakten": [
+      {
+       "q": "(?:und )?wer (?:war|ist) (?:der )?erste mensch auf dem mond|wer (?:war|ist) als erster auf dem mond|wer hat als erster den mond betreten",
+       "a": "Neil Armstrong – er betrat am 20. Juli 1969 mit Apollo 11 als Erster den Mond. Buzz Aldrin folgte ihm etwa 20 Minuten später.",
+       "v": "Neil Armstrong"
+      },
+      {
+       "q": "(?:und )?wie viele beine hat (?:eine )?spinne|wie viele beine haben spinnen",
+       "a": "Spinnen haben acht Beine – deshalb zählen sie nicht zu den Insekten (die haben sechs).",
+       "v": "8"
+      },
+      {
+       "q": "(?:und )?wer hat (?:das buch |den roman )?1984 geschrieben|wer ist der autor von 1984",
+       "a": "George Orwell hat „1984“ geschrieben, erschienen 1949.",
+       "v": "George Orwell"
+      },
+      {
+       "q": "(?:und )?wie viele (?:länder|staaten|mitglieder|mitgliedsstaaten) (?:hat die eu|sind in der eu|gibt es in der eu)",
+       "a": "Die EU hat 27 Mitgliedsstaaten (seit dem Austritt Großbritanniens 2020).",
+       "v": "27"
+      },
+      {
+       "q": "(?:und )?was ist h2o",
+       "a": "H₂O ist Wasser – zwei Wasserstoffatome und ein Sauerstoffatom.",
+       "v": "Wasser"
+      },
+      {
+       "q": "(?:und )?wie weit ist der mond (?:von der erde )?(?:weg|entfernt)",
+       "a": "Der Mond ist im Schnitt etwa 384.400 km von der Erde entfernt – Licht braucht dafür rund 1,3 Sekunden.",
+       "v": "384.400 km"
+      }
+     ],
      "superlativ": {
       "größte planet": "Der größte Planet ist Jupiter – etwa elfmal so breit wie die Erde.",
       "kleinste planet": "Der kleinste Planet ist Merkur – nur etwa 4.880 km breit.",
@@ -8574,6 +8619,54 @@
     "a": "Mont Blanc is the highest mountain in the Alps, at about 4,806 m (15,768 ft).",
     "v": "Mont Blanc",
     "t": "Mont Blanc"
+   },
+   {
+    "q": "(?:and |so )?how many (?:countries|member states|members|nations|states) (?:are (?:there )?in|does) the (?:eu|european union)(?: have)?|how many countries are (?:in|part of) the (?:eu|european union)",
+    "a": "The EU has 27 member countries (since the United Kingdom left in 2020).",
+    "v": "27",
+    "t": "European Union"
+   },
+   {
+    "q": "(?:and |so )?(?:when|what year|in what year|which year) did (?:the )?titanic sink|when was (?:the )?titanic sunk",
+    "a": "The Titanic sank on 15 April 1912, about two and a half hours after hitting an iceberg on her maiden voyage.",
+    "v": "15 April 1912",
+    "t": "Titanic"
+   },
+   {
+    "q": "(?:and |so )?is the sun a star",
+    "a": "Yes — the Sun is a star, a yellow dwarf about 4.6 billion years old. It just looks different because it's so close.",
+    "v": "yes",
+    "t": "Sun"
+   },
+   {
+    "q": "(?:and |so )?(?:when|what year|in what year|which year) did (?:christopher )?columbus (?:reach|discover|arrive in|land in|get to) (?:the )?americas?|when was america discovered",
+    "a": "Christopher Columbus reached the Americas on 12 October 1492, landing on an island in the Bahamas.",
+    "v": "12 October 1492",
+    "t": "Christopher Columbus"
+   },
+   {
+    "q": "(?:and |so )?how far (?:away )?is the moon(?: from (?:the )?earth| from us)?|what(?:'s| is) the distance (?:between|from) (?:the )?(?:earth and the moon|moon (?:and|to) (?:the )?earth)",
+    "a": "The Moon is on average about 384,400 km (238,900 miles) from Earth — light takes about 1.3 seconds.",
+    "v": "384,400 km",
+    "t": "Moon"
+   },
+   {
+    "q": "(?:and |so )?what(?:'s| is) h2o",
+    "a": "H₂O is water — two hydrogen atoms bonded to one oxygen atom.",
+    "v": "water",
+    "t": "Water"
+   },
+   {
+    "q": "(?:and |so )?(?:what(?:'s| is) the |which is the )?(?:largest|biggest) desert(?: in the world| on earth)?",
+    "a": "The largest desert is Antarctica — a desert just means very little precipitation. The largest hot desert is the Sahara.",
+    "v": "Antarctica",
+    "t": "Desert"
+   },
+   {
+    "q": "(?:and |so )?who (?:wrote|is the author of) (?:the (?:book|novel) )?(?:1984|nineteen eighty-four)",
+    "a": "George Orwell wrote Nineteen Eighty-Four (1984), published in 1949.",
+    "v": "George Orwell",
+    "t": "Nineteen Eighty-Four"
    },
    {
     "q": "(?:and |so )?(?:who (?:wrote|created|is the author of|was the author of)|who'?s the author of) (?:the )?harry potter(?: books| series| novels)?",
