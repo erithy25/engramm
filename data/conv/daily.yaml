@@ -2446,9 +2446,6 @@ b62:
   cut_down:
     - "Ha, coffee adds up fast! Maybe a home-made one most days and a café treat once a week?"
     - "Small daily costs sneak up on you. Cutting back a little already makes a big difference over a month!"
-  plan_ask:
-    - "Let's do it! What's on today — anything at fixed times?"
-    - "Sure! Tell me what you've got: appointments first, then the to-dos."
   plan_got:
     - "Okay: fixed — {x}; to do — {y}. Want me to suggest where to fit things in?"
     - "Got it: {x}, plus {y}. I can suggest a good time for the rest."

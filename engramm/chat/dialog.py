@@ -5371,14 +5371,16 @@ class Assistant:
             if re.search(r"\b(?:should|need to|gotta|have to) (?:stop|cut down on|quit) (?:buying |drinking |spending on )?(?P<x>[a-z]+)", n):
                 return Reply(msg, "smalltalk", self._pick(st, "daily:b62:cut_down", b["cut_down"]), via="smalltalk")
         if re.fullmatch(r"(?:i need to|help me|can you help me|let'?s) plan (?:my|the) day|(?:i need to|let'?s) plan (?:today|tomorrow)", n):
-            st.uses["plan62"] = [[], st.turn]
-            return Reply(msg, "smalltalk", self._pick(st, "daily:b62:plan_ask", b["plan_ask"]), via="smalltalk")
+            st.uses["plan62"] = [[], st.turn]             # the day planner answers; times said next are kept here
+            if not n.startswith("help me plan"):
+                return self._turn(st, "help me plan my day")   # "i need to plan my day": the same planner
+            return None
         pl = st.uses.get("plan62")
         if pl and st.turn - pl[1] <= 3:
             items = re.findall(r"(?:(?:a |the )?(?P<w>meeting|gym|dentist|doctor|lunch|call|class|appointment|workout|interview|dinner|date)"
                                r" (?:at|@) (?P<t>\d{1,2}(?::\d\d)?(?: ?(?:am|pm))?))", n)
             todo = re.findall(r"(?:need to|have to|gotta|must) (?P<x>(?:buy|get|do|pick up|call|clean|write|send) [a-z ]{2,25}?)(?=,| and |$)", n)
-            if items or todo:
+            if items:
                 pl[0] = [(w, t) for w, t in items]
                 pl.append(todo)
                 pl[1] = st.turn
