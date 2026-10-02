@@ -255,6 +255,11 @@ RULES = [
 _COMPILED = [(rule, [re.compile(p, re.I) for p in rule.patterns]) for rule in RULES]
 
 
+_MADE_BY = re.compile(r"(?i)who (?P<v>wrote|composed|painted) (?P<w>.+)")
+_MADE_BY_OCC = {"wrote": r"writer|poet|novelist|playwright|dramatist|author|philosopher",
+                "composed": r"composer", "painted": r"painter|artist"}
+
+
 @dataclass
 class KBAnswer:
     entity: Entity
@@ -427,7 +432,34 @@ class KGQA:
                 out = self._render(rule, ent, facts)
                 if out is not None:
                     return out
-        return None
+        return self._made_by(q)
+
+    def _made_by(self, q: str) -> KBAnswer | None:
+        """"Who wrote Faust?" when "Faust" has no entry of its own: the one writer whose notable
+        works list it (Goethe; Gounod's opera "Faust" is a composer's work and does not count)."""
+        m = _MADE_BY.fullmatch(q)
+        if not m:
+            return None
+        work = re.sub(r"^(?:the|a|an)\s+", "", m.group("w").strip(" \"'“”"), flags=re.I)
+        if not work or len(work.split()) > 8:
+            return None
+        occ = _MADE_BY_OCC[m.group("v").lower()]
+        rows = self.kb.db.execute("SELECT DISTINCT entity FROM fact WHERE prop = 'notableWork' AND lower(value) = lower(?)",
+                                  (work,)).fetchall()
+        people = []
+        for (eid,) in rows:
+            jobs = " ".join(v for (v,) in self.kb.db.execute(
+                "SELECT value FROM fact WHERE entity = ? AND prop = 'occupation'", (eid,)))
+            ent = self.kb.entity(eid)
+            if ent is not None and (re.search(occ, jobs, re.I) or re.search(occ, ent.type or "", re.I)):
+                people.append(ent)
+        if len(people) != 1:
+            return None
+        who = people[0]
+        title = work[:1].upper() + work[1:]
+        verb = {"wrote": "written", "composed": "composed", "painted": "painted"}[m.group("v").lower()]
+        return KBAnswer(who, "notableWork", [who.title], f"{title} was {verb} by {who.title}.",
+                        f"{who.title} — notable work: {title}", False)
 
     def _render(self, rule: Rule, ent: Entity, facts: list[Fact]) -> KBAnswer | None:
         by_prop: dict[str, list[Fact]] = {}

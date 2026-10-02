@@ -156,6 +156,15 @@ _HOWTO_Q = re.compile(r"^(?:so |and |but )?how (?:do|can|could|should|would) (?:
 _TITLE_FILLER = frozenset("of the a an in on at for and or to by list lists history geography".split())
 
 
+def _clearly_english(msg: str, de: dict) -> bool:
+    """More English than German words, and at least two of them: the conversation switches."""
+    words = re.findall(r"[a-zäöüß']+", msg.lower())
+    en, ger = set(de["detect"]["english"]), set(de["detect"]["german"])
+    n_en = sum(w in en and w not in ger for w in words)
+    n_de = sum(w in ger and w not in en for w in words)
+    return n_en >= 2 and n_en > n_de or (n_en >= 1 and n_de == 0 and len(words) <= 3 and not re.search(r"[äöüß]", msg))
+
+
 def _title_fits(question: str, title: str) -> bool:
     """Name an article as "closest" only if most of its title words are in the question
     ("LL Cool J" for "cool, any other?" would read as nonsense)."""
@@ -206,6 +215,32 @@ _CUISINE_ADJ = {"japan": "Japanese", "china": "Chinese", "korea": "Korean", "sou
                 "poland": "Polish", "hungary": "Hungarian", "sweden": "Swedish", "norway": "Norwegian",
                 "denmark": "Danish", "netherlands": "Dutch", "belgium": "Belgian", "usa": "American",
                 "united states": "American", "america": "American", "canada": "Canadian", "australia": "Australian"}
+# "wer hat die relativitätstheorie entwickelt?" → "Die Relativitätstheorie wurde von … entwickelt."
+_WHO_MADE_DE = re.compile(r"wer hat (?P<art>die |den |das )?(?P<x>[a-zäöüß][a-zäöüß \-]{2,40}?) (?P<v>entwickelt|erfunden|geschrieben|"
+                          r"gemalt|entdeckt|gegründet|komponiert|gebaut|erschaffen|gedreht|gesungen)")
+# German everyday forms (dialog._german_life)
+_NA_DE = re.compile(r"(?:hey |hi |hallo |moin |servus |hallöchen )?na(?: du| ihr)?(?:,? (?:wie geht'?s|alles klar|alles gut))?")
+_THANKS_DE = re.compile(r"(?:(?:cool|super|ok(?:ay)?|alles klar|gut|perfekt|toll|mega|ah|oh),? )?"
+                        r"(?:(?:danke|vielen dank|dankeschön|danke schön|danke dir|merci|vielen lieben dank)(?P<rest>.*)|"
+                        r"(?P<idea>gute idee|klingt gut|mach ich|probier ich|versuch ich|das probier ich|das mach ich))")
+_LOSS_DE = re.compile(r"\b(?:mein(?:e|em|en)? (?P<n>\w+)|er|sie) (?:ist|sind) (?:heute |gestern |letzte woche |vor kurzem |"
+                      r"leider |plötzlich |letzte nacht )*(?:gestorben|verstorben|tot)\b|"
+                      r"\bich (?:habe|hab) (?:meine[nm]? )?(?P<n2>\w+) verloren\b|\b(?:mein(?:e|en)? \w+) wurde eingeschläfert\b")
+_PETS_DE = frozenset("hund katze kater hamster hase kaninchen vogel wellensittich pferd meerschweinchen".split())
+_FEMALE_DE = frozenset("oma mutter mama schwester tochter frau freundin tante cousine nichte großmutter omi".split())
+_SEEN_DE = re.compile(r"(?:oh |ah |hm+ )?(?:kenn ich|kenne ich|hab ich|habe ich) (?:schon|alle|bereits)(?: gelesen| gesehen| gehört| gespielt)?(?: alle)?|"
+                      r"(?:schon|alle schon) (?:gelesen|gesehen|gehört|gespielt)")
+# "wie alt bin ich?" → (English question, German answer template)
+_ME_Q_DE = [(re.compile(r"(?:und )?(?:wie alt bin ich|weißt du(?: noch)?,? wie alt ich bin)"), "how old am i?", "Du bist {x}."),
+            (re.compile(r"(?:und )?(?:was mache ich beruflich|was arbeite ich|als was arbeite ich|was ist mein beruf|was bin ich von beruf)"),
+             "what do i do for a living?", "Du arbeitest als {x}."),
+            (re.compile(r"(?:und )?(?:wo wohne ich|wo lebe ich|weißt du(?: noch)?,? wo ich wohne)"), "where do i live?", "Du wohnst in {x}."),
+            (re.compile(r"(?:und )?(?:woher komme ich|wo komme ich her)"), "where am i from?", "Du kommst aus {x}."),
+            (re.compile(r"(?:und )?(?:was mag ich nicht|was mag ich gar nicht|was esse ich nicht gern)"), "", "list:#dislike"),
+            (re.compile(r"(?:und )?(?:was mag ich|was mag ich gern|was esse ich gern)"), "", "list:#fav")]
+_SUPER_DE = re.compile(r"(?:und |also )?(?:was|welche[rs]?|wie heißt|wer) (?:ist )?(?:der|die|das) "
+                       r"(?P<adj>höchste|längste|größte|kleinste|bevölkerungsreichste) (?P<noun>berg|fluss|see|land|gebäude|hochhaus)"
+                       r"(?: der welt| auf der welt| der erde| weltweit)?")
 # a nationality is never the answer to "who …?"
 _DEMONYMS = frozenset("""british english scottish welsh irish american canadian mexican brazilian argentine argentinian
 french german italian spanish portuguese dutch belgian swiss austrian swedish norwegian danish finnish icelandic polish
@@ -333,6 +368,10 @@ class Assistant:
         known = self.speller.known if self.speller is not None else None
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
+        if u.kind != "safety":
+            life = self._german_life(st, msg, s)
+            if life is not None:
+                return life
         if u.kind == "fallback" or u.kind == "feeling":
             n = neutral_de(s)
             if n is not None:
@@ -426,7 +465,158 @@ class Assistant:
             return Reply(msg, "empathy", self._pick(st, f"de:feeling:{u.data['id']}", opts), via="german")
         if re.match(r"^(?:wer|was|wann|wo|wie|welche[rsmn]?|warum|wieso|weshalb|woher|wohin)\b", s):
             return Reply(msg, "unknown", self._pick(st, "de:knowledge", dd["knowledge_de"]), via="german")
+        le = st.last_exp or {}
+        if le and st.turn - le.get("turn", -99) <= 2 and len(s.split()) >= 2:
+            # "die nachbarn waren laut" after "ich bin müde": more of the same moment
+            key = "follow_neg" if le.get("valence") == "negative" else "follow_pos"
+            st.last_exp = dict(le, turn=st.turn, text_en=(le.get("text_en") or "") + " " + _de_advice_hint(s))
+            return Reply(msg, "empathy", self._pick(st, f"de:life:{key}", dd["life"][key]), via="german")
         return Reply(msg, "unknown", self._pick(st, "de:fallback", de["replies"]["fallback"]), via="german")
+
+    def _german_life(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """German everyday talk that needs the conversation: thanks after a tip or a congratulation,
+        a loss and what follows it, facts about you ("wie alt bin ich?"), two facts in one sentence,
+        "noch einer", "kenn ich schon", superlatives and short follow-ups ("wo?")."""
+        dl = self.bank.de["daily"]["life"]
+        la = st.last_action or {}
+        le = st.last_exp or {}
+        s = s.strip(" ?!.")
+        if _NA_DE.fullmatch(s):
+            return Reply(msg, "smalltalk", self._pick(st, "de:life:greeting", dl["greeting"]), via="german")
+        th = _THANKS_DE.fullmatch(s)
+        if th:
+            rest = th.group("rest") or ""
+            key = "thanks_listen" if re.search(r"zuh(?:ö|oe)r|da bist|geredet", rest) else \
+                "thanks_idea" if (re.search(r"idee|tipp|rat|hilft|probier|mach ich", rest) or th.group("idea")) else \
+                "thanks_praise" if le.get("valence") == "positive" and st.turn - le.get("turn", -99) <= 2 else "thanks"
+            return Reply(msg, "smalltalk", self._pick(st, f"de:life:{key}", dl[key]), via="german")
+        g = _LOSS_DE.search(s)
+        if g:
+            noun = (g.group("n") or g.group("n2") or "").lower()
+            key = "grief_pet" if noun in _PETS_DE else "grief_f" if noun in _FEMALE_DE else "grief"
+            st.last_exp = {"valence": "negative", "topic": noun or None, "person": True, "text": msg,
+                           "text_en": "someone I love died", "turn": st.turn}
+            st.uses["grief_de"] = ["sie" if key == "grief_f" else "er", st.turn]
+            return Reply(msg, "empathy", self._pick(st, f"de:life:{key}", dl[key]), via="german")
+        gd = st.uses.get("grief_de")
+        if gd and st.turn - gd[1] <= 4:
+            m = re.fullmatch(r"(?:er|sie|es) (?:war|wurde|ist) (?:nur |schon |erst )?(\d{1,3})(?: jahre(?: alt)?)?", s)
+            if m:
+                return Reply(msg, "empathy", self._pick(st, "de:life:grief_age", dl["grief_age"], x=m.group(1)), via="german")
+        m = re.fullmatch(r"ich vermisse (ihn|sie|es|meine[nm]? \w+)(?: (?:so|sehr|total|einfach) ?(?:sehr)?)?", s)
+        if m:
+            x = m.group(1)
+            y = {"ihn": "er", "sie": "sie", "es": "es"}.get(x, "das")
+            return Reply(msg, "empathy", self._pick(st, "de:life:miss", dl["miss"], x=x, y=y), via="german")
+        if re.fullmatch(r"(?:und )?noch (?:einer|einen|eins|ein witz|einen witz)|nochmal", s) and la.get("kind") == "joke":
+            return self._german(st, "erzähl mir einen witz")
+        if _SEEN_DE.fullmatch(s) and la.get("kind", "").startswith("rec:") and st.turn - la.get("turn", -99) <= 3:
+            rep = self.everyday.recommend(st, msg, la["kind"][4:], la.get("genre"), more=True, lang="de")
+            body = rep.text.split("\n", 1)[1] if "\n" in rep.text else rep.text
+            rep.text = self._pick(st, "de:life:seen", dl["seen"]) + "\n" + body
+            return rep
+        hm = re.fullmatch(r"(?:etwas|was|lieber was|eher was|ideen) (?:für|fürs) (zuhause|zu hause|drinnen|daheim)", s)
+        if hm and la.get("kind", "").startswith("rec:") and st.turn - la.get("turn", -99) <= 3:
+            return self.everyday.recommend(st, msg, la["kind"][4:], "home", lang="de")
+        me = next(((en, tpl) for rx, en, tpl in _ME_Q_DE if rx.fullmatch(s)), None)
+        if me:
+            return self._german_me(st, msg, *me)
+        two = self._german_two_facts(st, msg, s)
+        if two is not None:
+            return two
+        sup = self._german_superlative(st, msg, s)
+        if sup is not None:
+            return sup
+        last = st.uses.get("de_last_q")
+        if s in ("wo", "und wo", "wo denn", "und wo genau") and last and st.turn - last[0] <= 2 and "geboren" in last[1]:
+            return self._german_question(st, msg, re.sub(r"^(?:und )?(?:wann|in welchem jahr)", "wo", last[1]))
+        return None
+
+    def _german_me(self, st: DialogState, msg: str, english: str, template: str) -> Reply:
+        """"wie alt bin ich?" — the English fact memory, answered in German."""
+        dl = self.bank.de["daily"]["life"]
+        if template.startswith("list:"):
+            label = template[5:]
+            self.bot.refresh()
+            vals = list(dict.fromkeys(f.object for f in self.bot.facts.facts
+                                      if f.subject == USER and label in f.relation))
+            if not vals:
+                return Reply(msg, "unknown", self._pick(st, "de:life:me_unknown", dl["me_unknown"]), via="german")
+            shown = [" ".join(w[:1].upper() + w[1:] for w in v.split()) for v in vals]
+            joined = shown[0] if len(shown) == 1 else ", ".join(shown[:-1]) + " und " + shown[-1]
+            head = "Du magst nicht: " if label == "#dislike" else "Du magst: "
+            return Reply(msg, "answer", head + joined + ".", via="german")
+        rep = self._question(st, english)
+        if rep.kind != "answer" or not rep.answer:
+            return Reply(msg, "unknown", self._pick(st, "de:life:me_unknown", dl["me_unknown"]), via="german")
+        from engramm.chat.german_bridge import de_value
+        value = de_value(str(rep.answer))
+        value = re.sub(r"^(?:an?|the) ", "", value)
+        return Reply(msg, "answer", template.format(x=value[:1].upper() + value[1:]), answer=rep.answer,
+                     source=rep.source, via="german")
+
+    def _german_two_facts(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """"ich bin 34 und arbeite als lehrer": both facts, each into the memory."""
+        from engramm.chat.german import statement_de
+        if " und " not in s:
+            return None
+        parts = [x.strip() for x in s.split(" und ")]
+        if len(parts) != 2:
+            return None
+        if re.match(r"(?:arbeite|wohne|lebe|komme|heiße|heisse|bin)\b", parts[1]):
+            parts[1] = "ich " + parts[1]
+        found = [statement_de(x) for x in parts]
+        if not all(found):
+            return None
+        said = []
+        for what, value, english, shown in found:
+            self._turn(st, english)
+            said.append(shown)
+        return Reply(msg, "learned", self._pick(st, "de:life:statements_two", self.bank.de["daily"]["life"]["statements_two"],
+                                                x=" und ".join(said)), via="german")
+
+    def _german_superlative(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """"was ist der längste fluss der welt?", "und der zweite?" — from the fact bank, in German."""
+        if self.kgqa is None:
+            return None
+        from engramm.kb import superlative
+        from engramm.chat.german_bridge import _GERMAN_OF
+        m = _SUPER_DE.fullmatch(s)
+        last = st.uses.get("de_super")
+        rank = 1
+        if m:
+            adj, noun = m.group("adj"), m.group("noun")
+        else:
+            r = re.fullmatch(r"(?:und )?(?:der|die|das) (zweite|dritte|zweithöchste|zweitlängste|zweitgrößte|dritthöchste|drittlängste|drittgrößte)", s)
+            if not (r and last and st.turn - last[2] <= 3):
+                return None
+            adj, noun = last[0], last[1]
+            rank = 2 if r.group(1).startswith("zweit") else 3
+        en_adj = {"höchste": "tallest", "längste": "longest", "größte": "largest", "kleinste": "smallest",
+                  "bevölkerungsreichste": "most populous"}[adj]
+        en_noun = {"berg": "mountain", "fluss": "river", "see": "lake", "land": "country", "gebäude": "building",
+                   "hochhaus": "building"}[noun]
+        try:
+            ans = superlative.answer(self.kgqa.kb.db, f"what is the {en_adj} {en_noun} in the world", rank=rank)
+        except Exception:
+            return None
+        if ans is None:
+            return None
+        st.uses["de_super"] = [adj, noun, st.turn]
+        self.bot.context.update({"answer": ans.title, "atype": None, "mention": ans.title})
+        name = _GERMAN_OF.get(ans.title, ans.title)
+        if noun in ("fluss", "see") and not name.lower().startswith(("lake", "see ")):
+            name = ("der " if noun == "fluss" else "das " if name.endswith("Meer") else "der ") + name
+        v = ans.value
+        value = {"height": f"{v:,.0f} m hoch", "tall": f"{v:,.0f} m hoch", "length": f"rund {v / 1000:,.0f} km lang",
+                 "area": f"rund {v / 1e6:,.0f} km² groß" if v >= 1e6 else f"rund {v / 1e6:,.2f} km² groß",
+                 "people": f"rund {v:,.0f} Einwohner"}[ans.kind].replace(",", "X").replace(".", ",").replace("X", ".")
+        art = "Das" if noun in ("land", "gebäude", "hochhaus") else "Der"
+        nth = {1: "", 2: "zweit", 3: "dritt"}[rank]
+        text = _fill(self.bank.de["daily"]["life"]["super"], art=art, adj=nth + adj if rank > 1 else adj,
+                     noun=noun[:1].upper() + noun[1:], name=name, value=value)
+        return Reply(msg, "answer", text, answer=ans.title, source={"kind": "kb", "source": "dbpedia", "key": ans.title},
+                     via="kb", confidence=1.0)
 
     def _german_extra(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """German everyday tools and follow-ups: the time and the date, "15 Prozent von 80", and
@@ -452,6 +642,8 @@ class Assistant:
             return Reply(msg, "tool", f"{m.group(1)} % von {m.group(2)} sind {shown}.", answer=shown, via="tool")
         m = re.fullmatch(r"und (?:von |in |für |bei |mit |über )?(?P<x>[a-zäöüß][a-zäöüß .-]{1,30})", s)
         last = st.uses.get("de_last_q")
+        if m and re.search(r"\b(?:wie|was|wer|wann|wo|warum|hat|ist|sind|war|viele|welche[rsnm]?)\b", m.group("x")):
+            m = None                                     # "und wie viele einwohner hat sie?" is a new question
         if m and last and st.turn - last[0] <= 3 and last[2] and last[2] in last[1]:
             again = last[1].replace(last[2], m.group("x").strip(), 1)
             return self._german_question(st, msg, again)
@@ -459,6 +651,15 @@ class Assistant:
 
     def _german_question(self, st: DialogState, msg: str, s: str) -> Reply | None:
         from engramm.chat.german_bridge import de_sentence, de_value, to_english
+        ment = self.bot.context.get("mention")
+        ans_ = self.bot.context.get("answer")
+        if isinstance(ans_, str) and ans_ and not re.search(r"\d", ans_) and len(ans_.split()) <= 4:
+            ment = ans_                                  # "die Hauptstadt … ist Canberra" → "sie" is Canberra
+        s = re.sub(r"^(?:und|also|ok|okay) ", "", s)
+        if ment and re.search(r"\b(?:hat|ist|liegt|wurde|war|heißt) (?:sie|er|es)\b|\b(?:sie|er|es) (?:hat|ist|liegt)\b", s) and \
+                not re.search(r"\bgeboren|gestorben\b", s):
+            # "und wie viele einwohner hat sie?" after Canberra: the place just named
+            s = re.sub(r"\b(?:sie|er|es)\b", ment.lower(), s, count=1)
         hit = to_english(s)
         if hit is None:
             return None
@@ -489,6 +690,16 @@ class Assistant:
         rep.message = msg
         if rep.kind != "answer":
             rep.text = self._pick(st, "de:unknown", dd["unknown"])
+            return rep
+        wm = _WHO_MADE_DE.fullmatch(s.strip(" ?.!"))
+        if wm and rep.answer and len(str(rep.answer).split()) <= 14:
+            from engramm.chat.german_bridge import de_value
+            art = (wm.group("art") or "").strip()
+            thing = wm.group("x").strip()
+            thing = " ".join(w if w in ("von", "der", "die", "das", "und", "des", "of", "the", "de", "da") else w[:1].upper() + w[1:]
+                             for w in thing.split())
+            head = f"{art[:1].upper() + art[1:]} {thing}" if art else thing[:1].upper() + thing[1:]
+            rep.text = f"{head} wurde von {de_value(str(rep.answer))} {wm.group('v')}."
             return rep
         if rep.via == "kb":
             name = re.sub(r"\s*\([^)]*\)$", "", (rep.source or {}).get("key") or x_en)
@@ -568,7 +779,8 @@ class Assistant:
         if not msg:
             return Reply(msg, "nothing", "Please type something.")
         de = self.bank.de
-        if de and is_german(msg, de) and self.bank.safety_rule(normalise(msg, fillers=False)) is None:
+        if de and (is_german(msg, de) or _NA_DE.fullmatch(normalise(msg).strip(" ?!."))) and \
+                self.bank.safety_rule(normalise(msg, fillers=False)) is None:
             return self._german(st, msg)
         if de and st.lang == "de":
             from engramm.chat.german import neutral_de, normalise_de
@@ -578,8 +790,10 @@ class Assistant:
                     or (_GENRE_DE.match(normalise_de(msg)) and re.sub(r"(?:es|e|er|en)$", "", _GENRE_DE.match(
                         normalise_de(msg)).group("g")) in _GENRE_DE_MAP and not re.search(r"\b(?:something|anything|quick)\b", msg.lower())):
                 return self._german(st, msg)      # "haha", "ok", "ja" in a German conversation stay German
-            if len(re.findall(r"[a-z]+", msg.lower())) >= 2:
+            if _clearly_english(msg, de):
                 st.lang = "en"
+            elif len(re.findall(r"[a-zäöüß]+", msg.lower())) >= 2:
+                return self._german(st, msg)      # "die nachbarn waren laut": no English word, stays German
         msg = expand_chat(msg)                            # "wats ur name" → "what's your name"
         msg = self._prefer_correction(msg)                # "actually i prefer ramen" right after a favourite
         msg = _split_self_statements(msg)                 # "my name is Sam and I'm a teacher": two facts

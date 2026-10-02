@@ -849,3 +849,39 @@ def test_thanks_after_congratulations_and_what_to_wear(chat):
     assert "remember" not in r.text.lower(), r.text
     r = a.turn(st, "what should i wear")
     assert "smart-casual" in r.text, r.text
+
+
+def test_german_everyday_layer(chat):
+    a, st = chat
+    r = a.turn(st, "hey na")
+    assert "Hey" in r.text or "Na" in r.text, r.text
+    r = a.turn(st, "ich bin müde, hab schlecht geschlafen")
+    r = a.turn(st, "die nachbarn waren laut")
+    assert "that can" not in r.text and "verstehe" not in r.text, r.text
+    r = a.turn(st, "danke, gute idee")
+    assert "verstehe" not in r.text, r.text
+    r = a.turn(st, "ich heiße jonas")
+    r = a.turn(st, "ich bin 34 und arbeite als lehrer")
+    assert "34" in r.text and "Lehrer" in r.text, r.text
+    r = a.turn(st, "wie alt bin ich")
+    assert "34" in r.text, r.text
+    r = a.turn(st, "was mache ich beruflich")
+    assert "Lehrer" in r.text, r.text
+    a.turn(st, "ich mag keine pilze")
+    r = a.turn(st, "was mag ich nicht")
+    assert "Pilze" in r.text, r.text
+    a.turn(st, "erzähl mir einen witz")
+    r = a.turn(st, "noch einer")
+    assert "Humor-Chip" not in r.text and "?" in r.text or "„" in r.text, r.text
+
+
+def test_german_grief_stays_gentle(chat):
+    a, st = chat
+    r = a.turn(st, "mein opa ist gestorben")
+    assert "leid" in r.text, r.text
+    r = a.turn(st, "er war 89")
+    assert "89" in r.text and "Got it" not in r.text, r.text
+    r = a.turn(st, "ich vermisse ihn")
+    assert "ihn" in r.text and r.kind == "empathy", r.text
+    r = a.turn(st, "danke dass du zuhörst")
+    assert "Jederzeit" in r.text or "dafür bin ich da" in r.text, r.text

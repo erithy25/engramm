@@ -50,10 +50,27 @@ _STATEMENTS = [
     (re.compile(r"^ich lebe in ([\w\-äöüß ]{2,40})$"), "fact", "I live in {0}."),
     (re.compile(r"^ich komme aus ([\w\-äöüß ]{2,40})$"), "fact", "I am from {0}."),
     (re.compile(r"^ich bin (\d{1,3}) jahre alt$"), "fact", "I am {0} years old."),
+    (re.compile(r"^ich bin (\d{1,3})$"), "fact", "I am {0} years old."),
     (re.compile(r"^ich arbeite als ([\w\-äöüß ]{2,40})$"), "fact", "I work as {0}."),
     (re.compile(r"^mein lieblingsessen ist ([\w\-äöüß ]{2,40})$"), "fact", "My favourite food is {0}."),
     (re.compile(r"^meine lieblingsfarbe ist ([\w\-äöüß ]{2,40})$"), "fact", "My favourite colour is {0}."),
 ]
+_SHOWN_DE = {"name": "du heißt {0}", "I live in {0}.": "du wohnst in {0}", "I am from {0}.": "du kommst aus {0}",
+             "I am {0} years old.": "du bist {0}", "I work as {0}.": "du arbeitest als {0}",
+             "My favourite food is {0}.": "dein Lieblingsessen ist {0}", "My favourite colour is {0}.": "deine Lieblingsfarbe ist {0}"}
+
+
+def statement_de(s: str) -> tuple[str, str, str, str] | None:
+    """(kind, value, English sentence, German confirmation) for a German statement about you."""
+    for rx, what, english in _STATEMENTS:
+        m = rx.match(s.strip())
+        if m:
+            value = _title(m.group(1)) if what in ("name", "fact") and not m.group(1).isdigit() else m.group(1)
+            shown = _SHOWN_DE.get("name" if what == "name" else english, "{0}").format(value)
+            return what, value, english.format(value), shown
+    return None
+
+
 _ASK_NAME = re.compile(r"^(wie heiße ich|wie heisse ich|weißt du (noch )?(wie ich heiße|meinen namen)|"
                        r"kennst du meinen namen|wer bin ich|was ist mein name)$")
 _CALC = re.compile(r"^(?:was (?:ist|ergibt|sind)|wie ?viel (?:ist|sind|ergibt)|rechne|berechne)\s+(.+)$")
@@ -144,7 +161,8 @@ _REC_DE_RX = [(k, re.compile(rf"^(?:(?:hey|hi|hallo|na|sag mal|also),? )*{p}$"))
 _ADVICE_DE = re.compile(r"^(?:(?:und|also|okay|ok|hm+),? )*(?:was soll ich (?:jetzt |da |bloß |nur )?(?:tun|machen)|"
                         r"was würdest du (?:an meiner stelle )?(?:tun|machen)|hast du (?:einen |ein paar )?(?:rat|tipp|tipps)"
                         r"(?: für mich)?|ich weiß nicht,? was ich (?:tun|machen) soll|was meinst du|was denkst du|"
-                        r"was rätst du mir|wie gehe ich damit um)$")
+                        r"was rätst du mir|wie gehe ich damit um|was kann ich (?:dagegen |da |jetzt |denn )?(?:tun|machen)|"
+                        r"was hilft (?:dagegen|da)|hast du (?:eine )?idee(?:,? was ich tun kann)?)$")
 _NEG_DE = {"nervt": 2, "nervig": 2, "genervt": 2, "anstrengend": 2, "stressig": 2, "gestresst": 2, "schlimm": 2,
            "schrecklich": 3, "furchtbar": 3, "mies": 2, "blöd": 2, "doof": 2, "scheiße": 3, "beschissen": 3,
            "ätzend": 2, "langweilig": 1, "unfair": 2, "gemein": 2, "krank": 2, "kaputt": 2, "müde": 2,

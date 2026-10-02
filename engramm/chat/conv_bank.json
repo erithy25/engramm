@@ -4167,7 +4167,10 @@
     "responses": [
      "Treffen sich zwei Zahlen. Sagt die Null zur Acht: „Schicker Gürtel!“",
      "Warum können Geister so schlecht lügen? Weil man durch sie hindurchsieht.",
-     "Ich habe keinen Humor-Chip – nur eine Liste mit Witzen. Das hier war einer davon.",
+     "Was ist orange und läuft durch den Wald? Eine Wanderine.",
+     "Was ist grün und klopft an die Tür? Ein Klopfsalat.",
+     "Was macht ein Clown im Büro? Faxen.",
+     "Warum sind Mathebücher immer so traurig? Weil sie so viele Probleme haben.",
      "Was macht ein Pirat am Computer? Er drückt die Enter-Taste.",
      "Wie nennt man einen Bumerang, der nicht zurückkommt? Stock."
     ]
@@ -4421,6 +4424,67 @@
      "intro": "Ein paar Namen, die viele mögen:",
      "outro": "Ist es ein Hund, eine Katze oder etwas anderes?"
     }
+   },
+   "life": {
+    "thanks": [
+     "Sehr gern!",
+     "Gern geschehen – dafür bin ich da.",
+     "Immer gern!"
+    ],
+    "thanks_idea": [
+     "Gern! Sag mir später, ob es geholfen hat.",
+     "Freut mich! Ich hoffe, es klappt."
+    ],
+    "thanks_listen": [
+     "Jederzeit. Ich bin da, wenn du reden magst.",
+     "Gern – dafür bin ich da. Pass auf dich auf."
+    ],
+    "thanks_praise": [
+     "Hast du dir verdient!",
+     "Wirklich verdient – gut gemacht!"
+    ],
+    "greeting": [
+     "Hey! Alles gut bei dir?",
+     "Na? Schön, dass du da bist. Wie läuft's?"
+    ],
+    "grief": [
+     "Das tut mir wirklich leid. Jemanden zu verlieren, den man liebt, tut unglaublich weh. Wie war er so?",
+     "Oh nein, das tut mir so leid. Magst du mir von ihm erzählen?"
+    ],
+    "grief_f": [
+     "Das tut mir wirklich leid. Jemanden zu verlieren, den man liebt, tut unglaublich weh. Wie war sie so?",
+     "Oh nein, das tut mir so leid. Magst du mir von ihr erzählen?"
+    ],
+    "grief_pet": [
+     "Das tut mir so leid. Ein Haustier ist Familie – das tut richtig weh. Wie hieß es?"
+    ],
+    "grief_age": [
+     "{x} Jahre – das ist ein langes Leben, und trotzdem ist es nie genug Zeit.",
+     "{x} Jahre … da gibt es sicher viele Erinnerungen. Kein Wunder, dass es so wehtut."
+    ],
+    "miss": [
+     "Natürlich vermisst du {x}. Das zeigt, wie viel {y} dir bedeutet hat.",
+     "Das verstehe ich gut. Gibt es etwas, das dich besonders an {x} erinnert?"
+    ],
+    "follow_neg": [
+     "Das macht es natürlich nicht leichter. Wie geht's dir jetzt damit?",
+     "Oh je, das kommt dann noch dazu. Kein Wunder, dass du erledigt bist."
+    ],
+    "follow_pos": [
+     "Wie schön! Erzähl ruhig mehr.",
+     "Das klingt richtig gut!"
+    ],
+    "me_unknown": [
+     "Das hast du mir noch nicht erzählt. Magst du es mir sagen?"
+    ],
+    "seen": [
+     "Okay, dann vielleicht eins von diesen:",
+     "Alles klar, hier noch andere:"
+    ],
+    "super": "{art} {adj} {noun} der Welt ist {name} – {value}.",
+    "statements_two": [
+     "Alles klar, merk ich mir: {x}."
+    ]
    },
    "experience": {
     "negative": {
