@@ -2935,3 +2935,19 @@ def test_battery70_relaxed_chat_in_german(chat):
     assert "Gefühle" in r.text or "nein" in r.text.lower(), r.text
     assert "ENGRAMM" in a.turn(st, "wie heißt du nochmal?").text
     assert "ENGRAMM" in a.turn(st, "wer hat dich gemacht?").text
+
+
+def test_battery71_everyday_knowledge_without_wrong_answers(chat):
+    a, _ = chat
+    from engramm.chat.german_bridge import to_english
+    assert to_english("wie tief ist der bodensee")[:2] == ("how deep is Lake Constance", "depth")
+    assert to_english("wann fiel die berliner mauer")[1] == "fell"
+    assert to_english("wann ist er gestorben")[1] == "died_when"
+    cases = [("what is the chemical symbol for gold?", "Au"), ("what element has the symbol fe?", "iron"),
+             ("what is the largest ocean?", "Pacific"), ("what is the longest river in europe?", "Volga"),
+             ("who is the author of harry potter?", "Rowling"), ("who wrote harry potter?", "Rowling"),
+             ("welcher ist der größte planet?", "Jupiter"), ("was ist der größte ozean?", "Pazifik"),
+             ("wie tief ist der bodensee?", "251"), ("wann fiel die berliner mauer?", "1989")]
+    for i, (q, want) in enumerate(cases):
+        r = a.turn(DialogState(f"k71-{i}"), q)
+        assert want in r.text and "Harris" not in r.text, (q, r.text)

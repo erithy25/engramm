@@ -41,7 +41,7 @@ EXONYMS = {
     "mond": "Moon", "sonne": "Sun", "erde": "Earth", "mars": "Mars", "eiffelturm": "Eiffel Tower",
     "freiheitsstatue": "Statue of Liberty", "brandenburger tor": "Brandenburg Gate", "kölner dom": "Cologne Cathedral",
     "rhein": "Rhine", "donau": "Danube", "nil": "Nile", "amazonas": "Amazon River", "alpen": "Alps",
-    "zugspitze": "Zugspitze", "bodensee": "Lake Constance", "ostsee": "Baltic Sea", "nordsee": "North Sea",
+    "zugspitze": "Zugspitze", "bodensee": "Lake Constance", "berliner mauer": "Berlin Wall", "die berliner mauer": "the Berlin Wall", "ostsee": "Baltic Sea", "nordsee": "North Sea",
     "mittelmeer": "Mediterranean Sea", "atlantik": "Atlantic Ocean", "pazifik": "Pacific Ocean",
     "die vier jahreszeiten": "the four seasons", "vier jahreszeiten": "the four seasons", "die zauberflöte": "The Magic Flute",
     "zauberflöte": "The Magic Flute", "die mona lisa": "Mona Lisa", "mona lisa": "Mona Lisa", "die sternennacht": "The Starry Night",
@@ -97,6 +97,9 @@ RULES = [
     (rf"wie groß ist {_X}", "how big is {x}", "area"),
     (rf"wie hoch ist {_X}", "how tall is {x}", "height"),
     (rf"wie lang ist {_X}", "how long is {x}", "length"),
+    (rf"wie tief ist {_X}", "how deep is {x}", "depth"),
+    (rf"wann fiel {_X}", "when did {x} fall", "fell"),
+    (rf"wann ist {_X} gefallen", "when did {x} fall", "fell"),
     (rf"wie alt (?:ist|war|wurde) {_X}", "how old is {x}", "age"),
     (rf"wann (?:wurde|ist|war) {_X} geboren", "when was {x} born", "born_when"),
     (rf"wo (?:wurde|ist|war) {_X} geboren", "where was {x} born", "born_where"),
@@ -215,7 +218,7 @@ SENTENCES = {
     "mayor": "Bürgermeister von {x} ist {v} (Stand meiner Daten).",
     "ceo": "Zu den Schlüsselpersonen bei {x} gehört {v} (Stand meiner Daten).",
     "capital": "Die Hauptstadt von {x} ist {v}.", "population": "{x} hat {v} Einwohner (Stand meiner Daten).",
-    "area": "{x} ist {v} groß.", "height": "{x} ist {v} hoch.", "length": "{x} ist {v} lang.",
+    "area": "{x} ist {v} groß.", "height": "{x} ist {v} hoch.", "length": "{x} ist {v} lang.", "depth": "{x} ist {v} tief.", "fell": "{x} fiel {v}.",
     "born_when": "{x} wurde am {v} geboren.", "born_where": "{x} wurde in {v} geboren.",
     "died_when": "{x} starb am {v}.", "died_how": "Todesursache bei {x}: {v}.",
     "founded_when": "{x} wurde {v} gegründet.", "built_when": "{x} wurde {v} fertiggestellt.",
@@ -241,7 +244,7 @@ def de_sentence(kind: str, x: str, value: str, age_text: str | None = None) -> s
     v = de_value(value)
     if kind == "born_when" and re.fullmatch(r"\d{3,4}", v):
         tmpl = "{x} wurde {v} geboren."
-    if kind in ("built_when", "founded_when", "released"):
+    if kind in ("built_when", "founded_when", "released", "fell"):
         if re.match(r"^\d{1,2}\. ", v):
             tmpl = tmpl.replace("{v}", "am {v}")         # "wurde am 31. März 1889 fertiggestellt"
         elif re.match(r"^[A-ZÄÖÜ][a-zäöü]+ \d{3,4}$", v):

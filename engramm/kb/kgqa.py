@@ -451,6 +451,9 @@ class KGQA:
             jobs = " ".join(v for (v,) in self.kb.db.execute(
                 "SELECT value FROM fact WHERE entity = ? AND prop = 'occupation'", (eid,)))
             ent = self.kb.entity(eid)
+            if m.group("v").lower() == "wrote" and re.search(r"\bactor\b|\bactress\b|film producer", jobs, re.I) and \
+                    not re.search(r"novelist|poet|playwright|dramatist|\bauthor\b", jobs, re.I):
+                continue                        # Richard Harris (actor, "writer") played in Harry Potter, he did not write it
             if ent is not None and (re.search(occ, jobs, re.I) or re.search(occ, ent.type or "", re.I)):
                 people.append(ent)
         if len(people) != 1:

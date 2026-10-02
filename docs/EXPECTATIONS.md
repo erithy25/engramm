@@ -2634,6 +2634,18 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     dir?“ las).
   - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9 (der Eingriff in den Kern ändert NQ nicht), Suite 761 bestanden,
     Regressionen 32, 38–70 (40 Gespräche): 0 Wiederholungen; Unterschiede nur Uhrzeiten.
+- **Alltags-Batterie 71 (40 feste Wissensfragen, Antworten vorher festgelegt, Englisch und Deutsch)**: erster Lauf 32 richtig,
+  0 falsch, 8 „weiß ich nicht“. Die Umformulierung „who is the author of X“ → „who wrote X“ deckte einen echten Fehler auf:
+  „who wrote harry potter?“ → „Richard Harris“ – der Rückweg über „bekanntes Werk“ nahm einen Schauspieler, der in der
+  Faktenbank nebenbei als „writer“ geführt ist. Schauspieler zählen beim Schreiben jetzt nur noch, wenn sie ausdrücklich
+  Romanautor, Dichter oder Dramatiker sind (Faust → Goethe, Hamlet, Zauberflöte, Guernica unverändert); Harry Potter →
+  J. K. Rowling als Standardfakt. Ergänzt: größter Ozean, längster Fluss Europas, chemische Symbole (28 Elemente),
+  „wann fiel …“, „wie tief ist …“ (Bodensee 251 m), deutsche Superlative für Planet, Ozean, Kontinent, Tier, Wüste.
+  Die erste Fassung von „wann ist … gefallen“ fing „wann ist er gestorben?“ ab (Batterie 61 fand es) – „gefallen“ ist
+  jetzt Pflicht. Endstand: 39 richtig, 0 falsch, 1 „weiß ich nicht“ („wer malte die Sternennacht?“ – nicht im Lite-Paket,
+  ehrlich unbeantwortet).
+  Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 762 bestanden, Regressionen 32, 38–70 (40 Gespräche):
+  0 Wiederholungen; Unterschiede nur Uhrzeiten. Skript: `scratchpad/kq71.py` (Fragen und Antwortmuster im Kopf der Datei).
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

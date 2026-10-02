@@ -6304,6 +6304,15 @@
       "Wie gesagt: ",
       "Wie vorhin schon: "
      ],
+     "superlativ": {
+      "größte planet": "Der größte Planet ist Jupiter – etwa elfmal so breit wie die Erde.",
+      "kleinste planet": "Der kleinste Planet ist Merkur – nur etwa 4.880 km breit.",
+      "größte ozean": "Der größte Ozean ist der Pazifik – etwa 165 Millionen km², rund ein Drittel der Erdoberfläche.",
+      "größte kontinent": "Der größte Kontinent ist Asien – rund 44 Millionen km².",
+      "kleinste kontinent": "Der kleinste Kontinent ist Australien.",
+      "größte tier": "Das größte Tier ist der Blauwal – bis zu 30 Meter lang und schwerer als jeder Dinosaurier.",
+      "größte wüste": "Die größte Wüste ist die Antarktis (Wüste heißt: kaum Niederschlag); die größte heiße Wüste ist die Sahara."
+     },
      "macher": [
       "Das ENGRAMM-Projekt hat mich gemacht. Die Idee: ein hilfreicher Assistent, der offline läuft, seine Quellen zeigt und wirklich vergisst, wenn du es willst."
      ]
@@ -8567,7 +8576,31 @@
     "t": "Mont Blanc"
    },
    {
-    "q": "(?:and |so )?(?:when|what year|in what year|which year) did the berlin wall (?:fall|come down)|when was the fall of the berlin wall",
+    "q": "(?:and |so )?(?:who (?:wrote|created|is the author of|was the author of)|who'?s the author of) (?:the )?harry potter(?: books| series| novels)?",
+    "a": "J. K. Rowling wrote the Harry Potter books — seven novels, from Harry Potter and the Philosopher's Stone (1997) to Harry Potter and the Deathly Hallows (2007).",
+    "v": "J. K. Rowling",
+    "t": "Harry Potter"
+   },
+   {
+    "q": "(?:and |so )?(?:how deep is|what(?:'s| is) the depth of|what(?:'s| is) the maximum depth of) (?:the )?lake constance",
+    "a": "Lake Constance is up to 251 m deep; on average it's about 90 m.",
+    "v": "251 m",
+    "t": "Lake Constance"
+   },
+   {
+    "q": "(?:and |so )?(?:what(?:'s| is) the |which is the )?(?:largest|biggest) ocean(?: in the world| on earth)?|which ocean is the (?:largest|biggest)",
+    "a": "The Pacific is the largest ocean — about 165 million km², roughly a third of Earth's surface.",
+    "v": "the Pacific Ocean",
+    "t": "Pacific Ocean"
+   },
+   {
+    "q": "(?:and |so )?(?:what(?:'s| is) the |which is the )?longest river (?:in|of) europe|which river is the longest in europe",
+    "a": "The Volga is the longest river in Europe, about 3,530 km long, flowing into the Caspian Sea.",
+    "v": "the Volga",
+    "t": "Volga"
+   },
+   {
+    "q": "(?:and |so )?(?:when|what year|in what year|which year) did (?:the )?berlin wall (?:fall|come down)|when was the fall of the berlin wall",
     "a": "The Berlin Wall fell on 9 November 1989, during the Peaceful Revolution in East Germany.",
     "v": "9 November 1989",
     "t": "Berlin Wall",
@@ -12344,6 +12377,120 @@
     "Sorry — the {x} of what? Remind me and I'll answer.",
     "Hmm, the {x} of what exactly? Tell me again and I'll look it up."
    ],
+   "elements": {
+    "gold": [
+     "Au",
+     "aurum"
+    ],
+    "silver": [
+     "Ag",
+     "argentum"
+    ],
+    "iron": [
+     "Fe",
+     "ferrum"
+    ],
+    "copper": [
+     "Cu",
+     "cuprum"
+    ],
+    "lead": [
+     "Pb",
+     "plumbum"
+    ],
+    "sodium": [
+     "Na",
+     "natrium"
+    ],
+    "potassium": [
+     "K",
+     "kalium"
+    ],
+    "tin": [
+     "Sn",
+     "stannum"
+    ],
+    "mercury": [
+     "Hg",
+     "hydrargyrum"
+    ],
+    "oxygen": [
+     "O",
+     ""
+    ],
+    "hydrogen": [
+     "H",
+     ""
+    ],
+    "carbon": [
+     "C",
+     ""
+    ],
+    "nitrogen": [
+     "N",
+     ""
+    ],
+    "helium": [
+     "He",
+     ""
+    ],
+    "calcium": [
+     "Ca",
+     ""
+    ],
+    "uranium": [
+     "U",
+     ""
+    ],
+    "sulfur": [
+     "S",
+     ""
+    ],
+    "sulphur": [
+     "S",
+     ""
+    ],
+    "chlorine": [
+     "Cl",
+     ""
+    ],
+    "zinc": [
+     "Zn",
+     ""
+    ],
+    "aluminium": [
+     "Al",
+     ""
+    ],
+    "aluminum": [
+     "Al",
+     ""
+    ],
+    "platinum": [
+     "Pt",
+     ""
+    ],
+    "silicon": [
+     "Si",
+     ""
+    ],
+    "magnesium": [
+     "Mg",
+     ""
+    ],
+    "neon": [
+     "Ne",
+     ""
+    ],
+    "lithium": [
+     "Li",
+     ""
+    ],
+    "titanium": [
+     "Ti",
+     ""
+    ]
+   },
    "good_at": [
     "Nice — {x}! I'll remember that. I'm handy with facts and numbers, so if you ever want a sparring partner, ask away.",
     "Cool, {x}! I'll keep that in mind. Me? I'm good at looking things up and doing quick maths."

@@ -1363,6 +1363,12 @@ class Assistant:
             return say("name")
         if re.fullmatch(r"wer hat dich (?:gemacht|gebaut|programmiert|erfunden|entwickelt|erschaffen)|wer ist dein (?:erfinder|entwickler|schöpfer)", q):
             return say("macher")
+        sup = re.fullmatch(r"(?:und )?(?:was|welche[rs]?|wie heißt) (?:ist )?(?:der|die|das) (?P<a>größte|grösste|kleinste) (?P<n>planet|ozean|kontinent|tier|wüste)"
+                           r"(?: der welt| auf der welt| der erde| im sonnensystem| unseres sonnensystems)?", q)
+        if sup:
+            key = f"{sup.group('a').replace('grösste', 'größte')} {sup.group('n')}"
+            if key in g["superlativ"]:
+                return Reply(msg, "answer", g["superlativ"][key], via="common", confidence=1.0)
         if re.fullmatch(r"wie heißt du(?: eigentlich)?|wie ist dein name|wie war dein name", q):
             return say("name")
         hw = re.fullmatch(r"(?:und )?wie (?P<a>hoch|lang|groß|tief) war (?P<x>sie|er|es|der [a-zäöüß ]+|die [a-zäöüß ]+|das [a-zäöüß ]+)", q)
@@ -2832,7 +2838,7 @@ class Assistant:
             plural = re.match(r"(?:die )?(?:zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|zwölf)\b", (art + " " + thing).lower().strip())
             rep.text = f"{head} {'wurden' if plural else 'wurde'} von {de_value(str(rep.answer))} {wm.group('v')}."
             return rep
-        measure = rep.via == "lookup" and rep.kind == "answer" and kind in ("height", "length", "area", "depth") and \
+        measure = rep.via in ("lookup", "common") and rep.kind == "answer" and kind in ("height", "length", "area", "depth", "fell") and \
             re.search(r"\d", str(rep.answer or ""))
         if rep.via == "kb" or measure:
             name = re.sub(r"\s*\([^)]*\)$", "", (rep.source or {}).get("key") or x_en) if rep.via == "kb" else (x_de or x_en)
@@ -5946,6 +5952,20 @@ class Assistant:
                             (ent := re.search(r"\b(?:is|was|are|were|does|did) (the [a-z ]+?|[A-Z][\w ]+?)(?: and | high| tall|$)", parts[0])):
                         part = re.sub(r"\b(?:it|they|he|she)\b", ent.group(1), part, count=1)
                     return self._turn(st, part.strip() + "?")
+        sy = re.fullmatch(r"(?:what(?:'s| is) )?the (?:chemical )?symbol (?:for|of) (?P<e>[a-z]+)|what element has the symbol (?P<s>[a-z]{1,2})", n)
+        if sy:
+            els = b["elements"]
+            if sy.group("e") and sy.group("e") in els:
+                sym, latin = els[sy.group("e")]
+                return Reply(msg, "answer", f"The chemical symbol for {sy.group('e')} is {sym}" + (f" (from the Latin {latin})." if latin else "."),
+                             answer=sym, via="common", confidence=1.0)
+            if sy.group("s"):
+                hit = next((e for e, (sym, _l) in els.items() if sym.lower() == sy.group("s")), None)
+                if hit:
+                    return Reply(msg, "answer", f"{els[hit][0]} is the symbol for {hit}.", answer=hit, via="common", confidence=1.0)
+        au = re.fullmatch(r"who(?:'s| is| was) the (?:author|writer) of (?P<x>[a-z0-9' :-]+)", n)
+        if au:
+            return self._turn(st, f"who wrote {au.group('x')}?")
         ga = re.fullmatch(r"(?:i'?m|im|i am) (?:really |pretty |quite |very |kinda |kind of )?good at (?P<x>[a-z][a-z ]{1,30}?)"
                           r"(?:,? (?:you|u|wbu|hbu|and you|what about you|how about you))?", n)
         if ga and ga.group("x") not in ("it", "that", "this", "everything", "nothing", "lying"):
