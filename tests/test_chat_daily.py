@@ -526,3 +526,13 @@ def test_doubt_follow_ups_and_continued_calculations(chat):
 def test_answer_sentences_keep_acronyms():
     from engramm.chat.realize import answer_sentence
     assert "CEO" in (answer_sentence("who is the ceo of apple", "Tim Cook") or "")
+
+
+def test_field_of_work_and_follow_up_names(chat):
+    a, st = chat
+    r = a.turn(st, "I work in private equity")
+    assert "as a private equity" not in r.text and r.text.count("private equity") == 1, r.text
+    r = a.turn(st, "what do I do for a living?")
+    assert "work in private equity" in r.text, r.text
+    r = a.turn(st, "I'm so stressed about my exams")
+    assert "exams was" not in r.text, r.text

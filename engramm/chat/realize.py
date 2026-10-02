@@ -499,6 +499,8 @@ def personal_sentence(subject: str, relation, value: str, evidence: str | None) 
     if subject == "USER":
         for cat, tpl in _CATEGORY_ANSWER.items():
             if cat in rel:
+                if cat == "#job" and evidence and re.search(r"\b(?:work|working|job is) in " + re.escape(value), evidence, re.I):
+                    return f"You work in {value}."               # a field ("private equity"), not a job title
                 x = article(value) if cat == "#job" else value
                 return tpl.format(x=x)
     elif subject.startswith("USER:") and "#name" in rel:

@@ -35,7 +35,7 @@ from engramm.chat.bot import CHAT_PREFIX, Reply, message_type, source_id
 from engramm.chat.everyday import _GENRES
 from engramm.chat.facts import USER, facts_from_text
 from engramm.chat.german import is_german, understand
-from engramm.chat.realize import answer_sentence, article, personal_sentence, to_second_person
+from engramm.chat.realize import _acronyms as _acronym_case, answer_sentence, article, personal_sentence, to_second_person
 from engramm.chat.smart import (bare_followup, experience, gibberish, is_discourse, is_mash, offer_in, rebuild_question,
                                 short_answer, swap_person)
 
@@ -941,7 +941,12 @@ class Assistant:
             return rep
         if rep.text.startswith("I don't know — I have not read anything about"):
             missing = rep.text.split("about", 1)[1].strip(" .")
-            rep.text = self._reply(st, "answer.unknown_named", x=missing)
+            role = re.match(r"^\s*who(?:'s| is| was)\s+(?:the\s+)?(.+?)\s*\??$", q, re.I)
+            if role and " of " in missing:
+                # "who is the CEO of Apple?": not a missing name, a fact I don't have
+                rep.text = f"I don't know who the {_acronym_case(role.group(1))} is — I haven't read anything that says."
+            else:
+                rep.text = self._reply(st, "answer.unknown_named", x=missing)
         elif rep.guess and (rep.source or {}).get("key"):
             # unsure guesses were right only 7 of 25 times on the team prompts: say so and name the
             # closest source instead of offering the guess (the guess stays in the reply for evals)
@@ -1130,7 +1135,9 @@ class Assistant:
         if not m:
             return None
         dim, topic = m.group("dim").lower(), m.group("t").strip(" ?.")
-        if re.fullmatch(r"(?:it|he|she|they|that|this|there)", topic, re.I):
+        if re.fullmatch(r"(?:he|she|they|him|her|them)", topic, re.I):
+            return None                                   # a person: the pronoun flow, never a measure of a place
+        if re.fullmatch(r"(?:it|that|this|there)", topic, re.I):
             last = self.bot.context.get("mention")
             if not last:
                 return None
@@ -1229,6 +1236,8 @@ class Assistant:
                       "url": "https://en.wikipedia.org/wiki/" + topic.replace(" ", "_")}
         rep.evidence = None
         st.last_fact = None
+        if re.match(r"^\s*who\b", rep.message or "", re.I) or re.match(r"^\s*who\b", rep.resolved or "", re.I):
+            st.uses["person_gap"] = st.turn             # "how old is he?" next: ask who is meant
         self.bot.context.update({"answer": None, "atype": None})
         return rep
 
@@ -1481,6 +1490,9 @@ class Assistant:
             return None
         new = m.group("x").strip()
         last = self.bot.context.get("kb_last")
+        if last and st.last_q and last["question"].strip(" ?").lower() != st.last_q.strip(" ?").lower() \
+                and self.bot.resolve(st.last_q).strip(" ?").lower() != last["question"].strip(" ?").lower():
+            last = None                                   # a newer question came after the fact-bank one
         if last:
             for name in last["names"]:
                 if name and re.search(re.escape(name), last["question"], re.I):
@@ -1492,6 +1504,9 @@ class Assistant:
                      if not q.startswith(n) or len(n.split()) > 1]
             if names:
                 old = max(names, key=len)
+                head, sep, tail = old.rpartition(" of ")
+                if sep and len(head.split()) == 1:          # "CEO of Apple": the company, not the role
+                    old = tail
                 return q.replace(old, new, 1)
         return None
 
@@ -1682,6 +1697,9 @@ class Assistant:
         bot.context["last_learned"] = sid
         fs = [f for f in bot.facts.facts if f.source == sid]
         confirm = self._confirm(st, fs, name_before)
+        wf = _WORK_IN.match(text.strip())
+        if wf and text.rstrip(".").endswith(f"My job is in {wf.group('f').strip()}"):
+            confirm = self._pick(st, "daily:work_field", self.bank.daily["work_field"], x=wf.group("f").strip())
         found = None
         if self._generic_confirm and self.kgqa is not None:
             # "I watched Inception yesterday": say something about the film instead of "Noted."

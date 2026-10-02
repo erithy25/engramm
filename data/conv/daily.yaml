@@ -59,7 +59,7 @@ experience:
       - "That sounds really annoying. Do you want to tell me what happened with {topic}?"
       - "I'm sorry, that's hard. Is this the first time with {topic}, or has it happened before?"
     thing:
-      - "Oh no — sounds like {topic} was rough. What happened?"
+      - "Oh no — that sounds rough. What happened?"
       - "That sounds draining. What made {topic} so hard?"
       - "Ugh, I'm sorry. Do you want to talk about {topic}, or would a distraction help more?"
       - "That doesn't sound fun. What went wrong with {topic}?"
@@ -529,7 +529,7 @@ plan:
 plan_big:
   - "{x} — that's a big decision. What's making you think about it?"
   - "{x}? That's a big step. Is it more that you want something new, or that you want to get away from something?"
-  - "I hear you. {x} is a big call — what would you do instead?"
+  - "I hear you. {x} is a big call — what's pulling you towards it?"
 plan_plain:
   - "That sounds exciting! Tell me more?"
   - "Ooh, what's the plan?"
@@ -821,3 +821,8 @@ measure_none:
 why_again:
   - "As I said, it comes from “{title}”."
   - "Same source as before: “{title}”."
+
+# "I work in private equity"
+work_field:
+  - "Got it — you work in {x}. Sounds interesting!"
+  - "{x} — noted! What do you like most about it?"
