@@ -3114,3 +3114,13 @@ def test_battery80_states_of_things_are_not_preferences(chat):
         r = a.turn(DialogState(f"s80-{i}"), msg)
         assert r.kind != "learned" and "good choice" not in r.text and "favourite colour" not in r.text and "A dirty" not in r.text, (msg, r.text)
     assert "112" in a.turn(DialogState("c80"), "my chest hurts").text
+
+
+def test_battery81_german_states_of_things(chat):
+    a, _ = chat
+    for i, msg in enumerate(["mein kaffee ist kalt", "mein laptop ist so langsam", "das wlan geht nicht", "meine suppe ist zu salzig",
+                             "meine pflanze ist eingegangen", "mein zahn tut weh", "mein fahrrad wurde geklaut", "meine schuhe sind nass"]):
+        r = a.turn(DialogState(f"g81-{i}"), msg)
+        assert r.kind == "empathy" and "wie ging's weiter" not in r.text, (msg, r.text)
+    assert "112" in a.turn(DialogState("b81"), "mir tut die brust weh").text
+    assert "Roter Auto" not in a.turn(DialogState("f81"), "mein auto ist rot").text

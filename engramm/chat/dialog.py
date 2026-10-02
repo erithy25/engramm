@@ -1272,6 +1272,31 @@ class Assistant:
             return None
         q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", s)).strip(" .!?")
         say = lambda key: Reply(msg, "smalltalk", self._pick(st, f"de:g74:{key}", g[key]), via="german")   # noqa: E731
+        g1 = (self.bank.de["daily"].get("ctx") or {}).get("g81") or {}
+        if g1:
+            sp = g1["spezial"]
+            pain = re.fullmatch(r"(?:mir tut|mir tun|mein|meine) (?:mein |meine |der |die |das )?(?P<o>zahn|zähne|rücken|bauch|magen|brust)(?: tut| tun)? (?:so |total |echt |richtig )?weh"
+                                r"|(?:ich habe|ich hab|hab) (?P<o2>zahn|rücken|bauch|brust)schmerzen", q)
+            if pain:
+                o = (pain.group("o") or pain.group("o2"))
+                o = {"zähne": "zahn", "magen": "bauch"}.get(o, o)
+                return Reply(msg, "empathy", sp[o], via="german")
+            if re.fullmatch(r"(?:das |mein |unser )?(?:wlan|wifi|internet) (?:geht nicht|geht nicht mehr|ist weg|ist down|funktioniert nicht|spinnt)(?: mehr)?", q):
+                return Reply(msg, "empathy", sp["wlan"], via="german")
+            sm = re.fullmatch(r"(?:mein|meine|unser|unsere) (?P<o>[a-zäöüß-]+(?: [a-zäöüß-]+)?) (?:ist|sind|wurde|wurden) (?:so |zu |total |voll |echt |ganz |schon wieder )*"
+                              r"(?P<a>kalt|langsam|salzig|eingegangen|nass|unordentlich|geklaut|gestohlen|leer|dreckig|schmutzig|rot|blau|grün|schwarz|weiß|gelb|grau|braun|"
+                              r"rosa|lila|orange|silber)", q)
+            if sm and not re.search(r"\b(?:handy|smartphone|iphone|laptop|tablet)\b", sm.group("o")) or (sm and sm.group("a") not in ("kaputt",)):
+                o, a = sm.group("o"), sm.group("a")
+                farben = {"rot", "blau", "grün", "schwarz", "weiß", "gelb", "grau", "braun", "rosa", "lila", "orange", "silber"}
+                if a in farben:
+                    return Reply(msg, "smalltalk", self._pick(st, "de:g81:farbe", g1["farbe"], x=a, X=a[:1].upper() + a[1:]), via="german")
+                key = {"kalt": "tee" if "tee" in o else "kaffee" if "kaffee" in o else None, "langsam": "langsam", "salzig": "salzig", "eingegangen": "pflanze",
+                       "nass": "nass", "unordentlich": "unordentlich", "geklaut": "geklaut", "gestohlen": "geklaut"}.get(a)
+                st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+                if key and key in sp:
+                    return Reply(msg, "empathy", sp[key], via="german")
+                return Reply(msg, "empathy", self._pick(st, "de:g81:neg", g1["neg"]), via="german")
         g9 = (self.bank.de["daily"].get("ctx") or {}).get("g79") or {}
         say9 = lambda key, kind="smalltalk", **kw: Reply(msg, kind, self._pick(st, f"de:g79:{key}", g9[key], **kw), via="german")   # noqa: E731
         if g9:

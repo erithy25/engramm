@@ -2762,6 +2762,13 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Notruf (112/911). Kopfschmerz bleibt beim vorhandenen Ablauf mit Folgefragen (Batterie 48 fand, dass die erste Fassung
   ihn überschrieb). Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 771 bestanden, Regressionen 32, 38–80
   (47 Gespräche): 0 Wiederholungen; Unterschiede nur Uhrzeiten.
+- **Alltags-Batterie 81 (Zustände von Dingen auf Deutsch)**: vorher fast alles Rückfallantworten („Interessant – wie ging's
+  weiter?“, „Okay! Und wie war's?“) – darunter **„mir tut die brust weh“ → „Das ist blöd. Was ist passiert?“**. Jetzt: kalter
+  Kaffee, langsamer Laptop, WLAN (Router neu starten), versalzene Suppe, eingegangene Pflanze, nasse Schuhe, Unordnung,
+  geklautes Fahrrad (Polizei, Versicherung), Zahn-, Rücken-, Bauchschmerzen mit Rat, Brustschmerz mit Notruf 112. Farben
+  ohne geratene Grammatik („Rot – schöne Farbe!“ statt „Roter Auto“). „mein auto ist kaputt“ bleibt beim Ironie-Ablauf aus
+  Batterie 76 (die erste Fassung fing es ab). Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 772 bestanden,
+  Regressionen 32, 38–81 (48 Gespräche): 0 Wiederholungen; Unterschiede nur Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

@@ -912,3 +912,21 @@ daily:
       geheimnis: ["Deine Geheimnisse bleiben auf deinem Rechner – ich schicke nichts irgendwohin. Und wenn ich etwas vergessen soll, sag einfach „vergiss, dass …“."]
       zurueck: ["Schön, dass du wieder da bist! Wo waren wir stehen geblieben?", "Willkommen zurück! Was gibt's?"]
       morgen: ["Guten Morgen! ☀️ Gut geschlafen?", "Guten Morgen! Was steht heute an?"]
+    g81:
+      spezial:
+        wlan: "Ohne Internet geht gar nichts, oder? Router kurz vom Strom nehmen, 30 Sekunden warten, wieder einstecken – das hilft erstaunlich oft."
+        internet: "Ohne Internet geht gar nichts, oder? Router kurz vom Strom nehmen, 30 Sekunden warten, wieder einstecken – das hilft erstaunlich oft."
+        langsam: "Ein langsamer Rechner nervt so. Browser-Tabs schließen und einmal neu starten hilft oft mehr, als man denkt."
+        pflanze: "Oh nein, deine Pflanze! Oft ist es eher zu viel Wasser als zu wenig. Vielleicht bekommt die nächste einen helleren Platz?"
+        kaffee: "Kalter Kaffee ist eine kleine Tragödie. ☕ Mikrowelle oder frische Tasse?"
+        tee: "Kalter Tee – der Klassiker. Neue Tasse?"
+        salzig: "Zu salzig? Ein Schuss Wasser oder ungesalzene Brühe, eine rohe Kartoffel mitköcheln oder etwas Zitrone können sie retten."
+        nass: "Nasse Schuhe sind das Schlimmste! Mit Zeitungspapier ausstopfen – dann trocknen sie viel schneller."
+        unordentlich: "Kennt jeder! Zehn Minuten Aufräumen mit guter Musik wirken Wunder."
+        geklaut: "Oh nein, wie ärgerlich! Hast du es schon bei der Polizei gemeldet? Das lohnt sich auch für die Versicherung."
+        zahn: "Autsch, Zahnschmerzen sind fies. Mit warmem Salzwasser spülen kann etwas helfen – und wenn es länger als ein, zwei Tage anhält, lieber zum Zahnarzt."
+        rücken: "Rückenschmerzen sind echt unangenehm. Sanfte Bewegung und Wärme helfen meist mehr als Liegen. Wenn es nicht besser wird, lieber zum Arzt."
+        bauch: "Oh je. Tee und leichtes Essen helfen oft. Wenn es stark ist oder nicht weggeht, bitte zum Arzt."
+        brust: "Brustschmerzen können ernst sein. Wenn sie stark sind, in Arm, Kiefer oder Rücken ausstrahlen oder du schlecht Luft bekommst: Ruf sofort den Notruf 112."
+      neg: ["Oh je, das nervt. Lässt sich das schnell beheben?", "Ach nee, das hat gerade noch gefehlt. Was ist passiert?"]
+      farbe: ["{X} – schöne Farbe!", "Oh, {X}! Gefällt mir."]
