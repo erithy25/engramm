@@ -501,7 +501,11 @@ def personal_sentence(subject: str, relation, value: str, evidence: str | None) 
             if cat in rel:
                 if cat == "#job" and evidence and re.search(r"\b(?:work|working|job is) in " + re.escape(value), evidence, re.I):
                     return f"You work in {value}."               # a field ("private equity"), not a job title
-                x = article(value) if cat == "#job" else value
+                if cat == "#employer" and evidence and re.match(r"^\s*i (?:work|am working|'m working) (?:at|for) ", evidence, re.I):
+                    flipped = to_second_person(evidence)         # "a bank in Frankfurt", not just "Frankfurt"
+                    if flipped and value.lower() in flipped.lower() and len(flipped.split()) <= 16:
+                        return _cap(flipped.strip().rstrip("!") if flipped.strip().endswith(".") else flipped.strip() + ".")
+                x = article(value) if cat == "#job" or (cat == "#employer" and value[:1].islower()) else value
                 return tpl.format(x=x)
     elif subject.startswith("USER:") and "#name" in rel:
         noun = subject.partition(":")[2]

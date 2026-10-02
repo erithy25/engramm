@@ -296,6 +296,10 @@ daily:
                    "Aufregung gehört dazu, die meisten sind vorher nervös. Soll ich dir ein paar Tipps geben?"]
     me_too: ["Schön! Was steht heute bei dir an?", "Freut mich! Worüber wollen wir reden?"]
     hungry: ["Hunger? Dann vielleicht was Schnelles:"]
+    tired: ["Müde Tage sind zäh. Hast du schlecht geschlafen, oder war einfach viel los?",
+            "Oh, das kenne ich nur vom Hörensagen – aber es klingt anstrengend. Zu wenig Schlaf oder zu viel um die Ohren?"]
+    slept_bad: ["Ach, schlechte Nächte ziehen den ganzen Tag runter. Lag's an Gedanken im Kopf oder einfach so? Wenn du magst, gebe ich dir ein paar Tipps für heute Nacht.",
+                "Das ist echt mies – nach so einer Nacht ist alles doppelt anstrengend. Soll ich dir ein paar Schlaftipps geben?"]
     rain: ["Ach, Regenwetter. Perfekt für einen gemütlichen Tag drinnen – soll ich dir ein paar Ideen geben?",
            "Grauer Tag, hm? Dann wird's halt drinnen gemütlich. Magst du Ideen?"]
     sun: ["Herrlich! Kommst du raus und genießt es?"]

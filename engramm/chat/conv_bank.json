@@ -258,7 +258,7 @@
    {
     "id": "thanks",
     "patterns": [
-     "(ok(ay)?,? )?(thanks+|thank you+|thank u|thx|ty|tysm|cheers|thanks a lot|thanks so much|thank you so much|thank you very much|thanks a bunch|thanks a million|many thanks|much appreciated|i appreciate it|i appreciate that|appreciate it|that helps|that helped|that was helpful|great,? thanks|perfect,? thanks|nice,? thanks|cool,? thanks|awesome,? thanks)( a lot| so much| very much| again| anyway| for (your |the )?(help|that|this|the answer|the info|the information|everything|listening|chatting))?"
+     "(ok(ay)?,? )?(thanks+|thank you+|thank u|thx|ty|tysm|cheers|thanks a lot|thanks so much|thank you so much|thank you very much|thanks a bunch|thanks a million|many thanks|much appreciated|i appreciate it|i appreciate that|appreciate it|that helps|that helped|that was helpful|great,? thanks|perfect,? thanks|nice,? thanks|cool,? thanks|awesome,? thanks|that'?s (really |very |super |so )?(helpful|useful)|(that'?s |that was )?(really |very )?good advice)( a lot| so much| very much| again| anyway| for (your |the )?(help|that|this|the answer|the info|the information|everything|listening|chatting))?(,? (that'?s|that is|that was|it'?s|it was|you'?re|you are) (really |very |super |so |a big )?(helpful|useful|great|nice|kind|sweet|perfect|good advice|help|the best))?"
     ],
     "examples": [
      "thanks",
@@ -267,7 +267,9 @@
      "thank you so much",
      "cheers",
      "much appreciated",
-     "thanks for your help"
+     "thanks for your help",
+     "thanks thats helpful",
+     "thats really helpful"
     ],
     "responses": [
      "You're welcome!",
@@ -4588,6 +4590,14 @@
     "hungry": [
      "Hunger? Dann vielleicht was Schnelles:"
     ],
+    "tired": [
+     "Müde Tage sind zäh. Hast du schlecht geschlafen, oder war einfach viel los?",
+     "Oh, das kenne ich nur vom Hörensagen – aber es klingt anstrengend. Zu wenig Schlaf oder zu viel um die Ohren?"
+    ],
+    "slept_bad": [
+     "Ach, schlechte Nächte ziehen den ganzen Tag runter. Lag's an Gedanken im Kopf oder einfach so? Wenn du magst, gebe ich dir ein paar Tipps für heute Nacht.",
+     "Das ist echt mies – nach so einer Nacht ist alles doppelt anstrengend. Soll ich dir ein paar Schlaftipps geben?"
+    ],
     "rain": [
      "Ach, Regenwetter. Perfekt für einen gemütlichen Tag drinnen – soll ich dir ein paar Ideen geben?",
      "Grauer Tag, hm? Dann wird's halt drinnen gemütlich. Magst du Ideen?"
@@ -6980,7 +6990,8 @@
    {
     "q": "who invented the (?:light ?bulb|lightbulb|incandescent light bulb)",
     "a": "Many inventors worked on it, but Thomas Edison's carbon-filament bulb of 1879 was the first practical, long-lasting one; Joseph Swan built a similar bulb in England at the same time.",
-    "v": "Thomas Edison"
+    "v": "Thomas Edison",
+    "t": "Thomas Edison"
    },
    {
     "q": "what(?:'s| is) the largest planet(?: in (?:our|the) solar system)?|which planet is the (?:largest|biggest)",
@@ -7016,6 +7027,39 @@
     "q": "how many days (?:are )?(?:in|does) a leap year(?: have)?",
     "a": "A leap year has 366 days.",
     "v": "366"
+   },
+   {
+    "q": "who (?:was|is) the first (?:man|person|human|astronaut|human being) (?:on|to (?:walk|step|land) on|to set foot on) the moon|who (?:first )?(?:walked|landed|stepped) on the moon(?: first)?",
+    "a": "Neil Armstrong — he stepped onto the Moon on 20 July 1969 during Apollo 11, aged 38. Buzz Aldrin followed him about 20 minutes later.",
+    "v": "Neil Armstrong",
+    "t": "Neil Armstrong",
+    "then": "Neil Armstrong was 38 when he stepped onto the Moon in July 1969 (he was born on 5 August 1930)."
+   },
+   {
+    "q": "when did (?:we|humans|people|man|the us|america|nasa) (?:first )?(?:land|walk|go) (?:on|to) the moon|when was the (?:first )?moon landing",
+    "a": "The first Moon landing was on 20 July 1969 (Apollo 11), with Neil Armstrong and Buzz Aldrin.",
+    "v": "20 July 1969"
+   },
+   {
+    "q": "who (?:was|is) the second (?:man|person|human) (?:on|to walk on) the moon",
+    "a": "Buzz Aldrin, who followed Neil Armstrong out of Apollo 11's lunar module on 20 July 1969.",
+    "v": "Buzz Aldrin",
+    "t": "Buzz Aldrin",
+    "then": "Buzz Aldrin was 39 at the Moon landing in July 1969 (born 20 January 1930)."
+   },
+   {
+    "q": "who (?:was|is) the first (?:man|person|human|human being) in space|who (?:first )?went to space first|who was the first astronaut",
+    "a": "Yuri Gagarin — the Soviet cosmonaut orbited Earth on 12 April 1961 in Vostok 1.",
+    "v": "Yuri Gagarin",
+    "t": "Yuri Gagarin",
+    "then": "Yuri Gagarin was 27 when he flew into space on 12 April 1961 (born 9 March 1934)."
+   },
+   {
+    "q": "who (?:was|is) the first woman in space",
+    "a": "Valentina Tereshkova, who flew Vostok 6 on 16 June 1963.",
+    "v": "Valentina Tereshkova",
+    "t": "Valentina Tereshkova",
+    "then": "Valentina Tereshkova was 26 when she flew in June 1963 (born 6 March 1937)."
    }
   ],
   "plan_day_ask": [
@@ -7655,6 +7699,14 @@
   "it_mean": [
    "Sorry — what do you mean by “it”? Give me the name and I'll look it up.",
    "Which one do you mean? Tell me the name and I'll check."
+  ],
+  "job_where": [
+   "Nice — {x}! I've noted that's where you work now. What will you be doing there?",
+   "Ooh, {x}! Got it, I'll remember that. What's the role?"
+  ],
+  "job_start": [
+   "Oh, {x} already — that's soon! I've noted it. Anything you want to prepare before then?",
+   "Got it, you start {x}. Exciting! Is there anything you're unsure about yet?"
   ]
  }
 }

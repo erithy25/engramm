@@ -1060,3 +1060,44 @@ def test_tools_followups_writing_and_planning(chat):
     a.turn(st, "remind me to buy milk")
     r = a.turn(st, "what do i need to do")
     assert "buy milk" in r.text, r.text
+
+
+def test_new_job_details_first_man_on_the_moon_and_german_sleep(chat):
+    a, st = chat
+    a.turn(st, "i just got a new job!")
+    r = a.turn(st, "its at a bank in frankfurt")
+    assert "a bank in Frankfurt" in r.text, r.text
+    r = a.turn(st, "i start next monday")
+    assert "next Monday" in r.text, r.text
+    r = a.turn(st, "where do i work?")
+    assert r.text == "You work at a bank in Frankfurt.", r.text
+    r = a.turn(st, "when do i start?")
+    assert "next Monday" in r.text, r.text
+    r = a.turn(st, "what's my job?")
+    assert "Monday" not in r.text and "a new" not in r.text, r.text
+    r = a.turn(st, "anyway what should i eat tonight")
+    assert "•" in r.text, r.text
+    r = a.turn(st, "thanks thats helpful")
+    assert "Tell me more" not in r.text and "on your mind" not in r.text, r.text
+    r = a.turn(st, "who was the first man on the moon")
+    assert r.text.startswith("Neil Armstrong"), r.text
+    r = a.turn(st, "how old was he then")
+    assert "38" in r.text, r.text
+    st2 = DialogState("de")
+    r = a.turn(st2, "mir geht's ganz gut, bin nur müde")
+    assert "Schlaf" in r.text or "viel los" in r.text or "um die Ohren" in r.text, r.text
+    r = a.turn(st2, "ich hab schlecht geschlafen")
+    assert "ipp" in r.text, r.text
+    r = a.turn(st2, "ja bitte")
+    assert "Was beim Schlafen hilft" in r.text, r.text
+    r = a.turn(st2, "cool, tschüss")
+    assert any(w in r.text for w in ("Tschüss", "Mach's gut", "Bis bald")), r.text
+
+
+def test_a_weekday_or_an_adjective_is_never_the_job():
+    from engramm.chat.facts import personal_facts
+    assert personal_facts("I just got a new job!", "u") == []
+    f = personal_facts("My new job starts next Monday.", "u")
+    assert f and "#job" not in f[0].relation, f
+    f = personal_facts("I am a new teacher.", "u")
+    assert f and f[0].object == "new teacher" and "#job" in f[0].relation, f

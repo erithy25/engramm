@@ -1020,7 +1020,7 @@ common:
   - {q: "what(?:'s| is) the speed of light|how fast is light|how fast does light travel", a: "Light travels at about 299,792 km per second in a vacuum — roughly 300,000 km/s.", v: "299,792 km/s"}
   - {q: "is (?:a )?tomato(?:es)? (?:a )?fruits?(?: or (?:a )?vegetables?)?|is (?:a )?tomato(?:es)? (?:a )?vegetables?", a: "Botanically, yes — a tomato is a fruit, because it grows from the flower and holds the seeds. In the kitchen it's usually treated as a vegetable.", v: "a fruit"}
   - {q: "what(?:'s| is) bigger,? the sun or the earth|is the sun bigger than the earth|what(?:'s| is) bigger,? the earth or the sun", a: "The Sun, by far: it's about 109 times wider than Earth, and more than a million Earths would fit inside it.", v: "the Sun"}
-  - {q: "who invented the (?:light ?bulb|lightbulb|incandescent light bulb)", a: "Many inventors worked on it, but Thomas Edison's carbon-filament bulb of 1879 was the first practical, long-lasting one; Joseph Swan built a similar bulb in England at the same time.", v: "Thomas Edison"}
+  - {q: "who invented the (?:light ?bulb|lightbulb|incandescent light bulb)", a: "Many inventors worked on it, but Thomas Edison's carbon-filament bulb of 1879 was the first practical, long-lasting one; Joseph Swan built a similar bulb in England at the same time.", v: "Thomas Edison", t: "Thomas Edison"}
   - {q: "what(?:'s| is) the largest planet(?: in (?:our|the) solar system)?|which planet is the (?:largest|biggest)", a: "Jupiter is the largest planet in our solar system.", v: "Jupiter"}
   - {q: "what(?:'s| is) the fastest (?:land )?animal(?: in the world| on earth)?", a: "The cheetah is the fastest land animal — up to about 100–120 km/h in short sprints. (The fastest of all is the peregrine falcon in a dive.)", v: "the cheetah"}
   - {q: "what(?:'s| is) the (?:tallest|biggest) animal(?: in the world| on earth)?", a: "The tallest animal is the giraffe; the biggest is the blue whale.", v: "the giraffe"}
@@ -1028,6 +1028,11 @@ common:
   - {q: "why do cats pur+", a: "Cats mostly purr when they're relaxed and content, but also to calm themselves when stressed or hurt; the sound comes from rapid twitching of the muscles in the voice box.", v: "contentment"}
   - {q: "how long does it take to learn (?:a (?:new )?language|spanish|french|italian|portuguese|german|english)", a: "For everyday conversations, most people need roughly 6–12 months of regular practice. To reach a professional level, the US Foreign Service Institute estimates about 600–750 class hours for languages close to English like Spanish, French or Italian (German about 900).", v: "6–12 months"}
   - {q: "how many days (?:are )?(?:in|does) a leap year(?: have)?", a: "A leap year has 366 days.", v: "366"}
+  - {q: "who (?:was|is) the first (?:man|person|human|astronaut|human being) (?:on|to (?:walk|step|land) on|to set foot on) the moon|who (?:first )?(?:walked|landed|stepped) on the moon(?: first)?", a: "Neil Armstrong — he stepped onto the Moon on 20 July 1969 during Apollo 11, aged 38. Buzz Aldrin followed him about 20 minutes later.", v: "Neil Armstrong", t: "Neil Armstrong", then: "Neil Armstrong was 38 when he stepped onto the Moon in July 1969 (he was born on 5 August 1930)."}
+  - {q: "when did (?:we|humans|people|man|the us|america|nasa) (?:first )?(?:land|walk|go) (?:on|to) the moon|when was the (?:first )?moon landing", a: "The first Moon landing was on 20 July 1969 (Apollo 11), with Neil Armstrong and Buzz Aldrin.", v: "20 July 1969"}
+  - {q: "who (?:was|is) the second (?:man|person|human) (?:on|to walk on) the moon", a: "Buzz Aldrin, who followed Neil Armstrong out of Apollo 11's lunar module on 20 July 1969.", v: "Buzz Aldrin", t: "Buzz Aldrin", then: "Buzz Aldrin was 39 at the Moon landing in July 1969 (born 20 January 1930)."}
+  - {q: "who (?:was|is) the first (?:man|person|human|human being) in space|who (?:first )?went to space first|who was the first astronaut", a: "Yuri Gagarin — the Soviet cosmonaut orbited Earth on 12 April 1961 in Vostok 1.", v: "Yuri Gagarin", t: "Yuri Gagarin", then: "Yuri Gagarin was 27 when he flew into space on 12 April 1961 (born 9 March 1934)."}
+  - {q: "who (?:was|is) the first woman in space", a: "Valentina Tereshkova, who flew Vostok 6 on 16 June 1963.", v: "Valentina Tereshkova", t: "Valentina Tereshkova", then: "Valentina Tereshkova was 26 when she flew in June 1963 (born 6 March 1937)."}
 plan_day_ask:
   - "Sure! What do you need to get done today?"
   - "Happy to — what's on your list for today?"
@@ -1203,3 +1208,9 @@ have_pet:
 it_mean:
   - "Sorry — what do you mean by “it”? Give me the name and I'll look it up."
   - "Which one do you mean? Tell me the name and I'll check."
+job_where:
+  - "Nice — {x}! I've noted that's where you work now. What will you be doing there?"
+  - "Ooh, {x}! Got it, I'll remember that. What's the role?"
+job_start:
+  - "Oh, {x} already — that's soon! I've noted it. Anything you want to prepare before then?"
+  - "Got it, you start {x}. Exciting! Is there anything you're unsure about yet?"

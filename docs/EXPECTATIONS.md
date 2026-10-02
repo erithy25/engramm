@@ -2051,6 +2051,19 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   ungesehene Fragen. Die versiegelten Testsätze (ChatBench-Test, SearchBench) wurden nicht angesehen.
   Zusätzlich: Ja/Nein-Fragen bekommen keine herausgeschnittene Kurzantwort mehr, und Maß-/Anzahlfragen
   ohne Zahl in der Antwort gelten als unbeantwortet. NQ-open 400: unverändert 22/9.
+- **Alltags-Batterie 34** (Job, Mondlandung, Langeweile, Deutsch mit Müdigkeit/Schlaf). Gefunden und behoben:
+  - „who was the first man on the moon“ → „A Kid Named Cudi“ (Textsuche). Jetzt kommt „Neil Armstrong …“ aus der
+    Alltagsfakten-Tabelle (+5 Raumfahrt-Einträge, 29 gesamt), und „how old was he then“ → 38.
+    **Achtung:** Der Mond-Eintrag deckt team-0079 ab, damit überschneiden sich jetzt 4 Dev-Fragen (0079, 0080, 0081, 0099).
+  - „You work for Frankfurt“ nach „I work at a bank in Frankfurt“: Arbeitgeber-Antworten nutzen jetzt den eigenen
+    Satz („You work at a bank in Frankfurt.“).
+  - „You work as Monday“ / „You work as a new“: Ein Wochentag/Datum ist nie der Beruf, ein Adjektiv allein nie
+    ein Wert.
+  - Details nach „I got a new job“ („its at …“, „i start next monday“) werden gemerkt.
+  - Kleinere Fälle: „anyway what should i eat“, „thanks thats helpful“, „cool, tschüss“, „bin nur müde“ →
+    Schlaftipps auf „ja bitte“.
+  - Team-Dev-Satz: 2 von 128 Antworten geändert, beide besser (team-0050 „Your dentist appointment is on Friday.“,
+    team-0079). NQ-open 400: unverändert 22/9. Suite 676 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

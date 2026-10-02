@@ -29,7 +29,7 @@ from engramm.chat.smart import swap_person
 # recognising requests
 # ---------------------------------------------------------------------------
 
-_LEAD = r"^(?:(?:hey|hi|ok|okay|so|well|um+|hmm+|engramm|please|pls)[, ]+)*(?:(?:can|could|would|will) you |please |pls )*"
+_LEAD = r"^(?:(?:hey|hi|ok|okay|so|well|um+|hmm+|engramm|please|pls|anyway|anyways|alright|btw|by the way|oh|right|also)[, ]+)*(?:(?:can|could|would|will) you |please |pls )*"
 _REC = [
     ("food", re.compile(_LEAD + r"(?:i'm hungry[, ]+)?(?:what (?:should|can|could|do|shall) (?:i|we) (?:eat|cook|make|have)"
                         r"(?: for (?:dinner|lunch|breakfast|supper|tonight|today))?(?: tonight| today)?|what(?:'s| is| should be) "

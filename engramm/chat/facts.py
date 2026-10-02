@@ -404,7 +404,9 @@ NON_VALUES = frozenset(("favourite", "favorite", "best", "most", "one", "thing",
                         "quit", "quitting", "fired", "retired", "resigned", "moved", "move",
                         # "something I can do at home" names nothing
                         "something", "anything", "nothing", "everything", "someone", "anyone", "somewhere",
-                        "anywhere", "whatever"))
+                        "anywhere", "whatever",
+                        # "I got a new job": an adjective alone is not the job
+                        "new", "old", "first", "next", "last", "current"))
 
 
 # words that are never the value of a personal statement: fillers, time phrases, evaluation cues
@@ -634,6 +636,11 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
         lf = typer.lift(words(value)[-1]) or {}
         if lf.get("#employer", 0.0) >= 3.5:
             rel.append("#employer")
+    if kind == "DATE" or re.fullmatch(r"(?:next |this |on )?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|"
+                                      r"tomorrow|today|tonight", value.lower()):
+        # "My new job starts next Monday": when, not what the job is ("You work as Monday")
+        rel = [w for w in rel if w not in ("#job", "#work", "#employer")]
+        kind = "DATE"
     if kind == "NAME" and first_v >= 2 and lw[first_v - 2:first_v] == ["i", "am"]:
         rel += ["name", "#name"]               # "I'm Frotam": a name
     if kind == "NAME" and implicit and _NAME_INTRO.match(s):

@@ -93,6 +93,15 @@ _MAYBE_KINDS = {"reading": "book", "book": "book", "books": "book", "movie": "mo
                 "games": "game", "gaming": "game", "podcast": "podcast", "podcasts": "podcast", "cooking": "food",
                 "baking": "food", "hobby": "hobby"}
 # "I moved to a new city and don't know anyone"
+_NEW_JOB = re.compile(r"\b(?:got|have|landed|found|accepted|took|start(?:ing)?|begin(?:ning)?) (?:a |my |the |that )?(?:new )?job"
+                      r"(?: offer)?\b(?! interview)|\bgot hired\b|\bnew job\b")
+_JOB_AT = re.compile(r"(?:it'?s|its|it is|it'?ll be|that'?s|the (?:new )?job is|i'?ll be working|i will be working|i'?m going to work|"
+                     r"i'?m gonna work|i'?ll work|i will work|i work|i'?m working) (?:at|with|for) (?P<x>(?:a|an|the|[a-z])[\w' &.-]*"
+                     r"(?: [\w' &.-]+){0,6})")
+_JOB_START = re.compile(r"(?:and )?i (?:start|begin|'?ll start|will start|am starting|'?m starting|start working|'?m gonna start)"
+                        r"(?: there| work| the job| it| the new job)? (?P<x>(?:on |next |this |in |tomorrow|monday|tuesday|wednesday|"
+                        r"thursday|friday|saturday|sunday|the |january|february|march|april|may|june|july|august|september|"
+                        r"october|november|december)[\w ]{0,30})")
 _MOVED_NEW = re.compile(r"\bi (?:just |recently )?(?:moved|relocated) (?:to|into) (?:a |another )?(?:new|different|another) (?:city|town|country|place)\b")
 # "what should I wear (to the interview)?"
 _WEAR = re.compile(r"^(?:and |so |ok |hmm )?what (?:should|do|can) i wear(?: (?:to|for|on) (?:the |a |my )?(?P<x>[a-z ]+?))?\??$")
@@ -460,6 +469,8 @@ class Assistant:
                 if not exp:
                     return Reply(msg, "smalltalk", self._pick(st, "de:advice:none", dd["advice"]["none"]), via="german")
                 group = self.everyday._advice_group(exp.get("text_en") or exp.get("text") or "", exp)
+                if group == "sleep":                 # "hab schlecht geschlafen … was kann ich dagegen tun?": real sleep tips
+                    return self.everyday.recommend(st, msg, "sleep", lang="de")
                 group = group if group in dd["advice"] else "generic"
                 return Reply(msg, "smalltalk", self._pick(st, f"de:advice:{group}", dd["advice"][group]), via="german")
             de_extra = self._german_extra(st, msg, s)
@@ -551,6 +562,11 @@ class Assistant:
         if off and st.turn - off[1] <= 1 and re.fullmatch(r"(?:ja|jo|jap|gerne?|klar|ok(?:ay)?|bitte|ja bitte|ja gerne?)?[, ]*(?:ideen|ein paar ideen|ideen bitte|gib mir ideen)?(?: bitte)?", s) and s:
             st.uses.pop("de_offer", None)                 # "ja, ideen" after "soll ich dir Ideen geben?"
             return self.everyday.recommend(st, msg, "activity", off[0], lang="de")
+        so = st.uses.get("de_sleep_offer")
+        if so and st.turn - so <= 1 and re.fullmatch(r"(?:ja|jo|jap|gerne?|klar|ok(?:ay)?|bitte|ja bitte|ja gerne?|gern doch|"
+                                                       r"ja,? (?:gib|sag) (?:sie )?(?:mir|her)|tipps(?: bitte)?|her damit)", s):
+            st.uses.pop("de_sleep_offer", None)          # "ja bitte" after "soll ich dir Schlaftipps geben?"
+            return self.everyday.recommend(st, msg, "sleep", lang="de")
         if _NA_DE.fullmatch(s):
             return Reply(msg, "smalltalk", self._pick(st, "de:life:greeting", dl["greeting"]), via="german")
         if re.fullmatch(r"(?:bei mir auch|mir auch|mir geht'?s auch gut|auch gut|auch ganz gut|gut,? danke|passt|läuft|läuft bei mir|alles gut|alles super|geht so)", s):
@@ -575,6 +591,19 @@ class Assistant:
             genre0 = _GENRE_DE_MAP.get(re.sub(r"(?:es|e|er|en)$", "", gm0.group("g")))
             if genre0:                                   # "was lustiges" after a film: funny films, not a joke
                 return self.everyday.recommend(st, msg, la["kind"][4:], genre0, lang="de")
+        if re.fullmatch(r"(?:(?:mir geht(?:'?s| s| es)|es geht|geht) (?:eigentlich |ganz |soweit )?(?:gut|okay|ok),? )?(?:aber |nur )?"
+                        r"(?:ich )?bin (?:heute )?(?:nur |so |echt |total |ziemlich |voll |einfach |richtig |etwas |ein bisschen )*"
+                        r"(?:müde|kaputt|erschöpft|platt|k\.?o\.?)(?: heute)?", s):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg,
+                           "text_en": "i am tired", "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "de:life:tired", dl["tired"]), via="german")
+        if re.fullmatch(r"(?:ja,? |naja,? )?(?:ich )?(?:hab|habe) (?:heute nacht |letzte nacht |die nacht )?(?:echt |total |richtig |so |sehr |mega |voll )?"
+                        r"(?:schlecht|kaum|nicht|wenig|nicht gut|unruhig|nur (?:\d|drei|vier|fünf) stunden) geschlafen(?: heute nacht| letzte nacht)?|"
+                        r"ich kann (?:seit tagen |nachts |gerade )?(?:nicht|kaum|schlecht) (?:ein|durch)?schlafen", s):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg,
+                           "text_en": "i can't sleep", "turn": st.turn}
+            st.uses["de_sleep_offer"] = st.turn
+            return Reply(msg, "empathy", self._pick(st, "de:life:slept_bad", dl["slept_bad"]), via="german")
         th = _THANKS_DE.fullmatch(s)
         if th:
             rest = th.group("rest") or ""
@@ -924,6 +953,8 @@ class Assistant:
                                       de_again or self.bank.daily["unknown_again"])
         if rep.via == "facts" and rep.text:
             rep.text = _MONTH_LOW.sub(lambda m: m.group(0)[:1].upper() + m.group(0)[1:], rep.text)  # "on june 5" → "June 5"
+        if rep.kind != "safety" and _NEW_JOB.search(normalise(message)):
+            st.uses["new_job"] = st.turn                 # "it's at a bank" / "I start monday" may follow
         st.last_message = message
         st.last_kind = rep.kind
         self._track(st, rep, msg)
@@ -969,6 +1000,10 @@ class Assistant:
             return Reply(msg, "nothing", "Please type something.")
         if re.fullmatch(r"(?:\.{2,}|…+)", msg):                        # "...": still thinking
             return Reply(msg, "smalltalk", self._pick(st, "daily:dots", self.bank.daily["dots"]), via="smalltalk")
+        if st.lang != "de" and "new_job" in st.uses:
+            job = self._job_detail(st, msg)
+            if job is not None:
+                return job
         if re.fullmatch(r"\?{2,}!*|\?!+|!\?+", msg):                    # "???": that was unclear
             return Reply(msg, "smalltalk", self._pick(st, "daily:puzzled", self.bank.daily["puzzled"]), via="clarify")
         de = self.bank.de
@@ -1769,6 +1804,30 @@ class Assistant:
             st.uses["person_gap"] = st.turn                    # "how old is he?" next: ask who is meant
         self.bot.context.update({"answer": None, "atype": None})   # a guess not shown is no referent
         return rep
+
+    def _job_detail(self, st: DialogState, msg: str) -> Reply | None:
+        """Details right after "I got a new job": where ("it's at a bank in frankfurt") and when it
+        starts ("I start next monday"), both remembered."""
+        d = self.bank.daily
+        norm = normalise(msg)
+        nj = st.uses.get("new_job")
+        if nj is not None and 0 < st.turn - nj <= 3:
+            jm = _JOB_AT.fullmatch(norm.strip(" .!"))
+            if jm:                                        # "it's at a bank in frankfurt" after "I got a new job"
+                x = re.sub(r"\b(in|near|outside) ([a-z][\w-]+(?: [a-z][\w-]+)?)$",
+                           lambda m: f"{m.group(1)} {_place_case(m.group(2))}", jm.group("x").strip())
+                r = self._learn(st, [f"I work at {x}."], msg)
+                r.text = self._pick(st, "daily:job_where", d["job_where"], x=x)
+                return r
+            sm = _JOB_START.fullmatch(norm.strip(" .!"))
+            if sm:                                        # "I start next monday"
+                x = re.sub(r"\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|"
+                           r"june|july|august|september|october|november|december)\b", lambda m: m.group(1).capitalize(),
+                           sm.group("x").strip())
+                r = self._learn(st, [f"My new job starts {x}."], msg)
+                r.text = self._pick(st, "daily:job_start", d["job_start"], x=x)
+                return r
+        return None
 
     def _life(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Everyday life as a person tells it: a workout done and how it went, a day that was "ok",
@@ -2601,9 +2660,19 @@ class Assistant:
         by hand (data/conv/daily.yaml `common`), because the text look-up gets exactly these wrong
         ("two continents", "Sweet")."""
         q = normalise(text).strip(" ?!.")
+        ct = st.uses.get("common_then")
+        if ct and st.turn - ct[1] <= 3 and re.fullmatch(r"(?:and |so )?how old (?:was|were) (?:he|she|they)(?: (?:then|at the time|back then|"
+                                                         r"when (?:he|she|they) did (?:it|that)|at that time))?", q):
+            return Reply(text, "answer", ct[0], answer=ct[0], source={"kind": "common", "source": "everyday facts", "key": ""},
+                         confidence=1.0, via="common")   # "how old was he then?" after the first man on the moon
         for item in self.bank.daily.get("common", []):
             if re.fullmatch(item["q"], q):
                 src = {"kind": "common", "source": "everyday facts", "key": item.get("key", "")}
+                if item.get("t"):                 # a person or thing: "when was he born?" follows on from it
+                    self.bot.context.update({"answer": item["t"], "atype": None, "mention": item["t"], "kb_last": None})
+                    st.topic = {"title": item["t"], "name": item["t"], "turn": st.turn}
+                if item.get("then"):
+                    st.uses["common_then"] = [item["then"], st.turn]
                 return Reply(text, "answer", item["a"], answer=item.get("v", item["a"]), source=src, confidence=1.0,
                              via="common")
         return None
