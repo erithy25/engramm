@@ -2484,6 +2484,9 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     politely?“ → drei Formulierungen; „lucky you“ nach „Never sleep“ → „That's really nice to hear!“ → jetzt passend;
     „what would you dream about?“, „if you could eat, what would you try first?“, „what toppings?“, „you're weird“ mit
     eigenen, menschlichen Antworten.
+  - Erste Fassung fing „help me plan my day“ ab und überging den vorhandenen Tagesplaner (alter Test schlug an); jetzt
+    beantwortet der Planer den Einstieg, die neue Regel ergänzt nur Uhrzeiten. Messung: Team-Dev-Satz 1 von 128 (team-0067),
+    NQ 22/9, Suite 752 bestanden, Regressionen 32, 38–62 (29 Gespräche): 0 Wiederholungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
