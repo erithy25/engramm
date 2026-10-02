@@ -2358,6 +2358,72 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - Grenze: „Inception“ steht nicht im Lite-Paket; dazu sagt Engramm ehrlich, dass es nichts weiß.
   - Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–54 und langes Gespräch: 0 Wiederholungen.
     Suite 735 bestanden, 7 übersprungen.
+- **Alltags-Batterie 56 (Wissens-Folgefragen: Personen, Ämter, Werke; Englisch und Deutsch)**:
+  - Faktenfehler gefunden: „who invented the telephone?“ → „when?“ → „where was he born?“ → „Telephone was born in Bell
+    Telephone Laboratories.“ Das „he“ fiel nach der Zwischenfrage auf das Thema (das Telefon) zurück. Jetzt merkt sich das
+    Gespräch die zuletzt genannte Person samt Thema; bei mehreren Erfindern fragt Engramm nach („Several people are
+    credited — Meucci, Gray, Bell and Reis. Which one do you mean?“), und „bell“ wählt Alexander Graham Bell.
+  - Pronomen: „how old is he?“ direkt nach Michelle Obama → Barack Obama (Liste der zuletzt genannten Personen mit
+    Geschlecht; die Erkennung liest jetzt fünf statt zwei Anfangssätze). „how old was George Washington when he died?“ ersetzte
+    das „he“ durch die Person davor; ein Pronomen, das in dieselbe Frage zurückzeigt, bleibt jetzt stehen (67 Jahre).
+  - Neu ohne Faktenbank-Eintrag, mit strengen Satzmustern: „who was the first president of the United States?“ (mindestens
+    zwei übereinstimmende Belegsätze, „forty-first“ zählt nicht; ein Fall-Bug „first President“ wurde vom neuen Test
+    gefunden); „who composed the Four Seasons?“ (Artikeltitel „The Four Seasons (Vivaldi)“, Klammername ist eine bekannte
+    Person); „how long was he president?“ (Jahre aus dem Artikelanfang: 1789–1797, etwa 8 Jahre).
+  - Formulierung: „when?“ nach „who discovered penicillin?“ wird „When was penicillin discovered?“ (statt „When discovered
+    penicillin?“, „The answer is 1929.“); „Antonio Vivaldi: the Republic of Venice.“ wird „… was from …“; „Telephone was
+    invented“ wird „The telephone was invented“ (einzige Dev-Änderung, team-0067); „in the 7th arrondissement“;
+    „what language do they speak?“ nach Tokio fragt nach dem Land (Japanisch, Yen).
+  - Deutsch: „wer war der erste präsident der usa?“ → „Das war George Washington.“ → „wie lange war er präsident?“ → „Von 1789
+    bis 1797 – etwa 8 Jahre.“; „und wie alt ist er?“ nach Michelle Obama gab dieselbe Antwort noch einmal, jetzt Barack Obama;
+    „wann?“ → „Im Jahr 1929.“; Rückfrage bei mehreren Erfindern auf Deutsch, die Antwort darauf bleibt Deutsch;
+    „Die Vier Jahreszeiten wurden …“.
+  - Grenze: „The Starry Night“ und Alexander Fleming stehen nicht im Lite-Paket; Engramm sagt ehrlich, dass es nichts weiß.
+    „Who designed the Eiffel Tower?“ nennt laut Faktenbank Stéphen Sauvestre (DBpedia-Eintrag „architect“), nicht Gustave Eiffel.
+  - Team-Dev-Satz: 1 von 128 geändert (team-0067, Artikel). NQ-open 400: 22/9. Regressionen 32, 38–55 und langes
+    Gespräch: 0 Wiederholungen (Unterschiede nur Uhrzeiten). Suite: siehe Runde 56/57/59 unten.
+- **Alltags-Batterie 57 (Alltagsmomente mit Bezug auf den Satz davor)**:
+  - Schwere Fehlgriffe gefunden: „my phone died“ → „I'm so sorry for your loss … tell me about them?“ und „i'm gonna miss
+    her so much“ (die beste Freundin zieht nach Kanada) → Beileid. Der Trauer-Auslöser „died“/„is dead“ greift jetzt nicht
+    mehr nach Geräten (phone, battery, laptop …); „my grandma died“ bekommt weiter Mitgefühl. Wegzug: „Where are they
+    moving to?“ → „Canada — that's quite far. When's the move?“ → „That's soon …“ → „I bet. It hurts because it matters …“.
+  - „it's raining again“ und „and i have work tomorrow“ (nach „i can't sleep“) landeten bei „I can't check live data“ bzw.
+    „Setting alarms … is outside what I can do“. Jetzt: Wetter-Smalltalk (Regen, Kälte, Hitze, Schnee, Sonne), danach
+    „i wanted to go for a run“ → Ausweichvorschlag, „maybe tomorrow“ → „Sounds like a plan“; nachts „it's 3am“ → „Oof, 3am —
+    …“, und „i can't sleep“ rät nicht mehr „get some sleep soon“.
+  - Welpe: „guess what“ → „What happened? Spill!“ (vorher „I see. Tell me more?“) → „i got a puppy!“ → „What breed?“ →
+    „she's a golden retriever“ (vorher „How did it go?“) → „any name ideas?“ (vorher „I couldn't find anything reliable“)
+    → drei Namen → „i like the second one“ → „Luna it is!“ (vorher als Vorliebe „One“ gespeichert).
+  - Kühlschrank: „theres nothing in the fridge“ → Rückfrage nach Eiern/Brot (vorher „with nothing I'd keep it simple“) →
+    „just eggs and cheese“ → Käse-Omelett mit Anleitung → „how long do i cook it?“ → „About 3–4 minutes …“.
+  - Farbe: „mine is green“ wird als Lieblingsfarbe gespeichert; „do you like green?“ ist eine Meinung, kein Lexikonauszug
+    über Wellenlängen. „can't find my charger“ → Suchtipps statt „That's a lot to deal with“.
+  - Zwei Fehler der ersten Fassung, vor dem Commit gefunden: eine Endlosschleife (die gespeicherte Farbe löste dieselbe
+    Regel wieder aus) und zwei YAML-Schlüssel, die es schon gab (pet_names, pet_breed; vom Studio-Duplikatcheck gemeldet).
+  - Team-Dev-Satz, NQ, Regressionen, Suite: siehe Runde 56/57 unten.
+  - Deutsch: dieselben Momente („rate mal“, „ich hab einen welpen bekommen!“, „der kühlschrank ist leer“ → „nur eier und
+    käse“, „mein handy ist tot“ – vorher „Oh nein, das tut mir so leid. Magst du mir von ihm erzählen?“ –, „es regnet schon
+    wieder“, „meine beste freundin zieht weg“ … „ich werde sie so vermissen“) waren fast alle „Das habe ich nicht ganz
+    verstanden“, mit drei wörtlichen Wiederholungen; jetzt eigene deutsche Antworten, 0 Wiederholungen.
+  - Haustier-Gedächtnis: Rasse und ein aus der Liste gewählter Name werden gespeichert („what's my puppy called?“ → Milo,
+    „what breed is he?“ → „Milo is a maine coon.“). Die erste Fassung fing auch „i have a cat“/„i adopted a dog“ ab und
+    überging den bestehenden Ablauf, der nach dem Namen fragt (zwei alte Tests schlugen an, vor dem Commit behoben); eine
+    Abfangregel für „i can't sleep“ brach die Schlaf-Kette aus Batterie 42 („work stuff mostly“, Tipps) und wurde durch
+    eine passendere Empathie-Antwort ersetzt („Is something keeping you up …?“ statt „maybe get some sleep soon“).
+- **Alltags-Batterie 59 (Tastatursalat und Laute; Anlass: Screenshot „dhdhd“ → „Interesting! What makes you say that?“)**:
+  - Der Screenshot stammt aus einer älteren Version: Diese Antwort gibt es im aktuellen Stand nicht mehr, „dhdhd“ wird
+    seit Batterie 20 als Tastatursalat erkannt. Geprüft wurden 30 weitere kurze Eingaben.
+  - Gefunden und behoben: „hhhh“, „xyz“, „abc“ → „Oh? Go on.“; „aaaaa“, „smh“ → „I see. Tell me more?“; „omg“ → „Got it.
+    Anything I can help you with?“. Jetzt menschliche Reaktionen (Seufzer, Schrei, Test-Nachricht, „What?! What happened?“).
+  - „dhdhd lol“ galt nicht als Salat (ein Chatwort daneben), „i like dhdhd“ wurde als Vorliebe gespeichert, „what is
+    dhdhd?“ nachgeschlagen. Jetzt: Rückfrage „“dhdhd”? I don't know that word …“, beim dritten Mal ohne erneutes „typo?“
+    und ohne Wiederholung. Nur eindeutige Fälle zählen (Tastenfolge oder Konsonantenkette ohne Vokal); eine erste Fassung
+    hätte „yoyo“, „bonbon“, „dodo“ und „byebye“ erwischt (eigener Test, vor dem Commit verschärft). Namen („my name is …“)
+    sind ausgenommen.
+  - „sorry my cat walked on the keyboard“ nach Salat wurde als Fakt über die Katze gespeichert; jetzt „Haha, no worries!
+    What did you want to say?“.
+- **Runde 56/57/59, Messung**: Team-Dev-Satz 1 von 128 geändert (team-0067, Artikel). NQ-open 400: 22/9. Gezielte Tests
+  (Batterien 29, 56, 57, 59, Haustiere) grün; Suite und Regressionen 32, 38–59 (Englisch und Deutsch): Nachtrag folgt.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

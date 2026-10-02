@@ -2243,3 +2243,246 @@ def test_hobbies_are_not_works(chat):
     a.turn(st, "i love cooking")
     r = a.turn(st, "what do i love doing?")
     assert "cooking" in r.text.lower(), r.text
+
+
+class _Ent:
+    def __init__(self, title, typ):
+        self.title, self.type, self.name, self.id = title, typ, title, 0
+
+
+class _LinkKB:
+    def __init__(self, people):
+        self.people = people
+
+    def link(self, name, limit=8):
+        hit = [p for p in self.people if p.lower().endswith(name.lower().split()[-1]) or p.lower() == name.lower()]
+        return [(_Ent(hit[0], "Person"), 0)] if hit else []
+
+
+def _stub_reading(a, texts, keys):
+    class Cands:
+        ids = list(range(len(texts)))
+
+    class R:
+        def candidates(self, q):
+            return Cands()
+
+    class C:
+        def sentence_text(self, s):
+            return texts[s]
+
+        def source(self, s):
+            return {"kind": "base", "source": "wikipedia", "key": keys[s]}
+    return R(), C()
+
+
+def test_battery56_first_holder_needs_two_agreeing_sentences(chat):
+    a, _ = chat
+
+    class KG:
+        kb = _LinkKB(["George Washington"])
+
+        def answer(self, q):
+            return None
+    old = (a.bot.r, a.bot.c, a.kgqa, a.about.find)
+    texts = ["The county is named for George Washington, the first president of the United States.",
+             "It was named after the first President of the United States, George Washington.",
+             "The high school is named after the forty-first president of the United States, George H. W. Bush."]
+    a.bot.r, a.bot.c = _stub_reading(a, texts, ["Washington County", "Washington County, Utah", "Bush School"])
+    a.kgqa, a.about.find = KG(), (lambda t, **kw: None)
+    try:
+        r = a._first_holder(DialogState("f1"), "who was the first president of the united states?")
+        assert r is not None and "George Washington" in r.text and "Bush" not in r.text, r and r.text
+        a.bot.r, a.bot.c = _stub_reading(a, texts[:1], ["Washington County"])
+        assert a._first_holder(DialogState("f2"), "who was the first president of the united states?") is None  # one mention
+        assert a._first_holder(DialogState("f3"), "who was the first lady of the united states?") is None
+    finally:
+        a.bot.r, a.bot.c, a.kgqa, a.about.find = old
+
+
+def test_battery56_maker_from_bracketed_title(chat):
+    a, _ = chat
+
+    class KG:
+        kb = _LinkKB(["Antonio Vivaldi"])
+
+        def answer(self, q):
+            return None
+    old = (a.bot.r, a.bot.c, a.kgqa)
+    a.bot.r, a.bot.c = _stub_reading(a, ["The Four Seasons is a group of four violin concertos.", "Four Seasons is a hotel chain."],
+                                     ["The Four Seasons (Vivaldi)", "Four Seasons (company)"])
+    a.kgqa = KG()
+    try:
+        r = a._maker_in_title(DialogState("m1"), "who composed the four seasons?")
+        assert r is not None and r.text == "The Four Seasons was composed by Antonio Vivaldi.", r and r.text
+        assert a._maker_in_title(DialogState("m2"), "who composed it?") is None
+    finally:
+        a.bot.r, a.bot.c, a.kgqa = old
+
+
+def test_battery56_tenure_from_the_article_opening(chat):
+    a, _ = chat
+    pages = {"George Washington": _about("George Washington", [
+        "George Washington (February 22, 1732 – December 14, 1799) was an American Founding Father who served as the first "
+        "president of the United States from 1789 to 1797."])}
+    old = a.about.find
+    a.about.find = lambda t, **kw: pages.get(t)
+    try:
+        r = a._tenure(DialogState("t1"), "how long was George Washington president?")
+        assert r is not None and "1789" in r.text and "1797" in r.text and "8 years" in r.text, r and r.text
+        assert a._tenure(DialogState("t2"), "how long was George Washington king?") is None
+    finally:
+        a.about.find = old
+
+
+def test_battery56_bare_when_after_who_question_is_passive():
+    from engramm.chat.smart import rebuild_question
+    assert rebuild_question("Who discovered penicillin?", "when") == "When was penicillin discovered?"
+    assert rebuild_question("who wrote Romeo and Juliet?", "where") == "Where was Romeo and Juliet written?"
+    assert rebuild_question("When was Shakespeare born?", "where") == "Where was Shakespeare born?"
+
+
+def test_battery56_pronoun_resolution_keeps_the_right_person():
+    from engramm.chat.bot import ChatBot
+    b = ChatBot.__new__(ChatBot)
+    b.person_gender = lambda n: {"Michelle Obama": "female", "Barack Obama": "male"}.get(n)
+    b.not_a_person = lambda n: n in ("Penicillin", "Telephone")
+    # a "when?" in between: "he" is still the discoverer, not penicillin
+    b.context = {"answer": "1929", "atype": "DATE", "mention": "Penicillin", "last_person": ["Alexander Fleming", "Penicillin", 0]}
+    assert b.resolve("what nationality was he?") == "what nationality was Alexander Fleming?"
+    # "how old is he?" right after Michelle Obama: Barack
+    b.context = {"answer": "62", "atype": "NUMBER", "mention": "Michelle Obama", "people": ["Barack Obama", "Michelle Obama"]}
+    assert b.resolve("how old is he?") == "how old is Barack Obama?"
+    # several inventors: "he" stays open
+    b.context = {"answer": None, "atype": None, "mention": "Telephone", "many_people": ["Telephone", ["A B", "C D"]]}
+    assert b.resolve("where was he born?") == "where was he born?"
+    # the pronoun points back into the same question
+    b.context = {"answer": "Antonio Vivaldi", "atype": "PERSON", "mention": "Antonio Vivaldi"}
+    assert b.resolve("how old was george washington when he died?") == "how old was george washington when he died?"
+
+
+def test_battery56_german_follow_ups_reach_the_same_rules():
+    from engramm.chat.german_bridge import de_sentence, to_english
+    assert to_english("wer war der erste präsident der usa")[:2] == ("who was the first president of United States", "first_holder")
+    assert to_english("wie lange war er präsident")[:2] == ("how long was he president", "tenure")
+    assert to_english("woher kam er")[:2] == ("where was he from", "from")
+    assert to_english("wer hat die vier jahreszeiten komponiert")[0] == "who composed the four seasons"
+    assert de_sentence("from", "Antonio Vivaldi", "Venice", "Antonio Vivaldi was from Venice.") == "Antonio Vivaldi stammte aus Venedig."
+
+
+def test_battery57_everyday_moments_keep_their_context(chat):
+    a, _ = chat
+    st = DialogState("p57")
+    assert "?" in a.turn(st, "guess what").text
+    r = a.turn(st, "i got a puppy!")
+    assert "puppy" in r.text and "loss" not in r.text, r.text
+    r = a.turn(st, "she's a golden retriever")
+    assert "golden retriever" in r.text and "How did it go" not in r.text and "call she" not in r.text, r.text
+    r = a.turn(st, "any name ideas?")
+    names = [ln[2:] for ln in r.text.splitlines() if ln.startswith("• ")]
+    assert len(names) == 3 and r.kind == "smalltalk", r.text
+    r = a.turn(st, "ooh i like the second one")
+    assert names[1] in r.text and "One —" not in r.text, r.text      # the chosen name is remembered, not "One"
+    assert names[1] in a.turn(st, "what's my puppy called?").text
+    st = DialogState("f57")
+    a.turn(st, "im so hungry")
+    a.turn(st, "theres nothing in the fridge")
+    r = a.turn(st, "just eggs and cheese")
+    assert "omelette" in r.text, r.text
+    assert "minutes" in a.turn(st, "how long do i cook it?").text
+    st = DialogState("s57")
+    r = a.turn(st, "i can't sleep")
+    assert "get some sleep" not in r.text, r.text
+    assert "3am" in a.turn(st, "it's 3am").text
+    r = a.turn(st, "and i have work tomorrow")
+    assert r.via != "device" and "alarm" not in r.text.lower(), r.text
+
+
+def test_battery57_no_grief_for_a_phone_or_a_friend_moving(chat):
+    a, _ = chat
+    st = DialogState("d57")
+    r = a.turn(st, "my phone died")
+    assert "loss" not in r.text and "charger" in r.text, r.text
+    r = a.turn(st, "and i can't find my charger")
+    assert "loss" not in r.text and r.kind != "learned", r.text
+    st = DialogState("m57")
+    assert "Where" in a.turn(st, "my best friend is moving away").text
+    assert "Canada" in a.turn(st, "to canada").text
+    a.turn(st, "next month")
+    r = a.turn(st, "i'm gonna miss her so much")
+    assert "loss" not in r.text and "grieve" not in r.text, r.text
+    # a real loss still gets sympathy
+    assert "sorry" in a.turn(DialogState("g57"), "my grandma died last week").text.lower()
+
+
+def test_battery57_weather_talk_and_colours(chat):
+    a, _ = chat
+    st = DialogState("w57")
+    r = a.turn(st, "it's raining again")
+    assert r.via != "device" and "live data" not in r.text, r.text
+    r = a.turn(st, "i wanted to go for a run")
+    assert "run" in r.text or "workout" in r.text, r.text
+    assert a.turn(st, "maybe tomorrow").kind == "smalltalk"
+    st = DialogState("c57")
+    a.turn(st, "what's your favorite color?")
+    a.turn(st, "mine is green")
+    r = a.turn(st, "do you like green?")
+    assert "wavelength" not in r.text and "Green" in r.text, r.text
+
+
+def test_battery57_german_everyday_moments(chat):
+    a, _ = chat
+    st = DialogState("dp57")
+    assert "?" in a.turn(st, "rate mal").text
+    assert "Welpe" in a.turn(st, "ich hab einen welpen bekommen!").text
+    r = a.turn(st, "sie ist ein golden retriever")
+    assert "Golden Retriever" in r.text, r.text
+    r = a.turn(st, "hast du namensideen?")
+    names = [ln[2:] for ln in r.text.splitlines() if ln.startswith("• ")]
+    assert len(names) == 3, r.text
+    assert names[1] in a.turn(st, "der zweite gefällt mir").text
+    st = DialogState("dh57")
+    r = a.turn(st, "mein handy ist tot")
+    assert "leid" not in r.text and "Ladekabel" in r.text, r.text
+    st = DialogState("dm57")
+    a.turn(st, "meine beste freundin zieht weg")
+    assert "Kanada" in a.turn(st, "nach kanada").text
+    a.turn(st, "nächsten monat")
+    r = a.turn(st, "ich werde sie so vermissen")
+    assert "Freundschaft" in r.text and "Verlust" not in r.text, r.text
+    st = DialogState("dk57")
+    a.turn(st, "der kühlschrank ist leer")
+    assert "Omelett" in a.turn(st, "nur eier und käse").text
+    st = DialogState("dr57")
+    assert "Regen" in a.turn(st, "es regnet schon wieder").text
+
+
+def test_battery59_sounds_and_keyboard_slips(chat):
+    a, _ = chat
+    for msg, bad in (("hhhh", "Go on"), ("xyz", "Go on"), ("aaaaa", "Tell me more"), ("smh", "Tell me more"),
+                     ("omg", "help you with")):
+        r = a.turn(DialogState("s59" + msg), msg)
+        assert bad not in r.text, (msg, r.text)
+    r = a.turn(DialogState("g59a"), "dhdhd")
+    assert r.via == "gibberish", r.text
+    r = a.turn(DialogState("g59b"), "dhdhd lol")
+    assert r.via in ("gibberish", "clarify") and "on your mind" not in r.text, r.text
+    st = DialogState("g59c")
+    seen = set()
+    for msg in ("what is dhdhd?", "i like dhdhd", "who is dhdhd?", "tell me about dhdhd"):
+        r = a.turn(st, msg)
+        assert r.kind != "learned" and "dhdhd" in r.text and r.text not in seen, r.text
+        seen.add(r.text)
+    st = DialogState("g59d")
+    a.turn(st, "sdkfj")
+    r = a.turn(st, "sorry my cat walked on the keyboard")
+    assert r.kind != "learned" and "worries" in r.text or "happens" in r.text, r.text
+
+
+def test_strict_mash_spares_real_words():
+    from engramm.chat.smart import gibberish, strict_mash
+    for w in ("yoyo", "bonbon", "dodo", "byebye", "tutu", "hmmm", "grrr", "pfff", "zelensky", "nguyen", "booboo"):
+        assert not strict_mash(w), w
+    for w in ("dhdhd", "sksksk", "asdf", "lkjlkj", "qwertz", "jjjj"):
+        assert strict_mash(w), w
+    assert gibberish("dhdhd lol") and not gibberish("lol") and not gibberish("haha ok")

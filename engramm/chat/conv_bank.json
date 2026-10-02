@@ -1685,7 +1685,7 @@
     "id": "grief",
     "valence": "negative",
     "triggers": [
-     "\\b(died|passed away|passed on|lost my (mom|mother|dad|father|mum|grandma|grandmother|grandpa|grandfather|brother|sister|son|daughter|husband|wife|partner|friend|best friend|dog|cat|pet|baby)|funeral|grieving|grief|mourning|miss (him|her|them) so much|is dead|was killed|put (my|our) (dog|cat) down|had to put down)\\b"
+     "\\b((?<!phone )(?<!battery )(?<!laptop )(?<!computer )(?<!tablet )(?<!car )(?<!ipad )(?<!iphone )(?<!engine )(?<!charger )(?<!headphones )(?<!console )(?<!controller )(?<!tv )(?<!plant )died|passed away|passed on|lost my (mom|mother|dad|father|mum|grandma|grandmother|grandpa|grandfather|brother|sister|son|daughter|husband|wife|partner|friend|best friend|dog|cat|pet|baby)|funeral|grieving|grief|mourning|miss (him|her|them) so much|(?<!phone )(?<!battery )(?<!laptop )(?<!computer )(?<!car )is dead|was killed|put (my|our) (dog|cat) down|had to put down)\\b"
     ],
     "responses": [
      "I'm so sorry for your loss. That's incredibly hard. Would you like to tell me about them?",
@@ -1810,7 +1810,7 @@
     ],
     "responses": [
      "Sounds like you need some rest. Is there a chance for a break or an early night?",
-     "Being tired makes everything harder. Be kind to yourself today — and maybe get some sleep soon.",
+     "Being tired makes everything harder. Is something keeping you up, or has it just been a long stretch?",
      "I'm sorry you're so worn out. What's been keeping you busy?"
     ]
    },
@@ -5543,6 +5543,183 @@
      "rom": "Carbonara, Cacio e pepe, Supplì, Pizza al taglio und Gelato.",
      "london": "Fish and Chips, ein Full English Breakfast, Sunday Roast und Afternoon Tea.",
      "barcelona": "Tapas, Pan con tomate, Paella und Crema catalana."
+    },
+    "g57": {
+     "guess": [
+      "Was denn? Erzähl!",
+      "Oh, was ist passiert? Ich bin ganz Ohr!"
+     ],
+     "pet_new": [
+      "Ein {x}?! Wie schön – herzlichen Glückwunsch! Was für eine Rasse?",
+      "Nein, wie toll, ein {x}! Was für einer?"
+     ],
+     "pet_breed": [
+      "Oh, ein {x} – die sind so lieb! Hat {p} schon einen Namen?",
+      "Ein {x}! Wie willst du {d} nennen?"
+     ],
+     "pet_names_lead": [
+      "Ein paar Ideen:",
+      "Wie wäre es mit einem davon?"
+     ],
+     "pet_names_tail": [
+      "Gefällt dir einer davon?",
+      "Passt einer davon?"
+     ],
+     "pet_pick": [
+      "{x} – wie schön! Das passt richtig gut.",
+      "{x} also! Ein toller Name."
+     ],
+     "fridge_empty": [
+      "Oh nein, der Klassiker. Gar nichts mehr da – nicht mal Eier, Brot oder Nudeln?",
+      "Ganz leer? Irgendwas findet sich meistens noch – Eier, Käse, Brot?"
+     ],
+     "fridge_dish": [
+      "Daraus kannst du {x} machen! {y}",
+      "Perfekt für {x}. {y}"
+     ],
+     "fridge_none": [
+      "Hm, schwierig. Vielleicht heute Brot oder doch etwas bestellen?",
+      "Da wird's knapp – vielleicht kurz einkaufen oder etwas liefern lassen?"
+     ],
+     "dishes": [
+      {
+       "need": [
+        "eier",
+        "käse"
+       ],
+       "x": "ein Käse-Omelett",
+       "y": "2–3 Eier verquirlen, in eine heiße Pfanne mit Butter geben, Käse drauf, zuklappen.",
+       "t": "Etwa 3–4 Minuten bei mittlerer Hitze; nimm es raus, solange es oben noch leicht weich ist."
+      },
+      {
+       "need": [
+        "eier",
+        "brot"
+       ],
+       "x": "Arme Ritter",
+       "y": "Brot in verquirltem Ei wenden und in etwas Butter braten.",
+       "t": "Etwa 2–3 Minuten pro Seite, bis sie goldbraun sind."
+      },
+      {
+       "need": [
+        "brot",
+        "käse"
+       ],
+       "x": "ein Käsetoast",
+       "y": "Käse zwischen zwei Scheiben, außen etwas Butter, ab in die Pfanne.",
+       "t": "Etwa 3 Minuten pro Seite, bis der Käse schmilzt."
+      },
+      {
+       "need": [
+        "nudeln",
+        "käse"
+       ],
+       "x": "Nudeln mit Käse",
+       "y": "Nudeln kochen, etwas Kochwasser aufheben und den Käse unterrühren.",
+       "t": "Die meisten Nudeln brauchen 9–12 Minuten – schau auf die Packung."
+      },
+      {
+       "need": [
+        "reis",
+        "eier"
+       ],
+       "x": "gebratenen Reis mit Ei",
+       "y": "Gekochten Reis scharf anbraten, zur Seite schieben und die Eier darin rühren.",
+       "t": "Etwa 5 Minuten in einer heißen Pfanne."
+      },
+      {
+       "need": [
+        "eier"
+       ],
+       "x": "Rührei",
+       "y": "Eier mit einer Prise Salz verquirlen und sanft in Butter rühren.",
+       "t": "Etwa 2–3 Minuten bei kleiner Hitze; runter, solange es noch glänzt."
+      }
+     ],
+     "sleep_work": [
+      "Der Druck macht's noch schwerer, ich weiß. Zähl lieber nicht die Stunden – auch Ruhen mit geschlossenen Augen hilft.",
+      "Genau dieses 'Ich MUSS jetzt schlafen' hält einen wach. Ausruhen zählt auch, selbst wenn der Schlaf nicht sofort kommt."
+     ],
+     "device": [
+      "Oh nein, ein leeres {x} im ungünstigsten Moment – typisch. Hast du ein Ladekabel in der Nähe?",
+      "Akku leer? Hoffentlich ist ein Ladekabel griffbereit."
+     ],
+     "charger": [
+      "Ladekabel verschwinden immer genau dann, wenn man sie braucht. Schau in der Tasche, am Bett und zwischen den Sofakissen – oder leih dir eins?",
+      "Natürlich ist es jetzt weg. Die üblichen Verstecke: Tasche, Nachttisch, Sofa. Kannst du dir eins leihen?"
+     ],
+     "weather": {
+      "rain": [
+       "Schon wieder? Regentage sind wie gemacht für Tee und eine Decke.",
+       "Regen, schon wieder – der Himmel gibt heute wirklich nicht auf."
+      ],
+      "cold": [
+       "Brr! Zeit für warme Socken und etwas Heißes zu trinken.",
+       "Bei der Kälte hilft nur Zwiebellook und ein heißer Tee."
+      ],
+      "hot": [
+       "Puh, viel trinken und ab in den Schatten!",
+       "Heiße Tage sind toll – solange ein kaltes Getränk in der Nähe ist."
+      ],
+      "snow": [
+       "Schnee! Gemütlich oder nervig – was ist es für dich?",
+       "Oh, Schnee. Freust du dich oder graut dir vor dem Weg zur Arbeit?"
+      ],
+      "sun": [
+       "Herrlich! Perfektes Wetter, um mal rauszugehen.",
+       "Sonne tut einfach gut, oder?"
+      ]
+     },
+     "weather_plans": [
+      "Wenn das Wetter einem die Pläne verhagelt … Vielleicht heute ein Workout drinnen – oder eine Runde im Regen, wenn du mutig bist?",
+      "Oh nein, da fällt der Plan ins Wasser. Workout zu Hause, oder auf eine trockene Phase warten?"
+     ],
+     "maybe_tomorrow": [
+      "Klingt nach einem Plan – Daumen drücken für besseres Wetter.",
+      "Gute Idee. Morgen macht's dann doppelt Spaß."
+     ],
+     "moving": [
+      "Oh nein, das ist hart. Wohin zieht sie denn?",
+      "Ach, das ist eine schwere Nachricht. Wohin geht's?"
+     ],
+     "moving_where": [
+      "{x} – das ist ganz schön weit. Wann ist der Umzug?",
+      "{x}, wow. Ein großer Schritt. Wann geht's los?"
+     ],
+     "moving_when": [
+      "Dann habt ihr noch ein bisschen Zeit. Vielleicht plant ihr noch etwas Besonderes vor dem Umzug?",
+      "Das ist bald. Nutzt die Wochen – ein letzter Ausflug oder euer Lieblingsessen zusammen?"
+     ],
+     "moving_miss": [
+      "Natürlich – das zeigt, wie nah ihr euch steht. Entfernung verändert vieles, aber Anrufe, Nachrichten und Besuche halten echte Freundschaften zusammen.",
+      "Das glaube ich dir. Es tut weh, weil es dir wichtig ist. Ein Videoanruf ist nicht dasselbe, aber echte Freundschaften überstehen die Entfernung."
+     ],
+     "pet_pool": {
+      "female": [
+       "Luna",
+       "Mia",
+       "Emma",
+       "Nala",
+       "Frieda",
+       "Ronja"
+      ],
+      "male": [
+       "Max",
+       "Balu",
+       "Paul",
+       "Oskar",
+       "Bruno",
+       "Charlie"
+      ],
+      "any": [
+       "Luna",
+       "Balu",
+       "Pepper",
+       "Ronja",
+       "Oskar",
+       "Keks"
+      ]
+     }
     }
    }
   }
@@ -7184,6 +7361,18 @@
   "news_none_topic": [
    "Nothing about {x} in my news feeds from the last 30 days.",
    "My feeds have nothing on {x} right now."
+  ],
+  "which_of": [
+   "Which of them do you mean — {x}?",
+   "Several people are credited — {y}. Which one do you mean?"
+  ],
+  "tenure": [
+   "{x} held the office from {y} to {z} — about {n} years.",
+   "From {y} to {z}, so roughly {n} years."
+  ],
+  "first_holder": [
+   "The {x} was {y}.",
+   "That was {y} — the {x}."
   ],
   "who_mean": [
    "Who do you mean by “{x}”? Give me the name and I'll look it up.",
@@ -10670,6 +10859,254 @@
   ],
   "work_should": [
    "Lots of people love {x}. If the topic sounds interesting to you, I'd say give it a go — you can always stop if it doesn't grab you."
-  ]
+  ],
+  "guess_what": [
+   "What?! Tell me!",
+   "Ooh, what? I'm all ears!",
+   "What happened? Spill!"
+  ],
+  "pet_new": [
+   "A {x}?! That's wonderful — congratulations! What kind is it, and does it have a name yet?",
+   "No way, a {x}! I'm so happy for you. What breed — and what's its name?"
+  ],
+  "pet_breed2": [
+   "Aww, a {x} — they're the sweetest. Does {p} have a name yet?",
+   "A {x}! Such a lovely dog. What are you going to call {d}?"
+  ],
+  "pet_names_lead": [
+   "Some ideas for {p}:",
+   "How about one of these?"
+  ],
+  "pet_names_tail": [
+   "Any of those feel right?",
+   "Do any of them suit {p}?"
+  ],
+  "pet_name_pool": {
+   "female": [
+    "Luna",
+    "Daisy",
+    "Honey",
+    "Bella",
+    "Maple",
+    "Nala"
+   ],
+   "male": [
+    "Max",
+    "Milo",
+    "Charlie",
+    "Cooper",
+    "Teddy",
+    "Buddy"
+   ],
+   "any": [
+    "Luna",
+    "Milo",
+    "Pepper",
+    "Maple",
+    "Teddy",
+    "Biscuit"
+   ]
+  },
+  "pet_breed_named": [
+   "{y} the {x} — adorable! They're such friendly dogs.",
+   "A {x} called {y}? That's the cutest combination."
+  ],
+  "pet_name_pick": [
+   "{x} — I love it! {x} the {y} has a lovely ring to it.",
+   "{x} it is! That suits a {y} perfectly."
+  ],
+  "fridge_empty": [
+   "Oh no, the empty-fridge moment. Is there really nothing — not even eggs, bread or pasta?",
+   "Classic. Anything at all hiding in there — eggs, cheese, bread? Otherwise it might be delivery time."
+  ],
+  "fridge_dish": [
+   "That's enough for {x}! {y}",
+   "Perfect, you can make {x}. {y}"
+  ],
+  "fridge_none": [
+   "Hmm, that's a tough one. Toast or a delivery might be the way tonight.",
+   "Not much to work with — maybe a quick trip to the shop, or order something?"
+  ],
+  "fridge_dishes": [
+   {
+    "need": [
+     "eggs",
+     "cheese"
+    ],
+    "x": "a cheese omelette",
+    "y": "Whisk 2–3 eggs, pour them into a hot buttered pan, add the cheese, fold.",
+    "t": "About 3–4 minutes on medium heat: take it off while the top is still a little soft."
+   },
+   {
+    "need": [
+     "eggs",
+     "bread"
+    ],
+    "x": "eggy bread (French toast)",
+    "y": "Dip the bread in beaten egg and fry it in a little butter.",
+    "t": "About 2–3 minutes per side, until golden."
+   },
+   {
+    "need": [
+     "bread",
+     "cheese"
+    ],
+    "x": "a grilled cheese sandwich",
+    "y": "Cheese between two slices, butter outside, into a pan.",
+    "t": "About 3 minutes per side on medium heat, until the cheese melts."
+   },
+   {
+    "need": [
+     "pasta",
+     "cheese"
+    ],
+    "x": "pasta with cheese",
+    "y": "Cook the pasta, keep a splash of the water, stir in the cheese.",
+    "t": "Most pasta takes 9–12 minutes — check the packet."
+   },
+   {
+    "need": [
+     "rice",
+     "eggs"
+    ],
+    "x": "egg fried rice",
+    "y": "Fry cooked rice in a hot pan, push it aside and scramble the eggs in.",
+    "t": "About 5 minutes in a hot pan."
+   },
+   {
+    "need": [
+     "eggs"
+    ],
+    "x": "scrambled eggs",
+    "y": "Beat the eggs with a pinch of salt and stir them gently in a buttered pan.",
+    "t": "About 2–3 minutes on low heat; take them off while still glossy."
+   },
+   {
+    "need": [
+     "pasta"
+    ],
+    "x": "pasta aglio e olio, if you have garlic and oil",
+    "y": "Cook the pasta and toss it with garlic fried in olive oil.",
+    "t": "Most pasta takes 9–12 minutes — check the packet."
+   },
+   {
+    "need": [
+     "bread"
+    ],
+    "x": "toast with whatever you have",
+    "y": "Simple but it works.",
+    "t": "A couple of minutes in the toaster."
+   }
+  ],
+  "late_night": [
+   "Oof, {x} — no wonder you're frustrated. Is something on your mind, or just restless?",
+   "{x} already? That's rough. Is something keeping you up?"
+  ],
+  "sleep_work": [
+   "That pressure makes it even harder to drift off, I know. Try not to count the hours — even resting with your eyes closed helps.",
+   "Ugh, the 'I need to sleep NOW' feeling makes it worse. Rest still counts, even if sleep doesn't come right away."
+  ],
+  "device_died": [
+   "Ugh, a dead {x} at the worst moment — classic. Got a charger nearby?",
+   "Oh no, the {x} died? Hope you've got a charger handy."
+  ],
+  "lost_charger": [
+   "Chargers always vanish exactly when you need them. Check the bag, the bed and the couch cushions — or borrow one?",
+   "Of course it disappears now. Try the usual hiding spots: bag, bedside, sofa. Anyone you could borrow one from?"
+  ],
+  "color_like": [
+   "I do! {X} has something calm and alive about it — I can see why it's yours.",
+   "Definitely — {x} is a great colour. Good taste!"
+  ],
+  "weather_talk": {
+   "rain": [
+    "Ugh, again? Rainy days are made for tea and a blanket.",
+    "Rain again — the sky really isn't giving up today."
+   ],
+   "cold": [
+    "Brr! Time for warm socks and a hot drink.",
+    "Cold days call for layers and something warm to drink."
+   ],
+   "hot": [
+    "Phew, stay hydrated and find some shade!",
+    "Hot days are great — as long as there's a cold drink nearby."
+   ],
+   "snow": [
+    "Snow! Cosy for some, a pain for others — which is it for you?",
+    "Ooh, snow. Are you enjoying it or dreading the commute?"
+   ],
+   "sun": [
+    "Lovely! Perfect weather to get outside for a bit.",
+    "Sunshine always helps, doesn't it?"
+   ]
+  },
+  "weather_plans": [
+   "The weather ruining your plans is the worst. Maybe an indoor workout today — or a run in the rain if you're brave?",
+   "Oh no, there goes the plan. A home workout, or wait for a dry spell?"
+  ],
+  "maybe_tomorrow": [
+   "Sounds like a plan — fingers crossed for better weather.",
+   "Good idea. Tomorrow's run will feel even better."
+  ],
+  "moving_away": [
+   "Oh no, that's hard. Where are they moving to?",
+   "Aw, that's tough news. Where's the move to?"
+  ],
+  "moving_where": [
+   "{x} — that's quite far. When's the move?",
+   "{x}, wow. Big step for them. When do they leave?"
+  ],
+  "moving_when": [
+   "So there's still some time together. Maybe plan something special before the move?",
+   "That's soon. Make the most of the weeks you have — a last trip or a favourite dinner together?"
+  ],
+  "moving_miss": [
+   "Of course you will — that shows how close you are. Distance changes things, but calls, messages and visits keep good friendships alive.",
+   "I bet. It hurts because it matters. A video call isn't the same, but real friendships survive the distance."
+  ],
+  "sounds": {
+   "scream": [
+    "Aaah! Everything okay? 😅",
+    "Whoa — that sounded like a scream. What happened?"
+   ],
+   "sigh": [
+    "That sounds like a big sigh. What's going on?",
+    "Long day? Tell me about it."
+   ],
+   "test": [
+    "I'm here and working! 🙂 What would you like to talk about?",
+    "Yep, I'm here. What's on your mind?"
+   ],
+   "omg": [
+    "What?! What happened?",
+    "Oh no — or oh yes? Tell me!"
+   ],
+   "smh": [
+    "Shaking your head? What happened?",
+    "Ugh, that kind of moment. What's going on?"
+   ],
+   "meh": [
+    "Meh mood? Want a distraction — a joke, a fun fact, or just to talk?",
+    "Sounds like a meh kind of day. Anything I can do?"
+   ],
+   "sleepy": [
+    "Sleepy? Maybe it's time for bed. 😴",
+    "Sounds like someone needs a nap!"
+   ],
+   "word": [
+    "Sorry — “{x}”? I don't know that word. A typo, or something I should know about?",
+    "Hm, “{x}” isn't a word I know. Did the keyboard slip?"
+   ],
+   "gib_sorry": [
+    "Haha, no worries! What did you want to say?",
+    "Ha, it happens! So — what's up?"
+   ],
+   "word_insist": [
+    "Okay, “{x}” it is — but I honestly haven't come across it. What does it mean?",
+    "I'm still stuck on “{x}”, sorry! Explain it to me?",
+    "You really like “{x}”! 😄 I don't know it though — is it a name, a game, a word from another language?",
+    "“{x}” remains a mystery to me. Tell me what it is and I'll remember it."
+   ]
+  }
  }
 }

@@ -190,7 +190,9 @@ Reise, Folgefragen für Alltagsfakten, Gesundheit, Geld, Arbeit, Geschenke, Ents
 scheiterte nur beim Hochladen („other side closed“ nach 45 von 46 Dateien, alle Installer gebaut und getestet); der
 Veröffentlichungsschritt versucht es seitdem nach einer Minute ein zweites Mal.
 [v3.1.0-beta.15](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.15) (Lauf 36999697063, Batterien 49–54,
-Amtsinhaber aus dem eigenen Artikel). beta.16 bringt Batterie 55 (Werk-Kontext; „who wrote it?“ ist nie Stephen Kings „It“).
+Amtsinhaber aus dem eigenen Artikel).
+[v3.1.0-beta.16](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.16) (Lauf 37001703138, Batterie 55:
+Werk-Kontext; „who wrote it?“ ist nie Stephen Kings „It“; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 

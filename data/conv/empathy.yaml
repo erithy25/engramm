@@ -15,7 +15,7 @@ categories:
   - id: grief
     valence: negative
     triggers:
-      - '\b(died|passed away|passed on|lost my (mom|mother|dad|father|mum|grandma|grandmother|grandpa|grandfather|brother|sister|son|daughter|husband|wife|partner|friend|best friend|dog|cat|pet|baby)|funeral|grieving|grief|mourning|miss (him|her|them) so much|is dead|was killed|put (my|our) (dog|cat) down|had to put down)\b'
+      - '\b((?<!phone )(?<!battery )(?<!laptop )(?<!computer )(?<!tablet )(?<!car )(?<!ipad )(?<!iphone )(?<!engine )(?<!charger )(?<!headphones )(?<!console )(?<!controller )(?<!tv )(?<!plant )died|passed away|passed on|lost my (mom|mother|dad|father|mum|grandma|grandmother|grandpa|grandfather|brother|sister|son|daughter|husband|wife|partner|friend|best friend|dog|cat|pet|baby)|funeral|grieving|grief|mourning|miss (him|her|them) so much|(?<!phone )(?<!battery )(?<!laptop )(?<!computer )(?<!car )is dead|was killed|put (my|our) (dog|cat) down|had to put down)\b'
     responses:
       - "I'm so sorry for your loss. That's incredibly hard. Would you like to tell me about them?"
       - "I'm really sorry. Losing someone you love hurts deeply — be gentle with yourself. What were they like?"
@@ -109,7 +109,7 @@ categories:
       - '\b(tired|exhausted|sleepy|worn out|drained|no energy|can''t sleep|cannot sleep|couldn''t sleep|insomnia|didn''t sleep|barely slept|need sleep|need a nap|so tired)\b'
     responses:
       - "Sounds like you need some rest. Is there a chance for a break or an early night?"
-      - "Being tired makes everything harder. Be kind to yourself today — and maybe get some sleep soon."
+      - "Being tired makes everything harder. Is something keeping you up, or has it just been a long stretch?"
       - "I'm sorry you're so worn out. What's been keeping you busy?"
 
   - id: success

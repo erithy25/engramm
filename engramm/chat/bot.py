@@ -131,6 +131,9 @@ _SMALLTALK = [
      "without any neural network — and I show you where every answer comes from."),
     (re.compile(r"^(bye|goodbye|see you)\b.*$", re.I), "Goodbye!"),
 ]
+# "how old was George Washington when he died?": the pronoun points back into the same question
+OWN_PRONOUN = re.compile(r"\b(?:was|is|did|does|were) (?!(?:he|she|they|it|this|that)\b)[a-z][\w'.-]*(?: [\w'.-]+){0,4} "
+                         r"(?:when|after|before|while|until|because|once) (?:he|she|they)\b", re.I)
 _PERSON_PRON = ("he", "she", "him", "his", "hers", "they", "them", "their")
 _THING_PRON = ("it", "its", "there")
 _PERSON_NOUNS = ("person", "man", "woman", "guy", "individual", "fellow", "lady", "gentleman", "author", "writer",
@@ -496,6 +499,8 @@ class ChatBot:
         ctx = self.context
         if not ctx["answer"] and not ctx["mention"]:
             return q
+        if OWN_PRONOUN.search(q):
+            return q                                 # "how old was George Washington when he died?": "he" is Washington
         person = ctx["answer"] if ctx["atype"] == PERSON and ctx["answer"] else ctx["mention"]
         gender = getattr(self, "person_gender", None)
         pm = re.search(r"\b(he|him|his|she|her|hers)\b", q, re.I)
@@ -504,8 +509,29 @@ class ChatBot:
             ga, gm = gender(ctx["answer"]), gender(ctx["mention"])
             if ga and ga != want and gm != ga:
                 person = ctx["mention"]               # "how old is he?" after "Obama's wife is Michelle": Obama
-            elif gm and gm != want and ga != gm:
+            elif gm and gm != want and ga != gm and ctx["atype"] == PERSON:
                 person = ctx["answer"]
+        if gender is not None and pm and person and gender(person) not in (None, "female" if pm.group(1).lower() in ("she", "her", "hers") else "male"):
+            want = "female" if pm.group(1).lower() in ("she", "her", "hers") else "male"
+            other = next((p for p in reversed(ctx.get("people") or []) if p != person and gender(p) == want), None) or \
+                next((p for p in reversed(ctx.get("people") or []) if p != person and gender(p) is None), None)
+            if other:
+                person = other                        # "how old is he?" right after Michelle Obama: Barack
+        if pm and ctx["atype"] != PERSON:
+            # "what nationality was he?" after "Penicillin was discovered by Alexander Fleming" and a "when?" in
+            # between: "he" is the person named a moment ago, not the thing the questions are about
+            lp = ctx.get("last_person")
+            ment = ctx["mention"] or ""
+            if lp and ment and lp[0] != ment and (
+                    lp[1] == ment or re.search(rf"\b{re.escape(ment)}\b", lp[1] or "", re.I)
+                    or (getattr(self, "not_a_person", None) is not None and self.not_a_person(ment))):
+                want = "female" if pm.group(1).lower() in ("she", "her", "hers") else "male"
+                g = gender(lp[0]) if gender is not None else None
+                if g in (None, want):
+                    person = lp[0]
+        mp = ctx.get("many_people")
+        if pm and mp and person == mp[0] and not ctx["answer"]:
+            return q                                 # "where was he born?" after "invented by Meucci, Gray, Bell and Reis"
         thing = ctx["answer"] if ctx["atype"] in (LOCATION, PROPER, OTHER) and ctx["answer"] else ctx["mention"]
         m = _DEMONSTRATIVE.search(q)
         if m:

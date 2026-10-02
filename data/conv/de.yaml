@@ -646,3 +646,40 @@ daily:
       rom: "Carbonara, Cacio e pepe, Supplì, Pizza al taglio und Gelato."
       london: "Fish and Chips, ein Full English Breakfast, Sunday Roast und Afternoon Tea."
       barcelona: "Tapas, Pan con tomate, Paella und Crema catalana."
+    g57:
+      guess: ["Was denn? Erzähl!", "Oh, was ist passiert? Ich bin ganz Ohr!"]
+      pet_new: ["Ein {x}?! Wie schön – herzlichen Glückwunsch! Was für eine Rasse?", "Nein, wie toll, ein {x}! Was für einer?"]
+      pet_breed: ["Oh, ein {x} – die sind so lieb! Hat {p} schon einen Namen?", "Ein {x}! Wie willst du {d} nennen?"]
+      pet_names_lead: ["Ein paar Ideen:", "Wie wäre es mit einem davon?"]
+      pet_names_tail: ["Gefällt dir einer davon?", "Passt einer davon?"]
+      pet_pick: ["{x} – wie schön! Das passt richtig gut.", "{x} also! Ein toller Name."]
+      fridge_empty: ["Oh nein, der Klassiker. Gar nichts mehr da – nicht mal Eier, Brot oder Nudeln?", "Ganz leer? Irgendwas findet sich meistens noch – Eier, Käse, Brot?"]
+      fridge_dish: ["Daraus kannst du {x} machen! {y}", "Perfekt für {x}. {y}"]
+      fridge_none: ["Hm, schwierig. Vielleicht heute Brot oder doch etwas bestellen?", "Da wird's knapp – vielleicht kurz einkaufen oder etwas liefern lassen?"]
+      dishes:
+        - {need: [eier, käse], x: "ein Käse-Omelett", y: "2–3 Eier verquirlen, in eine heiße Pfanne mit Butter geben, Käse drauf, zuklappen.", t: "Etwa 3–4 Minuten bei mittlerer Hitze; nimm es raus, solange es oben noch leicht weich ist."}
+        - {need: [eier, brot], x: "Arme Ritter", y: "Brot in verquirltem Ei wenden und in etwas Butter braten.", t: "Etwa 2–3 Minuten pro Seite, bis sie goldbraun sind."}
+        - {need: [brot, käse], x: "ein Käsetoast", y: "Käse zwischen zwei Scheiben, außen etwas Butter, ab in die Pfanne.", t: "Etwa 3 Minuten pro Seite, bis der Käse schmilzt."}
+        - {need: [nudeln, käse], x: "Nudeln mit Käse", y: "Nudeln kochen, etwas Kochwasser aufheben und den Käse unterrühren.", t: "Die meisten Nudeln brauchen 9–12 Minuten – schau auf die Packung."}
+        - {need: [reis, eier], x: "gebratenen Reis mit Ei", y: "Gekochten Reis scharf anbraten, zur Seite schieben und die Eier darin rühren.", t: "Etwa 5 Minuten in einer heißen Pfanne."}
+        - {need: [eier], x: "Rührei", y: "Eier mit einer Prise Salz verquirlen und sanft in Butter rühren.", t: "Etwa 2–3 Minuten bei kleiner Hitze; runter, solange es noch glänzt."}
+      sleep_work: ["Der Druck macht's noch schwerer, ich weiß. Zähl lieber nicht die Stunden – auch Ruhen mit geschlossenen Augen hilft.", "Genau dieses 'Ich MUSS jetzt schlafen' hält einen wach. Ausruhen zählt auch, selbst wenn der Schlaf nicht sofort kommt."]
+      device: ["Oh nein, ein leeres {x} im ungünstigsten Moment – typisch. Hast du ein Ladekabel in der Nähe?", "Akku leer? Hoffentlich ist ein Ladekabel griffbereit."]
+      charger: ["Ladekabel verschwinden immer genau dann, wenn man sie braucht. Schau in der Tasche, am Bett und zwischen den Sofakissen – oder leih dir eins?", "Natürlich ist es jetzt weg. Die üblichen Verstecke: Tasche, Nachttisch, Sofa. Kannst du dir eins leihen?"]
+      weather:
+        rain: ["Schon wieder? Regentage sind wie gemacht für Tee und eine Decke.", "Regen, schon wieder – der Himmel gibt heute wirklich nicht auf."]
+        cold: ["Brr! Zeit für warme Socken und etwas Heißes zu trinken.", "Bei der Kälte hilft nur Zwiebellook und ein heißer Tee."]
+        hot: ["Puh, viel trinken und ab in den Schatten!", "Heiße Tage sind toll – solange ein kaltes Getränk in der Nähe ist."]
+        snow: ["Schnee! Gemütlich oder nervig – was ist es für dich?", "Oh, Schnee. Freust du dich oder graut dir vor dem Weg zur Arbeit?"]
+        sun: ["Herrlich! Perfektes Wetter, um mal rauszugehen.", "Sonne tut einfach gut, oder?"]
+      weather_plans: ["Wenn das Wetter einem die Pläne verhagelt … Vielleicht heute ein Workout drinnen – oder eine Runde im Regen, wenn du mutig bist?", "Oh nein, da fällt der Plan ins Wasser. Workout zu Hause, oder auf eine trockene Phase warten?"]
+      maybe_tomorrow: ["Klingt nach einem Plan – Daumen drücken für besseres Wetter.", "Gute Idee. Morgen macht's dann doppelt Spaß."]
+      moving: ["Oh nein, das ist hart. Wohin zieht sie denn?", "Ach, das ist eine schwere Nachricht. Wohin geht's?"]
+      moving_where: ["{x} – das ist ganz schön weit. Wann ist der Umzug?", "{x}, wow. Ein großer Schritt. Wann geht's los?"]
+      moving_when: ["Dann habt ihr noch ein bisschen Zeit. Vielleicht plant ihr noch etwas Besonderes vor dem Umzug?", "Das ist bald. Nutzt die Wochen – ein letzter Ausflug oder euer Lieblingsessen zusammen?"]
+      moving_miss: ["Natürlich – das zeigt, wie nah ihr euch steht. Entfernung verändert vieles, aber Anrufe, Nachrichten und Besuche halten echte Freundschaften zusammen.", "Das glaube ich dir. Es tut weh, weil es dir wichtig ist. Ein Videoanruf ist nicht dasselbe, aber echte Freundschaften überstehen die Entfernung."]
+      pet_pool:
+        female: [Luna, Mia, Emma, Nala, Frieda, Ronja]
+        male: [Max, Balu, Paul, Oskar, Bruno, Charlie]
+        any: [Luna, Balu, Pepper, Ronja, Oskar, Keks]
+

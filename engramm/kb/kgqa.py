@@ -545,7 +545,12 @@ class KGQA:
         template = rule.template
         if prop == "spouse" and len(vals) == 1 and not self.kb.facts(ent.id, ("deathDate", "deathYear")):
             template = "{E} is married to {v}."         # a living person with one spouse: not "was"
+        if prop in ("nationality", "citizenship", "birthPlace") and template == "{E}: {v}.":
+            # "Antonio Vivaldi was from the Republic of Venice.", not "Antonio Vivaldi: the Republic of Venice."
+            dead = self.kb.facts(ent.id, ("deathDate", "deathYear"))
+            template = "{E} was from {v}." if dead else "{E} is from {v}."
         text = template.replace("{E}", name).replace("{v}", _join(vals))
+        text = re.sub(r"\bin (\d+(?:st|nd|rd|th) )", r"in the \1", text)   # "in the 7th arrondissement of Paris"
         text = text[:1].upper() + text[1:]
         evidence = f"{ent.title} — {prop}: " + "; ".join(f.value for f in fs[:4])
         return KBAnswer(ent, prop, vals, text, evidence, rule.snapshot)

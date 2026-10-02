@@ -31,13 +31,13 @@ from pathlib import Path
 from engramm.chat.about import About, AboutFinder, clean_sentence, title_key
 from engramm.chat.acts import Unit, classify
 from engramm.chat.bank import Bank, choose, expand_chat, load_bank, normalise
-from engramm.chat.bot import CHAT_PREFIX, Reply, message_type, source_id
+from engramm.chat.bot import CHAT_PREFIX, OWN_PRONOUN, Reply, message_type, source_id
 from engramm.chat.everyday import _GENRES
 from engramm.chat.tools import tool_answer
 from engramm.chat.facts import USER, facts_from_text
 from engramm.chat.german import is_german, understand
 from engramm.chat.realize import _acronyms as _acronym_case, answer_sentence, article, personal_sentence, to_second_person
-from engramm.chat.smart import (bare_followup, experience, gibberish, is_discourse, is_mash, offer_in, rebuild_question,
+from engramm.chat.smart import (bare_followup, experience, gibberish, is_discourse, is_mash, offer_in, rebuild_question, strict_mash,
                                 short_answer, swap_person)
 
 FRESH_CTX = {"answer": None, "atype": None, "mention": None, "last_learned": None}
@@ -213,6 +213,17 @@ _EVENT_IT = re.compile(r"^(?:and |so )?(?P<q>where|who won|who hosted|when) (?:w
 _OFFICE_Q = re.compile(r"^(?:and |so |ok |hey )?who(?:'s| is| was)? (?:the )?(?:current |present |new )?(?P<o>president|prime minister|pm|"
                        r"chancellor|king|queen|monarch|pope|secretary[- ]general|first minister|premier)(?: of (?:the )?(?P<x>[a-z .'-]+?))?"
                        r"(?: (?:right now|now|currently|today|at the moment))?\??$")
+_FIRST_Q = re.compile(r"^(?:and |so |ok |hey )?who (?:was|were|is) the (?P<n>first|1st) (?P<o>[a-z][a-z -]{2,30}?) of (?:the )?(?P<x>[a-z][a-z .'-]{1,40}?)\??$")
+_MAKER_Q = re.compile(r"^(?:and |so |ok |hey )?who (?P<v>composed|wrote|painted|directed|created|designed|sculpted|sang|built) (?P<w>[a-z0-9][a-z0-9 .,'&:-]{1,60}?)\??$")
+_MAKER_PP = {"composed": "composed", "wrote": "written", "painted": "painted", "directed": "directed", "created": "created",
+             "designed": "designed", "sculpted": "sculpted", "sang": "sung", "built": "built"}
+_TENURE_Q = re.compile(r"^(?:and |so |ok )?how long (?:was|did|has|is) (?P<e>[A-Z][\w.'-]*(?: [A-Z][\w.'-]*){0,4}) (?:serve as |been |be )?"
+                       r"(?:the )?(?P<o>president|prime minister|chancellor|king|queen|emperor|pope|mayor|governor|in office|in power|"
+                       r"on the throne|ceo|leader)\b.*$", re.I)
+_THEY_LIVE = re.compile(r"^(?:and |so )?what (?P<k>language|languages|currency|money) (?:do|did) they (?:speak|use|pay with|have)(?: there)?\??$")
+_COLOURS = frozenset(("red", "blue", "green", "yellow", "orange", "purple", "violet", "pink", "black", "white", "grey", "gray",
+                      "brown", "turquoise", "teal", "gold", "silver", "beige", "navy", "lilac", "mint", "dark blue", "light blue",
+                      "dark green", "burgundy", "magenta", "cyan", "lavender", "maroon"))
 _OFFICE_ALIAS = {"us": "United States", "usa": "United States", "america": "United States", "united states": "United States",
                  "united states of america": "United States", "uk": "United Kingdom", "britain": "United Kingdom",
                  "great britain": "United Kingdom", "england": "United Kingdom", "united kingdom": "United Kingdom",
@@ -938,7 +949,7 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_ctx(st, msg, s) or self._german_life(st, msg, s)
+            life = self._german_ctx57(st, msg, s) or self._german_ctx(st, msg, s) or self._german_life(st, msg, s)
             if life is not None:
                 return life
         if u.kind == "fallback" or u.kind == "feeling":
@@ -1058,6 +1069,118 @@ class Assistant:
             st.last_exp = dict(le, turn=st.turn, text_en=(le.get("text_en") or "") + " " + _de_advice_hint(s))
             return Reply(msg, "empathy", self._pick(st, f"de:life:{key}", dd["life"][key]), via="german")
         return Reply(msg, "unknown", self._pick(st, "de:fallback", de["replies"]["fallback"]), via="german")
+
+    def _german_ctx57(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 57 in German: a new puppy and its name, an empty fridge, work after a sleepless night, a dead
+        phone (never grief), rain on a run, a friend moving away (missing her is no bereavement)."""
+        g = (self.bank.de["daily"].get("ctx") or {}).get("g57")
+        if not g:
+            return None
+        q = s.strip(" .!?")
+        recent = lambda key, k=3: (st.uses.get(key) and st.turn - st.uses[key][-1] <= k)   # noqa: E731
+        pk = lambda key, opts, **kw: self._pick(st, f"de:g57:{key}", opts, **kw)          # noqa: E731
+        if re.fullmatch(r"(?:rat|rate) mal|weißt du was|stell dir vor|du glaubst nicht,? was passiert ist", q):
+            return Reply(msg, "smalltalk", pk("guess", g["guess"]), via="german")
+        pm = re.fullmatch(r"(?:rate mal,? )?(?:ich|wir) (?:hab|habe|haben) (?:jetzt )?(?:einen|ein|eine) (?:neuen |neues |neue |kleinen |kleines |kleine )?"
+                          r"(?P<x>welpen|hund|kätzchen|katze|kaninchen|hasen|hamster)(?: bekommen| adoptiert| geholt)?", q)
+        if pm:
+            x = {"welpen": "Welpe", "hund": "Hund", "kätzchen": "Kätzchen", "katze": "Katze", "kaninchen": "Kaninchen",
+                 "hasen": "Hase", "hamster": "Hamster"}[pm.group("x")]
+            st.uses["new_pet_de"] = [x, None, None, st.turn]
+            return Reply(msg, "smalltalk", pk("pet_new", g["pet_new"], x=x), via="german")
+        if recent("new_pet_de", 4):
+            pet = st.uses["new_pet_de"]
+            bm = re.fullmatch(r"(?:(?P<g>sie|er|es) ist )?(?:ein|eine) (?P<b>[a-zäöüß][a-zäöüß -]{2,30}?)", q)
+            if bm and pet[0] in ("Welpe", "Hund", "Kätzchen", "Katze") and not re.search(r"\b(?:so|sehr|süß|lieb)\b", bm.group("b")):
+                gg = bm.group("g") or "es"
+                b = " ".join(w if w in ("de", "la") else w[:1].upper() + w[1:] for w in bm.group("b").split())
+                pet[1], pet[2], pet[3] = gg, b, st.turn
+                return Reply(msg, "smalltalk", pk("pet_breed", g["pet_breed"], x=b, p=gg, d={"sie": "sie", "er": "ihn"}.get(gg, "es")),
+                             via="german")
+            if re.search(r"\bnamen", q) and re.search(r"\b(?:idee|ideen|vorschl|vorschläge|hast du|weißt du|wie soll)", q):
+                key = {"sie": "female", "er": "male"}.get(pet[1] or "", "any")
+                pool = g["pet_pool"][key]
+                k = int(hashlib.md5(f"{st.conversation}:{st.turn}".encode()).hexdigest(), 16) % len(pool)
+                names = (pool[k:] + pool[:k])[:3]
+                st.uses["pet_names_de"] = [names, st.turn]
+                pet[3] = st.turn
+                return Reply(msg, "smalltalk", pk("pet_names_lead", g["pet_names_lead"]) + "\n\n" + "\n".join(f"• {x}" for x in names) +
+                             "\n\n" + pk("pet_names_tail", g["pet_names_tail"]), via="german")
+            nl = st.uses.get("pet_names_de")
+            if nl and st.turn - nl[1] <= 2:
+                om = re.search(r"\b(?:der |die |den )?(erste|ersten|zweite|zweiten|dritte|dritten|letzte|letzten)\b", q)
+                pick = None
+                if om:
+                    idx = {"erste": 0, "ersten": 0, "zweite": 1, "zweiten": 1, "dritte": 2, "dritten": 2, "letzte": -1, "letzten": -1}[om.group(1)]
+                    pick = nl[0][idx]
+                pick = pick or next((x for x in nl[0] if re.search(rf"\b{x.lower()}\b", q)), None)
+                if pick and not re.search(r"\b(?:nicht|kein|keiner)\b", q):
+                    st.uses.pop("pet_names_de", None)
+                    return Reply(msg, "smalltalk", pk("pet_pick", g["pet_pick"], x=pick), via="german")
+        if re.search(r"\b(?:hab|habe) (?:so |solchen |riesigen |voll )?hunger\b|\bbin (?:so |total )?hungrig\b", q):
+            st.uses["hungry_de"] = [st.turn]
+        if re.fullmatch(r"(?:aber |und |ugh,? )?(?:der |mein )?kühlschrank ist (?:komplett |total |fast )?leer|(?:aber |und )?ich hab(?:e)? nichts (?:mehr )?(?:zu hause|im kühlschrank|zu essen)", q):
+            st.uses["fridge_de"] = [st.turn]
+            return Reply(msg, "smalltalk", pk("fridge_empty", g["fridge_empty"]), via="german")
+        if recent("fridge_de", 3) or recent("hungry_de", 3):
+            im = re.fullmatch(r"(?:ich hab(?:e)? |da sind |es gibt )?(?:nur|bloß|noch) (?:noch )?(?P<i>[a-zäöüß ,]+?)(?: und das war'?s)?", q)
+            if im:
+                words = set(re.findall(r"[a-zäöüß]+", im.group("i")))
+                norm_ = {"ei": "eier", "eier": "eier", "käse": "käse", "brot": "brot", "toast": "brot", "nudeln": "nudeln", "pasta": "nudeln",
+                         "spaghetti": "nudeln", "reis": "reis"}
+                items = {norm_.get(w) for w in words} - {None}
+                for dish in g["dishes"]:
+                    if all(x in items for x in dish["need"]):
+                        st.uses["dish_de"] = [dish["t"], st.turn]
+                        return Reply(msg, "smalltalk", pk("fridge_dish", g["fridge_dish"], x=dish["x"], y=dish["y"]), via="german")
+                return Reply(msg, "smalltalk", pk("fridge_none", g["fridge_none"]), via="german")
+        dd_ = st.uses.get("dish_de")
+        if dd_ and st.turn - dd_[1] <= 3 and re.search(r"\bwie lange\b", q):
+            return Reply(msg, "smalltalk", dd_[0], via="german")
+        le0 = st.last_exp or {}
+        if le0 and st.turn - le0.get("turn", -99) <= 3 and re.search(r"schlaf|nacht|wach", le0.get("text") or "") and \
+                re.fullmatch(r"(?:und |aber )?(?:morgen|morgen früh|gleich) (?:muss ich|hab ich|habe ich) (?:arbeiten|zur arbeit|schule|uni|eine prüfung|ein meeting|früh raus)"
+                             r"(?: (?:gehen|raus|früh))?", q):
+            st.last_exp = dict(le0, turn=st.turn)
+            return Reply(msg, "empathy", pk("sleep_work", g["sleep_work"]), via="german")
+        dm = re.fullmatch(r"(?:mist,? |oh mann,? )?mein (?P<x>handy|laptop|akku|tablet|ipad|iphone|smartphone) ist (?:tot|leer|aus|gestorben|kaputt gegangen)(?: schon wieder)?", q)
+        if dm:
+            return Reply(msg, "smalltalk", pk("device", g["device"], x={"akku": "Akku"}.get(dm.group("x"), dm.group("x").capitalize())), via="german")
+        if re.fullmatch(r"(?:und |aber )?ich finde (?:mein|das|kein) (?:ladekabel|ladegerät|kabel)(?: nicht)?", q):
+            return Reply(msg, "smalltalk", pk("charger", g["charger"]), via="german")
+        wm = re.fullmatch(r"(?:boah,? |man,? |ugh,? )?(?:es )?(?P<w>regnet|schüttet|schneit|ist (?:so |total |echt |richtig )?(?:kalt|eiskalt|heiß|warm|sonnig))"
+                          r"(?: (?:schon )?wieder| heute| draußen| hier)*", q)
+        if wm and "?" not in msg:
+            w = wm.group("w")
+            key = "rain" if w in ("regnet", "schüttet") else "snow" if w == "schneit" else "cold" if "kalt" in w else \
+                "hot" if ("heiß" in w or "warm" in w) else "sun"
+            st.uses["weather_de"] = [key, st.turn]
+            return Reply(msg, "smalltalk", pk(f"weather:{key}", g["weather"][key]), via="german")
+        if recent("weather_de", 2) and st.uses["weather_de"][0] in ("rain", "cold", "snow") and \
+                re.fullmatch(r"(?:und )?ich wollte (?:eigentlich )?(?:joggen|laufen|spazieren|rad fahren|fahrrad fahren|wandern|raus|draußen trainieren|fußball spielen)"
+                             r"(?: gehen)?", q):
+            st.uses["plan_moved_de"] = [st.turn]
+            return Reply(msg, "smalltalk", pk("weather_plans", g["weather_plans"]), via="german")
+        if recent("plan_moved_de", 2) and re.fullmatch(r"(?:ok |ja )?(?:vielleicht |dann |wohl )?morgen(?: dann)?", q):
+            return Reply(msg, "smalltalk", pk("maybe_tomorrow", g["maybe_tomorrow"]), via="german")
+        mv = re.fullmatch(r"mein(?:e)? (?:beste )?(?:freundin|freund|bester freund|schwester|bruder|nachbarin|nachbar|cousine|cousin|mitbewohnerin|mitbewohner) "
+                          r"zieht (?:weg|um|nach (?P<p>[a-zäöüß ]{3,30}))(?: (?:nächsten|nächste|diesen|im) \w+)?", q)
+        if mv:
+            st.uses["moving_de"] = [st.turn]
+            if mv.group("p"):
+                return Reply(msg, "smalltalk", pk("moving_where", g["moving_where"], x=_de_place_case(mv.group("p"))), via="german")
+            return Reply(msg, "smalltalk", pk("moving", g["moving"]), via="german")
+        if recent("moving_de", 4):
+            wp = re.fullmatch(r"(?:nach|in die|in den) (?P<p>[a-zäöüß ]{3,30})", q)
+            if wp:
+                st.uses["moving_de"] = [st.turn]
+                return Reply(msg, "smalltalk", pk("moving_where", g["moving_where"], x=_de_place_case(wp.group("p"))), via="german")
+            if re.fullmatch(r"(?:schon |im )?(?:nächsten|nächste|kommenden|diesen) (?:monat|woche|sommer|winter|frühling|herbst|jahr)|bald|in (?:zwei|drei|ein paar) (?:wochen|monaten|tagen)|morgen", q):
+                st.uses["moving_de"] = [st.turn]
+                return Reply(msg, "smalltalk", pk("moving_when", g["moving_when"]), via="german")
+            if re.search(r"\bvermissen\b|\bwerde (?:sie|ihn) vermissen\b|\bso traurig\b", q):
+                return Reply(msg, "smalltalk", pk("moving_miss", g["moving_miss"]), via="german")
+        return None
 
     def _german_ctx(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """German everyday context across turns: a move and its reason, where to live, what to see and eat
@@ -1948,12 +2071,37 @@ class Assistant:
         if ment and re.search(r"\b(?:hat|ist|liegt|wurde|war|heißt) (?:sie|er|es|ihn)\b|\b(?:sie|er|es) (?:hat|ist|liegt)\b", s) and \
                 not re.search(r"\bgeboren|gestorben\b", s):
             # "und wie viele einwohner hat sie?" after Canberra, "wer hat ihn entworfen?" after the Eiffel Tower
-            s = re.sub(r"\b(?:sie|er|es|ihn)\b", ment.lower(), s, count=1)
+            pw = re.search(r"\b(sie|er|es|ihn)\b", s).group(1)
+            want = "male" if pw in ("er", "ihn") else "female" if pw == "sie" else None
+            g = self._gender(ment) if want else None
+            if g and want and g != want:
+                # "und wie alt ist er?" right after Michelle Obama: Barack, not Michelle
+                ment = next((p for p in reversed(self.bot.context.get("people") or []) if p != ment and self._gender(p) == want), None)
+            if ment:
+                s = re.sub(r"\b(?:sie|er|es|ihn)\b", ment.lower(), s, count=1)
         hit = to_english(s)
+        bare = re.fullmatch(r"(wann|wo|warum|wieso) ?\??", s.strip())
+        last_en = st.uses.get("de_last_en")
+        if hit is None and bare and last_en and st.turn - last_en[0] <= 2:
+            # "wann?" after "wer hat das Penicillin entdeckt?": the last question with a new question word
+            wh = {"wann": "when", "wo": "where", "warum": "why", "wieso": "why"}[bare.group(1)]
+            rebuilt = rebuild_question(last_en[1], wh)
+            if rebuilt:
+                rep = self._question(st, rebuilt)
+                st.uses["de_last_en"] = [st.turn, rebuilt]
+                if rep.kind == "answer" and rep.answer and wh == "when" and re.fullmatch(r"\d{3,4}", str(rep.answer)):
+                    return Reply(msg, "answer", f"Im Jahr {rep.answer}.", answer=rep.answer, evidence=rep.evidence,
+                                 source=rep.source, via="german", confidence=rep.confidence)
+                if rep.kind == "answer":
+                    rep.text = f"{self.bank.de['daily']['english_text']} {rep.text}"
+                    rep.message = msg
+                    return rep
+                return Reply(msg, "unknown", self._pick(st, "de:unknown", self.bank.de["daily"]["unknown"]), via="german")
         if hit is None:
             return None
         english, kind, x_en, x_de = hit
         st.uses["de_last_q"] = [st.turn, s, (x_de or "").lower()]
+        st.uses["de_last_en"] = [st.turn, english + "?"]
         names = st.uses.setdefault("de_names", {})
         if x_de and x_de.lower() != x_en.lower() and x_en.lower() not in ("he", "she", "it", "him", "her"):
             art = re.search(rf"\b(der|die|das) {re.escape(x_de.lower())}\b", s)
@@ -1986,11 +2134,27 @@ class Assistant:
                 return Reply(msg, "answer", text, answer=office.answer, evidence=office.evidence, source=office.source,
                              via="german", confidence=office.confidence)
             rep = self._question(st, english + "?")
-            if rep.via == "clarify" or (pron and rep.kind != "answer"):
+            if rep.via == "clarify" and pron:
+                # the name that answers this comes back to the German question ("bell" → "wo wurde Bell geboren?")
+                st.pending = {**(st.pending or {}), "slot": "who_mean", "question": s, "pron": pron.group(0), "turn": st.turn,
+                              "lang": "de"}
+            if rep.via == "clarify" and st.pending and st.pending.get("many"):
+                # "wo wurde er geboren?" after several inventors: ask which one, in German
+                return Reply(msg, "unknown", f"Da kommen mehrere infrage – {de_value(_join_values(st.pending['many']))}. Wen meinst du?",
+                             via="clarify")
+            if rep.via == "clarify" or (pron and rep.kind != "answer" and not rep.resolved):
                 return Reply(msg, "unknown", dd["who_mean"].replace("{x}", pron.group(0) if pron else x_en), via="clarify")
         rep.message = msg
         if rep.kind != "answer":
             rep.text = self._pick(st, "de:unknown", dd["unknown"])
+            return rep
+        if kind == "first_holder" and rep.answer:
+            rep.text = f"Das war {rep.answer}."
+            return rep
+        tm_ = re.fullmatch(r"(\d{4})–(\d{4})", str(rep.answer or ""))
+        if kind == "tenure" and tm_:
+            a_, b_ = int(tm_.group(1)), int(tm_.group(2))
+            rep.text = f"Von {a_} bis {b_} – etwa {b_ - a_} Jahre."
             return rep
         wm = _WHO_MADE_DE.fullmatch(s.strip(" ?.!"))
         if wm and rep.answer and len(str(rep.answer).split()) <= 14:
@@ -2000,7 +2164,8 @@ class Assistant:
             thing = " ".join(w if w in ("von", "der", "die", "das", "und", "des", "of", "the", "de", "da") else w[:1].upper() + w[1:]
                              for w in thing.split())
             head = f"{art[:1].upper() + art[1:]} {thing}" if art else thing[:1].upper() + thing[1:]
-            rep.text = f"{head} wurde von {de_value(str(rep.answer))} {wm.group('v')}."
+            plural = re.match(r"(?:die )?(?:zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|zwölf)\b", (art + " " + thing).lower().strip())
+            rep.text = f"{head} {'wurden' if plural else 'wurde'} von {de_value(str(rep.answer))} {wm.group('v')}."
             return rep
         if rep.via == "kb":
             name = re.sub(r"\s*\([^)]*\)$", "", (rep.source or {}).get("key") or x_en)
@@ -2035,7 +2200,16 @@ class Assistant:
             if self._spelled and not rep.resolved:
                 rep.resolved = self._spelled          # shown as "I read this as …"
         finally:
-            st.ctx = dict(bot.context)
+            ctx = bot.context
+            if ctx.get("atype") == "PERSON" and ctx.get("answer") and ctx.get("mention") and ctx["answer"] != ctx["mention"]:
+                ctx["last_person"] = [ctx["answer"], ctx["mention"], st.turn]   # "he" may still mean them two turns on
+            elif ctx.get("last_person") and st.turn - ctx["last_person"][2] > 3:
+                ctx["last_person"] = None
+            seen = [n for n in (ctx.get("answer") if ctx.get("atype") == "PERSON" else None, ctx.get("mention"))
+                    if isinstance(n, str) and n and not self._not_a_person(n) and not re.search(r"\d", n)]
+            if seen:                                       # "how old is he?" after talking about Michelle and Barack
+                ctx["people"] = ([p for p in ctx.get("people") or [] if p not in seen] + seen)[-4:]
+            st.ctx = dict(ctx)
             bot.context = dict(FRESH_CTX)
         rep.message = message
         rep.seconds = time.time() - t0
@@ -2105,6 +2279,8 @@ class Assistant:
         self._track(st, rep, msg)
         if rep.via != "gibberish":
             st.gib = 0
+        else:
+            st.uses["gib_turn"] = st.turn                 # "sorry, my cat walked on the keyboard" may follow
         st.turn += 1
         st.last_reply = rep.text
         st.recent = (st.recent + [rep.text])[-RECENT:]
@@ -2838,7 +3014,7 @@ class Assistant:
             if key:
                 return Reply(text, "smalltalk", self._pick(st, f"daily:norm:{key}", d_["norms"][key]), via="smalltalk")
             return Reply(text, "smalltalk", self._pick(st, "daily:judge_plain", d_["judge_plain"]), via="smalltalk")
-        pron = re.search(r"\b(he|she|him|his|her|hers|they|them|their)\b", text, re.I)
+        pron = None if OWN_PRONOUN.search(text) else re.search(r"\b(he|she|him|his|her|hers|they|them|their)\b", text, re.I)
         gap = st.uses.get("person_gap") == st.turn - 1          # the last "who …?" found nobody
         if re.search(r"\b(?:it|its)\b", text, re.I) and not pron and st.last_kind == "unknown" and \
                 bot.resolve(text) == text and not bot.context.get("answer") and \
@@ -2846,6 +3022,13 @@ class Assistant:
             # "how tall is it?" right after a question ENGRAMM could not answer: "it" points nowhere
             st.pending = {"slot": "who_mean", "question": text, "pron": "it", "turn": st.turn}
             return Reply(text, "unknown", self._pick(st, "daily:it_mean", self.bank.daily["it_mean"]), via="clarify")
+        mp = bot.context.get("many_people")
+        if pron and mp and bot.context.get("mention") == mp[0] and not bot.context.get("answer") and \
+                pron.group(1).lower() in ("he", "she", "him", "his", "her", "hers") and bot.resolve(text) == text:
+            # "where was he born?" after "invented by Meucci, Gray, Bell and Reis": ask which one, like a person would
+            st.pending = {"slot": "who_mean", "question": text, "pron": pron.group(1), "turn": st.turn, "many": list(mp[1])}
+            return Reply(text, "unknown", self._pick(st, "daily:which_of", self.bank.daily["which_of"], x=_join_or(mp[1]), y=_join_values(mp[1])),
+                         via="clarify")
         if pron and not re.search(r"\b(?:i|me|my|you|your)\b", text, re.I) and (bot.resolve(text) == text or gap):
             st.pending = {"slot": "who_mean", "question": text, "pron": pron.group(1), "turn": st.turn}
             return Reply(text, "unknown", self._pick(st, "daily:who_mean", self.bank.daily["who_mean"],
@@ -2896,6 +3079,19 @@ class Assistant:
             rep = self._cuisine(st, text, place)
             if rep is not None:
                 return rep
+        tl = _THEY_LIVE.match(normalise(text).strip())
+        ment = self.bot.context.get("mention")
+        if tl and ment and self.kgqa is not None and not st.uses.get("place_topic"):
+            # "what language do they speak?" after Tokyo: the people of its country, not of the word "Tokyo"
+            land = ment
+            try:
+                ca = self.kgqa.answer(f"what country is {ment} in?")
+            except Exception:
+                ca = None
+            if ca is not None and ca.values:
+                land = ca.values[0]
+            kind = "language" if tl.group("k").startswith("language") else "currency"
+            text = f"what language do people speak in {land}?" if kind == "language" else f"what currency does {land} use?"
         text = self._place_carry(st, text)
         text = self._carry_topic(st, text)
         atlas_on = self.atlas is not None and self.atlas.any_on() and not re.search(r"\b(?:i|me|my|mine)\b", text, re.I)
@@ -2926,7 +3122,8 @@ class Assistant:
         mq = self._measure_quote(st, text)
         if mq is not None:
             return mq
-        ev = self._event_answer(st, text)
+        ev = self._event_answer(st, text) or self._first_holder(st, text) or self._maker_in_title(st, text) or \
+            self._tenure(st, bot.resolve(" ".join(text.split())))
         if ev is not None:
             return ev
         rep = bot._answer(" ".join(text.split()))
@@ -3955,6 +4152,114 @@ class Assistant:
             return Reply(msg, "answer", text, answer=who, evidence=s, source=src, via="about", confidence=0.6)
         return None
 
+    def _maker_in_title(self, st: DialogState, msg: str) -> Reply | None:
+        """"Who composed the Four Seasons?" when the fact bank has no entry: the article is called "The Four Seasons
+        (Vivaldi)", and the name in brackets is a person the fact bank knows — that person made it."""
+        m = _MAKER_Q.match(normalise(msg).strip())
+        if not m or self.kgqa is None or re.fullmatch(r"(?:it|this|that|them|these|those|one)", m.group("w")):
+            return None
+        work = m.group("w").strip()
+        try:
+            cands = self.bot.r.candidates(work)
+        except Exception:                                # a damaged index must not break the chat
+            return None
+        want = {title_key(work), title_key("the " + work), title_key(re.sub(r"^the ", "", work))}
+        for sid in list(cands.ids)[:200]:
+            src = self.bot.c.source(int(sid))
+            tm = re.fullmatch(r"(?P<t>.+?) \((?P<p>[^)]+)\)", src.get("key") or "")
+            if not tm or title_key(tm.group("t")) not in want:
+                continue
+            try:
+                hits = self.kgqa.kb.link(tm.group("p"), limit=1)
+            except Exception:
+                return None
+            if not hits or (hits[0][0].type or "") not in _PERSON_TYPES or \
+                    hits[0][0].title.split()[-1].lower() != tm.group("p").split()[-1].lower():
+                continue                                  # "(film)", "(album)": no person
+            who, shown = hits[0][0].title, tm.group("t")
+            ev = self.bot.c.sentence_text(int(sid))
+            st.last_fact = {"evidence": ev, "source": src, "answer": who, "question": msg, "sure": True}
+            self.bot.context.update({"answer": who, "atype": "PERSON", "mention": shown, "kb_last": None})
+            text = f"{shown[:1].upper() + shown[1:]} was {_MAKER_PP[m.group('v')]} by {who}."
+            return Reply(msg, "answer", text, answer=who, evidence=ev, source=src, via="about", confidence=0.8)
+        return None
+
+    def _tenure(self, st: DialogState, msg: str) -> Reply | None:
+        """"How long was George Washington president?": the opening of the person's article gives the years
+        ("… served as the first president of the United States from 1789 to 1797")."""
+        m = _TENURE_Q.match(msg.strip())
+        if not m:
+            return None
+        who, office = m.group("e"), m.group("o").lower()
+        found = self.about.find(who, n=6)
+        if found is None or not found.sentences or title_key(found.title).split()[-1:] != title_key(who).split()[-1:]:
+            return None
+        role = r"(?:president|prime minister|chancellor|king|queen|emperor|pope|mayor|governor|ceo|leader|monarch|ruler)" \
+            if office in ("in office", "in power", "on the throne") else re.escape(office)
+        date = r"(?:(?:[A-Z][a-z]+ \d{1,2}, |\d{1,2} [A-Z][a-z]+ )?(\d{4}))"
+        rx = re.compile(rf"\b{role}\b[^.;]{{0,90}}?\b(?:from|between) {date} (?:to|until|and|–|-) {date}", re.I)
+        for s in found.sentences:
+            hm = rx.search(s)
+            if hm:
+                a, b = int(hm.group(1)), int(hm.group(2))
+                if not 0 < b - a < 80:
+                    continue
+                st.last_fact = {"evidence": s, "source": found.source, "answer": f"{a}–{b}", "question": msg, "sure": True}
+                text = self._pick(st, "daily:tenure", self.bank.daily["tenure"], x=found.title, y=str(a), z=str(b),
+                                  n=str(b - a))
+                return Reply(msg, "answer", text, answer=f"{a}–{b}", evidence=s, source=found.source, via="about",
+                             confidence=0.8)
+        return None
+
+    def _first_holder(self, st: DialogState, msg: str) -> Reply | None:
+        """"Who was the first president of the United States?": many articles name that person in passing
+        ("George Washington, the first president of the United States"); when at least two sentences agree on
+        a name the fact bank knows as a person, that is the answer — a strict pattern, never a loose match."""
+        m = _FIRST_Q.match(normalise(msg).strip())
+        if not m or re.search(r"\b(?:lady|man|woman|person|people|thing|time|book|film|movie|song|day)\b", m.group("o")):
+            return None
+        office, place = m.group("o").strip(), m.group("x").strip()
+        place = _OFFICE_ALIAS.get(place, place.title())
+        pl = f"the {place}" if place in _THE_PLACES else place
+        role = rf"(?<![\w-])(?i:first {re.escape(office)} of {re.escape(pl)}(?: of America)?)\b"
+        name = r"(?P<n>[A-Z][\w.'-]+(?: (?:[A-Z][\w.'-]+|de|van|von|da|bin)){1,3})"
+        rxs = (re.compile(rf"{name}, (?:[^,]{{0,60}} and )?(?:the )?{role}"),
+               re.compile(rf"\bthe {role}, {name}"),
+               re.compile(rf"\b{name}(?: \([^)]*\))? (?:was|became|served as) the {role}"))
+        try:
+            cands = self.bot.r.candidates(f"first {office} of {pl}")
+        except Exception:                                # a damaged index must not break the chat
+            return None
+        votes: dict[str, list] = {}
+        for sid in list(cands.ids)[:400]:
+            s = self.bot.c.sentence_text(int(sid))
+            if re.search(r"\b(?:vice|deputy)\b", s, re.I):
+                continue
+            for rx in rxs:
+                hm = rx.search(s)
+                if hm:
+                    votes.setdefault(hm.group("n").rstrip(".,"), []).append(int(sid))   # "George Washington." at a sentence end
+                    break
+        if not votes:
+            return None
+        ranked = sorted(votes.items(), key=lambda kv: -len(kv[1]))
+        who, sids = ranked[0]
+        if len(sids) < 2 or (len(ranked) > 1 and len(ranked[1][1]) * 2 > len(sids)) or self._not_a_person(who):
+            return None                                   # one passing mention, or two names disagree: no guess
+        try:
+            hits = self.kgqa.kb.link(who, limit=1) if self.kgqa is not None else []
+        except Exception:
+            hits = []
+        if not hits or (hits[0][0].type or "") not in _PERSON_TYPES:
+            return None
+        who = hits[0][0].title if hits[0][0].title.lower().startswith(who.lower().split()[0]) else who
+        ev = self.bot.c.sentence_text(sids[0])
+        src = self.bot.c.source(sids[0])
+        st.last_fact = {"evidence": ev, "source": src, "answer": who, "question": msg, "sure": True}
+        self.bot.context.update({"answer": who, "atype": "PERSON", "mention": who, "kb_last": None})
+        text = self._pick(st, "daily:first_holder", self.bank.daily["first_holder"], x=f"first {office} of {pl}", y=who)
+        return Reply(msg, "answer", text, answer=who, evidence=ev, source=src, via="about", confidence=0.8)
+
     def _fix_typos(self, msg: str) -> str:
         """Typos in a statement ("interveiw", "recieve"): a lowercase word of five letters or more that the
         speller does not know, replaced by the known word it is closest to — never a name after "I'm",
@@ -3984,7 +4289,7 @@ class Assistant:
                                                      r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
             # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
             return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
-        evr = self._event_q(st, msg, norm) or self._officeholder(st, msg, norm)
+        evr = self._sounds(st, msg, norm) or self._event_q(st, msg, norm) or self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
         pr = st.uses.get("promo")
@@ -4071,7 +4376,7 @@ class Assistant:
         r2 = self._daily_ctx2(st, msg, norm) or self._daily_ctx3(st, msg, norm) or self._daily_ctx4(st, msg, norm) or \
             self._daily_ctx5(st, msg, norm) or self._daily_ctx6(st, msg, norm) or self._daily_ctx7(st, msg, norm) or \
             self._daily_ctx8(st, msg, norm) or self._daily_ctx9(st, msg, norm) or self._daily_ctx10(st, msg, norm) or \
-            self._daily_ctx11(st, msg, norm)
+            self._daily_ctx11(st, msg, norm) or self._daily_ctx12(st, msg, norm)
         if r2 is not None:
             return r2
         m = _WHAT_LIKES.match(norm)
@@ -4849,6 +5154,196 @@ class Assistant:
                       r"(?P<w>[A-Z][a-zà-ÿ'-]+(?: (?:[A-Z]\.|[A-Z][a-zà-ÿ'-]+)){1,3})", " ".join(f.sentences))
         return (m.group("w"), f.source) if m else None
 
+    def _sounds(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 59: sounds and test messages a person types — "aaaaa", "hhhh", "abc", "omg", "smh" — get a
+        human reaction, never "Oh? Go on." or "I see. Tell me more?"."""
+        n = norm.strip(" .!?")
+        key = None
+        if re.fullmatch(r"a{3,}h*|a+h{2,}|a+r+g+h*|ahh+", n):
+            key = "scream"
+        elif re.fullmatch(r"h{3,}|u+f+|p+h+e+w+|s+i+g+h+", n):
+            key = "sigh"
+        elif re.fullmatch(r"(?:abc|abcd|xyz|test|testing|test test|test 123|123|1 2 3|ping|hello\?+|is this working|are you there|"
+                          r"anyone there|you there)", n):
+            key = "test"
+        elif re.fullmatch(r"o+m+g+|oh my god|oh my gosh|omfg", n):
+            key = "omg"
+        elif re.fullmatch(r"smh|ffs|bruh+|ugh+|meh+", n):
+            key = "meh" if n.startswith("meh") else "smh"
+        elif re.fullmatch(r"z{3,}", n):
+            key = "sleepy"
+        if key is None:
+            toks = re.findall(r"[a-z']+", n)
+            known = self.speller.known if self.speller is not None else None
+            odd = [t for t in toks if strict_mash(t, known)]
+            if odd and 2 <= len(toks) <= 7 and not re.match(r"(?:my name is|my name'?s|call me|i'?m called|i am called|name'?s)\b", n):
+                # "i like dhdhd", "what is dhdhd?": a keyboard slip in a sentence — ask, never learn or look it up
+                mw = st.uses.get("mash_word")
+                cnt = mw[1] + 1 if mw and mw[0] == odd[0] else 1
+                st.uses["mash_word"] = [odd[0], cnt]
+                key = "word" if cnt <= 2 else "word_insist"     # asked twice already: no third "typo?"
+                return Reply(msg, "smalltalk", self._pick(st, f"daily:sound:{key}", self.bank.daily["sounds"][key], x=odd[0]),
+                             via="clarify")
+            gs = st.uses.get("gib_turn")
+            if gs is not None and st.turn - gs <= 2 and re.search(
+                    r"\b(?:sorry|oops|whoops|my bad)\b|\b(?:my )?(?:cat|dog|kid|son|daughter|baby|toddler)\b.*\b(?:keyboard|phone|typed|walked|sat)\b|"
+                    r"\b(?:wrong (?:chat|window|button|tab)|pocket|butt ?dial|typo|fat fingers?)\b", n):
+                st.uses.pop("gib_turn", None)
+                return Reply(msg, "smalltalk", self._pick(st, "daily:sound:gib_sorry", self.bank.daily["sounds"]["gib_sorry"]), via="smalltalk")
+            return None
+        return Reply(msg, "smalltalk", self._pick(st, f"daily:sound:{key}", self.bank.daily["sounds"][key]), via="smalltalk")
+
+    def _daily_ctx12(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 57: everyday moments that only make sense with the turn before — a new puppy and its name,
+        an empty fridge, a sleepless 3am, a dead phone (never grief), rain on a run, a favourite colour, a
+        friend moving away (missing them is no bereavement)."""
+        d = self.bank.daily
+        n = norm.strip(" .!?")
+        recent = lambda key, k=3: (st.uses.get(key) and st.turn - st.uses[key][-1] <= k)   # noqa: E731
+        if re.fullmatch(r"(?:guess what|you know what|guess what happened|you'?ll never guess what happened)", n):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:guess_what", d["guess_what"]), via="smalltalk")
+        pm = re.fullmatch(r"(?:guess what,? )?(?:i|we) (?:just )?got a (?:new )?(?P<x>puppy|kitten|dog|cat|bunny|rabbit|hamster)", n)
+        if pm:                                            # "i have a cat" / "i adopted a dog": the pet flow asks the name
+            st.uses["new_pet"] = [pm.group("x"), None, None, None, st.turn]   # kind, he/she, breed, name, turn
+            st.uses["pet"] = [pm.group("x"), st.turn]     # the pet memory: "her name is luna" is remembered
+            return Reply(msg, "smalltalk", self._pick(st, "daily:pet_new", d["pet_new"], x=pm.group("x")), via="smalltalk")
+        if recent("new_pet", 4):
+            pet = st.uses["new_pet"]
+            nm_ = re.search(r"\b(?:her|his|its|their) name is (?P<x>[a-z]+)|\b(?:she|he|it)(?:'s| is) called (?P<y>[a-z]+)", n)
+            if nm_:
+                pet[3], pet[4] = (nm_.group("x") or nm_.group("y")).capitalize(), st.turn
+                return None                               # the pet flow remembers the name
+            bm = re.fullmatch(r"(?:(?P<g>she|he|it)(?:'s| is) an? |an? )(?P<b>[a-z][a-z -]{2,30}?)(?: puppy| dog| kitten| cat)?", n)
+            if bm and pet[0] in ("puppy", "dog", "kitten", "cat") and not re.search(r"\b(?:so|very|really|cute|good|bad)\b", bm.group("b")):
+                g = bm.group("g") or "it"
+                pet[1], pet[2], pet[4] = g, bm.group("b"), st.turn
+                p_ = {"she": "she", "he": "he"}.get(g, "it")
+                kind = {"puppy": "dog", "kitten": "cat"}.get(pet[0], pet[0])
+                r = self._learn(st, [f"My {kind} is a {bm.group('b')}."], msg)    # "what breed is she?" later
+                st.uses["pet"] = [kind, st.turn]
+                st.uses["pet_breed"] = [bm.group("b"), st.turn]
+                if pet[3]:
+                    r.text = self._pick(st, "daily:pet_breed_named", d["pet_breed_named"], x=bm.group("b"), y=pet[3])
+                else:
+                    r.text = self._pick(st, "daily:pet_breed2", d["pet_breed2"], x=bm.group("b"), p=p_,
+                                        d={"she": "her", "he": "him"}.get(g, "it"))
+                return r
+            if re.search(r"\b(?:name|names|call (?:her|him|it))\b", n) and re.search(r"\b(?:idea|ideas|suggest|suggestions|should|what)\b", n):
+                key = {"she": "female", "he": "male"}.get(pet[1] or "", "any")
+                pool = d["pet_name_pool"][key]
+                k = int(hashlib.md5(f"{st.conversation}:{st.turn}".encode()).hexdigest(), 16) % len(pool)
+                names = (pool[k:] + pool[:k])[:3]           # a different three each time, the same in a replay
+                st.uses["pet_name_list"] = [names, st.turn]
+                pet[4] = st.turn
+                p_ = {"she": "her", "he": "him"}.get(pet[1] or "", "your " + pet[0])
+                lead = self._pick(st, "daily:pet_names_lead", d["pet_names_lead"], p=p_)
+                tail = self._pick(st, "daily:pet_names_tail", d["pet_names_tail"], p=p_)
+                return Reply(msg, "smalltalk", lead + "\n\n" + "\n".join(f"• {x}" for x in names) + "\n\n" + tail,
+                             via="smalltalk")
+            nl = st.uses.get("pet_name_list")
+            if nl and st.turn - nl[1] <= 2:
+                pick = _ordinal_pick(n, nl[0]) or next((x for x in nl[0] if re.search(rf"\b{x.lower()}\b", n)), None)
+                if pick and not re.search(r"\b(?:not|don'?t|hate)\b", n):
+                    st.uses.pop("pet_name_list", None)
+                    kind = {"puppy": "dog", "kitten": "cat"}.get(pet[0], pet[0])
+                    r = self._learn(st, [f"My {kind} is called {pick}."], msg)      # "what's my puppy called?" later
+                    pet[3] = pick
+                    st.uses["pet_name"] = pick
+                    r.text = self._pick(st, "daily:pet_name_pick", d["pet_name_pick"], x=pick, y=pet[2] or pet[0])
+                    return r
+        if re.search(r"\b(?:i'?m|im|i am) (?:so |really |super |very )?(?:hungry|starving|famished)\b", n):
+            st.uses["hungry"] = [st.turn]
+        if re.fullmatch(r"(?:but |and |ugh,? )?(?:there'?s|theres|there is|i have|ive got|i've got|i got) (?:nothing|no food|nothing at all) "
+                        r"(?:in (?:the|my) (?:fridge|kitchen|house)|at home|to eat)", n) or \
+                re.fullmatch(r"(?:but |and |ugh,? )?(?:my |the )?fridge is (?:empty|basically empty)", n):
+            st.uses["fridge"] = [st.turn]
+            return Reply(msg, "smalltalk", self._pick(st, "daily:fridge_empty", d["fridge_empty"]), via="everyday")
+        if recent("fridge", 3) or recent("hungry", 3):
+            im = re.fullmatch(r"(?:i have |ive got |i've got |i got |there'?s |theres )?(?:just|only)? ?(?:some )?(?P<i>[a-z ,]+?)(?: and that'?s it| lol)?", n)
+            words = set(re.findall(r"[a-z]+", im.group("i"))) if im else set()
+            items = {re.sub(r"s$", "", w) if w not in ("eggs",) else "eggs" for w in words}
+            items = {"eggs" if w in ("egg", "eggs") else w for w in items}
+            if im and re.match(r"(?:i have |ive got |i've got |i got |there'?s |theres )?(?:just|only)\b", n) or (im and recent("fridge", 3)):
+                for dish in d["fridge_dishes"]:
+                    if all(x in items or x + "s" in words for x in dish["need"]):
+                        st.uses["dish_now"] = [dish["t"], st.turn]
+                        return Reply(msg, "smalltalk", self._pick(st, "daily:fridge_dish", d["fridge_dish"], x=dish["x"], y=dish["y"]),
+                                     via="everyday")
+                if re.match(r"(?:i have |ive got |there'?s )?(?:just|only)\b", n):
+                    return Reply(msg, "smalltalk", self._pick(st, "daily:fridge_none", d["fridge_none"]), via="everyday")
+        dn = st.uses.get("dish_now")
+        if dn and st.turn - dn[1] <= 3 and re.search(r"\bhow long\b.*\b(?:cook|fry|bake|take|leave)\b", n):
+            return Reply(msg, "smalltalk", dn[0], via="everyday")
+        if re.search(r"\b(?:can'?t|cannot|cant|couldn'?t) (?:fall )?(?:sleep|get to sleep)\b|\binsomnia\b|\bstill awake\b|\bwide awake\b", n):
+            st.uses["no_sleep"] = [st.turn]
+        if recent("no_sleep", 3):
+            tm = re.fullmatch(r"(?:and )?(?:it'?s|its|it is) (?:already )?(?P<x>\d{1,2}(?::\d\d)? ?am|midnight)(?: (?:already|now|lol))?", n)
+            if tm:
+                st.uses["no_sleep"] = [st.turn]
+                if st.last_exp:
+                    st.last_exp = dict(st.last_exp, turn=st.turn)   # "my mind keeps racing", "any tips?" still about the night
+                x = tm.group("x").replace(" ", "")
+                return Reply(msg, "smalltalk", self._pick(st, "daily:late_night", d["late_night"], x=x), via="empathy")
+            if re.fullmatch(r"(?:and |but )?(?:i have|i've got|ive got|i got) (?:work|school|class|an exam|a meeting|an early start)"
+                            r"(?: (?:tomorrow|in the morning|at \d+|early))*", n):
+                st.uses["no_sleep"] = [st.turn]
+                if st.last_exp:
+                    st.last_exp = dict(st.last_exp, turn=st.turn)
+                return Reply(msg, "smalltalk", self._pick(st, "daily:sleep_work", d["sleep_work"]), via="empathy")
+        dm = re.fullmatch(r"(?:ugh,? |omg,? )?my (?P<x>phone|laptop|battery|computer|tablet|ipad|iphone|headphones)(?:'s| is| just)? (?:died|is dead|dead|ran out)"
+                          r"(?: again| on me)?", n)
+        if dm:
+            st.uses["device_dead"] = [st.turn]
+            return Reply(msg, "smalltalk", self._pick(st, "daily:device_died", d["device_died"], x=dm.group("x")), via="smalltalk")
+        if re.fullmatch(r"(?:and |but )?(?:i )?(?:can'?t|cannot|cant) find (?:my|the|a) (?:charger|cable|charging cable)", n):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:lost_charger", d["lost_charger"]), via="smalltalk")
+        last = (st.last_reply or "").lower()
+        if re.search(r"favou?rite colou?r\?|what'?s yours\?", last) and re.search(r"colou?r", " ".join(st.recent[-2:]).lower()):
+            cm = re.fullmatch(r"(?:mine is|mine'?s|my favou?rite (?:one |colou?r )?is|it'?s|i like|i love)? ?(?P<c>[a-z]+(?: [a-z]+)?)", n)
+            if cm and cm.group("c") in _COLOURS and (st.uses.get("user_colour") or [None, -1])[1] != st.turn:
+                st.uses["user_colour"] = [cm.group("c"), st.turn]
+                return self._turn(st, f"My favourite colour is {cm.group('c')}.")
+        lc = re.fullmatch(r"(?:so |and )?do you (?:like|love) (?:the colou?r )?(?P<c>[a-z]+)", n)
+        if lc and lc.group("c") in _COLOURS:
+            return Reply(msg, "smalltalk", self._pick(st, "daily:color_like", d["color_like"], x=lc.group("c")), via="smalltalk")
+        wm = re.fullmatch(r"(?:ugh,? |wow,? |omg,? )?(?:it'?s|its|it is) (?:so |really |super |very |freezing )?(?P<w>raining|pouring|cold|freezing|hot|"
+                          r"boiling|snowing|sunny|so sunny)(?: (?:again|today|outside|here|out))*", n)
+        if wm and "?" not in msg:
+            key = {"raining": "rain", "pouring": "rain", "cold": "cold", "freezing": "cold", "hot": "hot", "boiling": "hot",
+                   "snowing": "snow"}.get(wm.group("w"), "sun")
+            st.uses["weather_talk"] = [key, st.turn]
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:weather:{key}", d["weather_talk"][key]), via="smalltalk")
+        if recent("weather_talk", 2) and st.uses["weather_talk"][0] in ("rain", "cold", "snow") and \
+                re.fullmatch(r"(?:and )?i (?:wanted|was going|was gonna|planned|was planning) to (?:go )?(?:for a |on a )?(?:run|jog|walk|bike ride|hike|go running|"
+                             r"go out|go outside|play football|play tennis)\b.*", n):
+            st.uses["weather_talk"] = [st.uses["weather_talk"][0], st.turn]
+            st.uses["plan_moved"] = [st.turn]
+            return Reply(msg, "smalltalk", self._pick(st, "daily:weather_plans", d["weather_plans"]), via="smalltalk")
+        if recent("plan_moved", 2) and re.fullmatch(r"(?:ok |yeah )?(?:maybe |i'?ll go |i'?ll do it |probably )?tomorrow(?: then)?", n):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:maybe_tomorrow", d["maybe_tomorrow"]), via="smalltalk")
+        mv = re.fullmatch(r"my (?P<w>best friend|friend|sister|brother|bff|best mate|neighbou?r|cousin|mom|mum|dad|daughter|son|roommate|flatmate) "
+                          r"(?:is|'s) (?:moving|going) (?:away|abroad|to (?P<p>[a-z ]{3,30}))(?: (?P<t>next \w+|soon|in \w+ \w+|this \w+))?", n)
+        if mv:
+            st.uses["moving_away"] = [mv.group("w"), st.turn]
+            if mv.group("p"):
+                return Reply(msg, "smalltalk", self._pick(st, "daily:moving_where", d["moving_where"], x=_place_case(mv.group("p"))),
+                             via="empathy")
+            return Reply(msg, "smalltalk", self._pick(st, "daily:moving_away", d["moving_away"]), via="empathy")
+        if recent("moving_away", 4):
+            who = st.uses["moving_away"][0]
+            wp = re.fullmatch(r"(?:to |she'?s moving to |he'?s moving to |they'?re moving to )(?P<p>[a-z ]{3,30})", n)
+            if wp:
+                st.uses["moving_away"] = [who, st.turn]
+                return Reply(msg, "smalltalk", self._pick(st, "daily:moving_where", d["moving_where"], x=_place_case(wp.group("p"))),
+                             via="empathy")
+            if re.fullmatch(r"(?:in |like )?(?:next (?:week|month|year|summer|spring|autumn|fall|winter)|soon|in (?:a|two|three|few) (?:weeks?|months?|days?)|"
+                            r"this (?:weekend|month|summer)|tomorrow)", n):
+                st.uses["moving_away"] = [who, st.turn]
+                return Reply(msg, "smalltalk", self._pick(st, "daily:moving_when", d["moving_when"]), via="empathy")
+            if re.search(r"\b(?:miss (?:her|him|them|my \w+)|gonna be lonely|will be lonely|so sad)\b", n):
+                return Reply(msg, "smalltalk", self._pick(st, "daily:moving_miss", d["moving_miss"]), via="empathy")
+        return None
+
     def _daily_ctx11(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 55: a film, book or artist becomes the topic ("i just finished reading 1984", "have you seen
         inception?"), so "who wrote it?", "what's it about?" and "any similar movies?" are about that work — never
@@ -5605,8 +6100,13 @@ class Assistant:
         value = _join_values(ans.values)
         src = {"kind": "kb", "source": "dbpedia", "key": ans.entity.title}
         atype = _atype(q)
+        nm = ans.entity.name
+        if len(nm.split()) == 1 and ans.text.startswith(nm + " ") and re.search(rf"\bthe {re.escape(nm.lower())}\b", q) \
+                and self.speller is not None and self.speller.known(nm.lower()):
+            ans.text = f"The {nm.lower()}{ans.text[len(nm):]}"   # "The telephone was invented by …", not "Telephone was …"
         self.bot.context.update({"answer": ans.values[0] if len(ans.values) == 1 else None, "atype": atype,
-                                 "mention": ans.entity.name})
+                                 "mention": ans.entity.name,
+                                 "many_people": [ans.entity.name, ans.values[:6]] if len(ans.values) > 1 and atype == "PERSON" else None})
         st.last_fact = {"evidence": ans.evidence, "source": src, "answer": value, "question": q, "sure": True}
         self.bot.context["kb_last"] = {"question": q, "names": [ans.entity.name, ans.entity.title]}
         named = ans.values[0] if len(ans.values) == 1 and not re.search(r"\d", ans.values[0]) else ans.entity.name
@@ -5876,7 +6376,7 @@ class Assistant:
             return self._kind_cache[key]
         kind = None
         try:
-            found = self.about.find(name, n=2)
+            found = self.about.find(name, n=5)
         except Exception:
             found = None
         if found is not None and found.sentences:
@@ -6146,7 +6646,11 @@ class Assistant:
             name = msg.strip(" .!?")
             if not name or len(name.split()) > 6 or name.endswith("?"):
                 return None
-            name = re.sub(r"^(?:i mean|i meant|meant|it's|its|he's|she's|the one called)\s+", "", name, flags=re.I)
+            name = re.sub(r"^(?:i mean|i meant|meant|it's|its|he's|she's|the one called|the)\s+", "", name, flags=re.I)
+            mp = (pending.get("many") or [])
+            pick = [p for p in mp if re.search(rf"\b{re.escape(name)}\b", p, re.I)]
+            if len(pick) == 1:
+                name = pick[0]                   # "bell" after "Meucci, Gray, Bell or Reis?": Alexander Graham Bell
             pron = pending.get("pron", "he")
             poss = pron.lower() in ("his", "their", "hers") or (
                 pron.lower() == "her" and re.search(r"\bher\s+[a-z]", pending.get("question", ""), re.I))
@@ -6154,6 +6658,10 @@ class Assistant:
                        count=1, flags=re.I)
             self._spelled = q
             st.uses.pop("person_gap", None)
+            if pending.get("lang") == "de":
+                rep = self._german_question(st, q, q)
+                if rep is not None:
+                    return rep
             return self._question(st, q)
         value = _slot_value(msg, slot)
         if value is None:
@@ -7080,6 +7588,11 @@ def _fact_rank(f) -> tuple:
     order = {lab: i for i, (lab, _) in enumerate(_CATEGORY_KEYS)}
     best = min((order[lab] for lab in f.relation if lab in order), default=len(order))
     return (0 if f.subject == USER else 1, best, f.object)
+
+
+def _join_or(names: list[str]) -> str:
+    names = [n for n in names if n]
+    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1]
 
 
 def _atype(q: str) -> str | None:

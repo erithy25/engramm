@@ -107,13 +107,27 @@ def is_mash(token: str, known=None) -> bool:
 
 
 def gibberish(text: str, known=None) -> bool:
-    """A message made only of non-words ("dhdhd", "asdf jkl", "kjhkjh!!")."""
+    """A message made only of non-words ("dhdhd", "asdf jkl", "kjhkjh!!"); a laugh or chat word beside
+    them ("dhdhd lol") changes nothing."""
     toks = re.findall(r"[A-Za-z']+", text)
     if not toks:
         return False
     if len(toks) > 6:
         return False
-    return all(is_mash(t, known) for t in toks)
+    core = [t for t in toks if t.lower() not in _CHAT_WORDS and not _LAUGH.match(t.lower())]
+    return bool(core) and all(is_mash(t, known) for t in core)
+
+
+def strict_mash(token: str, known=None) -> bool:
+    """A non-word beyond doubt: a keyboard run or a repeated unit ("dhdhd", "asdf", "jjjj") — never a rare
+    name or a foreign word, which ``is_mash`` may also flag."""
+    w = token.lower().strip("'")
+    if len(w) < 4 or not is_mash(w, known):
+        return False
+    if _keyboard_run(w):
+        return True
+    # no vowel at all ("dhdhd", "sksksk", "lkjlkj"); sounds made of these letters ("hmmm", "grrr", "pfff") are no slip
+    return not re.search(r"[aeiouy]", w) and not set(w) <= set("hmzsrpfgtbwn")
 
 
 # ---------------------------------------------------------------------------
@@ -354,6 +368,11 @@ def bare_followup(msg: str) -> str | None:
     return m.group(1).lower() if m else None
 
 
+_PASSIVE = {"invented": "invented", "discovered": "discovered", "wrote": "written", "painted": "painted", "built": "built",
+            "founded": "founded", "designed": "designed", "composed": "composed", "directed": "directed",
+            "created": "created", "sculpted": "sculpted", "developed": "developed", "established": "established"}
+
+
 def rebuild_question(last_q: str, wh: str) -> str | None:
     """The last question with its question word replaced: ("When was X born?", "where") →
     "Where was X born?". None when the last question does not start with a question word or
@@ -367,6 +386,10 @@ def rebuild_question(last_q: str, wh: str) -> str | None:
     rest = q[m.end():]
     if wh in ("what", "which one") or m.group(1).lower() == wh:
         return None
+    pm = re.match(r"\s+(" + "|".join(_PASSIVE) + r")\s+(.+?)\s*\??$", rest, re.I)
+    if m.group(1).lower() == "who" and pm and wh in ("when", "where", "why", "how"):
+        # "Who discovered penicillin?" + "when?" → "When was penicillin discovered?", not "When discovered penicillin?"
+        return f"{wh[:1].upper() + wh[1:]} was {pm.group(2)} {_PASSIVE[pm.group(1).lower()]}?"
     if wh in ("how old",) and not re.search(r"\b(?:is|was)\b", rest):
         return None
     out = wh[:1].upper() + wh[1:] + rest

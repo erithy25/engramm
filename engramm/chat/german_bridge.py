@@ -43,6 +43,9 @@ EXONYMS = {
     "rhein": "Rhine", "donau": "Danube", "nil": "Nile", "amazonas": "Amazon River", "alpen": "Alps",
     "zugspitze": "Zugspitze", "bodensee": "Lake Constance", "ostsee": "Baltic Sea", "nordsee": "North Sea",
     "mittelmeer": "Mediterranean Sea", "atlantik": "Atlantic Ocean", "pazifik": "Pacific Ocean",
+    "die vier jahreszeiten": "the four seasons", "vier jahreszeiten": "the four seasons", "die zauberflöte": "The Magic Flute",
+    "zauberflöte": "The Magic Flute", "die mona lisa": "Mona Lisa", "mona lisa": "Mona Lisa", "die sternennacht": "The Starry Night",
+    "sternennacht": "The Starry Night", "romeo und julia": "Romeo and Juliet", "das penicillin": "penicillin",
     "goethe": "Johann Wolfgang von Goethe", "schiller": "Friedrich Schiller", "beethoven": "Ludwig van Beethoven",
     "mozart": "Wolfgang Amadeus Mozart", "bach": "Johann Sebastian Bach", "einstein": "Albert Einstein",
     "merkel": "Angela Merkel", "scholz": "Olaf Scholz", "luther": "Martin Luther", "kant": "Immanuel Kant",
@@ -64,6 +67,21 @@ RULES = [
     (rf"wer hat {_X} (?:gebaut|entworfen)", "who designed {x}", "designed"),
     (rf"wer hat {_X} komponiert", "who composed {x}", "composed"),
     (rf"wer hat (?:bei )?{_X} regie geführt", "who directed {x}", "directed"),
+    (rf"wer (?:ist|war) (?:der |die )?erste (?:präsident|präsidentin) (?:von |der |des )?{_X}", "who was the first president of {x}",
+     "first_holder"),
+    (rf"wer (?:ist|war) (?:der |die )?erste (?:premierminister|premierministerin) (?:von |der |des )?{_X}",
+     "who was the first prime minister of {x}", "first_holder"),
+    (rf"wer (?:ist|war) (?:der |die )?erste (?:bundeskanzler|bundeskanzlerin|kanzler|kanzlerin) (?:von |der |des )?{_X}",
+     "who was the first chancellor of {x}", "first_holder"),
+    (rf"wer (?:ist|war) (?:der |die )?erste (?:kaiser|kaiserin) (?:von |der |des )?{_X}", "who was the first emperor of {x}",
+     "first_holder"),
+    (rf"wie lange war {_X} (?:präsident|präsidentin)", "how long was {x} president", "tenure"),
+    (rf"wie lange war {_X} (?:bundeskanzler|bundeskanzlerin|kanzler|kanzlerin)", "how long was {x} chancellor", "tenure"),
+    (rf"wie lange war {_X} (?:premierminister|premierministerin)", "how long was {x} prime minister", "tenure"),
+    (rf"wie lange war {_X} (?:könig|königin)", "how long was {x} king", "tenure"),
+    (rf"wie lange war {_X} im amt", "how long was {x} in office", "tenure"),
+    (rf"woher (?:kam|kommt|stammt|stammte) {_X}", "where was {x} from", "from"),
+    (rf"welche nationalität (?:hat|hatte) {_X}", "what nationality was {x}", "from"),
     (rf"wer (?:ist|war) (?:der |die )?(?:präsident|präsidentin|staatsoberhaupt) von {_X}",
      "who is the president of {x}", "head_state"),
     (rf"wer (?:ist|war) (?:der |die )?(?:bundeskanzler|bundeskanzlerin|kanzler|kanzlerin|premierminister|"
@@ -201,7 +219,7 @@ SENTENCES = {
     "founded_when": "{x} wurde {v} gegründet.", "built_when": "{x} wurde {v} fertiggestellt.",
     "released": "{x} erschien {v}.", "country": "{x} liegt in {v}.", "where": "{x} liegt in {v}.",
     "language": "In {x} spricht man {v}.", "currency": "Die Währung von {x} ist {v}.",
-    "spouse": "{x} ist bzw. war mit {v} verheiratet.", "occupation": "{x}: {v}.",
+    "spouse": "{x} ist bzw. war mit {v} verheiratet.", "occupation": "{x}: {v}.", "from": "{x} stammt aus {v}.",
     "known_for": "{x} ist bekannt für {v}.", "works": "Zu den bekanntesten Werken von {x} gehören {v}.",
 }
 
@@ -226,6 +244,8 @@ def de_sentence(kind: str, x: str, value: str, age_text: str | None = None) -> s
             tmpl = tmpl.replace("{v}", "am {v}")         # "wurde am 31. März 1889 fertiggestellt"
         elif re.match(r"^[A-ZÄÖÜ][a-zäöü]+ \d{3,4}$", v):
             tmpl = tmpl.replace("{v}", "im {v}")
+    if kind == "from" and age_text and re.search(r"\bwas from\b", age_text):
+        tmpl = "{x} stammte aus {v}."
     if kind == "spouse" and age_text:
         if re.search(r"\bis married to\b", age_text):
             tmpl = "{x} ist mit {v} verheiratet."        # the English answer knows the person is alive
