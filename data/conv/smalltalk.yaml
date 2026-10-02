@@ -182,7 +182,7 @@ intents:
       - "I thought so too!"
 
   - id: fair_point
-    patterns: ['(haha|hah|lol|lmao|ha) (fair|true|right|exactly|fair enough|good point|so true|touch[eé])|(fair|true|so true|good point|fair point|touch[eé]) (haha|lol|lmao)']
+    patterns: ['(ok|okay|yeah|alright|hm+) (fair|true|fair point|good point)|fair|(haha|hah|lol|lmao|ha) (fair|true|right|exactly|fair enough|good point|so true|touch[eé])|(fair|true|so true|good point|fair point|touch[eé]) (haha|lol|lmao)']
     examples: [haha fair, lol true, fair haha, haha good point]
     responses:
       - "Right? 😄"
@@ -333,7 +333,7 @@ intents:
       - "Welcome back, {name}!"
 
   - id: you_repeat
-    patterns: ['(you (already|just) said (that|this|it)|you said (that|this|it) (already|before)|you''re repeating yourself|you are repeating yourself|you keep (saying|repeating) (that|the same thing|yourself)|same (answer|thing|reply) again|you repeated yourself|stop repeating yourself|that''s what you said before|déjà vu)']
+    patterns: ['(you (already|just) (said|told me|told us|mentioned) (that|this|it)|you (already )?told me (that|this) (already|before)|you already told me|you said (that|this|it) (already|before)|you''re repeating yourself|you are repeating yourself|you keep (saying|repeating) (that|the same thing|yourself)|same (answer|thing|reply) again|you repeated yourself|stop repeating yourself|that''s what you said before|déjà vu)']
     examples: [you already said that, you're repeating yourself, same answer again, you keep saying that]
     responses:
       - "Oops, you're right — I repeated myself. Let's switch it up: ask me anything, or I can tell you a fun fact."

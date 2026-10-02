@@ -686,6 +686,11 @@ _GENERIC_PLACE = re.compile(r"(?i)^(?:a |an |the |my )?(?:new |different |anothe
                             r"(?:city|town|village|place|country|apartment|flat|house|home|area|neighbou?rhood|state|region)$")
 
 
+# "Leonardo da Vinci was born in vinci": a named subject, never a statement about you
+_NAMED_SUBJECT = re.compile(r"^(?:[A-Z][\w'’.-]+)(?: (?:[A-Z][\w'’.-]+|da|de|di|von|van|der|of|the|la|le|du|del|bin|al))+ "
+                            r"(?:was|is|were|are|has|had|died|lived|grew)\b")
+
+
 def _with_age(f: Fact) -> Fact:
     """"I'm 29", "I am 29 years old", "my dog is 3 years old": the number is an age (#age)."""
     if f.kind == "NUMBER" and re.fullmatch(r"\d{1,3}", f.object) and 0 < int(f.object) < 120 and \
@@ -738,6 +743,7 @@ def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None,
         # a short statement without "I"/"my" that is still about you: "Nothing beats curry.",
         # "Home is Lyon.", "Frotam here."
         if len(words(norm)) <= 8 and not re.search(r"\b(?:his|her|their|its|your|he|she|they)\b", low) and \
+                not _NAMED_SUBJECT.match(norm.strip()) and \
                 (set(concepts(low)) & _IMPLICIT_CONCEPTS or _NAME_INTRO.match(norm.strip())):
             out += personal_facts(s, source, initial_is_name, typer, implicit=True)
     return out

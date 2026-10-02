@@ -934,6 +934,9 @@ wear:
     - "Depends on the occasion — what's it for?"
 distance_none:
   - "I can't measure distances between places — I don't have map data, and I'd rather not guess. A map app will know exactly."
+thought_it_was:
+  - "Easy mix-up! But as far as my sources go, it's {y}, not {x}."
+  - "A lot of people think {x} — but it's actually {y}."
 accomplished:
   - "Nice, well done! How does it feel to have {x} behind you?"
   - "That's great — {x}, done! Got anything fun planned now?"

@@ -885,3 +885,26 @@ def test_german_grief_stays_gentle(chat):
     assert "ihn" in r.text and r.kind == "empathy", r.text
     r = a.turn(st, "danke dass du zuhörst")
     assert "Jederzeit" in r.text or "dafür bin ich da" in r.text, r.text
+
+
+def test_corrections_and_meta_dialogue(chat):
+    a, st = chat
+    a.turn(st, "my name is alex")
+    r = a.turn(st, "no wait, its alexander")
+    assert "Alexander" in r.text, r.text
+    r = a.turn(st, "whats my name")
+    assert "Alexander" in r.text, r.text
+    r = a.turn(st, "you already told me that")
+    assert "repeat" in r.text.lower() or "said that" in r.text.lower(), r.text
+    a.turn(st, "tell me a joke")
+    first = st.last_reply
+    r = a.turn(st, "say that again")
+    assert r.text != first and first in r.text, r.text
+    r = a.turn(st, "remember that my mom's birthday is on june 5")
+    r = a.turn(st, "when is my mom's birthday")
+    assert "June 5" in r.text, r.text
+
+
+def test_named_subject_is_not_about_the_user():
+    from engramm.chat.facts import facts_from_text
+    assert not [f for f in facts_from_text("Leonardo da Vinci was born in vinci.", "u") if f.subject == "USER"]

@@ -333,7 +333,7 @@
    {
     "id": "fair_point",
     "patterns": [
-     "(haha|hah|lol|lmao|ha) (fair|true|right|exactly|fair enough|good point|so true|touch[eé])|(fair|true|so true|good point|fair point|touch[eé]) (haha|lol|lmao)"
+     "(ok|okay|yeah|alright|hm+) (fair|true|fair point|good point)|fair|(haha|hah|lol|lmao|ha) (fair|true|right|exactly|fair enough|good point|so true|touch[eé])|(fair|true|so true|good point|fair point|touch[eé]) (haha|lol|lmao)"
     ],
     "examples": [
      "haha fair",
@@ -670,7 +670,7 @@
    {
     "id": "you_repeat",
     "patterns": [
-     "(you (already|just) said (that|this|it)|you said (that|this|it) (already|before)|you're repeating yourself|you are repeating yourself|you keep (saying|repeating) (that|the same thing|yourself)|same (answer|thing|reply) again|you repeated yourself|stop repeating yourself|that's what you said before|déjà vu)"
+     "(you (already|just) (said|told me|told us|mentioned) (that|this|it)|you (already )?told me (that|this) (already|before)|you already told me|you said (that|this|it) (already|before)|you're repeating yourself|you are repeating yourself|you keep (saying|repeating) (that|the same thing|yourself)|same (answer|thing|reply) again|you repeated yourself|stop repeating yourself|that's what you said before|déjà vu)"
     ],
     "examples": [
      "you already said that",
@@ -6610,6 +6610,10 @@
   },
   "distance_none": [
    "I can't measure distances between places — I don't have map data, and I'd rather not guess. A map app will know exactly."
+  ],
+  "thought_it_was": [
+   "Easy mix-up! But as far as my sources go, it's {y}, not {x}.",
+   "A lot of people think {x} — but it's actually {y}."
   ],
   "accomplished": [
    "Nice, well done! How does it feel to have {x} behind you?",

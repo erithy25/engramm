@@ -191,6 +191,15 @@ _KIND_TYPES = {"mountain": {"Mountain", "Volcano", "MountainRange"}, "river": {"
                "citie": {"City", "Town", "Settlement", "AdministrativeRegion"}, "island": {"Island", "Settlement"},
                "building": {"Building", "Skyscraper", "Tower", "HistoricBuilding", "Castle", "ReligiousBuilding"},
                "planet": {"Planet"}, "ocean": {"Sea", "BodyOfWater", "Ocean"}}
+# lower-case month names as the user typed them, in a remembered date
+_MONTH_LOW = re.compile(r"\b(?:january|february|march|april|june|july|august|september|october|november|december)\b|"
+                        r"\bmay(?= \d)|(?<=\d )may\b")
+# "no wait, it's alexander" right after telling the name
+_NAME_FIX = re.compile(r"(?i)^(?:no,? |nope,? |sorry,? |oops,? )?(?:wait,? |actually,? |i mean,? )*(?:it'?s|its|i'?m|im|my name is|"
+                       r"call me) (?P<x>[a-z][a-z'-]+)[.!]*$")
+# "really? i thought it was sydney" after an answer
+_THOUGHT_IT_WAS = re.compile(r"^(?:really\??,? |wait,? |huh,? |oh,? |hm+,? )*i (?:thought|was sure|always thought) "
+                             r"(?:it was|it's|its|the answer was|that it was) (?P<x>[a-z][a-z .'-]{1,40})$")
 # "and the second?" after a superlative
 _NEXT_RANK = re.compile(r"(?:and |what about |how about )?(?:the )?(second|2nd|third|3rd)(?: one| place| (?:tallest|highest|longest|largest|biggest|smallest))?")
 # "how far is it from Tokyo to Kyoto?" — no map data to measure with
@@ -735,6 +744,8 @@ class Assistant:
                 de_again = (self.bank.de or {}).get("daily", {}).get("unknown_again") if st.lang == "de" else None
                 rep.text = self._pick(st, "de:unknown_again" if de_again else "daily:unknown_again",
                                       de_again or self.bank.daily["unknown_again"])
+        if rep.via == "facts" and rep.text:
+            rep.text = _MONTH_LOW.sub(lambda m: m.group(0)[:1].upper() + m.group(0)[1:], rep.text)  # "on june 5" → "June 5"
         st.last_message = message
         st.last_kind = rep.kind
         self._track(st, rep, msg)
@@ -796,6 +807,10 @@ class Assistant:
                 return self._german(st, msg)      # "die nachbarn waren laut": no English word, stays German
         msg = expand_chat(msg)                            # "wats ur name" → "what's your name"
         msg = self._prefer_correction(msg)                # "actually i prefer ramen" right after a favourite
+        nc = _NAME_FIX.match(msg.strip())
+        if nc and st.last_kind == "learned" and re.search(r"\b(?:my name is|call me|i'm|im|i am)\b", st.last_message or "", re.I):
+            name = nc.group("x")
+            msg = f"My name is {name[:1].upper() + name[1:]}."      # "no wait, it's alexander" right after the name
         msg = _split_self_statements(msg)                 # "my name is Sam and I'm a teacher": two facts
         pet = st.uses.get("pet")
         if pet and st.turn - pet[1] <= 3:
@@ -1146,8 +1161,11 @@ class Assistant:
             st.pending = {"slot": "name", "store": self.bank.fun["questions"]["ask_name"]["store"], "turn": st.turn}
             return Reply(u.text, "unknown", self._reply(st, "who_am_i.unknown"), via="facts")
         if action == "repeat":
-            text = st.last_reply or self._reply(st, "repeat_none")
-            return Reply(u.text, "smalltalk", text, via="smalltalk")
+            if not st.last_reply:
+                return Reply(u.text, "smalltalk", self._reply(st, "repeat_none"), via="smalltalk")
+            base = re.sub(r"^(?:Sure — |I said: )", "", st.last_reply)
+            lead = self._pick(st, "repeat_lead", ["Sure — ", "I said: "])
+            return Reply(u.text, "smalltalk", lead + base, via="smalltalk")
         if action == "clarify":
             if st.last_reply and st.last_kind in ("answer", "about", "tool", "memory") and \
                     not st.last_reply.startswith(("Sorry if that was unclear", "In other words")):
@@ -1720,6 +1738,13 @@ class Assistant:
                                  via="smalltalk")
         if norm.strip(" ?!") in ("why", "why not", "how come", "really") and la.get("kind") == "debate" and recent:
             return Reply(msg, "smalltalk", self._pick(st, "daily:debate_why", d["debate_why"]), via="smalltalk")
+        tw = _THOUGHT_IT_WAS.match(norm)
+        lf = st.last_fact or {}
+        if tw and lf.get("sure") and lf.get("answer") and st.last_kind == "answer":
+            mine = tw.group("x").strip(" ?.!")
+            if mine.lower() != str(lf["answer"]).lower():
+                return Reply(msg, "smalltalk", self._pick(st, "daily:thought_it_was", d["thought_it_was"],
+                                                          x=_place_case(mine), y=lf["answer"]), via="smalltalk")
         sl = st.uses.get("superlative")
         if sl and st.turn - sl[1] <= 3 and _NEXT_RANK.fullmatch(norm.strip(" ?!.")):
             rep = self._superlative(st, msg)            # "and the second" after "the tallest mountain"
@@ -2774,7 +2799,7 @@ class Assistant:
             value = re.sub(r"^(?:no,? |nope,? |actually,? |well,? )?(?:it's|its|it is|it was|that's|thats|that is|"
                            r"the (?:right |correct )?answer is|the ceo is|he is|she is|they are)\s+", "", value.strip(),
                            flags=re.I).strip(" .!")
-            if value.islower() and re.match(r"^\s*who\b", q, re.I):
+            if value.islower() and re.match(r"^\s*(?:who|where|in which (?:city|country|town))\b", q, re.I):
                 value = " ".join(w[:1].upper() + w[1:] for w in value.split())
             sent = answer_sentence(q, value, _atype(q)) or f"The answer to “{q}” is {value}."
             r = self._learn(st, [sent], msg)
