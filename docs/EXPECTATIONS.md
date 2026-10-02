@@ -2151,6 +2151,19 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - Deutsch: „nein, keine ideen“ nach dem Angebot, „der war gut“ nach einem Witz.
   - Team-Dev-Satz: 0 von 128 Antworten geändert. NQ-open 400: unverändert 22/9. Regressions-Batterien 34–38:
     0 Wiederholungen. Suite 684 bestanden, 7 übersprungen.
+- **Alltags-Batterie 40** (Krankenschwester Anna, Filmabend, Griechenland-Urlaub, deutsches Vorstellungsgespräch,
+  Countdown, Abendessen für die Freundin). Gefunden und behoben:
+  - „hi! i'm anna“ → Name nicht erkannt (das „!“); „danke, das hilft“ → unverstanden (die Dank-plus-Frage-Regel
+    griff auch bei bloßen Reaktionen).
+  - „can you recommend a movie for tonight“ → Wissenssuche; „something scary“ → nur ein Film (jetzt 6 Horror/Thriller).
+  - „to greece“ auf „where are you going?“ → „What was the best part?“: jetzt Reiseziel mit Angebot; „what should i
+    pack?“ (Packliste), „what language do they speak there?“ (Ort aus dem Gespräch), „and until new year?“.
+  - „what should i cook next time?“ → gespeicherter Satz statt Ideen; „something romantic“ → romantische Gerichte;
+    „i cooked dinner for my girlfriend“ / „i made lasagna“ mit passender Reaktion.
+  - „what do you think about nurses?“ → „People are really split on nurses“: Respekt für Berufe, persönlich, wenn es
+    der eigene ist; „yeah night shifts are tough“.
+  - Team-Dev-Satz: 0 von 128 Antworten geändert. NQ-open 400: unverändert 22/9. Regressions-Batterien 35–39:
+    0 Wiederholungen. Suite 685 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

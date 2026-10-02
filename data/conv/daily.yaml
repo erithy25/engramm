@@ -198,6 +198,10 @@ recommend:
       lentils: ["red lentil dal with rice", "lentil soup", "lentil bolognese"]
     items:
       - {x: "pasta aglio e olio — garlic, olive oil and chilli, done in fifteen minutes", de: "Pasta aglio e olio – Knoblauch, Olivenöl und Chili, in fünfzehn Minuten fertig", tags: "quick"}
+      - {x: "a creamy mushroom risotto with a glass of white wine", de: "ein cremiges Pilzrisotto mit einem Glas Weißwein", tags: "romance"}
+      - {x: "steak with garlic butter, roasted potatoes and a simple salad", de: "Steak mit Knoblauchbutter, Ofenkartoffeln und einem einfachen Salat", tags: "romance"}
+      - {x: "fresh pasta with a lemon-butter sauce and prawns", de: "frische Pasta mit Zitronen-Butter-Soße und Garnelen", tags: "romance"}
+      - {x: "chocolate fondue with strawberries for dessert", de: "Schokoladenfondue mit Erdbeeren als Dessert", tags: "romance sweet"}
       - {x: "a quick stir-fry with whatever vegetables you have", de: "eine schnelle Gemüsepfanne mit allem, was du da hast", tags: "quick healthy"}
       - {x: "homemade pizza on a flatbread", de: "selbstgemachte Pizza auf Fladenbrot"}
       - {x: "tacos with beans, salsa and whatever you like on top", de: "Tacos mit Bohnen, Salsa und deinem Lieblingsbelag", tags: "quick"}
@@ -249,6 +253,11 @@ recommend:
       - {x: "“The Godfather” (1972)", tags: "drama classic crime", title: "The Godfather"}
       - {x: "“Back to the Future” (1985)", tags: "scifi comedy classic", title: "Back to the Future"}
       - {x: "“Parasite” (2019) by Bong Joon-ho", tags: "thriller drama", title: "Parasite (2019 film)"}
+      - {x: "“Get Out” (2017) by Jordan Peele", tags: "thriller horror", title: "Get Out"}
+      - {x: "“The Shining” (1980) by Stanley Kubrick", tags: "thriller horror classic", title: "The Shining (film)"}
+      - {x: "“A Quiet Place” (2018)", tags: "thriller horror", title: "A Quiet Place"}
+      - {x: "“The Sixth Sense” (1999)", tags: "thriller horror", title: "The Sixth Sense"}
+      - {x: "“Alien” (1979) by Ridley Scott", tags: "thriller horror scifi classic", title: "Alien (film)"}
       - {x: "“The Matrix” (1999)", tags: "scifi action", title: "The Matrix"}
       - {x: "“Up” (2009) from Pixar", tags: "animation comedy family", title: "Up (2009 film)"}
       - {x: "“Interstellar” (2014) by Christopher Nolan", tags: "scifi drama", title: "Interstellar (film)"}
@@ -1160,6 +1169,9 @@ howto:
   - keys: [[budget]]
     title: "A simple monthly budget"
     steps: ["Start with your monthly income after tax.", "List fixed costs: rent, bills, insurance, transport, debt payments.", "A common rule of thumb is 50/30/20: about 50% for needs, 30% for wants, 20% for savings and paying off debt.", "Set a weekly amount for groceries and fun, and check in every Sunday.", "Tell me your income and rent if you like, and I'll help you do the maths."]
+  - keys: [[pack, trip], [pack, holiday], [pack, vacation], [packing]]
+    title: "A quick packing list"
+    steps: ["Documents first: passport or ID, tickets, bank card, insurance details — and photos of them on your phone.", "Phone, charger, power bank and an adapter if the plugs are different.", "Clothes for the weather plus one layer more than you think, comfortable shoes, swimwear if there's water.", "Toiletries in small sizes, sun cream, any medication you take, and a few plasters.", "Tip: lay everything out, then take half the clothes and twice the money."]
   - keys: [[hiccup], [hiccups]]
     title: "Getting rid of hiccups"
     steps: ["Hold your breath for 10–20 seconds, then breathe out slowly — repeat a few times.", "Sip a glass of cold water slowly, or swallow a teaspoon of sugar.", "Breathe slowly into cupped hands for a minute.", "Hiccups that last more than two days are worth mentioning to a doctor."]
@@ -1531,3 +1543,21 @@ temp_feel:
 money_tight:
   - "That's really tough — rent eats so much of everyone's income these days. Want a few ideas for saving where it doesn't hurt much?"
   - "Ugh, yes, it's brutal right now. You're definitely not alone with that. Should I share some ways to save a bit?"
+trip_dest:
+  - "{x}! Lovely — have you been before? I can tell you what to see or eat there if you like."
+  - "Ooh, {x}! That sounds wonderful. Want some tips on what to see, or what to eat?"
+cooked_for:
+  - "Aw, that's so sweet! Did she like it?"
+  - "That's lovely — cooking for someone is such a nice gesture. How did it turn out?"
+cooked_dish:
+  - "{X} — great choice, that's real effort! No wonder it went down well."
+  - "Ooh, {x}! That's a crowd-pleaser. Nicely done."
+opinion_job:
+  - "Honestly? Huge respect — {topic} keep everyday life running, often with long hours and little thanks. Is that your job?"
+  - "I think {topic} deserve far more credit than they get. It's demanding work — and it matters. Do you work as one?"
+opinion_job_mine:
+  - "Honestly? Huge respect — and you're one of them! People like you keep everyday life running, often with long hours and little thanks. Thank you for what you do."
+  - "I think {topic} deserve far more credit than they get — so, thank you, really. It's demanding work, and it matters."
+shifts_tough:
+  - "Night shifts are brutal — your body never really gets used to them. Do you get some proper rest days in between?"
+  - "I can imagine. Sleeping during the day is so hard. How do you manage — blackout curtains, earplugs?"

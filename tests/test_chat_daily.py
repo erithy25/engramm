@@ -1318,3 +1318,40 @@ def test_battery39_self_worth_pets_money_city_and_german_jokes(chat):
     a.turn(st6, "erzähl mir einen witz")
     r = a.turn(st6, "der war gut")
     assert "Schönes passiert" not in r.text, r.text
+
+
+def test_battery40_names_movies_trip_followups_dinner_and_jobs(chat):
+    a, st = chat
+    a.bot.cap = dict(a.bot.cap or {}, anna=1.0)
+    a.turn(st, "hi! i'm anna")
+    r = a.turn(st, "what's my name?")
+    assert "Anna" in r.text, r.text
+    a.turn(st, "i'm a nurse")
+    r = a.turn(st, "yeah night shifts are tough")
+    assert "Tell me more?" not in r.text, r.text
+    r = a.turn(st, "what do you think about nurses?")
+    assert "split" not in r.text and ("one of them" in r.text or "thank you" in r.text.lower()), r.text
+    st2 = DialogState("daily")
+    r = a.turn(st2, "can you recommend a movie for tonight")
+    assert "•" in r.text, r.text
+    r = a.turn(st2, "something scary")
+    assert r.text.count("•") >= 2, r.text
+    st3 = DialogState("daily")
+    a.turn(st3, "i'm going on vacation tomorrow")
+    r = a.turn(st3, "to greece")
+    assert "Greece" in r.text and "best part" not in r.text, r.text
+    r = a.turn(st3, "what should i pack?")
+    assert "passport" in r.text, r.text
+    st4 = DialogState("daily")
+    a.turn(st4, "how many days until christmas")
+    r = a.turn(st4, "and until new year?")
+    assert "1 January" in r.text, r.text
+    st5 = DialogState("daily")
+    a.turn(st5, "i cooked dinner for my girlfriend tonight")
+    r = a.turn(st5, "what should i cook next time?")
+    assert "•" in r.text and "You cooked" not in r.text, r.text
+    r = a.turn(st5, "something romantic")
+    assert "•" in r.text, r.text
+    st6 = DialogState("de")
+    r = a.turn(st6, "danke, das hilft")
+    assert "nicht ganz verstanden" not in r.text and "verstehe ich leider nicht" not in r.text, r.text

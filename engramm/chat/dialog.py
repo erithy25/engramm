@@ -730,7 +730,10 @@ class Assistant:
             st.uses.pop("de_offer", None)                # "nein, keine ideen" after "soll ich dir Ideen geben?"
             return Reply(msg, "smalltalk", self._pick(st, "de:life:offer_no", dl["offer_no"]), via="german")
         tq = re.match(r"^(?:ok(?:ay)?,? |super,? |cool,? )?(?:danke|vielen dank|dank dir|danke dir|danke schön)(?: dir)?[!,.]+ *(?P<r>.{6,})$", s)
-        if tq and not re.match(r"(?:tschüss|tschüs|ciao|bis |gute nacht|schönen|mach'?s gut)", tq.group("r")):
+        if tq and not re.match(r"(?:tschüss|tschüs|ciao|bis |gute nacht|schönen|mach'?s gut)", tq.group("r")) and \
+                (tq.group("r").rstrip().endswith("?") or re.match(r"(?:was|wie|wer|wo|wann|warum|wieso|welche[rsn]?|kannst|hast|"
+                                                                   r"bist|erzähl|empfiehl|sag|zeig|gib|schreib|rechne|übersetze)\b",
+                                                                   tq.group("r"))):
             return self._german(st, tq.group("r"))         # "danke! was kann ich heute abend noch machen?": the question
         if re.fullmatch(r"(?:juhu,? |yay,? |endlich,? |puh,? )*(?:endlich )?(?:feierabend|wochenende|urlaub|ferien|frei)(?: endlich)?(?: juhu| yay)?[!. ]*", s):
             key = "weekend" if "wochenende" in s else "holiday" if re.search(r"urlaub|ferien", s) else "off_work"
@@ -1101,6 +1104,11 @@ class Assistant:
         plm = re.search(r"\b(?:moved to|moving to|live in|living in|i'?m in|visiting|going to|trip to|flying to|travel(?:l)?ing to|"
                         r"holiday in|vacation in|from) ([a-z][a-z ]{2,25}?)(?=\s+(?:next|this|last|tomorrow|for|with|and|now|soon|recently)\b|"
                         r"[.!?,]|$)", message.lower())
+        if not plm and rep.kind != "safety" and re.search(r"\b(?:going on|off on|taking|booked|planning) (?:a |my |our )?"
+                                                          r"(?:vacation|holiday|trip|getaway)\b", message.lower()):
+            st.uses["trip_ask"] = st.turn                     # "to greece" may follow
+        if plm and rep.kind != "safety" and re.search(r"\b(?:vacation|holiday|trip|flying|travel)", message.lower()):
+            st.uses["trip"] = [_place_case(plm.group(1).strip()), st.turn]
         if plm and plm.group(1).strip() in self.bank.daily.get("sights", {}) and rep.kind != "safety":
             st.uses["place_topic"] = [_place_case(plm.group(1).strip()), st.turn]   # "what should I see there?" may follow
         petm = re.search(r"\bmy (dog|cat|puppy|kitten|hamster|rabbit|bunny|parrot|bird|horse|guinea pig|turtle|tortoise|budgie)\b",
@@ -1195,7 +1203,7 @@ class Assistant:
                 return self._german(st, msg)      # "die nachbarn waren laut": no English word, stays German
         msg = expand_chat(msg)                            # "wats ur name" → "what's your name"
         msg = self._prefer_correction(msg)                # "actually i prefer ramen" right after a favourite
-        li = re.fullmatch(r"(?i)((?:hi|hey|hello|yo)?,? ?(?:i'?m|im|i am|my name'?s|name'?s|this is) )([a-z][a-z'-]{1,20})"
+        li = re.fullmatch(r"(?i)((?:hi|hey|hello|yo|hiya)?[,!.]* ?(?:i'?m|im|i am|my name'?s|name'?s|this is) )([a-z][a-z'-]{1,20})"
                           r"((?: here| btw| by the way)?[.!]*)", msg.strip())
         if li and li.group(2).islower() and li.group(2) not in _NOT_NAMES and \
                 (getattr(self.bot, "cap", None) or {}).get(li.group(2), 0.0) >= 0.8:
@@ -1797,6 +1805,8 @@ class Assistant:
 
     def _question(self, st: DialogState, text: str) -> Reply:
         bot = self.bot
+        if re.search(r"(?i)\b(?:do|did|does) they \w+ there\b|\bthere\b.*\?$", text) and st.uses.get("place_topic"):
+            text = self._place_carry(st, text)          # "what language do they speak there?" during a trip to Greece
         # "what language do they speak in Brazil?": a generic "they", not the last person or thing
         text = re.sub(r"(?i)\b(do|did|does) they (speak|use|eat|celebrate|drive|call|pay|play)\b(?=.*\bin\b)", r"\1 people \2", text)
         cv = st.uses.get("last_conv")
@@ -1805,6 +1815,12 @@ class Assistant:
             tr = tool_answer(f"convert {cn.group(1)} {cv[1]} to {cv[2]}", self._now())
             if tr is not None:
                 st.uses["last_conv"] = [st.turn, cv[1], cv[2]]
+                return Reply(text, "tool", tr.text if tr.text.endswith(".") else tr.text + ".", answer=tr.value,
+                             via="tool", confidence=1.0)
+        du = re.fullmatch(r"(?:and |what about |how about )?(?:until|till|to|before) (?P<x>[a-z0-9' ]{3,30}?)\??", text.strip().lower())
+        if du and st.last_kind == "tool" and re.search(r"\bdays? until\b", st.last_reply or ""):
+            tr = tool_answer(f"how many days until {du.group('x')}", self._now())     # "and until new year?"
+            if tr is not None:
                 return Reply(text, "tool", tr.text if tr.text.endswith(".") else tr.text + ".", answer=tr.value,
                              via="tool", confidence=1.0)
         hol = _HOLIDAY_Q.match(normalise(text).strip(" ?!."))
@@ -2316,6 +2332,49 @@ class Assistant:
         if ps:                                            # "my dog is sick": a worried owner, not "the first time with your dog?"
             st.last_exp = {"valence": "negative", "topic": f"your {ps.group(1)}", "person": False, "text": msg, "turn": st.turn}
             return Reply(msg, "empathy", self._pick(st, "daily:pet_sick", d["pet_sick"], x=ps.group(1)), via="empathy")
+        ta = st.uses.get("trip_ask")
+        if re.search(r"\bwhere (?:are you|to)\b|\bwhere are you (?:going|heading|off to)\b|\banywhere nice\b|\bwhere\b.*\?",
+                     (st.last_reply or "").lower()) or (ta is not None and st.turn - ta <= 2):
+            dm_ = re.fullmatch(r"(?:to |we'?re going to |i'?m going to |going to |heading to |off to )?(?P<p>[a-z][a-z .'-]{2,25}?)"
+                               r"(?: (?:for (?:a|two|one|three) (?:week|weeks|days)|with (?:my|friends|family)[a-z ]*))?[.!]*", norm.strip())
+            if dm_ and (dm_.group("p") in d.get("sights", {}) or self._is_place(dm_.group("p"))):
+                place = _place_case(dm_.group("p"))          # "to greece" after "where are you going?"
+                st.uses["place_topic"] = [place, st.turn]
+                st.uses["trip"] = [place, st.turn]
+                self._learn(st, [f"I am going on holiday to {place}."], msg)
+                return Reply(msg, "smalltalk", self._pick(st, "daily:trip_dest", d["trip_dest"], x=place), via="everyday")
+        tr_ = st.uses.get("trip")
+        if re.fullmatch(r"(?:so |and |ok )?(?:what should i (?:pack|bring|take)(?: with me)?|what (?:do|should) i need to (?:pack|bring)|"
+                        r"any packing tips|help me pack|what to pack)(?: for (?:the|my) (?:trip|holiday|vacation))?\??", norm.strip()):
+            hr = self._howto(st, "how do i pack for a trip")      # "what should I pack?" before a holiday
+            if hr is not None:
+                return hr
+        du2 = re.fullmatch(r"(?:and |what about |how about )?(?:until|till|to|before) (?P<x>[a-z0-9' ]{3,30}?)\??", norm.strip())
+        if du2 and st.last_kind == "tool" and re.search(r"\bdays? until\b", st.last_reply or ""):
+            tr = tool_answer(f"how many days until {du2.group('x')}", self._now())     # "and until halloween"
+            if tr is not None:
+                return Reply(msg, "tool", tr.text if tr.text.endswith(".") else tr.text + ".", answer=tr.value, via="tool")
+        if re.fullmatch(r"(?:yeah,? |yes,? |ugh,? |honestly,? )?(?:the |my |these )?(?:night shifts?|nightshifts?|long shifts|double shifts|"
+                        r"12[- ]hour shifts|early shifts|late shifts|shifts|weekend shifts) (?:are|is|have been|were) "
+                        r"(?:so |really |super |pretty |very |kinda )?(?:tough|hard|exhausting|brutal|rough|killing me|draining|a lot)[.!]*",
+                        norm.strip()):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg + " tired", "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "daily:shifts_tough", d["shifts_tough"]), via="empathy")
+        cf = re.fullmatch(r"(?:so |guess what,? )?i (?:just )?(?:cooked|made|baked) (?:a )?(?:dinner|lunch|breakfast|brunch|a cake|"
+                          r"something|a meal|food) for (?:my )?(?P<w>girlfriend|boyfriend|wife|husband|partner|family|parents|mom|mum|dad|"
+                          r"friends|kids|date|roommates?)(?: tonight| today| yesterday)?[.!]*", norm.strip())
+        if cf:                                            # "i cooked dinner for my girlfriend tonight"
+            st.uses["cooked_for"] = st.turn
+            st.last_exp = {"valence": "positive", "topic": None, "person": True, "text": msg, "turn": st.turn}
+            self._learn(st, [msg], msg)
+            return Reply(msg, "smalltalk", self._pick(st, "daily:cooked_for", d["cooked_for"]), via="empathy")
+        cfd = st.uses.get("cooked_for")
+        if cfd is not None and st.turn - cfd <= 3:
+            mdish = re.fullmatch(r"(?:i (?:made|cooked|baked)|it was|we had) (?:a |an |some |my |homemade )?(?P<x>[a-z][a-z ]{2,30}?)[.!]*", norm.strip())
+            if mdish:
+                x = mdish.group("x")
+                return Reply(msg, "smalltalk", self._pick(st, "daily:cooked_dish", d["cooked_dish"], x=x, X=x[:1].upper() + x[1:]),
+                             via="empathy")
         go = st.uses.get("guide_offer")
         if go and st.turn - go[1] <= 1 and re.fullmatch(r"(?:yes|yeah|yep|sure|ok|okay|please|yes please|go on|why not|"
                                                          r"sure why not|definitely|that would help|ok tell me)[!. ]*", norm.strip()):

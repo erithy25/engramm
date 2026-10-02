@@ -32,7 +32,8 @@ from engramm.chat.smart import swap_person
 _LEAD = r"^(?:(?:hey|hi|ok|okay|so|well|um+|hmm+|engramm|please|pls|anyway|anyways|alright|btw|by the way|oh|right|also)[, ]+)*(?:(?:can|could|would|will) you |please |pls )*"
 _REC = [
     ("food", re.compile(_LEAD + r"(?:i'm hungry[, ]+)?(?:what (?:should|can|could|do|shall) (?:i|we) (?:eat|cook|make|have)"
-                        r"(?: for (?:dinner|lunch|breakfast|supper|tonight|today))?(?: tonight| today)?|what(?:'s| is| should be) "
+                        r"(?: for (?:dinner|lunch|breakfast|supper|tonight|today|her|him|them|us|my \w+))?"
+                        r"(?: tonight| today| next time| tomorrow| this weekend| next)?|what(?:'s| is| should be) "
                         r"for (?:dinner|lunch|supper)|(?:give me |suggest |any )?(?:dinner|lunch|supper|meal|recipe|food|cooking) "
                         r"(?:ideas?|suggestions?|inspiration)|i (?:don't|do not|can't|cannot) (?:know|decide) what to (?:eat|cook|make)"
                         r"|(?:suggest|recommend)(?: me)? (?:a |an |some )?(?:meal|dinner|lunch|recipe|dish|food)|what to (?:eat|cook)"
@@ -42,7 +43,8 @@ _REC = [
                         r"(?:recommendations?|suggestions?|ideas?|tips?)|what (?:book|books|novel) should i read(?: next)?|"
                         r"what should i read(?: next)?|(?:give me |i need |i want )?a good book(?: to read)?)$")),
     ("movie", re.compile(_LEAD + r"(?:(?:recommend|suggest)(?: me)? (?:a |an |some |any |good |great |nice )*(?:(?P<g>[a-z-]+(?: [a-z-]+)?) )?"
-                         r"(?:movie|movies|film|films)|(?:any |good |some )?(?:(?P<g2>[a-z-]+) )?(?:movie|film) "
+                         r"(?:movie|movies|film|films)(?: (?:for|to watch) (?:tonight|today|the weekend|this weekend|a date night|"
+                         r"date night|movie night))?|(?:any |good |some )?(?:(?P<g2>[a-z-]+) )?(?:movie|film) "
                          r"(?:recommendations?|suggestions?|ideas?|tips?)|what (?:movie|film|movies|films) should (?:i|we) watch"
                          r"(?: tonight| today)?|what should (?:i|we) watch(?: tonight| today)?|(?:a )?good (?:movie|film) to watch)$")),
     ("series", re.compile(_LEAD + r"(?:(?:recommend|suggest)(?: me)? (?:a |an |some |any |good |great |nice )*(?:(?P<g>[a-z-]+) )?"
@@ -95,7 +97,7 @@ _GENRES = {"sci-fi": "scifi", "scifi": "scifi", "science fiction": "scifi", "sci
            "fantasy": "fantasy", "non-fiction": "nonfiction", "nonfiction": "nonfiction", "non fiction": "nonfiction",
            "history": "history", "historical": "history", "animated": "animation", "animation": "animation",
            "romantic": "romance", "romance": "romance", "thriller": "thriller", "exciting": "thriller",
-           "scary": "thriller", "crime": "crime", "documentary": "documentary", "fiction": "fiction",
+           "scary": "thriller", "horror": "thriller", "creepy": "thriller", "spooky": "thriller", "crime": "crime", "documentary": "documentary", "fiction": "fiction",
            "dystopian": "dystopia", "family": "family", "kids": "family", "rock": "rock", "jazz": "jazz", "pop": "pop",
            "electronic": "electronic", "board": "board", "video": "video", "drama": "drama", "mystery": "mystery",
            "psychology": "psychology", "science": "science", "nature": "nature",
@@ -333,6 +335,8 @@ class Everyday:
         if isinstance(intro, list):                   # several openings: never the same one twice in a row
             intro = self.pick(st, f"rec_intro:{kind}", intro)
         intro = intro or self.pick(st, "rec_intro", self.d["recommend"]["intro"])
+        if kind == "food" and lang == "en" and re.search(r"\bnext time\b", msg.lower()) and "tonight" in intro:
+            intro = intro.replace("for tonight", "for next time")
         meal = re.search(r"\b(breakfast|lunch|brunch)\b", msg.lower())
         if kind == "food" and meal and lang == "en" and "tonight" in intro:
             intro = intro.replace("for tonight", f"for {meal.group(1)}").replace("tonight", f"for {meal.group(1)}")
@@ -642,6 +646,15 @@ class Everyday:
         fits — a fact when it knows the thing, and the question back."""
         topic = re.sub(r"^(?:the|a|an)\s+", "", topic).strip(" ?.!")
         st.topic = {"title": topic, "name": topic, "turn": st.turn}
+        if re.fullmatch(r"(?:nurses?|doctors?|teachers?|firefighters?|paramedics?|carers?|caregivers?|social workers?|"
+                        r"midwives|midwife|police officers?|cleaners?|farmers?|scientists?|engineers?|bus drivers?|"
+                        r"cashiers?|cooks?|chefs?|waiters?|waitresses?|vets?|pharmacists?|soldiers?|volunteers?)", topic.lower()):
+            # "what do you think about nurses?": warm respect, never "people are split"
+            single = re.sub(r"(?:ves|s)$", lambda m: "fe" if m.group(0) == "ves" else "", topic.lower())
+            mine = any(f.subject == "USER" and "#job" in f.relation and single in f.object.lower()
+                       for f in self.a.bot.facts.facts)
+            key = "opinion_job_mine" if mine else "opinion_job"   # "and you're one of them!"
+            return Reply(msg, "smalltalk", self.pick(st, key, self.d[key], topic=topic), via="everyday")
         found = None
         for cand in dict.fromkeys((topic, topic.title())):
             found = self.a.about.find(cand, n=1)
