@@ -946,6 +946,12 @@ distance_none:
 thought_it_was:
   - "Easy mix-up! But as far as my sources go, it's {y}, not {x}."
   - "A lot of people think {x} — but it's actually {y}."
+dots:
+  - "Take your time — I'm here."
+  - "Still there? No rush."
+puzzled:
+  - "Sorry, that wasn't clear! Which part should I explain differently?"
+  - "Oops, I lost you there. What did you mean?"
 accomplished:
   - "Nice, well done! How does it feel to have {x} behind you?"
   - "That's great — {x}, done! Got anything fun planned now?"

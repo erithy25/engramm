@@ -21,7 +21,7 @@
    {
     "id": "gibberish",
     "patterns": [
-     "(?=[a-z]*[bcdfghjklmnpqrstvwxz]{6})[a-z]{6,}|[^a-z0-9]{1,6}"
+     "(?=[a-z]*[bcdfghjklmnpqrstvwxz]{6})[a-z]{6,}|[^a-z0-9\\U0001F300-\\U0001FAFF\\u2600-\\u27BF\\u2764\\uFE0F\\u200D.?!…]{1,6}"
     ],
     "examples": [
      "asdfghjkl",
@@ -348,6 +348,79 @@
     ]
    },
    {
+    "id": "emoji_happy",
+    "patterns": [
+     "(😊|🙂|😀|😃|😁|☺️|☺|🥰|😍|❤️|❤|♥️|💕|😘|🤗|😇)+"
+    ],
+    "examples": [
+     "😊",
+     "🥰"
+    ],
+    "responses": [
+     "😊",
+     "Aw, right back at you! 😊"
+    ]
+   },
+   {
+    "id": "emoji_ok",
+    "patterns": [
+     "(👍|👌|✅|🙏|💪|🙌|👏)+"
+    ],
+    "examples": [
+     "👍",
+     "🙏"
+    ],
+    "responses": [
+     "👍 Anything else I can do?",
+     "Great! Let me know if you need anything else."
+    ]
+   },
+   {
+    "id": "emoji_meh",
+    "patterns": [
+     "(🙄|😒|😑|😐|🤷|🤷‍♀️|🤷‍♂️|😬|🫤)+"
+    ],
+    "examples": [
+     "🙄",
+     "🤷"
+    ],
+    "responses": [
+     "Ha, fair — was that a bit much?",
+     "Hmm, not convinced? Tell me what you think."
+    ]
+   },
+   {
+    "id": "emoji_sad",
+    "patterns": [
+     "(😢|😭|😞|😔|☹️|🙁|💔|😿|😥)+"
+    ],
+    "examples": [
+     "😢",
+     "💔"
+    ],
+    "responses": [
+     "Oh no — what's wrong? I'm here if you want to talk.",
+     "That looks like a rough moment. Want to tell me what happened?"
+    ]
+   },
+   {
+    "id": "frustrated_word",
+    "patterns": [
+     "(damn|dammit|damn it|wtf|ffs|ugh+|argh+|shit|crap|fml|jeez|geez|bloody hell|for fucks? sake|fuck|fuck this|this sucks|so annoying|this is (so |really |fucking )?annoying)( man| dude)?"
+    ],
+    "examples": [
+     "damn",
+     "wtf",
+     "ugh",
+     "this is so annoying"
+    ],
+    "responses": [
+     "Uh-oh — what happened?",
+     "That bad, huh? What's going on?",
+     "Ugh, sounds frustrating. Want to tell me about it?"
+    ]
+   },
+   {
     "id": "laugh",
     "patterns": [
      "(lo+l+|lmao+|lmfao|rofl|ha(ha)+h?|he(he)+|hah|xd+|:d+|:\\)+|😂+|🤣+|😄+|😆+|that's (so |really |very )?funny|so funny|very funny|you're funny|you are funny|haha that's (funny|good|great))"
@@ -507,7 +580,7 @@
    {
     "id": "apology_to_bot",
     "patterns": [
-     "(i'm |i am |im )?(so |really )?sorry,? (that was|i was|for being|for calling you) (mean|rude|harsh|unfair|not nice|a jerk|stupid|dumb|names)( of me)?|(i'm |i am |im )?sorry (i|for) (yelled|yelling|snapped|snapping|insulted|insulting|cursed|cursing)( at you)?|i didn't mean (that|it)|(that was|i was) (mean|rude|harsh)(,? sorry)?"
+     "(i'm |i am |im )?(so |really )?sorry,? (for|about) (swearing|cursing|the swearing|my language|the language|that language)|(i'm |i am |im )?(so |really )?sorry,? (that was|i was|for being|for calling you) (mean|rude|harsh|unfair|not nice|a jerk|stupid|dumb|names)( of me)?|(i'm |i am |im )?sorry (i|for) (yelled|yelling|snapped|snapping|insulted|insulting|cursed|cursing)( at you)?|i didn't mean (that|it)|(that was|i was) (mean|rude|harsh)(,? sorry)?"
     ],
     "examples": [
      "sorry that was mean",
@@ -6627,6 +6700,14 @@
   "thought_it_was": [
    "Easy mix-up! But as far as my sources go, it's {y}, not {x}.",
    "A lot of people think {x} — but it's actually {y}."
+  ],
+  "dots": [
+   "Take your time — I'm here.",
+   "Still there? No rush."
+  ],
+  "puzzled": [
+   "Sorry, that wasn't clear! Which part should I explain differently?",
+   "Oops, I lost you there. What did you mean?"
   ],
   "accomplished": [
    "Nice, well done! How does it feel to have {x} behind you?",

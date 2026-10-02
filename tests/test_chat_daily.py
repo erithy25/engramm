@@ -925,3 +925,19 @@ def test_long_evening_conversation_bits(chat):
     assert r.kind != "learned" and "tell me more" not in r.text.lower(), r.text
     stored = " ".join(_stored(a)).lower()
     assert "sleeping" not in stored and "bed soon" not in stored, stored
+
+
+def test_emoji_dots_and_frustration(chat):
+    a, st = chat
+    r = a.turn(st, "😊")
+    assert "catch" not in r.text and "typo" not in r.text, r.text
+    r = a.turn(st, "👍")
+    assert "typo" not in r.text, r.text
+    r = a.turn(st, "...")
+    assert "time" in r.text.lower() or "rush" in r.text.lower(), r.text
+    r = a.turn(st, "???")
+    assert "help" not in r.text.lower() or "mean" in r.text.lower(), r.text
+    r = a.turn(st, "damn")
+    assert "Got it" not in r.text, r.text
+    r = a.turn(st, "how long does it take to boil an egg")
+    assert "minutes" in r.text, r.text

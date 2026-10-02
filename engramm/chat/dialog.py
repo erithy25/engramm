@@ -151,8 +151,6 @@ _NORMS = [(re.compile(r"\b(?:coffees?|espressos?|caffeine|energy drinks?|red bul
           (re.compile(r"\b(?:water|litres?|liters?|glasses)\b"), "water"),
           (re.compile(r"\b(?:screen time|phone|scroll|tiktok|instagram|gaming|video games?)\b"), "screen"),
           (re.compile(r"\b(?:steps|walk(?:ed)?)\b"), "steps")]
-# "how do I …", "how can you …": a request for a guide
-_HOWTO_Q = re.compile(r"^(?:so |and |but )?how (?:do|can|could|should|would) (?:i|you|we|one|people) (?!know|say|spell|pronounce)\w+")
 
 
 _TITLE_FILLER = frozenset("of the a an in on at for and or to by list lists history geography".split())
@@ -196,6 +194,9 @@ _KIND_TYPES = {"mountain": {"Mountain", "Volcano", "MountainRange"}, "river": {"
 # lower-case month names as the user typed them, in a remembered date
 _MONTH_LOW = re.compile(r"\b(?:january|february|march|april|june|july|august|september|october|november|december)\b|"
                         r"\bmay(?= \d)|(?<=\d )may\b")
+# two questions joined by "and"
+_TWO_QUESTIONS = re.compile(r"(?i)^(?P<a>(?:what|who|when|where|which|how)\b.+?),?\s+and\s+"
+                            r"(?P<b>(?:how|what|who|when|where|which|is|are|was|were|does|did|do)\b.+)$")
 # "no wait, it's alexander" right after telling the name
 _NAME_FIX = re.compile(r"(?i)^(?:no,? |nope,? |sorry,? |oops,? )?(?:wait,? |actually,? |i mean,? )*(?:it'?s|its|i'?m|im|my name is|"
                        r"call me) (?P<x>[a-z][a-z'-]+)[.!]*$")
@@ -794,6 +795,10 @@ class Assistant:
     def _turn(self, st: DialogState, msg: str) -> Reply:
         if not msg:
             return Reply(msg, "nothing", "Please type something.")
+        if re.fullmatch(r"(?:\.{2,}|…+)", msg):                        # "...": still thinking
+            return Reply(msg, "smalltalk", self._pick(st, "daily:dots", self.bank.daily["dots"]), via="smalltalk")
+        if re.fullmatch(r"\?{2,}!*|\?!+|!\?+", msg):                    # "???": that was unclear
+            return Reply(msg, "smalltalk", self._pick(st, "daily:puzzled", self.bank.daily["puzzled"]), via="clarify")
         de = self.bank.de
         if de and (is_german(msg, de) or _NA_DE.fullmatch(normalise(msg).strip(" ?!."))) and \
                 self.bank.safety_rule(normalise(msg, fillers=False)) is None:
@@ -1330,6 +1335,18 @@ class Assistant:
         if u.act == "about":
             return self._about(st, u)
         if u.act == "question":
+            two = _TWO_QUESTIONS.match(u.text.strip())
+            if two and len(two.group("a").split()) >= 3:
+                # "what is the capital of France and how many people live there?": both, in order; the
+                # second sees the first answer ("there" = Paris)
+                first = self._question(st, two.group("a").rstrip(" ,") + "?")
+                if first.kind == "answer":
+                    st.uses.pop("person_gap", None)       # the first answer is the referent now
+                    second = self._question(st, two.group("b"))
+                    if second.kind == "answer":
+                        first.text = f"{first.text} {second.text}"
+                    return first
+                return first                               # unknown first: no "who's he?" about the second
             return self._question(st, u.text)
         return Reply(u.text, "nothing", self._reply(st, "fallback"))
 
@@ -1817,6 +1834,10 @@ class Assistant:
                 break
         d = self.bank.daily
         if best is None:
+            group = self.everyday._advice_group(q, {})
+            if group not in (None, "generic") and group in d["advice"] and re.search(r"\b(?:i|my|me)\b", q):
+                # "how do I get over a breakup?": the advice a friend would give, not "no guide"
+                return Reply(text, "smalltalk", self._pick(st, f"daily:advice:{group}", d["advice"][group]), via="everyday")
             if re.search(r"\b(?:i|my|me)\b", q):           # a practical question about doing something
                 return Reply(text, "unknown", self._pick(st, "daily:howto_none", d["howto_none"]), via="everyday")
             return None                                    # "how does a rainbow form?": the reading may know
@@ -3387,6 +3408,7 @@ _ORG_TYPES = frozenset(("Company", "Publisher", "RecordLabel", "Organisation", "
                         "GovernmentAgency", "SoccerClub", "BasketballTeam", "TelevisionStation", "Newspaper",
                         "MilitaryUnit", "Band"))
 _HOWTO_Q = re.compile(r"^(?:so |ok |okay |hey )?(?:how (?:do|can|should|would) (?:i|you|one|we|people)|how to|"
+                      r"how long does it take to|"
                       r"how long (?:do|should) (?:i|you)|how much \w+ should (?:i|you)|what(?:'s| is) the best way to|"
                       r"what should i (?:wear|do) (?:to|for|about)|any tips (?:on|for) |tips for |how (?:do|can) i get rid of)\b")
 _TOPIC_EDGE = set("""who whom whose what which when where why how is are was were be been do does did done has have had
