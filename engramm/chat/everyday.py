@@ -114,7 +114,7 @@ _ADVICE = re.compile(_LEAD + r"(?:so )?(?:what (?:should|can|could|do you think|
                      r"confront (?:him|her|them)|speak up)\b.*|"
                      r"(?:any |some |got any |do you have any )?(?:advice|tips|suggestions)(?: for me)?(?: (?:on|about|for) (?P<about2>.+))?|"
                      r"give me (?:some |an? )?(?:advice|tip|tips)(?: (?:on|about|for) (?P<about3>.+))?|"
-                     r"how (?:do|should|can) i (?:deal|cope) with (?P<about4>.+)|help me (?:with this|out|deal with (?P<about5>.+))|"
+                     r"how (?:do|should|can|does) (?:i|people|you|one|someone|we) (?:deal|cope) with (?P<about4>.+)|help me (?:with this|out|deal with (?P<about5>.+))|"
                      r"what (?:now|next)|how do i handle (?P<about6>.+)|i (?:don't|do not|dont) know what to do(?! (?:with myself|today|now|rn|right now|tonight))|i'm not sure what to do|"
                      r"what am i supposed to do|i need (?:some )?advice|(?:so )?what do you think(?: about (?:it|that))?|"
                      r"should i(?: do it)?|is that a good idea|what do you think i should (?:do|say)"

@@ -826,3 +826,32 @@ why_again:
 work_field:
   - "Got it — you work in {x}. Sounds interesting!"
   - "{x} — noted! What do you like most about it?"
+
+# after a loss: "his name was Max" / "he was 14"
+grief_name:
+  - "{x} — that's a lovely name. What was {pron} like?"
+  - "{x}. I'm sure {pron} was very loved. Do you have a favourite memory?"
+grief_age:
+  - "{x} years is a long life together. You must have so many memories."
+  - "{x} — that's a lot of years of friendship. No wonder it hurts so much."
+# a short follow-up right after a moment ("it's my second time", "i start monday")
+exp_follow_neg:
+  - "That makes it even harder. How are you holding up?"
+  - "Oh no — I'm sorry. That's a lot to deal with."
+  - "I get why that's weighing on you. What would help right now?"
+exp_follow_pos:
+  - "That's brilliant — you must be really happy!"
+  - "Love that! Tell me more?"
+  - "So exciting! How are you feeling about it?"
+# "i have to give a speech"
+speech_mention:
+  - "Ooh, a speech! Are you excited or a bit nervous about it? I can help you put it together if you like."
+  - "That's a big honour! Want some help with the speech?"
+speech_wedding:
+  - "Of course! A simple structure that works for a wedding speech:\n\n• Thank everyone for coming and say who you are\n• How you know the groom (or bride) — one short, funny story\n• Something sincere: what makes them great, and what the partner brings out in them\n• A warm word to the couple\n• Raise your glass: “To the happy couple!”\n\nKeep it to 3–5 minutes. Tell me their names and a story, and I'll help you word it."
+speech_generic:
+  - "Sure! A structure that almost always works:\n\n• Start with who you are and why you're speaking\n• One story or example that makes your point\n• What it means — the one thing people should remember\n• Close with a thank-you or a toast\n\nTell me the occasion and a few details, and I'll help you word it."
+# "i'm the best man"
+wedding_role:
+  - "What an honour! Are you excited — or already thinking about the speech?"
+  - "That's a big honour — they clearly trust you a lot! How do you feel about it?"

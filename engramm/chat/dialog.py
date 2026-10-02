@@ -967,6 +967,42 @@ class Assistant:
         d = self.bank.daily
         la = st.last_action or {}
         recent = st.turn - la.get("turn", -99) <= 2
+        le = st.last_exp or {}
+        grief = le and st.turn - le.get("turn", -99) <= 4 and _LOSS.search(le.get("text") or "")
+        if grief:
+            m = _GRIEF_NAME.match(norm)
+            if m:
+                name = m.group("x").strip()
+                name = name[:1].upper() + name[1:]
+                return Reply(msg, "smalltalk", self._pick(st, "daily:grief_name", d["grief_name"], x=name,
+                                                          pron=_PRON.get(m.group("p"), "they")), via="empathy")
+            m = _GRIEF_AGE.match(norm)
+            if m:
+                return Reply(msg, "smalltalk", self._pick(st, "daily:grief_age", d["grief_age"], x=m.group("n")),
+                             via="empathy")
+        if _WEDDING.search(norm):
+            st.uses["wedding"] = st.turn
+        if _HONOUR.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:wedding_role", d["wedding_role"]), via="empathy")
+        if le and st.turn - le.get("turn", -99) <= 2 and _FOLLOW_STATEMENT.match(norm) and experience(norm) is None and \
+                not _FEELING_WORD.search(norm) and "?" not in msg and len(norm.split()) <= 10 and \
+                not set(r for f in facts_from_text(msg, "x") for r in f.relation) & _CATEGORY_LABELS:
+            key = "exp_follow_neg" if le.get("valence") == "negative" else "exp_follow_pos"
+            if _SPEECH.search(norm):
+                st.uses["speech"] = st.turn
+                key = "speech_mention"
+            st.last_exp = dict(le, turn=st.turn)
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key]), via="empathy")
+        if _SPEECH.search(norm) and re.match(r"^i (?:have|need|got|am going|'m going|was asked) to\b", norm):
+            st.uses["speech"] = st.turn
+            return Reply(msg, "smalltalk", self._pick(st, "daily:speech_mention", d["speech_mention"]), via="empathy")
+        sp = st.uses.get("speech")
+        if (_HELP_ME.match(norm) and sp is not None and st.turn - sp <= 3) or _SPEECH_HELP.match(norm):
+            st.uses.pop("speech", None)
+            wd = st.uses.get("wedding")
+            wedding = bool(_WEDDING.search(norm)) or (wd is not None and st.turn - wd <= 8)
+            key = "speech_wedding" if wedding else "speech_generic"
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key]), via="everyday")
         if _WORKOUT_DONE.match(norm):
             rep = self._learn(st, [msg], msg)
             rep.text = self._pick(st, "daily:workout_done", d["workout_done"])
@@ -2050,6 +2086,8 @@ _REFINE = re.compile(r"^(?:maybe |how about |what about |ideally |preferably |do
                      r"a dish|a recipe|a meal|recipes)? ?(?:with|using|that has|containing|made with) (?P<x>[a-z ]{3,25})$")
 _NUMBERISH = re.compile(r"^(?:\d|(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
                         r"twenty|thirty|forty|fifty|hundred|thousand|million|several|many|few)\b)", re.I)
+_HOW_Q = re.compile(r"^\s*how (?:do|does|did|can|could|should|would|to|is|are|was|were) (?!.*\b(?:old|many|much|far|"
+                    r"long|tall|high|big|large|deep|wide|heavy|fast|often)\b)", re.I)
 _ROLE_Q = re.compile(r"^\s*who(?:'s| is| was| are| were)\s+(?:the\s+)?(?P<role>(?:current |new |present |former |first )?"
                      r"[a-z][a-z -]{1,40}?) (?:of|at|for) (?P<x>.+?)\s*\??$", re.I)
 _ROLE_SYN = {"ceo": ["ceo", "chief executive"], "chief executive": ["ceo", "chief executive"],
@@ -2085,6 +2123,8 @@ def _implausible(q: str, answer: str | None, evidence: str | None) -> bool:
         return False
     if re.match(r"^\s*who\b", q, re.I) and _NUMBERISH.match(answer):
         return True
+    if _HOW_Q.match(q) and len(answer.split()) <= 3:
+        return True                                   # "how do people deal with grief?" — "conspecifics" is no answer
     m = _ROLE_Q.match(q)
     if m:
         # "who is the CEO of Apple?": the evidence must name the role, and the answer is a person, not a title
@@ -2167,6 +2207,26 @@ _SUBJECT_KINDS = [("math", re.compile(r"math|maths|mathematics|algebra|geometry|
                   ("science", re.compile(r"physics|chemistry|biology|computer science|programming|coding")),
                   ("language", re.compile(r"english|literature|french|spanish|german|latin")),
                   ("other", re.compile(r".+"))]
+_LOSS = re.compile(r"\b(?:died|dead|passed away|passed on|lost (?:my|our)|put down|put to sleep|funeral|"
+                   r"is gone|has gone)\b", re.I)
+_GRIEF_NAME = re.compile(r"^(?P<p>his|her|their|its) name (?:was|is) (?P<x>[a-z][a-z' -]{1,25})[.!]*$")
+_GRIEF_AGE = re.compile(r"^(?:he|she|they|it) (?:was|were) (?:only |almost |nearly |just )?(?P<n>\d{1,3})"
+                        r"(?: years old| years| yrs)?[.!]*$")
+_PRON = {"his": "he", "her": "she", "their": "they", "its": "it"}
+_FOLLOW_STATEMENT = re.compile(r"^(?:it's|its|it is|it was|this is|that was|that's|thats|the one|i start|i begin|"
+                               r"i'm the|i am the|i have to|i need to|i was|i've been|second|third|first|again|"
+                               r"for the (?:second|third)|and (?:it|that|then))\b")
+_FEELING_WORD = re.compile(r"\b(?:nervous|anxious|sad|happy|scared|worried|excited|angry|stressed|tired|upset|lonely|"
+                           r"depressed|afraid|frustrated|glad|thrilled|devastated|heartbroken)\b")
+_CATEGORY_LABELS = frozenset(("#name", "#home", "#job", "#employer", "#birth", "#origin", "#food", "#colour", "#car"))
+_HONOUR = re.compile(r"^(?:and |so |guess what,? )?i(?:'m| am| was| got asked to be| was asked to be) (?:the |a |his |her )?"
+                     r"(?:best man|maid of honou?r|bridesmaid|groomsman|godfather|godmother|witness)[.!]*$")
+_WEDDING = re.compile(r"\b(?:best man|maid of honou?r|wedding|bride|groom|married|marry|engaged)\b")
+_SPEECH = re.compile(r"\b(?:speech|toast|eulogy|presentation|talk at)\b")
+_HELP_ME = re.compile(r"^(?:can|could|would|will) you help(?: me)?(?: with (?:it|that|this))?(?: please)?$|"
+                      r"^help me(?: please)?$|^any (?:ideas|tips|advice)$|^where do i (?:even )?start$")
+_SPEECH_HELP = re.compile(r"^(?:can you |could you |please )?help me (?:write|with|prepare|plan) (?:a |my |the )?"
+                          r"(?:best man |maid of honou?r |wedding |birthday |retirement )?(?:speech|toast)(?: please)?$")
 _TRIP = re.compile(r"^(?:so |well |guess what,? )?(?:i|we|me and my \w+|my \w+ and i) (?:just |finally |recently |also )?"
                    r"(?:got back from|came back from|returned from|went to|were in|was in|visited|travel+ed to|flew to|"
                    r"went on|spent (?:a|the|two|three|four|five|\w+) (?:week|weekend|days?|weeks?) in) "
@@ -2539,6 +2599,12 @@ _SLOT_STRIP = re.compile(r"^(?:(?:well|so|oh|ok|okay|sure|yes|yeah|um+|uh+|hmm+)
                          r"i am an|i'm an|i like|i love|i enjoy|my favou?rite (?:food|colou?r) is|i have)\s+", re.I)
 
 
+_NOT_A_NAME = re.compile(r"\b(?:not|doing|feeling|feel|good|great|fine|ok|okay|alright|bad|sad|tired|happy|so|very|"
+                         r"really|well|busy|bored|sick|ill|stressed|excited|thanks|thank|hungry|here|back|sure|sorry|"
+                         r"just|kinda|pretty|awful|terrible|meh|exhausted|upset|angry|lonely|nervous|was|is|are|am|"
+                         r"his|her|their|its|my|your|the|a|an)\b", re.I)
+
+
 def _slot_value(msg: str, slot: str | None) -> str | None:
     s = msg.strip().strip(".!?").strip()
     s = _SLOT_STRIP.sub("", s).strip(" ,.!")
@@ -2550,6 +2616,8 @@ def _slot_value(msg: str, slot: str | None) -> str | None:
             return None
         if normalise(s) in ("no", "nope", "not telling", "nothing", "none", "secret", "why"):
             return None
+        if _NOT_A_NAME.search(s):
+            return None                                   # "I'm not doing great" answers how, not who
         return s
     if slot == "mood":
         return None

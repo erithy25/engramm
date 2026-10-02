@@ -184,7 +184,7 @@ _POS_PHRASES = re.compile(r"\b(?:(?:good|great|nice|amazing|awesome|fun|lovely|p
                           r"got (?:a |the )?(?:promotion|raise|job|offer)|new job|good news|"
                           r"had a blast|got engaged|got married|bought a (?:house|car|flat)|finally (?:finished|done))\b")
 _NEGATION = re.compile(r"\b(?:not|never|wasn't|isn't|aren't|weren't|didn't|don't|doesn't|no longer|hardly)\s+"
-                       r"(?:(?:that|so|very|too|really|at all)\s+)?(\w+)")
+                       r"(?:(?:doing|feeling|going|looking|being|that|so|very|too|really|at all)\s+){0,2}(\w+)")
 _INTENSIFIER = re.compile(r"\b(?:so|really|very|super|extremely|incredibly|totally|absolutely|such a|insanely)\b")
 _FIRST = re.compile(r"\b(?:i|i'm|i've|i'd|im|ive|me|my|mine|we|we're|our|us)\b")
 _PEOPLE = frozenset("""boss manager colleague coworker co-worker teammate team supervisor ceo client customer

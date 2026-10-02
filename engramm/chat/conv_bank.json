@@ -392,6 +392,25 @@
     ]
    },
    {
+    "id": "user_not_fine",
+    "patterns": [
+     "(i'm |i am |im |honestly |tbh )?(not (doing |feeling )?(so |too |that |very |really )?(great|good|well|ok|okay|fine|amazing|alright)|not the best|not so hot|could be better|been better|i've been better|meh|so-so|not much good|pretty bad|kinda bad|bad|terrible|awful|horrible|rough day|having a rough day|having a bad day|not a good day|bad day)( honestly| tbh| today| lately)?"
+    ],
+    "examples": [
+     "i'm not doing great",
+     "not so good",
+     "could be better",
+     "i've been better",
+     "bad day",
+     "meh"
+    ],
+    "responses": [
+     "I'm sorry to hear that. Do you want to talk about what's going on?",
+     "Oh no — what's up? I'm here if you want to talk.",
+     "That's no fun. Anything in particular weighing on you?"
+    ]
+   },
+   {
     "id": "user_fine",
     "patterns": [
      "(i'm |i am |im )?(fine|good|great|ok|okay|alright|not bad|pretty good|very good|doing good|doing well|doing great|doing fine|all good|well|really good|so good|excellent|fantastic|wonderful|amazing|never better|can't complain|could be worse)( thanks| thank you| thx)?(,? (and|how about|what about) you)?"
@@ -1438,7 +1457,7 @@
     ],
     "responses": [
      "I'm so sorry for your loss. That's incredibly hard. Would you like to tell me about them?",
-     "I'm really sorry. Losing someone you love hurts deeply — be gentle with yourself. What was he or she like?",
+     "I'm really sorry. Losing someone you love hurts deeply — be gentle with yourself. What were they like?",
      "That's heartbreaking, I'm so sorry. There's no right way to grieve. I'm here if you want to talk about it."
     ]
    },
@@ -6077,6 +6096,38 @@
   "work_field": [
    "Got it — you work in {x}. Sounds interesting!",
    "{x} — noted! What do you like most about it?"
+  ],
+  "grief_name": [
+   "{x} — that's a lovely name. What was {pron} like?",
+   "{x}. I'm sure {pron} was very loved. Do you have a favourite memory?"
+  ],
+  "grief_age": [
+   "{x} years is a long life together. You must have so many memories.",
+   "{x} — that's a lot of years of friendship. No wonder it hurts so much."
+  ],
+  "exp_follow_neg": [
+   "That makes it even harder. How are you holding up?",
+   "Oh no — I'm sorry. That's a lot to deal with.",
+   "I get why that's weighing on you. What would help right now?"
+  ],
+  "exp_follow_pos": [
+   "That's brilliant — you must be really happy!",
+   "Love that! Tell me more?",
+   "So exciting! How are you feeling about it?"
+  ],
+  "speech_mention": [
+   "Ooh, a speech! Are you excited or a bit nervous about it? I can help you put it together if you like.",
+   "That's a big honour! Want some help with the speech?"
+  ],
+  "speech_wedding": [
+   "Of course! A simple structure that works for a wedding speech:\n\n• Thank everyone for coming and say who you are\n• How you know the groom (or bride) — one short, funny story\n• Something sincere: what makes them great, and what the partner brings out in them\n• A warm word to the couple\n• Raise your glass: “To the happy couple!”\n\nKeep it to 3–5 minutes. Tell me their names and a story, and I'll help you word it."
+  ],
+  "speech_generic": [
+   "Sure! A structure that almost always works:\n\n• Start with who you are and why you're speaking\n• One story or example that makes your point\n• What it means — the one thing people should remember\n• Close with a thank-you or a toast\n\nTell me the occasion and a few details, and I'll help you word it."
+  ],
+  "wedding_role": [
+   "What an honour! Are you excited — or already thinking about the speech?",
+   "That's a big honour — they clearly trust you a lot! How do you feel about it?"
   ]
  }
 }

@@ -18,7 +18,7 @@ categories:
       - '\b(died|passed away|passed on|lost my (mom|mother|dad|father|mum|grandma|grandmother|grandpa|grandfather|brother|sister|son|daughter|husband|wife|partner|friend|best friend|dog|cat|pet|baby)|funeral|grieving|grief|mourning|miss (him|her|them) so much|is dead|was killed|put (my|our) (dog|cat) down|had to put down)\b'
     responses:
       - "I'm so sorry for your loss. That's incredibly hard. Would you like to tell me about them?"
-      - "I'm really sorry. Losing someone you love hurts deeply — be gentle with yourself. What was he or she like?"
+      - "I'm really sorry. Losing someone you love hurts deeply — be gentle with yourself. What were they like?"
       - "That's heartbreaking, I'm so sorry. There's no right way to grieve. I'm here if you want to talk about it."
 
   - id: breakup

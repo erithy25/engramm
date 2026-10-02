@@ -206,6 +206,14 @@ intents:
       - "Alright! Let me know if you change your mind."
       - "Sure — I'm here whenever you need me."
 
+  - id: user_not_fine
+    patterns: ['(i''m |i am |im |honestly |tbh )?(not (doing |feeling )?(so |too |that |very |really )?(great|good|well|ok|okay|fine|amazing|alright)|not the best|not so hot|could be better|been better|i''ve been better|meh|so-so|not much good|pretty bad|kinda bad|bad|terrible|awful|horrible|rough day|having a rough day|having a bad day|not a good day|bad day)( honestly| tbh| today| lately)?']
+    examples: [i'm not doing great, not so good, could be better, i've been better, bad day, meh]
+    responses:
+      - "I'm sorry to hear that. Do you want to talk about what's going on?"
+      - "Oh no — what's up? I'm here if you want to talk."
+      - "That's no fun. Anything in particular weighing on you?"
+
   - id: user_fine
     patterns: ['(i''m |i am |im )?(fine|good|great|ok|okay|alright|not bad|pretty good|very good|doing good|doing well|doing great|doing fine|all good|well|really good|so good|excellent|fantastic|wonderful|amazing|never better|can''t complain|could be worse)( thanks| thank you| thx)?(,? (and|how about|what about) you)?']
     examples: [i'm fine, good, not bad, pretty good, i'm doing well, all good, can't complain, i'm great thanks]

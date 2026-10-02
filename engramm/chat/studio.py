@@ -25,7 +25,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "data" / "conv"
 FILES = ("smalltalk", "empathy", "safety", "fun", "replies", "writing", "de", "daily")
-PLACEHOLDERS = {"name", "x", "noun", "subject", "title", "topic", "category", "evidence", "last", "more", "bot",
+PLACEHOLDERS = {"name", "x", "noun", "pron", "subject", "title", "topic", "category", "evidence", "last", "more", "bot",
                 "timeword", "fact"}
 
 

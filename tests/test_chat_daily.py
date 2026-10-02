@@ -536,3 +536,40 @@ def test_field_of_work_and_follow_up_names(chat):
     assert "work in private equity" in r.text, r.text
     r = a.turn(st, "I'm so stressed about my exams")
     assert "exams was" not in r.text, r.text
+
+
+def test_moods_are_never_names(chat):
+    a, st = chat
+    a.turn(st, "hi")
+    r = a.turn(st, "i'm not doing great")
+    assert "great name" not in r.text and "Love to hear" not in r.text, r.text
+
+
+def test_grief_follow_ups(chat):
+    a, st = chat
+    a.turn(st, "my dog died yesterday")
+    r = a.turn(st, "he was 14")
+    assert "14" in r.text and "What happened" not in r.text, r.text
+    r = a.turn(st, "his name was max")
+    assert "Max" in r.text and "call you" not in r.text, r.text
+    r = a.turn(st, "how do people deal with grief")
+    assert len(r.text.split()) > 6, r.text
+
+
+def test_follow_ups_after_moments_and_speech_help(chat):
+    a, st = chat
+    a.turn(st, "i failed my driving test")
+    r = a.turn(st, "it's my second time")
+    assert "remember" not in r.text, r.text
+    a.turn(st, "my best friend is getting married")
+    r = a.turn(st, "i'm the best man")
+    assert "honour" in r.text, r.text
+    a.turn(st, "i have to give a speech")
+    r = a.turn(st, "can you help me")
+    assert "•" in r.text and "wedding" in r.text, r.text
+
+
+def test_how_questions_need_more_than_a_word():
+    from engramm.chat.dialog import _implausible
+    assert _implausible("how do people deal with grief", "conspecifics", "… conspecifics …")
+    assert not _implausible("how many legs does a spider have", "eight", "Spiders have eight legs.")

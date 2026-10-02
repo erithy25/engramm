@@ -706,7 +706,8 @@ def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None,
             continue
         # a short statement without "I"/"my" that is still about you: "Nothing beats curry.",
         # "Home is Lyon.", "Frotam here."
-        if len(words(norm)) <= 8 and (set(concepts(low)) & _IMPLICIT_CONCEPTS or _NAME_INTRO.match(norm.strip())):
+        if len(words(norm)) <= 8 and not re.search(r"\b(?:his|her|their|its|your|he|she|they)\b", low) and \
+                (set(concepts(low)) & _IMPLICIT_CONCEPTS or _NAME_INTRO.match(norm.strip())):
             out += personal_facts(s, source, initial_is_name, typer, implicit=True)
     return out
 
