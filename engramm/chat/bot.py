@@ -940,6 +940,7 @@ class ChatBot:
             sent = sent_feats.get(row[2]) if row[4] is None else extra_feats.get(row[3]) if row[2] == -2 else None
             feats = calib_features(x.info, x.text, qa.atype, qa.wh, len(qa.content), sent, x.sentence, cal.r0_bins)
             x = dataclasses.replace(x, confidence=cal.score(feats))
+        row, x = self._attached_measure(q, top, row, x, theta)
         # the sentence ENGRAMM presents as its best one is the one the answer comes from
         self.last_rows = [row] + [r for r in top if r is not row]
         src = row[4] or self.c.source(row[2])
@@ -952,6 +953,32 @@ class ChatBot:
                                 alternatives=alts)
         return self._finish(msg, q, qa, "answer" if ok else "unknown", x.text if ok else None, x.text, row[3], src,
                             x.confidence, "lookup", alternatives=alts)
+
+    _MEASURE_Q = re.compile(r"^how (?:high|tall|long|deep|wide) (?:is|was|are) (?:the |mount |mt\.? |lake |river )?(?P<e>[a-z][a-z' -]{2,40}?)\??$", re.I)
+    _UNIT = r"(?:metres|meters|m|feet|ft|km|kilometres|kilometers|miles|mi)\b"
+
+    def _attached_measure(self, q: str, top: list, row, x, theta: float = 0.0):
+        """"How high is the Zugspitze?": the number written right after the name ("the Zugspitze, at 2,962
+        metres") beats one that belongs to a neighbour in the same sentence ("the summit nearest to the
+        Zugspitze is the Inner Höllentalspitze, 2,741 metres high")."""
+        m = self._MEASURE_Q.match(q.strip())
+        if not m or not x.text or not re.search(r"\d", x.text):
+            return row, x
+        e = re.escape(m.group("e").strip())
+        attach = re.compile(rf"\b{e}\b\)?,? (?:at |is |stands at |rises to |reaches |of |with )?(?:about |approximately |around |some )?"
+                            rf"(?P<n>\d[\d,.]*(?: |\u00a0)?{self._UNIT})", re.I)
+        hits = [(r, h) for r in top if (h := attach.search(r[3]))]
+        if not hits:
+            return row, x
+        best_r, best_h = next(((r, h) for r, h in hits if r is row), hits[0])
+        n = best_h.group("n").replace("\u00a0", " ")
+        num = re.sub(r"[^\d]", "", n.split()[0] if " " in n else re.match(r"[\d,.]+", n).group(0))
+        docs = {str((r[4] or self.c.source(r[2]) or {}).get("title") or r[2]) for r, h in hits
+                if re.sub(r"[^\d]", "", re.match(r"[\d,.]+", h.group("n")).group(0)) == num}
+        conf = max(x.confidence, theta) if len(docs) >= 2 else x.confidence   # two articles agree on the number
+        if best_r is row and conf == x.confidence:
+            return row, x
+        return best_r, dataclasses.replace(x, text=n, confidence=conf)
 
     def _focus_missing(self, q: str, row) -> list[str]:
         """The capitalised names of the question that do not occur in the evidence's document

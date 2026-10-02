@@ -195,6 +195,8 @@ def de_value(v: str) -> str:
                lambda m: _MONTHS[m.group(1)], v)
     v = re.sub(r"(?<=\d),(?=\d{3}\b)", ".", v)
     v = re.sub(r"(?<=\d)\.(?=\d{1,2}\b)(?!\d{3})", ",", v) if "km²" in v or " m" in v else v
+    v = re.sub(r"(?<=\d) (?:metres|meters|metre|meter)\b", " m", v)
+    v = re.sub(r"(?<=\d) (?:kilometres|kilometers)\b", " km", v)
     v = v.replace(" and ", " und ").replace(" (among others)", " (unter anderem)").replace("sq mi", "Quadratmeilen")
     v = v.replace(" BC", " v. Chr.").replace("(as of my data)", "(Stand meiner Daten)")
     # English place names back to their German names ("Rome" → "Rom", "Munich" → "München")

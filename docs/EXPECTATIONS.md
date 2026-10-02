@@ -2611,6 +2611,29 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     Freier-Tag-Ablauf (Batterie 47 fand es: die Ideen auf „was könnte ich machen?“ fehlten) – zurückgenommen, jetzt eingehängt.
   - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 759 bestanden, Regressionen 32, 38–69 plus Gegenproben
     (39 Gespräche): 0 Wiederholungen; Unterschiede nur Uhrzeiten (Batterie 60).
+- **Alltags-Batterie 70 (lockeres Gespräch auf Deutsch) und ein falscher Zahlenwert im Frage-Antwort-Kern**:
+  - Schwerer Fehler: „how high is zugspitze“ → „2,741 metres“ – die Zahl gehörte zum Nachbargipfel im selben Satz („The summit
+    nearest to the Zugspitze is the Inner Höllentalspitze, 2,741 metres high“). Bei Maßfragen („how high/tall/long/deep is X“)
+    gewinnt jetzt die Zahl, die direkt hinter dem Namen steht („Zugspitze, at 2,962 metres“); nennen zwei verschiedene
+    Artikel dieselbe angehängte Zahl, reicht das als Beleg (Konfidenz auf θ). „how tall …“ scheiterte zusätzlich an der
+    Deckungsprüfung („tall“ steht nicht im Beleg „highest point“); „tall“ ↔ „high/height/elevation“ ergänzt.
+    Ergebnis: „how tall is the zugspitze?“ → „The Zugspitze is 2,962 metres tall.“, „wie hoch ist die zugspitze?“ (vorher
+    „Das weiß ich leider nicht“ – ausgerechnet das Beispiel aus der eigenen Hilfe) → „Die Zugspitze ist 2.962 m hoch.“;
+    „wie hoch war sie nochmal?“ → „Wie vorhin schon: die Zugspitze ist …“. Unit-Test mit den drei echten Belegsätzen.
+    Versuch verworfen: Namen in Faktenbank-Antworten großschreiben („The matterhorn“) – ohne Beleg nicht von „The
+    Telephone“ zu unterscheiden (Batterie 56 fand es), zurückgenommen.
+  - „gut und dir?“ (vorher überhört), „ich koche heute abend pasta“ (vorher „Erzähl ruhig mehr!“), „carbonara“ (vorher
+    englischer Artikelanfang), „gehört sahne in carbonara?“, „was trinke ich dazu?“ (vorher Rückfallantworten).
+  - Fußball: „hast du das spiel gestern gesehen?“, „fußball“ (vorher zweimal „nicht verstanden“), „wir haben 3:0 verloren“
+    (vorher „Was ist passiert?“, danach Erschöpfungs-Mitgefühl), „egal, nächste saison wird besser“.
+  - Langeweile („keine ahnung“, „irgendwas lustiges“ → Witz), Chef mit Extra-Aufgaben (vorher „Okay! Und wie war's?“) mit Rat.
+  - Reise nach Rom: Tipps (vorher „Zerleg es: Was ist der allernächste kleine Schritt?“), Essen in zehn Städten, „wie sagt
+    man danke auf italienisch?“ (vorher „kann ich auf Deutsch nicht nachschlagen“), „grazie!“ (vorher „Oh? Go on.“).
+  - „hast du gefühle?“, „wie heißt du nochmal?“ (vorher Rückfallantworten); „alles gut bei dir?“ bleibt eine Frage an
+    ENGRAMM und „danke dir!“ ein Dank (beide von den Batterien 32/47/69 gefunden, als die erste Fassung sie als „gut, und
+    dir?“ las).
+  - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9 (der Eingriff in den Kern ändert NQ nicht), Suite 761 bestanden,
+    Regressionen 32, 38–70 (40 Gespräche): 0 Wiederholungen; Unterschiede nur Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

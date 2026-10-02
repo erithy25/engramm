@@ -6145,6 +6145,168 @@
      "ausschlafen": [
       "Ausschlafen ist so unterschätzt! 😴 Genieß es. Und danach – was Gemütliches oder raus an die Luft?"
      ]
+    },
+    "g70": {
+     "gut_du": [
+      "Mir geht's gut, danke! Schön, dass du da bist. Was gibt's bei dir Neues?",
+      "Auch gut, danke der Nachfrage! Was steht bei dir heute an?"
+     ],
+     "koch": [
+      "Oh, {x} heute Abend – lecker! Was für eine Sorte machst du?",
+      "{X} – gute Wahl! Was genau gibt's?"
+     ],
+     "koch_allg": [
+      "Lecker! Was gibt's denn?",
+      "Oh, was kochst du?"
+     ],
+     "gericht": {
+      "carbonara": [
+       "Carbonara – ein Klassiker! Eier, Pecorino, Guanciale und viel schwarzer Pfeffer. Machst du sie klassisch?"
+      ],
+      "bolognese": [
+       "Bolognese – lange geköchelt und richtig gemütlich. In Bologna isst man sie übrigens mit Tagliatelle, nicht mit Spaghetti."
+      ],
+      "pesto": [
+       "Pesto – Basilikum, Pinienkerne, Parmesan, Knoblauch und Olivenöl. Einfach und so gut."
+      ],
+      "lasagne": [
+       "Lasagne – Schicht für Schicht Glück! Die lohnt die Mühe."
+      ],
+      "spaghetti": [
+       "Spaghetti gehen immer! Mit Tomatensoße oder was Besonderem?"
+      ]
+     },
+     "gericht_sonst": [
+      "{X} – gute Wahl! Viel Spaß beim Kochen.",
+      "Mmh, {x} – lecker. Guten Appetit!"
+     ],
+     "sahne": [
+      "Klassisch nein – eine römische Carbonara besteht nur aus Eiern, Pecorino, Guanciale und Pfeffer; cremig wird sie durch Ei und Nudelwasser. Viele nehmen zu Hause aber trotzdem Sahne. Deine Küche, deine Regeln!"
+     ],
+     "trinken": {
+      "carbonara": [
+       "Zu Carbonara passt ein frischer Weißwein, etwa Frascati oder Pinot Grigio. Ohne Alkohol: Sprudelwasser mit Zitrone – das macht das Gericht schön leichter."
+      ],
+      "bolognese": [
+       "Ein mittelkräftiger Rotwein wie Chianti – oder ehrlich gesagt eine kalte Cola, kein Urteil."
+      ],
+      "pizza": [
+       "Ein Bier oder ein leichter Rotwein wie Lambrusco – oder ganz klassisch Cola."
+      ],
+      "sonst": [
+       "Etwas Leichtes und Frisches – ein trockener Weißwein, ein kaltes Bier oder Sprudelwasser mit Zitrone."
+      ]
+     },
+     "spiel": [
+      "Schauen kann ich leider nichts – aber erzähl! Welches Spiel denn?",
+      "Ich kann nichts sehen, nur lesen. Welches Spiel meinst du?"
+     ],
+     "sport": [
+      "Ah, {x}! Wer hat gespielt – und war's ein gutes Spiel?",
+      "Oh, {x}! Wen hast du geschaut?"
+     ],
+     "verloren": [
+      "Autsch, {a}:{b} tut weh. Tut mir leid! War's wenigstens ein gutes Spiel?",
+      "Oh nein, {a}:{b} – das ist bitter."
+     ],
+     "gewonnen": [
+      "{a}:{b} – stark! Glückwunsch, das fühlt sich bestimmt gut an. Hast du live geschaut?"
+     ],
+     "remis": [
+      "{a}:{b} unentschieden – fühlt sich das eher wie ein Sieg oder wie eine Niederlage an?"
+     ],
+     "bitter": [
+      "Total. So eine Niederlage nagt ein, zwei Tage – aber genau deshalb fühlen sich Siege so gut an.",
+      "Ja, das schmerzt. Immerhin bist du nicht allein – alle Fans grummeln gerade."
+     ],
+     "saison": [
+      "Genau die richtige Einstellung! Jede Saison ist ein Neuanfang.",
+      "So ist es – neue Saison, neue Chancen. Fans sind die größten Optimisten."
+     ],
+     "langweilig_ka": [
+      "Kein Problem. Wie wär's: ein Witz, ein spannender Fakt, ein kleines Quiz – oder ich gebe dir Ideen für später?"
+     ],
+     "chef": [
+      "Das ist anstrengend – wenn ständig Neues dazukommt, hat man das Gefühl, nie fertig zu werden. Ist es gerade mehr, als du schaffen kannst?",
+      "Puh, das ist viel. Ständig Extra-Aufgaben zermürben schnell. Weiß dein Chef, wie voll dein Teller schon ist?"
+     ],
+     "chef_rat": [
+      "Was oft hilft:\n\n• Schreib kurz alles auf, was gerade auf deinem Tisch liegt, mit grober Zeitschätzung.\n• Geh damit zu deinem Chef und frag: „Was davon ist am wichtigsten? Wenn ich die neue Aufgabe übernehme, was kann warten?“\n• So wird die Überlastung sichtbar, ohne nach Beschwerde zu klingen – und die Prioritäten entscheidet er, nicht dein Stress.\n\nSoll ich dir beim Formulieren helfen?"
+     ],
+     "reise": [
+      "{X} – wie schön! Worauf freust du dich am meisten?",
+      "Oh, {X}! Wie toll. Warst du schon mal dort?"
+     ],
+     "reise_tipps": [
+      "Ein paar Dinge, die eine Reise nach {X} leichter machen:\n\n• Ausweis bzw. Reisepass rechtzeitig prüfen.\n• Offline-Karten und eine Übersetzungs-App vorher herunterladen.\n• Ein paar Wörter in der Landessprache lernen – „hallo“, „danke“, „bitte“ öffnen viele Türen.\n• Die großen Sehenswürdigkeiten früh morgens besuchen, dann ist es leerer.\n\nWas interessiert dich – Essen, Sehenswürdigkeiten oder Ausgehen?"
+     ],
+     "reise_essen": {
+      "rom": [
+       "Essen in Rom: Carbonara, Cacio e Pepe und Amatriciana in einer Trattoria, Pizza al taglio auf die Hand, Supplì (frittierte Reisbällchen) und natürlich Gelato. Kaffee an der Theke ist günstiger als am Tisch."
+      ],
+      "paris": [
+       "Essen in Paris: morgens ein Croissant aus der Boulangerie, mittags ein Croque Monsieur oder Steak Frites im Bistro, Crêpes vom Stand und Macarons aus der Pâtisserie. Das Mittagsmenü ist viel günstiger als abends."
+      ],
+      "london": [
+       "Essen in London: Fish and Chips, ein Full English Breakfast, Sunday Roast im Pub und Curry in der Brick Lane. Auf dem Borough Market kann man von allem probieren."
+      ],
+      "barcelona": [
+       "Essen in Barcelona: Tapas wie Patatas Bravas und Croquetas, Pan con Tomate, Paella am Meer und Churros mit Schokolade. Abendessen um 21 Uhr ist normal."
+      ],
+      "lissabon": [
+       "Essen in Lissabon: Pastéis de Nata, gegrillte Sardinen, Bacalhau und eine Bifana. Probier auch einen Ginjinha, den Kirschlikör."
+      ],
+      "wien": [
+       "Essen in Wien: Wiener Schnitzel, Sachertorte im Kaffeehaus, Apfelstrudel und spätabends eine Wurst vom Würstelstand."
+      ],
+      "amsterdam": [
+       "Essen in Amsterdam: frische Stroopwafels vom Markt, Bitterballen zum Bier, Matjes für Mutige und holländische Pfannkuchen."
+      ],
+      "tokio": [
+       "Essen in Tokio: Sushi an der Theke, Ramen, Yakitori unter den Bahngleisen und Onigiri aus dem Konbini – überraschend gut. Trinkgeld ist nicht üblich."
+      ],
+      "berlin": [
+       "Essen in Berlin: Currywurst, Döner, ein großes Frühstück am Wochenende und sehr gutes vietnamesisches Essen."
+      ],
+      "sonst": [
+       "Mein bester Essens-Tipp für {X}: iss dort, wo die Einheimischen essen – kleine Lokale eine Straße abseits der Sehenswürdigkeiten, Märkte und Mittagsmenüs."
+      ]
+     },
+     "danke_fremd": {
+      "grazie": [
+       "Prego! 😊 Dein Italienisch kann sich sehen lassen."
+      ],
+      "merci": [
+       "De rien ! 😊 Sehr schön französisch!"
+      ],
+      "gracias": [
+       "¡De nada! 😊"
+      ],
+      "obrigado": [
+       "De nada! 😊"
+      ],
+      "obrigada": [
+       "De nada! 😊"
+      ],
+      "arigato": [
+       "Dō itashimashite! 😊"
+      ]
+     },
+     "gefuehle": [
+      "Ehrlich gesagt nein – ich bin Software, die liest, zählt und sich Dinge merkt. Aber ich leiste dir gern Gesellschaft.",
+      "Nein, Gefühle habe ich nicht. Aber ich höre gern zu und merke mir, was dir wichtig ist."
+     ],
+     "name": [
+      "Ich bin ENGRAMM!",
+      "ENGRAMM – schön, dass du fragst!"
+     ],
+     "again_lead": [
+      "Wie gesagt: ",
+      "Wie vorhin schon: "
+     ],
+     "macher": [
+      "Das ENGRAMM-Projekt hat mich gemacht. Die Idee: ein hilfreicher Assistent, der offline läuft, seine Quellen zeigt und wirklich vergisst, wenn du es willst."
+     ]
     }
    }
   }

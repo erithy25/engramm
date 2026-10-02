@@ -974,7 +974,7 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_mem67(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
@@ -1236,6 +1236,151 @@ class Assistant:
                 return Reply(msg, "forgot", f"Erledigt – ich habe vergessen, dass du {cap(x)} {'nicht magst' if neg else 'magst'}. Es ist wirklich weg, "
                              "nicht nur versteckt.", via="memory")
             return Reply(msg, "nothing", f"Dazu habe ich nichts gespeichert, was ich vergessen könnte.", via="memory")
+        return None
+
+    def _german_ctx70(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 70: a relaxed chat in German — "gut und dir?", pasta tonight with the dish and a drink,
+        the match lost 3:0, boredom, a boss piling on tasks, a trip to Rome (tips, food, "danke auf
+        italienisch", "grazie!"), and questions about ENGRAMM itself."""
+        g = (self.bank.de["daily"].get("ctx") or {}).get("g70")
+        if not g:
+            return None
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", s)).strip(" .!?")
+        lr = st.last_reply or ""
+        cap = lambda w: " ".join(x[:1].upper() + x[1:] for x in w.split())              # noqa: E731
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:g70:{key}", g[key], **kw), via="german")  # noqa: E731
+        sub = lambda grp, key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:g70:{grp}:{key}", g[grp][key], **kw), via="german")  # noqa: E731
+        if re.fullmatch(r"(?:mir geht'?s |mir gehts |auch |echt )?(?:gut|super|ganz gut|sehr gut|bestens|passt|alles gut|alles klar|geht so|okay|ok)"
+                        r"(?:,? danke)?(?:,? und |, )(?:dir|selbst|bei dir|du|wie geht'?s dir)|danke,? und (?:dir|selbst|bei dir|du)", q):
+            return say("gut_du")
+        ck = re.fullmatch(r"(?:ich|wir) (?:koche|kochen|mache|machen|esse|essen) (?:heute(?: abend)?|heut abend|gleich|nachher) (?P<x>[a-zäöüß ]+?)", q) or \
+            re.fullmatch(r"(?:heute )?gibt'?s (?:heute(?: abend)? |bei uns )?(?P<x>[a-zäöüß ]+?)(?: heute(?: abend)?)?", q)
+        if ck and len(ck.group("x").split()) <= 3 and ck.group("x") not in ("was", "nichts", "etwas", "irgendwas", "es", "das"):
+            x = ck.group("x")
+            st.uses["koch70"] = [x, st.turn]
+            if x in ("abendessen", "essen", "mittagessen", "was leckeres", "etwas leckeres"):
+                return say("koch_allg")
+            return say("koch", x=cap(x) if x in ("pasta", "pizza") else x, X=cap(x))
+        ko = st.uses.get("koch70")
+        if ko and st.turn - ko[1] <= 2 and re.fullmatch(r"(?:vielleicht |wahrscheinlich |ich glaube )?[a-zäöüß]+(?: [a-zäöüß]+){0,2}", q) and \
+                not set(q.split()) & {"ja", "nein", "keine", "ahnung", "weiß", "nicht", "danke", "ok", "okay", "haha", "cool", "was", "warum", "wie"}:
+            d = re.sub(r"^(?:vielleicht|wahrscheinlich|ich glaube) ", "", q)
+            st.uses["koch70"] = [d, st.turn]
+            if d in g["gericht"]:
+                return sub("gericht", d)
+            if len(d.split()) <= 2:
+                return say("gericht_sonst", x=d, X=cap(d))
+        if re.search(r"\bsahne\b", q) and re.search(r"\bcarbonara\b", q):
+            return say("sahne")
+        if re.fullmatch(r"(?:und )?was (?:trinke ich|trink ich|passt|kann ich trinken|soll ich trinken)(?: dazu| zu (?P<x>[a-zäöüß ]+))?(?: zu trinken)?", q):
+            m = re.search(r"zu ([a-zäöüß ]+)", q)
+            x = (m.group(1) if m else "") or (ko[0] if ko and st.turn - ko[1] <= 4 else "")
+            key = next((k for k in g["trinken"] if k != "sonst" and k in x), "sonst")
+            return sub("trinken", key)
+        if re.fullmatch(r"(?:hast du |hast du gestern |hast du das )?(?:das |gestern das )?(?:spiel|match)(?: gestern| gestern abend)? (?:gesehen|geschaut|gekuckt|geguckt)", q):
+            st.uses["spiel70"] = st.turn
+            return say("spiel")
+        sp = st.uses.get("spiel70")
+        if sp is not None and st.turn - sp <= 2 and q in ("fußball", "fussball", "basketball", "handball", "eishockey", "tennis", "formel 1",
+                                                          "die bundesliga", "bundesliga", "champions league", "die champions league", "volleyball"):
+            return say("sport", x=cap(q.replace("die ", "")) if q not in ("formel 1",) else "Formel 1")
+        sc = re.fullmatch(r"(?:leider |oh mann,? )?(?P<w>[a-zäöüß]+(?: [a-zäöüß]+)?) (?:haben?|hat) (?:leider )?(?P<a>\d{1,2}) ?(?::|-|zu) ?(?P<b>\d{1,2}) "
+                          r"(?P<v>verloren|gewonnen|unentschieden gespielt|gespielt)", q)
+        if sc:
+            v = {"verloren": "verloren", "gewonnen": "gewonnen"}.get(sc.group("v"), "remis")
+            a, b = int(sc.group("a")), int(sc.group("b"))
+            if v == "verloren":
+                a, b = max(a, b), min(a, b)
+            elif v == "gewonnen":
+                a, b = max(a, b), min(a, b)
+            st.uses["spiel70v"] = [v, st.turn]
+            st.last_exp = None
+            return say(v, a=a, b=b)
+        sv = st.uses.get("spiel70v")
+        if sv and sv[0] == "verloren" and st.turn - sv[1] <= 2 and \
+                re.fullmatch(r"(?:ja,? |jo,? |ja ja,? )?(?:echt |total |voll |richtig |so )?(?:bitter|ärgerlich|blöd|doof|mies|scheiße|scheisse|schade|ätzend)", q):
+            return say("bitter")
+        if re.search(r"\bnächste saison\b|\bnächstes jahr wird\b|\bnächstes mal wird\b", q) and \
+                re.match(r"(?:egal|naja|na ja|aber|tja)?,? ?(?:die )?nächste|(?:egal|naja|na ja|aber|tja),? ", q):
+            return say("saison")
+        if re.fullmatch(r"(?:mir ist|mir is|ist mir) (?:so |total |voll |echt )?langweilig|langweilig|ich langweile mich", q):
+            st.uses["lw70"] = st.turn
+            return None
+        lw = st.uses.get("lw70")
+        if lw is not None and st.turn - lw <= 3:
+            if re.fullmatch(r"(?:keine ahnung|weiß nicht|weiss nicht|ich weiß nicht|k\.?a\.?|egal)", q):
+                st.uses["lw70"] = st.turn
+                return say("langweilig_ka")
+            if re.fullmatch(r"(?:irgendwas|was|etwas) (?:lustiges|witziges|spannendes|interessantes)|überrasch mich", q):
+                st.uses.pop("lw70", None)
+                return self._german(st, "erzähl mir einen witz" if "lust" in q or "witz" in q else "erzähl mir einen fakt")
+        if re.search(r"\bmein(?:e)? (?:chef|chefin|vorgesetzter|vorgesetzte|boss)\b.*\b(?:ständig|immer|dauernd|schon wieder)?\b.*\b(?:extra|zusätzliche|mehr|neue|noch mehr)\b.*"
+                     r"\b(?:aufgaben|arbeit|projekte|sachen)\b", q) or \
+                re.fullmatch(r"(?:ich habe|ich hab|hab) (?:viel )?zu viel arbeit|ich bin (?:so |total |völlig )?überlastet|ich ertrinke in arbeit", q):
+            st.uses["chef70"] = st.turn
+            st.last_exp = {"valence": "negative", "topic": "work", "person": True, "text": msg, "turn": st.turn, "text_en": "my boss gives me too much work"}
+            return Reply(msg, "empathy", self._pick(st, "de:g70:chef", g["chef"]), via="german")
+        ch = st.uses.get("chef70")
+        if ch is not None and st.turn - ch <= 4 and re.fullmatch(r"(?:und )?(?:was soll ich (?:machen|tun)|keine ahnung,? was ich (?:machen|tun) soll|"
+                                                                 r"hast du (?:einen )?(?:tipp|rat|idee)|was würdest du (?:machen|tun)|ja,? (?:viel )?zu viel)", q):
+            st.uses.pop("chef70")
+            return say("chef_rat")
+        rm = re.fullmatch(r"(?:ich|wir) (?:fahre|fahren|fliege|fliegen|reise|reisen|gehe|gehen) (?:nächste woche|morgen|bald|im sommer|übermorgen|am wochenende|"
+                          r"in (?:zwei|drei|\d) wochen)? ?nach (?P<p>[a-zäöüß]+(?: [a-zäöüß]+)?)(?: nächste woche| im sommer| am wochenende)?", q)
+        if rm:
+            st.uses["reise70"] = [rm.group("p"), st.turn]
+            return say("reise", X=_de_place_case(rm.group("p")))
+        re70 = st.uses.get("reise70")
+        if re70 and st.turn - re70[1] <= 5:
+            if re.fullmatch(r"(?:hast du |irgendwelche |ein paar )?(?:tipps|tips|ratschläge)(?: für mich| für die reise| dafür)?|was sollte ich wissen", q):
+                st.uses["reise70"] = [re70[0], st.turn]
+                return say("reise_tipps", X=_de_place_case(re70[0]))
+            if re.fullmatch(r"(?:und )?(?:zum essen|was ist mit (?:dem )?essen|essen|was soll ich (?:dort |da )?essen|wo (?:soll|kann) ich (?:gut )?essen|essenstipps)", q):
+                key = re70[0] if re70[0] in g["reise_essen"] else "sonst"
+                return sub("reise_essen", key, X=_de_place_case(re70[0]))
+        tm = re.fullmatch(r"(?:und )?wie sagt man (?P<w>[a-zäöüß' ]+?) auf (?P<l>italienisch|französisch|spanisch|englisch|portugiesisch)", q)
+        if tm:
+            from engramm.chat.tools import _PHRASES
+            words = {"danke": "thank you", "danke schön": "thank you", "hallo": "hello", "tschüss": "bye", "auf wiedersehen": "goodbye",
+                     "bitte": "please", "ja": "yes", "nein": "no", "guten morgen": "good morning", "gute nacht": "good night",
+                     "wie geht's": "how are you", "wie gehts": "how are you", "ich liebe dich": "i love you", "entschuldigung": "sorry",
+                     "prost": "cheers", "willkommen": "welcome", "ich heiße": "my name is"}
+            langs = {"italienisch": "italian", "französisch": "french", "spanisch": "spanish", "englisch": "english", "portugiesisch": "portuguese"}
+            w = tm.group("w").strip()
+            en = words.get(w)
+            if en and langs[tm.group("l")] == "english":
+                return Reply(msg, "tool", f"Auf Englisch heißt „{w}“ „{en}“.", via="tool")
+            hit = _PHRASES.get(en or "", {}).get(langs[tm.group("l")])
+            if hit:
+                return Reply(msg, "tool", f"Auf {cap(tm.group('l'))} heißt „{w}“ „{hit}“.", answer=hit, via="tool")
+            return Reply(msg, "tool", f"Ich kenne nur ein paar Alltagswörter in anderen Sprachen – „{w}“ auf {cap(tm.group('l'))} gehört leider nicht dazu.", via="tool")
+        df = re.fullmatch(r"(grazie|merci|gracias|obrigado|obrigada|arigato)(?: mille| beaucoup)?", q)
+        if df:
+            return sub("danke_fremd", df.group(1))
+        if re.fullmatch(r"(?:hast du|kannst du) (?:echte )?gefühle(?: haben)?|fühlst du (?:was|etwas|dich)|bist du traurig|bist du glücklich", q):
+            return say("gefuehle")
+        if re.fullmatch(r"(?:sorry,? )?wie heißt du (?:noch ?mal|gleich|nochmal)|wie war dein name (?:noch ?mal|gleich)|wer bist du (?:noch ?mal|gleich)", q):
+            return say("name")
+        if re.fullmatch(r"wer hat dich (?:gemacht|gebaut|programmiert|erfunden|entwickelt|erschaffen)|wer ist dein (?:erfinder|entwickler|schöpfer)", q):
+            return say("macher")
+        if re.fullmatch(r"wie heißt du(?: eigentlich)?|wie ist dein name|wie war dein name", q):
+            return say("name")
+        hw = re.fullmatch(r"(?:und )?wie (?P<a>hoch|lang|groß|tief) war (?P<x>sie|er|es|der [a-zäöüß ]+|die [a-zäöüß ]+|das [a-zäöüß ]+)", q)
+        if hw:
+            return self._german_question(st, msg, q.replace(" war ", " ist ", 1))
+        fa = re.fullmatch(r"(?:und )?wer hat (?P<x>sie|ihn|es|den [a-zäöüß ]+|die [a-zäöüß ]+|das [a-zäöüß ]+) (?:zuerst|als erstes|als erster|erstmals) bestiegen", q)
+        if fa:
+            ment = self.bot.context.get("mention") if fa.group("x") in ("sie", "ihn", "es") else re.sub(r"^(?:den|die|das) ", "", fa.group("x"))
+            if not ment:
+                return Reply(msg, "clarify", "Welchen Berg meinst du?", via="german")
+            r = self._question(st, f"who first climbed {ment}?")
+            if r.kind == "answer" and r.answer:
+                return Reply(msg, "answer", f"Erstbestiegen wurde {cap(str(ment))} von {r.answer}.", answer=r.answer, evidence=r.evidence,
+                             source=r.source, via="german", confidence=r.confidence)
+            art = (st.uses.get("de_art") or {}).get(str(ment).lower(), "")
+            ment = f"{art} {cap(str(ment))}".strip()
+            return Reply(msg, "unknown", f"Wer {ment} zuerst bestiegen hat, weiß ich leider nicht – dazu habe ich nichts Verlässliches gelesen.",
+                         via="german")
         return None
 
     def _german_ctx68(self, st: DialogState, msg: str, s: str) -> Reply | None:
@@ -2687,8 +2832,10 @@ class Assistant:
             plural = re.match(r"(?:die )?(?:zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|zwölf)\b", (art + " " + thing).lower().strip())
             rep.text = f"{head} {'wurden' if plural else 'wurde'} von {de_value(str(rep.answer))} {wm.group('v')}."
             return rep
-        if rep.via == "kb":
-            name = re.sub(r"\s*\([^)]*\)$", "", (rep.source or {}).get("key") or x_en)
+        measure = rep.via == "lookup" and rep.kind == "answer" and kind in ("height", "length", "area", "depth") and \
+            re.search(r"\d", str(rep.answer or ""))
+        if rep.via == "kb" or measure:
+            name = re.sub(r"\s*\([^)]*\)$", "", (rep.source or {}).get("key") or x_en) if rep.via == "kb" else (x_de or x_en)
             article = ""
             if x_de and x_de.lower() != x_en.lower() and x_en.lower() == name.lower() and \
                     x_en.lower() not in ("he", "she", "it", "him", "her"):
@@ -2698,6 +2845,13 @@ class Assistant:
                 name, article = known_de[0], known_de[1]
             elif names.get(x_en.lower()):
                 article = names[x_en.lower()][1]
+            if not article and measure:
+                am_ = re.search(rf"\b(der|die|das) {re.escape(name.lower())}\b", s)
+                arts = st.uses.setdefault("de_art", {})
+                article = am_.group(1) if am_ else arts.get(name.lower(), "")
+                if article:
+                    arts[name.lower()] = article      # "wie hoch war sie nochmal?": still "die Zugspitze"
+                name = name[:1].upper() + name[1:]
             sent = de_sentence(kind, name, rep.answer or "", rep.text)
             if sent:
                 if article and sent.startswith(name):
@@ -2738,10 +2892,13 @@ class Assistant:
                 de_again = (self.bank.de or {}).get("daily", {}).get("unknown_again") if st.lang == "de" else None
                 rep.text = self._pick(st, "de:unknown_again" if de_again else "daily:unknown_again",
                                       de_again or self.bank.daily["unknown_again"])
-        if rep.text and rep.kind in ("answer", "about", "tool") and rep.text in st.recent and len(rep.text) > 80 and \
+        if rep.text and rep.kind in ("answer", "about", "tool") and rep.text in st.recent and \
+                (len(rep.text) > 80 or re.search(r"\b(?:again|nochmal|noch mal)\b", message, re.I)) and \
                 rep.via not in ("facts", "memory", "facts-bank") and normalise(message) != normalise(st.last_message or ""):
             # the same answer again (the question came up twice): said like a person, not a copy
-            lead = self._pick(st, "daily:again_lead", self.bank.daily["again_lead"])
+            g70 = ((self.bank.de or {}).get("daily", {}).get("ctx") or {}).get("g70") or {}
+            lead = self._pick(st, "de:again_lead", g70["again_lead"]) if st.lang == "de" and g70.get("again_lead") else \
+                self._pick(st, "daily:again_lead", self.bank.daily["again_lead"])
             rep.text = lead + rep.text[:1].lower() + rep.text[1:] if rep.text[:2] not in ("I ", "I'") else lead + rep.text
         if rep.via == "facts" and rep.text:
             rep.text = _MONTH_LOW.sub(lambda m: m.group(0)[:1].upper() + m.group(0)[1:], rep.text)  # "on june 5" → "June 5"
@@ -2858,6 +3015,9 @@ class Assistant:
         if de and st.lang == "de":
             from engramm.chat.german import neutral_de, normalise_de
             if neutral_de(normalise_de(msg)) is not None or re.fullmatch(r"(?:noch )?mehr|nochmal", normalise_de(msg)) \
+                    or re.fullmatch(r"(?:grazie|merci|gracias|obrigad[oa]|arigato)(?: mille| beaucoup)?[!. ]*", normalise_de(msg)) \
+                    or (st.uses.get("koch70") and st.turn - st.uses["koch70"][1] <= 2 and
+                        re.fullmatch(r"[a-zäöüß]+(?: [a-zäöüß]+){0,2}[!. ]*", normalise_de(msg))) \
                     or re.fullmatch(r"(?:hey|hi|hallo|hello|moin|servus|yo|huhu)+(?: (?:hey|hi|du|engramm))?", normalise_de(msg)) \
                     or gibberish(msg, self.speller.known if self.speller is not None else None) \
                     or (_GENRE_DE.match(normalise_de(msg)) and re.sub(r"(?:es|e|er|en)$", "", _GENRE_DE.match(
@@ -3741,6 +3901,11 @@ class Assistant:
             return rep
         if rep.kind == "answer":
             sent = answer_sentence(q, rep.answer, _atype(q))
+            sm_ = re.match(r"(The |)([a-z][a-z' -]+?) (?=is |was |are |were |has |had )", sent or "")
+            if sm_ and rep.evidence:
+                cap_ = re.search(rf"\b{re.escape(sm_.group(2))}\b", rep.evidence, re.I)
+                if cap_ and cap_.group(0)[:1].isupper():   # "The zugspitze is …" → "The Zugspitze is …"
+                    sent = sm_.group(1) + cap_.group(0) + sent[sm_.end(2):]
             rep.text = sent or self._reply(st, "answer.fallback", x=rep.answer)
             st.last_fact = {"evidence": rep.evidence, "source": rep.source, "answer": rep.answer, "question": q,
                             "sure": True}
@@ -8236,7 +8401,8 @@ _COVER_STOP = frozenset("""who whom whose what which when where why how is are w
 had the a an of in on at to for from by with and or but about as it its this that these those there here than then
 current currently today now ever most many much very really also just name named called please tell me
 you your i my mine we our they their he she him his her""".split())
-_COVER_ALT = {"die": ("died", "death", "dead"), "died": ("die", "death", "dead"), "born": ("birth", "née"),
+_COVER_ALT = {"tall": ("high", "height", "elevation", "stands"), "high": ("height", "elevation", "tall", "altitude"),
+              "die": ("died", "death", "dead"), "died": ("die", "death", "dead"), "born": ("birth", "née"),
               "paint": ("painted", "painting", "painter"), "painted": ("painting", "painter"),
               "direct": ("directed", "director"), "directed": ("director", "directing"),
               "write": ("wrote", "written", "writer", "author"), "wrote": ("written", "writer", "author", "novel"),

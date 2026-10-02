@@ -2875,3 +2875,63 @@ def test_battery69_messy_real_messages(chat):
     st = DialogState("d69")
     assert "frei" in a.turn(st, "hab heute frei 🎉").text
     assert "Ausschlafen" in a.turn(st, "ja endlich mal ausschlafen").text
+
+
+def test_attached_measure_beats_a_neighbours_number():
+    import dataclasses
+    from types import SimpleNamespace
+    from engramm.chat.bot import ChatBot
+
+    @dataclasses.dataclass
+    class X:
+        text: str
+        confidence: float
+    stub = SimpleNamespace(_MEASURE_Q=ChatBot._MEASURE_Q, _UNIT=ChatBot._UNIT, c=SimpleNamespace(source=lambda i: {"title": f"doc{i}"}))
+    top = [(9.0, 1, 1, "The summit nearest to the Zugspitze is the Inner Höllentalspitze, 2,741 metres (8,993 ft) high.", None),
+           (8.0, 1, 2, "Nearby is Germany's highest mountain, Zugspitze, at 2,962 metres (9,718 ft) above sea level.", None),
+           (7.0, 1, 3, "Elevation ranges from the Alps (highest point: the Zugspitze at 2,962 metres (9,718 ft)) in the south.", None)]
+    row, x = ChatBot._attached_measure(stub, "how tall is the zugspitze?", top, top[0], X("2,741 metres", -40.0), -5.0)
+    assert x.text == "2,962 metres" and row is not top[0] and x.confidence == -5.0
+    row, x = ChatBot._attached_measure(stub, "who designed the zugspitze?", top, top[0], X("2,741 metres", -40.0), -5.0)
+    assert x.text == "2,741 metres"
+    one = top[:2]
+    row, x = ChatBot._attached_measure(stub, "how high is zugspitze", one, one[0], X("2,741 metres", -40.0), -5.0)
+    assert x.text == "2,962 metres" and x.confidence == -40.0      # one article alone: the number, not the confidence
+
+
+def test_battery70_relaxed_chat_in_german(chat):
+    a, _ = chat
+    st = DialogState("g70")
+    a.turn(st, "na, wie gehts?")
+    r = a.turn(st, "gut und dir?")
+    assert "gut" in r.text.lower() and "danke" in r.text.lower(), r.text
+    st = DialogState("k70")
+    assert "Pasta" in a.turn(st, "ich koche heute abend pasta").text
+    assert "Guanciale" in a.turn(st, "carbonara").text
+    assert "Klassisch nein" in a.turn(st, "gehört sahne in carbonara?").text
+    assert "Weißwein" in a.turn(st, "was trinke ich dazu?").text
+    st = DialogState("f70")
+    a.turn(st, "hast du das spiel gestern gesehen?")
+    assert "Fußball" in a.turn(st, "fußball").text
+    r = a.turn(st, "wir haben 3:0 verloren")
+    assert "3:0" in r.text and "Was ist passiert" not in r.text, r.text
+    a.turn(st, "ja, echt bitter")
+    assert "Saison" in a.turn(st, "egal, nächste saison wird besser").text
+    st = DialogState("l70")
+    a.turn(st, "mir ist langweilig")
+    assert "Witz" in a.turn(st, "keine ahnung").text
+    assert a.turn(st, "irgendwas lustiges").kind != "unknown"
+    st = DialogState("c70")
+    assert a.turn(st, "mein chef gibt mir ständig extra aufgaben").kind == "empathy"
+    assert "Chef" in a.turn(st, "was soll ich machen?").text
+    st = DialogState("r70")
+    assert "Rom" in a.turn(st, "ich fahre nächste woche nach rom").text
+    assert "Rom" in a.turn(st, "hast du tipps?").text
+    assert "Carbonara" in a.turn(st, "und zum essen?").text
+    assert "grazie" in a.turn(st, "wie sagt man danke auf italienisch?").text
+    assert "Prego" in a.turn(st, "grazie!").text
+    st = DialogState("e70")
+    r = a.turn(st, "hast du gefühle?")
+    assert "Gefühle" in r.text or "nein" in r.text.lower(), r.text
+    assert "ENGRAMM" in a.turn(st, "wie heißt du nochmal?").text
+    assert "ENGRAMM" in a.turn(st, "wer hat dich gemacht?").text
