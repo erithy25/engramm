@@ -293,14 +293,14 @@ recommend:
   activity:
     intro: ["A few things you could do:", "Here are some ideas:", "How about one of these:"]
     items:
-      - {x: "go for a walk somewhere you've never been, even nearby", de: "einen Spaziergang irgendwohin, wo du noch nie warst – auch in der Nähe"}
-      - {x: "cook something new from whatever is in the kitchen", de: "etwas Neues aus dem kochen, was in der Küche ist", tags: "home"}
+      - {x: "go for a walk somewhere you've never been, even nearby", de: "einen Spaziergang irgendwohin, wo du noch nie warst – auch in der Nähe", tags: "cosy"}
+      - {x: "cook something new from whatever is in the kitchen", de: "etwas Neues aus dem kochen, was in der Küche ist", tags: "cosy home"}
       - {x: "call or message someone you haven't talked to in a while", de: "jemanden anrufen, von dem du lange nichts gehört hast", tags: "home"}
-      - {x: "start a book or a series you've been meaning to try", de: "ein Buch oder eine Serie anfangen, die du schon lange ausprobieren wolltest", tags: "home"}
+      - {x: "start a book or a series you've been meaning to try", de: "ein Buch oder eine Serie anfangen, die du schon lange ausprobieren wolltest", tags: "cosy home"}
       - {x: "learn a few words of a new language", de: "ein paar Wörter einer neuen Sprache lernen", tags: "home"}
       - {x: "sort out one drawer or shelf — oddly satisfying", de: "eine Schublade oder ein Regal aufräumen – seltsam befriedigend", tags: "home"}
-      - {x: "draw, write or make something, just for fun", de: "einfach so etwas zeichnen, schreiben oder basteln", tags: "home"}
-      - {x: "do a short workout or some stretching", de: "ein kurzes Workout oder ein paar Dehnübungen", tags: "home"}
+      - {x: "draw, write or make something, just for fun", de: "einfach so etwas zeichnen, schreiben oder basteln", tags: "cosy home"}
+      - {x: "do a short workout or some stretching", de: "ein kurzes Workout oder ein paar Dehnübungen", tags: "cosy home"}
       - {x: "look up a museum, park or café nearby you've never visited", de: "ein Museum, einen Park oder ein Café in der Nähe entdecken"}
       - {x: "ask me to quiz you — I've got questions ready", de: "mich fragen, ob ich dich quizzen soll", tags: "home"}
     outro: "Anything there sound good?"
@@ -824,6 +824,9 @@ decided_food:
 decided:
   - "{x} it is! Good choice."
   - "Sounds like a plan."
+done_for_day:
+  - "Nice, done for the day! How was {x}?"
+  - "Finally off! How did {x} go today?"
 got_home:
   - "Welcome home! How was {x}?"
   - "Nice to have you back. How was {x} today?"
@@ -857,6 +860,12 @@ talk_report:
 talk_plan:
   - "Sounds lovely — have a great time!"
   - "Nice! Enjoy it — you've earned a fun evening."
+talk_bed:
+  - "Sounds like a good plan — sleep well when you get there!"
+  - "Good idea. Rest well!"
+talk_pet_now:
+  - "Aww, that sounds adorable — and very cosy!"
+  - "Cute! Pets really know how to relax."
 talk_must:
   - "Sure, go ahead — I'll be here."
   - "No problem, take your time."

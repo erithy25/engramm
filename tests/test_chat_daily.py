@@ -908,3 +908,20 @@ def test_corrections_and_meta_dialogue(chat):
 def test_named_subject_is_not_about_the_user():
     from engramm.chat.facts import facts_from_text
     assert not [f for f in facts_from_text("Leonardo da Vinci was born in vinci.", "u") if f.subject == "USER"]
+
+
+def test_long_evening_conversation_bits(chat):
+    a, st = chat
+    r = a.turn(st, "just finished work")
+    assert "How" in r.text and "work" in r.text, r.text
+    r = a.turn(st, "it was ok, a bit boring")
+    assert "rough" not in r.text, r.text
+    a.turn(st, "i have a cat")
+    a.turn(st, "her name is luna")
+    a.turn(st, "shes 3")
+    r = a.turn(st, "she's sleeping on my lap right now")
+    assert r.kind != "learned", r.text
+    r = a.turn(st, "i should go to bed soon")
+    assert r.kind != "learned" and "tell me more" not in r.text.lower(), r.text
+    stored = " ".join(_stored(a)).lower()
+    assert "sleeping" not in stored and "bed soon" not in stored, stored

@@ -53,7 +53,8 @@ _CHAT_WORDS = {"u": "you", "r": "are", "ur": "your", "wat": "what", "wut": "what
                "peple": "people", "pepole": "people", "knwo": "know", "konw": "know", "wnat": "want",
                "plaese": "please", "coudl": "could", "shoudl": "should", "wierd": "weird", "untill": "until",
                "captial": "capital", "contry": "country", "countrey": "country", "goverment": "government",
-               "tallets": "tallest", "bigest": "biggest", "longst": "longest"}
+               "tallets": "tallest", "bigest": "biggest", "longst": "longest",
+               "shes": "she's", "hes": "he's", "theyre": "they're", "theres": "there's", "lets": "let's"}
 _YOURE_NEXT = re.compile(r"(?:the|so|very|really|too|such|amazing|awesome|great|welcome|funny|smart|right|wrong|"
                          r"kidding|joking|not|a|an|cute|sweet|nice|kind|weird|crazy|stupid|dumb|wild|lying|actually|"
                          r"just|literally|always|never|going|getting|being|doing|making|my)\b")

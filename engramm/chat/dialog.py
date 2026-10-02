@@ -109,9 +109,9 @@ _TRIP_PLAN = re.compile(r"\b(?:i'?m|i am|we'?re|we are|im) (?:planning|going on|
                         r"(?:next \w+|this \w+|in \w+|soon|tomorrow|on \w+|for (?:a|two|three|\d+) \w+)[.!]*$")
 _TRIP_TIPS = re.compile(r"^(?:any |some |got any )?(?:tips|advice|suggestions|recommendations)(?: for (?:me|it|the trip))?\??$")
 # "just got home from work": a person arriving, not a fact to store
-_GOT_HOME = re.compile(r"^(?:not much,? |nothing much,? |nm,? )?(?:i )?(?:just )?(?:got|came|came back|got back|am|i'm) "
-                       r"(?:home|back) from (?:the )?(?P<x>work|school|uni|university|college|the gym|gym|practice|class|"
-                       r"training|the office|office|my shift|shift|a trip|vacation|holiday)[.!]*$")
+_GOT_HOME = re.compile(r"^(?:not much,? |nothing much,? |nm,? )?(?:i )?(?:just )?(?:(?:got|came|came back|got back|am|i'm) "
+                       r"(?:home|back) from|finished|got off|done with|off)(?: the| my)? (?P<x>work|school|uni|university|college|gym|practice|class|"
+                       r"training|office|shift|a trip|vacation|holiday)(?: for (?:the day|today))?[.!]*$")
 # laughter and short reactions: never the answer to "What's your favourite food?"
 _REACTION = re.compile(r"(?:(?:ha)+h?|he(?:he)+|lol|lmao|rofl|xd|:\)|:d|haha ?(?:fair|true|nice|ok(?:ay)?|yeah|yes|right)|"
                        r"(?:fair|true|nice|right|cool|lol) ?(?:enough|haha|lol)?|fair point|good point|touch[eé]|"
@@ -121,13 +121,15 @@ _WHAT_WAS_I = re.compile(r"^(?:sorry,? |wait,? )?what (?:was|were|did) i (?:comp
                          r"say|said|upset|stressed|worried|mad|angry|happy|excited) ?(?:about)?(?: earlier| before| again)?\??$")
 # everyday remarks and how a person answers them (see DialogEngine._talk)
 _TALK_RULES = [
+    (re.compile(r"\bi (?:should|need to|have to|gotta|must|will|'ll|am going to|'m going to) (?:go to (?:bed|sleep)|sleep|head to bed|get some sleep)\b"), "talk_bed"),
+    (re.compile(r"^(?:she|he|it|they)(?:'s| is|'re| are) (?:sleeping|purring|cuddling|snoring|lying|curled up|playing|napping)\b"), "talk_pet_now"),
     (re.compile(r"\b(?:we'?re|i'?m|we are|i am|im) (?:going out|going to (?:a |the )?(?:dinner|party|concert|cinema|movies|game|gym|beach|pub|bar|club)|heading out|off to (?:a |the )?(?:dinner|party|concert|cinema|beach|pub)|meeting (?:friends|my friends|up with))\b"), "talk_plan"),
     (re.compile(r"\bi'?(?:ll| will) (?:tell|let) you(?: know)?(?: how (?:it|that|the \w+) (?:was|went|goes|turns out))?\b|\bi'?ll keep you posted\b"), "talk_report"),
     (re.compile(r"^(?:but |well |sadly |unfortunately )?(?:i )?(?:don'?t|do not|dont) (?:have|own) (?:a|an|any) \w+"), "talk_nohave"),
     (re.compile(r"^(?:ok |okay |but )?(?:i )?(?:have to|need to|gotta|got to|must) (?:go |run |quickly |first )?(?:to )?\w+"), "talk_must"),
     (re.compile(r"\bmiss(?:ing)? (?:him|her|them|home|my \w+|\w+ so much|\w+ a lot)\b"), "talk_miss"),
     (re.compile(r"\b(?:i'?ll|i will|i might|i may|i could|i should|i'?m going to|im going to|i'?m gonna|gonna|maybe i'?ll) "
-                r"(?:try|give it a (?:go|try|shot)|check (?:it|that|them) out|do that|talk to|ask|look into|go for)\b"), "talk_try"),
+                r"(?:try|give it a (?:go|try|shot)|check (?:it|that|them) out|do that|talk to|ask|look into|go for|watch|read|listen to|play|cook|make|start)\b"), "talk_try"),
     (re.compile(r"\b(?:i'?ve|i have|ive) (?:already )?(?:heard|read|seen|watched|tried) (?:of |about )?(?:that|it|this|them)(?: one)?\b"),
      "talk_heard"),
     (re.compile(r"\b(?:killing me|exhausted|so tired|drained|slept (?:terribly|badly|awfully|horribly|like crap)|"
@@ -135,7 +137,7 @@ _TALK_RULES = [
                 r"too much (?:work|stress)|overwhelmed|swamped)\b"), "talk_tough"),
 ]
 # remarks the plain chit-chat path should hand to DialogEngine._talk
-_TALK_FIRST = re.compile(r"\b(?:going out|going to|heading out|off to|meeting|tell you|let you know|keep you posted|miss(?:ing)?|try|heard|read|seen|watched|killing|exhausted|tired|drained|slept|sleep|"
+_TALK_FIRST = re.compile(r"\b(?:bed|sleeping|purring|cuddling|napping|curled|watch|going out|going to|heading out|off to|meeting|tell you|let you know|keep you posted|miss(?:ing)?|try|heard|read|seen|watched|killing|exhausted|tired|drained|slept|sleep|"
                          r"burn(?:ed|t)?|wiped|sucks?|rough|hard|overwhelmed|swamped)\b")
 # "and 20%?" after a percentage
 _PCT_MORE = re.compile(r"^(?:and |what about |how about |now |ok |okay )?(\d+(?:\.\d+)?)\s?%(?: of (?:it|that))?\??$")
@@ -255,6 +257,9 @@ _DEMONYMS = frozenset("""british english scottish welsh irish american canadian 
 french german italian spanish portuguese dutch belgian swiss austrian swedish norwegian danish finnish icelandic polish
 czech slovak hungarian romanian bulgarian greek turkish russian ukrainian chinese japanese korean indian pakistani nepalese
 nepali tibetan australian egyptian nigerian kenyan african european asian israeli iranian iraqi saudi""".split())
+# a passing moment ("right now", "soon"): answered, not stored
+_TRANSIENT = re.compile(r"\b(?:right now|at the moment|atm|currently|soon|in a bit|in a minute|for now)\b|^i should (?:go|head|get)\b|"
+                        r"^(?:she|he|it|they)(?:'s| is|'re| are) (?:sleeping|purring|napping|snoring|cuddling|curled up)\b")
 # closing a chat ("i'm done for today") is a goodbye, not something to remember
 _WRAP_UP = re.compile(r"^(?:ok(?:ay)?,? )?(?:i'?m|i am|we'?re|we are) (?:done|finished|off)(?: here)?(?: for (?:today|now|tonight|the day))?[.!]*$|^that'?s (?:all|it) for (?:today|now|tonight)")
 
@@ -1774,7 +1779,8 @@ class Assistant:
             return self.everyday.recommend(st, msg, "activity", genre="home" if g in ("at home", "inside", "indoors") else None)
         hm = _GOT_HOME.match(norm)
         if hm:
-            return Reply(msg, "smalltalk", self._pick(st, "daily:got_home", d["got_home"], x=hm.group("x").replace("my ", "your ")),
+            key = "done_for_day" if re.search(r"\b(?:finished|got off|done with|off)\b", norm) else "got_home"
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key], x=hm.group("x").replace("my ", "your ")),
                          via="everyday")
         if _POST_WORKOUT.match(norm):
             diet = st.uses.get("diet") or self._told_diet()
@@ -2517,6 +2523,10 @@ class Assistant:
         s = sentence.strip()
         if len(s) < 3 or is_discourse(normalise(s)) or _WRAP_UP.search(normalise(s)):
             return False
+        if _TRANSIENT.search(normalise(s)) and not {r for f in facts_from_text(s, "probe", self.bot.is_name_initial_fact,
+                                                                                typer=self.bot.typer)
+                                                     for r in f.relation} & _CATEGORY_LABELS:
+            return False                         # "she's sleeping on my lap right now": a moment, not a memory
         facts = facts_from_text(s, "probe", self.bot.is_name_initial_fact, typer=self.bot.typer)
         if facts:
             return True
@@ -3249,7 +3259,8 @@ _HOW_IT_WENT = re.compile(r"^(?:it was |it's been |was |that was |honestly |pret
                           r"brutal|exhausting|tiring|intense|killer|a struggle|rough|difficult)|(?P<good>good|great|amazing|fun|"
                           r"awesome|nice|easy|fine|solid)|(?P<meh>ok|okay|alright|meh|so-so))(?: (?:honestly|tbh|lol|actually))?[.!]*$")
 _DAY_MEH = re.compile(r"^(?:mine|my day|it|today|the day)(?: was| has been|'s been| is) (?:ok|okay|alright|fine|meh|so-so|"
-                      r"not bad|average|nothing special)(?: i guess| i suppose| honestly| tbh)?[.!]*$")
+                      r"not bad|average|nothing special)(?: i guess| i suppose| honestly| tbh)?"
+                      r"(?:,? (?:a bit|kinda|kind of|a little|pretty|bit) (?:boring|slow|long|dull|quiet|uneventful))?[.!]*$")
 _GOAL = re.compile(r"^(?:i (?:really |kinda |kind of )?(?:want|would like|wanna|need|plan|am planning|'m planning|am trying|"
                    r"'m trying|hope|am going|'m going|gotta)(?: to)?|my goal is to) (?P<goal>(?:get|be|become|lose|build|run|"
                    r"learn|start|stop|quit|save|eat|sleep|read|exercise|work out|drink|cut down)\b.{2,50}?)[.!]*$")

@@ -105,7 +105,9 @@ _GENRES = {"sci-fi": "scifi", "scifi": "scifi", "science fiction": "scifi", "sci
            "light": "comedy", "lighthearted": "comedy", "spooky": "thriller", "horror": "thriller", "sad": "drama",
            "romcom": "romance", "quick": "quick", "fast": "quick", "easy": "quick", "simple": "quick",
            "healthy": "healthy", "light": "healthy", "cosy": "cosy", "cozy": "cosy", "comforting": "cosy",
-           "warm": "warm", "home": "home", "at home": "home", "indoors": "home", "inside": "home"}
+           "warm": "warm", "home": "home", "at home": "home", "indoors": "home", "inside": "home",
+           "relaxing": "cosy", "relaxed": "cosy", "relax": "cosy", "chill": "cosy", "calm": "cosy", "chilled": "cosy",
+           "peaceful": "cosy", "low-key": "cosy"}
 _ADVICE = re.compile(_LEAD + r"(?:so )?(?:what (?:should|can|could|do you think|would you suggest|would you recommend) i "
                      r"(?:do|say|try)(?: (?:about|with) (?P<about>.+?))?(?: now| then| next)?|what would you do(?: in my (?:place|shoes))?|"
                      r"i (?:don't|do not|dont) know (?:if|whether|what) (?:i should|to) (?:say|do|tell|talk)\b"

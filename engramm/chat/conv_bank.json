@@ -5332,12 +5332,13 @@
     "items": [
      {
       "x": "go for a walk somewhere you've never been, even nearby",
-      "de": "einen Spaziergang irgendwohin, wo du noch nie warst – auch in der Nähe"
+      "de": "einen Spaziergang irgendwohin, wo du noch nie warst – auch in der Nähe",
+      "tags": "cosy"
      },
      {
       "x": "cook something new from whatever is in the kitchen",
       "de": "etwas Neues aus dem kochen, was in der Küche ist",
-      "tags": "home"
+      "tags": "cosy home"
      },
      {
       "x": "call or message someone you haven't talked to in a while",
@@ -5347,7 +5348,7 @@
      {
       "x": "start a book or a series you've been meaning to try",
       "de": "ein Buch oder eine Serie anfangen, die du schon lange ausprobieren wolltest",
-      "tags": "home"
+      "tags": "cosy home"
      },
      {
       "x": "learn a few words of a new language",
@@ -5362,12 +5363,12 @@
      {
       "x": "draw, write or make something, just for fun",
       "de": "einfach so etwas zeichnen, schreiben oder basteln",
-      "tags": "home"
+      "tags": "cosy home"
      },
      {
       "x": "do a short workout or some stretching",
       "de": "ein kurzes Workout oder ein paar Dehnübungen",
-      "tags": "home"
+      "tags": "cosy home"
      },
      {
       "x": "look up a museum, park or café nearby you've never visited",
@@ -6457,6 +6458,10 @@
    "{x} it is! Good choice.",
    "Sounds like a plan."
   ],
+  "done_for_day": [
+   "Nice, done for the day! How was {x}?",
+   "Finally off! How did {x} go today?"
+  ],
   "got_home": [
    "Welcome home! How was {x}?",
    "Nice to have you back. How was {x} today?"
@@ -6499,6 +6504,14 @@
   "talk_plan": [
    "Sounds lovely — have a great time!",
    "Nice! Enjoy it — you've earned a fun evening."
+  ],
+  "talk_bed": [
+   "Sounds like a good plan — sleep well when you get there!",
+   "Good idea. Rest well!"
+  ],
+  "talk_pet_now": [
+   "Aww, that sounds adorable — and very cosy!",
+   "Cute! Pets really know how to relax."
   ],
   "talk_must": [
    "Sure, go ahead — I'll be here.",
