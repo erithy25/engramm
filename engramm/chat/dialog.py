@@ -453,6 +453,31 @@ _HIKE_PLAN = re.compile(r"^(?:i )?(?:might|will|want to|wanna|'m going to|am goi
 _HIKE_TIPS = re.compile(r"^(?:any )?(?:good )?(?:hiking tips|tips for (?:hiking|a hike|my hike))\??$")
 _BRING = re.compile(r"^(?:and |so )?what (?:should|do) i (?:bring|pack|take|carry)(?: with me)?\??$")
 _HOW_WATER = re.compile(r"^(?:and |so )?how much water(?: should i (?:bring|take|carry))?\??$")
+# battery 51: the long German conversation
+_DE_IM = re.compile(r"^(?:hi |hey |hallo |moin |servus )?(?:ich bin|ich bins|bin) (?P<x>[a-zäöüß]{2,15})[.!]*$")
+_DE_NOT_NAME = frozenset(("müde", "fertig", "hier", "da", "zurück", "wach", "krank", "gesund", "glücklich", "traurig", "sauer", "wütend",
+                          "gestresst", "happy", "froh", "bereit", "dran", "unterwegs", "zuhause", "online", "gespannt", "nervös",
+                          "verliebt", "single", "vegetarier", "vegetarierin", "veganer", "veganerin", "vegan", "student", "studentin",
+                          "schwanger", "satt", "hungrig", "durstig", "pleite", "gut", "schlecht", "ok", "okay", "neu", "alt", "allein",
+                          "einsam", "erkältet", "zufrieden", "aufgeregt", "überfordert", "erschöpft", "genervt", "gelangweilt", "frei",
+                          "wieder", "jetzt", "auch", "so", "ganz", "echt", "nicht", "kein", "keine", "noch", "schon", "fit", "raus"))
+_DE_LONG_WEEK = re.compile(r"^(?:puh,? |boah,? |ach,? )?(?:war|das war|es war|ist|hatte) (?:eine |ne |echt eine |so eine )?(?:lange|harte|anstrengende|stressige|"
+                           r"krasse|volle) (?:woche|tag|monat)[.!]*$")
+_DE_DEADLINES = re.compile(r"^(?:ja,? |jo,? )?(?:viele|so viele|zu viele|lauter) (?:deadlines|termine|meetings|abgaben)[.!]*$|^(?:ja,? )?(?:zu )?viel arbeit[.!]*$")
+_DE_ALMOST_WE = re.compile(r"^(?:aber |zum glück |immerhin )?(?:morgen ist (?:schon )?freitag|(?:bald|fast) (?:ist )?wochenende|endlich (?:bald )?wochenende)[.!]*$")
+_DE_BOT_WE = re.compile(r"^(?:und )?(?:hast|machst) du (?:was|etwas|pläne|irgendwelche pläne)(?: vor)? (?:fürs|für das|am|dieses) wochenende(?: vor)?\??$")
+_DE_HIKE = re.compile(r"^(?:ich )?(?:geh|gehe|will|möchte|werde|wollte) (?:vielleicht |wahrscheinlich |morgen |am wochenende )*(?:wandern|eine wanderung machen|"
+                      r"in die berge)(?: gehen)?[.!]*$")
+_DE_TIPS = re.compile(r"^(?:hast du |irgendwelche |ein paar )?tipps\??$")
+_DE_BRING = re.compile(r"^(?:und )?was (?:soll|sollte|muss) ich mitnehmen\??$")
+_DE_WATER = re.compile(r"^(?:und )?wie viel wasser(?: soll ich mitnehmen)?\??$")
+_DE_COST = re.compile(r"^(?:und )?(?:ist (?:es|das|die stadt) (?:teuer|günstig|billig)|wie teuer ist (?:es|das) (?:dort|da)?)\??$")
+_DE_RECAP = re.compile(r"^(?:und )?(?:worüber|über was) haben wir (?:geredet|gesprochen|uns unterhalten)\??$")
+_DE_COMPLIMENT = re.compile(r"^du bist (?:ein |eine )?(?:echt |richtig |wirklich |so |sehr )?(?:guter zuhörer|gute zuhörerin|lieb|nett|toll|super|klasse|"
+                            r"schlau|klug|witzig|süß|hilfreich|der beste|die beste)[.!]*$")
+_RECAP_DE = {"things about you": "Sachen über dich", "how you're doing": "wie es dir geht", "what to cook": "Kochen", "jokes": "Witze",
+             "fun facts": "Fun Facts", "books": "Bücher", "films": "Filme", "music": "Musik", "games": "Spiele",
+             "things to do": "Unternehmungen", "travel": "Reisen", "sleep": "Schlaf", "some ideas": "ein paar Ideen"}
 _WEAR = re.compile(r"^(?:(?:and|so|ok|okay|hmm|fine|alright|cool|sure)[.,!]? )?what (?:should|do|can|could) i wear(?: (?:to|for|on|in) "
                    r"(?:the |a |my |an )?(?P<x>[a-z ]+?))?(?: tomorrow| today| tonight)?\??$")
 _OCCASIONS = [("interview", re.compile(r"\binterview")), ("wedding", re.compile(r"\bwedding|\bmarr")),
@@ -818,6 +843,9 @@ class Assistant:
         dd = de.get("daily", {})
         st.lang = "de"
         s = normalise_de(msg)
+        if re.search(r"\b(?:nochmal|noch mal|gleich nochmal|eigentlich)\b", s) and "?" in msg:
+            msg = re.sub(r"\s+", " ", re.sub(r"\b(?:gleich nochmal|nochmal|noch mal|eigentlich)\b", "", msg, flags=re.I)).strip()
+            s = normalise_de(msg)                         # "wie heiße ich nochmal?": the question itself
         lead = re.sub(r"^(?:(?:haha+|hihi+|hehe+|lol|ok(?:ay)?|na gut|gut|cool|super|alles klar|achso|ach so|krass|echt|witzig)[ ,!.]+)+", "", s)
         if lead != s and len(lead.split()) >= 3:          # "haha ok, was ist die hauptstadt von kanada?": the question
             msg, s = lead, lead
@@ -939,7 +967,9 @@ class Assistant:
         if re.match(r"^(?:wer|was|wann|wo|wie|welche[rsmn]?|warum|wieso|weshalb|woher|wohin)\b", s):
             return Reply(msg, "unknown", self._pick(st, "de:knowledge", dd["knowledge_de"]), via="german")
         le = st.last_exp or {}
-        if le and st.turn - le.get("turn", -99) <= 2 and len(s.split()) >= 2:
+        if le and st.turn - le.get("turn", -99) <= 2 and len(s.split()) >= 2 and "?" not in msg and \
+                not re.match(r"^(?:haha|hihi|hehe|lol|ok|okay|cool|super|ach so|achso|gut|klar|stimmt|aber)\b", s) and \
+                not re.search(r"\b(?:vielleicht|morgen|wochenende|freitag|urlaub|plane|werde|will|freue)\b", s):
             # "die nachbarn waren laut" after "ich bin müde": more of the same moment
             key = "follow_neg" if le.get("valence") == "negative" else "follow_pos"
             st.last_exp = dict(le, turn=st.turn, text_en=(le.get("text_en") or "") + " " + _de_advice_hint(s))
@@ -1088,6 +1118,57 @@ class Assistant:
         r = self._german_event(st, msg, q, dc)
         if r is not None:
             return r
+        m = _DE_IM.match(q)
+        if m and m.group("x") not in _DE_NOT_NAME and not re.search(r"(?:ig|lich|isch|bar|los|sam|haft|end|iert|er|t)$", m.group("x")) \
+                and self.user_name() is None:
+            x = m.group("x").capitalize()
+            ls = self.bot.typer.lower_share(m.group("x")) if self.bot.typer is not None else None
+            if ls is None or ls < 0.5:                    # "ich bin tom": a name, not a mood
+                self._learn(st, [f"My name is {x}."], msg)
+                return Reply(msg, "learned", self._pick(st, "de:ctx:name_hi", dc["name_hi"], x=x), via="german")
+        if _DE_LONG_WEEK.match(q):
+            st.uses["long_week_de"] = st.turn
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "text_en": "long week tired", "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "de:ctx:long_week", dc["long_week"]), via="german")
+        lwd = st.uses.get("long_week_de")
+        if lwd is not None and st.turn - lwd <= 3 and _DE_DEADLINES.match(q):
+            st.uses["long_week_de"] = st.turn
+            return Reply(msg, "empathy", self._pick(st, "de:ctx:deadlines", dc["deadlines"]), via="german")
+        for rx, key in ((_DE_ALMOST_WE, "almost_weekend"), (_DE_BOT_WE, "bot_weekend"), (_DE_COMPLIMENT, "compliment")):
+            if rx.match(q):
+                return Reply(msg, "smalltalk", self._pick(st, f"de:ctx:{key}", dc[key]), via="german")
+        if _DE_HIKE.match(q):
+            st.uses["hike_de"] = st.turn
+            return Reply(msg, "smalltalk", self._pick(st, "de:ctx:hike_plan", dc["hike_plan"]), via="german")
+        hd = st.uses.get("hike_de")
+        if hd is not None and st.turn - hd <= 4:
+            for rx, key in ((_DE_TIPS, "hike_tips"), (_DE_BRING, "hike_bring"), (_DE_WATER, "hike_water")):
+                if rx.match(q):
+                    st.uses["hike_de"] = st.turn
+                    return Reply(msg, "smalltalk", self._pick(st, f"de:ctx:{key}", dc[key]), via="german")
+        if _DE_COST.match(q):
+            cands = []
+            tp = st.topic or {}
+            if tp.get("turn", -99) >= st.turn - 3:
+                cands.append(tp.get("name", ""))
+            ptd = st.uses.get("place_topic")
+            if isinstance(ptd, list) and st.turn - ptd[1] <= 8:
+                cands.append(ptd[0])
+            levels = self.bank.daily["cost_level"]
+            for c in cands:
+                cl = c.lower()
+                cl = {"münchen": "munich", "wien": "vienna", "rom": "rome", "zürich": "zurich", "lissabon": "lisbon",
+                      "prag": "prague", "kopenhagen": "copenhagen", "athen": "athens"}.get(cl, cl)
+                level = next((lv for lv, cities in levels.items() if cl in cities), None)
+                if level:
+                    return Reply(msg, "smalltalk", _fill(dc["cost"][level], x=c), via="german")
+        if _DE_RECAP.match(q):
+            recap = st.uses.get("recap", [])
+            if not recap:
+                return Reply(msg, "smalltalk", self._pick(st, "de:ctx:recap_none", dc["recap_none"]), via="german")
+            items = [_RECAP_DE.get(r, _de_country(r)) for r in recap[-5:]]
+            shown = ", ".join(items[:-1]) + " und " + items[-1] if len(items) > 1 else items[0]
+            return Reply(msg, "smalltalk", self._pick(st, "de:ctx:recap", dc["recap"], x=shown), via="german")
         if _DE_RUN.match(q):
             st.uses["run_de"] = st.turn
             return Reply(msg, "smalltalk", self._pick(st, "de:ctx:run_start", dc["run_start"]), via="german")

@@ -2008,3 +2008,34 @@ def test_battery50_long_week_hike_and_lead_ins(chat):
     a.turn(st4, "i work as a designer")
     a.turn(st4, "what's my name?")
     assert "designer" in a.turn(st4, "and what do i do?").text
+
+
+def test_battery51_german_long_conversation(chat):
+    a, _ = chat
+    st = DialogState("o1")
+    r = a.turn(st, "ich bin tom")
+    assert "Tom" in r.text, r.text
+    a.turn(st, "ich bin designer")
+    r = a.turn(st, "war eine lange woche")
+    assert r.kind == "empathy" and "Tag" not in r.text, r.text
+    r = a.turn(st, "ja, viele deadlines")
+    assert "Deadlines" in r.text or "Druck" in r.text, r.text
+    r = a.turn(st, "aber morgen ist freitag")
+    assert "Wochenende" in r.text or "Freitag" in r.text, r.text
+    r = a.turn(st, "hast du pläne fürs wochenende?")
+    assert "dir" in r.text or "du" in r.text, r.text
+    r = a.turn(st, "haha ok")
+    assert r.kind != "unknown", r.text
+    r = a.turn(st, "ich geh vielleicht wandern")
+    assert "Wander" in r.text, r.text
+    assert "•" in a.turn(st, "hast du tipps?").text
+    assert "Wasser" in a.turn(st, "was soll ich mitnehmen?").text
+    assert "Liter" in a.turn(st, "wie viel wasser?").text
+    assert "Tom" in a.turn(st, "wie heiße ich nochmal?").text
+    assert "Designer" in a.turn(st, "und was mache ich beruflich?").text
+    r = a.turn(st, "worüber haben wir geredet?")
+    assert r.text.startswith("Mal sehen") or r.text.startswith("Noch nicht"), r.text
+    assert "danke" in a.turn(st, "du bist ein guter zuhörer").text.lower()
+    st2 = DialogState("o2")
+    r = a.turn(st2, "ich bin müde")
+    assert "Hallo Müde" not in r.text and r.kind != "learned", r.text

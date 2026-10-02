@@ -52,6 +52,14 @@ _STATEMENTS = [
     (re.compile(r"^ich bin (\d{1,3}) jahre alt$"), "fact", "I am {0} years old."),
     (re.compile(r"^ich bin (\d{1,3})$"), "fact", "I am {0} years old."),
     (re.compile(r"^ich arbeite als ([\w\-äöüß ]{2,40})$"), "fact", "I work as {0}."),
+    (re.compile(r"^ich bin (?:ein |eine |von beruf |beruflich )?(designer(?:in)?|lehrer(?:in)?|arzt|ärztin|krankenpfleger(?:in)?|krankenschwester|"
+                r"ingenieur(?:in)?|programmierer(?:in)?|entwickler(?:in)?|softwareentwickler(?:in)?|anwalt|anwältin|koch|köchin|"
+                r"verkäufer(?:in)?|polizist(?:in)?|architekt(?:in)?|journalist(?:in)?|friseur(?:in)?|mechaniker(?:in)?|elektriker(?:in)?|"
+                r"bäcker(?:in)?|buchhalter(?:in)?|berater(?:in)?|manager(?:in)?|pilot(?:in)?|apotheker(?:in)?|erzieher(?:in)?|"
+                r"physiotherapeut(?:in)?|psychologe|psychologin|schauspieler(?:in)?|musiker(?:in)?|künstler(?:in)?|fotograf(?:in)?|"
+                r"grafikdesigner(?:in)?|webdesigner(?:in)?|tischler(?:in)?|schreiner(?:in)?|maler(?:in)?|gärtner(?:in)?|"
+                r"pfleger(?:in)?|altenpfleger(?:in)?|sozialarbeiter(?:in)?|übersetzer(?:in)?|steuerberater(?:in)?|zahnarzt|zahnärztin)$"),
+     "fact", "I work as a {0}."),
     (re.compile(r"^mein lieblingsessen ist ([\w\-äöüß ]{2,40})$"), "fact", "My favourite food is {0}."),
     (re.compile(r"^meine lieblingsfarbe ist ([\w\-äöüß ]{2,40})$"), "fact", "My favourite colour is {0}."),
     (re.compile(r"^(?:also |ich glaube,? )?ich (?:mag|liebe|trage) (?:die farbe )?(?:am liebsten |total |sehr |echt )?"
@@ -64,7 +72,7 @@ _STATEMENTS = [
                 r"(?: sehr| total| echt| so| gern| gerne)?$"), "fact", "I like {0}."),
 ]
 _SHOWN_DE = {"name": "du heißt {0}", "I live in {0}.": "du wohnst in {0}", "I am from {0}.": "du kommst aus {0}",
-             "I am {0} years old.": "du bist {0}", "I work as {0}.": "du arbeitest als {0}",
+             "I am {0} years old.": "du bist {0}", "I work as {0}.": "du arbeitest als {0}", "I work as a {0}.": "du bist {0}",
              "My favourite food is {0}.": "dein Lieblingsessen ist {0}", "My favourite colour is {0}.": "deine Lieblingsfarbe ist {0}",
              "I like {0}.": "du magst {0}"}
 
@@ -253,7 +261,7 @@ def advice_de(s: str) -> bool:
 
 
 _NEUTRAL = {
-    "laugh": re.compile(r"^(?:ha(?:ha)+h?|hihi+|hehe+|lo+l+|xd+|lmao|😂+|🤣+|😄+|:d+)$"),
+    "laugh": re.compile(r"^(?:ha(?:ha)+h?|hihi+|hehe+|lo+l+|xd+|lmao|😂+|🤣+|😄+|:d+)(?:,? (?:ok(?:ay)?|gut|klar|stimmt|ja|na gut|alles klar|fair))?$"),
     "ack": re.compile(r"^(?:ok(?:ay)?|okey|alles klar|verstehe|ach so|aha|achso|gut|na gut|klar|stimmt|genau|hm+|mhm)$"),
     "yes": re.compile(r"^(?:ja+|jo|jap|jep|jawohl|gerne|gern|klar doch|auf jeden fall|sicher|natürlich)$"),
     "no": re.compile(r"^(?:nein|nee+|ne|nö|nope|lieber nicht|nicht wirklich|auf keinen fall)$"),

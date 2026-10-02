@@ -2296,6 +2296,17 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - Jetzt passt jeder Zug. Dazu „and what do i do?“ direkt nach „what's my name?“ → Beruf (vorher Ratschlags-Rückfrage).
   - Wiederholungen 1 → 0. Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–49 und langes
     Gespräch: 0 Wiederholungen. Suite 723 bestanden, 7 übersprungen.
+- **Alltags-Batterie 51 (dasselbe lange Gespräch auf Deutsch, 25 Züge)**:
+  - Vorher 5 Wiederholungen und 9 schwache Züge. „ich bin tom“ war unverstanden, und die deutsche Mitgefühls-Nachfrage
+    feuerte nach einer schlechten Nachricht bei jedem Satz („haha ok“, „ich geh vielleicht wandern“, sogar „hast du Pläne
+    fürs Wochenende?“ → „Oh je, das kommt dann noch dazu“). Dazu fehlten Wandern, „ist es teuer?“, „wie heiße ich
+    nochmal?“, „worüber haben wir geredet?“ und „du bist ein guter Zuhörer“.
+  - Jetzt: Name aus „ich bin tom“ (nie bei „ich bin müde“, „fertig“, „gestresst“ …), Beruf aus „ich bin Designer“,
+    die Nachfrage nur noch für echte Fortsetzungen (keine Fragen, Reaktionen oder Pläne), lange Woche → Deadlines →
+    Freitag → Engramms Wochenende → Wandern (Tipps, Packliste, Wasser) → Oslo und Preise → Prozent → Name und Beruf →
+    Rückblick auf Deutsch → Kompliment → Gute Nacht mit Namen.
+  - Wiederholungen 5 → 0. Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–50 und langes
+    Gespräch: 0 Wiederholungen. Suite 724 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

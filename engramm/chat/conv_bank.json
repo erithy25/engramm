@@ -5378,6 +5378,54 @@
     "dessert": [
      "Als Nachtisch: Tiramisu oder Panna cotta am Vortag gemacht, ein Obstcrumble mit Eis oder einfach ein schöner Obstteller mit geschmolzener Schokolade."
     ],
+    "name_hi": [
+     "Freut mich, {x}! Ich merk mir deinen Namen.",
+     "Hallo {x}! Schön, dich kennenzulernen."
+    ],
+    "long_week": [
+     "Puh, lange Wochen schlauchen. Was war denn so los?",
+     "Oh je, so eine Woche. Was hat dich so auf Trab gehalten?"
+    ],
+    "deadlines": [
+     "Viele Deadlines auf einmal sind echt anstrengend. Aber du hast es fast geschafft – das Wochenende ist nah!",
+     "Das ist eine Menge Druck. Hast du das meiste geschafft?"
+    ],
+    "almost_weekend": [
+     "Ja! Fast geschafft. 🎉 Hast du schon Pläne fürs Wochenende?",
+     "Freitag – das Ziel ist in Sicht! Machst du was Schönes am Wochenende?"
+    ],
+    "bot_weekend": [
+     "Haha, ich bin einfach hier, lese Wikipedia und warte auf gute Fragen. 😄 Und du, hast du was vor?",
+     "Wie immer: plaudern und lesen. Meine Wochenenden sind sehr entspannt! Und bei dir?"
+    ],
+    "hike_plan": [
+     "Wandern klingt super! Weißt du schon wohin?",
+     "Oh schön, eine Wanderung! Frische Luft nach so einer Woche ist genau richtig. Wo soll's hingehen?"
+    ],
+    "hike_tips": [
+     "Ein paar Wander-Basics:\n\n• Lieber eine etwas kürzere Route wählen und morgens das Wetter checken\n• Früh losgehen – kühler und weniger voll\n• Jemandem sagen, wo du unterwegs bist\n• Keine brandneuen Schuhe, vorher einlaufen\n• Umdrehen, wenn das Wetter umschlägt – der Berg läuft nicht weg"
+    ],
+    "hike_bring": [
+     "Für eine Tageswanderung:\n\n• Genug Wasser und Snacks (Nüsse, Brot, Obst)\n• Zwiebellook: warme Schicht und Regenjacke, auch bei Sonne\n• Feste Schuhe mit gutem Profil\n• Sonnencreme, Sonnenbrille, Kappe\n• Handy mit Offline-Karte und Powerbank\n• Ein kleines Erste-Hilfe-Set und Pflaster"
+    ],
+    "hike_water": [
+     "Ungefähr einen halben Liter pro Stunde, bei Hitze oder steilen Strecken mehr. Für vier Stunden sind zwei Liter ein guter Start."
+    ],
+    "cost": {
+     "cheap": "{x} ist im Vergleich zu Westeuropa eher günstig – Essen gehen, Nahverkehr und Museen sind bezahlbar.",
+     "mid": "{x} liegt im Mittelfeld: nicht billig, aber machbar. Hotels im Zentrum und Touristenlokale gehen ins Geld, lokale Restaurants und der Nahverkehr halten es im Rahmen.",
+     "pricey": "{x} ist eher teuer, vor allem Hotels und Essen gehen. Früh buchen, etwas außerhalb wohnen und dort essen, wo Einheimische essen, hilft viel."
+    },
+    "recap": [
+     "Mal sehen – wir hatten {x}."
+    ],
+    "recap_none": [
+     "Noch nicht viel – wir fangen ja gerade erst an. Was liegt dir auf dem Herzen?"
+    ],
+    "compliment": [
+     "Oh, danke – das ist lieb von dir! 😊",
+     "Danke! Ich höre dir auch gern zu."
+    ],
     "bot_human": [
      "Nein, ich bin kein Mensch – ich bin ENGRAMM, ein Programm auf deinem Rechner. Kein neuronales Netz, keine Cloud: Ich antworte aus dem, was ich gelesen habe, und aus dem, was du mir erzählst.",
      "Nein, ich bin ein Programm namens ENGRAMM. Aber ich höre dir trotzdem gern zu!"
