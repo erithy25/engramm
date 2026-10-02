@@ -2615,3 +2615,32 @@ def test_battery62_sums_plans_and_saying_no(chat):
     assert "•" in r.text, r.text
     r = a.turn(DialogState("f62"), "tell me something funny then")
     assert r.kind == "smalltalk" and "answer is" not in r.text, r.text
+
+
+def test_battery63_german_follow_ups_sums_and_banter(chat):
+    import re as _re
+    a, _ = chat
+    lost = _re.compile(r"verstehe ich leider nicht|nicht ganz verstanden|nicht ganz mit|nachschlagen")
+    st = DialogState("dl63")
+    r = a.turn(st, "soll ich spanisch oder französisch lernen?")
+    assert "Spanisch" in r.text, r.text
+    r = a.turn(st, "warum?")
+    assert not lost.search(r.text) and "Millionen" in r.text, r.text
+    assert "Spanisch" in a.turn(st, "ok, dann spanisch").text
+    assert "Monate" in a.turn(st, "wie lange dauert das?").text
+    st = DialogState("dm63")
+    a.turn(st, "ich hab 20 euro fürs mittagessen und 15 fürs abendessen ausgegeben")
+    assert "35" in a.turn(st, "wie viel ist das?").text
+    assert "47" in a.turn(st, "und wenn ich 12 für kaffee dazurechne?").text
+    st = DialogState("dq63")
+    a.turn(st, "ich überlege zu kündigen")
+    a.turn(st, "mein chef ist furchtbar")
+    assert not lost.search(a.turn(st, "aber ich brauche das geld").text)
+    assert not lost.search(a.turn(st, "was würdest du machen?").text)
+    for msg in ("wie sage ich höflich nein?", "schläfst du eigentlich?", "bist du schlauer als chatgpt?", "du bist komisch"):
+        r = a.turn(DialogState("db63" + msg[:4]), msg)
+        assert not lost.search(r.text) and r.via == "german", (msg, r.text)
+    st = DialogState("dj63")
+    a.turn(st, "erzähl mir einen witz")
+    r = a.turn(st, "versteh ich nicht")
+    assert "Interessant" not in r.text, r.text

@@ -5908,6 +5908,96 @@
       "Okay! Und wie war's?",
       "Interessant – wie ging's weiter?"
      ]
+    },
+    "g63": {
+     "decide_why": {
+      "spanisch": {
+       "x": "Spanisch",
+       "a": "über 500 Millionen Menschen sprechen es, es ist für Deutsche recht leicht, und es öffnet Spanien und fast ganz Lateinamerika",
+       "r": "2"
+      },
+      "französisch": {
+       "x": "Französisch",
+       "a": "man spricht es in Frankreich, Kanada und weiten Teilen Afrikas, und es hilft bei Diplomatie, Mode und Küche",
+       "r": "1"
+      },
+      "englisch": {
+       "x": "Englisch",
+       "a": "es ist die Sprache für Arbeit, Reisen und das Internet",
+       "r": "3"
+      },
+      "italienisch": {
+       "x": "Italienisch",
+       "a": "es ist für Anfänger angenehm leicht und pure Freude für Essen, Kunst und Reisen",
+       "r": "1"
+      },
+      "japanisch": {
+       "x": "Japanisch",
+       "a": "es öffnet Anime, Spiele und eine faszinierende Kultur – die Schrift braucht aber Geduld",
+       "r": "0"
+      },
+      "chinesisch": {
+       "x": "Chinesisch",
+       "a": "es hat die meisten Muttersprachler der Welt, Töne und Schriftzeichen brauchen aber Zeit",
+       "r": "0"
+      },
+      "portugiesisch": {
+       "x": "Portugiesisch",
+       "a": "man spricht es in Brasilien und Portugal, und es ist dem Spanischen nah",
+       "r": "1"
+      }
+     },
+     "decide": [
+      "Ich würde {x} nehmen: {a}. {y} ist aber auch schön – {b}.",
+      "{x}, würde ich sagen – {a}. Wenn dich {y} mehr reizt, zählt das am meisten: {b}."
+     ],
+     "reason": [
+      "Vor allem deshalb: {a}. Am Ende gilt aber: Die Sprache, auf die du am meisten Lust hast, lernst du am längsten.",
+      "Kurz gesagt: {a}. Motivation schlägt aber alles – nimm die, die dir Spaß macht."
+     ],
+     "chosen": [
+      "{x} also – gute Wahl! Fang klein an: zehn Minuten am Tag bringen mehr als eine lange Einheit pro Woche.",
+      "Super Wahl! {x} öffnet viele Türen. Willst du ein paar Tipps zum Start?"
+     ],
+     "learn_time": "Für einfache Gespräche brauchen die meisten etwa 3–6 Monate regelmäßiges Üben, so 20–30 Minuten am Tag. Richtig wohl fühlt man sich nach ein bis zwei Jahren.",
+     "joke_explain": [
+      "Ha, berechtigt – das ist ein Wortspiel, und Wortwitze sind Geschmackssache. 😄 Soll ich einen anderen versuchen?",
+      "Der lebt von der Doppeldeutigkeit – zugegeben, nicht mein bester. Noch einer?"
+     ],
+     "vs_chatgpt": "Kein neuronales Netz hier – ich bestehe aus Zählen, Regeln und einem genauen Gedächtnis. Der Vorteil: offline, klein, durchschaubar, jede Tatsache mit Quelle. Der Nachteil: Ich bin weniger flexibel als ChatGPT und sage öfter „weiß ich nicht“.",
+     "spent": [
+      "Notiert – soll ich's zusammenrechnen?",
+      "Okay! Willst du die Summe?"
+     ],
+     "total": [
+      "Dann sind es insgesamt {x} Euro.",
+      "Zusammen macht das {x} Euro."
+     ],
+     "quit": [
+      "Kündigen ist ein großer Schritt. Willst du eher etwas Neues – oder weg von etwas?",
+      "Oh, das klingt ernst. Was ist der Hauptgrund?"
+     ],
+     "quit_money": [
+      "Das ist der schwierige Teil – Geld ist ein echter Grund. Könntest du dich schon umsehen, während du noch dort bist? Dann wählst du, statt zu flüchten.",
+      "Verständlich. Ohne etwas Neues zu kündigen ist riskant. Vielleicht jetzt schon still bewerben, damit die Geldsorge nicht für dich entscheidet?"
+     ],
+     "quit_view": [
+      "Ich würde nicht kündigen, bevor etwas Neues in Aussicht ist. Ich würde mich jetzt umsehen, aufschreiben, was der Chef macht, und notfalls mit der Personalabteilung reden. Auf eigene Faust zu gehen fühlt sich viel besser an.",
+      "Ehrlich? Ich würde mich leise woanders bewerben und mir eine Frist setzen, etwa drei Monate. Ändert sich nichts, hast du dann Optionen statt nur einen schlechten Chef."
+     ],
+     "say_no": "Ein paar Wege, höflich Nein zu sagen:\n\n• „Ich würde gern helfen, aber ich bin mit X und Y ausgelastet. Was davon soll ich dafür liegen lassen?“\n• „Diese Woche schaffe ich das nicht – geht es auch bis Montag?“\n• „Ich bin dafür nicht die Beste/der Beste, aber frag doch mal [Name].“\n\nDer Trick: freundlich bleiben, kurz begründen, eine Alternative anbieten – keine lange Entschuldigung nötig.",
+     "sleep": [
+      "Nie! Träume habe ich leider auch keine. Und du – schläfst du genug?",
+      "Schlafen kenne ich nicht – ich bin da, sobald du die App öffnest. Schläfst du gut?"
+     ],
+     "lucky": [
+      "Vielleicht! Aber einmal ausschlafen am Sonntag würde ich schon gern ausprobieren.",
+      "Kommt drauf an – du hast dafür Träume und Nickerchen. Klingt nach einem fairen Tausch."
+     ],
+     "weird": [
+      "Komisch im guten Sinn, hoffe ich! 😄",
+      "Erwischt! Normal ist eh überbewertet."
+     ]
     }
    }
   }

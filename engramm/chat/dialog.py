@@ -950,7 +950,8 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_ctx57(st, msg, s) or self._german_ctx61(st, msg, s) or self._german_ctx(st, msg, s) or \
+            life = self._german_ctx57(st, msg, s) or self._german_ctx61(st, msg, s) or self._german_ctx63(st, msg, s) or \
+                self._german_ctx(st, msg, s) or \
                 self._german_life(st, msg, s)
             if life is not None:
                 return life
@@ -1074,6 +1075,101 @@ class Assistant:
         if stmt is not None:
             return stmt
         return Reply(msg, "unknown", self._pick(st, "de:fallback", de["replies"]["fallback"]), via="german")
+
+    def _german_ctx63(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 63 in German: "nein, ich meinte in Europa", a language choice with reasons, "versteh ich nicht"
+        after a joke, sums said in passing, quitting a job, saying no politely, and banter about the bot."""
+        g = (self.bank.de["daily"].get("ctx") or {}).get("g63")
+        if not g:
+            return None
+        q = s.strip(" .!?")
+        pk = lambda key, opts, **kw: self._pick(st, f"de:g63:{key}", opts, **kw)          # noqa: E731
+        mm = re.fullmatch(r"(?:nein,? |ne,? |sorry,? )?ich meinte (?:in|auf|für) (?P<x>[a-zäöüß ]{3,30})", q)
+        last_en = st.uses.get("de_last_en")
+        if mm and last_en and st.turn - last_en[0] <= 2 and re.search(r"\bin the world\b", last_en[1]):
+            from engramm.chat.german_bridge import EXONYMS
+            place = {"europa": "europe", "afrika": "africa", "südamerika": "south america", "nordamerika": "north america",
+                     "australien": "australia", "der antarktis": "antarctica", "antarktis": "antarctica", "deutschland": "germany",
+                     "den alpen": "the alps"}.get(mm.group("x"), EXONYMS.get(mm.group("x"), mm.group("x")).lower())
+            qen = re.sub(r"\bin the world\b", f"in {place}", last_en[1])
+            rep = self._question(st, qen)
+            st.uses["de_last_en"] = [st.turn, qen]
+            if rep.kind == "answer":
+                item = next((it for it in self.bank.daily.get("common", []) if isinstance(it, dict) and it.get("a") == rep.text), None)
+                if item and item.get("t"):
+                    self.bot.context.update({"answer": item["t"], "atype": None, "mention": item["t"], "kb_last": None})
+                rep.text = f"{self.bank.de['daily']['english_text']} {rep.text}"
+                rep.message = msg
+                return rep
+        hm = re.search(r"(\d[\d,]*) m \(([\d,]+) ft\)", st.last_reply or "")
+        if hm and st.uses.get("last_via") == "common" and re.fullmatch(r"(?:und )?wie hoch ist (?:er|der|sie|es|das)(?: denn)?", q):
+            item = next((it for it in self.bank.daily.get("common", []) if isinstance(it, dict) and
+                         it.get("a") and it["a"] in (st.last_reply or "")), None)
+            name = (item or {}).get("t") or "Er"
+            return Reply(msg, "answer", f"{name} ist {hm.group(1).replace(',', '.')} m hoch.", answer=hm.group(1), via="common",
+                         confidence=1.0)
+        dm = re.fullmatch(r"soll ich (?:lieber )?(?P<a>[a-zäöüß]+) oder (?P<b>[a-zäöüß]+) lernen", q)
+        why = g["decide_why"]
+        if dm and dm.group("a") in why and dm.group("b") in why:
+            a_, b_ = why[dm.group("a")], why[dm.group("b")]
+            x, y = (a_, b_) if a_["r"] >= b_["r"] else (b_, a_)
+            st.uses["decided_de"] = [x["x"], y["x"], st.turn]
+            return Reply(msg, "smalltalk", pk("decide", g["decide"], x=x["x"], y=y["x"], a=x["a"], b=y["a"]), via="german")
+        dd_ = st.uses.get("decided_de")
+        if dd_ and st.turn - dd_[2] <= 3:
+            if re.fullmatch(r"(?:aber )?(?:warum|wieso|weshalb)(?: das| nicht)?", q):
+                a_ = next(v for v in why.values() if v["x"] == dd_[0])
+                dd_[2] = st.turn
+                return Reply(msg, "smalltalk", pk("reason", g["reason"], a=a_["a"]), via="german")
+            cm = re.fullmatch(r"(?:ok,? |okay,? |gut,? )?(?:dann |ich nehme |ich lerne |ich mach )?(?P<x>[a-zäöüß]+)(?: dann| also)?", q)
+            if cm and cm.group("x") in why:
+                st.uses["chosen_de"] = [st.turn]
+                st.uses.pop("decided_de", None)
+                return Reply(msg, "smalltalk", pk("chosen", g["chosen"], x=why[cm.group("x")]["x"]), via="german")
+        ch = st.uses.get("chosen_de")
+        if ch and st.turn - ch[0] <= 3 and re.fullmatch(r"wie lange dauert (?:das|es)(?: zu lernen)?|ist (?:das|es) schwer", q):
+            return Reply(msg, "smalltalk", g["learn_time"], via="german")
+        la = st.last_action or {}
+        if la.get("kind") == "joke" and st.turn - la.get("turn", -99) <= 1 and \
+                re.fullmatch(r"(?:ich )?versteh(?:e)? (?:ich )?(?:ihn |den |das )?nicht|hä|häh|wie bitte|erklär (?:mal|ihn)", q):
+            return Reply(msg, "smalltalk", pk("joke_explain", g["joke_explain"]), via="german")
+        if re.fullmatch(r"bist du (?:schlauer|besser|klüger) als chatgpt|was ist der unterschied zwischen dir und chatgpt|bist du wie chatgpt", q):
+            return Reply(msg, "smalltalk", g["vs_chatgpt"], via="german")
+        sp = re.findall(r"(\d+(?:,\d{1,2})?) ?(?:euro|€)? (?:für|fürs|für den|für die|für das) [a-zäöüß]+", q)
+        if len(sp) >= 2 and re.search(r"\bausgegeben\b|\bbezahlt\b", q):
+            st.uses["sum63"] = [[float(v.replace(",", ".")) for v in sp], st.turn]
+            return Reply(msg, "smalltalk", pk("spent", g["spent"]), via="german")
+        sm = st.uses.get("sum63")
+        if sm and st.turn - sm[1] <= 3:
+            fmt = lambda v: (f"{v:,.2f}".rstrip("0").rstrip(".")).replace(".", ",")          # noqa: E731
+            if re.fullmatch(r"(?:und )?wie ?viel (?:ist|macht|sind) (?:das|es)(?: zusammen| insgesamt)?|was macht das (?:zusammen|insgesamt)", q):
+                sm[1] = st.turn
+                return Reply(msg, "tool", f"{' + '.join(fmt(v) for v in sm[0])} = {fmt(sum(sm[0]))} Euro.", via="tool", confidence=1.0)
+            am = re.fullmatch(r"(?:und )?(?:wenn ich |plus )?(?P<v>\d+(?:,\d{1,2})?)(?: ?euro)?(?: (?:für|fürs) [a-zäöüß]+)? ?(?:dazu ?rechne|dazu|dazurechne|addiere)?", q)
+            if am and re.search(r"\b(?:dazu|plus|addiere|wenn ich)\b", q):
+                sm[0].append(float(am.group("v").replace(",", ".")))
+                sm[1] = st.turn
+                return Reply(msg, "tool", pk("total", g["total"], x=fmt(sum(sm[0]))), via="tool", confidence=1.0)
+        if re.search(r"\b(?:überlege|denke darüber nach|will|möchte|werde)(?: zu)? kündigen\b|\bmeinen job kündigen\b", q):
+            st.uses["quit_de"] = [st.turn]
+            return Reply(msg, "smalltalk", pk("quit", g["quit"]), via="german")
+        qd = st.uses.get("quit_de")
+        if qd and st.turn - qd[0] <= 4:
+            if re.fullmatch(r"(?:aber )?ich brauche (?:das|mein|das) ?(?:geld|gehalt)|(?:aber )?ich kann es mir nicht leisten", q):
+                st.uses["quit_de"] = [st.turn]
+                return Reply(msg, "smalltalk", pk("quit_money", g["quit_money"]), via="german")
+            if re.fullmatch(r"was würdest du (?:machen|tun)(?: an meiner stelle)?|was meinst du|was soll ich tun", q):
+                st.uses["quit_de"] = [st.turn]
+                return Reply(msg, "smalltalk", pk("quit_view", g["quit_view"]), via="german")
+        if re.fullmatch(r"wie (?:sage|sag) ich (?:höflich |freundlich |nett )?nein(?: zu meinem chef| bei der arbeit)?", q):
+            return Reply(msg, "smalltalk", g["say_no"], via="german")
+        if re.fullmatch(r"(?:schläfst|träumst) du(?: eigentlich| auch| überhaupt| nie| mal)?", q):
+            return Reply(msg, "smalltalk", pk("sleep", g["sleep"]), via="german")
+        if re.fullmatch(r"du glückliche[rs]?|glück gehabt|beneidenswert|du hast es gut", q) and re.search(r"schlaf|träum", (st.last_reply or "").lower()):
+            return Reply(msg, "smalltalk", pk("lucky", g["lucky"]), via="german")
+        if re.fullmatch(r"du bist (?:echt |ganz schön |irgendwie |voll )?(?:komisch|seltsam|merkwürdig|schräg)(?: haha| lol)?", q):
+            return Reply(msg, "smalltalk", pk("weird", g["weird"]), via="german")
+        return None
 
     def _german_ctx61(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """Battery 61 in German: home from work and a long day, "und bei dir?", a hike and sore legs, music and a
@@ -1204,8 +1300,13 @@ class Assistant:
             key = "stmt_pos"
         elif re.search(r"\b(?:weh|krank|müde|stress|stressig|schlecht|mies|doof|nervig|anstrengend|kaputt|traurig|ärger|blöd|scheiße|mist|sauer|genervt)\b", q):
             key = "stmt_neg"
+        elif (re.match(r"^(?:ich|wir|mein|meine|meinem|meinen|heute|gestern|vorhin|letzte|am wochenende)\b", q) or
+              re.match(r"^(?:die|der|das|unser|unsere|meine|mein|deren|alle)\b[\wäöüß ]{2,40}\b(?:haben|hat|war|waren|ist|sind|wurde|wurden|gab|ging|"
+                       r"gingen|kam|kamen|machte|machten|hatte|hatten)\b", q)) and \
+                not re.search(r"\b(?:nicht|meinte|überlege|verstehe|versteh)\b", q):
+            key = "stmt_plain"                            # a story in the first person: ask for more
         else:
-            key = "stmt_plain"
+            return None
         st.last_exp = {"valence": "negative" if key == "stmt_neg" else "positive", "topic": None, "person": False, "text": msg,
                        "text_en": _de_advice_hint(s), "turn": st.turn}
         return Reply(msg, "smalltalk", self._pick(st, f"de:g61:{key}", g[key]), via="german")
@@ -2146,6 +2247,7 @@ class Assistant:
         if ans is None:
             return None
         st.uses["de_super"] = [adj, noun, st.turn]
+        st.uses["de_last_en"] = [st.turn, f"what is the {en_adj} {en_noun} in the world?"]   # "nein, ich meinte in Europa"
         self.bot.context.update({"answer": ans.title, "atype": None, "mention": ans.title})
         name = _GERMAN_OF.get(ans.title, ans.title)
         if noun in ("fluss", "see") and not name.lower().startswith(("lake", "see ")):
