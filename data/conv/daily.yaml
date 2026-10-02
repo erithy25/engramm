@@ -625,3 +625,121 @@ exp_agree_neg:
 exp_agree_pos:
   - "Love that! What made it so good?"
   - "Nice — that sounds really good. Tell me more?"
+# the question names an article I have, but the found answer is about something else
+topic_gap:
+  - "I can't pin that down for sure — the closest answer I found was about something other than {x}, so I'd rather not guess."
+  - "I'd rather not guess: I couldn't find that clearly in what I've read about {x}."
+topic_gap_ongoing:
+  - "I don't know — my offline text on {x} was written while it was still under way, so it doesn't have the outcome."
+  - "My offline article on {x} is from before it ended, so I can't tell you the result for sure."
+topic_gap_online:
+  - "With Internet access switched on, I can check the current Wikipedia article."
+# "i don't like movies"
+dislike:
+  - "Fair enough — I'll remember you're not a fan of {x}. What do you enjoy instead?"
+  - "Got it, not really your thing then. What are you into instead?"
+  - "Noted — no {x} for you, then. So what do you like doing?"
+likes_list:
+  - "You've told me you like {x}."
+  - "From what you've told me: {x}."
+dislikes_list:
+  - "You've told me you're not a fan of {x}."
+  - "From what you've said, {x} — not your thing."
+likes_none:
+  - "You haven't told me yet — what do you like?"
+  - "I don't know yet. Tell me, and I'll remember it!"
+# "i hate mondays": relatable little annoyances
+dislike_relatable:
+  - "Ha, {x} can be rough. What's the worst part for you?"
+  - "Oh, I hear that a lot about {x}. What gets to you most?"
+# "i don't like it when people are late"
+pet_peeve:
+  - "That's fair — that would annoy me too. Does it happen a lot?"
+  - "I get that. It's frustrating, isn't it? Did something like that happen today?"
+# "why?" after ENGRAMM's own opinion or question
+why_smalltalk:
+  - "Honestly? No deep reason — it just feels right to me. What about you?"
+  - "Good question! I guess it just appeals to me. What's yours?"
+  - "No big reason, really. Why do you ask?"
+# "work was long" / "today was great"
+day_bad:
+  - "Ugh, sounds draining. What made {x} so rough?"
+  - "Oh no. Do you want to vent about it, or would a distraction help more?"
+  - "I'm sorry — that sounds like a lot. What happened?"
+day_good:
+  - "Nice! What went well?"
+  - "Love to hear it. What made {x} so good?"
+  - "That's great! Anything in particular that made it good?"
+# "I went to the gym" and how it went
+workout_done:
+  - "Nice, good for you! How did it go?"
+  - "Love that! How was the workout?"
+  - "Good job getting it done! How did you feel?"
+workout_hard:
+  - "The tough ones count the most! What did you do?"
+  - "Oof, sounds like you really pushed yourself. Make sure you eat and rest well tonight!"
+  - "Hard means it's working! Are you sore already?"
+workout_good:
+  - "That's the best feeling! What did you do?"
+  - "Nice! Days like that keep you going. What's next on your plan?"
+workout_meh:
+  - "Not every session is a great one — showing up still counts!"
+  - "Fair enough. Still better than skipping it!"
+# "mine was ok i guess"
+day_meh:
+  - "Just okay, huh? Anything in particular on your mind?"
+  - "Ah, one of those days. Anything that would make the rest of it better?"
+  - "Okay is fine too! Anything happen, or just a normal day?"
+# "I want to get fitter" ({x}: the goal)
+goal:
+  fitness:
+    - "That's a great goal! Are you thinking more strength, cardio, or just moving more in general?"
+    - "Love it! Do you already have a routine, or are you starting fresh?"
+  learning:
+    - "That's exciting! What got you interested?"
+    - "Great idea! Are you starting from scratch?"
+  money:
+    - "Smart goal! Is it for something specific?"
+    - "Good plan! Do you have a target amount in mind?"
+  sleep:
+    - "Good sleep changes everything. What's getting in the way at the moment?"
+  habit:
+    - "That takes real willpower — good for you! How long have you been thinking about it?"
+  other:
+    - "That's a great goal! What's your plan so far?"
+    - "Sounds good! What made you decide that?"
+tips_head:
+  - "A few things that help most people:"
+  - "Here's what usually works:"
+tips:
+  fitness:
+    - "Start small: three short sessions a week beat one huge one you can't keep up."
+    - "Mix strength (twice a week) with something that gets your heart rate up."
+    - "Protein with every meal and enough sleep make a bigger difference than most people think."
+    - "Track it — even a note on your phone — so you can see your progress."
+  learning:
+    - "Practise a little every day instead of a lot once a week."
+    - "Learn by doing: a small project or real conversations stick better than reading alone."
+    - "Find a partner or a group — it keeps you motivated."
+  money:
+    - "Pay yourself first: move a fixed amount to savings right after payday."
+    - "Check your subscriptions — they add up quietly."
+    - "Give your savings a name and a goal, it makes them easier to protect."
+  sleep:
+    - "Same bedtime and wake-up time every day, even on weekends."
+    - "No screens for the last half hour before bed."
+    - "Keep the bedroom cool, dark and quiet, and skip caffeine after lunch."
+  habit:
+    - "Pick a start date and tell someone — it makes it real."
+    - "Replace the habit with something else instead of just stopping."
+    - "Expect slip-ups; one bad day doesn't undo the progress."
+# "I'm vegetarian"
+diet_noted:
+  - "Got it — {x}. I'll keep that in mind for food ideas!"
+  - "Noted, {x}! That'll help when you ask me what to cook."
+# "what should I eat after a workout"
+post_workout:
+  head: ["Good options after a workout:", "Here's what works well after training:"]
+  any: ["Greek yoghurt with fruit and some granola", "eggs on wholegrain toast", "a chicken or tofu rice bowl with vegetables", "a banana with peanut butter", "a protein smoothie with milk, banana and oats"]
+  vegetarian: ["Greek yoghurt with fruit and some granola", "eggs on wholegrain toast", "a tofu or chickpea rice bowl with vegetables", "a banana with peanut butter", "a smoothie with milk, banana and oats"]
+  vegan: ["a tofu or tempeh rice bowl with vegetables", "a banana with peanut butter", "oats with soy milk, berries and nuts", "hummus wrap with lots of veggies", "lentil soup with bread"]

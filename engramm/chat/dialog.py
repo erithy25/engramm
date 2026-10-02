@@ -35,7 +35,7 @@ from engramm.chat.bot import CHAT_PREFIX, Reply, message_type, source_id
 from engramm.chat.facts import USER, facts_from_text
 from engramm.chat.german import is_german, understand
 from engramm.chat.realize import answer_sentence, article, personal_sentence, to_second_person
-from engramm.chat.smart import (bare_followup, experience, gibberish, is_discourse, offer_in, rebuild_question,
+from engramm.chat.smart import (bare_followup, experience, gibberish, is_discourse, is_mash, offer_in, rebuild_question,
                                 short_answer, swap_person)
 
 FRESH_CTX = {"answer": None, "atype": None, "mention": None, "last_learned": None}
@@ -369,8 +369,37 @@ class Assistant:
         own = self._about_me(st, msg, norm)
         if own is not None:
             return own
+        life = self._life(st, msg, norm)
+        if life is not None:
+            return life
+        dm = _DAY_WAS.match(norm)
+        if dm:
+            key = "day_bad" if dm.group("bad") else "day_good"
+            what = dm.group("what")
+            what = "your day" if what in ("today", "it", "the day", "my day") else what.replace("my ", "your ")
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", self.bank.daily[key], x=what), via="empathy")
+        if _PET_PEEVE.match(msg.strip()):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:pet_peeve", self.bank.daily["pet_peeve"]),
+                         via="empathy")
+        dm = _DISLIKE.match(msg.strip())
+        if dm and _RELATABLE.fullmatch(dm.group("x").strip().lower()):
+            x = dm.group("x").strip().lower()
+            return Reply(msg, "smalltalk", self._pick(st, "daily:dislike_relatable", self.bank.daily["dislike_relatable"],
+                                                      x=x[:1].upper() + x[1:] if x.endswith("days") else x),
+                         via="empathy")
+        if dm:
+            # "i dont like movies": remember it as a dislike and ask what they do enjoy
+            x = dm.group("x").strip()
+            rep = self._learn(st, [msg], msg)
+            if rep.kind == "learned":
+                rep.text = self._pick(st, "daily:dislike", self.bank.daily["dislike"], x=x)
+            st.last_action = {"kind": "dislike", "turn": st.turn, "x": x}
+            return rep
+        la_kind = (st.last_action or {}).get("kind")
+        mild = re.fullmatch(r"(?:cool|neat|nice|ok cool|oh nice)[!.]*", norm) is not None
         if _SURPRISE.fullmatch(norm) and st.last_reply and (
-                st.last_kind in ("answer", "about") or "fact" in st.last_reply[:40].lower()):
+                (st.last_kind in ("answer", "about") and not mild) or
+                (la_kind == "fun_fact" and st.turn - (st.last_action or {}).get("turn", -99) <= 1)):
             # "that's crazy" right after a fact: go along with it, as a person would
             return Reply(msg, "smalltalk", self._pick(st, "daily:surprise", self.bank.daily["surprise"]), via="smalltalk")
         if _SURPRISE.fullmatch(norm) and st.last_kind == "unknown" and st.last_reply:
@@ -798,6 +827,7 @@ class Assistant:
             st.pending = {"slot": "who_mean", "question": text, "pron": pron.group(1), "turn": st.turn}
             return Reply(text, "unknown", self._pick(st, "daily:who_mean", self.bank.daily["who_mean"],
                                                      x=pron.group(1).lower()), via="clarify")
+        text = self._carry_topic(st, text)
         atlas_on = self.atlas is not None and self.atlas.any_on() and not re.search(r"\b(?:i|me|my|mine)\b", text, re.I)
         if atlas_on:
             from engramm.web.atlas import is_fresh
@@ -805,6 +835,9 @@ class Assistant:
                 fresh = self._atlas_answer(st, text)       # "who is the current …": newer sources first
                 if fresh is not None:
                     return self._with_offline_view(st, text, fresh)
+        likes = self._likes_answer(st, text)
+        if likes is not None:
+            return likes
         kb = self._kb_answer(st, text)
         if kb is not None:
             return kb
@@ -812,6 +845,18 @@ class Assistant:
         if ev is not None:
             return ev
         rep = bot._answer(" ".join(text.split()))
+        topic = self._named_topic(rep.resolved or text)
+        if topic:
+            st.uses["q_topic"] = [topic, st.turn]
+        if rep.kind == "answer" and rep.via == "lookup" and _implausible(rep.resolved or text, rep.answer, rep.evidence):
+            rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None
+        gap = self._topic_gap(st, topic, rep)
+        if gap is not None and atlas_on:
+            later = self._atlas_answer(st, text)
+            if later is not None:
+                return later
+        if gap is not None:
+            return gap
         if atlas_on and rep.kind != "answer":
             later = self._atlas_answer(st, text)
             if later is not None:
@@ -876,6 +921,152 @@ class Assistant:
         self.bot.context.update({"answer": None, "atype": None})   # a guess not shown is no referent
         return rep
 
+    def _life(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Everyday life as a person tells it: a workout done and how it went, a day that was "ok",
+        a goal ("I want to get fitter") and "any tips?" after it, a diet ("I'm vegetarian"), and
+        what to eat after a workout."""
+        d = self.bank.daily
+        la = st.last_action or {}
+        recent = st.turn - la.get("turn", -99) <= 2
+        if _WORKOUT_DONE.match(norm):
+            rep = self._learn(st, [msg], msg)
+            rep.text = self._pick(st, "daily:workout_done", d["workout_done"])
+            st.last_action = {"kind": "workout", "turn": st.turn}
+            return rep
+        m = _HOW_IT_WENT.match(norm)
+        if m and recent and la.get("kind") == "workout":
+            key = "workout_hard" if m.group("hard") else "workout_good" if m.group("good") else "workout_meh"
+            st.last_action = {"kind": "workout", "turn": st.turn}
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key]), via="empathy")
+        if _DAY_MEH.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:day_meh", d["day_meh"]), via="smalltalk")
+        m = _GOAL.match(norm)
+        if m:
+            goal = m.group("goal").strip()
+            topic = next((t for t, rx in _GOAL_TOPICS if rx.search(goal)), "other")
+            st.uses["goal"] = [topic, st.turn, goal]
+            rep = self._learn(st, [msg], msg)
+            rep.text = self._pick(st, f"daily:goal:{topic}", d["goal"][topic], x=goal)
+            return rep
+        goal = st.uses.get("goal")
+        if goal and st.turn - goal[1] <= 4 and _TIPS.match(norm):
+            tips = d["tips"].get(goal[0])
+            if tips:
+                body = "\n".join("• " + t for t in tips[:4])
+                head = self._pick(st, "daily:tips_head", d["tips_head"], x=goal[2])
+                return Reply(msg, "smalltalk", f"{head}\n\n{body}", via="everyday")
+        m = _DIET.match(norm)
+        if m:
+            diet = m.group("diet").lower().replace("gluten-free", "gluten free")
+            st.uses["diet"] = diet
+            rep = self._learn(st, [msg], msg)
+            rep.text = self._pick(st, "daily:diet_noted", d["diet_noted"], x=diet)
+            return rep
+        if _POST_WORKOUT.match(norm):
+            diet = st.uses.get("diet") or self._told_diet()
+            items = d["post_workout"]["vegan" if diet == "vegan" else "vegetarian" if diet else "any"]
+            head = self._pick(st, "daily:post_workout_head", d["post_workout"]["head"])
+            if diet:
+                head = head.rstrip(":") + f" (all {diet}):"
+            st.last_action = {"kind": "rec:food", "turn": st.turn}
+            return Reply(msg, "smalltalk", head + "\n\n" + "\n".join("• " + i for i in items[:4]), via="everyday")
+        return None
+
+    def _told_diet(self) -> str | None:
+        """A diet told in an earlier conversation ("I'm vegetarian")."""
+        for f in reversed(self.bot.facts.facts):
+            if f.subject == USER:
+                m = re.search(r"\b(vegan|vegetarian|pescatarian)\b", f.sentence or "", re.I)
+                if m:
+                    return m.group(1).lower()
+        return None
+
+    def _likes_answer(self, st: DialogState, text: str) -> Reply | None:
+        """"what do I like?" / "what don't I like?": the favourites or dislikes you told me."""
+        m = _LIKES_Q.match(text.strip())
+        if not m:
+            return None
+        verb = (m.group("v") or m.group("v2") or "").lower()
+        neg = bool(m.group("neg")) or bool(m.group("v2")) or verb in ("hate", "dislike")
+        rel = "#dislike" if neg else "#fav"
+        vals = list(dict.fromkeys(f.object for f in self.bot.facts.facts
+                                  if f.subject == USER and rel in f.relation and f.object))
+        if not vals:
+            return Reply(text, "unknown", self._pick(st, "daily:likes_none", self.bank.daily["likes_none"]), via="facts")
+        joined = vals[0] if len(vals) == 1 else ", ".join(vals[:-1]) + " and " + vals[-1]
+        key = "dislikes_list" if neg else "likes_list"
+        return Reply(text, "answer", self._pick(st, f"daily:{key}", self.bank.daily[key], x=joined),
+                     answer=joined, source={"kind": "user"}, via="facts")
+
+    def _named_topic(self, q: str) -> str | None:
+        """The article a question names, as the fact bank titles it: "who won the world cup 2022?"
+        → "2022 FIFA World Cup". Only names of two or more words that are in the reading count."""
+        if self.kgqa is None:
+            return None
+        words = re.findall(r"[A-Za-z0-9][\w'’-]*", q)
+        kb = self.kgqa.kb
+        for size in range(min(5, len(words)), 1, -1):
+            for i in range(len(words) - size + 1):
+                gram = words[i:i + size]
+                if gram[0].lower() in _TOPIC_EDGE or gram[-1].lower() in _TOPIC_EDGE:
+                    continue
+                titles = [e.title for e, kind in kb.link(" ".join(gram), limit=2)]
+                if not titles and re.fullmatch(r"(?:1[5-9]|20)\d\d", gram[-1]):
+                    # "world cup 2022" → "2022 … World Cup": the year in front, words in order
+                    pat = gram[-1] + " %" + "%".join(gram[:-1])
+                    row = kb.db.execute("SELECT title FROM entity WHERE title LIKE ? ORDER BY popularity DESC LIMIT 1",
+                                        (pat,)).fetchone()
+                    titles = [row[0]] if row else []
+                for t in titles:
+                    if self.about.titles.lookup(t):
+                        return t
+        return None
+
+    def _carry_topic(self, st: DialogState, text: str) -> str:
+        """"and who was the top scorer?" right after a question about the 2022 World Cup: the
+        follow-up keeps the topic it leaves out."""
+        last = st.uses.get("q_topic")
+        if not last or st.turn - last[1] > 2:
+            return text
+        m = re.match(r"^\s*(?:and|also|so|ok(?:ay)?|what about)\b[\s,]*(.+)$", text, re.I)
+        if not m or re.search(r"\b(?:he|she|it|they|him|her|them|his|its|their|i|me|my|you|your)\b", text, re.I):
+            return text
+        rest = m.group(1)
+        if self._named_topic(rest) or re.search(r"(?<!^)\b[A-Z][a-z]", rest):
+            return text
+        return f"{rest.rstrip(' ?.!')} at the {last[0]}?"
+
+    def _topic_gap(self, st: DialogState, topic: str | None, rep: Reply) -> Reply | None:
+        """The question names an article I have, but the answer comes from another article that
+        never names it ("who won the world cup 2022?" → a sentence about the U-17 World Cup): that is
+        no answer. Say honestly what the article on the topic does tell."""
+        if not topic or rep.via != "lookup":
+            return None
+        src = rep.source or {}
+        bare = re.sub(r"\s*\([^)]*\)$", "", topic).lower()
+        title = re.sub(r"\s*\([^)]*\)$", "", str(src.get("title") or src.get("key") or "")).lower()
+        if rep.kind == "answer" and (title == bare or bare in (rep.evidence or "").lower()):
+            return None
+        if rep.kind != "answer" and not (rep.guess or rep.text.startswith("I don't know — I have not read anything")):
+            return None
+        docs = self.about.titles.lookup(topic)
+        head = " ".join(self.about._doc_text(docs[0], n=4, max_chars=900)[0]) if docs else ""
+        ongoing = bool(re.search(r"\b(?:is taking place|is being held|is being played|is scheduled|will be held|"
+                                 r"is set to|are the defending)\b", head))
+        key = "topic_gap_ongoing" if ongoing else "topic_gap"
+        rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None
+        x = f"the {topic}" if re.match(r"(?:\d|(?:President|Prime Minister|King|Queen|Chancellor|Mayor|Battle|"
+                                       r"Siege|Treaty|War|Fall|History|Kingdom|Republic|University)\b)", topic) else topic
+        rep.text = self._pick(st, f"daily:{key}", self.bank.daily[key], x=x)
+        if self.atlas is None or not self.atlas.any_on():
+            rep.text += " " + self.bank.daily["topic_gap_online"][0]
+        rep.source = {"kind": "wikipedia", "title": topic, "key": topic,
+                      "url": "https://en.wikipedia.org/wiki/" + topic.replace(" ", "_")}
+        rep.evidence = None
+        st.last_fact = None
+        self.bot.context.update({"answer": None, "atype": None})
+        return rep
+
     def _atlas_answer(self, st: DialogState, text: str) -> Reply | None:
         """The question again, with sentences from the switched-on channels (feeds, shelf,
         messenger) as extra candidates; None when they do not lead to a confident answer."""
@@ -928,6 +1119,8 @@ class Assistant:
         la = st.last_action or {}
         recent = st.turn - la.get("turn", -99) <= 3
         m = _BOT_EXPERIENCE.match(norm)
+        if m and m.group("v") in ("eat", "eaten", "taste", "tasted", "smell") and not (m.group("rest") or "").strip(" ?"):
+            m = None                              # "do you eat?": a question about ENGRAMM's nature
         if m:
             what = (m.group("rest") or "").strip(" ?")
             what = "it" if not what or what in ("it", "that", "this", "them", "this one", "that one") else what
@@ -1195,6 +1388,10 @@ class Assistant:
     def _why(self, st: DialogState, text: str) -> Reply:
         lf = st.last_fact
         if not lf or not lf.get("evidence"):
+            if st.last_kind == "smalltalk" and st.last_reply and st.last_reply.rstrip().endswith("?"):
+                # "why?" after ENGRAMM's own opinion or question: a person's answer, not a source
+                return Reply(text, "smalltalk", self._pick(st, "daily:why_smalltalk", self.bank.daily["why_smalltalk"]),
+                             via="smalltalk")
             return Reply(text, "smalltalk", self._reply(st, "why.none"), via="smalltalk")
         src = lf.get("source") or {}
         if src.get("kind") == "user":
@@ -1420,6 +1617,8 @@ class Assistant:
             return Reply(msg, "smalltalk", self._pick(st, "intent:no", self.bank.by_id["no"].responses), via="smalltalk")
         if u.act == "intent" and u.intent not in ("yes",):
             return None
+        if gibberish(u.text) or is_mash(u.text):
+            return None                          # "asdfgh" is no favourite food
         slot = pending.get("slot")
         if slot == "who_mean":                   # "Sorry, who's ‘he’?" → "Emmanuel Macron": the question again
             name = msg.strip(" .!?")
@@ -1620,7 +1819,7 @@ def _agreeing_sources(answer: str | None, rows: list, src: dict) -> list[str]:
 
 _BOT_EXPERIENCE = re.compile(r"^(?:but |so |and |lol |haha )?(?:have|did|do) (?:you|u) (?:ever |even |actually )?"
                              r"(?P<v>seen|watched|watch|read|heard|been to|been|tried|played|eaten|eat|visited|met|"
-                             r"listened to|see|hear|play|taste|tasted|smell|feel|dream|sleep)\b(?P<rest>.*)$")
+                             r"listened to|see|hear|play|taste|tasted|smell)\b(?P<rest>.*)$")
 _VERB_BASE = {"seen": "see", "watched": "watch", "read": "read", "heard": "hear", "been to": "go anywhere",
               "been": "go anywhere", "tried": "try", "played": "play", "eaten": "eat", "visited": "visit",
               "met": "meet", "listened to": "listen to", "tasted": "taste"}
@@ -1639,6 +1838,91 @@ _JOKE_GOOD = re.compile(r"^(?:ok |okay |haha |lol |ha )*(?:that's|thats|that was
                         r"(?:actually |really |pretty |so )?(?:good|funny|great|hilarious|nice)(?: one)?[!. ]*$")
 _REFINE = re.compile(r"^(?:maybe |how about |what about |ideally |preferably |do you have )?(?:something|anything|one|ideas?|"
                      r"a dish|a recipe|a meal|recipes)? ?(?:with|using|that has|containing|made with) (?P<x>[a-z ]{3,25})$")
+_NUMBERISH = re.compile(r"^(?:\d|(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|"
+                        r"twenty|thirty|forty|fifty|hundred|thousand|million|several|many|few)\b)", re.I)
+_SUPERLATIVE_Q = re.compile(r"^\s*(?:what|which|who)(?:'s| is| was| are| were)\s+(?:the\s+)?"
+                            r"(?P<sup>\w+est|most \w+|least \w+|biggest)\s+(?P<noun>[a-z]+(?: [a-z]+)?)"
+                            r"(?P<rest>.*?)\s*\??\s*$", re.I)
+_SUP_FREE = re.compile(r"^(?:\s*\(?|,)?\s*(?:in the world|on earth|ever|of all time|in the solar system|in history|"
+                       r"known|recorded|\)|,|\.|;|$)", re.I)
+
+
+def _implausible(q: str, answer: str | None, evidence: str | None) -> bool:
+    """A looked-up short answer that cannot be meant: a count for "who …?" ("two goals was the top
+    scorer"), or a superlative the evidence does not say about it — the biggest *commercial success*
+    is no planet, and the tallest mountain *outside Asia* is not the tallest mountain."""
+    if not answer or not evidence:
+        return False
+    if re.match(r"^\s*who\b", q, re.I) and _NUMBERISH.match(answer):
+        return True
+    m = _SUPERLATIVE_Q.match(q)
+    if not m or m.group("rest").strip():
+        return False
+    ev = evidence.lower()
+    sup, noun = m.group("sup").lower(), m.group("noun").lower().split()[0].rstrip("s")
+    a = ev.find(answer.lower())
+    for hit in re.finditer(re.escape(sup), ev):
+        after = ev[hit.end():]
+        nm = re.match(r"(?:\s+[a-z-]+){0,2}?\s+(" + re.escape(noun) + r"s?)\b", after)
+        if nm:
+            # "the tallest mountain outside Asia" restricts what the question does not
+            return not _SUP_FREE.match(after[nm.end():])
+        if a >= 0 and abs(hit.start() - a) <= len(answer) + 12:
+            return not _SUP_FREE.match(after)     # "Pacific (the largest), Atlantic …"
+    return True
+
+
+_DISLIKE = re.compile(r"^(?:honestly,? |tbh,? |to be honest,? |well,? )?i (?:really |just |honestly )?"
+                      r"(?:(?:don'?t|do not|never|can'?t|cannot) (?:really |much |even |particularly )?"
+                      r"(?:like|love|enjoy|stand|care for)|hate|dislike|detest|can'?t stand) "
+                      r"(?P<x>(?!it\b|that\b|this\b|when\b|how\b|my\b|you\b|people\b|being\b|having\b)"
+                      r"[a-z][a-z' -]{1,40}?)(?: (?:much|at all|very much|that much|anymore|tbh|honestly))?[.!]*$", re.I)
+_LIKES_Q = re.compile(r"^(?:so |and )?what (?:do|did) i (?P<neg>not |n't |never )?(?P<v>like|love|enjoy|hate|dislike)"
+                      r"(?: again)?\s*\??$|^what (?:don'?t|do not|didn'?t) i (?P<v2>like|love|enjoy)\s*\??$", re.I)
+_DAY_WAS = re.compile(r"^(?:ugh |man |well |honestly |omg )?(?P<what>work|school|class|uni|college|today|the day|my day|"
+                      r"it|my shift|the shift|practice|training|the meeting|my exam|the exam) (?:was|has been|is being) "
+                      r"(?:so |really |super |pretty |very |kinda |quite |such )?(?:(?P<bad>long|exhausting|tiring|rough|hard|"
+                      r"stressful|a lot|busy|crazy|awful|terrible|horrible|bad|boring|draining|brutal|hectic|a nightmare|"
+                      r"the worst|annoying|frustrating)|(?P<good>good|great|fun|nice|amazing|awesome|fine|okay|productive|"
+                      r"chill|relaxing|easy|the best))(?: (?:today|honestly|tbh|lol))?[.!]*$")
+_WORKOUT_DONE = re.compile(r"^(?:so |well |today |yesterday |earlier )?i (?:just |finally |also )?(?:went to the gym|hit the gym|"
+                           r"worked out|did a workout|went for a (?:run|jog|swim|walk|bike ride|ride|hike)|went (?:running|jogging|"
+                           r"swimming|hiking|cycling|biking|climbing|bouldering)|did (?:yoga|pilates|crossfit|cardio|leg day|"
+                           r"some exercise|a hiit class|hiit)|ran (?:\d+|a|five|ten) ?(?:k|km|miles?|kilometers?|kilometres?)|"
+                           r"played (?:football|soccer|tennis|basketball|squash|badminton|volleyball|golf|padel)|"
+                           r"had (?:football|soccer|tennis|basketball) practice|lifted(?: weights)?)"
+                           r"(?: today| this morning| tonight| earlier| yesterday| after work)?[.!]*$")
+_HOW_IT_WENT = re.compile(r"^(?:it was |it's been |was |that was |honestly |pretty |really |so |super |kinda )*(?:(?P<hard>hard|tough|"
+                          r"brutal|exhausting|tiring|intense|killer|a struggle|rough|difficult)|(?P<good>good|great|amazing|fun|"
+                          r"awesome|nice|easy|fine|solid)|(?P<meh>ok|okay|alright|meh|so-so))(?: (?:honestly|tbh|lol|actually))?[.!]*$")
+_DAY_MEH = re.compile(r"^(?:mine|my day|it|today|the day)(?: was| has been|'s been| is) (?:ok|okay|alright|fine|meh|so-so|"
+                      r"not bad|average|nothing special)(?: i guess| i suppose| honestly| tbh)?[.!]*$")
+_GOAL = re.compile(r"^(?:i (?:really |kinda |kind of )?(?:want|would like|wanna|need|plan|am planning|'m planning|am trying|"
+                   r"'m trying|hope|am going|'m going|gotta)(?: to)?|my goal is to) (?P<goal>(?:get|be|become|lose|build|run|"
+                   r"learn|start|stop|quit|save|eat|sleep|read|exercise|work out|drink|cut down)\b.{2,50}?)[.!]*$")
+_GOAL_TOPICS = [("fitness", re.compile(r"\b(?:fit|fitter|in shape|stronger|muscle|weight|marathon|run|running|exercise|"
+                                       r"work out|athletic|abs|healthier)\b")),
+                ("learning", re.compile(r"^learn\b")),
+                ("money", re.compile(r"\b(?:save|saving)\b.*\bmoney\b|\bsave up\b|\bbudget\b")),
+                ("sleep", re.compile(r"\bsleep\b")),
+                ("habit", re.compile(r"^(?:quit|stop|cut down)\b"))]
+_TIPS = re.compile(r"^(?:so |ok |okay )?(?:any |some |got any |do you have (?:any )?)?(?:tips|advice|suggestions|ideas|pointers)"
+                   r"(?: for me| on that| for that)?\??$|^(?:how|where) (?:do|should) i (?:start|begin)\??$|^how\??$")
+_DIET = re.compile(r"^(?:btw |by the way |oh |also )?i(?:'m| am) (?:a |actually |also |now )?(?P<diet>vegetarian|vegan|"
+                   r"pescatarian|gluten[- ]free|lactose intolerant|on a diet)(?: now| btw| actually)?[.!]*$")
+_POST_WORKOUT = re.compile(r"^what (?:should|can|could|do) i (?:eat|have)(?: after| post| before)(?: a| my| the)? "
+                           r"(?:workout|work out|gym|training|run|exercise|session)\??$|^(?:good |any )?post[- ]workout "
+                           r"(?:food|meal|snack)s?\??$")
+_PET_PEEVE = re.compile(r"^i (?:really |just )?(?:don'?t like|do not like|hate|can'?t stand|cannot stand|dislike) "
+                        r"(?:it )?when\b.{3,}", re.I)
+_RELATABLE = re.compile(r"(?:mondays?|tuesdays?|wednesdays?|thursdays?|fridays?|sundays?|mornings?|early mornings|"
+                        r"waking up early|getting up early|alarms?|alarm clocks?|rain|rainy days|winter|the cold|cold weather|"
+                        r"the heat|hot weather|summer|traffic|commuting|the commute|homework|exams?|tests|waiting|queues|"
+                        r"lines|cleaning|chores|housework|laundry|dishes|doing the dishes|meetings|emails|taxes|"
+                        r"the dentist|dentists|spiders|mosquitos|mosquitoes|bugs|small talk|crowds|noise|snow)", re.I)
+_TOPIC_EDGE = set("""who whom whose what which when where why how is are was were be been do does did done has have had
+won win wins winning lost lose the a an of in on at for to by from with and or but about i me my you your he she it they
+him her them his its their this that these those there here top best first last most many much old""".split())
 _AGREE = re.compile(r"(?:yeah|yes|yep|yup|exactly|right|true|totally|definitely|absolutely|pretty much|kind of|kinda|"
                     r"sort of|i guess|i know|tell me about it|same|for real)(?:[ ,]+(?:yeah|exactly|right|true|totally|"
                     r"lol|haha|man|honestly))*[!. ]*")

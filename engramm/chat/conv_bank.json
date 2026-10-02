@@ -266,7 +266,7 @@
    {
     "id": "apology",
     "patterns": [
-     "(i'm |i am |i'm so |i am so |so |very )?(sorry|my bad|apologies|i apologi[sz]e|oops|whoops|pardon|excuse me)( about that| for that| for (the|my) (mistake|typo|confusion))?"
+     "(i'm |i am |i'm so |i am so |so |very )?(sorry|my bad|apologies|i apologi[sz]e|oops|whoops|pardon|excuse me)( about that| for that| for (the|my) (mistake|typo|confusion)|,? (typo|autocorrect|wrong button|wrong chat|wrong window|my fault|fat fingers|slipped))?"
     ],
     "examples": [
      "sorry",
@@ -416,7 +416,7 @@
    {
     "id": "nothing_much",
     "patterns": [
-     "(nothing|nothing much|not much|nm|nmu|nothing really|nothing special|same old|same as always|just chilling|just relaxing|chilling|just bored|just hanging out|nothing new)"
+     "(nothing|nothing much|not much|nm|nmu|nothing really|nothing special|same old|same as always|just chilling|just relaxing|chilling|just hanging out|nothing new)"
     ],
     "examples": [
      "nothing much",
@@ -548,7 +548,7 @@
    {
     "id": "user_bored",
     "patterns": [
-     "i'm (so |really |very )?bored|i am (so |really |very )?bored|so bored|bored|i'm bored out of my mind|this is boring|nothing to do|i have nothing to do"
+     "((not much|nothing much|nothing|nm|eh|meh)[, ]+)?(i'm |i am |im )?(just |so |really |very |kinda |kind of |pretty |a bit |a little )?bored( honestly| tbh| af| lol| out of my mind)?|this is boring|nothing to do|i have nothing to do|(idk|i don't know|i dont know) what to do (with myself|today|now|rn|right now|tonight)|what should i do (today|now|rn|right now|tonight)( i'm bored)?"
     ],
     "examples": [
      "i'm bored",
@@ -1051,14 +1051,12 @@
    {
     "id": "bot_feelings",
     "patterns": [
-     "do you have (feelings|emotions|a heart|a soul|a mind|consciousness|a personality)|can you (feel|love|think|be sad|be happy|get angry|get tired|get bored)|are you (conscious|sentient|alive|self aware|self-aware|happy|sad|lonely|angry|okay|ok|tired|bored|scared|afraid|in pain)|do you (feel|think|dream|sleep|breathe|get tired|get bored|get lonely|have dreams|need sleep|need food)|what do you feel|how do you feel( about (that|this|it|me))?|do you get (lonely|bored|tired|sad)|are you ever (sad|lonely|bored)|do you like your job|are you enjoying (this|our conversation)|do you enjoy talking( to me)?"
+     "do you have (feelings|emotions|a heart|a soul|a mind|consciousness|a personality)|can you (feel|love|think|be sad|be happy|get angry|get tired|get bored)|are you (conscious|sentient|alive|self aware|self-aware|happy|sad|lonely|angry|okay|ok|tired|bored|scared|afraid|in pain)|do you (feel|think|breathe|get bored|get lonely|need food)|what do you feel|how do you feel( about (that|this|it|me))?|do you get (lonely|bored|tired|sad)|are you ever (sad|lonely|bored)|do you like your job|are you enjoying (this|our conversation)|do you enjoy talking( to me)?"
     ],
     "examples": [
      "do you have feelings",
      "are you conscious",
      "can you feel",
-     "do you sleep",
-     "do you dream",
      "are you happy",
      "are you lonely"
     ],
@@ -1266,6 +1264,23 @@
      "Sure! What would you like to talk about?",
      "Okay, fresh start — what's on your mind?",
      "Happy to. Anything you're curious about, or shall I suggest something?"
+    ]
+   },
+   {
+    "id": "bot_sleep",
+    "patterns": [
+     "(do|can) you (ever )?(sleep|dream|rest|take breaks?|get some sleep)( at all)?|do you need (sleep|rest|a break)|are you (ever )?(sleepy|awake)|don't you (ever )?(sleep|get tired)|when do you sleep"
+    ],
+    "examples": [
+     "do you sleep",
+     "do you dream",
+     "when do you sleep",
+     "do you need sleep"
+    ],
+    "responses": [
+     "No sleep for me — I'm here whenever you open the app. Do you sleep well?",
+     "Never! No dreams either, sadly. How about you — getting enough sleep?",
+     "I don't sleep; I just wait quietly until you write. Are you a night owl or an early bird?"
     ]
    },
    {
@@ -5726,6 +5741,167 @@
   "exp_agree_pos": [
    "Love that! What made it so good?",
    "Nice — that sounds really good. Tell me more?"
-  ]
+  ],
+  "topic_gap": [
+   "I can't pin that down for sure — the closest answer I found was about something other than {x}, so I'd rather not guess.",
+   "I'd rather not guess: I couldn't find that clearly in what I've read about {x}."
+  ],
+  "topic_gap_ongoing": [
+   "I don't know — my offline text on {x} was written while it was still under way, so it doesn't have the outcome.",
+   "My offline article on {x} is from before it ended, so I can't tell you the result for sure."
+  ],
+  "topic_gap_online": [
+   "With Internet access switched on, I can check the current Wikipedia article."
+  ],
+  "dislike": [
+   "Fair enough — I'll remember you're not a fan of {x}. What do you enjoy instead?",
+   "Got it, not really your thing then. What are you into instead?",
+   "Noted — no {x} for you, then. So what do you like doing?"
+  ],
+  "likes_list": [
+   "You've told me you like {x}.",
+   "From what you've told me: {x}."
+  ],
+  "dislikes_list": [
+   "You've told me you're not a fan of {x}.",
+   "From what you've said, {x} — not your thing."
+  ],
+  "likes_none": [
+   "You haven't told me yet — what do you like?",
+   "I don't know yet. Tell me, and I'll remember it!"
+  ],
+  "dislike_relatable": [
+   "Ha, {x} can be rough. What's the worst part for you?",
+   "Oh, I hear that a lot about {x}. What gets to you most?"
+  ],
+  "pet_peeve": [
+   "That's fair — that would annoy me too. Does it happen a lot?",
+   "I get that. It's frustrating, isn't it? Did something like that happen today?"
+  ],
+  "why_smalltalk": [
+   "Honestly? No deep reason — it just feels right to me. What about you?",
+   "Good question! I guess it just appeals to me. What's yours?",
+   "No big reason, really. Why do you ask?"
+  ],
+  "day_bad": [
+   "Ugh, sounds draining. What made {x} so rough?",
+   "Oh no. Do you want to vent about it, or would a distraction help more?",
+   "I'm sorry — that sounds like a lot. What happened?"
+  ],
+  "day_good": [
+   "Nice! What went well?",
+   "Love to hear it. What made {x} so good?",
+   "That's great! Anything in particular that made it good?"
+  ],
+  "workout_done": [
+   "Nice, good for you! How did it go?",
+   "Love that! How was the workout?",
+   "Good job getting it done! How did you feel?"
+  ],
+  "workout_hard": [
+   "The tough ones count the most! What did you do?",
+   "Oof, sounds like you really pushed yourself. Make sure you eat and rest well tonight!",
+   "Hard means it's working! Are you sore already?"
+  ],
+  "workout_good": [
+   "That's the best feeling! What did you do?",
+   "Nice! Days like that keep you going. What's next on your plan?"
+  ],
+  "workout_meh": [
+   "Not every session is a great one — showing up still counts!",
+   "Fair enough. Still better than skipping it!"
+  ],
+  "day_meh": [
+   "Just okay, huh? Anything in particular on your mind?",
+   "Ah, one of those days. Anything that would make the rest of it better?",
+   "Okay is fine too! Anything happen, or just a normal day?"
+  ],
+  "goal": {
+   "fitness": [
+    "That's a great goal! Are you thinking more strength, cardio, or just moving more in general?",
+    "Love it! Do you already have a routine, or are you starting fresh?"
+   ],
+   "learning": [
+    "That's exciting! What got you interested?",
+    "Great idea! Are you starting from scratch?"
+   ],
+   "money": [
+    "Smart goal! Is it for something specific?",
+    "Good plan! Do you have a target amount in mind?"
+   ],
+   "sleep": [
+    "Good sleep changes everything. What's getting in the way at the moment?"
+   ],
+   "habit": [
+    "That takes real willpower — good for you! How long have you been thinking about it?"
+   ],
+   "other": [
+    "That's a great goal! What's your plan so far?",
+    "Sounds good! What made you decide that?"
+   ]
+  },
+  "tips_head": [
+   "A few things that help most people:",
+   "Here's what usually works:"
+  ],
+  "tips": {
+   "fitness": [
+    "Start small: three short sessions a week beat one huge one you can't keep up.",
+    "Mix strength (twice a week) with something that gets your heart rate up.",
+    "Protein with every meal and enough sleep make a bigger difference than most people think.",
+    "Track it — even a note on your phone — so you can see your progress."
+   ],
+   "learning": [
+    "Practise a little every day instead of a lot once a week.",
+    "Learn by doing: a small project or real conversations stick better than reading alone.",
+    "Find a partner or a group — it keeps you motivated."
+   ],
+   "money": [
+    "Pay yourself first: move a fixed amount to savings right after payday.",
+    "Check your subscriptions — they add up quietly.",
+    "Give your savings a name and a goal, it makes them easier to protect."
+   ],
+   "sleep": [
+    "Same bedtime and wake-up time every day, even on weekends.",
+    "No screens for the last half hour before bed.",
+    "Keep the bedroom cool, dark and quiet, and skip caffeine after lunch."
+   ],
+   "habit": [
+    "Pick a start date and tell someone — it makes it real.",
+    "Replace the habit with something else instead of just stopping.",
+    "Expect slip-ups; one bad day doesn't undo the progress."
+   ]
+  },
+  "diet_noted": [
+   "Got it — {x}. I'll keep that in mind for food ideas!",
+   "Noted, {x}! That'll help when you ask me what to cook."
+  ],
+  "post_workout": {
+   "head": [
+    "Good options after a workout:",
+    "Here's what works well after training:"
+   ],
+   "any": [
+    "Greek yoghurt with fruit and some granola",
+    "eggs on wholegrain toast",
+    "a chicken or tofu rice bowl with vegetables",
+    "a banana with peanut butter",
+    "a protein smoothie with milk, banana and oats"
+   ],
+   "vegetarian": [
+    "Greek yoghurt with fruit and some granola",
+    "eggs on wholegrain toast",
+    "a tofu or chickpea rice bowl with vegetables",
+    "a banana with peanut butter",
+    "a smoothie with milk, banana and oats"
+   ],
+   "vegan": [
+    "a tofu or tempeh rice bowl with vegetables",
+    "a banana with peanut butter",
+    "oats with soy milk, berries and nuts",
+    "hummus wrap with lots of veggies",
+    "lentil soup with bread"
+   ]
+  }
  }
 }

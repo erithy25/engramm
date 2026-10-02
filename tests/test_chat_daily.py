@@ -333,3 +333,78 @@ def test_questions_about_the_bot_itself(chat):
     a.turn(st, "what should I cook tonight")
     r = a.turn(st, "something with chicken")
     assert "hicken" in r.text, r.text
+
+
+def test_dislikes_are_not_favourites(chat):
+    a, st = chat
+    r = a.turn(st, "i dont like movies")
+    assert "work as" not in r.text and r.text.rstrip().endswith("?"), r.text
+    a.turn(st, "i love pizza")
+    r = a.turn(st, "what do i like")
+    assert "pizza" in r.text and "movies" not in r.text, r.text
+    r = a.turn(st, "what don't i like")
+    assert "movies" in r.text, r.text
+    r = a.turn(st, "i hate mondays")
+    assert "Mondays" in r.text and "no mondays" not in r.text, r.text
+
+
+def test_dislike_facts_from_text():
+    from engramm.chat.facts import facts_from_text
+    fs = facts_from_text("I don't like horror movies.", "s1")
+    assert fs and all("#fav" not in f.relation and "#dislike" in f.relation for f in fs)
+
+
+def test_everyday_life_turns(chat):
+    a, st = chat
+    r = a.turn(st, "i went to the gym")
+    assert "How" in r.text and "remember" not in r.text, r.text
+    r = a.turn(st, "it was hard")
+    assert "vent" not in r.text, r.text
+    a.turn(st, "i want to get fitter")
+    r = a.turn(st, "any tips")
+    assert "•" in r.text and "sleep on it" not in r.text, r.text
+    r = a.turn(st, "i'm vegetarian")
+    assert "tastes like" not in r.text and "vegetarian" in r.text, r.text
+    r = a.turn(st, "what should i eat after my workout")
+    assert "vegetarian" in r.text and "chicken" not in r.text.lower(), r.text
+    r = a.turn(st, "mine was ok i guess")
+    assert "remember" not in r.text, r.text
+
+
+def test_small_talk_without_context(chat):
+    a, st = chat
+    r = a.turn(st, "do you sleep")
+    assert "sleep" in r.text.lower() and "feelings" not in r.text, r.text
+    r = a.turn(st, "what's your favorite color")
+    r = a.turn(st, "why")
+    assert "source" not in r.text, r.text
+    r = a.turn(st, "cool")
+    assert "surprising" not in r.text, r.text
+    r = a.turn(st, "not much, just bored")
+    assert "joke" in r.text or "fact" in r.text, r.text
+    r = a.turn(st, "work was long")
+    assert r.text.rstrip().endswith("?"), r.text
+
+
+def test_gibberish_never_fills_a_slot(chat):
+    a, st = chat
+    a.turn(st, "do you eat")
+    r = a.turn(st, "asdfgh")
+    assert "good choice" not in r.text and "remember" not in r.text, r.text
+
+
+def test_implausible_lookup_answers():
+    from engramm.chat.dialog import _implausible
+    assert _implausible("who was the top scorer", "two goals", "finished as top scorer with two goals.")
+    assert _implausible("what is the biggest planet", "Apes",
+                        "Her biggest commercial success came with Rise of the Planet of the Apes (2011).")
+    assert _implausible("what is the tallest mountain", "Aconcagua",
+                        "Aconcagua, the tallest mountain outside Asia, lies in the Principal Cordillera.")
+    assert not _implausible("what is the largest ocean", "Pacific",
+                            "Five areas of the ocean: Pacific (the largest), Atlantic, Indian, Southern and Arctic.")
+    assert not _implausible("who wrote Hamlet", "William Shakespeare", "Hamlet is a tragedy by William Shakespeare.")
+
+
+def test_kb_numbers_in_names_and_namesakes():
+    from engramm.kb.kgqa import _ROMAN
+    assert _ROMAN["2"] == "ii" and _ROMAN["two"] == "ii"

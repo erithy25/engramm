@@ -318,6 +318,10 @@ def _join(items: list[str]) -> str:
     return ", ".join(items[:-1]) + " and " + items[-1]
 
 
+_ROMAN = {"1": "i", "2": "ii", "3": "iii", "4": "iv", "5": "v", "one": "i", "two": "ii", "three": "iii",
+          "four": "iv", "five": "v"}
+
+
 class KGQA:
     def __init__(self, bank: FactBank, today: dt.date | None = None):
         self.kb = bank
@@ -331,11 +335,34 @@ class KGQA:
             tries.append(re.sub(r"^the\s+", "", phrase, flags=re.I))
         else:
             tries.append("The " + phrase)
+        for t in list(tries):
+            # "world war 2" / "world war two" → "world war ii"
+            m = re.fullmatch(r"(.+?)\s+(1|2|3|4|5|one|two|three|four|five)", t, re.I)
+            if m:
+                tries.append(f"{m.group(1)} {_ROMAN[m.group(2).lower()]}")
         seen: dict[int, tuple[Entity, int]] = {}
         for t in tries:
             for e, k in self.kb.link(t, limit=12):
                 if e.id not in seen or k < seen[e.id][1]:
                     seen[e.id] = (e, k)
+        m = re.fullmatch(r"(?:the\s+)?(.+?)\s+((?:1[5-9]|20)\d\d)", phrase, re.I)
+        if not seen and m:
+            # "world cup 2022" → "2022 FIFA World Cup": the year in front, the words in order
+            pat = m.group(2) + " %" + "%".join(m.group(1).split())
+            for (eid,) in self.kb.db.execute("SELECT id FROM entity WHERE title LIKE ? ORDER BY popularity DESC LIMIT 3",
+                                             (pat,)).fetchall():
+                e = self.kb.entity(eid)
+                if e is not None and not re.search(r"qualification|squad|final$|bids?$", e.title, re.I):
+                    seen[e.id] = (e, 1)
+        # "who wrote Harry Potter?": the book has no author fact, but the film series has writers —
+        # a namesake of another kind with a "(…)" qualifier the question does not use is not meant
+        exact = [e for e, k in seen.values() if k == 0 and "(" not in e.title and (not kinds or e.type in kinds)]
+        for x in exact:
+            if not self.kb.facts(x.id, props):
+                for eid, (e, k) in list(seen.items()):
+                    if e.id != x.id and re.sub(r"\s*\([^)]*\)$", "", e.title).lower() == x.title.lower() \
+                            and e.type != x.type:
+                        del seen[eid]
         scored = []
         for e, k in seen.values():
             has = bool(self.kb.facts(e.id, props))

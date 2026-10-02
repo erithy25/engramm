@@ -153,7 +153,7 @@ intents:
       - "No problem at all."
 
   - id: apology
-    patterns: ['(i''m |i am |i''m so |i am so |so |very )?(sorry|my bad|apologies|i apologi[sz]e|oops|whoops|pardon|excuse me)( about that| for that| for (the|my) (mistake|typo|confusion))?']
+    patterns: ['(i''m |i am |i''m so |i am so |so |very )?(sorry|my bad|apologies|i apologi[sz]e|oops|whoops|pardon|excuse me)( about that| for that| for (the|my) (mistake|typo|confusion)|,? (typo|autocorrect|wrong button|wrong chat|wrong window|my fault|fat fingers|slipped))?']
     examples: [sorry, my bad, oops, i apologize, sorry about that]
     responses:
       - "No worries at all!"
@@ -216,7 +216,7 @@ intents:
       - "Great! Ask me anything, or tell me what you're up to."
 
   - id: nothing_much
-    patterns: ['(nothing|nothing much|not much|nm|nmu|nothing really|nothing special|same old|same as always|just chilling|just relaxing|chilling|just bored|just hanging out|nothing new)']
+    patterns: ['(nothing|nothing much|not much|nm|nmu|nothing really|nothing special|same old|same as always|just chilling|just relaxing|chilling|just hanging out|nothing new)']
     examples: [nothing much, not much, just chilling, same old]
     responses:
       - "Sounds relaxing. Want to hear a fun fact, or is there something you're curious about?"
@@ -277,7 +277,7 @@ intents:
       - "Happy to pick something."
 
   - id: user_bored
-    patterns: ['i''m (so |really |very )?bored|i am (so |really |very )?bored|so bored|bored|i''m bored out of my mind|this is boring|nothing to do|i have nothing to do']
+    patterns: ['((not much|nothing much|nothing|nm|eh|meh)[, ]+)?(i''m |i am |im )?(just |so |really |very |kinda |kind of |pretty |a bit |a little )?bored( honestly| tbh| af| lol| out of my mind)?|this is boring|nothing to do|i have nothing to do|(idk|i don''t know|i dont know) what to do (with myself|today|now|rn|right now|tonight)|what should i do (today|now|rn|right now|tonight)( i''m bored)?']
     examples: [i'm bored, i am so bored, bored, nothing to do]
     responses:
       - "Let's fix that! Want a joke, a fun fact, or should I ask you a few questions?"
@@ -501,8 +501,8 @@ intents:
       - "Right here on your computer! I don't run in the cloud — everything I do happens locally, and nothing you say leaves your machine."
 
   - id: bot_feelings
-    patterns: ['do you have (feelings|emotions|a heart|a soul|a mind|consciousness|a personality)|can you (feel|love|think|be sad|be happy|get angry|get tired|get bored)|are you (conscious|sentient|alive|self aware|self-aware|happy|sad|lonely|angry|okay|ok|tired|bored|scared|afraid|in pain)|do you (feel|think|dream|sleep|breathe|get tired|get bored|get lonely|have dreams|need sleep|need food)|what do you feel|how do you feel( about (that|this|it|me))?|do you get (lonely|bored|tired|sad)|are you ever (sad|lonely|bored)|do you like your job|are you enjoying (this|our conversation)|do you enjoy talking( to me)?']
-    examples: [do you have feelings, are you conscious, can you feel, do you sleep, do you dream, are you happy, are you lonely]
+    patterns: ['do you have (feelings|emotions|a heart|a soul|a mind|consciousness|a personality)|can you (feel|love|think|be sad|be happy|get angry|get tired|get bored)|are you (conscious|sentient|alive|self aware|self-aware|happy|sad|lonely|angry|okay|ok|tired|bored|scared|afraid|in pain)|do you (feel|think|breathe|get bored|get lonely|need food)|what do you feel|how do you feel( about (that|this|it|me))?|do you get (lonely|bored|tired|sad)|are you ever (sad|lonely|bored)|do you like your job|are you enjoying (this|our conversation)|do you enjoy talking( to me)?']
+    examples: [do you have feelings, are you conscious, can you feel, are you happy, are you lonely]
     responses:
       - "I don't have feelings the way you do — I'm a program. But I'm built to be friendly, and I do enjoy a good question, in my own way."
       - "No — no feelings, no sleep, no dreams. Just counting and rules. Which means I never get tired of your questions!"
@@ -607,6 +607,14 @@ intents:
       - "Sure! What would you like to talk about?"
       - "Okay, fresh start — what's on your mind?"
       - "Happy to. Anything you're curious about, or shall I suggest something?"
+
+  - id: bot_sleep
+    patterns: ['(do|can) you (ever )?(sleep|dream|rest|take breaks?|get some sleep)( at all)?|do you need (sleep|rest|a break)|are you (ever )?(sleepy|awake)|don''t you (ever )?(sleep|get tired)|when do you sleep']
+    examples: [do you sleep, do you dream, when do you sleep, do you need sleep]
+    responses:
+      - "No sleep for me — I'm here whenever you open the app. Do you sleep well?"
+      - "Never! No dreams either, sadly. How about you — getting enough sleep?"
+      - "I don't sleep; I just wait quietly until you write. Are you a night owl or an early bird?"
 
   - id: bot_languages
     patterns: ['(what|which) languages? do you (speak|know|understand)|do you speak (?P<x>german|french|spanish|italian|dutch|portuguese|russian|chinese|japanese|arabic|turkish|polish|english|deutsch)|can you speak (?P<x2>german|french|spanish|italian|dutch|portuguese|russian|chinese|japanese|arabic|turkish|polish|english|deutsch)|sprichst du deutsch|kannst du deutsch|parlez-vous français|hablas español|do you understand (german|french|spanish)|can we talk in (german|french|spanish)']

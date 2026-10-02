@@ -661,6 +661,10 @@ def third_person_facts(sentence: str, source: str, initial_is_name=None) -> list
 _IMPLICIT_CONCEPTS = frozenset(("#fav", "#home", "#name", "#birth", "#job", "#employer", "#car", "#food", "#colour"))
 
 
+_NEGATED_LIKE = re.compile(r"\b(?:don'?t|do not|didn'?t|never|not|can'?t|cannot)\s+(?:really\s+|much\s+|even\s+)?"
+                           r"(?:like|love|enjoy|stand|care for|prefer)\b")
+
+
 def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None, typer=None) -> list[Fact]:
     sents = splitter(text) if splitter else re.split(r"(?<=[.!?])\s+", text.strip())
     out = []
@@ -685,6 +689,11 @@ def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None,
         low = norm.lower()
         if re.search(r"\b(i|my|me)\b", low):
             fp = personal_facts(s, source, initial_is_name, typer)
+            if fp and _NEGATED_LIKE.search(low):
+                # "I don't like movies": a dislike, never a favourite
+                fp = [Fact(f.subject, tuple("#dislike" if r == "#fav" else r for r in f.relation)
+                           + (() if "#fav" in f.relation else ("#dislike",)), f.object, f.source, f.sentence, f.kind)
+                      for f in fp]
             out += fp if fp else third_person_facts(s, source, initial_is_name)
             continue
         tp = third_person_facts(s, source, initial_is_name)
