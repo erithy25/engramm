@@ -3902,9 +3902,9 @@
      "wer bist du|was bist du|bist du (eine ki|ein bot|ein roboter|ein mensch|chatgpt)|was kannst du( alles)?|wie funktionierst du"
     ],
     "responses": [
-     "Ich bin ENGRAMM, ein Chat-Assistent ganz ohne neuronales Netz: Ich zähle, folge Regeln und schlage nach. Auf Deutsch kann ich bisher plaudern und zuhören; Wissensfragen beantworte ich noch auf Englisch – mit Quelle.",
-     "Ich heiße ENGRAMM. Ich laufe auf deinem Rechner, merke mir, was du mir erzählst, und vergesse es, wenn du willst. Fakten schlage ich (vorerst auf Englisch) in Wikipedia und Wikidata nach.",
-     "ENGRAMM – ein Assistent aus Zählungen und Regeln statt eines neuronalen Netzes. Deutsch lerne ich gerade erst; Fragen zu Fakten stellst du mir am besten auf Englisch."
+     "Ich bin ENGRAMM, ein Chat-Assistent ganz ohne neuronales Netz: Ich zähle, folge Regeln und schlage nach. Auf Deutsch kann ich plaudern, zuhören, rechnen, Uhrzeit und Datum sagen und häufige Wissensfragen beantworten („Wer hat Faust geschrieben?“, „Was ist die Hauptstadt von Spanien?“) – immer mit Quelle. Längere Texte schreibe ich auf Englisch.",
+     "Ich heiße ENGRAMM. Ich laufe auf deinem Rechner, merke mir, was du mir erzählst, und vergesse es, wenn du willst. Fakten schlage ich in Wikipedia und Wikidata nach – häufige Fragen auch auf Deutsch, alles andere am besten auf Englisch.",
+     "ENGRAMM – ein Assistent aus Zählungen und Regeln statt eines neuronalen Netzes. Auf Deutsch klappen Plaudern und häufige Faktenfragen; für ausgefallene Wissensfragen ist mein Englisch besser."
     ]
    },
    {
