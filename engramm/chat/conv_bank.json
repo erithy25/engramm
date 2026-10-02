@@ -3822,7 +3822,7 @@
    {
     "id": "how_are_you",
     "patterns": [
-     "wie gehts( dir)?|wie geht es dir|wie geht s dir|wie geht s|wie gehts so|alles (gut|klar)( bei dir)?|was geht"
+     "(na,? )?(wie gehts( dir)?|wie geht es dir|wie geht s dir|wie geht s|wie gehts so|wie geht s so|alles (gut|klar|fit)( bei dir)?|was geht|wie läufts|wie läuft s|wie läuft es( so| bei dir)?|wie läufts so|alles fit)( bei dir)?"
     ],
     "responses": [
      "Mir geht es gut, danke! Ich bin ein Programm, also ist jeder Tag ziemlich gleich – aber ein guter. Und dir?",
@@ -3870,7 +3870,7 @@
    {
     "id": "bye",
     "patterns": [
-     "(tschüss|tschüs|tschau|ciao|bis bald|bis später|bis dann|bis morgen|auf wiedersehen|ich geh dann|mach s gut|machs gut)( engramm)?"
+     "(tschüss|tschüs|tschau|ciao|bis bald|bis später|bis dann|bis morgen|auf wiedersehen|ich geh dann|mach s gut|machs gut)( engramm)?|((ich wünsch(e)? dir |hab |habe |wünsch dir )?(noch )?(einen )?schönen (abend|tag|nachmittag|sonntag|feierabend|start in die woche)( noch)?|schönes wochenende( noch)?)( engramm)?"
     ],
     "responses": [
      "Tschüss! Bis zum nächsten Mal.",
@@ -3917,7 +3917,7 @@
    {
     "id": "user_fine",
     "patterns": [
-     "(mir geht s|mir gehts|mir geht es|bei mir( ist)?( alles)?|alles|mir geht s auch|mir gehts auch) (gut|super|bestens|prima|klar|ok|okay|ganz gut|gut soweit)(,? danke|,? danke dir|,? danke der nachfrage)?(,? und dir)?[!.]*"
+     "((mir geht s|mir gehts|mir geht es|bei mir( ist)?( alles)?|alles|mir geht s auch|mir gehts auch) )?(gut|super|bestens|prima|klar|ok|okay|ganz gut|gut soweit|passt|läuft|läuft gut|geht so|alles gut)(,? danke|,? danke dir|,? danke der nachfrage)?(,? und (bei )?dir|,? und wie geht s dir)?[!.]*"
     ],
     "responses": [
      "Freut mich zu hören! Was steht heute bei dir an?",
@@ -3928,7 +3928,7 @@
    {
     "id": "joke",
     "patterns": [
-     "(erzähl|erzähle|sag) (mir )?(einen|nen|mal einen|noch einen) witz|kennst du (einen|nen) witz|witz( bitte)?|mach (mal )?einen witz"
+     "(erzähl|erzähle|sag) (mir )?(einen|nen|mal einen|noch einen) witz|kennst du (einen|nen) witz|witz( bitte)?|mach (mal )?einen witz|(erzähl|erzähle|sag) (mir )?(mal )?(was|etwas) (lustiges|witziges)|was lustiges( bitte)?|bring mich zum lachen"
     ],
     "responses": [
      "Treffen sich zwei Zahlen. Sagt die Null zur Acht: „Schicker Gürtel!“",
@@ -4301,6 +4301,9 @@
    "dislike_relatable": [
     "Ha, {x} können echt hart sein. Was nervt dich am meisten daran?",
     "Oh, das höre ich oft über {x}. Was ist das Schlimmste daran?"
+   ],
+   "knowledge_de": [
+    "Das kann ich auf Deutsch leider noch nicht nachschlagen. Frag mich gern auf Englisch – dann suche ich in meinen Quellen."
    ]
   }
  },

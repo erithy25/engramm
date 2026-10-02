@@ -31,6 +31,13 @@ EXONYMS = {
     "mailand": "Milan", "venedig": "Venice", "florenz": "Florence", "neapel": "Naples", "prag": "Prague",
     "warschau": "Warsaw", "moskau": "Moscow", "peking": "Beijing", "lissabon": "Lisbon", "brüssel": "Brussels",
     "kopenhagen": "Copenhagen", "athen": "Athens", "genf": "Geneva", "zürich": "Zurich", "kairo": "Cairo",
+    "relativitätstheorie": "theory of relativity", "die relativitätstheorie": "theory of relativity",
+    "glühbirne": "light bulb", "die glühbirne": "light bulb", "telefon": "telephone", "das telefon": "telephone",
+    "buchdruck": "printing press", "den buchdruck": "printing press", "dampfmaschine": "steam engine",
+    "die dampfmaschine": "steam engine", "flugzeug": "airplane", "das flugzeug": "airplane", "auto": "automobile",
+    "das auto": "automobile", "fernseher": "television", "den fernseher": "television", "das internet": "Internet",
+    "penizillin": "penicillin", "das penizillin": "penicillin", "die schwerkraft": "gravity", "dynamit": "dynamite",
+    "das dynamit": "dynamite", "die evolutionstheorie": "evolution", "das rad": "wheel", "den computer": "computer",
     "mond": "Moon", "sonne": "Sun", "erde": "Earth", "mars": "Mars", "eiffelturm": "Eiffel Tower",
     "freiheitsstatue": "Statue of Liberty", "brandenburger tor": "Brandenburg Gate", "kölner dom": "Cologne Cathedral",
     "rhein": "Rhine", "donau": "Danube", "nil": "Nile", "amazonas": "Amazon River", "alpen": "Alps",
@@ -52,6 +59,7 @@ RULES = [
     (rf"wer malte {_X}", "who painted {x}", "painted"),
     (rf"wer hat {_X} erfunden", "who invented {x}", "invented"),
     (rf"wer hat {_X} entdeckt", "who discovered {x}", "discovered"),
+    (rf"wer hat {_X} entwickelt", "who developed {x}", "invented"),
     (rf"wer hat {_X} gegründet", "who founded {x}", "founded_by"),
     (rf"wer hat {_X} (?:gebaut|entworfen)", "who designed {x}", "designed"),
     (rf"wer hat {_X} komponiert", "who composed {x}", "composed"),
@@ -153,6 +161,13 @@ def to_english(norm: str) -> tuple[str, str, str, str] | None:
     return None
 
 
+_GERMAN_OF: dict[str, str] = {}
+for _de, _en in EXONYMS.items():          # the first German name of a place is its usual one
+    if _en[:1].isupper() and not _de.startswith(("die ", "der ", "das ", "den ")) and _de.title() != _en \
+            and _en not in ("England", "Israel", "Iran", "China", "Japan", "Portugal", "Mars", "Zugspitze"):
+        _GERMAN_OF.setdefault(_en, " ".join(w[:1].upper() + w[1:] for w in _de.split()))
+
+
 def de_value(v: str) -> str:
     """'24 April 1452' → '24. April 1452'; '68,605,616' → '68.605.616'; 'X and Y' → 'X und Y'."""
     v = re.sub(r"^(?:on|in) ", "", v.strip())
@@ -164,7 +179,9 @@ def de_value(v: str) -> str:
     v = re.sub(r"(?<=\d)\.(?=\d{1,2}\b)(?!\d{3})", ",", v) if "km²" in v or " m" in v else v
     v = v.replace(" and ", " und ").replace(" (among others)", " (unter anderem)").replace("sq mi", "Quadratmeilen")
     v = v.replace(" BC", " v. Chr.").replace("(as of my data)", "(Stand meiner Daten)")
-    return v
+    # English place names back to their German names ("Rome" → "Rom", "Munich" → "München")
+    return re.sub(r"\b(" + "|".join(re.escape(k) for k in sorted(_GERMAN_OF, key=len, reverse=True)) + r")\b",
+                  lambda m: _GERMAN_OF[m.group(1)], v) if _GERMAN_OF else v
 
 
 SENTENCES = {

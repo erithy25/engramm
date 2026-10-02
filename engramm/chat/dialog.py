@@ -198,6 +198,9 @@ class Assistant:
                 group = self.everyday._advice_group(exp.get("text_en") or exp.get("text") or "", exp)
                 group = group if group in dd["advice"] else "generic"
                 return Reply(msg, "smalltalk", self._pick(st, f"de:advice:{group}", dd["advice"][group]), via="german")
+            de_extra = self._german_extra(st, msg, s)
+            if de_extra is not None:
+                return de_extra
             bridged = self._german_question(st, msg, s)
             if bridged is not None:
                 return bridged
@@ -257,7 +260,38 @@ class Assistant:
             else:
                 opts = next(c for c in fe["categories"] if c["id"] == u.data["id"])["responses"]
             return Reply(msg, "empathy", self._pick(st, f"de:feeling:{u.data['id']}", opts), via="german")
+        if re.match(r"^(?:wer|was|wann|wo|wie|welche[rsmn]?|warum|wieso|weshalb|woher|wohin)\b", s):
+            return Reply(msg, "unknown", self._pick(st, "de:knowledge", dd["knowledge_de"]), via="german")
         return Reply(msg, "unknown", self._pick(st, "de:fallback", de["replies"]["fallback"]), via="german")
+
+    def _german_extra(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """German everyday tools and follow-ups: the time and the date, "15 Prozent von 80", and
+        "und von Italien?" after "Was ist die Hauptstadt von Spanien?"."""
+        now = self.clock() if self.clock else dt.datetime.now()
+        if re.fullmatch(r"(?:sag mal,? )?(?:wie spät ist es(?: gerade| jetzt)?|wie viel uhr ist es|wieviel uhr ist es|"
+                        r"welche uhrzeit haben wir|was ist die uhrzeit)", s):
+            return Reply(msg, "tool", f"Es ist {now:%H:%M} Uhr (laut der Uhr dieses Computers).", via="tool")
+        if re.fullmatch(r"(?:sag mal,? )?(?:welcher tag ist (?:heute|es)|welches datum (?:haben wir|ist heute)(?: heute)?|"
+                        r"der wievielte ist heute|was für ein tag ist heute|welchen tag haben wir(?: heute)?)", s):
+            days = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]
+            months = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober",
+                      "November", "Dezember"]
+            return Reply(msg, "tool", f"Heute ist {days[now.weekday()]}, der {now.day}. {months[now.month - 1]} {now.year}.",
+                         via="tool")
+        m = re.fullmatch(r"(?:was (?:ist|sind|ergibt|ergeben)|wie ?viel (?:ist|sind)|rechne|berechne) (\d+(?:[.,]\d+)?) ?"
+                         r"(?:%|prozent) (?:von|aus) (\d+(?:[.,]\d+)?)", s)
+        if m:
+            a, b = float(m.group(1).replace(",", ".")), float(m.group(2).replace(",", "."))
+            v = a * b / 100
+            shown = (f"{v:.2f}".rstrip("0").rstrip(".")).replace(".", ",")
+            st.uses["last_calc"] = [st.turn, str(v)]
+            return Reply(msg, "tool", f"{m.group(1)} % von {m.group(2)} sind {shown}.", answer=shown, via="tool")
+        m = re.fullmatch(r"und (?:von |in |für |bei |mit |über )?(?P<x>[a-zäöüß][a-zäöüß .-]{1,30})", s)
+        last = st.uses.get("de_last_q")
+        if m and last and st.turn - last[0] <= 3 and last[2] and last[2] in last[1]:
+            again = last[1].replace(last[2], m.group("x").strip(), 1)
+            return self._german_question(st, msg, again)
+        return None
 
     def _german_question(self, st: DialogState, msg: str, s: str) -> Reply | None:
         from engramm.chat.german_bridge import de_sentence, de_value, to_english
@@ -265,6 +299,7 @@ class Assistant:
         if hit is None:
             return None
         english, kind, x_en, x_de = hit
+        st.uses["de_last_q"] = [st.turn, s, (x_de or "").lower()]
         dd = self.bank.de["daily"]
         if kind == "about":
             rep = self._about(st, Unit("about", english, english.lower(), data={"kind": "tell", "topic": x_en}))

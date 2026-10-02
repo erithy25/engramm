@@ -597,3 +597,24 @@ def test_memory_corrections_and_moves(chat):
     a.turn(st, "actually i prefer ramen")
     r = a.turn(st, "what's my favorite food")
     assert "ramen" in r.text, r.text
+
+
+def test_german_everyday_tools_and_follow_ups(chat):
+    a, st = chat
+    r = a.turn(st, "na wie läufts")
+    assert "verstehe" not in r.text and "nicht ganz mit" not in r.text, r.text
+    r = a.turn(st, "wie spät ist es")
+    assert "Uhr" in r.text, r.text
+    r = a.turn(st, "welcher tag ist heute")
+    assert "Oktober" in r.text, r.text
+    r = a.turn(st, "was ist 15 prozent von 80")
+    assert "12" in r.text, r.text
+    r = a.turn(st, "erzähl mir was lustiges")
+    assert r.via == "german" and "verstehe" not in r.text, r.text
+    r = a.turn(st, "hab einen schönen abend")
+    assert "verstehe" not in r.text, r.text
+
+
+def test_german_values_use_german_names():
+    from engramm.chat.german_bridge import de_value
+    assert de_value("Rome") == "Rom" and de_value("Munich and Vienna") == "München und Wien"
