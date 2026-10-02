@@ -395,7 +395,11 @@ _FIRST = frozenset(("i", "my", "me", "mine", "myself"))
 CATEGORY_NOUNS = frozenset(("colour", "color", "colours", "colors", "food", "dish", "meal", "car", "vehicle", "job",
                             "city", "town", "name", "company", "employer", "work", "profession", "occupation",
                             "birthday", "place", "home", "favourite", "favorite", "best"))
-NON_VALUES = frozenset(("favourite", "favorite", "best", "most", "one", "thing", "stuff", "it", "that", "this"))
+NON_VALUES = frozenset(("favourite", "favorite", "best", "most", "one", "thing", "stuff", "it", "that", "this",
+                        # verbs a lexicon may also know as nouns: "I just got back from vacation" has no job "got"
+                        "got", "get", "gets", "getting", "went", "go", "goes", "going", "gone", "came", "come", "comes",
+                        "coming", "back", "made", "make", "took", "take", "had", "did", "done", "been", "said", "saw",
+                        "seen", "left", "felt", "feel", "tried", "try", "started", "start", "finished", "finish"))
 
 
 # words that are never the value of a personal statement: fillers, time phrases, evaluation cues

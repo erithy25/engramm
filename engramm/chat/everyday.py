@@ -66,6 +66,7 @@ _REC = [
                         r"(?: for (?:their |his |her )?(?:birthday|christmas|anniversary))?|(?:recommend|suggest) a (?:gift|present)"
                         r"(?: for (?:my |a )?(?P<who2>[a-z ]+))?)$")),
     ("travel", re.compile(_LEAD + r"(?:where should (?:i|we) (?:travel|go|go on holiday|go on vacation|visit)(?: next)?|"
+                          r"what should (?:i|we) (?:visit|see)(?: next)?|where (?:to|should i) go next|"
                           r"(?:any |some |give me )?(?:travel|holiday|vacation|trip) (?:ideas|destinations|recommendations|"
                           r"suggestions)|(?:recommend|suggest)(?: me)? (?:a |some )?(?:city|cities|country|countries|place|places|"
                           r"destination|destinations) to visit|where to (?:travel|go on holiday))$")),
@@ -97,7 +98,12 @@ _GENRES = {"sci-fi": "scifi", "scifi": "scifi", "science fiction": "scifi", "sci
            "scary": "thriller", "crime": "crime", "documentary": "documentary", "fiction": "fiction",
            "dystopian": "dystopia", "family": "family", "kids": "family", "rock": "rock", "jazz": "jazz", "pop": "pop",
            "electronic": "electronic", "board": "board", "video": "video", "drama": "drama", "mystery": "mystery",
-           "psychology": "psychology", "science": "science", "nature": "nature"}
+           "psychology": "psychology", "science": "science", "nature": "nature",
+           "warm": "warm", "sunny": "warm", "hot": "warm", "tropical": "warm", "beach": "beach", "beaches": "beach",
+           "cold": "cold", "snowy": "cold", "cheap": "cheap", "affordable": "cheap", "budget": "cheap",
+           "city": "city", "cities": "city", "cultural": "culture", "culture": "culture", "hilarious": "comedy",
+           "light": "comedy", "lighthearted": "comedy", "spooky": "thriller", "horror": "thriller", "sad": "drama",
+           "romcom": "romance"}
 _ADVICE = re.compile(_LEAD + r"(?:so )?(?:what (?:should|can|could|do you think|would you suggest|would you recommend) i "
                      r"(?:do|say|try)(?: (?:about|with) (?P<about>.+?))?(?: now| then| next)?|what would you do(?: in my (?:place|shoes))?|"
                      r"i (?:don't|do not|dont) know (?:if|whether|what) (?:i should|to) (?:say|do|tell|talk)\b"

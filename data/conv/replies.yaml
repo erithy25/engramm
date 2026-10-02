@@ -21,9 +21,9 @@ learned:
     - "I'll remember that you work for {x}."
   food:
     - "{x} — good choice! I'll remember that."
-    - "Noted: {x}. Now I'm curious what it tastes like!"
+    - "Noted: {x} — yum!"
   fav:
-    - "{x} — nice! I'll remember that you like it."
+    - "{x} — nice! I'll remember that."
     - "Got it, you like {x}."
   colour:
     - "{x} — lovely colour! Noted."

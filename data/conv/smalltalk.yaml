@@ -535,7 +535,7 @@ intents:
     follow: ask_hobby
 
   - id: bot_fav_color
-    patterns: ['(what''s|what is|whats) your (favou?rite|fav|favorite) colou?r|do you have a favou?rite colou?r|which colou?r do you like( best| most)?']
+    patterns: ['(what''s|what is|whats|who''s|who is|whos|who are|what are|which is|which are) your (favou?rite|fav|favorite) colou?r|do you have a favou?rite colou?r|which colou?r do you like( best| most)?']
     examples: [what's your favourite colour, do you have a favorite color]
     responses:
       - "If I had to choose: deep violet, like my logo. Do you have a favourite colour?"
@@ -544,7 +544,7 @@ intents:
     follow: ask_colour
 
   - id: bot_fav_food
-    patterns: ['(what''s|what is|whats) your (favou?rite|fav) (food|meal|dish|snack|dessert|drink)|do you (like|eat) (pizza|food|chocolate|ice cream|pasta|burgers)|what do you (like to eat|eat)|are you hungry|do you eat|are you thirsty|do you drink( coffee| tea| beer)?']
+    patterns: ['(what''s|what is|whats|who''s|who is|whos|who are|what are|which is|which are) your (favou?rite|fav) (food|meal|dish|snack|dessert|drink)|do you (like|eat) (pizza|food|chocolate|ice cream|pasta|burgers)|what do you (like to eat|eat)|are you hungry|do you eat|are you thirsty|do you drink( coffee| tea| beer)?']
     examples: [what's your favorite food, do you eat, are you hungry, do you like pizza]
     responses:
       - "I don't eat, but I've read lots about food. Pizza seems to make people very happy. What do you like to eat?"
@@ -553,7 +553,7 @@ intents:
     follow: ask_food
 
   - id: bot_fav_music
-    patterns: ['(what''s|what is|whats) your (favou?rite|fav) (music|song|band|singer|artist|genre|album|musician)|what (kind of )?music do you (like|listen to)|do you (like|listen to) music']
+    patterns: ['(what''s|what is|whats|who''s|who is|whos|who are|what are|which is|which are) your (favou?rite|fav) (music|song|band|singer|artist|genre|album|musician)|what (kind of )?music do you (like|listen to)|do you (like|listen to) music']
     examples: [what's your favourite music, what music do you like, do you like music]
     responses:
       - "No ears, sadly! But I can tell you about musicians. What do you listen to?"
@@ -561,7 +561,7 @@ intents:
       - "I can't hear music, but I've read a lot about it — from Bach to the Beatles. What do you like to listen to?"
 
   - id: bot_fav_movie
-    patterns: ['(what''s|what is|whats) your (favou?rite|fav) (movie|film|show|tv show|series|book|novel|author|game|video game)|do you (like|watch) (movies|films|tv|netflix)|what (movies|books|shows) do you like|do you read( books)?|what are you reading']
+    patterns: ['(what''s|what is|whats|who''s|who is|whos|who are|what are|which is|which are) your (favou?rite|fav) (movie|film|show|tv show|series|book|novel|author|game|video game)|do you (like|watch) (movies|films|tv|netflix)|what (movies|books|shows) do you like|do you read( books)?|what are you reading']
     examples: [what's your favourite movie, what's your favorite book, do you watch movies, do you read books]
     responses:
       - "I only read, so no movies for me. Tell me yours — maybe I've read about it!"
@@ -569,7 +569,7 @@ intents:
       - "I can't watch films, but I read a lot — mostly encyclopedia articles, which is a bit like binge-watching facts. What's your favourite?"
 
   - id: bot_fav_animal
-    patterns: ['(what''s|what is|whats) your (favou?rite|fav) (animal|pet|dog breed|bird)|do you like (dogs|cats|animals)|are you a (dog|cat) person|cats or dogs|dogs or cats']
+    patterns: ['(what''s|what is|whats|who''s|who is|whos|who are|what are|which is|which are) your (favou?rite|fav) (animal|pet|dog breed|bird)|do you like (dogs|cats|animals)|are you a (dog|cat) person|cats or dogs|dogs or cats']
     examples: [what's your favourite animal, do you like dogs, cats or dogs]
     responses:
       - "Octopuses! They have three hearts. What's your favourite animal?"
@@ -577,7 +577,7 @@ intents:
       - "I'm fond of octopuses — three hearts and blue blood, how cool is that? Are you more of a cat or a dog person?"
 
   - id: bot_fav_other
-    patterns: ['(what''s|what is|whats) your (favou?rite|fav) (?P<x>[a-z ]+)|do you have a favou?rite (?P<x2>[a-z ]+)']
+    patterns: ['(what''s|what is|whats|who''s|who is|whos|who are|what are|which is|which are) your (favou?rite|fav) (?P<x>[a-z ]+)|do you have a favou?rite (?P<x2>[a-z ]+)']
     examples: [what's your favourite season, what's your favorite number, do you have a favourite place]
     responses:
       - "I don't have personal favourites, being a program. What's yours?"

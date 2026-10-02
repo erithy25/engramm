@@ -224,6 +224,12 @@ recommend:
       - {x: "“The Alchemist” by Paulo Coelho (1988)", tags: "fiction", title: "The Alchemist (novel)"}
       - {x: "“Educated” by Tara Westover (2018)", tags: "nonfiction memoir", title: "Educated (memoir)"}
       - {x: "“The Hitchhiker's Guide to the Galaxy” by Douglas Adams (1979)", tags: "fiction scifi comedy", title: "The Hitchhiker's Guide to the Galaxy (novel)"}
+      - {x: "“Good Omens” by Terry Pratchett and Neil Gaiman (1990)", tags: "fiction fantasy comedy", title: "Good Omens"}
+      - {x: "“Three Men in a Boat” by Jerome K. Jerome (1889)", tags: "fiction classic comedy", title: "Three Men in a Boat"}
+      - {x: "“Catch-22” by Joseph Heller (1961)", tags: "fiction classic comedy", title: "Catch-22"}
+      - {x: "“Guards! Guards!” by Terry Pratchett (1989)", tags: "fiction fantasy comedy", title: "Guards! Guards!"}
+      - {x: "“Bridget Jones's Diary” by Helen Fielding (1996)", tags: "fiction romance comedy", title: "Bridget Jones's Diary"}
+      - {x: "“Me Talk Pretty One Day” by David Sedaris (2000)", tags: "nonfiction comedy", title: "Me Talk Pretty One Day"}
       - {x: "“Harry Potter and the Philosopher's Stone” by J. K. Rowling (1997)", tags: "fiction fantasy", title: "Harry Potter and the Philosopher's Stone"}
     outro: "Fiction or non-fiction? I can narrow it down."
   movie:
@@ -311,15 +317,19 @@ recommend:
   travel:
     intro: ["Some places people love:", "A few places worth the trip:", "Here are some great destinations:"]
     items:
-      - {x: "Lisbon, for its hills, trams and pastéis de nata", title: "Lisbon"}
-      - {x: "Kyoto, for temples and gardens", title: "Kyoto"}
-      - {x: "Reykjavík, as a base for Iceland's waterfalls and northern lights", title: "Reykjavík"}
-      - {x: "Edinburgh, for its old town and castle", title: "Edinburgh"}
-      - {x: "Barcelona, for Gaudí, the beach and the food", title: "Barcelona"}
-      - {x: "Vancouver, where mountains meet the sea", title: "Vancouver"}
-      - {x: "Cape Town, with Table Mountain and the coast", title: "Cape Town"}
-      - {x: "Prague, for its old town and bridges", title: "Prague"}
-      - {x: "Hanoi, for street food and Ha Long Bay nearby", title: "Hanoi"}
+      - {x: "Lisbon, for its hills, trams and pastéis de nata", title: "Lisbon", tags: "warm city beach"}
+      - {x: "Kyoto, for temples and gardens", title: "Kyoto", tags: "city culture"}
+      - {x: "Reykjavík, as a base for Iceland's waterfalls and northern lights", title: "Reykjavík", tags: "cold nature"}
+      - {x: "Edinburgh, for its old town and castle", title: "Edinburgh", tags: "city culture cold"}
+      - {x: "Barcelona, for Gaudí, the beach and the food", title: "Barcelona", tags: "warm city beach"}
+      - {x: "Vancouver, where mountains meet the sea", title: "Vancouver", tags: "nature city"}
+      - {x: "Cape Town, with Table Mountain and the coast", title: "Cape Town", tags: "warm nature beach"}
+      - {x: "Prague, for its old town and bridges", title: "Prague", tags: "city culture cheap"}
+      - {x: "Hanoi, for street food and Ha Long Bay nearby", title: "Hanoi", tags: "warm cheap city"}
+      - {x: "the Algarve, for golden beaches and sea cliffs", title: "Algarve", tags: "warm beach nature"}
+      - {x: "Crete, for beaches, ruins and wonderful food", title: "Crete", tags: "warm beach culture"}
+      - {x: "Bali, for beaches, rice terraces and temples", title: "Bali", tags: "warm beach nature"}
+      - {x: "Kraków, for its old town, and easy on the wallet", title: "Kraków", tags: "city culture cheap"}
     outro: "City, beach or nature? I can tell you more about any of them."
   hobby:
     intro: ["Some hobbies that are easy to start:", "A few hobbies you could pick up:", "Here are some easy hobbies to try:"]
@@ -743,3 +753,41 @@ post_workout:
   any: ["Greek yoghurt with fruit and some granola", "eggs on wholegrain toast", "a chicken or tofu rice bowl with vegetables", "a banana with peanut butter", "a protein smoothie with milk, banana and oats"]
   vegetarian: ["Greek yoghurt with fruit and some granola", "eggs on wholegrain toast", "a tofu or chickpea rice bowl with vegetables", "a banana with peanut butter", "a smoothie with milk, banana and oats"]
   vegan: ["a tofu or tempeh rice bowl with vegetables", "a banana with peanut butter", "oats with soy milk, berries and nuts", "hummus wrap with lots of veggies", "lentil soup with bread"]
+# "I just got back from vacation" / "we went to Italy"
+trip_back:
+  - "Welcome back! Where did you go?"
+  - "Oh nice, welcome back! Where were you?"
+trip_place:
+  - "Oh, {x}! How was it? What was the highlight?"
+  - "{x} — lovely! What did you like most?"
+  - "Ooh, {x}! Did you have a good time?"
+# "have you been to Italy?"
+bot_travel:
+  - "I can't travel — I only know places from what I've read. What did you like most about {x}?"
+  - "Only in books, sadly! Tell me — what's {x} really like?"
+# "I play guitar" ({x}: guitar) and "for about 5 years"
+hobby_play:
+  - "Oh cool, {x}! How long have you been playing?"
+  - "Nice — {x}! How long have you been playing?"
+hobby_do:
+  - "Oh nice, {x}! How long have you been doing that?"
+  - "That's cool! How did you get into {x}?"
+duration_long:
+  - "{x} — that's real dedication! What do you enjoy most about it?"
+  - "Wow, {x}! You must be pretty good by now. What's your favourite part?"
+duration_short:
+  - "{x} — so still fairly new! How are you finding it?"
+  - "Nice, {x} in! Is it going well so far?"
+# "what's their best song?"
+best_of:
+  - "That's a matter of taste! With {x}, everyone seems to have their own favourite. Which one is yours?"
+  - "Tough one — fans of {x} argue about that a lot! What would you pick?"
+best_of_plain:
+  - "That's really a matter of taste! Which one would you pick?"
+# "i read that already" after suggestions
+rec_seen:
+  - "Ah, then here are some others:"
+  - "Fair enough — how about these instead:"
+rec_exhausted:
+  - "Then you've read more than me in that corner! Want something of a different kind?"
+  - "That's all I've got of that kind — impressive! Shall I try a different direction?"

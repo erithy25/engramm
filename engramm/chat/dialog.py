@@ -32,6 +32,7 @@ from engramm.chat.about import About, AboutFinder
 from engramm.chat.acts import Unit, classify
 from engramm.chat.bank import Bank, choose, load_bank, normalise
 from engramm.chat.bot import CHAT_PREFIX, Reply, message_type, source_id
+from engramm.chat.everyday import _GENRES
 from engramm.chat.facts import USER, facts_from_text
 from engramm.chat.german import is_german, understand
 from engramm.chat.realize import answer_sentence, article, personal_sentence, to_second_person
@@ -386,6 +387,9 @@ class Assistant:
         own = self._about_me(st, msg, norm)
         if own is not None:
             return own
+        lk = _I_LIKE.match(norm)
+        if lk:
+            st.uses["last_like"] = [st.turn, _place_case(lk.group("x").strip(" .!"))]
         life = self._life(st, msg, norm)
         if life is not None:
             return life
@@ -950,6 +954,63 @@ class Assistant:
             rep.text = self._pick(st, "daily:workout_done", d["workout_done"])
             st.last_action = {"kind": "workout", "turn": st.turn}
             return rep
+        m = _TRIP.match(norm)
+        if m and not _NOT_A_TRIP.fullmatch(m.group("x").strip()):
+            place = m.group("x").strip()
+            rep = self._learn(st, [msg], msg)
+            if _TRIP_WORD.fullmatch(place):
+                rep.text = self._pick(st, "daily:trip_back", d["trip_back"])
+                st.last_action = {"kind": "trip", "turn": st.turn}
+            else:
+                shown = _place_case(place)
+                rep.text = self._pick(st, "daily:trip_place", d["trip_place"], x=shown)
+                st.last_action = {"kind": "trip", "turn": st.turn, "place": shown}
+                st.topic = {"name": shown, "title": shown, "turn": st.turn}
+            return rep
+        m = _HOBBY.match(norm) or _HOBBY_BARE.match(norm)
+        if m:
+            verb = m.group("v")
+            x = (m.groupdict().get("x") or _GERUND.get(verb, verb)).strip()
+            rep = self._learn(st, [msg], msg)
+            key = "hobby_play" if verb == "play" else "hobby_do"
+            rep.text = self._pick(st, f"daily:{key}", d[key], x=x)
+            st.uses["asked_duration"] = [st.turn, x]
+            st.last_action = {"kind": "hobby", "turn": st.turn, "x": x}
+            return rep
+        asked = st.uses.get("asked_duration")
+        m = _DURATION_ANS.match(norm)
+        if m and asked and st.turn - asked[0] <= 1:
+            n, unit = m.group("n"), m.group("u")
+            shown = f"{n} {unit}"
+            shown = shown[:1].upper() + shown[1:]
+            long_ = unit.startswith("year") and n not in ("a", "one", "1")
+            key = "duration_long" if long_ else "duration_short"
+            st.uses.pop("asked_duration", None)
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key], x=shown), via="smalltalk")
+        if la.get("kind", "").startswith("rec:") and st.turn - la.get("turn", -99) <= 3:
+            kind = la["kind"][4:]
+            if _REC_SEEN.match(norm):
+                before = set(st.uses.get(f"rec_seen:{kind}", []))
+                rep = self.everyday.recommend(st, msg, kind, la.get("genre"), more=True)
+                if not set(st.uses.get(f"rec_seen:{kind}", [])) - before:
+                    # every fitting suggestion has been shown: say so instead of going round again
+                    return Reply(msg, "smalltalk", self._pick(st, "daily:rec_exhausted", d["rec_exhausted"]),
+                                 via="everyday")
+                rep.text = self._pick(st, "daily:rec_seen", d["rec_seen"]) + rep.text[len("A few more:"):] \
+                    if rep.text.startswith("A few more:") else rep.text
+                return rep
+            g = _REC_GENRE.match(norm)
+            if g and g.group("g") in _GENRES:
+                return self.everyday.recommend(st, msg, kind, g.group("g"))
+        m = _BEST_OF.match(norm)
+        if m:
+            name = (st.topic or {}).get("name") if st.topic and st.turn - st.topic.get("turn", -99) <= 4 else None
+            liked = st.uses.get("last_like")
+            if name is None and liked and st.turn - liked[0] <= 4 and m.group("who") in ("their", "his", "her", "its"):
+                name = liked[1]
+            if name:
+                return Reply(msg, "smalltalk", self._pick(st, "daily:best_of", d["best_of"], x=name), via="smalltalk")
+            return Reply(msg, "smalltalk", self._pick(st, "daily:best_of_plain", d["best_of_plain"]), via="smalltalk")
         m = _HOW_IT_WENT.match(norm)
         if m and recent and la.get("kind") == "workout":
             key = "workout_hard" if m.group("hard") else "workout_good" if m.group("good") else "workout_meh"
@@ -1136,6 +1197,9 @@ class Assistant:
         la = st.last_action or {}
         recent = st.turn - la.get("turn", -99) <= 3
         m = _BOT_EXPERIENCE.match(norm)
+        if m and m.group("v") in ("been to", "been", "visited") and (m.group("rest") or "").strip(" ?"):
+            place = _place_case(re.sub(r"^(?:to|in)\s+", "", m.group("rest").strip(" ?")))
+            return Reply(msg, "smalltalk", self._pick(st, "daily:bot_travel", d["bot_travel"], x=place), via="smalltalk")
         if m and m.group("v") in ("eat", "eaten", "taste", "tasted", "smell") and not (m.group("rest") or "").strip(" ?"):
             m = None                              # "do you eat?": a question about ENGRAMM's nature
         if m:
@@ -1563,6 +1627,10 @@ class Assistant:
                     x = article(f.object) if cat in ("job",) else f.object
                     if cat == "car":
                         x = f.object
+                    liked = st.uses.get("last_like")
+                    if cat == "fav" and liked and liked[0] == st.turn and liked[1].lower().endswith(f.object.lower()):
+                        x = liked[1]                       # "the Beatles", as said
+                        x = x[:1].upper() + x[1:]
                     out.append(self._reply(st, f"learned.{cat}", x=x))
                 elif f.kind == "NUMBER" and re.fullmatch(r"\d{1,3}", f.object) and 0 < int(f.object) < 120 and \
                         re.search(r"\b(?:i'm|i am|im|age|aged|years? old)\b", f.sentence, re.I):
@@ -1864,6 +1932,14 @@ _SUP_FREE = re.compile(r"^(?:\s*\(?|,)?\s*(?:in the world|on earth|ever|of all t
                        r"known|recorded|\)|,|\.|;|$)", re.I)
 
 
+def _place_case(text: str) -> str:
+    """"italy" → "Italy", "new york" → "New York", "the beatles" → "the Beatles"."""
+    small = {"the", "of", "and", "de", "la", "del", "von", "van", "upon", "on"}
+    out = [w if (i > 0 and w in small) or (i == 0 and w == "the") else w[:1].upper() + w[1:]
+           for i, w in enumerate(text.split())]
+    return " ".join(out)
+
+
 def _implausible(q: str, answer: str | None, evidence: str | None) -> bool:
     """A looked-up short answer that cannot be meant: a count for "who …?" ("two goals was the top
     scorer"), or a superlative the evidence does not say about it — the biggest *commercial success*
@@ -1930,6 +2006,38 @@ _DIET = re.compile(r"^(?:btw |by the way |oh |also )?i(?:'m| am) (?:a |actually 
 _POST_WORKOUT = re.compile(r"^what (?:should|can|could|do) i (?:eat|have)(?: after| post| before)(?: a| my| the)? "
                            r"(?:workout|work out|gym|training|run|exercise|session)\??$|^(?:good |any )?post[- ]workout "
                            r"(?:food|meal|snack)s?\??$")
+_TRIP = re.compile(r"^(?:so |well |guess what,? )?(?:i|we|me and my \w+|my \w+ and i) (?:just |finally |recently |also )?"
+                   r"(?:got back from|came back from|returned from|went to|were in|was in|visited|travel+ed to|flew to|"
+                   r"went on|spent (?:a|the|two|three|four|five|\w+) (?:week|weekend|days?|weeks?) in) "
+                   r"(?P<x>[a-z][a-z' -]{1,40}?)(?: (?:last|this) (?:week|month|year|weekend|summer|winter|spring|autumn)|"
+                   r" yesterday| recently| for (?:a|two|three|\w+) (?:week|weeks|days))?[.!]*$")
+_TRIP_WORD = re.compile(r"(?:a |my |our |the )?(?:vacation|holiday|holidays|trip|break|weekend away|travels?|honeymoon|"
+                        r"road trip|city trip|business trip|backpacking trip)")
+_NOT_A_TRIP = re.compile(r"(?:the |a |my |our )?(?:gym|cinema|movies|store|shop|supermarket|work|office|school|class|bed|"
+                         r"doctor|dentist|hospital|party|concert|restaurant|bar|pub|club|church|mall|bank|park|beach|"
+                         r"pool|library|game|match|meeting|wedding|funeral|game night)")
+_HOBBY = re.compile(r"^i (?:also |really |still |sometimes )?(?P<v>play|practi[sc]e|collect|do) (?:the |some )?"
+                    r"(?P<x>(?!it\b|that\b|this\b|my\b|not\b|nothing\b|what\b|well\b|too\b)[a-z][a-z -]{1,25}?)"
+                    r"(?: a lot| sometimes| every day| on weekends| in my free time| for fun| as a hobby)?[.!]*$")
+_HOBBY_BARE = re.compile(r"^i (?:also |really |love to |like to )?(?P<v>paint|draw|knit|sing|dance|bake|surf|skate|climb|box|"
+                         r"swim|crochet|sew|garden|journal)(?: a lot| for fun| sometimes| as a hobby| in my free time)?[.!]*$")
+_GERUND = {"paint": "painting", "draw": "drawing", "knit": "knitting", "sing": "singing", "dance": "dancing",
+           "bake": "baking", "surf": "surfing", "skate": "skating", "climb": "climbing", "box": "boxing",
+           "swim": "swimming", "crochet": "crochet", "sew": "sewing", "garden": "gardening", "journal": "journaling"}
+_DURATION_ANS = re.compile(r"^(?:for |since )?(?:about |around |almost |nearly |over |like |roughly |maybe |just )?"
+                           r"(?P<n>\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty|"
+                           r"a few|a couple of|a couple|several|many) (?P<u>years?|months?|weeks?|days?)(?: now| or so| already)?[.!]*$")
+_REC_SEEN = re.compile(r"^(?:oh |hmm |ah )?(?:i(?:'ve| have)? )?(?:already )?(?:read|seen|watched|tried|heard|played|been to|"
+                       r"visited|done|know) (?:that|it|those|them|all of (?:them|those)|these|all of these)"
+                       r"(?: one| ones)?(?: already)?[.!]*$")
+_REC_GENRE = re.compile(r"^(?:maybe |preferably |ideally |hmm |ok |okay |more like )?(?:something|somewhere|anything|one|ones|"
+                        r"a|an|more|some)?\s*(?:a bit |more |really |kinda |pretty )?(?P<g>[a-z-]+)"
+                        r"(?: one| ones| please| maybe| instead| stuff| place| places| book| books| movie| movies)?\??$")
+_I_LIKE = re.compile(r"^i (?:really |absolutely |just )?(?:love|like|adore|am into|'m into|am a big fan of|'m a big fan of) "
+                     r"(?P<x>[a-z][a-z' .-]{1,40})$")
+_BEST_OF = re.compile(r"^(?:so |and )?what(?:'s| is| are|s) (?P<who>their|his|her|its|the) (?:best|greatest|most famous|top|"
+                      r"most popular) (?:song|songs|album|albums|movie|movies|film|films|book|books|novel|work|track|"
+                      r"tracks|show|episode|game|dish)\??$")
 _PET_PEEVE = re.compile(r"^i (?:really |just )?(?:don'?t like|do not like|hate|can'?t stand|cannot stand|dislike) "
                         r"(?:it )?when\b.{3,}", re.I)
 _RELATABLE = re.compile(r"(?:mondays?|tuesdays?|wednesdays?|thursdays?|fridays?|sundays?|mornings?|early mornings|"

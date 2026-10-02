@@ -426,3 +426,46 @@ def test_german_dislikes_jokes_and_moods(chat):
     assert "Erzähl mir mehr" not in r.text, r.text
     r = a.turn(st, "ich bin müde")
     assert "klingt schwer" not in r.text, r.text
+
+
+def test_travel_and_hobbies(chat):
+    a, st = chat
+    r = a.turn(st, "i just got back from vacation")
+    assert "work as" not in r.text and "Where" in r.text, r.text
+    r = a.turn(st, "we went to italy")
+    assert "Italy" in r.text and r.text.rstrip().endswith("?"), r.text
+    r = a.turn(st, "have you been to italy")
+    assert "Italy" in r.text and "anything myself" not in r.text, r.text
+    r = a.turn(st, "i play guitar")
+    assert "guitar" in r.text and "How long" in r.text, r.text
+    r = a.turn(st, "for about 5 years")
+    assert "5 years" in r.text, r.text
+
+
+def test_favourites_of_the_bot_and_opinions(chat):
+    a, st = chat
+    r = a.turn(st, "who is your favorite band")
+    assert r.via == "smalltalk" and "your favorite band" not in r.text, r.text
+    a.turn(st, "i love the beatles")
+    r = a.turn(st, "what's their best song")
+    assert "the Beatles" in r.text and r.text.rstrip().endswith("?"), r.text
+
+
+def test_refining_suggestions(chat):
+    a, st = chat
+    a.turn(st, "can you recommend a book")
+    r = a.turn(st, "something funny")
+    assert "•" in r.text and ("Hitchhiker" in r.text or "Pratchett" in r.text or "Catch-22" in r.text
+                              or "Three Men" in r.text or "Sedaris" in r.text or "Bridget" in r.text), r.text
+    shown = set(l for l in r.text.splitlines() if l.startswith("•"))
+    r = a.turn(st, "i read that already")
+    again = set(l for l in r.text.splitlines() if l.startswith("•"))
+    assert again and not (again & shown), r.text
+    a.turn(st, "where should i travel")
+    r = a.turn(st, "maybe somewhere warm")
+    assert "Reykjav" not in r.text and "Edinburgh" not in r.text, r.text
+
+
+def test_verbs_are_never_jobs():
+    from engramm.chat.facts import NON_VALUES
+    assert {"got", "went", "back"} <= NON_VALUES
