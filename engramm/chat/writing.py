@@ -104,6 +104,7 @@ class WritingRequest:
     variant: int = 0
     subject: bool = True
     polite: bool = False                    # "make it more polite" once it is already formal
+    tight: bool = False                     # "make it shorter" once it is already short
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -423,6 +424,12 @@ def draft(req: WritingRequest, spec: dict, user_name: str | None, today: dt.date
         opening = opening or "I hope you are well."
         extras = [re.sub(r"^Please let me know", "Could you please let me know", e) for e in extras]
         extras.append("I would be very grateful for your help.")
+    if req.tight:                             # the shortest version: the point, nothing around it
+        body = re.sub(r"^(?:I am writing to (?:let you know|inform you) that|I wanted to let you know that|"
+                      r"I would like to let you know that|Just a quick note to say that)\s+", "", body)
+        body = _cap(re.sub(r"\bI am\b", "I'm", body))
+        opening, closing = "", ""
+        extras = [_cap(a.rstrip(".")) + "." for a in req.additions]
     paragraph = " ".join(x for x in [opening, body] + extras if x)
     lines = []
     if req.genre in ("email",) and req.subject:
@@ -466,6 +473,8 @@ _EDITS = [
                           r"more polite|formal|professional)", re.I)),
     ("casual", re.compile(r"^(?:make it |can you make it )?(?:a bit |much )?(?:more casual|less formal|more "
                           r"friendly|friendlier|more relaxed|casual|informal|warmer)", re.I)),
+    ("personal", re.compile(r"^(?:make it |can you make it |please make it )?(?:a bit |much |even )?(?:more personal|"
+                            r"more heartfelt|sweeter|more emotional|more loving|warmer and more personal)(?: please)?", re.I)),
     ("again", re.compile(r"^(?:another (?:version|one)|try again|rewrite it|write it differently|different "
                          r"version|redo it|one more version)", re.I)),
     ("add", re.compile(r"^(?:please |can you |could you )?(?:also )?(?:add|mention|include|put in)"
@@ -493,7 +502,17 @@ def edit_command(message: str) -> tuple[str, str | None] | None:
 def apply_edit(req: WritingRequest, cmd: str, x: str | None) -> WritingRequest:
     r = WritingRequest.from_dict(req.to_dict())
     if cmd == "shorter":
+        if r.short:                           # already short: the bare message, never the same text again
+            r.tight = True
         r.short, r.long = True, False
+    elif cmd == "personal":
+        warm = ("You mean so much to me — thank you for everything you do." if r.recipient in FAMILY
+                else "I'm really lucky to have you in my life." if r.tone == "casual"
+                else "I truly appreciate everything you have done.")
+        if warm not in r.additions:
+            r.additions = r.additions + [warm]
+        else:
+            r.variant += 1
     elif cmd == "longer":
         r.short, r.long = False, True
     elif cmd == "formal":

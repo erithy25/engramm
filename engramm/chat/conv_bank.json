@@ -7018,6 +7018,25 @@
     "v": "366"
    }
   ],
+  "plan_day_ask": [
+   "Sure! What do you need to get done today?",
+   "Happy to — what's on your list for today?"
+  ],
+  "plan_day_head": [
+   "Here's a simple order that usually works:",
+   "How about this plan:"
+  ],
+  "plan_day_tip": [
+   "Put the hardest thing first while your energy is fresh, and leave a little buffer between things.",
+   "Tip: tackle the biggest task first and keep the evening for something nice."
+  ],
+  "remind": [
+   "I can't send notifications — I only live inside this chat. But I've noted it: you want to {x}. Ask me “what do I need to do?” any time.",
+   "No alarms on my side, sorry — but it's written down: {x}. Just ask me later what you needed to do."
+  ],
+  "todo_none": [
+   "You haven't asked me to note anything yet. Say “remind me to …” and I'll keep it here."
+  ],
   "accomplished": [
    "Nice, well done! How does it feel to have {x} behind you?",
    "That's great — {x}, done! Got anything fun planned now?",

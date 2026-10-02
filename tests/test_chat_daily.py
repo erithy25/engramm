@@ -1039,3 +1039,24 @@ def test_german_battery32(chat):
     a.turn(st, "kannst du mir einen film empfehlen")
     r = a.turn(st, "was lustiges")
     assert "•" in r.text and "Clown" not in r.text, r.text
+
+
+def test_tools_followups_writing_and_planning(chat):
+    a, st = chat
+    a.turn(st, "convert 5 km to miles")
+    r = a.turn(st, "and 10?")
+    assert "6.214" in r.text, r.text
+    r = a.turn(st, "what day is christmas this year")
+    assert "25 December" in r.text, r.text
+    first = a.turn(st, "write a short message to my boss that im sick today").text
+    r = a.turn(st, "make it shorter")
+    assert r.text.split("\n", 1)[1] != first.split("\n", 1)[1] and len(r.text) < len(first), r.text
+    a.turn(st, "write a birthday message for my mom")
+    r = a.turn(st, "more personal please")
+    assert "mean so much" in r.text, r.text
+    a.turn(st, "help me plan my day")
+    r = a.turn(st, "i need to cook, go to the gym and work")
+    assert r.text.index("Work") < r.text.index("Cook"), r.text
+    a.turn(st, "remind me to buy milk")
+    r = a.turn(st, "what do i need to do")
+    assert "buy milk" in r.text, r.text

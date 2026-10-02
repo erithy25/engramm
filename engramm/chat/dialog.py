@@ -207,6 +207,28 @@ _MONTH_LOW = re.compile(r"\b(?:january|february|march|april|june|july|august|sep
 # two questions joined by "and"
 _TWO_QUESTIONS = re.compile(r"(?i)^(?P<a>(?:what|who|when|where|which|how)\b.+?),?\s+and\s+"
                             r"(?P<b>(?:how|what|who|when|where|which|is|are|was|were|does|did|do)\b.+)$")
+# "help me plan my day", and the order a day usually goes in
+_PLAN_DAY = re.compile(r"^(?:can you |could you |please |pls )?help me (?:to )?(?:plan|organi[sz]e|structure|schedule) "
+                       r"(?:my |the )?(?:day|evening|morning|afternoon|weekend|today)\b")
+_TASK_ORDER = [re.compile(r"\b(?:work|job|meeting|study|studying|homework|email|emails|office|class|school|uni|exam)\b"),
+               re.compile(r"\b(?:shop|shopping|groceries|grocery|bank|post office|pharmacy|laundry|clean|cleaning|tidy|errand|doctor|dentist)\b"),
+               re.compile(r"\b(?:gym|run|running|workout|work out|walk|sport|yoga|swim|swimming|training|football|exercise)\b"),
+               re.compile(r"\b(?:cook|cooking|dinner|eat|meal|lunch)\b"),
+               re.compile(r"\b(?:relax|tv|netflix|read|reading|friends|call|game|games|chill|movie|bath)\b")]
+_TODO_Q = re.compile(r"^(?:so |and |ok )?(?:what (?:do|did) i (?:need|have|want|wanted|have got) to do|what was i supposed to do|"
+                     r"what(?:'s| is) on my (?:list|to-?do list)|what did i ask you to remind me(?: of| about)?)(?: today| later| again)?\??$")
+# "remind me to call mom at 6": no alarms here, but a note
+_REMIND = re.compile(r"^(?:can you |could you |please |pls )?remind me (?:to |that i (?:need|have) to |about )(?P<x>.{3,80})$")
+# fixed-date holidays: "what day is christmas this year?", "when is halloween"
+_HOLIDAYS = {"christmas": (12, 25, "Christmas Day"), "christmas eve": (12, 24, "Christmas Eve"),
+             "new year": (1, 1, "New Year's Day"), "new years": (1, 1, "New Year's Day"), "new year's": (1, 1, "New Year's Day"),
+             "new year's eve": (12, 31, "New Year's Eve"), "new years eve": (12, 31, "New Year's Eve"),
+             "halloween": (10, 31, "Halloween"), "valentine's day": (2, 14, "Valentine's Day"), "valentines day": (2, 14, "Valentine's Day"),
+             "valentine's": (2, 14, "Valentine's Day"), "st patrick's day": (3, 17, "St Patrick's Day"),
+             "boxing day": (12, 26, "Boxing Day")}
+_HOLIDAY_Q = re.compile(r"^(?:and |so )?(?:what day (?:is|does)|when is|which day is|on what day is|what date is)(?: it)? "
+                        r"(?P<h>christmas eve|christmas|new year'?s eve|new years? eve|new year'?s?|halloween|valentine'?s(?: day)?|"
+                        r"st patrick'?s day|boxing day)(?: (?:this|next) year| fall(?: on)?(?: this year)?)?$")
 # questions whose answer is a measurement or a count
 _NEEDS_NUMBER = re.compile(r"(?i)\b(?:boiling point|melting point|freezing point|temperature|speed of|how many|how much|"
                            r"how far|how long|how tall|how high|how deep|how old|how heavy|population of|distance)\b")
@@ -1505,6 +1527,9 @@ class Assistant:
             tr = u.data["result"]
             if tr.value is not None:
                 st.uses["last_calc"] = [st.turn, str(tr.value)]
+            cm = re.match(r"\s*\d+(?:\.\d+)?\s*([a-z°][a-z° ]*?)\s*=\s*[\d.,]+\s*([a-z°][a-z° ]*?)\.?$", tr.text, re.I)
+            if cm:
+                st.uses["last_conv"] = [st.turn, cm.group(1).strip(), cm.group(2).strip()]   # "and 10?" next
             pm = re.match(r"\s*\d+(?:[.,]\d+)?\s?% of (\d[\d,]*(?:\.\d+)?)", tr.text)
             if pm:
                 st.uses["last_pct"] = [st.turn, pm.group(1)]         # "and 20%?" next
@@ -1532,6 +1557,17 @@ class Assistant:
         bot = self.bot
         # "what language do they speak in Brazil?": a generic "they", not the last person or thing
         text = re.sub(r"(?i)\b(do|did|does) they (speak|use|eat|celebrate|drive|call|pay|play)\b(?=.*\bin\b)", r"\1 people \2", text)
+        cv = st.uses.get("last_conv")
+        cn = re.fullmatch(r"(?:and |what about |how about |now )?(\d+(?:\.\d+)?)\??", text.strip().lower())
+        if cv and cn and st.turn - cv[0] <= 3:          # "convert 5 km to miles" … "and 10?"
+            tr = tool_answer(f"convert {cn.group(1)} {cv[1]} to {cv[2]}", self._now())
+            if tr is not None:
+                st.uses["last_conv"] = [st.turn, cv[1], cv[2]]
+                return Reply(text, "tool", tr.text if tr.text.endswith(".") else tr.text + ".", answer=tr.value,
+                             via="tool", confidence=1.0)
+        hol = _HOLIDAY_Q.match(normalise(text).strip(" ?!."))
+        if hol:
+            return self._holiday(st, text, hol.group("h"))
         pct = _PCT_MORE.match(text.strip().lower())
         lp = st.uses.get("last_pct")
         if pct and lp and st.turn - lp[0] <= 3:          # "15% of 80" … "and 20%?"
@@ -1972,6 +2008,33 @@ class Assistant:
                 return rep
         if re.fullmatch(r"(?:please |pls |ok |so )?(?:wish me luck|fingers crossed|cross your fingers(?: for me)?|keep your fingers crossed(?: for me)?)[.!]*", norm):
             return Reply(msg, "smalltalk", self._pick(st, "daily:wish_luck", d["wish_luck"]), via="smalltalk")
+        if _PLAN_DAY.match(norm):
+            st.uses["plan_day"] = st.turn
+            return Reply(msg, "smalltalk", self._pick(st, "daily:plan_day_ask", d["plan_day_ask"]), via="everyday")
+        pdu = st.uses.get("plan_day")
+        if pdu is not None and st.turn - pdu <= 2 and not msg.rstrip().endswith("?"):
+            tasks = self._day_tasks(norm)
+            if len(tasks) >= 2:
+                st.uses.pop("plan_day", None)
+                order = {t: (next((i for i, rx in enumerate(_TASK_ORDER) if rx.search(t)), 2), n) for n, t in enumerate(tasks)}
+                tasks = sorted(tasks, key=lambda t: order[t])
+                body = "\n".join(f"{i + 1}. {t[:1].upper() + t[1:]}" for i, t in enumerate(tasks))
+                return Reply(msg, "smalltalk", f"{self._pick(st, 'daily:plan_day_head', d['plan_day_head'])}\n\n{body}\n\n"
+                             f"{self._pick(st, 'daily:plan_day_tip', d['plan_day_tip'])}", via="everyday")
+        if _TODO_Q.match(norm):                           # "what do I need to do?": the notes from "remind me to …"
+            self.bot.refresh()
+            todo = [re.sub(r"^I need to\s+", "", t).rstrip(".") for t in self.bot.user_texts().values()
+                    if re.match(r"^I need to\s+", t)]
+            if todo:
+                return Reply(msg, "memory", "You wanted to:\n" + "\n".join("• " + re.sub(r"\bmy\b", "your", t) for t in todo),
+                             via="memory")
+            return Reply(msg, "memory", self._pick(st, "daily:todo_none", d["todo_none"]), via="memory")
+        rm = _REMIND.match(norm)
+        if rm:
+            what = rm.group("x").strip(" .!")
+            what = re.sub(r"\bmy\b", "your", re.sub(r"\bme\b", "you", what))
+            self._learn(st, [f"I need to {rm.group('x').strip(' .!')}."], msg)
+            return Reply(msg, "learned", self._pick(st, "daily:remind", d["remind"], x=what), via="memory")
         wm = _WEAR.match(norm)
         if wm:                                            # "what should I wear?" — for what the chat is about
             about = " ".join(filter(None, [wm.group("x"), normalise(st.last_message or "")]))
@@ -2512,6 +2575,26 @@ class Assistant:
                      via="news", confidence=1.0, alternatives=[{"text": it["title"], "source": {
                          "kind": "feed", "source": it["feed"], "key": it["link"] or it["title"], "title": it["title"]}}
                          for it in items[1:4]])
+
+    def _holiday(self, st: DialogState, text: str, name: str) -> Reply:
+        """"What day is Christmas this year?": a fixed-date holiday on this computer's calendar."""
+        now = self.clock() if self.clock else dt.datetime.now()
+        month, day, shown = _HOLIDAYS[name]
+        when = dt.date(now.year, month, day)
+        if when < now.date():
+            when = dt.date(now.year + 1, month, day)
+        days = (when - now.date()).days
+        text_out = f"{shown} is on {when:%A}, {when.day} {when:%B} {when.year}"
+        text_out += " — that's today! 🎉" if days == 0 else f" — {days} day{'s' if days != 1 else ''} from now."
+        return Reply(text, "tool", text_out, answer=f"{when.day} {when:%B} {when.year}", via="tool", confidence=1.0)
+
+    @staticmethod
+    def _day_tasks(norm: str) -> list[str]:
+        """"i need to work, go to the gym and cook" → ["work", "go to the gym", "cook"]."""
+        s = re.sub(r"^(?:ok |okay |so |well )?(?:i (?:need|have|want|got) to|i(?:'ve| have) got to|i gotta|i must|i should|"
+                   r"today i (?:need|have) to|my plans are|i'm going to|im going to)\s+", "", norm.strip(" .!"))
+        parts = [x.strip(" .") for x in re.split(r",\s*(?:and\s+|then\s+)?|\s+and then\s+|\s+then\s+|\s+and\s+|;", s) if x.strip(" .")]
+        return [re.sub(r"^(?:to|also|maybe)\s+", "", x) for x in parts if 0 < len(x.split()) <= 8]
 
     def _common_fact(self, st: DialogState, text: str) -> Reply | None:
         """"How many continents are there?", "is a tomato a fruit?": a short list of everyday facts checked
