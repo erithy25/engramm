@@ -648,3 +648,13 @@ def test_shelf_lookup_prefers_the_plain_title(tmp_path):
     import numpy as np
     from engramm.web.shelf import ShelfIndex
     assert hasattr(ShelfIndex, "lookup")
+
+
+def test_practical_how_to_questions(chat):
+    a, st = chat
+    r = a.turn(st, "how do i boil an egg")
+    assert "minutes" in r.text and "about you" not in r.text, r.text
+    r = a.turn(st, "how do i get rid of hiccups")
+    assert "breath" in r.text, r.text
+    r = a.turn(st, "how do i fix my bike chain")
+    assert "about you" not in r.text and "haven't told me" not in r.text, r.text

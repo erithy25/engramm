@@ -903,6 +903,9 @@ class Assistant:
         likes = self._likes_answer(st, text)
         if likes is not None:
             return likes
+        how = self._howto(st, text)
+        if how is not None:
+            return how
         kb = self._kb_answer(st, text)
         if kb is not None:
             return kb
@@ -1216,6 +1219,29 @@ class Assistant:
                 if m:
                     return m.group(1).lower()
         return None
+
+    def _howto(self, st: DialogState, text: str) -> Reply | None:
+        """"How do I boil an egg?": a short practical guide when one fits; for an everyday "how do I …"
+        without one an honest answer — never "you haven't told me that"."""
+        q = normalise(text)
+        m = _HOWTO_Q.match(q)
+        if not m:
+            return None
+        words = set(re.findall(r"[a-z']+", q))
+        stems = {w.rstrip("s") for w in words} | words
+        best = None
+        for g in self.bank.daily.get("howto", []):
+            if any(all(k in stems or k.rstrip("s") in stems for k in group) for group in g["keys"]):
+                best = g
+                break
+        d = self.bank.daily
+        if best is None:
+            if re.search(r"\b(?:i|my|me)\b", q):           # a practical question about doing something
+                return Reply(text, "unknown", self._pick(st, "daily:howto_none", d["howto_none"]), via="everyday")
+            return None                                    # "how does a rainbow form?": the reading may know
+        body = "\n".join("• " + x for x in best["steps"])
+        st.last_action = {"kind": "howto", "turn": st.turn, "title": best["title"]}
+        return Reply(text, "smalltalk", f"{best['title']}:\n\n{body}", via="everyday")
 
     def _likes_answer(self, st: DialogState, text: str) -> Reply | None:
         """"what do I like?" / "what don't I like?": the favourites or dislikes you told me."""
@@ -2640,6 +2666,9 @@ _THING_TYPES = frozenset(("Album", "Single", "Song", "Film", "Book", "Television
 _ORG_TYPES = frozenset(("Company", "Publisher", "RecordLabel", "Organisation", "University", "School", "PoliticalParty",
                         "GovernmentAgency", "SoccerClub", "BasketballTeam", "TelevisionStation", "Newspaper",
                         "MilitaryUnit", "Band"))
+_HOWTO_Q = re.compile(r"^(?:so |ok |okay |hey )?(?:how (?:do|can|should|would) (?:i|you|one|we|people)|how to|"
+                      r"how long (?:do|should) (?:i|you)|how much \w+ should (?:i|you)|what(?:'s| is) the best way to|"
+                      r"what should i (?:wear|do) (?:to|for|about)|any tips (?:on|for) |tips for |how (?:do|can) i get rid of)\b")
 _TOPIC_EDGE = set("""who whom whose what which when where why how is are was were be been do does did done has have had
 won win wins winning lost lose the a an of in on at for to by from with and or but about i me my you your he she it they
 him her them his its their this that these those there here top best first last most many much old""".split())

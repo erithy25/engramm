@@ -6139,6 +6139,516 @@
   "job_lost": [
    "Oh no, I'm really sorry. That's a hard thing to go through. How are you holding up?",
    "That's rough — I'm sorry. Was it out of the blue?"
+  ],
+  "howto": [
+   {
+    "keys": [
+     [
+      "boil",
+      "egg"
+     ],
+     [
+      "hard",
+      "egg"
+     ],
+     [
+      "soft",
+      "egg"
+     ],
+     [
+      "cook",
+      "egg"
+     ]
+    ],
+    "title": "Boiling an egg",
+    "steps": [
+     "Put the egg in boiling water (lower it in gently with a spoon).",
+     "Soft: 6 minutes · medium: 8 minutes · hard: 10–11 minutes.",
+     "Move it to cold water for a minute — it peels much more easily."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "cook",
+      "pasta"
+     ],
+     [
+      "boil",
+      "pasta"
+     ],
+     [
+      "pasta",
+      "long"
+     ],
+     [
+      "spaghetti",
+      "cook"
+     ]
+    ],
+    "title": "Cooking pasta",
+    "steps": [
+     "Use plenty of water (about 1 litre per 100 g) and salt it well once it boils.",
+     "Most dried pasta needs 8–12 minutes — the packet time is a good guide.",
+     "Taste a minute before the end: it should be soft but still have a little bite (al dente).",
+     "Keep a cup of pasta water before draining — it helps the sauce stick."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "cook",
+      "rice"
+     ],
+     [
+      "make",
+      "rice"
+     ],
+     [
+      "boil",
+      "rice"
+     ]
+    ],
+    "title": "Cooking rice",
+    "steps": [
+     "Rinse the rice until the water runs almost clear.",
+     "Use about 1.5 cups of water per cup of white rice (2 for brown).",
+     "Bring to a boil, cover, turn the heat to low: 12–15 minutes (brown: 35–40).",
+     "Let it rest covered for 5–10 minutes, then fluff with a fork."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "pancake"
+     ],
+     [
+      "pancakes"
+     ]
+    ],
+    "title": "Simple pancakes",
+    "steps": [
+     "Mix 200 g flour, 2 tsp baking powder, a pinch of salt and 1 tbsp sugar.",
+     "Whisk in 1 egg, 300 ml milk and 2 tbsp melted butter until just smooth.",
+     "Cook small ladlefuls in a lightly buttered pan on medium heat.",
+     "Flip when bubbles appear on top — about 1–2 minutes per side."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "hiccup"
+     ],
+     [
+      "hiccups"
+     ]
+    ],
+    "title": "Getting rid of hiccups",
+    "steps": [
+     "Hold your breath for 10–20 seconds, then breathe out slowly — repeat a few times.",
+     "Sip a glass of cold water slowly, or swallow a teaspoon of sugar.",
+     "Breathe slowly into cupped hands for a minute.",
+     "Hiccups that last more than two days are worth mentioning to a doctor."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "tie",
+      "tie"
+     ],
+     [
+      "knot",
+      "tie"
+     ],
+     [
+      "tie",
+      "necktie"
+     ]
+    ],
+    "title": "Tying a tie (four-in-hand knot)",
+    "steps": [
+     "Drape the tie around your neck, wide end on your right, hanging about 30 cm lower than the narrow end.",
+     "Cross the wide end over the narrow end, then bring it back underneath.",
+     "Cross it over the front again, then pull it up through the neck loop from below.",
+     "Push it down through the front loop you just made and tighten gently, sliding the knot up."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "water",
+      "drink"
+     ],
+     [
+      "water",
+      "day"
+     ],
+     [
+      "hydrated"
+     ]
+    ],
+    "title": "How much water to drink",
+    "steps": [
+     "A common guide is about 2–2.5 litres of fluids a day for adults — more when it's hot or you exercise.",
+     "Food and other drinks count too.",
+     "Pale yellow urine is a simple sign you're drinking enough."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "make",
+      "friends"
+     ],
+     [
+      "new",
+      "friends"
+     ],
+     [
+      "meet",
+      "people"
+     ]
+    ],
+    "title": "Making friends as an adult",
+    "steps": [
+     "Go where the same people show up regularly: a class, a club, a sports team, volunteering.",
+     "Repetition matters more than first impressions — keep going for a few weeks.",
+     "Be the one who suggests something small: a coffee, a walk, a game night.",
+     "Follow up: remembering a detail someone told you goes a long way."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "wear",
+      "interview"
+     ],
+     [
+      "dress",
+      "interview"
+     ],
+     [
+      "outfit",
+      "interview"
+     ]
+    ],
+    "title": "What to wear to a job interview",
+    "steps": [
+     "Dress one step smarter than people at the company usually do.",
+     "Clean, well-fitting, simple: neutral colours, nothing distracting.",
+     "When in doubt: smart trousers or skirt, a shirt or blouse, a blazer and clean shoes.",
+     "Lay it out the evening before so the morning is calm."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "cold"
+     ],
+     [
+      "flu"
+     ],
+     [
+      "sore",
+      "throat"
+     ]
+    ],
+    "title": "Getting over a cold",
+    "steps": [
+     "Rest, and drink plenty — warm drinks soothe the throat.",
+     "Honey with warm water or tea can calm a cough (not for babies under one).",
+     "Saltwater gargles help a sore throat.",
+     "See a doctor if you have trouble breathing, a high fever for several days, or it lasts over two weeks."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "headache"
+     ],
+     [
+      "headaches"
+     ]
+    ],
+    "title": "Easing a headache",
+    "steps": [
+     "Drink a big glass of water — dehydration is a common cause.",
+     "Rest in a quiet, dim room and take a break from screens.",
+     "A cool cloth on the forehead or a short walk in fresh air can help.",
+     "Sudden, very severe or unusual headaches need a doctor right away."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "save",
+      "money"
+     ],
+     [
+      "saving",
+      "money"
+     ],
+     [
+      "budget"
+     ]
+    ],
+    "title": "Saving money",
+    "steps": [
+     "Move a fixed amount to savings right after payday — before you can spend it.",
+     "Track your spending for one month; the leaks are usually small and regular.",
+     "Cancel subscriptions you don't use and compare insurance or phone contracts once a year.",
+     "Give your savings a goal — it makes them easier to protect."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "study"
+     ],
+     [
+      "studying"
+     ],
+     [
+      "learn",
+      "faster"
+     ],
+     [
+      "exam",
+      "prepare"
+     ]
+    ],
+    "title": "Studying effectively",
+    "steps": [
+     "Test yourself instead of rereading — recalling is what makes it stick.",
+     "Spread it out: short sessions over several days beat one long cram.",
+     "Work in 25–50 minute blocks with short breaks, phone in another room.",
+     "Explain the topic in your own words; gaps show up immediately."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "fall",
+      "asleep"
+     ],
+     [
+      "cant",
+      "sleep"
+     ],
+     [
+      "can't",
+      "sleep"
+     ],
+     [
+      "insomnia"
+     ]
+    ],
+    "title": "Falling asleep",
+    "steps": [
+     "Same bedtime and wake-up time every day, also at weekends.",
+     "No screens for the last 30–60 minutes; keep the room cool and dark.",
+     "If you lie awake for more than ~20 minutes, get up and do something calm until you feel sleepy.",
+     "Skip caffeine after lunch and heavy meals late in the evening."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "stain"
+     ],
+     [
+      "stains"
+     ]
+    ],
+    "title": "Removing a stain",
+    "steps": [
+     "Act quickly and blot — don't rub, or it spreads.",
+     "Rinse from the back of the fabric with cold water (hot water sets protein stains like blood).",
+     "Dab on a little washing-up liquid or stain remover, leave for 10 minutes, then wash as usual.",
+     "Check it's gone before drying — heat makes stains permanent."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "unclog"
+     ],
+     [
+      "clogged"
+     ],
+     [
+      "blocked",
+      "drain"
+     ],
+     [
+      "blocked",
+      "sink"
+     ]
+    ],
+    "title": "Unclogging a drain",
+    "steps": [
+     "Pour a kettle of hot (not boiling, for plastic pipes) water down first.",
+     "Try a plunger: cover the overflow hole and plunge firmly 10–15 times.",
+     "Or half a cup of baking soda, then a cup of vinegar, wait 15 minutes, flush with hot water.",
+     "Still blocked? Clean the trap under the sink, or call a plumber."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "iron",
+      "shirt"
+     ],
+     [
+      "ironing"
+     ]
+    ],
+    "title": "Ironing a shirt",
+    "steps": [
+     "Iron while the shirt is slightly damp, on the setting for its fabric.",
+     "Order: collar, cuffs, sleeves, then the back and the two front panels.",
+     "Hang it straight away on a hanger and do up the top button."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "make",
+      "coffee"
+     ],
+     [
+      "coffee",
+      "better"
+     ]
+    ],
+    "title": "Making good coffee",
+    "steps": [
+     "Use freshly ground beans: about 60 g coffee per litre of water.",
+     "Water just off the boil (about 93–96 °C), not boiling.",
+     "French press: 4 minutes, then press slowly; filter: pour in slow circles.",
+     "Too bitter? Grind coarser or brew shorter. Too sour? Finer or longer."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "motivated"
+     ],
+     [
+      "motivation"
+     ]
+    ],
+    "title": "Getting motivated",
+    "steps": [
+     "Make the first step tiny — two minutes is enough to get started.",
+     "Decide when and where you'll do it, not just what.",
+     "Track streaks: seeing progress is motivating in itself.",
+     "Reward yourself after, not before."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "relax"
+     ],
+     [
+      "calm",
+      "down"
+     ],
+     [
+      "stress",
+      "reduce"
+     ],
+     [
+      "less",
+      "stressed"
+     ]
+    ],
+    "title": "Calming down",
+    "steps": [
+     "Breathe slowly: in for 4 seconds, hold 4, out for 6 — a few rounds.",
+     "Name what's stressing you; writing it down makes it smaller.",
+     "Move: a 10-minute walk lowers stress noticeably.",
+     "Pick one small thing you can do now, and do just that."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "lose",
+      "weight"
+     ],
+     [
+      "weight",
+      "loss"
+     ]
+    ],
+    "title": "Losing weight sensibly",
+    "steps": [
+     "Aim for slow, steady progress — about 0.5 kg a week is sustainable.",
+     "Protein and vegetables at every meal keep you full longer.",
+     "Watch drinks: juice, soda and alcohol add up quickly.",
+     "Walk more and sleep enough — both matter more than people expect."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "public",
+      "speaking"
+     ],
+     [
+      "give",
+      "speech"
+     ],
+     [
+      "presentation",
+      "nervous"
+     ]
+    ],
+    "title": "Speaking in front of people",
+    "steps": [
+     "Practise out loud at least three times — once in front of someone.",
+     "Know your first two sentences by heart; the rest will follow.",
+     "Slow down and pause — it feels long to you, not to the audience.",
+     "Look at a few friendly faces, one at a time."
+    ]
+   },
+   {
+    "keys": [
+     [
+      "plant",
+      "alive"
+     ],
+     [
+      "water",
+      "plants"
+     ],
+     [
+      "houseplant"
+     ],
+     [
+      "plants",
+      "dying"
+     ]
+    ],
+    "title": "Keeping houseplants alive",
+    "steps": [
+     "Most die from too much water: water when the top 2–3 cm of soil is dry.",
+     "Use pots with drainage holes and empty the saucer.",
+     "Check the light: most houseplants like bright, indirect light.",
+     "Feed lightly in spring and summer, rarely in winter."
+    ]
+   }
+  ],
+  "howto_head": [
+   "Here's how:",
+   "Here's a simple way:"
+  ],
+  "howto_none": [
+   "I don't have a good guide for that one, sorry. If it's about a thing or a topic, try “tell me about …” and I'll share what I've read.",
+   "I'm not sure how — that's not among the things I have practical tips for. I can tell you about the topic itself, though: just say “tell me about …”."
   ]
  }
 }
