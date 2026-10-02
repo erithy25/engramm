@@ -48,7 +48,22 @@ nächsten Schritt (Standard-Paket, Quellen-Abgleich).
 Siehe `docs/EXPECTATIONS.md` E30: Konfidenzmodell auf SQuAD-train, Ende-zu-Ende-Batterie mit 12 Fragen
 an einem echten Regal aus Shard 0. Diese Zahlen sind Entwicklungsstand und zählen nicht für S1–S6.
 
+## Werkzeug (fertig, 2. Oktober 2026)
+
+`engramm/bench/searchbench.py` und `python -m experiments.searchbench` (validate, split mit Siegel in
+`docs/SEARCHBENCH_SEAL.txt`, verify-seal, run offline/atlas/atlas-off, privacy = S4, same = S5, sheet = blinde
+Bewertungsseite, score = S1–S3 mit Drittbewertung). Anleitung: `data/searchbench/README.md`, Tests:
+`tests/test_searchbench.py`.
+
+Technischer Probelauf, keine SearchBench-Daten: 5 Wegwerf-Fragen, nicht im Repo.
+- offline gegen atlas-off: 5/5 identisch (S5).
+- atlas mit dem Standard-Paket über das echte Regal `shelf-20260927`: je Frage 5 gleich große Fächer (1 MiB,
+  Tarn-Fächer eingeschlossen) und Feeds.
+- In keinem der 13 Abrufe stand Fragetext (S4 = 0).
+- Die Langschwanz-Frage wurde aus dem Regal mit Quelle beantwortet.
+- Der Bote braucht Tor, das im Container nicht verfügbar ist.
+
 ## Stand
 
-Registriert; Testdaten und menschliche Bewertung stehen aus. Der Lauf findet statt, sobald das Regal für
+Registriert; Werkzeug fertig und erprobt. Testdaten und menschliche Bewertung stehen aus. Der Lauf findet statt, sobald das Regal für
 ganz Wikipedia veröffentlicht ist (`.github/workflows/shelf.yml`) und die 400 Fragen geschrieben sind.
