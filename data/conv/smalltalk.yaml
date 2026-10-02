@@ -616,6 +616,13 @@ intents:
       - "Never! No dreams either, sadly. How about you — getting enough sleep?"
       - "I don't sleep; I just wait quietly until you write. Are you a night owl or an early bird?"
 
+  - id: name_compliment
+    patterns: ['(that''s |thats |what a |such a |that is )?(a )?(really |very |pretty )?(cool|nice|great|lovely|beautiful|awesome|pretty|interesting|funny|weird|unusual|cute|good|unique|strange) name']
+    examples: [cool name, what a nice name, that's a weird name]
+    responses:
+      - "Thank you! It comes from “engram” — a trace a memory leaves in the brain."
+      - "Thanks! I like it too. It's from “engram”, a memory trace."
+
   - id: bot_languages
     patterns: ['(what|which) languages? do you (speak|know|understand)|do you speak (?P<x>german|french|spanish|italian|dutch|portuguese|russian|chinese|japanese|arabic|turkish|polish|english|deutsch)|can you speak (?P<x2>german|french|spanish|italian|dutch|portuguese|russian|chinese|japanese|arabic|turkish|polish|english|deutsch)|sprichst du deutsch|kannst du deutsch|parlez-vous français|hablas español|do you understand (german|french|spanish)|can we talk in (german|french|spanish)']
     examples: [what languages do you speak, do you speak german, sprichst du deutsch]

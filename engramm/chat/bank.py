@@ -30,6 +30,57 @@ _SLANG = {"u": "you", "r": "are", "ur": "your", "pls": "please", "plz": "please"
           "rn": "right now", "abt": "about", "cuz": "because", "coz": "because", "tho": "though",
           "fav": "favourite", "fave": "favourite", "favorite": "favourite", "color": "colour", "colors": "colours",
           "b4": "before", "2day": "today", "gtg": "got to go", "g2g": "got to go", "gr8": "great", "ok.": "ok", "k.": "k"}
+# chat spelling expanded in the message itself (English), so that understanding, lookup and memory
+# all see "what's your name" for "wats ur name" — whole words only, case kept for everything else
+_CHAT_WORDS = {"u": "you", "r": "are", "ur": "your", "wat": "what", "wut": "what", "wht": "what", "wats": "what's",
+               "whats": "what's", "whos": "who's", "hows": "how's", "wheres": "where's", "thats": "that's",
+               "abt": "about", "thx": "thanks", "thnx": "thanks", "tnx": "thanks", "ty": "thank you",
+               "tysm": "thank you so much", "np": "no problem", "pls": "please", "plz": "please", "gf": "girlfriend",
+               "bf": "boyfriend", "bday": "birthday", "smth": "something", "sth": "something", "nvm": "never mind",
+               "ppl": "people", "tmrw": "tomorrow", "tmr": "tomorrow", "2moro": "tomorrow", "2day": "today",
+               "l8r": "later", "b4": "before", "bc": "because", "cuz": "because", "coz": "because", "rly": "really",
+               "srsly": "seriously", "prolly": "probably", "dunno": "don't know", "lemme": "let me", "gimme": "give me",
+               "hru": "how are you", "wyd": "what are you doing", "hbu": "how about you", "wbu": "how about you",
+               "im": "I'm", "ive": "I've", "youre": "you're", "dont": "don't", "cant": "can't", "wont": "won't",
+               "didnt": "didn't", "doesnt": "doesn't", "isnt": "isn't", "wasnt": "wasn't", "arent": "aren't",
+               "kk": "ok", "rn": "right now", "w/": "with", "w/o": "without", "gr8": "great", "fav": "favourite",
+               "fave": "favourite", "cud": "could", "shud": "should", "wud": "would", "yr": "your", "luv": "love"}
+_YOURE_NEXT = re.compile(r"(?:the|so|very|really|too|such|amazing|awesome|great|welcome|funny|smart|right|wrong|"
+                         r"kidding|joking|not|a|an|cute|sweet|nice|kind|weird|crazy|stupid|dumb|wild|lying|actually|"
+                         r"just|literally|always|never|going|getting|being|doing|making|my)\b")
+_CHAT_TAIL = re.compile(r"(?:[\s,]+(?:btw|tbh|lol|lmao|haha+|hehe+|xd|imo|ngl|fr|lowkey))+(?=[\s.!?]*$)", re.I)
+
+
+def expand_chat(text: str) -> str:
+    """"wats ur name" → "what's your name", "u r smart" → "you are smart", "ur funny" → "you're funny",
+    "i'm 25 btw" → "i'm 25" (a trailing "btw/lol/tbh" carries no content)."""
+    toks = re.split(r"(\s+)", text)
+    words = [t for t in toks if t.strip()]
+    out = []
+    k = -1
+    for t in toks:
+        if not t.strip():
+            out.append(t)
+            continue
+        k += 1
+        nxt = words[k + 1] if k + 1 < len(words) else ""
+        m = re.fullmatch(r"([\"'(]*)([A-Za-z0-9/]+)([.,!?;:)\"']*)", t)
+        w = m.group(2) if m else ""
+        if m and w.lower() in _CHAT_WORDS and not (w.isupper() and len(w) > 1) \
+                and not (w[:1].isupper() and len(w) == 1 and nxt[:1].isupper()):     # "U Thant" is a name
+            low = w.lower()
+            rep = _CHAT_WORDS[low]
+            if low == "ur" and (k == 0 and len(words) > 1 or _YOURE_NEXT.match(nxt.lower())):
+                rep = "you're"                                # "ur funny", "thank u ur the best"
+            out.append(m.group(1) + rep + m.group(3))
+        else:
+            out.append(t)
+    s = "".join(out)
+    if len(words) >= 3:
+        s = _CHAT_TAIL.sub("", s)
+    return s
+
+
 _ADDRESS = re.compile(r"(^|[\s,])(engramm|bot|buddy)([\s,!.?]|$)", re.I)
 _FILLER = re.compile(r"^(?:(?:um+|uh+|er+|erm|well|so|oh|ah|hmm+|hey|ok|okay|alright|and|but|also|now|then|"
                      r"please|pls|plz|lo+l+|ha(?:ha)+h?|he(?:he)+|lmao+|omg|wow|aw+|haha+)\s*[,.!]?\s+)+(?=\S)")

@@ -1284,6 +1284,21 @@
     ]
    },
    {
+    "id": "name_compliment",
+    "patterns": [
+     "(that's |thats |what a |such a |that is )?(a )?(really |very |pretty )?(cool|nice|great|lovely|beautiful|awesome|pretty|interesting|funny|weird|unusual|cute|good|unique|strange) name"
+    ],
+    "examples": [
+     "cool name",
+     "what a nice name",
+     "that's a weird name"
+    ],
+    "responses": [
+     "Thank you! It comes from “engram” — a trace a memory leaves in the brain.",
+     "Thanks! I like it too. It's from “engram”, a memory trace."
+    ]
+   },
+   {
     "id": "bot_languages",
     "patterns": [
      "(what|which) languages? do you (speak|know|understand)|do you speak (?P<x>german|french|spanish|italian|dutch|portuguese|russian|chinese|japanese|arabic|turkish|polish|english|deutsch)|can you speak (?P<x2>german|french|spanish|italian|dutch|portuguese|russian|chinese|japanese|arabic|turkish|polish|english|deutsch)|sprichst du deutsch|kannst du deutsch|parlez-vous français|hablas español|do you understand (german|french|spanish)|can we talk in (german|french|spanish)"
@@ -6024,6 +6039,36 @@
   "rec_exhausted": [
    "Then you've read more than me in that corner! Want something of a different kind?",
    "That's all I've got of that kind — impressive! Shall I try a different direction?"
+  ],
+  "where_were_we": [
+   "We were talking about {x}.",
+   "Last thing was {x} — want to pick that up again?"
+  ],
+  "homework": [
+   "Of course! What subject is it?",
+   "Happy to help — what's the subject, and what's the question?"
+  ],
+  "subject": {
+   "math": [
+    "{x} — I can do calculations (try “what is 12% of 80”) and explain terms. What's the problem?",
+    "Okay, {x}! Type the problem and I'll work through it with you."
+   ],
+   "science": [
+    "{x} — I can explain terms and look up facts. What's the question?"
+   ],
+   "language": [
+    "{x}! I can explain words and check facts about books and authors. What do you need?"
+   ],
+   "other": [
+    "{x} — okay! What's the question?"
+   ]
+  },
+  "measure_quote": [
+   "From the article on {title}: “{evidence}”",
+   "Here's what the article on {title} says: “{evidence}”"
+  ],
+  "measure_none": [
+   "I don't know for sure — the article on {title} that I have doesn't give that clearly, and I'd rather not take a number from somewhere else."
   ]
  }
 }

@@ -791,3 +791,28 @@ rec_seen:
 rec_exhausted:
   - "Then you've read more than me in that corner! Want something of a different kind?"
   - "That's all I've got of that kind — impressive! Shall I try a different direction?"
+
+where_were_we:
+  - "We were talking about {x}."
+  - "Last thing was {x} — want to pick that up again?"
+homework:
+  - "Of course! What subject is it?"
+  - "Happy to help — what's the subject, and what's the question?"
+subject:
+  math:
+    - "{x} — I can do calculations (try “what is 12% of 80”) and explain terms. What's the problem?"
+    - "Okay, {x}! Type the problem and I'll work through it with you."
+  science:
+    - "{x} — I can explain terms and look up facts. What's the question?"
+  language:
+    - "{x}! I can explain words and check facts about books and authors. What do you need?"
+  other:
+    - "{x} — okay! What's the question?"
+
+# "how big is the Sun?": the sentence of the topic's own article with that measure
+measure_quote:
+  - "From the article on {title}: “{evidence}”"
+  - "Here's what the article on {title} says: “{evidence}”"
+
+measure_none:
+  - "I don't know for sure — the article on {title} that I have doesn't give that clearly, and I'd rather not take a number from somewhere else."

@@ -469,3 +469,36 @@ def test_refining_suggestions(chat):
 def test_verbs_are_never_jobs():
     from engramm.chat.facts import NON_VALUES
     assert {"got", "went", "back"} <= NON_VALUES
+
+
+def test_chat_spelling_is_expanded():
+    from engramm.chat.bank import expand_chat
+    assert expand_chat("wats ur name") == "what's your name"
+    assert expand_chat("ur funny") == "you're funny"
+    assert expand_chat("do u have a gf") == "do you have a girlfriend"
+    assert expand_chat("i'm 25 btw") == "i'm 25"
+    assert expand_chat("My name is U Thant") == "My name is U Thant"
+    assert expand_chat("I live in the US") == "I live in the US"
+
+
+def test_slang_conversation(chat):
+    a, st = chat
+    a.turn(st, "heyy")
+    r = a.turn(st, "wats ur name")
+    assert "ENGRAMM" in r.text and "great name" not in r.text, r.text
+    r = a.turn(st, "cool name")
+    assert "call you" not in r.text, r.text
+    r = a.turn(st, "do u have a gf")
+    assert r.via == "smalltalk", r.text
+    r = a.turn(st, "can u help me with my homework")
+    assert "subject" in r.text, r.text
+    r = a.turn(st, "its math")
+    assert "Math" in r.text, r.text
+
+
+def test_measure_units_fit_the_question():
+    from engramm.chat.dialog import _DIM_UNIT, _MEASURE_TOPIC
+    assert _DIM_UNIT["big"].search("radius is about 695,000 kilometers")
+    assert not _DIM_UNIT["big"].search("12 years")
+    assert _DIM_UNIT["old"].search("4.6 billion years ago")
+    assert _MEASURE_TOPIC.match("how far away is it").group("t") == "it"

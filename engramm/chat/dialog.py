@@ -28,9 +28,9 @@ import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-from engramm.chat.about import About, AboutFinder
+from engramm.chat.about import About, AboutFinder, clean_sentence
 from engramm.chat.acts import Unit, classify
-from engramm.chat.bank import Bank, choose, load_bank, normalise
+from engramm.chat.bank import Bank, choose, expand_chat, load_bank, normalise
 from engramm.chat.bot import CHAT_PREFIX, Reply, message_type, source_id
 from engramm.chat.everyday import _GENRES
 from engramm.chat.facts import USER, facts_from_text
@@ -377,6 +377,7 @@ class Assistant:
                 return self._german(st, msg)      # "haha", "ok", "ja" in a German conversation stay German
             if len(re.findall(r"[a-z]+", msg.lower())) >= 2:
                 st.lang = "en"
+        msg = expand_chat(msg)                            # "wats ur name" → "what's your name"
         msg = _split_self_statements(msg)                 # "my name is Sam and I'm a teacher": two facts
         have = st.uses.get("have_noun")
         if have and st.turn - have[1] <= 2:               # "their names are Mia and Leo" after "I have two kids"
@@ -512,6 +513,9 @@ class Assistant:
             hit = self.device.group(msg)
             # questions about the user ("when is my dentist appointment?") are memory questions
             if hit is not None and units[0].act == "question" and (hit[0] != "online" or re.search(r"\bmy\b", msg, re.I)):
+                hit = None
+            mt = _MEASURE_TOPIC.match(msg.strip())
+            if hit is not None and mt and not re.fullmatch(r"(?:it|outside|today|the weather|out)", mt.group("t").strip(), re.I):
                 hit = None
             # "I have an exam tomorrow" tells ENGRAMM something to remember; only requests are commands
             if hit is not None and units[0].act == "statement" and re.match(r"(?:i|i'm|im|i've|my|we|we're|our)\b", msg, re.I):
@@ -862,6 +866,9 @@ class Assistant:
         kb = self._kb_answer(st, text)
         if kb is not None:
             return kb
+        mq = self._measure_quote(st, text)
+        if mq is not None:
+            return mq
         ev = self._event_answer(st, text)
         if ev is not None:
             return ev
@@ -883,7 +890,9 @@ class Assistant:
             if later is not None:
                 return later
         q = rep.resolved or text
-        if rep.kind == "answer" and rep.answer and _MEASURE_Q.match(q) and re.fullmatch(r"[\d.,\s~≈-]+", rep.answer):
+        dim_m = _MEASURE_TOPIC.match(q)
+        need = _DIM_UNIT.get(dim_m.group("dim").split()[0].lower(), _UNIT) if dim_m else _UNIT
+        if rep.kind == "answer" and rep.answer and _MEASURE_Q.match(q) and not need.search(rep.answer):
             # "how far is the moon?" → "8": a measure without its unit is no answer
             rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None
             rep.text = "I don't know for sure."
@@ -954,6 +963,17 @@ class Assistant:
             rep.text = self._pick(st, "daily:workout_done", d["workout_done"])
             st.last_action = {"kind": "workout", "turn": st.turn}
             return rep
+        if _HOMEWORK.match(norm):
+            st.uses["homework"] = st.turn
+            return Reply(msg, "smalltalk", self._pick(st, "daily:homework", d["homework"]), via="smalltalk")
+        hw = st.uses.get("homework")
+        m = _SUBJECT.match(norm)
+        if m and hw is not None and st.turn - hw <= 2:
+            subj = m.group("s")
+            key = next((k for k, rx in _SUBJECT_KINDS if rx.fullmatch(subj)), "other")
+            st.uses.pop("homework", None)
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:subject:{key}", d["subject"][key],
+                                                      x=subj[:1].upper() + subj[1:]), via="smalltalk")
         m = _TRIP.match(norm)
         if m and not _NOT_A_TRIP.fullmatch(m.group("x").strip()):
             place = m.group("x").strip()
@@ -1075,6 +1095,48 @@ class Assistant:
         key = "dislikes_list" if neg else "likes_list"
         return Reply(text, "answer", self._pick(st, f"daily:{key}", self.bank.daily[key], x=joined),
                      answer=joined, source={"kind": "user"}, via="facts")
+
+    def _measure_quote(self, st: DialogState, text: str) -> Reply | None:
+        """"How big is the Sun?" / "How far away is it?": the sentence of the topic's own article that
+        gives that measure with a unit, quoted with its source — the topic is certain, the number
+        is the article's, nothing is guessed."""
+        q = self.bot.resolve(" ".join(text.split()))
+        m = _MEASURE_TOPIC.match(q)
+        if not m:
+            return None
+        dim, topic = m.group("dim").lower(), m.group("t").strip(" ?.")
+        if re.fullmatch(r"(?:it|he|she|they|that|this|there)", topic, re.I):
+            last = self.bot.context.get("mention")
+            if not last:
+                return None
+            topic = last
+        docs = []
+        for v in (topic, re.sub(r"^(?:the|a|an)\s+", "", topic, flags=re.I)):
+            docs = self.about.titles.lookup(v) or self.about.titles.lookup(_place_case(v))
+            if docs:
+                break
+        if not docs:
+            return None
+        cues = _MEASURE_CUES.get(dim)
+        lo, hi = self.bot.c.doc_sentences(docs[0])
+        title = self.bot.c.doc_keys[docs[0]][1]
+        units = _DIM_UNIT.get(dim.split()[0], _UNIT)
+        for sid in range(lo, min(hi, lo + 14)):
+            sent = clean_sentence(self.bot.c.sentence_text(sid))
+            near = any(units.search(sent[max(0, c.start() - 40):c.end() + 70]) for c in cues.finditer(sent))
+            if near and len(sent) < 400:
+                self.bot.context.update({"mention": title, "answer": None, "atype": None})
+                src = {"kind": "wikipedia", "title": title, "key": title,
+                       "url": "https://en.wikipedia.org/wiki/" + title.replace(" ", "_")}
+                st.last_fact = {"evidence": sent, "source": src, "answer": None, "question": q, "sure": True}
+                body = self._pick(st, "daily:measure_quote", self.bank.daily["measure_quote"], title=title, evidence=sent)
+                return Reply(text, "answer", body, evidence=sent, source=src, via="about")
+        # the topic's own article does not give it: say so rather than take a number from elsewhere
+        self.bot.context.update({"mention": title, "answer": None, "atype": None})
+        st.last_fact = None
+        return Reply(text, "unknown", self._pick(st, "daily:measure_none", self.bank.daily["measure_none"], title=title),
+                     source={"kind": "wikipedia", "title": title, "key": title,
+                             "url": "https://en.wikipedia.org/wiki/" + title.replace(" ", "_")}, via="lookup")
 
     def _named_topic(self, q: str) -> str | None:
         """The article a question names, as the fact bank titles it: "who won the world cup 2022?"
@@ -1210,6 +1272,13 @@ class Assistant:
                          via="smalltalk")
         if _BOT_LIMIT.match(norm):
             return Reply(msg, "smalltalk", self._pick(st, "daily:bot_limit", d["bot_limit"]), via="smalltalk")
+        if _WHERE_WERE_WE.match(norm):
+            themes = st.uses.get("recap", [])
+            if themes:
+                last = "you" if themes[-1] == "things about you" else themes[-1]
+                return Reply(msg, "smalltalk", self._pick(st, "daily:where_were_we", d["where_were_we"], x=last),
+                             via="smalltalk")
+            return Reply(msg, "smalltalk", self._pick(st, "daily:recap_none", d["recap_none"]), via="smalltalk")
         if _RECAP.match(norm):
             themes = st.uses.get("recap", [])
             if not themes:
@@ -1916,6 +1985,8 @@ _BOT_LIMIT = re.compile(r"^(?:lol |haha |but |well |oh )?(?:you|u) (?:can't|cant
 _RECAP = re.compile(r"^(?:can you )?(?:remind me |tell me )?(?:what|which things?) (?:did |have )?(?:we|we've) "
                     r"(?:talk(?:ed)? about|discuss(?:ed)?|cover(?:ed)?)(?: so far| today| before| earlier)?$|"
                     r"^what were we (?:talking about|saying)$|^(?:summarize|sum up|recap)(?: our| the)? (?:conversation|chat)$")
+_WHERE_WERE_WE = re.compile(r"^(?:ok |okay |so |anyway )?(?:where were we|where did we (?:leave off|stop)|what was i saying|"
+                            r"what were we just talking about|back to (?:what we were talking about|the topic))$")
 _JOKE_BAD = re.compile(r"^(?:haha |lol |ha |ugh |oh no |omg )*(?:that's|thats|that was|that one was|it's|its|"
                        r"so|that joke was|wow that's)? ?(?:so |really |pretty |kinda |very )?(?:bad|terrible|awful|lame|"
                        r"cringe|cringy|corny|not funny|unfunny|dumb|stupid|the worst)(?: joke)?[!. ]*(?:lol|haha)?$")
@@ -2006,6 +2077,17 @@ _DIET = re.compile(r"^(?:btw |by the way |oh |also )?i(?:'m| am) (?:a |actually 
 _POST_WORKOUT = re.compile(r"^what (?:should|can|could|do) i (?:eat|have)(?: after| post| before)(?: a| my| the)? "
                            r"(?:workout|work out|gym|training|run|exercise|session)\??$|^(?:good |any )?post[- ]workout "
                            r"(?:food|meal|snack)s?\??$")
+_HOMEWORK = re.compile(r"^(?:can|could|would|will) you (?:please )?help me(?: out)?(?: with)? (?:my |some |this |an? )?"
+                       r"(?:homework|assignment|essay|studies|studying|exam|test|project|school ?work|revision|math|maths|"
+                       r"physics|chemistry|biology|history|english|geography|coursework)(?: please)?$|"
+                       r"^i need help with (?:my )?(?:homework|assignment|essay|exam|test|studies)$")
+_SUBJECT = re.compile(r"^(?:it's|its|it is|it's about|in|for)?\s*(?P<s>math|maths|mathematics|algebra|geometry|calculus|physics|"
+                      r"chemistry|biology|history|geography|english|literature|french|spanish|german|latin|economics|"
+                      r"computer science|programming|coding|philosophy|art|music)(?: homework| class| stuff)?$")
+_SUBJECT_KINDS = [("math", re.compile(r"math|maths|mathematics|algebra|geometry|calculus")),
+                  ("science", re.compile(r"physics|chemistry|biology|computer science|programming|coding")),
+                  ("language", re.compile(r"english|literature|french|spanish|german|latin")),
+                  ("other", re.compile(r".+"))]
 _TRIP = re.compile(r"^(?:so |well |guess what,? )?(?:i|we|me and my \w+|my \w+ and i) (?:just |finally |recently |also )?"
                    r"(?:got back from|came back from|returned from|went to|were in|was in|visited|travel+ed to|flew to|"
                    r"went on|spent (?:a|the|two|three|four|five|\w+) (?:week|weekend|days?|weeks?) in) "
@@ -2128,6 +2210,45 @@ def _full_name(answer: str | None, texts: list[str]) -> str | None:
     return answer
 
 
+_UNIT = re.compile(r"\d[\d.,]*\s*(?:%|°|(?:k?m|cm|mm|km|mi|miles?|ft|feet|foot|in|inch(?:es)?|yards?|metres?|meters?|"
+                   r"kilomet(?:re|er)s?|centimet(?:re|er)s?|light[- ]years?|au|astronomical units?|parsecs?|kg|g|grams?|"
+                   r"kilograms?|tonnes?|tons?|lbs?|pounds?|ounces?|oz|l|litres?|liters?|ml|gallons?|hours?|minutes?|"
+                   r"seconds?|days?|weeks?|months?|years?|km/h|mph|knots?|m/s|hectares?|acres?|sq|square)\b)|"
+                   r"\b(?:million|billion|thousand|hundred) (?:k?m|kilomet|miles?|km|light|years?|kg|tonnes?|people)", re.I)
+_LEN = r"(?:k?m|cm|mm|km|mi|miles?|ft|feet|foot|in|inch(?:es)?|yards?|metres?|meters?|kilomet(?:re|er)s?|" \
+       r"centimet(?:re|er)s?|light[- ]years?|au|astronomical units?|parsecs?)"
+_DIM_UNIT = {
+    "far": re.compile(r"\d[\d.,]*\s*(?:million |billion |thousand )?" + _LEN + r"\b", re.I),
+    "tall": re.compile(r"\d[\d.,]*\s*" + _LEN + r"\b", re.I),
+    "high": re.compile(r"\d[\d.,]*\s*" + _LEN + r"\b", re.I),
+    "deep": re.compile(r"\d[\d.,]*\s*" + _LEN + r"\b", re.I),
+    "long": re.compile(r"\d[\d.,]*\s*(?:" + _LEN[3:-1] + r"|hours?|minutes?|days?|years?)\b", re.I),
+    "wide": re.compile(r"\d[\d.,]*\s*" + _LEN + r"\b", re.I),
+    "big": re.compile(r"\d[\d.,]*\s*(?:million |billion |thousand )?(?:" + _LEN[3:-1] +
+                      r"|km2|km²|m2|m²|square \w+|sq \w+|hectares?|acres?|kg|kilograms?|tonnes?|tons?)\b|"
+                      r"\b(?:\d+(?:[.,]\d+)?|two|three|four|five|ten|a hundred|a thousand)(?: and a half)? times\b", re.I),
+    "heavy": re.compile(r"\d[\d.,]*\s*(?:million |billion )?(?:kg|kilograms?|g|grams?|tonnes?|tons?|lbs?|pounds?|ounces?)\b|"
+                        r"\d+(?:\.\d+)?\s*[×x]\s*10", re.I),
+    "hot": re.compile(r"\d[\d.,]*\s*(?:°|degrees|k\b|kelvin)", re.I),
+    "old": re.compile(r"\d[\d.,±]*\s*(?:million |billion |thousand )?years?\b|\b(?:1[0-9]|20)\d\d\b", re.I)}
+_DIM_UNIT["large"] = _DIM_UNIT["big"]
+_MEASURE_TOPIC = re.compile(r"^\s*how (?P<dim>far(?: away)?|big|large|tall|high|deep|long|wide|heavy|hot|old) "
+                            r"(?:is|are|was|were) (?P<t>[\w' .-]{2,50}?)(?: away| from (?:the )?earth| from here)?\s*\??$", re.I)
+_MEASURE_CUES = {
+    "far": re.compile(r"\b(?:distance|away|from (?:the )?(?:earth|sun)|light[- ]years?|astronomical units?|orbits?)\b", re.I),
+    "far away": re.compile(r"\b(?:distance|away|from (?:the )?(?:earth|sun)|light[- ]years?|astronomical units?|orbits?)\b", re.I),
+    "big": re.compile(r"\b(?:diameter|radius|circumference|times (?:that of|the size|larger|bigger)|area|size|wide|across|"
+                      r"mass|covers)\b", re.I),
+    "large": re.compile(r"\b(?:diameter|radius|circumference|times (?:that of|the size|larger|bigger)|area|size|wide|across|"
+                        r"mass|covers)\b", re.I),
+    "tall": re.compile(r"\b(?:tall|height|high|elevation|stands)\b", re.I),
+    "high": re.compile(r"\b(?:tall|height|high|elevation|altitude|stands)\b", re.I),
+    "deep": re.compile(r"\b(?:deep|depth|deepest)\b", re.I),
+    "long": re.compile(r"\b(?:long|length|stretches|runs for)\b", re.I),
+    "wide": re.compile(r"\b(?:wide|width|across|diameter)\b", re.I),
+    "heavy": re.compile(r"\b(?:mass|weighs?|weight)\b", re.I),
+    "hot": re.compile(r"\b(?:temperature|°|degrees|hot)\b", re.I),
+    "old": re.compile(r"\b(?:years? old|age|formed|billion years|million years|founded|built)\b", re.I)}
 _MEASURE_Q = re.compile(r"^\s*how (?:far|long|tall|high|big|large|deep|wide|heavy|fast|much does .+ weigh)\b", re.I)
 _LIFE_SPAN_RE = re.compile(r"\([^()]*\b\d{3,4}\s*[–—-]\s*[^()]*?\b\d{3,4}\)")
 _QUOTE_STOP = frozenset("when where who whom whose what which why how did doe do is are was were has had the a an of in on "
