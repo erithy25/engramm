@@ -11606,6 +11606,66 @@
     "Weird in a good way, I hope! 😄",
     "Guilty! Normal is overrated anyway."
    ]
+  },
+  "b64": {
+   "shy": [
+    "That's completely okay — lots of people are. Shy people often do best in places with a shared activity, like a class or a club: you talk about the thing, not about yourself, and seeing the same faces every week does the rest.",
+    "Being shy doesn't stop you making friends — it just means slower and steadier works better. A weekly group activity is ideal: no big first impression needed, people get familiar on their own."
+   ],
+   "presentation": [
+    "Ah, a presentation — that's one of the most common things people get nervous about. How prepared do you feel so far?",
+    "Presentations make almost everyone nervous, so you're in good company. Have you had a chance to practise it out loud?"
+   ],
+   "mess_up": [
+    "Then you pause, take a breath, and carry on — the audience usually doesn't even notice. People remember the overall message, not a slip. And being a little nervous shows you care.",
+    "Honestly, a small mistake is far less of a deal than it feels right now. Most listeners are on your side and want you to do well. Know your first two sentences by heart — the rest follows."
+   ],
+   "panic_tips": "If it happens again:\n\n• Remind yourself: it's a panic attack, it feels awful but it passes, usually within 10–20 minutes.\n• Breathe out slowly — longer out than in (in for 4, out for 6–8).\n• Ground yourself: name 5 things you can see, 4 you can touch, 3 you can hear.\n• Afterwards, be gentle with yourself.\n\nIf panic attacks keep coming, a doctor or therapist can really help — they're very treatable.",
+   "close": [
+    "Losing someone you were that close to leaves a big gap. What was {p} like?",
+    "That makes it even harder. It sounds like {p} meant the world to you. What do you remember most?"
+   ],
+   "memory": [
+    "That's a beautiful memory. Every time you {x}, a bit of {d} is with you. Do you still do it sometimes?",
+    "What a lovely thing to share. Things like that — learning to {x} together — stay with you. Thank you for telling me."
+   ],
+   "impostor": [
+    "That feeling is incredibly common — it even has a name, impostor syndrome. You see everyone else's highlights and your own doubts. Chances are, some of them feel exactly the same about you.",
+    "It's easy to compare your inside to everyone else's outside. They were hired for what they do, and so were you. What's one thing you're actually good at in your job?"
+   ],
+   "check_in": "That sounds really heavy, and I'm glad you're telling me. Can I ask — are you having thoughts of hurting yourself or of not wanting to be here? If so, please reach out to someone right now: call or text 988 in the US, Samaritans 116 123 in the UK and Ireland, Telefonseelsorge 0800 111 0 111 in Germany, or your local emergency number. If not, I'm still here — what has been the hardest part lately?",
+   "not_even": [
+    "I'm really sorry. Feeling that not even your family cares is so painful. You matter — and I'm glad you're talking to me. Is there anyone, even one person, you feel a little closer to?",
+    "That's a lonely place to be, and it makes sense that it hurts. You're not a burden for saying so. Has something happened with them recently?"
+   ],
+   "friends": [
+    "It can work, but usually not right away. Most people need some distance first — a few weeks or months without much contact — until the feelings settle. Ask yourself: would being friends help you heal, or keep the wound open?",
+    "Maybe later. Right after a breakup, 'friends' often means hoping for more on one side. Give it time; if you both still want it once it doesn't hurt, it can be a real friendship."
+   ],
+   "my_choice": [
+    "That's so normal. Ending something because it was right doesn't mean it doesn't hurt — you're losing something that mattered. Be kind to yourself.",
+    "Making the hard decision takes courage, and it can still hurt a lot. Both can be true. How are you taking care of yourself right now?"
+   ],
+   "uni": [
+    "Congratulations — that's huge! Your dream university! You must be over the moon. Where is it?",
+    "Wow, that's amazing news — all your work paid off! Which one is it?"
+   ],
+   "uni_nerves": [
+    "Totally normal — excitement and nerves usually come together. In the first weeks everyone's new and looking for friends, which makes it easier than it sounds. Freshers' events are made exactly for that.",
+    "Of course! Moving away is a big step. Remember everyone around you will be new too. Is there anything in particular you're worried about — living alone, money, making friends?"
+   ],
+   "panic": [
+    "I'm sorry — panic attacks are really frightening. Are you feeling a bit calmer now?",
+    "That sounds awful. Panic attacks can feel like something terrible is happening. How are you feeling right now?"
+   ],
+   "panic_scary": [
+    "It really is — your body goes into full alarm even though you're not actually in danger. You got through it, though, and it did pass.",
+    "Of course it was. The racing heart and the fear feel so real. It's good that you're talking about it."
+   ],
+   "uni_place": [
+    "{x} — what a beautiful city to study in! It's got a great student life too. When do you start?",
+    "Ooh, {x}! That's a fantastic place for university. Are you moving there soon?"
+   ]
   }
  }
 }

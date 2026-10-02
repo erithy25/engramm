@@ -2843,6 +2843,11 @@ class Assistant:
             if hit is not None and units[0].act == "statement" and re.match(r"(?:i|i'm|im|i've|my|we|we're|our|she|he|they|his|her|their)\b",
                                                                             msg, re.I):
                 hit = None
+            if hit is not None and units[0].act == "statement" and not re.match(
+                    r"(?:ok(?:ay)?,? |hey,? |please |pls |can you |could you |would you |will you )*(?:set|remind|play|turn|switch|call|"
+                    r"open|start|wake|schedule|add|book|order|text|send|stop|pause|resume|show|dim|lock|unlock|put on|make a|create|cancel|"
+                    r"delete|skip|record|take a|navigate|find (?:me )?a (?:route|restaurant)|buy)\b", msg.strip(), re.I):
+                hit = None                                # "everyone at work seems smarter" is no command
             if hit is not None:
                 return Reply(msg, "unknown", self._reply(st, f"device.{hit[0]}"), via="device")
         parts: list[_Part] = []
@@ -4622,7 +4627,7 @@ class Assistant:
             self._daily_ctx5(st, msg, norm) or self._daily_ctx6(st, msg, norm) or self._daily_ctx7(st, msg, norm) or \
             self._daily_ctx8(st, msg, norm) or self._daily_ctx9(st, msg, norm) or self._daily_ctx10(st, msg, norm) or \
             self._daily_ctx11(st, msg, norm) or self._daily_ctx12(st, msg, norm) or self._daily_ctx13(st, msg, norm) or \
-            self._daily_ctx14(st, msg, norm) or self._daily_ctx15(st, msg, norm)
+            self._daily_ctx14(st, msg, norm) or self._daily_ctx15(st, msg, norm) or self._daily_ctx16(st, msg, norm)
         if r2 is not None:
             return r2
         m = _WHAT_LIKES.match(norm)
@@ -5444,6 +5449,96 @@ class Assistant:
                 return Reply(msg, "smalltalk", self._pick(st, "daily:sound:gib_sorry", self.bank.daily["sounds"]["gib_sorry"]), via="smalltalk")
             return None
         return Reply(msg, "smalltalk", self._pick(st, f"daily:sound:{key}", self.bank.daily["sounds"][key]), via="smalltalk")
+
+    def _daily_ctx16(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 64: emotional conversations that need the turn before — shyness after "how do people make
+        friends", a presentation and "what if I mess up?", a panic attack, memories of someone who died (never
+        "Noted: fish — yum!"), feeling not good enough, hopelessness (a gentle check-in with help numbers), a
+        breakup, and good news with nerves."""
+        b = self.bank.daily["b64"]
+        n = norm.strip(" .!?")
+        le = st.last_exp or {}
+        recent_exp = le and st.turn - le.get("turn", -99) <= 4
+        etext = (le.get("text") or "").lower() if recent_exp else ""
+        recent = lambda key, k=3: (st.uses.get(key) and st.turn - st.uses[key][-1] <= k)   # noqa: E731
+        bump = lambda: st.__setattr__("last_exp", dict(le, turn=st.turn)) if le else None  # noqa: E731
+        if re.fullmatch(r"(?:but |and )?(?:i'?m|im|i am) (?:kinda |kind of |a bit |a little |quite |really |pretty |so |very )?"
+                        r"(?:shy|introverted|an introvert|socially awkward|awkward with people|bad at talking to people|not very social)(?: though| tho| lol)?", n):
+            bump()
+            r = self._learn(st, ["I am shy."], msg)
+            r.text = self._pick(st, "daily:b64:shy", b["shy"])
+            r.kind = "smalltalk"
+            return r
+        if re.search(r"\b(?:presentation|talk|speech|pitch|exam|interview)\b", n) and re.search(r"\b(?:anxious|nervous|scared|worried)\b", etext + " " + n) \
+                and re.fullmatch(r"(?:i (?:have|got) )?(?:a |an |my )?(?:big |important )?(?:presentation|talk|speech|pitch)(?: tomorrow| at work| in class)?", n):
+            st.uses["pres64"] = [st.turn]
+            bump()
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b64:presentation", b["presentation"]), via="empathy")
+        if re.fullmatch(r"(?:but )?what if i (?:mess (?:it )?up|fail|screw (?:it )?up|freeze|forget (?:everything|what to say)|blank)", n) and \
+                (recent("pres64", 3) or recent_exp):
+            bump()
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b64:mess_up", b["mess_up"]), via="empathy")
+        if re.search(r"\bpanic attacks?\b", n):
+            st.uses["panic64"] = [st.turn]
+            if re.search(r"\b(?:had|have|having|got) (?:a |another )?panic attack\b", n):
+                return Reply(msg, "empathy", self._pick(st, "daily:b64:panic", b["panic"]), via="empathy")
+        if recent("panic64", 2) and re.fullmatch(r"(?:it was|that was|it's|it is) (?:so |really |super |very )?(?:scary|terrifying|awful|horrible|frightening)", n):
+            st.uses["panic64"] = [st.turn]
+            return Reply(msg, "empathy", self._pick(st, "daily:b64:panic_scary", b["panic_scary"]), via="empathy")
+        if recent("panic64", 4) and re.search(r"\bwhat (?:can|should|do) i do\b|\bhow (?:do|can) i (?:stop|handle|deal with|cope)\b|\bany tips\b", n):
+            st.uses["panic64"] = [st.turn]
+            return Reply(msg, "smalltalk", b["panic_tips"], via="everyday")
+        grief = recent_exp and _LOSS.search(etext or "")
+        if grief:
+            if re.fullmatch(r"(?:we were|we'?re) (?:really |so |very |super )?close(?: to each other)?|he was (?:like )?my (?:best friend|hero)|"
+                            r"she was (?:like )?my (?:best friend|hero)", n):
+                bump()
+                pr = "she" if re.search(r"\b(?:grandma|grandmother|mom|mum|mother|sister|aunt|wife|daughter|she)\b", etext) else "he"
+                return Reply(msg, "smalltalk", self._pick(st, "daily:b64:close", b["close"], p=pr), via="empathy")
+            mm = re.fullmatch(r"(?P<p>he|she|they) (?:taught|showed) me (?:how )?(?:to )?(?P<x>[a-z ]{2,30})|(?P<q>he|she|they) (?:used to|always|loved to) "
+                              r"(?P<y>[a-z ]{2,30})", n)
+            if mm:
+                bump()
+                x = (mm.group("x") or mm.group("y") or "").strip()
+                who = mm.group("p") or mm.group("q")
+                return Reply(msg, "smalltalk", self._pick(st, "daily:b64:memory", b["memory"], x=x,
+                                                          d={"he": "him", "she": "her"}.get(who, "them")), via="empathy")
+        if re.search(r"\b(?:not good enough|not smart enough|a failure|so stupid|worthless|useless)\b", n) and n.startswith(("i feel", "i'm", "im", "i am")):
+            st.uses["impostor64"] = [st.turn]
+        if recent("impostor64", 3):
+            if re.search(r"\b(?:everyone|everybody|they all|all my (?:colleagues|coworkers|classmates))\b.*\b(?:smarter|better|more talented|faster)\b", n):
+                st.uses["impostor64"] = [st.turn]
+                return Reply(msg, "smalltalk", self._pick(st, "daily:b64:impostor", b["impostor"]), via="empathy")
+            if re.search(r"\b(?:quit|give up on|stop) (?:everything|it all|on everything)\b|\bwhat'?s the point\b", n):
+                return Reply(msg, "empathy", b["check_in"], via="empathy")
+        if re.fullmatch(r"(?:nobody|no one|noone) (?:cares|cares about me|loves me|would notice|would miss me)(?: anyway)?", n):
+            st.uses["alone64"] = [st.turn]
+        if recent("alone64", 4):
+            if re.fullmatch(r"(?:not even|including|especially) (?:my )?(?:family|parents|friends|mom|dad|partner)", n):
+                st.uses["alone64"] = [st.turn]
+                return Reply(msg, "empathy", self._pick(st, "daily:b64:not_even", b["not_even"]), via="empathy")
+            if re.search(r"\b(?:why i (?:even )?bother|what'?s the point|no point (?:in )?(?:anything|trying|living)|give up|can'?t do this anymore|"
+                         r"tired of (?:everything|it all|living))\b", n):
+                return Reply(msg, "empathy", b["check_in"], via="empathy")
+        if re.search(r"\b(?:broke up|split up|ended things|dumped)\b", n):
+            st.uses["breakup64"] = [st.turn]
+        if recent("breakup64", 4):
+            if re.search(r"\b(?:should i|can we|is it ok to|could we) (?:still )?(?:stay|be|remain) friends\b", n):
+                return Reply(msg, "smalltalk", self._pick(st, "daily:b64:friends", b["friends"]), via="everyday")
+            if re.fullmatch(r"(?:it was|that was) my (?:decision|choice|idea)(?:,? but it still hurts| but it hurts| though)?|i ended it(?: but it hurts)?", n):
+                st.uses["breakup64"] = [st.turn]
+                bump()
+                return Reply(msg, "smalltalk", self._pick(st, "daily:b64:my_choice", b["my_choice"]), via="empathy")
+        if re.search(r"\b(?:got into|got accepted (?:to|at|into)|was accepted (?:to|at|into)|got a place at) (?:my )?(?:dream )?(?:university|uni|college|school|program|programme)\b", n):
+            st.uses["uni64"] = [st.turn]
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b64:uni", b["uni"]), via="empathy")
+        um = re.fullmatch(r"(?:it'?s |its |it is )?(?:in|at) (?P<p>[a-z][a-z .'-]{2,25})", n)
+        if recent("uni64", 2) and um:
+            st.uses["uni64"] = [st.turn]
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b64:uni_place", b["uni_place"], x=_place_case(um.group("p"))), via="empathy")
+        if recent("uni64", 4) and re.search(r"\b(?:nervous|scared|anxious|worried) about (?:moving|leaving|the move|living alone|it)\b", n):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b64:uni_nerves", b["uni_nerves"]), via="empathy")
+        return None
 
     def _daily_ctx15(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 62: sums said in passing ("20 on lunch and 15 on dinner" → "how much is that?" → "and if i add
