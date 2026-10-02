@@ -194,17 +194,17 @@ recommend:
       shrimp: ["garlic shrimp pasta", "shrimp tacos", "a quick shrimp stir-fry"]
       lentils: ["red lentil dal with rice", "lentil soup", "lentil bolognese"]
     items:
-      - {x: "pasta aglio e olio — garlic, olive oil and chilli, done in fifteen minutes", de: "Pasta aglio e olio – Knoblauch, Olivenöl und Chili, in fünfzehn Minuten fertig"}
-      - {x: "a quick stir-fry with whatever vegetables you have", de: "eine schnelle Gemüsepfanne mit allem, was du da hast"}
+      - {x: "pasta aglio e olio — garlic, olive oil and chilli, done in fifteen minutes", de: "Pasta aglio e olio – Knoblauch, Olivenöl und Chili, in fünfzehn Minuten fertig", tags: "quick"}
+      - {x: "a quick stir-fry with whatever vegetables you have", de: "eine schnelle Gemüsepfanne mit allem, was du da hast", tags: "quick healthy"}
       - {x: "homemade pizza on a flatbread", de: "selbstgemachte Pizza auf Fladenbrot"}
-      - {x: "tacos with beans, salsa and whatever you like on top", de: "Tacos mit Bohnen, Salsa und deinem Lieblingsbelag"}
-      - {x: "a cosy vegetable curry with rice", de: "ein gemütliches Gemüsecurry mit Reis"}
+      - {x: "tacos with beans, salsa and whatever you like on top", de: "Tacos mit Bohnen, Salsa und deinem Lieblingsbelag", tags: "quick"}
+      - {x: "a cosy vegetable curry with rice", de: "ein gemütliches Gemüsecurry mit Reis", tags: "cosy healthy"}
       - {x: "shakshuka — eggs poached in a spiced tomato sauce", de: "Shakshuka – Eier in würziger Tomatensoße"}
-      - {x: "fried rice, which is perfect for leftover rice", de: "gebratener Reis, perfekt für Reste"}
-      - {x: "a big salad with chickpeas, feta and a lemon dressing", de: "ein großer Salat mit Kichererbsen, Feta und Zitronendressing"}
-      - {x: "a simple omelette with cheese and herbs", de: "ein einfaches Omelett mit Käse und Kräutern"}
+      - {x: "fried rice, which is perfect for leftover rice", de: "gebratener Reis, perfekt für Reste", tags: "quick"}
+      - {x: "a big salad with chickpeas, feta and a lemon dressing", de: "ein großer Salat mit Kichererbsen, Feta und Zitronendressing", tags: "quick healthy"}
+      - {x: "a simple omelette with cheese and herbs", de: "ein einfaches Omelett mit Käse und Kräutern", tags: "quick"}
       - {x: "a baked potato with all the toppings", de: "eine Ofenkartoffel mit allem Drum und Dran"}
-      - {x: "a warming soup with crusty bread", de: "eine wärmende Suppe mit knusprigem Brot"}
+      - {x: "a warming soup with crusty bread", de: "eine wärmende Suppe mit knusprigem Brot", tags: "cosy healthy"}
       - {x: "a risotto, if you feel like stirring for twenty minutes", de: "ein Risotto, wenn du Lust hast, zwanzig Minuten zu rühren"}
     outro: "What are you in the mood for — something quick, healthy or comforting?"
   book:
@@ -940,3 +940,12 @@ howto_head:
 howto_none:
   - "I don't have a good guide for that one, sorry. If it's about a thing or a topic, try “tell me about …” and I'll share what I've read."
   - "I'm not sure how — that's not among the things I have practical tips for. I can tell you about the topic itself, though: just say “tell me about …”."
+
+# "I have a cat"
+have_pet:
+  - "Aww, a {x}! What's their name?"
+  - "Oh, I love that — a {x}! What's their name?"
+# "how tall is it?" when "it" points nowhere
+it_mean:
+  - "Sorry — what do you mean by “it”? Give me the name and I'll look it up."
+  - "Which one do you mean? Tell me the name and I'll check."

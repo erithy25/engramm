@@ -215,7 +215,7 @@ intents:
       - "That's no fun. Anything in particular weighing on you?"
 
   - id: user_fine
-    patterns: ['(i''m |i am |im )?(fine|good|great|ok|okay|alright|not bad|pretty good|very good|doing good|doing well|doing great|doing fine|all good|well|really good|so good|excellent|fantastic|wonderful|amazing|never better|can''t complain|could be worse)( thanks| thank you| thx)?(,? (and|how about|what about) you)?']
+    patterns: ['(i''m |i am |im )?(fine|good|great|ok|okay|alright|not bad|pretty good|very good|doing good|doing well|doing great|doing fine|all good|well|really good|so good|excellent|fantastic|wonderful|amazing|never better|can''t complain|could be worse)(,? thanks| thank you| thx)?(,? (and|how about|what about) you|,? you)?']
     examples: [i'm fine, good, not bad, pretty good, i'm doing well, all good, can't complain, i'm great thanks]
     responses:
       - "Glad to hear it! What would you like to talk about?"
@@ -615,6 +615,13 @@ intents:
       - "Sure! What would you like to talk about?"
       - "Okay, fresh start — what's on your mind?"
       - "Happy to. Anything you're curious about, or shall I suggest something?"
+
+  - id: bot_whats_new
+    patterns: ['(anyway,? |so,? )?(what''s new|anything new|whats new|what have you been up to|what''ve you been up to|been up to anything( fun)?)( with you| on your end)?']
+    examples: [what's new with you, what have you been up to, anything new with you]
+    responses:
+      - "Not much — I've been reading, as always. What's new with you?"
+      - "Same as ever: reading and waiting for good questions. How about you — anything new?"
 
   - id: bot_sleep
     patterns: ['(do|can) you (ever )?(sleep|dream|rest|take breaks?|get some sleep)( at all)?|do you need (sleep|rest|a break)|are you (ever )?(sleepy|awake)|don''t you (ever )?(sleep|get tired)|when do you sleep']

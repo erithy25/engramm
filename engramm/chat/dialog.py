@@ -415,6 +415,21 @@ class Assistant:
         msg = expand_chat(msg)                            # "wats ur name" → "what's your name"
         msg = self._prefer_correction(msg)                # "actually i prefer ramen" right after a favourite
         msg = _split_self_statements(msg)                 # "my name is Sam and I'm a teacher": two facts
+        pet = st.uses.get("pet")
+        if pet and st.turn - pet[1] <= 3:
+            m = _PET_NAME.match(msg.strip())              # "her name is luna" after "I have a cat"
+            if m:
+                name = m.group("x").strip(" .!")
+                msg = f"My {pet[0]} is called {name[:1].upper() + name[1:]}."
+            m = _PET_AGE.match(msg.strip())               # "she's 3"
+            if m:
+                msg = f"My {pet[0]} is {m.group('n')} years old."
+        if pet and st.turn - pet[1] <= 8:
+            m = _PET_PRON_Q.match(msg.strip())            # "how old is she?" → "how old is my cat?"
+            if m and m.group("head"):
+                msg = f"{m.group('head')} my {pet[0]}{m.group('tail') or '?'}"
+            elif m:
+                msg = f"what's my {pet[0]}'s {m.group('what')}?"
         have = st.uses.get("have_noun")
         if have and st.turn - have[1] <= 2:               # "their names are Mia and Leo" after "I have two kids"
             m = _THEIR_NAMES.match(msg.strip()) or _BARE_NAMES.fullmatch(msg.strip(" .!"))
@@ -430,8 +445,14 @@ class Assistant:
         life = self._life(st, msg, norm)
         if life is not None:
             return life
+        if _DAY_NOUN.match(norm):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            return Reply(msg, "smalltalk", self._pick(st, "daily:day_bad", self.bank.daily["day_bad"], x="it"),
+                         via="empathy")
         dm = _DAY_WAS.match(norm)
         if dm:
+            if dm.group("bad"):
+                st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
             key = "day_bad" if dm.group("bad") else "day_good"
             what = dm.group("what")
             what = "your day" if what in ("today", "it", "the day", "my day") else what.replace("my ", "your ")
@@ -888,6 +909,12 @@ class Assistant:
         bot = self.bot
         pron = re.search(r"\b(he|she|him|his|her|hers|they|them|their)\b", text, re.I)
         gap = st.uses.get("person_gap") == st.turn - 1          # the last "who …?" found nobody
+        if re.search(r"\b(?:it|its)\b", text, re.I) and not pron and st.last_kind == "unknown" and \
+                bot.resolve(text) == text and not bot.context.get("answer") and \
+                not re.search(r"\b(?:i|me|my|you|your)\b", text, re.I):
+            # "how tall is it?" right after a question ENGRAMM could not answer: "it" points nowhere
+            st.pending = {"slot": "who_mean", "question": text, "pron": "it", "turn": st.turn}
+            return Reply(text, "unknown", self._pick(st, "daily:it_mean", self.bank.daily["it_mean"]), via="clarify")
         if pron and not re.search(r"\b(?:i|me|my|you|your)\b", text, re.I) and (bot.resolve(text) == text or gap):
             st.pending = {"slot": "who_mean", "question": text, "pron": pron.group(1), "turn": st.turn}
             return Reply(text, "unknown", self._pick(st, "daily:who_mean", self.bank.daily["who_mean"],
@@ -922,6 +949,7 @@ class Assistant:
         if rep.kind == "answer" and rep.via == "lookup" and _implausible(rep.resolved or text, rep.answer, rep.evidence,
                                                                           _src_title(rep.source), self._before(rep)):
             rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None
+            self.bot.context.update({"answer": None, "atype": None})   # a rejected answer is no "it" later
         if rep.kind == "answer" and rep.via == "lookup" and self._wrong_kind(rep.resolved or text, rep.answer):
             rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None
         if rep.kind == "answer" and rep.via == "lookup" and _WINNER_Q.match(rep.resolved or text) and not any(
@@ -1970,6 +1998,10 @@ class Assistant:
             plain = self.everyday.activity_reaction(st, text)      # "I watched Inception": ask how it was
             if plain is not None:
                 confirm = plain
+        pm = _HAVE_PET.match(text.strip())
+        if pm:                                            # "I have a cat": ask its name, like a person would
+            st.uses["pet"] = [pm.group(1).lower(), st.turn]
+            confirm = self._pick(st, "daily:have_pet", self.bank.daily["have_pet"], x=pm.group(1).lower())
         hm = _HAVE_COUNT.match(text.strip())
         if hm and hm.group(2).lower() in _FAMILY_PLURALS:     # "I have two kids": ask their names, like a person
             noun = "children" if hm.group(2).lower() in ("kids", "children") else hm.group(2).lower()
@@ -2331,7 +2363,7 @@ _TITLE_WORDS = re.compile(r"\b(?:general|minister|secretary|attorney|assistant|o
                           r"committee|board|director|commission|agency|office|government|administration|parliament|"
                           r"party|company|corporation|division|bureau|court|forces|army)\b", re.I)
 _SUPERLATIVE_Q = re.compile(r"^\s*(?:what|which|who)(?:'s| is| was| are| were)\s+(?:the\s+)?"
-                            r"(?P<sup>\w+est|most \w+|least \w+|biggest)\s+(?P<noun>[a-z]+(?: [a-z]+)?)"
+                            r"(?P<sup>\w+est|most \w+|least \w+|biggest)\s+(?P<noun>[a-z]+(?: (?!in\b|of\b|on\b|ever\b|by\b)[a-z]+)?)"
                             r"(?P<rest>.*?)\s*\??\s*$", re.I)
 _SUP_FREE = re.compile(r"^(?:\s*\(?|,)?\s*(?:in the world|on earth|ever|of all time|in the solar system|in history|"
                        r"known|recorded|\)|,|\.|;|$)", re.I)
@@ -2504,12 +2536,16 @@ def _implausible(q: str, answer: str | None, evidence: str | None, title: str = 
                                                      answer, re.I):
         return True
     m = _SUPERLATIVE_Q.match(q)
-    if not m or m.group("rest").strip():
+    if not m or re.sub(r"^\s*(?:in the world|on earth|ever|of all time|in history|in the universe)\s*", "",
+                       m.group("rest")).strip():
         return False
     ev = evidence.lower()
     sup, noun = m.group("sup").lower(), m.group("noun").lower().split()[0].rstrip("s")
     a = ev.find(answer.lower())
     for hit in re.finditer(re.escape(sup), ev):
+        if re.search(r"(?:\b\d+(?:st|nd|rd|th)|\b(?:second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|"
+                     r"eleventh|twelfth|\w+teenth|twentieth)|one of the|among the)[\s-]*$", ev[:hit.start()]):
+            continue                                  # "the 14th tallest building" is not the tallest
         after = ev[hit.end():]
         nm = re.match(r"(?:\s+[a-z-]+){0,2}?\s+(" + re.escape(noun) + r"s?)\b", after)
         if nm:
@@ -2527,6 +2563,9 @@ _DISLIKE = re.compile(r"^(?:honestly,? |tbh,? |to be honest,? |well,? )?i (?:rea
                       r"[a-z][a-z' -]{1,40}?)(?: (?:much|at all|very much|that much|anymore|tbh|honestly))?[.!]*$", re.I)
 _LIKES_Q = re.compile(r"^(?:so |and )?what (?:do|did) i (?P<neg>not |n't |never )?(?P<v>like|love|enjoy|hate|dislike)"
                       r"(?: again)?\s*\??$|^what (?:don'?t|do not|didn'?t) i (?P<v2>like|love|enjoy)\s*\??$", re.I)
+_DAY_NOUN = re.compile(r"^(?:(?:just |such |what |had |i had |it's been |it was |been )?(?:a |an )?)?(?:really |very |so |super )?"
+                       r"(?:long|rough|tough|hard|busy|crazy|stressful|exhausting|bad|terrible|awful|hectic|draining) "
+                       r"(?:day|week|night|shift|month|morning)(?: honestly| tbh| lol)?[.!]*$")
 _DAY_WAS = re.compile(r"^(?:ugh |man |well |honestly |omg )?(?P<what>work|school|class|uni|college|today|the day|my day|"
                       r"it|my shift|the shift|practice|training|the meeting|my exam|the exam) (?:was|has been|is being) "
                       r"(?:so |really |super |pretty |very |kinda |quite |such )?(?:(?P<bad>long|exhausting|tiring|rough|hard|"
@@ -2685,6 +2724,14 @@ _FAMILY_PLURALS = frozenset("kids children sons daughters brothers sisters sibli
                             "grandchildren".split())
 _HAVE_COUNT = re.compile(r"^i (?:have|have got|'ve got|got) (two|three|four|five|six|seven|eight|nine|ten|\d{1,2}) "
                          r"([a-z]+)[.!]*$", re.I)
+_HAVE_PET = re.compile(r"^i (?:have|have got|'ve got|got|own) an? (?:little |small |big |old |young |new )?"
+                       r"(cat|dog|puppy|kitten|rabbit|hamster|parrot|bird|horse|guinea pig|tortoise|turtle|fish|snake)[.!]*$",
+                       re.I)
+_PET_NAME = re.compile(r"^(?:her|his|its|their) name(?:'s| is)\s+(?P<x>[A-Za-z][\w' -]{0,25})$|"
+                       r"^(?:she's|he's|it's|she is|he is|it is) called\s+(?P<y>[A-Za-z][\w' -]{0,25})$", re.I)
+_PET_AGE = re.compile(r"^(?:she's|he's|it's|she is|he is|it is)\s+(?P<n>\d{1,2})(?: years old| years| yrs)?[.!]*$", re.I)
+_PET_PRON_Q = re.compile(r"^(?P<head>(?:how old|what breed|what colou?r|what kind of \w+) is) (?:she|he|it)(?P<tail>\?)?$|"
+                         r"^(?P<head2>what's|what is) (?:her|his|its) (?P<what>name|age)\??$", re.I)
 _THEIR_NAMES = re.compile(r"^(?:their names are|they are called|they're called|they are named|named|called)\s+(.+)$", re.I)
 _BARE_NAMES = re.compile(r"[A-Z][a-zà-ÿ'-]+(?:\s*,\s*[A-Z][a-zà-ÿ'-]+)*\s+(?:and|&)\s+[A-Z][a-zà-ÿ'-]+")
 _SELF_JOIN = re.compile(r"^((?:my name is|my name's|i'm|i am|call me)\s+[A-Za-z][\w'-]*)\s*(?:,\s*|\s+)and\s+"

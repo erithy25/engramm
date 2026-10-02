@@ -413,7 +413,7 @@
    {
     "id": "user_fine",
     "patterns": [
-     "(i'm |i am |im )?(fine|good|great|ok|okay|alright|not bad|pretty good|very good|doing good|doing well|doing great|doing fine|all good|well|really good|so good|excellent|fantastic|wonderful|amazing|never better|can't complain|could be worse)( thanks| thank you| thx)?(,? (and|how about|what about) you)?"
+     "(i'm |i am |im )?(fine|good|great|ok|okay|alright|not bad|pretty good|very good|doing good|doing well|doing great|doing fine|all good|well|really good|so good|excellent|fantastic|wonderful|amazing|never better|can't complain|could be worse)(,? thanks| thank you| thx)?(,? (and|how about|what about) you|,? you)?"
     ],
     "examples": [
      "i'm fine",
@@ -1283,6 +1283,21 @@
      "Sure! What would you like to talk about?",
      "Okay, fresh start — what's on your mind?",
      "Happy to. Anything you're curious about, or shall I suggest something?"
+    ]
+   },
+   {
+    "id": "bot_whats_new",
+    "patterns": [
+     "(anyway,? |so,? )?(what's new|anything new|whats new|what have you been up to|what've you been up to|been up to anything( fun)?)( with you| on your end)?"
+    ],
+    "examples": [
+     "what's new with you",
+     "what have you been up to",
+     "anything new with you"
+    ],
+    "responses": [
+     "Not much — I've been reading, as always. What's new with you?",
+     "Same as ever: reading and waiting for good questions. How about you — anything new?"
     ]
    },
    {
@@ -4601,11 +4616,13 @@
     "items": [
      {
       "x": "pasta aglio e olio — garlic, olive oil and chilli, done in fifteen minutes",
-      "de": "Pasta aglio e olio – Knoblauch, Olivenöl und Chili, in fünfzehn Minuten fertig"
+      "de": "Pasta aglio e olio – Knoblauch, Olivenöl und Chili, in fünfzehn Minuten fertig",
+      "tags": "quick"
      },
      {
       "x": "a quick stir-fry with whatever vegetables you have",
-      "de": "eine schnelle Gemüsepfanne mit allem, was du da hast"
+      "de": "eine schnelle Gemüsepfanne mit allem, was du da hast",
+      "tags": "quick healthy"
      },
      {
       "x": "homemade pizza on a flatbread",
@@ -4613,11 +4630,13 @@
      },
      {
       "x": "tacos with beans, salsa and whatever you like on top",
-      "de": "Tacos mit Bohnen, Salsa und deinem Lieblingsbelag"
+      "de": "Tacos mit Bohnen, Salsa und deinem Lieblingsbelag",
+      "tags": "quick"
      },
      {
       "x": "a cosy vegetable curry with rice",
-      "de": "ein gemütliches Gemüsecurry mit Reis"
+      "de": "ein gemütliches Gemüsecurry mit Reis",
+      "tags": "cosy healthy"
      },
      {
       "x": "shakshuka — eggs poached in a spiced tomato sauce",
@@ -4625,15 +4644,18 @@
      },
      {
       "x": "fried rice, which is perfect for leftover rice",
-      "de": "gebratener Reis, perfekt für Reste"
+      "de": "gebratener Reis, perfekt für Reste",
+      "tags": "quick"
      },
      {
       "x": "a big salad with chickpeas, feta and a lemon dressing",
-      "de": "ein großer Salat mit Kichererbsen, Feta und Zitronendressing"
+      "de": "ein großer Salat mit Kichererbsen, Feta und Zitronendressing",
+      "tags": "quick healthy"
      },
      {
       "x": "a simple omelette with cheese and herbs",
-      "de": "ein einfaches Omelett mit Käse und Kräutern"
+      "de": "ein einfaches Omelett mit Käse und Kräutern",
+      "tags": "quick"
      },
      {
       "x": "a baked potato with all the toppings",
@@ -4641,7 +4663,8 @@
      },
      {
       "x": "a warming soup with crusty bread",
-      "de": "eine wärmende Suppe mit knusprigem Brot"
+      "de": "eine wärmende Suppe mit knusprigem Brot",
+      "tags": "cosy healthy"
      },
      {
       "x": "a risotto, if you feel like stirring for twenty minutes",
@@ -6649,6 +6672,14 @@
   "howto_none": [
    "I don't have a good guide for that one, sorry. If it's about a thing or a topic, try “tell me about …” and I'll share what I've read.",
    "I'm not sure how — that's not among the things I have practical tips for. I can tell you about the topic itself, though: just say “tell me about …”."
+  ],
+  "have_pet": [
+   "Aww, a {x}! What's their name?",
+   "Oh, I love that — a {x}! What's their name?"
+  ],
+  "it_mean": [
+   "Sorry — what do you mean by “it”? Give me the name and I'll look it up.",
+   "Which one do you mean? Tell me the name and I'll check."
   ]
  }
 }

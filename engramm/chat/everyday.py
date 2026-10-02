@@ -103,7 +103,9 @@ _GENRES = {"sci-fi": "scifi", "scifi": "scifi", "science fiction": "scifi", "sci
            "cold": "cold", "snowy": "cold", "cheap": "cheap", "affordable": "cheap", "budget": "cheap",
            "city": "city", "cities": "city", "cultural": "culture", "culture": "culture", "hilarious": "comedy",
            "light": "comedy", "lighthearted": "comedy", "spooky": "thriller", "horror": "thriller", "sad": "drama",
-           "romcom": "romance"}
+           "romcom": "romance", "quick": "quick", "fast": "quick", "easy": "quick", "simple": "quick",
+           "healthy": "healthy", "light": "healthy", "cosy": "cosy", "cozy": "cosy", "comforting": "cosy",
+           "warm": "warm"}
 _ADVICE = re.compile(_LEAD + r"(?:so )?(?:what (?:should|can|could|do you think|would you suggest|would you recommend) i "
                      r"(?:do|say|try)(?: (?:about|with) (?P<about>.+?))?(?: now| then| next)?|what would you do(?: in my (?:place|shoes))?|"
                      r"i (?:don't|do not|dont) know (?:if|whether|what) (?:i should|to) (?:say|do|tell|talk)\b"

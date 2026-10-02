@@ -658,3 +658,33 @@ def test_practical_how_to_questions(chat):
     assert "breath" in r.text, r.text
     r = a.turn(st, "how do i fix my bike chain")
     assert "about you" not in r.text and "haven't told me" not in r.text, r.text
+
+
+def test_pets_names_ages_and_pronouns(chat):
+    a, st = chat
+    r = a.turn(st, "i have a cat")
+    assert "name" in r.text, r.text
+    a.turn(st, "her name is luna")
+    a.turn(st, "she's 3")
+    r = a.turn(st, "what's my cat called")
+    assert "Luna" in r.text, r.text
+    r = a.turn(st, "how old is she")
+    assert "3" in r.text, r.text
+
+
+def test_ordinal_superlatives_are_not_the_top():
+    from engramm.chat.dialog import _implausible
+    assert _implausible("what's the tallest building in the world", "TD Bank Tower",
+                        "When topped off in 1967, the TD Bank Tower was the 14th tallest building in the world.")
+    assert _implausible("what's the longest river in the world", "Russia",
+                        "The Lena is the eleventh-longest river in the world, and the longest river entirely within Russia.")
+
+
+def test_small_talk_round_two(chat):
+    a, st = chat
+    r = a.turn(st, "good thanks, you?")
+    assert r.via == "smalltalk", r.text
+    r = a.turn(st, "long week")
+    assert r.text.rstrip().endswith("?"), r.text
+    r = a.turn(st, "what's new with you")
+    assert "new" in r.text.lower(), r.text
