@@ -198,7 +198,9 @@ Wissens-Folgefragen, Alltagsmomente Englisch/Deutsch, Tastatursalat, Folgefragen
 6 Installer, SHA256SUMS geprüft, Upload im ersten Versuch).
 [v3.1.0-beta.18](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.18) (Lauf 37019401500, Batterien 60–63:
 normaler Abend Englisch/Deutsch, Sprachumschaltung, Rechnen nebenbei, Tagesplan, Folgefragen auf Deutsch; 45 Dateien,
-6 Installer, SHA256SUMS geprüft).
+6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.19](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.19)
+(Lauf 37028902789, Batterien 64–67: schwere Gefühle mit Hilfsangeboten, Gedächtnis wie ein Mensch – echtes Vergessen,
+Korrekturen, Abneigungen, Personen, verschobene Termine –, auch auf Deutsch; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
