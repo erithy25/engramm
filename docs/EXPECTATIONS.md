@@ -2470,7 +2470,10 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     Gespräche, 0 Wiederholungen. Dabei im langen Gespräch gefunden (Fehler schon vor dieser Runde): Nach „hast du tipps?“
     blieb „how many days until christmas“ im deutschen Zweig („Das verstehe ich leider nicht“). Die englische Wortliste
     der Spracherkennung kennt jetzt häufige Wörter wie many, much, until, days, year, time; die Frage wird wieder auf
-    Englisch beantwortet („84 days until …“). „about 12.0 weeks“ heißt jetzt „exactly 12 weeks“.
+    Englisch beantwortet („84 days until …“). „about 12.0 weeks“ heißt jetzt „exactly 12 weeks“. Eine erste Fassung zählte
+    auch „sorry“ als englisch; dann sprang „sorry, war nicht so gemeint“ ins Englische (Batterie 46 und ein Test fingen
+    das ab, „sorry“ ist wieder neutral). Danach: Suite 751 bestanden, 28 Gespräche ohne Wiederholung, Unterschiede nur
+    die beabsichtigten (Batterie 40, langes Gespräch).
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
