@@ -575,6 +575,26 @@ daily:
     recap: ["Mal sehen – wir hatten {x}."]
     recap_none: ["Noch nicht viel – wir fangen ja gerade erst an. Was liegt dir auf dem Herzen?"]
     compliment: ["Oh, danke – das ist lieb von dir! 😊", "Danke! Ich höre dir auch gern zu."]
+    convert: ["{x}"]
+    define: ["„{x}“ bedeutet auf Deutsch etwa: {y}. Beispiel: „{z}“"]
+    define_none: ["Ein Wörterbuch habe ich leider nicht in meinem Wissenspaket – „{x}“ kann ich deshalb nicht verlässlich erklären. Wenn es um ein Thema geht, frag „erzähl mir von {x}“."]
+    kcal: ["In {y} stecken etwa {x} kcal."]
+    word_defs_de:
+      ubiquitous: "allgegenwärtig, überall zu finden"
+      ambiguous: "mehrdeutig, unklar"
+      empathy: "Empathie, Einfühlungsvermögen"
+      nostalgia: "Nostalgie, Sehnsucht nach früher"
+      procrastinate: "aufschieben, prokrastinieren"
+      resilient: "widerstandsfähig, belastbar"
+      sustainable: "nachhaltig"
+      pragmatic: "pragmatisch, praktisch denkend"
+      cynical: "zynisch"
+      eloquent: "redegewandt, eloquent"
+      meticulous: "akribisch, sehr sorgfältig"
+      inevitable: "unvermeidlich"
+      serendipity: "ein glücklicher Zufall"
+      tedious: "mühsam, langweilig"
+      versatile: "vielseitig"
     bot_human: ["Nein, ich bin kein Mensch – ich bin ENGRAMM, ein Programm auf deinem Rechner. Kein neuronales Netz, keine Cloud: Ich antworte aus dem, was ich gelesen habe, und aus dem, was du mir erzählst.", "Nein, ich bin ein Programm namens ENGRAMM. Aber ich höre dir trotzdem gern zu!"]
     wfh_lonely: ["Das kann ich gut verstehen – Homeoffice kann richtig einsam machen. Ganze Tage ohne ein echtes Gespräch.", "Ja, zu Hause arbeiten ist praktisch, aber man sieht kaum Leute. Kein Plausch an der Kaffeemaschine."]
     maybe_should: ["Das ist eine gute Idee – auch kleine Schritte zählen. Soll ich dir ein paar Ideen geben?", "Finde ich gut! Klein anfangen ist völlig okay. Magst du ein paar Vorschläge?"]

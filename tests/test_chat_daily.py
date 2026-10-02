@@ -2096,3 +2096,45 @@ def test_officeholder_from_the_holders_own_article(chat):
     finally:
         a.bot.r, a.bot.c, a.kgqa = old_r, old_c, None
     assert r is not None and "Joe Biden" in r.text and "Harris" not in r.text and "December 2022" in r.text, r and r.text
+
+
+def test_battery53_words_calories_time_zones(chat):
+    a, _ = chat
+    st = DialogState("r1")
+    r = a.turn(st, "what does ubiquitous mean?")
+    assert "everywhere" in r.text, r.text
+    assert "Smartphones" in a.turn(st, "use it in a sentence").text
+    r = a.turn(DialogState("r2"), "what does flibbertigibbet mean?")
+    assert "dictionary" in r.text or "read" in r.text, r.text
+    assert "selfish" in a.turn(DialogState("r3"), "what's the opposite of generous?").text
+    st4 = DialogState("r4")
+    assert "105 kcal" in a.turn(st4, "how many calories in a banana?").text
+    assert "Not really" in a.turn(st4, "is that a lot?").text
+    assert "0.8 g" in a.turn(DialogState("r5"), "how much protein do i need per day?").text
+    st6 = DialogState("r6")
+    r = a.turn(st6, "what time zone is london in?")
+    assert "UTC" in r.text and "London" in r.text, r.text
+    a.turn(st6, "what time is it there?")
+    a.turn(st6, "and in sydney?")
+    r = a.turn(st6, "how many hours ahead is that?")
+    assert "Sydney" in r.text and "London" in r.text and "hours" in r.text, r.text
+
+
+def test_battery53_german_units_words_calories(chat):
+    a, _ = chat
+    st = DialogState("r7")
+    r = a.turn(st, "wie viele kilometer sind 5 meilen?")
+    assert "8,047 km" in r.text and "Meilen" in r.text, r.text
+    assert "allgegenwärtig" in a.turn(st, "was heißt ubiquitous?").text
+    assert "105 kcal" in a.turn(st, "wie viele kalorien hat eine banane?").text
+
+
+def test_utc_offsets():
+    import datetime as dt
+    from engramm.chat.worldtime import utc_label, utc_offset
+    summer = dt.datetime(2026, 7, 1, 12, tzinfo=dt.timezone.utc)
+    winter = dt.datetime(2026, 1, 15, 12, tzinfo=dt.timezone.utc)
+    assert utc_offset("london", summer)[1:] == (1, True)
+    assert utc_offset("london", winter)[1:] == (0, False)
+    assert utc_label(5.5) == "UTC+5:30" and utc_label(-3) == "UTC−3" and utc_label(0) == "UTC+0"
+    assert utc_offset("atlantis") is None

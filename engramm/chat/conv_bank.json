@@ -5426,6 +5426,35 @@
      "Oh, danke – das ist lieb von dir! 😊",
      "Danke! Ich höre dir auch gern zu."
     ],
+    "convert": [
+     "{x}"
+    ],
+    "define": [
+     "„{x}“ bedeutet auf Deutsch etwa: {y}. Beispiel: „{z}“"
+    ],
+    "define_none": [
+     "Ein Wörterbuch habe ich leider nicht in meinem Wissenspaket – „{x}“ kann ich deshalb nicht verlässlich erklären. Wenn es um ein Thema geht, frag „erzähl mir von {x}“."
+    ],
+    "kcal": [
+     "In {y} stecken etwa {x} kcal."
+    ],
+    "word_defs_de": {
+     "ubiquitous": "allgegenwärtig, überall zu finden",
+     "ambiguous": "mehrdeutig, unklar",
+     "empathy": "Empathie, Einfühlungsvermögen",
+     "nostalgia": "Nostalgie, Sehnsucht nach früher",
+     "procrastinate": "aufschieben, prokrastinieren",
+     "resilient": "widerstandsfähig, belastbar",
+     "sustainable": "nachhaltig",
+     "pragmatic": "pragmatisch, praktisch denkend",
+     "cynical": "zynisch",
+     "eloquent": "redegewandt, eloquent",
+     "meticulous": "akribisch, sehr sorgfältig",
+     "inevitable": "unvermeidlich",
+     "serendipity": "ein glücklicher Zufall",
+     "tedious": "mühsam, langweilig",
+     "versatile": "vielseitig"
+    },
     "bot_human": [
      "Nein, ich bin kein Mensch – ich bin ENGRAMM, ein Programm auf deinem Rechner. Kein neuronales Netz, keine Cloud: Ich antworte aus dem, was ich gelesen habe, und aus dem, was du mir erzählst.",
      "Nein, ich bin ein Programm namens ENGRAMM. Aber ich höre dir trotzdem gern zu!"
@@ -10187,6 +10216,364 @@
   "bad_day_story": [
    "Oh no, that's one of those days where everything goes wrong at once. 😩 I'm really sorry. Is it at least over now, or is there more to get through?",
    "What a day! One thing after another. No wonder you're fed up. Do you want to vent a bit more, or would a distraction help?"
+  ],
+  "word_defs": {
+   "ubiquitous": [
+    "found everywhere, seeming to be present all the time",
+    "Smartphones have become ubiquitous: almost everyone has one."
+   ],
+   "ambiguous": [
+    "open to more than one meaning; unclear",
+    "His answer was ambiguous, so nobody knew if he agreed."
+   ],
+   "empathy": [
+    "the ability to understand and share someone else's feelings",
+    "She showed real empathy when her friend lost his job."
+   ],
+   "nostalgia": [
+    "a sentimental longing for the past",
+    "Old songs from school always fill me with nostalgia."
+   ],
+   "irony": [
+    "when the opposite of what you expect happens, or saying the opposite of what you mean",
+    "The fire station burned down: what irony."
+   ],
+   "procrastinate": [
+    "to keep putting off something you should do",
+    "I always procrastinate when I have to do my taxes."
+   ],
+   "resilient": [
+    "able to recover quickly from difficulties",
+    "Children are often more resilient than we think."
+   ],
+   "sustainable": [
+    "able to continue without harming the environment or running out",
+    "We need more sustainable ways to produce energy."
+   ],
+   "pragmatic": [
+    "dealing with things in a practical, realistic way",
+    "She took a pragmatic approach and fixed what she could."
+   ],
+   "cynical": [
+    "believing that people are mostly selfish or dishonest",
+    "After years in politics, he became quite cynical."
+   ],
+   "eloquent": [
+    "fluent and persuasive in speaking or writing",
+    "She gave an eloquent speech at the wedding."
+   ],
+   "meticulous": [
+    "very careful and precise about details",
+    "He keeps meticulous notes of every meeting."
+   ],
+   "inevitable": [
+    "certain to happen, impossible to avoid",
+    "With that much rain, flooding was inevitable."
+   ],
+   "paradox": [
+    "a statement that seems to contradict itself but may be true",
+    "It's a paradox: the more choices we have, the less happy we feel."
+   ],
+   "metaphor": [
+    "a figure of speech describing something as if it were something else",
+    "“Time is money” is a metaphor."
+   ],
+   "sarcasm": [
+    "saying the opposite of what you mean, usually to mock or joke",
+    "“Oh great, another meeting,” she said with heavy sarcasm."
+   ],
+   "entrepreneur": [
+    "someone who starts and runs their own business",
+    "She became an entrepreneur at 25 when she opened her café."
+   ],
+   "algorithm": [
+    "a step-by-step set of rules for solving a problem, often by a computer",
+    "The app uses an algorithm to suggest songs."
+   ],
+   "inflation": [
+    "a general rise in prices, so money buys less",
+    "High inflation made groceries much more expensive."
+   ],
+   "democracy": [
+    "a system of government in which the people choose their leaders by voting",
+    "In a democracy, every citizen can vote."
+   ],
+   "serendipity": [
+    "finding something good by happy chance",
+    "Meeting my best friend on a delayed train was pure serendipity."
+   ],
+   "melancholy": [
+    "a deep, often thoughtful sadness",
+    "There was a quiet melancholy in his music."
+   ],
+   "benevolent": [
+    "kind and well-meaning",
+    "The benevolent old man paid for everyone's coffee."
+   ],
+   "tedious": [
+    "long, slow and boring",
+    "Filling in the forms was tedious."
+   ],
+   "versatile": [
+    "able to do many different things well",
+    "A good knife is the most versatile tool in the kitchen."
+   ]
+  },
+  "word_def": [
+   "“{x}” means {y}. For example: “{z}”"
+  ],
+  "word_def_none": [
+   "I don't have a dictionary in my knowledge pack, so I can't define “{x}” reliably, sorry. If it's a topic or a thing, try “tell me about {x}”."
+  ],
+  "word_sentence": [
+   "Sure: “{x}”"
+  ],
+  "antonyms": {
+   "generous": [
+    "selfish",
+    "stingy",
+    "mean"
+   ],
+   "happy": [
+    "sad",
+    "unhappy",
+    "miserable"
+   ],
+   "big": [
+    "small",
+    "little",
+    "tiny"
+   ],
+   "hot": [
+    "cold",
+    "freezing"
+   ],
+   "easy": [
+    "hard",
+    "difficult"
+   ],
+   "brave": [
+    "cowardly",
+    "timid"
+   ],
+   "rich": [
+    "poor"
+   ],
+   "strong": [
+    "weak"
+   ],
+   "fast": [
+    "slow"
+   ],
+   "kind": [
+    "cruel",
+    "unkind"
+   ],
+   "honest": [
+    "dishonest",
+    "deceitful"
+   ],
+   "polite": [
+    "rude",
+    "impolite"
+   ],
+   "old": [
+    "young",
+    "new"
+   ],
+   "early": [
+    "late"
+   ],
+   "loud": [
+    "quiet",
+    "silent"
+   ],
+   "love": [
+    "hate"
+   ],
+   "win": [
+    "lose"
+   ],
+   "begin": [
+    "end",
+    "finish"
+   ],
+   "accept": [
+    "reject",
+    "refuse"
+   ],
+   "increase": [
+    "decrease",
+    "reduce"
+   ],
+   "optimistic": [
+    "pessimistic"
+   ],
+   "ancient": [
+    "modern"
+   ],
+   "expensive": [
+    "cheap",
+    "inexpensive"
+   ],
+   "calm": [
+    "anxious",
+    "agitated"
+   ],
+   "clever": [
+    "stupid",
+    "foolish"
+   ],
+   "friendly": [
+    "unfriendly",
+    "hostile"
+   ],
+   "patient": [
+    "impatient"
+   ],
+   "humble": [
+    "arrogant",
+    "proud"
+   ],
+   "light": [
+    "dark",
+    "heavy"
+   ],
+   "full": [
+    "empty"
+   ]
+  },
+  "antonym_say": [
+   "The opposite of “{x}” is “{y}”{z}."
+  ],
+  "food_kcal": {
+   "banana": [
+    "105",
+    "a medium banana"
+   ],
+   "apple": [
+    "95",
+    "a medium apple"
+   ],
+   "egg": [
+    "78",
+    "a large egg"
+   ],
+   "avocado": [
+    "240",
+    "a whole avocado"
+   ],
+   "orange": [
+    "62",
+    "a medium orange"
+   ],
+   "slice of bread": [
+    "80",
+    "a slice of bread"
+   ],
+   "bread": [
+    "80",
+    "a slice of bread"
+   ],
+   "croissant": [
+    "230",
+    "a croissant"
+   ],
+   "pizza": [
+    "285",
+    "a slice of cheese pizza"
+   ],
+   "rice": [
+    "205",
+    "a cup of cooked rice"
+   ],
+   "pasta": [
+    "220",
+    "a cup of cooked pasta"
+   ],
+   "potato": [
+    "160",
+    "a medium baked potato"
+   ],
+   "chocolate": [
+    "235",
+    "a 40 g bar of milk chocolate"
+   ],
+   "beer": [
+    "150",
+    "a 330 ml beer"
+   ],
+   "glass of wine": [
+    "125",
+    "a glass of wine (150 ml)"
+   ],
+   "wine": [
+    "125",
+    "a glass of wine (150 ml)"
+   ],
+   "coffee": [
+    "2",
+    "a black coffee"
+   ],
+   "latte": [
+    "190",
+    "a large latte with whole milk"
+   ],
+   "big mac": [
+    "550",
+    "a Big Mac"
+   ],
+   "almonds": [
+    "165",
+    "a handful of almonds (28 g)"
+   ],
+   "yogurt": [
+    "150",
+    "a pot of plain whole-milk yogurt"
+   ],
+   "chicken breast": [
+    "165",
+    "100 g of cooked chicken breast"
+   ],
+   "salmon": [
+    "208",
+    "100 g of salmon"
+   ],
+   "donut": [
+    "250",
+    "a glazed donut"
+   ],
+   "cola": [
+    "140",
+    "a 330 ml can of cola"
+   ]
+  },
+  "kcal_say": [
+   "About {x} kcal in {y}."
+  ],
+  "kcal_lot": [
+   "Not really: an adult needs about 2,000–2,500 kcal a day, so {x} kcal is a small part of that (around {p}%)."
+  ],
+  "kcal_mid": [
+   "It's a fair amount: around {p}% of a typical day's 2,000–2,500 kcal. Fine as part of a meal."
+  ],
+  "rice_pasta": [
+   "They're pretty close. Wholegrain versions of either beat white ones: more fibre, fuller for longer. Pasta has a bit more protein, rice is naturally gluten-free. The portion and what you put on it matter more than the choice itself."
+  ],
+  "protein_need": [
+   "A common guideline is about 0.8 g of protein per kilogram of body weight per day, so roughly 55–60 g for a 70 kg adult. People who train a lot often aim for 1.2–2 g per kg."
+  ],
+  "tz_say": [
+   "{x} is on {y} right now{z}."
+  ],
+  "tz_ahead": [
+   "{a} is {n} hours ahead of {b} right now."
+  ],
+  "tz_behind": [
+   "{a} is {n} hours behind {b} right now."
+  ],
+  "tz_same": [
+   "{a} and {b} are on the same time right now."
   ]
  }
 }

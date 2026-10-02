@@ -121,3 +121,27 @@ def time_in(place: str, utc: dt.datetime | None = None) -> tuple[str, dt.datetim
         now = now.replace(tzinfo=dt.timezone.utc)
     hours = offset + (1 if _dst(rule, now, offset) else 0)
     return shown, now + dt.timedelta(hours=hours)
+
+
+def utc_offset(place: str, utc: dt.datetime | None = None) -> tuple[str, float, bool] | None:
+    """(shown name, hours from UTC right now, whether summer time applies) for a known place, else None."""
+    key = " ".join(place.lower().strip(" ?.!").split())
+    key = key[4:] if key.startswith("the ") else key
+    hit = _PLACES.get(key)
+    if hit is None:
+        return None
+    offset, rule, shown = hit
+    now = utc or dt.datetime.now(dt.timezone.utc)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=dt.timezone.utc)
+    summer = _dst(rule, now, offset)
+    return shown, offset + (1 if summer else 0), summer
+
+
+def utc_label(hours: float) -> str:
+    """5.5 → "UTC+5:30", -3 → "UTC−3", 0 → "UTC+0"."""
+    sign = "+" if hours >= 0 else "−"
+    h = abs(hours)
+    whole = int(h)
+    mins = int(round((h - whole) * 60))
+    return f"UTC{sign}{whole}" + (f":{mins:02d}" if mins else "")

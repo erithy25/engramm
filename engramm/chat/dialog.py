@@ -478,6 +478,38 @@ _DE_COMPLIMENT = re.compile(r"^du bist (?:ein |eine )?(?:echt |richtig |wirklich
 _RECAP_DE = {"things about you": "Sachen über dich", "how you're doing": "wie es dir geht", "what to cook": "Kochen", "jokes": "Witze",
              "fun facts": "Fun Facts", "books": "Bücher", "films": "Filme", "music": "Musik", "games": "Spiele",
              "things to do": "Unternehmungen", "travel": "Reisen", "sleep": "Schlaf", "some ideas": "ein paar Ideen"}
+# battery 53: words, calories, nutrition, time zones
+_DEFINE = re.compile(r"^(?:and )?(?:what does|what do) [\"“']?(?P<w>[a-z-]{3,25})[\"”']? mean\??$|^(?:what is the meaning of|define|"
+                     r"meaning of|definition of) [\"“']?(?P<v>[a-z-]{3,25})[\"”']?\??$")
+_IN_SENTENCE = re.compile(r"^(?:can you )?(?:use|put) (?:it|that|the word) in a sentence(?: please)?\??$|^(?:give me |any )?(?:an )?example(?: sentence)?\??$")
+_ANTONYM = re.compile(r"^(?:and )?what(?:'s| is) (?:the )?(?:opposite|antonym) (?:of|for) [\"“']?(?P<w>[a-z-]{2,25})[\"”']?\??$|^(?:the )?opposite of "
+                      r"(?P<v>[a-z-]{2,25})\??$")
+_KCAL = re.compile(r"^(?:and )?how many (?:calories|kcal|cals) (?:are )?(?:in|does) (?:a |an |one |the )?(?P<f>[a-z ]{2,25}?)(?: have| contain)?\??$")
+_KCAL_LOT = re.compile(r"^(?:and )?is (?:that|it) (?:a lot|much|too much|a lot of calories|bad)\??$")
+_RICE_PASTA = re.compile(r"^(?:what'?s|what is|which is) healthier,? (?:rice or pasta|pasta or rice)\??$")
+_PROTEIN = re.compile(r"^how much protein (?:do i|should i|does a person|do you|do people) (?:need|eat|have)(?: per day| a day| daily)?\??$")
+_TZ = re.compile(r"^(?:and )?what time ?zone is (?P<p>[a-z ]{2,25}?) in\??$|^what(?:'s| is) the time ?zone (?:of|in) (?P<q>[a-z ]{2,25}?)\??$")
+_TIME_THERE = re.compile(r"^(?:and )?what time is it there(?: now| right now)?\??$")
+_TIME_AND = re.compile(r"^(?:and|what about|how about)(?: in)? (?P<p>[a-z ]{2,25}?)\??$")
+_HOURS_AHEAD = re.compile(r"^(?:and )?how many hours (?:ahead|behind|difference)(?: is (?:that|it|it there))?\??$|^what(?:'s| is) the time difference\??$")
+_DE_CONVERT = re.compile(r"^wie viele? (?P<to>kilometer|km|meilen|kilo|kilogramm|pfund|grad fahrenheit|fahrenheit|grad celsius|celsius|liter|zentimeter|zoll|"
+                         r"meter|fuß) (?:sind|ergeben|entsprechen) (?P<n>\d+(?:[.,]\d+)?) (?P<fr>meilen|kilometer|km|pfund|kilo|kilogramm|grad celsius|celsius|"
+                         r"grad fahrenheit|fahrenheit|gallonen|zoll|fuß|meter|zentimeter)\??$")
+_DE_UNIT = {"kilometer": "km", "km": "km", "meilen": "miles", "kilo": "kg", "kilogramm": "kg", "pfund": "pounds", "grad fahrenheit": "fahrenheit",
+            "fahrenheit": "fahrenheit", "grad celsius": "celsius", "celsius": "celsius", "liter": "liters", "gallonen": "gallons",
+            "zentimeter": "cm", "zoll": "inches", "meter": "meters", "fuß": "feet"}
+_DE_DEFINE = re.compile(r"^was (?:heißt|bedeutet|heisst) [\"„']?(?P<w>[a-zäöüß-]{3,25})[\"“']?\??$")
+_DE_KCAL = re.compile(r"^wie viele kalorien (?:hat|haben) (?:eine?n? |ein )?(?P<f>[a-zäöüß ]{2,25}?)\??$")
+_DE_FOOD_EN = {"banane": "banana", "apfel": "apple", "ei": "egg", "avocado": "avocado", "orange": "orange", "scheibe brot": "slice of bread",
+               "brot": "bread", "croissant": "croissant", "pizza": "pizza", "kartoffel": "potato", "schokolade": "chocolate", "bier": "beer",
+               "glas wein": "glass of wine", "wein": "wine", "kaffee": "coffee", "latte": "latte", "joghurt": "yogurt", "lachs": "salmon",
+               "cola": "cola", "donut": "donut"}
+_DE_FOOD_SHOWN = {"banana": "einer mittelgroßen Banane", "apple": "einem mittelgroßen Apfel", "egg": "einem großen Ei", "avocado": "einer ganzen Avocado",
+                  "orange": "einer Orange", "slice of bread": "einer Scheibe Brot", "bread": "einer Scheibe Brot", "croissant": "einem Croissant",
+                  "pizza": "einem Stück Käsepizza", "potato": "einer Ofenkartoffel", "chocolate": "einer Tafel Milchschokolade (40 g)",
+                  "beer": "einem Bier (0,33 l)", "glass of wine": "einem Glas Wein (150 ml)", "wine": "einem Glas Wein (150 ml)",
+                  "coffee": "einem schwarzen Kaffee", "latte": "einem großen Latte", "yogurt": "einem Becher Naturjoghurt",
+                  "salmon": "100 g Lachs", "cola": "einer Dose Cola (0,33 l)", "donut": "einem Donut"}
 _WEAR = re.compile(r"^(?:(?:and|so|ok|okay|hmm|fine|alright|cool|sure)[.,!]? )?what (?:should|do|can|could) i wear(?: (?:to|for|on|in) "
                    r"(?:the |a |my |an )?(?P<x>[a-z ]+?))?(?: tomorrow| today| tonight)?\??$")
 _OCCASIONS = [("interview", re.compile(r"\binterview")), ("wedding", re.compile(r"\bwedding|\bmarr")),
@@ -1169,6 +1201,34 @@ class Assistant:
             items = [_RECAP_DE.get(r, _de_country(r)) for r in recap[-5:]]
             shown = ", ".join(items[:-1]) + " und " + items[-1] if len(items) > 1 else items[0]
             return Reply(msg, "smalltalk", self._pick(st, "de:ctx:recap", dc["recap"], x=shown), via="german")
+        m = _DE_CONVERT.match(q)
+        if m:
+            from engramm.chat.tools import convert
+            n = m.group("n").replace(",", ".")
+            res = convert(f"convert {n} {_DE_UNIT[m.group('fr')]} to {_DE_UNIT[m.group('to')]}")
+            if res is not None and res.text:
+                text = res.text
+                for en, de_ in (("miles", "Meilen"), ("pounds", "Pfund"), ("liters", "Liter"), ("gallons", "Gallonen"), ("inches", "Zoll"),
+                                ("feet", "Fuß"), ("meters", "Meter")):
+                    text = re.sub(rf"\b{en}\b", de_, text)
+                text = re.sub(r"(\d)\.(\d)", r"\1,\2", text)              # German decimal comma
+                return Reply(msg, "tool", text if text.endswith(".") else text + ".", via="tool", confidence=1.0)
+        m = _DE_DEFINE.match(q)
+        if m and re.fullmatch(r"[a-z-]+", m.group("w")):
+            w = m.group("w")
+            de_def = dc["word_defs_de"].get(w)
+            if de_def:
+                ex = self.bank.daily["word_defs"].get(w, ["", ""])[1]
+                return Reply(msg, "answer", self._pick(st, "de:ctx:define", dc["define"], x=w, y=de_def, z=ex), via="german",
+                             confidence=1.0)
+            return Reply(msg, "unknown", self._pick(st, "de:ctx:define_none", dc["define_none"], x=w), via="german")
+        m = _DE_KCAL.match(q)
+        if m:
+            en = _DE_FOOD_EN.get(m.group("f").strip())
+            hit = self.bank.daily["food_kcal"].get(en) if en else None
+            if hit:
+                return Reply(msg, "answer", self._pick(st, "de:ctx:kcal", dc["kcal"], x=hit[0], y=_DE_FOOD_SHOWN.get(en, m.group("f"))),
+                             via="german", confidence=1.0)
         if _DE_RUN.match(q):
             st.uses["run_de"] = st.turn
             return Reply(msg, "smalltalk", self._pick(st, "de:ctx:run_start", dc["run_start"]), via="german")
@@ -3896,7 +3956,7 @@ class Assistant:
                         return self._dish_steps(st, msg, dish["name"])
         r2 = self._daily_ctx2(st, msg, norm) or self._daily_ctx3(st, msg, norm) or self._daily_ctx4(st, msg, norm) or \
             self._daily_ctx5(st, msg, norm) or self._daily_ctx6(st, msg, norm) or self._daily_ctx7(st, msg, norm) or \
-            self._daily_ctx8(st, msg, norm)
+            self._daily_ctx8(st, msg, norm) or self._daily_ctx9(st, msg, norm)
         if r2 is not None:
             return r2
         m = _WHAT_LIKES.match(norm)
@@ -4488,6 +4548,91 @@ class Assistant:
                 return Reply(msg, "smalltalk", self._pick(st, "daily:hike_bring", d["hike_bring"]), via="everyday")
             if _HOW_WATER.match(norm):
                 return Reply(msg, "smalltalk", self._pick(st, "daily:hike_water", d["hike_water"]), via="everyday")
+        return None
+
+    def _daily_ctx9(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 53: what a word means (a small checked list, honest otherwise), an example sentence, opposites,
+        calories and whether that is a lot, rice versus pasta, protein, time zones and differences."""
+        d = self.bank.daily
+        m = _DEFINE.match(norm)
+        if m:
+            w = (m.group("w") or m.group("v")).lower()
+            entry = d["word_defs"].get(w)
+            if entry:
+                st.uses["word_def"] = [w, st.turn]
+                return Reply(msg, "answer", self._pick(st, "daily:word_def", d["word_def"], x=w, y=entry[0], z=entry[1]), via="tool",
+                             confidence=1.0)
+            if self.about.find(w) is None and self.about.find(w.title()) is None:
+                return Reply(msg, "unknown", self._pick(st, "daily:word_def_none", d["word_def_none"], x=w), via="tool")
+        wd = st.uses.get("word_def")
+        if wd and st.turn - wd[1] <= 3 and _IN_SENTENCE.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:word_sentence", d["word_sentence"], x=d["word_defs"][wd[0]][1]), via="tool")
+        m = _ANTONYM.match(norm)
+        if m:
+            w = (m.group("w") or m.group("v")).lower()
+            ants = d["antonyms"].get(w) or next((k for k, v in d["antonyms"].items() if w in v), None)
+            if isinstance(ants, str):
+                ants = [ants]
+            if ants:
+                more = f" (or “{'”, “'.join(ants[1:])}”)" if len(ants) > 1 else ""
+                return Reply(msg, "answer", self._pick(st, "daily:antonym_say", d["antonym_say"], x=w, y=ants[0], z=more), via="tool",
+                             confidence=1.0)
+        m = _KCAL.match(norm)
+        if m:
+            f = re.sub(r"s$", "", m.group("f").strip()) if m.group("f").strip() not in d["food_kcal"] else m.group("f").strip()
+            hit = d["food_kcal"].get(f) or d["food_kcal"].get(m.group("f").strip())
+            if hit:
+                st.uses["kcal"] = [int(hit[0]), st.turn]
+                return Reply(msg, "answer", self._pick(st, "daily:kcal_say", d["kcal_say"], x=hit[0], y=hit[1]), via="tool", confidence=1.0)
+        kc = st.uses.get("kcal")
+        if kc and st.turn - kc[1] <= 2 and _KCAL_LOT.match(norm):
+            key = "kcal_lot" if kc[0] < 300 else "kcal_mid"
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key], x=kc[0], p=round(kc[0] / 22.5)), via="tool")
+        if _RICE_PASTA.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:rice_pasta", d["rice_pasta"]), via="everyday")
+        if _PROTEIN.match(norm):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:protein_need", d["protein_need"]), via="everyday")
+        from engramm.chat.worldtime import time_in, utc_label, utc_offset
+        now = self._now()
+        utc = None
+        if now is not None:
+            import datetime as _dt
+            utc = (now if now.tzinfo else now.astimezone()).astimezone(_dt.timezone.utc)
+        m = _TZ.match(norm)
+        if m:
+            off = utc_offset(m.group("p") or m.group("q"), utc)
+            if off:
+                st.uses["tz"] = [[m.group("p") or m.group("q")], st.turn]
+                z = " (summer time)" if off[2] else ""
+                return Reply(msg, "answer", self._pick(st, "daily:tz_say", d["tz_say"], x=off[0], y=utc_label(off[1]), z=z), via="tool",
+                             confidence=1.0)
+        tz = st.uses.get("tz")
+        if tz and st.turn - tz[1] <= 3:
+            if _TIME_THERE.match(norm):
+                rep = self._turn(st, f"what time is it in {tz[0][-1]}?")
+                rep.message = msg
+                st.uses["tz"] = [tz[0], st.turn]
+                return rep
+            m = _TIME_AND.match(norm)
+            if m and utc_offset(m.group("p"), utc):
+                rep = self._turn(st, f"what time is it in {m.group('p')}?")
+                rep.message = msg
+                st.uses["tz"] = [tz[0] + [m.group("p")], st.turn]
+                return rep
+            seen = re.findall(r"\bin ((?:the )?[A-Z][\w'.-]*(?: [A-Z][\w'.-]*)*)(?= right now| —| \(| is on)", " ".join(st.recent[-4:]))
+            places = []
+            for x in seen + tz[0]:
+                if utc_offset(x, utc) and x.lower() not in [y.lower() for y in places]:
+                    places.append(x)
+            seen_order = [x for x in seen if utc_offset(x, utc)]
+            if seen_order:                                # the order the places came up in
+                places = list(dict.fromkeys([y for y in tz[0] if y.lower() not in [s.lower() for s in seen_order]] + seen_order))
+            if _HOURS_AHEAD.match(norm) and len(places) >= 2:
+                a, b = utc_offset(places[-1], utc), utc_offset(places[-2], utc)
+                n = a[1] - b[1]
+                shown = f"{abs(n):g}"
+                key = "tz_ahead" if n > 0 else "tz_behind" if n < 0 else "tz_same"
+                return Reply(msg, "answer", self._pick(st, f"daily:{key}", d[key], a=a[0], b=b[0], n=shown), via="tool", confidence=1.0)
         return None
 
     def _person_name(self, noun: str) -> str | None:

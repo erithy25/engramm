@@ -2319,6 +2319,16 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     Mitgefühl für den ganzen Tag statt „What went wrong with your alarm?“.
   - Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–51 und langes Gespräch: 0 Wiederholungen.
     Suite 725 bestanden, 7 übersprungen.
+- **Alltags-Batterie 53 (Alltagswissen: Wörter, Kalorien, Ernährung, Zeitzonen; Englisch und Deutsch)**:
+  - Umrechnen und Synonyme klappten schon. Neu: Wortbedeutungen aus einer kleinen, von Hand geprüften Liste (25 Wörter)
+    mit Beispielsatz und „use it in a sentence“; sonst ehrlich: kein Wörterbuch im Paket. Gegenteile (30 Wörter),
+    Kalorien für 25 Lebensmittel mit „is that a lot?“ (Anteil am Tagesbedarf), Reis oder Nudeln, Eiweißbedarf.
+  - Zeitzonen: „what time zone is london in?“ → „UTC+1 (summer time)“ aus den eingebauten Sommerzeitregeln, „what time
+    is it there?“, „and in sydney?“, „how many hours ahead is that?“ → „Sydney is 9 hours ahead of London“.
+  - Deutsch: „wie viele Kilometer sind 5 Meilen?“ (mit Dezimalkomma), „was heißt ubiquitous?“, „wie viele Kalorien hat
+    eine Banane?“ (vorher 3× unverstanden).
+  - Team-Dev-Satz: 0 von 128 geändert. NQ-open 400: 22/9. Regressionen 32, 38–52 und langes Gespräch: 0 Wiederholungen.
+    Suite 729 bestanden, 7 übersprungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
