@@ -2196,8 +2196,11 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - Amtsinhaber, wenn die Faktenbank keinen hat: aus dem Artikel des Amts, immer mit Datum der Lesetexte („As of my copy of
     Wikipedia (December 2022) …“), weil Ämter wechseln. Im langen Gespräch geht damit „president of france → how old is
     he → who is his wife“ durch (vorher dreimal unbeantwortet). Lebende Ehepartner: „is married to“ statt „was“.
-  - Bekannte Grenze: „who is the president of the united states?“ bleibt offen (weder Faktenbank noch Artikelanfang
-    nennen den Amtsinhaber). Text-Antworten zu Ämtern können veraltet sein; das sagt die Antwort selbst.
+  - Nachtrag: „who is the president of the united states?“ war zunächst offen (weder Faktenbank noch Artikelanfang des
+    Amts nennen den Amtsinhaber). Jetzt sucht eine strenge Satzregel den Artikel des Amtsinhabers selbst („… is the 46th
+    and current president of the United States“; nie „vice“, „deputy“ oder „former“), immer mit Stand der Lesetexte.
+    Text-Antworten zu Ämtern können veraltet sein; das sagt die Antwort selbst. Dev-Satz 0/128 geändert, NQ 22/9,
+    Suite 726 bestanden.
   - Wiederholungen 1 → 0. Team-Dev-Satz: 1 von 128 geändert (team-0074: Macron statt „weiß nicht“). NQ-open 400: 22/9.
     Regressionen 32, 38–41 und langes Gespräch: 0 Wiederholungen. Suite 702 bestanden, 7 übersprungen.
 - **Alltags-Batterie 43 (Englisch, Umgangssprache)** (Small Talk mit „u/r/whatcha“, Umzug nach Berlin, kranker Hund,

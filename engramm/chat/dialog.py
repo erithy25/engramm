@@ -3753,6 +3753,32 @@ class Assistant:
                     text = self._pick(st, "daily:office_dated" if when else "daily:office_undated",
                                       self.bank.daily["office_dated" if when else "office_undated"], x=role, y=who, z=when)
                     return Reply(msg, "answer", text, answer=who, evidence=s, source=found.source, via="about", confidence=0.6)
+        if not place or office == "pope":
+            return None
+        # the office's article does not name the holder: the holder's own article does ("… is the 46th and current
+        # president of the United States"); a strict sentence pattern, never a loose match
+        pl = f"the {place}" if place in _THE_PLACES else place
+        rx = re.compile(rf"\bis (?:an? [^.]*? who is )?the (?:\d+\w* (?:and )?)?(?:current|incumbent) {re.escape(office)} of {re.escape(pl)}\b|"
+                        rf"\bhas served as (?:the )?(?:\d+\w* )?{re.escape(office)} of {re.escape(pl)} since\b", re.I)
+        try:
+            cands = self.bot.r.candidates(f"{office} of {pl}")
+        except Exception:                                # a damaged index must not break the chat
+            return None
+        for sid in list(cands.ids)[:300]:
+            s = self.bot.c.sentence_text(int(sid))
+            if not rx.search(s) or re.search(r"\bvice\b|\bdeputy\b|\bformer\b", s, re.I):
+                continue
+            src = self.bot.c.source(int(sid))
+            who = re.sub(r"\s*\([^)]*\)$", "", src.get("key") or "")
+            if not who:
+                continue
+            role = f"{office} of {pl}"
+            when = getattr(self, "reading_as_of", None)
+            st.last_fact = {"evidence": s, "source": src, "answer": who, "question": msg, "sure": False}
+            self.bot.context.update({"answer": who, "atype": "PERSON", "mention": who, "kb_last": None})
+            text = self._pick(st, "daily:office_dated" if when else "daily:office_undated",
+                              self.bank.daily["office_dated" if when else "office_undated"], x=role, y=who, z=when)
+            return Reply(msg, "answer", text, answer=who, evidence=s, source=src, via="about", confidence=0.6)
         return None
 
     def _fix_typos(self, msg: str) -> str:

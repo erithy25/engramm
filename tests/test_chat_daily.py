@@ -2059,3 +2059,40 @@ def test_battery52_repeats_language_switch_numbers_and_long_story(chat):
     r = a.turn(DialogState("p5"), "so basically today i woke up late because my alarm didn't go off and then i missed the bus and "
                                   "had to walk to work in the rain and my boss was in a bad mood and i spilled coffee on my shirt")
     assert r.kind == "empathy" and "alarm?" not in r.text, r.text
+
+
+def test_officeholder_from_the_holders_own_article(chat):
+    a, _ = chat
+
+    class NoKB:
+        kb = None
+
+        def answer(self, q):
+            return None
+
+    class Cands:
+        ids = [0, 1]
+
+    class R:
+        def candidates(self, q):
+            return Cands()
+
+    class C:
+        texts = ["Kamala Harris is the 49th and current vice president of the United States.",
+                 "Joseph Robinette Biden Jr. is an American politician who is the 46th and current president of the United States."]
+        keys = ["Kamala Harris", "Joe Biden"]
+
+        def sentence_text(self, s):
+            return self.texts[s]
+
+        def source(self, s):
+            return {"kind": "base", "source": "wikipedia", "key": self.keys[s]}
+    a.kgqa, a.reading_as_of = NoKB(), "December 2022"
+    a.about.find = lambda t, **kw: None
+    old_r, old_c = a.bot.r, a.bot.c
+    a.bot.r, a.bot.c = R(), C()
+    try:
+        r = a._officeholder(DialogState("q1"), "who is the president of the united states?", "who is the president of the united states")
+    finally:
+        a.bot.r, a.bot.c, a.kgqa = old_r, old_c, None
+    assert r is not None and "Joe Biden" in r.text and "Harris" not in r.text and "December 2022" in r.text, r and r.text
