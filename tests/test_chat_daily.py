@@ -3034,3 +3034,22 @@ def test_battery75_practical_everyday_help(chat):
     a.turn(st, "i can't decide what to eat")
     r = a.turn(st, "no cooking please")
     assert "need cooking please" not in r.text and "sandwich" in r.text, r.text
+
+
+def test_battery76_sarcasm_and_short_answers(chat):
+    a, _ = chat
+    r = a.turn(DialogState("s76a"), "just perfect, i missed my train")
+    assert "What went wrong" not in r.text and r.kind == "empathy", r.text
+    r = a.turn(DialogState("s76b"), "oh wonderful, my car broke down")
+    assert r.kind == "empathy" and "Great" not in r.text, r.text
+    st = DialogState("s76c")
+    assert "here" in a.turn(st, "i'm fine.").text
+    assert a.turn(st, "ok maybe not totally fine").kind == "empathy"
+    assert "mistakes" in a.turn(DialogState("s76d"), "are you dumb?").text or "wrong" in a.turn(DialogState("s76e"), "are you dumb?").text
+    r = a.turn(DialogState("s76f"), "na toll, schon wieder regen")
+    assert "Toll zu hören" not in r.text, r.text
+    r = a.turn(DialogState("s76g"), "super, mein auto ist kaputt")
+    assert "Müdigkeit" not in r.text and "kaputt" in r.text, r.text
+    st = DialogState("s76h")
+    a.turn(st, "mir gehts gut.")
+    assert a.turn(st, "naja, nicht so ganz").kind == "empathy"

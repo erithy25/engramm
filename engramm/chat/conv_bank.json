@@ -4510,7 +4510,7 @@
      "id": "tired",
      "valence": "negative",
      "triggers": [
-      "\\b(müde|erschöpft|kaputt|ausgelaugt|schlapp)\\b|\\b(?:ich bin|bin) (?:so |total |völlig |echt |richtig )?fertig\\b(?! mit)"
+      "\\b(müde|erschöpft|ausgelaugt|schlapp)\\b|\\b(?:ich bin|bin|fühle mich) (?:so |total |völlig |echt |richtig |voll )?(?:fertig\\b(?! mit)|kaputt\\b)"
      ],
      "responses": [
       "Klingt nach einem langen Tag. Gönn dir eine Pause, wenn du kannst.",
@@ -6439,6 +6439,25 @@
      "krank": "Hier ist eine Nachricht, die du nutzen kannst:\n\nHallo [Name],\n\nleider bin ich krank und kann heute nicht zur Arbeit kommen. Dringende E-Mails schaue ich mir an, wenn es mir möglich ist. Ich melde mich, sobald ich wieder fit bin.\n\nViele Grüße\n[Dein Name]",
      "ohne_kochen": [
       "Ganz ohne Kochen:\n\n• Ein Brot oder Wrap mit dem, was im Kühlschrank ist\n• Joghurt mit Obst und Müsli\n• Ein großer Salat mit Kichererbsen, Feta und Tomaten\n• Hummus mit Brot und Rohkost\n• Oder einfach bestellen – völlig okay.\n\nWas klingt gut?"
+     ]
+    },
+    "g76": {
+     "regen": [
+      "Na toll, ja – Regen kann richtig aufs Gemüt schlagen. Immerhin eine gute Ausrede für einen gemütlichen Tag drinnen?"
+     ],
+     "kaputt": [
+      "Oh nein, das auch noch! Was ist denn kaputt?",
+      "So ein Pech! Ist es etwas, das sich reparieren lässt?"
+     ],
+     "verpasst": [
+      "Oh nein, verpasst? Das ist so ärgerlich. Wann kommt der nächste?"
+     ],
+     "nicht_ganz": [
+      "Danke, dass du ehrlich bist. Was ist los?",
+      "Das ist okay – du musst nicht gut drauf sein. Magst du erzählen?"
+     ],
+     "ironie_arbeit": [
+      "Ha, die Begeisterung spür ich bis hierher. 😅 Ist es gerade viel?"
      ]
     }
    }
@@ -12863,6 +12882,39 @@
    },
    "no_cook": [
     "No cooking needed:\n\n• A sandwich or wrap with whatever's in the fridge\n• Yoghurt with fruit and granola\n• A big salad with chickpeas, feta and tomatoes\n• Hummus with bread and raw veggies\n• Or just order something in — totally fair.\n\nAnything sound good?"
+   ]
+  },
+  "b76": {
+   "missed": [
+    "Oh no, missed it? That's so frustrating. When's the next one?",
+    "Argh, the worst feeling — watching it pull away. Is there another one soon?"
+   ],
+   "broke": [
+    "Oh no, that's the last thing you need. What happened to it?",
+    "Ugh, seriously bad luck. Is it something fixable?"
+   ],
+   "yay_work": [
+    "Ha, I can feel the enthusiasm from here. 😅 Is it a lot right now?",
+    "Sounds like a thrilling surprise. 😄 Too much on your plate?"
+   ],
+   "love_that": [
+    "Ha, sounds like the day is testing you. 😅 What happened?"
+   ],
+   "fine_curt": [
+    "Okay. If something's bugging you, I'm here.",
+    "Alright. I'm around if you want to talk."
+   ],
+   "fine_really": [
+    "Okay, I believe you. 🙂 I'm here if that changes.",
+    "Got it — no pressure. I'm here if you need me."
+   ],
+   "not_fine": [
+    "Thanks for being honest. What's going on?",
+    "That's okay — you don't have to be fine. Want to tell me what's up?"
+   ],
+   "dumb": [
+    "Sometimes, I know! I'm a small offline program and I do make mistakes. Tell me what went wrong and I'll try to do better.",
+    "Fair question — I get things wrong sometimes. What did I mess up?"
    ]
   }
  }

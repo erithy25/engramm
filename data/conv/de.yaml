@@ -203,7 +203,7 @@ feelings:
         - "Stress kann viel sein. Magst du erzählen, was gerade los ist? Manchmal hilft es, es aufzuschreiben."
     - id: tired
       valence: negative
-      triggers: ['\b(müde|erschöpft|kaputt|ausgelaugt|schlapp)\b|\b(?:ich bin|bin) (?:so |total |völlig |echt |richtig )?fertig\b(?! mit)']
+      triggers: ['\b(müde|erschöpft|ausgelaugt|schlapp)\b|\b(?:ich bin|bin|fühle mich) (?:so |total |völlig |echt |richtig |voll )?(?:fertig\b(?! mit)|kaputt\b)']
       responses:
         - "Klingt nach einem langen Tag. Gönn dir eine Pause, wenn du kannst."
         - "Müdigkeit ist fies. Hast du heute schon etwas nur für dich gemacht?"
@@ -875,3 +875,9 @@ daily:
     g75:
       krank: "Hier ist eine Nachricht, die du nutzen kannst:\n\nHallo [Name],\n\nleider bin ich krank und kann heute nicht zur Arbeit kommen. Dringende E-Mails schaue ich mir an, wenn es mir möglich ist. Ich melde mich, sobald ich wieder fit bin.\n\nViele Grüße\n[Dein Name]"
       ohne_kochen: ["Ganz ohne Kochen:\n\n• Ein Brot oder Wrap mit dem, was im Kühlschrank ist\n• Joghurt mit Obst und Müsli\n• Ein großer Salat mit Kichererbsen, Feta und Tomaten\n• Hummus mit Brot und Rohkost\n• Oder einfach bestellen – völlig okay.\n\nWas klingt gut?"]
+    g76:
+      regen: ["Na toll, ja – Regen kann richtig aufs Gemüt schlagen. Immerhin eine gute Ausrede für einen gemütlichen Tag drinnen?"]
+      kaputt: ["Oh nein, das auch noch! Was ist denn kaputt?", "So ein Pech! Ist es etwas, das sich reparieren lässt?"]
+      verpasst: ["Oh nein, verpasst? Das ist so ärgerlich. Wann kommt der nächste?"]
+      nicht_ganz: ["Danke, dass du ehrlich bist. Was ist los?", "Das ist okay – du musst nicht gut drauf sein. Magst du erzählen?"]
+      ironie_arbeit: ["Ha, die Begeisterung spür ich bis hierher. 😅 Ist es gerade viel?"]

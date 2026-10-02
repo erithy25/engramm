@@ -2716,3 +2716,12 @@ b75:
     sugar: "Just leave it out, or use a little honey or maple syrup instead. For savoury versions you don't need any."
     flour: "No flour? Blend oats into a fine powder and use about the same amount."
   no_cook: ["No cooking needed:\n\n• A sandwich or wrap with whatever's in the fridge\n• Yoghurt with fruit and granola\n• A big salad with chickpeas, feta and tomatoes\n• Hummus with bread and raw veggies\n• Or just order something in — totally fair.\n\nAnything sound good?"]
+b76:
+  missed: ["Oh no, missed it? That's so frustrating. When's the next one?", "Argh, the worst feeling — watching it pull away. Is there another one soon?"]
+  broke: ["Oh no, that's the last thing you need. What happened to it?", "Ugh, seriously bad luck. Is it something fixable?"]
+  yay_work: ["Ha, I can feel the enthusiasm from here. 😅 Is it a lot right now?", "Sounds like a thrilling surprise. 😄 Too much on your plate?"]
+  love_that: ["Ha, sounds like the day is testing you. 😅 What happened?"]
+  fine_curt: ["Okay. If something's bugging you, I'm here.", "Alright. I'm around if you want to talk."]
+  fine_really: ["Okay, I believe you. 🙂 I'm here if that changes.", "Got it — no pressure. I'm here if you need me."]
+  not_fine: ["Thanks for being honest. What's going on?", "That's okay — you don't have to be fine. Want to tell me what's up?"]
+  dumb: ["Sometimes, I know! I'm a small offline program and I do make mistakes. Tell me what went wrong and I'll try to do better.", "Fair question — I get things wrong sometimes. What did I mess up?"]

@@ -1271,6 +1271,21 @@ class Assistant:
             return None
         q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", s)).strip(" .!?")
         say = lambda key: Reply(msg, "smalltalk", self._pick(st, f"de:g74:{key}", g[key]), via="german")   # noqa: E731
+        g6 = (self.bank.de["daily"].get("ctx") or {}).get("g76") or {}
+        sar_de = r"(?:na )?(?:toll|super|klasse|prima|großartig|perfekt|wunderbar|na prima|na super|na klasse|na toll),? "
+        if g6 and re.fullmatch(sar_de + r"(?:schon wieder |mal wieder |wieder )?(?:regen|es regnet(?: schon wieder)?)(?: heute)?", q):
+            return Reply(msg, "empathy", self._pick(st, "de:g76:regen", g6["regen"]), via="german")
+        if g6 and re.fullmatch(r"(?:" + sar_de + r"|mist,? |oh mann,? )?(?:mein|meine|unser|unsere|das|die|der) (?:auto|laptop|handy|waschmaschine|kühlschrank|fahrrad|"
+                               r"heizung|spülmaschine|rad) (?:ist|hat) (?:schon wieder |jetzt |auch noch )?(?:kaputt|den geist aufgegeben|kaputt gegangen)", q):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "de:g76:kaputt", g6["kaputt"]), via="german")
+        if g6 and re.fullmatch(r"(?:" + sar_de + r")?(?:ich habe|ich hab|hab) (?:den |meinen |die |meine )?(?:zug|bus|bahn|flug|anschluss) verpasst", q):
+            return Reply(msg, "empathy", self._pick(st, "de:g76:verpasst", g6["verpasst"]), via="german")
+        if g6 and re.fullmatch(r"(?:naja|na ja|hm+|ehrlich gesagt|eigentlich),? (?:nicht so ganz|nicht wirklich|nicht so|geht so|eher nicht)", q):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "de:g76:nicht_ganz", g6["nicht_ganz"]), via="german")
+        if g6 and re.fullmatch(sar_de + r"(?:noch )?mehr arbeit", q):
+            return Reply(msg, "smalltalk", self._pick(st, "de:g76:ironie_arbeit", g6["ironie_arbeit"]), via="german")
         g5 = (self.bank.de["daily"].get("ctx") or {}).get("g75") or {}
         money = self._money75(st, msg, s.strip(" ?!."), de=True)
         if money is not None:
@@ -6211,6 +6226,29 @@ class Assistant:
         b = self.bank.daily["b73"]
         n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", norm)).strip(" .!?")
         say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b73:{key}", b[key], **kw), via="smalltalk")  # noqa: E731
+        b6 = self.bank.daily["b76"]
+        say6 = lambda key, kind="smalltalk": Reply(msg, kind, self._pick(st, f"daily:b76:{key}", b6[key]), via="empathy" if kind == "empathy" else "smalltalk")  # noqa: E731
+        sar = r"(?:(?:oh |just |well |yay |so )?(?:great|wonderful|perfect|fantastic|lovely|brilliant|awesome|nice|yay)|thanks a lot|just what i needed),? "
+        if re.fullmatch(sar + r"(?:i |we )?(?:just )?missed (?:my |the |our )?(?:train|bus|flight|tram|connection|plane)(?: again)?", n) or \
+                re.fullmatch(r"(?:ugh,? )?i (?:just )?missed (?:my |the )?(?:train|bus|flight|tram|connection)(?: again)?", n):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            return say6("missed", "empathy")
+        if re.fullmatch(sar + r"(?:my |the |our )?(?:car|laptop|phone|washing machine|fridge|bike|heating|dishwasher) (?:just )?(?:broke down|broke|died|stopped working|is broken)(?: again)?", n):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            return say6("broke", "empathy")
+        if re.fullmatch(r"(?:yay|great|wonderful|fantastic|oh joy|lovely),? (?:even )?more (?:work|homework|emails|meetings|overtime|tasks)", n):
+            return say6("yay_work")
+        if re.fullmatch(r"(?:just )?love that for me|living the dream|what a day|best day ever not", n):
+            return say6("love_that")
+        if re.fullmatch(r"(?:i'?m|im|i am) fine", n) and msg.strip().endswith(".") and len(msg.strip()) <= 10:
+            return say6("fine_curt")
+        if re.fullmatch(r"(?:no,? )?(?:really|seriously|honestly),? (?:i'?m|im|i am) (?:fine|okay|ok|good)", n):
+            return say6("fine_really")
+        if re.fullmatch(r"(?:ok(?:ay)?,? |well,? |fine,? )?(?:maybe|probably|actually) not (?:totally |really |so |that |completely )?(?:fine|okay|ok|good)", n):
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            return say6("not_fine", "empathy")
+        if re.fullmatch(r"(?:are|r) (?:you|u) (?:dumb|stupid|an idiot|broken)", n):
+            return say6("dumb")
         fam = r"(?P<w>mom|mum|mother|dad|father|brother|sister|grandma|grandpa|wife|husband|boyfriend|girlfriend|son|daughter|friend|best friend|aunt|uncle)"
         he = lambda w: "she" if w in ("mom", "mum", "mother", "sister", "grandma", "wife", "girlfriend", "daughter", "aunt") else \
             "he" if w not in ("friend", "best friend") else "they"                                                         # noqa: E731

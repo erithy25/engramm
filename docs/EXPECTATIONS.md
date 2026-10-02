@@ -2703,6 +2703,18 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
     mit dem Chef gelesen: „Was hat deinem Chef denn diesmal angestellt?“) → Krankmeldung zum Kopieren, „ohne kochen“.
   - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 766 bestanden, Regressionen 32, 38–75 (43 Gespräche):
     0 Wiederholungen; Unterschiede nur Uhrzeiten.
+- **Alltags-Batterie 76 (Ironie, Sarkasmus, knappe Antworten; EN + DE)**:
+  - Schwere Fehlgriffe auf Deutsch: „na toll, schon wieder regen“ → „Toll zu hören! Was hat deinen Tag so gut gemacht?“ und
+    „super, mein auto ist kaputt“ → „Müdigkeit ist fies“ (das Gefühl „müde“ fing jedes „kaputt“ ab). „kaputt“ zählt jetzt nur
+    in „ich bin kaputt“; ironisches „na toll / super / klasse“ vor Regen, Kaputtem, verpasstem Zug und „mehr Arbeit“ wird als
+    Ärger erkannt. „naja, nicht so ganz“ nach „mir gehts gut“ (vorher Rückfallantwort) → nachfragen.
+  - Englisch: „just perfect, i missed my train“ (vorher „What went wrong with your train?“), „oh wonderful, my car broke down“,
+    „yay, more work“, „love that for me“ (vorher als Fakt gespeichert), „i'm fine.“ / „no really, i'm fine“ / „ok maybe not
+    totally fine“ (vorher „Nice! What can I do for you today?“ und „How's that going?“), „are you dumb?“ (vorher „I don't
+    know — I haven't read anything“). Die erste Fassung antwortete auch auf „you're useless“ mit „Sometimes, I know!“
+    (team-0016 im Dev-Satz änderte sich) – zurückgenommen, nur die Frage „are you dumb?“ bekommt diese Antwort.
+  - Messung: Team-Dev-Satz 1 von 128 (team-0067), NQ 22/9, Suite 767 bestanden, Regressionen 32, 38–76 (44 Gespräche):
+    0 Wiederholungen; Unterschiede nur Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

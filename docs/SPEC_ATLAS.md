@@ -202,7 +202,9 @@ normaler Abend Englisch/Deutsch, Sprachumschaltung, Rechnen nebenbei, Tagesplan,
 (Lauf 37028902789, Batterien 64–67: schwere Gefühle mit Hilfsangeboten, Gedächtnis wie ein Mensch – echtes Vergessen,
 Korrekturen, Abneigungen, Personen, verschobene Termine –, auch auf Deutsch; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.20](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.20)
 (Lauf 37043931947, Batterien 68–71: lockeres Gespräch auf Englisch und Deutsch, echte Nachrichten mit Slang und Emojis,
-Wissensfehler behoben – Zugspitze, Harry Potter –, 40 feste Wissensfragen 39/0/1; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
+Wissensfehler behoben – Zugspitze, Harry Potter –, 40 feste Wissensfragen 39/0/1; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.21](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.21)
+(Lauf 37052761578, Batterien 72–74: zweite Wissensstichprobe 38/0/2, Allergie kein Lieblingsessen, flüchtige Momente nicht
+gespeichert, Folgefragen über mehrere Turns; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
