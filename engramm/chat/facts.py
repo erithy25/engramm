@@ -681,6 +681,11 @@ _NEGATED_HAVE = re.compile(r"\b(?:don'?t|do not|didn'?t|did not|no longer|never)
 _AND_I = re.compile(r"(?i)(?<=\w),?\s+and\s+(?=i(?:'m|m| am| work| live| have| like| love| study| drive| was| go)\b)")
 
 
+# "I moved to a new city": a place without a name is not where you live
+_GENERIC_PLACE = re.compile(r"(?i)^(?:a |an |the |my )?(?:new |different |another |big |small |little |nice |other )?"
+                            r"(?:city|town|village|place|country|apartment|flat|house|home|area|neighbou?rhood|state|region)$")
+
+
 def _with_age(f: Fact) -> Fact:
     """"I'm 29", "I am 29 years old", "my dog is 3 years old": the number is an age (#age)."""
     if f.kind == "NUMBER" and re.fullmatch(r"\d{1,3}", f.object) and 0 < int(f.object) < 120 and \
@@ -723,7 +728,7 @@ def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None,
                 fp = [Fact(f.subject, tuple("#dislike" if r == "#fav" else r for r in f.relation)
                            + (() if "#fav" in f.relation else ("#dislike",)), f.object, f.source, f.sentence, f.kind)
                       for f in fp]
-            fp = [_with_age(f) for f in fp]
+            fp = [_with_age(f) for f in fp if not ("#home" in f.relation and _GENERIC_PLACE.match(f.object))]
             out += fp if fp else third_person_facts(s, source, initial_is_name)
             continue
         tp = third_person_facts(s, source, initial_is_name)

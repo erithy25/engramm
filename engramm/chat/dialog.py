@@ -89,6 +89,25 @@ _MAYBE_KINDS = {"reading": "book", "book": "book", "books": "book", "movie": "mo
                 "films": "movie", "series": "series", "show": "series", "tv": "series", "music": "music", "game": "game",
                 "games": "game", "gaming": "game", "podcast": "podcast", "podcasts": "podcast", "cooking": "food",
                 "baking": "food", "hobby": "hobby"}
+# "I moved to a new city and don't know anyone"
+_MOVED_NEW = re.compile(r"\bi (?:just |recently )?(?:moved|relocated) (?:to|into) (?:a |another )?(?:new|different|another) (?:city|town|country|place)\b")
+# "what should I wear (to the interview)?"
+_WEAR = re.compile(r"^(?:and |so |ok |hmm )?what (?:should|do|can) i wear(?: (?:to|for|on) (?:the |a |my )?(?P<x>[a-z ]+?))?\??$")
+_OCCASIONS = [("interview", re.compile(r"\binterview")), ("wedding", re.compile(r"\bwedding|\bmarr")),
+              ("date", re.compile(r"\bdate\b|\bfirst date")), ("dinner", re.compile(r"\bdinner|\bcelebrat|\brestaurant|\bparty|going out")),
+              ("funeral", re.compile(r"\bfuneral")), ("office", re.compile(r"\boffice|\bfirst day|\bwork\b"))]
+# light everyday debates and the words that name them
+_DEBATES = [("pineapple", ("pineapple", "pizza")), ("cats_dogs", ("cats?", "dogs?")), ("tea_coffee", ("tea", "coffee")),
+            ("books_movies", ("books?", "(?:movies?|films?)")), ("summer_winter", ("summer", "winter")),
+            ("beach_mountains", ("beach", "mountains?")), ("early_late", ("(?:early bird|morning person)", "(?:night owl|night person)")),
+            ("iphone_android", ("iphone", "android"))]
+# "I'm planning a trip to Japan next month", "we're flying to Lisbon on Friday"
+_TRIP_PLAN = re.compile(r"\b(?:i'?m|i am|we'?re|we are|im) (?:planning|going on|taking|booking|off on|about to go on) (?:a |our |my )?"
+                        r"(?:trip|holiday|vacation|journey|getaway|honeymoon) to (?P<x>[a-z][a-z ]{1,30}?)"
+                        r"(?: next \w+| this \w+| in \w+| soon| tomorrow| on \w+| for \w+(?: \w+)?)?[.!]*$|"
+                        r"\b(?:i'?m|i am|we'?re|we are|im) (?:flying|travelling|traveling|going|heading|moving) to (?P<y>[a-z][a-z ]{1,30}?) "
+                        r"(?:next \w+|this \w+|in \w+|soon|tomorrow|on \w+|for (?:a|two|three|\d+) \w+)[.!]*$")
+_TRIP_TIPS = re.compile(r"^(?:any |some |got any )?(?:tips|advice|suggestions|recommendations)(?: for (?:me|it|the trip))?\??$")
 # "just got home from work": a person arriving, not a fact to store
 _GOT_HOME = re.compile(r"^(?:not much,? |nothing much,? |nm,? )?(?:i )?(?:just )?(?:got|came|came back|got back|am|i'm) "
                        r"(?:home|back) from (?:the )?(?P<x>work|school|uni|university|college|the gym|gym|practice|class|"
@@ -102,6 +121,8 @@ _WHAT_WAS_I = re.compile(r"^(?:sorry,? |wait,? )?what (?:was|were|did) i (?:comp
                          r"say|said|upset|stressed|worried|mad|angry|happy|excited) ?(?:about)?(?: earlier| before| again)?\??$")
 # everyday remarks and how a person answers them (see DialogEngine._talk)
 _TALK_RULES = [
+    (re.compile(r"\b(?:we'?re|i'?m|we are|i am|im) (?:going out|going to (?:a |the )?(?:dinner|party|concert|cinema|movies|game|gym|beach|pub|bar|club)|heading out|off to (?:a |the )?(?:dinner|party|concert|cinema|beach|pub)|meeting (?:friends|my friends|up with))\b"), "talk_plan"),
+    (re.compile(r"\bi'?(?:ll| will) (?:tell|let) you(?: know)?(?: how (?:it|that|the \w+) (?:was|went|goes|turns out))?\b|\bi'?ll keep you posted\b"), "talk_report"),
     (re.compile(r"^(?:but |well |sadly |unfortunately )?(?:i )?(?:don'?t|do not|dont) (?:have|own) (?:a|an|any) \w+"), "talk_nohave"),
     (re.compile(r"^(?:ok |okay |but )?(?:i )?(?:have to|need to|gotta|got to|must) (?:go |run |quickly |first )?(?:to )?\w+"), "talk_must"),
     (re.compile(r"\bmiss(?:ing)? (?:him|her|them|home|my \w+|\w+ so much|\w+ a lot)\b"), "talk_miss"),
@@ -114,7 +135,7 @@ _TALK_RULES = [
                 r"too much (?:work|stress)|overwhelmed|swamped)\b"), "talk_tough"),
 ]
 # remarks the plain chit-chat path should hand to DialogEngine._talk
-_TALK_FIRST = re.compile(r"\b(?:miss(?:ing)?|try|heard|read|seen|watched|killing|exhausted|tired|drained|slept|sleep|"
+_TALK_FIRST = re.compile(r"\b(?:going out|going to|heading out|off to|meeting|tell you|let you know|keep you posted|miss(?:ing)?|try|heard|read|seen|watched|killing|exhausted|tired|drained|slept|sleep|"
                          r"burn(?:ed|t)?|wiped|sucks?|rough|hard|overwhelmed|swamped)\b")
 # "and 20%?" after a percentage
 _PCT_MORE = re.compile(r"^(?:and |what about |how about |now |ok |okay )?(\d+(?:\.\d+)?)\s?%(?: of (?:it|that))?\??$")
@@ -152,6 +173,44 @@ _GENRE_DE_MAP = {"schnell": "quick", "einfach": "quick", "gesund": "healthy", "l
                  "warm": "warm", "lustig": "funny", "witzig": "funny", "spannend": "exciting", "gruselig": "scary",
                  "romantisch": "romantic", "klassisch": "classic", "historisch": "history", "günstig": "cheap",
                  "billig": "cheap", "sonnig": "sunny", "kalt": "cold"}
+# "what is the tallest mountain …": the kind of thing asked for, and the fact-bank types that fit it
+_ASKED_KIND = re.compile(r"^\s*(?:what|which)(?:'?s| is| was| are| were)? (?:the |a )?(?:\w+ ){0,3}?"
+                         r"(?P<k>mountains?|rivers?|lakes?|countr(?:y|ies)|cit(?:y|ies)|islands?|buildings?|planets?|oceans?)\b", re.I)
+_KIND_TYPES = {"mountain": {"Mountain", "Volcano", "MountainRange"}, "river": {"River", "Stream", "Canal", "BodyOfWater"},
+               "lake": {"Lake", "BodyOfWater", "Reservoir"}, "country": {"Country"},
+               "countrie": {"Country"}, "city": {"City", "Town", "Settlement", "AdministrativeRegion"},
+               "citie": {"City", "Town", "Settlement", "AdministrativeRegion"}, "island": {"Island", "Settlement"},
+               "building": {"Building", "Skyscraper", "Tower", "HistoricBuilding", "Castle", "ReligiousBuilding"},
+               "planet": {"Planet"}, "ocean": {"Sea", "BodyOfWater", "Ocean"}}
+# "and the second?" after a superlative
+_NEXT_RANK = re.compile(r"(?:and |what about |how about )?(?:the )?(second|2nd|third|3rd)(?: one| place| (?:tallest|highest|longest|largest|biggest|smallest))?")
+# "how far is it from Tokyo to Kyoto?" — no map data to measure with
+_DISTANCE_Q = re.compile(r"^(?:and |so )?(?:how far (?:is it |away )?(?:is )?(?:from )?\S.* (?:to|from) \S.*|what(?:'s| is) the distance (?:between|from) \S.*)\??$")
+# "how tall?", "and how long": the measure of what was just talked about
+_HOW_ADJ = re.compile(r"(?:and |so |ok )?how (tall|high|long|big|old|deep|large|heavy|wide|far away|far)(?: exactly)?")
+# "what's the capital again?" — a relation of the place being talked about
+_PLACE_REL_Q = re.compile(r"(?i)^(?:and |so |ok |okay |wait,? )?(?:what'?s|what is|what was|whats) the (?P<r>capital|population|currency|"
+                          r"official language|language|time zone|president|prime minister|king|queen|largest city)"
+                          r"(?: again| there| of it)?\??$")
+# "what should I eat there / in Japan?"
+_EAT_THERE = re.compile(r"^(?:and |so |ok )?what (?:should|can|do|could|would) (?:i|we|people|you) (?:eat|try|order)"
+                        r"(?: there| in (?P<p>[a-z][a-z ]+?))?\??$")
+_CUISINE_ADJ = {"japan": "Japanese", "china": "Chinese", "korea": "Korean", "south korea": "Korean", "thailand": "Thai",
+                "vietnam": "Vietnamese", "india": "Indian", "italy": "Italian", "france": "French", "spain": "Spanish",
+                "portugal": "Portuguese", "greece": "Greek", "turkey": "Turkish", "mexico": "Mexican", "peru": "Peruvian",
+                "brazil": "Brazilian", "argentina": "Argentine", "germany": "German", "austria": "Austrian",
+                "switzerland": "Swiss", "england": "English", "scotland": "Scottish", "ireland": "Irish",
+                "united kingdom": "British", "uk": "British", "morocco": "Moroccan", "egypt": "Egyptian",
+                "lebanon": "Lebanese", "israel": "Israeli", "iran": "Iranian", "indonesia": "Indonesian",
+                "malaysia": "Malaysian", "philippines": "Filipino", "ethiopia": "Ethiopian", "russia": "Russian",
+                "poland": "Polish", "hungary": "Hungarian", "sweden": "Swedish", "norway": "Norwegian",
+                "denmark": "Danish", "netherlands": "Dutch", "belgium": "Belgian", "usa": "American",
+                "united states": "American", "america": "American", "canada": "Canadian", "australia": "Australian"}
+# a nationality is never the answer to "who …?"
+_DEMONYMS = frozenset("""british english scottish welsh irish american canadian mexican brazilian argentine argentinian
+french german italian spanish portuguese dutch belgian swiss austrian swedish norwegian danish finnish icelandic polish
+czech slovak hungarian romanian bulgarian greek turkish russian ukrainian chinese japanese korean indian pakistani nepalese
+nepali tibetan australian egyptian nigerian kenyan african european asian israeli iranian iraqi saudi""".split())
 # closing a chat ("i'm done for today") is a goodbye, not something to remember
 _WRAP_UP = re.compile(r"^(?:ok(?:ay)?,? )?(?:i'?m|i am|we'?re|we are) (?:done|finished|off)(?: here)?(?: for (?:today|now|tonight|the day))?[.!]*$|^that'?s (?:all|it) for (?:today|now|tonight)")
 
@@ -783,6 +842,12 @@ class Assistant:
     def _intent(self, st: DialogState, u: Unit, content: bool, parts: list[_Part]) -> Reply | None:
         it = self.bank.by_id[u.intent]
         name = self.user_name()
+        le = st.last_exp or {}
+        if it.id == "thanks" and le.get("valence") == "positive" and st.turn - le.get("turn", -99) <= 2:
+            # "thanks!" after "congratulations!": not "you're welcome"
+            text = self._pick(st, "daily:thanks_praise", self.bank.daily["thanks_praise"])
+            parts.append(_Part("main", text))
+            return Reply(u.text, "smalltalk", text, via="smalltalk")
         others = content and not self._is_content_intent(it.id)
         if others:
             if it.id in _DROP_WITH_CONTENT:
@@ -1061,6 +1126,18 @@ class Assistant:
             st.pending = {"slot": "who_mean", "question": text, "pron": pron.group(1), "turn": st.turn}
             return Reply(text, "unknown", self._pick(st, "daily:who_mean", self.bank.daily["who_mean"],
                                                      x=pron.group(1).lower()), via="clarify")
+        el = _HOW_ADJ.fullmatch(normalise(text).strip(" ?"))
+        ment = self.bot.context.get("mention")
+        if el and ment:                                 # "how tall?" right after Mount Everest
+            text = f"how {el.group(1)} is {ment}?"
+        food = _EAT_THERE.match(normalise(text))
+        pt = st.uses.get("place_topic")
+        place = (food.group("p") if food and food.group("p") else (pt[0] if pt and st.turn - pt[1] <= 8 else None)) if food else None
+        if place:                                       # "what should I eat there?" during a trip to Japan
+            rep = self._cuisine(st, text, place)
+            if rep is not None:
+                return rep
+        text = self._place_carry(st, text)
         text = self._carry_topic(st, text)
         atlas_on = self.atlas is not None and self.atlas.any_on() and not re.search(r"\b(?:i|me|my|mine)\b", text, re.I)
         if atlas_on:
@@ -1075,6 +1152,12 @@ class Assistant:
         how = self._howto(st, text)
         if how is not None:
             return how
+        if _DISTANCE_Q.match(normalise(text)):
+            return Reply(text, "unknown", self._pick(st, "daily:distance_none", self.bank.daily["distance_none"]),
+                         via="clarify")
+        sup = self._superlative(st, text)
+        if sup is not None:
+            return sup
         kb = self._kb_answer(st, text)
         if kb is not None:
             return kb
@@ -1411,6 +1494,41 @@ class Assistant:
             kind = _MAYBE_KINDS.get(mk.group("w").replace("a ", "", 1))
             if kind:
                 return self.everyday.recommend(st, msg, kind)
+        if _MOVED_NEW.search(norm):                       # "I moved to a new city": ask which, then remember it
+            st.pending = {"slot": "home", "store": "I live in {x}.", "turn": st.turn}
+            st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": msg, "turn": st.turn}
+            return Reply(msg, "smalltalk", self._pick(st, "daily:moved_new", d["moved_new"]), via="empathy")
+        if re.search(r"\b(?:think|better|prefer|belongs?|or|vs|versus|team|which|favou?rite|should)\b", norm):
+            for key, words in _DEBATES:
+                if all(re.search(rf"\b{w}", norm) for w in words):
+                    st.last_action = {"kind": "debate", "turn": st.turn, "key": key}
+                    return Reply(msg, "smalltalk", self._pick(st, f"daily:debate:{key}", d["debates"][key]),
+                                 via="smalltalk")
+        if norm.strip(" ?!") in ("why", "why not", "how come", "really") and la.get("kind") == "debate" and recent:
+            return Reply(msg, "smalltalk", self._pick(st, "daily:debate_why", d["debate_why"]), via="smalltalk")
+        sl = st.uses.get("superlative")
+        if sl and st.turn - sl[1] <= 3 and _NEXT_RANK.fullmatch(norm.strip(" ?!.")):
+            rep = self._superlative(st, msg)            # "and the second" after "the tallest mountain"
+            if rep is not None:
+                return rep
+        wm = _WEAR.match(norm)
+        if wm:                                            # "what should I wear?" — for what the chat is about
+            about = " ".join(filter(None, [wm.group("x"), normalise(st.last_message or "")]))
+            occ = next((k for k, rx in _OCCASIONS if rx.search(about)), "none")
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:wear:{occ}", d["wear"][occ]), via="everyday")
+        tp = _TRIP_PLAN.search(norm)
+        px = ((tp.group("x") or tp.group("y") or "") if tp else "").strip()
+        if tp and px not in ("a", "the", "my", "bed", "work", "school", "sleep", "the gym", "the store", "the shop"):
+            place = _place_case(px)
+            st.uses["place_topic"] = [place, st.turn]
+            st.last_action = {"kind": "trip_plan", "turn": st.turn, "place": place}
+            rep = self._learn(st, [msg], msg)
+            rep.text = self._pick(st, "daily:trip_plan", d["trip_plan"], x=place)
+            return rep
+        if _TRIP_TIPS.match(norm) and la.get("kind") == "trip_plan" and st.turn - la.get("turn", -99) <= 4:
+            tips = "\n".join("• " + t for t in d["trip_tips"]["items"])
+            return Reply(msg, "smalltalk", d["trip_tips"]["head"].replace("{x}", la["place"]) + "\n\n" + tips,
+                         via="everyday")
         am = _THINGS_TO_DO.match(norm)
         if am:                                            # "something I can do at home" (after "I'm bored")
             g = (am.group("g") or "").strip()
@@ -1565,9 +1683,24 @@ class Assistant:
             return ""
 
     def _wrong_kind(self, q: str, answer: str | None) -> bool:
-        """"Who won the marathon?" — "Los Angeles": a place (by the fact bank) is no "who"."""
-        if not answer or self.kgqa is None or not re.match(r"^\s*who\b", q, re.I):
+        """"Who won the marathon?" — "Los Angeles": a place (by the fact bank) is no "who".
+        "Who climbed it first?" — "British": a nationality is no person either. "What is the
+        tallest mountain?" — "Bhutan": the answer must be the kind of thing asked for."""
+        if not answer or self.kgqa is None:
             return False
+        head = _ASKED_KIND.search(q)
+        if head and not re.match(r"^\s*who\b", q, re.I):
+            want = _KIND_TYPES.get(head.group("k").lower().rstrip("s"))
+            try:
+                hits = self.kgqa.kb.link(answer, limit=1)
+            except Exception:
+                hits = []
+            got = (hits[0][0].type or "") if hits and hits[0][1] == 0 else ""
+            return bool(want and got and got not in want)
+        if not re.match(r"^\s*who\b", q, re.I):
+            return False
+        if answer.strip().lower() in _DEMONYMS:
+            return True
         try:
             hits = self.kgqa.kb.link(answer, limit=1)
         except Exception:
@@ -1605,6 +1738,33 @@ class Assistant:
                 for t in titles:
                     if self.about.titles.lookup(t):
                         return t
+        return None
+
+    def _place_carry(self, st: DialogState, text: str) -> str:
+        """"What's the capital again?" while talking about a trip to Japan: the capital of Japan;
+        "how many people live there?" → "… in Japan"."""
+        pt = st.uses.get("place_topic")
+        if not pt or st.turn - pt[1] > 8:
+            return text
+        m = _PLACE_REL_Q.match(text.strip())
+        if m:
+            return f"what is the {m.group('r').lower()} of {pt[0]}?"
+        if re.search(r"\bthere\b", text, re.I) and not re.search(r"\b(?:is|are) there\b", text, re.I):
+            return re.sub(r"\bthere\b", f"in {pt[0]}", text, count=1, flags=re.I)
+        return text
+
+    def _cuisine(self, st: DialogState, text: str, place: str) -> Reply | None:
+        """"What should I eat in Japan?": the opening of the article on that cuisine."""
+        adj = _CUISINE_ADJ.get(place.lower())
+        names = ([f"{adj} cuisine"] if adj else []) + [f"Cuisine of {place}"]
+        for name in names:
+            found = self.about.find(name, n=2)
+            if found is not None and found.sentences:
+                st.last_about = {"title": found.title, "doc": found.doc, "next": found.next_sentence,
+                                 "end": found.end_sentence, "source": found.source}
+                lead = self._pick(st, "daily:cuisine_lead", self.bank.daily["cuisine_lead"], x=place)
+                return Reply(text, "smalltalk", f"{lead} {' '.join(found.sentences)}", via="about",
+                             source=found.source)
         return None
 
     def _carry_topic(self, st: DialogState, text: str) -> str:
@@ -1887,6 +2047,31 @@ class Assistant:
                          "kind": "feed", "source": it["feed"], "key": it["link"] or it["title"], "title": it["title"]}}
                          for it in items[1:4]])
 
+    def _superlative(self, st: DialogState, text: str) -> Reply | None:
+        """"What is the tallest mountain in the world?" from the measured values in the fact bank
+        (engramm/kb/superlative.py); the answer becomes the topic, so "how tall is it?" follows."""
+        if self.kgqa is None:
+            return None
+        from engramm.kb import superlative
+        last = st.uses.get("superlative")
+        rank = 1
+        nm = _NEXT_RANK.fullmatch(normalise(text).strip(" ?!."))
+        if nm and last and st.turn - last[1] <= 3:
+            text, rank = last[0], {"second": 2, "2nd": 2, "third": 3, "3rd": 3}[nm.group(1)]
+        try:
+            ans = superlative.answer(self.kgqa.kb.db, text, rank=rank)
+        except Exception:                       # a damaged fact bank must not break the chat
+            return None
+        if ans is None:
+            return None
+        st.uses["superlative"] = [text, st.turn]
+        src = {"kind": "kb", "source": "dbpedia", "key": ans.title}
+        self.bot.context.update({"answer": ans.title, "atype": None, "mention": ans.title, "kb_last": None})
+        st.topic = {"title": ans.title, "name": ans.title, "turn": st.turn}
+        st.last_fact = {"evidence": ans.text, "source": src, "answer": ans.title, "question": text, "sure": True}
+        return Reply(text, "answer", ans.text, answer=ans.title, guess=ans.title, evidence=ans.text, source=src,
+                     confidence=1.0, via="kb")
+
     def _kb_answer(self, st: DialogState, text: str) -> Reply | None:
         """A question about a named thing, answered from the fact bank (exact infobox facts)."""
         if self.kgqa is None or re.search(r"\b(?:i|me|my|mine|i'm)\b", text.lower()):
@@ -1983,6 +2168,8 @@ class Assistant:
             words = m.group(2)
             for n in range(min(3, len(words.split())), 0, -1):
                 cand = " ".join(words.split()[:n])
+                if cand.lower() in ("a", "an", "the", "my", "new", "some", "another") or len(cand) < 3:
+                    continue                          # "moved to a new city": no place called "A"
                 try:
                     hits = self.kgqa.kb.link(cand, limit=1)
                 except Exception:
@@ -2364,6 +2551,10 @@ class Assistant:
         value = _slot_value(msg, slot)
         if value is None:
             return None
+        if slot in ("home", "origin", "name") and value.islower():
+            # "berlin" → "Berlin", "new york" → "New York", "frankfurt am main" keeps "am"
+            value = " ".join(w if w in ("am", "an", "der", "de", "la", "le", "of", "on", "upon", "del", "da", "di")
+                             else w[:1].upper() + w[1:] for w in value.split())
         if slot == "correction":
             q = pending.get("question") or ""
             value = re.sub(r"^(?:no,? |nope,? |actually,? |well,? )?(?:it's|its|it is|it was|that's|thats|that is|"

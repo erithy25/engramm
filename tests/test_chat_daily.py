@@ -299,7 +299,7 @@ def test_counts_of_people_and_their_names(chat):
 def test_opinions_and_surprise(chat):
     a, st = chat
     r = a.turn(st, "what do you think about pineapple on pizza")
-    assert "pineapple on pizza" in r.text and r.text.rstrip().endswith("?"), r.text
+    assert "pineapple" in r.text.lower() and r.text.rstrip().endswith("?"), r.text
     a.turn(st, "tell me a fun fact")
     r = a.turn(st, "that's crazy")
     assert r.via == "smalltalk" and "Anything I can help" not in r.text, r.text
@@ -820,3 +820,32 @@ def test_german_refinement_stays_german(chat):
     a.turn(st, "was soll ich heute kochen")
     r = a.turn(st, "etwas schnelles")
     assert "•" in r.text and "schnell, gesund" not in r.text and "I don't" not in r.text, r.text
+
+
+def test_battery23_trip_superlative_debate(chat):
+    a, st = chat
+    r = a.turn(st, "im planning a trip to japan next month")
+    assert "Japan" in r.text and "remember" not in r.text.lower(), r.text
+    r = a.turn(st, "any tips?")
+    assert "•" in r.text, r.text
+    r = a.turn(st, "how far is it from tokyo to kyoto")
+    assert "map" in r.text, r.text
+    r = a.turn(st, "do you think pineapple belongs on pizza")
+    assert "pineapple" in r.text.lower() and "I don't know" not in r.text, r.text
+    r = a.turn(st, "i moved to a new city and dont know anyone")
+    assert "you live in A" not in r.text and "?" in r.text, r.text
+    r = a.turn(st, "berlin")
+    assert "Berlin" in r.text, r.text
+    r = a.turn(st, "where do i live")
+    assert "Berlin" in r.text, r.text
+
+
+def test_thanks_after_congratulations_and_what_to_wear(chat):
+    a, st = chat
+    a.turn(st, "i got promoted today!!")
+    r = a.turn(st, "thanks! it was a lot of work")
+    assert "welcome" not in r.text.lower(), r.text
+    r = a.turn(st, "we're going out for dinner")
+    assert "remember" not in r.text.lower(), r.text
+    r = a.turn(st, "what should i wear")
+    assert "smart-casual" in r.text, r.text

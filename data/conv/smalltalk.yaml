@@ -610,9 +610,9 @@ intents:
     patterns: ['(what''s|what is|whats|who''s|who is|whos|who are|what are|which is|which are) your (favou?rite|fav) (?P<x>[a-z ]+)|do you have a favou?rite (?P<x2>[a-z ]+)']
     examples: [what's your favourite season, what's your favorite number, do you have a favourite place]
     responses:
-      - "I don't have personal favourites, being a program. What's yours?"
-      - "I don't really have favourites — I'm a program. But I'd love to hear yours!"
-      - "Tough question for a program! I don't have tastes of my own. What's your favourite?"
+      - "Tough one — I don't get to taste or try things myself. What's yours? I'd love to know."
+      - "I don't have one of my own, sadly. Tell me yours, and I'll remember it!"
+      - "Ha, I wish I could pick! What's your favourite?"
 
   - id: bot_opinion
     patterns: ['what do you think( about (that|this|it))?|what''s your opinion( on (that|this|it))?|what is your opinion( on (that|this|it))?|your thoughts\??|any thoughts|do you agree|do you disagree|what would you do|what do you recommend|what do you suggest|any (advice|suggestions|recommendations)']

@@ -44,7 +44,16 @@ _CHAT_WORDS = {"u": "you", "r": "are", "ur": "your", "wat": "what", "wut": "what
                "im": "I'm", "ive": "I've", "youre": "you're", "dont": "don't", "cant": "can't", "wont": "won't",
                "didnt": "didn't", "doesnt": "doesn't", "isnt": "isn't", "wasnt": "wasn't", "arent": "aren't",
                "kk": "ok", "rn": "right now", "w/": "with", "w/o": "without", "gr8": "great", "fav": "favourite",
-               "fave": "favourite", "cud": "could", "shud": "should", "wud": "would", "yr": "your", "luv": "love"}
+               "fave": "favourite", "cud": "could", "shud": "should", "wud": "would", "yr": "your", "luv": "love",
+               # typos that are frequent enough in the corpus that the speller keeps them
+               "wrld": "world", "wolrd": "world", "teh": "the", "hte": "the", "waht": "what", "whta": "what",
+               "wich": "which", "wen": "when", "wher": "where", "becuase": "because", "beacuse": "because",
+               "becasue": "because", "definately": "definitely", "alot": "a lot", "thier": "their",
+               "freind": "friend", "freinds": "friends", "tomorow": "tomorrow", "tommorow": "tomorrow",
+               "peple": "people", "pepole": "people", "knwo": "know", "konw": "know", "wnat": "want",
+               "plaese": "please", "coudl": "could", "shoudl": "should", "wierd": "weird", "untill": "until",
+               "captial": "capital", "contry": "country", "countrey": "country", "goverment": "government",
+               "tallets": "tallest", "bigest": "biggest", "longst": "longest"}
 _YOURE_NEXT = re.compile(r"(?:the|so|very|really|too|such|amazing|awesome|great|welcome|funny|smart|right|wrong|"
                          r"kidding|joking|not|a|an|cute|sweet|nice|kind|weird|crazy|stupid|dumb|wild|lying|actually|"
                          r"just|literally|always|never|going|getting|being|doing|making|my)\b")

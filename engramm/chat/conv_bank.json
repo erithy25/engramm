@@ -1280,9 +1280,9 @@
      "do you have a favourite place"
     ],
     "responses": [
-     "I don't have personal favourites, being a program. What's yours?",
-     "I don't really have favourites — I'm a program. But I'd love to hear yours!",
-     "Tough question for a program! I don't have tastes of my own. What's your favourite?"
+     "Tough one — I don't get to taste or try things myself. What's yours? I'd love to know.",
+     "I don't have one of my own, sadly. Tell me yours, and I'll remember it!",
+     "Ha, I wish I could pick! What's your favourite?"
     ]
    },
    {
@@ -6428,6 +6428,14 @@
    "Ah, fair enough. There's plenty else to try.",
    "No worries — we'll find something that works without it."
   ],
+  "talk_report": [
+   "Please do — I'd love to hear how it goes!",
+   "Yes, tell me everything afterwards!"
+  ],
+  "talk_plan": [
+   "Sounds lovely — have a great time!",
+   "Nice! Enjoy it — you've earned a fun evening."
+  ],
   "talk_must": [
    "Sure, go ahead — I'll be here.",
    "No problem, take your time."
@@ -6456,6 +6464,88 @@
   "howto_none": [
    "I don't have a good guide for that one, sorry. If it's about a thing or a topic, try “tell me about …” and I'll share what I've read.",
    "I'm not sure how — that's not among the things I have practical tips for. I can tell you about the topic itself, though: just say “tell me about …”."
+  ],
+  "moved_new": [
+   "Moving somewhere new is hard — the first months can feel really lonely. Which city did you move to?",
+   "That's a big change, and it takes time to feel at home. Where did you move to?"
+  ],
+  "trip_plan": [
+   "{x} — how exciting! What are you most looking forward to?",
+   "Ooh, {x}! Is it your first time there?"
+  ],
+  "trip_tips": {
+   "head": "A few things that make a trip to {x} easier:",
+   "items": [
+    "Check passport validity and whether you need a visa well in advance.",
+    "Download offline maps and a translation app before you go.",
+    "Learn a handful of local phrases — hello, thank you, sorry — people really appreciate it.",
+    "Keep copies of your documents separate from the originals.",
+    "Don't over-plan: leave a free afternoon to wander."
+   ]
+  },
+  "cuisine_lead": [
+   "Here's what I know about the food in {x}:",
+   "Good question — about the food in {x}:"
+  ],
+  "debates": {
+   "pineapple": [
+    "The great pizza debate! I'll stay diplomatic: sweet and salty is a classic combination — and fun fact, the Hawaiian pizza was invented in Canada. Team pineapple or team no-pineapple?"
+   ],
+   "cats_dogs": [
+    "Both have their fans! Dogs are loyal goofballs, cats are independent little roommates. Which are you?"
+   ],
+   "tea_coffee": [
+    "Tough one! Coffee for a kick, tea for something gentler — and plenty of people drink both. What's your go-to?"
+   ],
+   "books_movies": [
+    "Usually the book has more detail, but a great film can surprise you. Do you have one where the movie was better?"
+   ],
+   "summer_winter": [
+    "Summer for long evenings, winter for cosy nights in. Which season is yours?"
+   ],
+   "beach_mountains": [
+    "Beach for doing nothing, mountains for views and fresh air. Where would you rather be right now?"
+   ],
+   "early_late": [
+    "Morning people get the quiet hours, night owls get the late ones. Which one are you?"
+   ],
+   "iphone_android": [
+    "Both do the job well — it mostly comes down to what you're used to. What do you use?"
+   ]
+  },
+  "debate_why": [
+   "Mostly because tastes really differ, and there's no wrong answer. What's your reason?",
+   "Honestly, I just like that people get so passionate about it! Why do you feel that way?"
+  ],
+  "thanks_praise": [
+   "You earned it!",
+   "You deserve it — really well done."
+  ],
+  "wear": {
+   "dinner": [
+    "For a celebration dinner, smart-casual is a safe bet: nice trousers or a skirt and a shirt or top you feel good in. And something comfortable enough to enjoy the evening!"
+   ],
+   "interview": [
+    "One notch smarter than what people wear there day to day — clean, comfortable and nothing distracting. When in doubt, go slightly more formal."
+   ],
+   "wedding": [
+    "Check the invitation for a dress code first. Otherwise a suit or a nice dress works — and avoid white, that's the couple's colour."
+   ],
+   "date": [
+    "Something you feel good and comfortable in — confidence matters more than the outfit. Maybe one step up from everyday."
+   ],
+   "funeral": [
+    "Dark, simple and modest — black, navy or grey. Nobody will mind if it's plain."
+   ],
+   "office": [
+    "Look at what others there wear and go one step tidier for the first days. Comfortable shoes help too!"
+   ],
+   "none": [
+    "Depends on the occasion — what's it for?"
+   ]
+  },
+  "distance_none": [
+   "I can't measure distances between places — I don't have map data, and I'd rather not guess. A map app will know exactly."
   ],
   "accomplished": [
    "Nice, well done! How does it feel to have {x} behind you?",
