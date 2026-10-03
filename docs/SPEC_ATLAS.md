@@ -234,7 +234,9 @@ wiederfinden; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.32](ht
 (Lauf 37118044401, Probe 112: Arzt, Beziehung, Geschenke, Konzepte erklären, Schlaf, erster Arbeitstag, Sprache
 lernen, TÜV; ungesehen EN 27→0 von 63, DE 23→0 von 42; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.35](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.35)
 (Lauf 37119422860, Probe 113: Familie, Wohnen, Geld, Fragen an den Bot; ungesehen EN 27→0 von 56, DE 26→0 von 42;
-45 Dateien, 6 Installer, SHA256SUMS geprüft).
+45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.36](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.36)
+(Lauf 37121061699, Probe 114: Fernbeziehung, Steuern, Erkältung, Nachbarschaftshilfe, Abnehmen, Hitze, Gaming;
+ungesehen EN 26→0 von 48, DE 22→0 von 36; deutsche Spracherkennung; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
