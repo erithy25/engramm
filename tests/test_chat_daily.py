@@ -3740,3 +3740,26 @@ def test_battery106_german_breakup_and_stress(chat):
     assert "Übung" in a.turn(st, "das hilft echt").text
     t = a.turn(st, "ok ich versuch's morgen").text
     assert "Daumen" in t or "Erfolg" in t, t
+
+
+def test_battery107_valence_never_flips(chat):
+    """A cheerful reply to bad news (or a gloomy one to good news) right after a mood of the other kind."""
+    import re as _re
+    a, _ = chat
+    cheer = _re.compile(r"Herrlich|Wie schön|Das klingt richtig gut|freut mich zu hören|Haha|great|awesome|love that|brilliant", _re.I)
+    gloom = _re.compile(r"tut mir leid|nicht leichter|auch noch|sorry|harder|weighing on you", _re.I)
+    for i, (o, ng) in enumerate([("heute war ein toller tag", "ich hatte einen unfall"), ("ich hab eine gehaltserhöhung bekommen", "mir wurde das fahrrad geklaut"),
+                                 ("heute war ein toller tag", "meine mutter liegt im krankenhaus"), ("nicht so gut", "meine freundin hat schluss gemacht"),
+                                 ("today was awesome", "my bike got stolen"), ("i got a raise", "my mom is in hospital")]):
+        st = DialogState(f"v107-{i}")
+        a.turn(st, "hallo" if " " in o and not o.isascii() or o.startswith(("heute", "ich", "nicht")) else "hi")
+        a.turn(st, o)
+        t = a.turn(st, ng).text
+        assert not cheer.search(t), (o, ng, t)
+    for i, (o, p) in enumerate([("mir geht's schlecht", "ich hab den job bekommen"), ("nicht so gut", "ich hab den job bekommen"),
+                                ("ich bin gestresst", "ich hab den job bekommen")]):
+        st = DialogState(f"w107-{i}")
+        a.turn(st, "hallo")
+        a.turn(st, o)
+        t = a.turn(st, p).text
+        assert not gloom.search(t) and "Glückwunsch" in t, (o, p, t)

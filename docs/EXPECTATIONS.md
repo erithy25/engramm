@@ -3480,6 +3480,25 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 803 bestanden. Regressionen: 0 Wiederholungen. Gewollte neue
   Unterschiede: b41 (die alte deutsche Trennungsfolge wird von der neuen ersetzt, Inhalt gleichwertig, der Rat
   ausführlicher) und b44 „die arbeit ist der wahnsinn“.
+- **Valenz-Probe 107 (systematisch nach dem Fund in Batterie 106; `scratchpad/valence_probe*.py`)**:
+  - Kombinationen aus Stimmung und Nachricht mit entgegengesetzter Stimmung, auf Englisch und Deutsch:
+    - 112 Kombinationen „erst gut, dann schlechte Nachricht“ (7 Stimmungen × 8 Ereignisse × 2 Sprachen);
+    - 60 Kombinationen „erst schlecht, dann gute Nachricht“ (5 × 6 × 2);
+  - automatisch geprüft wird auf fröhliche bzw. bedrückte Formulierungen.
+
+  Erster Lauf:
+  - 6 von 112 fehlerhaft, alle deutsch: „heute war ein toller tag“ → „ich hatte einen unfall“ ergab „Haha, wie
+    schön!“; Fahrraddiebstahl und Krankenhaus ebenso;
+  - 5 von 60 fehlerhaft: „mir geht's schlecht“ → „ich hab den job bekommen“ ergab „Puh, das auch noch. Das tut
+    mir leid.“.
+
+  Behoben:
+  - Die deutsche Folge-Empathie kennt 30 weitere Wörter für schlechte Nachrichten (Unfall, geklaut,
+    Krankenhaus, gefeuert, Streit …) und 12 für gute (bestanden, Zusage, befördert …);
+  - „ich hab den Job / die Stelle / eine Zusage bekommen“ ist ein eigener Moment mit Glückwunsch.
+
+  Zweiter Lauf: 0 von 112 und 0 von 60. Test 107 hält 9 repräsentative Fälle fest. Suite 804 bestanden, NQ 22/9,
+  Routine ohne neue Unterschiede.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

@@ -14330,6 +14330,11 @@
      "a": "Das ist riesig – stark! Die ersten Wochen sind die schwersten. Wie lange ist es schon her?"
     },
     {
+     "q": "(?:aber |und )?ich (?:hab|habe) (?:den job|die stelle|eine zusage|den neuen job|die wohnung|den platz|den studienplatz) bekommen|(?:aber |und )?ich (?:hab|habe) eine zusage",
+     "v": "pos",
+     "a": "Glückwunsch, das ist ja super! 🎉 Erzähl – was wird es denn?"
+    },
+    {
      "q": "(?:ich )?(?:hab|habe) (?:heute |heute nacht |schon wieder |wieder |mal wieder )*(?:eine )?nachtschicht(?: heute| schon wieder)?|(?:schon wieder |wieder |mal wieder )?nachtschicht(?: heute| schon wieder| heute nacht)?|ich (?:arbeite|muss) (?:heute )?nachts(?: arbeiten)?",
      "v": "neg",
      "a": "Oh nein, Nachtschichten sind hart. Halt durch – hast du genug Kaffee und Snacks dabei? ☕",

@@ -1136,8 +1136,14 @@ class Assistant:
         if le and le.get("valence") in ("negative", "positive") and st.turn - le.get("turn", -99) <= 2 and len(s.split()) >= 2 and \
                 "?" not in msg and not re.match(r"^(?:haha|hihi|hehe|lol|ok|okay|cool|super|ach so|achso|gut|klar|stimmt|aber)\b", s) and \
                 not (le.get("valence") == "positive" and re.search(r"\b(?:weh|schlimm|traurig|schlecht|furchtbar|schrecklich|leider|tot|"
-                                                                    r"gestorben|vermisse|angst|allein|einsam)\b", s)) and \
+                                                                    r"gestorben|vermisse|angst|allein|einsam|unfall|geklaut|gestohlen|krankenhaus|klinik|"
+                                                                    r"notaufnahme|operation|operiert|verletzt|gebrochen|gefeuert|entlassen|durchgefallen|"
+                                                                    r"verloren|kaputt|pleite|streit|gestritten|schluss|getrennt|verlassen|krank|beerdigung|"
+                                                                    r"arbeitslos|schmerzen|sorgen|einbruch|eingebrochen|überfallen|abgesagt|verpasst|"
+                                                                    r"verschlafen|ärger|sauer|wütend|enttäuscht|gekündigt)\b", s)) and \
                 not re.search(r"\b(?:vielleicht|morgen|wochenende|freitag|urlaub|plane|werde|will|freue)\b", s) and \
+                not (le.get("valence") == "negative" and re.search(r"\b(?:bestanden|gewonnen|baby|gehaltserhöhung|befördert|beförderung|verlobt|"
+                                                                   r"geheiratet|zusage|geschafft|glücklich|endlich|(?:job|stelle|wohnung) bekommen)\b", s)) and \
                 not re.match(r"^(?:ende|anfang|mitte|nächste[nrs]?|übernächste[nrs]?|in \d+|bis|mal sehen|mal schauen|egal|keine ahnung|über|um|für|wegen|zum|zur|mit)\b", s) and \
                 not re.search(r"\bweiß (?:auch |es |doch |halt )?(?:nicht|net)\b|\bkeine ahnung\b", s) and \
                 not (le.get("valence") == "positive" and re.search(r"\b(?:meeting|ewig\w*|nervig\w*|anstrengend|stress\w*|langweilig\w*|knapp|deadline|sauer|müde|kaputt)\b", s)):
