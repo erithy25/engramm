@@ -3636,3 +3636,30 @@ def test_battery102_german_trip_writing_knowledge(chat):
     a.turn(st, "wer hat amerika entdeckt?")
     assert "1492" in st.last_reply and "indigene" in st.last_reply
     assert "Euro" in a.turn(DialogState("i102"), "what's the currency in italy?").text.replace("euro", "Euro")
+
+
+def test_battery103_casual_typing(chat):
+    a, _ = chat
+    st = DialogState("c103")
+    assert "Tell me more" not in a.turn(st, "heyyy 👋").text
+    assert "Tom" in a.turn(st, "im tom btw").text
+    a.turn(st, "im 29 and i work as a nurse")
+    assert "night shifts" in a.turn(st, "ugh night shift again 😩").text
+    t = a.turn(st, "yeah its rough but i like my job").text
+    assert "sorry" not in t.lower() and "worth it" in t, t
+    t = a.turn(st, "my sister lives in berlin and i miss her").text
+    assert "Berlin" in t and ("around the corner" in t or "so far away" in t), t
+    assert a.turn(st, "where does my sister live?").text == "Your sister lives in Berlin."
+    t = a.turn(st, "k bye").text
+    assert any(w in t for w in ("Bye", "See you", "Goodbye", "Take care")), t
+    st = DialogState("j103")
+    assert "joke" in a.turn(st, "idk im kinda bored").text.lower()
+    a.turn(st, "nah")
+    t = a.turn(st, "maybe a joke").text
+    assert "What's on your mind" not in t, t
+    assert "Lisa" in a.turn(DialogState("n103"), "names lisa").text and "Names" not in a.turn(DialogState("n103b"), "names lisa").text
+    st = DialogState("d103")
+    a.turn(st, "im a dev, 34")
+    assert "developer" in a.turn(st, "what do i do?").text
+    assert "you're" in __import__("engramm.chat.bank", fromlist=["expand_chat"]).expand_chat("lol ur good")
+    assert "your name" in __import__("engramm.chat.bank", fromlist=["expand_chat"]).expand_chat("ur name?")

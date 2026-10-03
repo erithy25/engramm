@@ -3359,6 +3359,45 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 799 bestanden. Regressionen: 0 Wiederholungen. Einziger neuer
   Unterschied: b78 „wow“ nach einer Antwort bekommt die neue Reaktion.
+- **Alltags-Batterie 103 (lockere Schreibweise: Tippfehler, Slang, Emojis, mehrere Angaben pro Nachricht; 3
+  Gespräche, 27 Turns)**. Erster Lauf, die Fehler:
+
+  | Eingabe | vorher |
+  |---|---|
+  | „heyyy 👋“ | „I see. Tell me more?“ |
+  | „yeah its rough but i like my job“ (Nachtschicht) | „Ugh, I'm sorry.“ |
+  | „my sister lives in berlin and i miss her“ | „Got it — I'll remember that about your sister.“; danach „Your sister lives in Berlin and you miss her.“ |
+  | „lol ur good“ | „That sounds great!“ |
+  | „k bye“ | „Mm-hm. What's on your mind?“ |
+  | „idk im kinda bored“ | „Oh really? Tell me more about that.“ |
+  | „maybe a joke“ / „another one“ | „What's on your mind?“ |
+  | „yo can u recommend a book“ | „Oh? Go on.“ |
+  | „any thriller?“ | „I couldn't find anything reliable“ |
+
+  Neu:
+  - `_casual` vor jeder englischen Nachricht:
+    - Emojis um die Wörter herum fallen weg, gedehnte Grüße werden normalisiert;
+    - „yo / ngl / tbh“ am Satzanfang fällt weg; „idk“ nur vor „im“, damit „idk what to do“ bleibt (durch
+      Test 69 geschützt);
+    - „kinda“ wird zu „kind of“, „names lisa“ zu „my name is lisa“ (vorher hieß der Nutzer „Names Lisa“);
+    - „dev“ wird zu „developer“;
+    - „k bye / cya / gtg“ werden zum Abschied, „brb“ bleibt „bin gleich zurück“;
+  - „lol ur good“ ergibt „you're good“, „ur name?“ bleibt „your name?“;
+  - Nachtschicht als Moment mit Folgefragen;
+  - „my X lives in Y and i miss her/him“: Der Ort wird gemerkt, das Vermissen gehört;
+  - „im a dev, 34“: Beruf und Alter werden gemerkt;
+  - „maybe a joke / a fun fact maybe“;
+  - Genre nach Tipps:
+    - „any thriller?“ bei Büchern aus einer kleinen geprüften Liste (Krimi, Thriller, Romanze);
+    - „any horror?“ bei Filmen nur mit Horrorfilmen (vorher auch „Inception“).
+
+  Verallgemeinerungsprobe (Lisa, Bruder in Kanada, „ngl im so bored“, Horrorfilme): alles passend, 0
+  Wiederholungen.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 800 bestanden. Regressionen: 0 Wiederholungen. Gewollte neue
+  Unterschiede:
+  - b40 „something scary“ nennt nur Horrorfilme;
+  - b69 „heyyy 😊“ wird als Gruß beantwortet.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

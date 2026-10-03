@@ -14094,6 +14094,21 @@
      ]
     },
     {
+     "q": "(?:ugh,? |argh,? |so |and )?(?:another |a |the )?night shifts?(?: again| tonight| today| this week)?|i(?:'m| am) (?:on|working) (?:the )?(?:night shift|nights)(?: again| tonight| this week)?|i (?:have|got) (?:a |another )?night shift(?: again| tonight)?",
+     "v": "neg",
+     "a": "Oh no, night shifts are brutal. Hang in there — got enough coffee (and snacks) for the night? ☕",
+     "f": [
+      {
+       "q": "(?:yeah,? |yes,? |honestly,? )?(?:it'?s|its|it is) (?:rough|hard|tough|tiring|exhausting)(?:,)? but i (?:like|love|enjoy) (?:my job|it|the job|what i do)|(?:but )?i (?:like|love|enjoy) my job(?: though)?",
+       "a": "That's what counts — a job you like makes the hard shifts worth it. Just look after your sleep afterwards! 😴"
+      },
+      {
+       "q": "(?:yes|yeah|yep)(?:,? (?:lots of|plenty of|loads of) (?:coffee|snacks))?|(?:lots of |plenty of )?coffee",
+       "a": "Good — you're prepared! I hope it's a quiet night."
+      }
+     ]
+    },
+    {
      "q": "i (?:just )?ran (?:a |my first )?(?:5k|10k|half marathon)",
      "v": "pos",
      "a": "Nice one! 🏃 How did it feel?"
@@ -14599,6 +14614,39 @@
      "“Poor Things” (2023)"
     ]
    },
+   "miss_far": [
+    "Aw, that's hard — {X} isn't exactly around the corner. Do you get to see {y} often? (I'll remember that {z} lives there.)",
+    "That's tough, having {y} so far away. When did you last see {y}? (Noted: {z} lives in {X}.)"
+   ],
+   "genre_extra": {
+    "book thriller": {
+     "head": "Some gripping thrillers:",
+     "items": [
+      "“Gone Girl” by Gillian Flynn (2012)",
+      "“The Girl with the Dragon Tattoo” by Stieg Larsson (2005)",
+      "“The Silent Patient” by Alex Michaelides (2019)",
+      "“The Da Vinci Code” by Dan Brown (2003)"
+     ]
+    },
+    "book crime": {
+     "head": "Some classic crime reads:",
+     "items": [
+      "“And Then There Were None” by Agatha Christie (1939)",
+      "“The Hound of the Baskervilles” by Arthur Conan Doyle (1902)",
+      "“The Girl with the Dragon Tattoo” by Stieg Larsson (2005)"
+     ]
+    },
+    "book romance": {
+     "head": "Some lovely romance novels:",
+     "items": [
+      "“Pride and Prejudice” by Jane Austen (1813)",
+      "“Me Before You” by Jojo Moyes (2012)",
+      "“The Notebook” by Nicholas Sparks (1996)"
+     ]
+    }
+   },
+   "genre_tail": "Want something in a different mood instead?",
+   "horror_head": "Some properly scary ones:",
    "try_that": [
     "Sounds good — let me know how it goes! 🙂",
     "Great — fingers crossed it helps!"

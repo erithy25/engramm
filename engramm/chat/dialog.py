@@ -3935,6 +3935,7 @@ class Assistant:
             elif len(re.findall(r"[a-zäöüß]+", msg.lower())) >= 2 or re.fullmatch(r"\s*(?:\d{1,3}|[a-zäöüß]{3,20})[!.? ]*", msg.lower()):
                 return self._german(st, msg)      # "die nachbarn waren laut", "28", "italienisch": no English word, stays German
         msg = expand_chat(msg)                            # "wats ur name" → "what's your name"
+        msg = _casual(msg)                                # "heyyy 👋" → "hey", "idk im kinda bored" → "im kind of bored", "k bye" → "bye"
         lead = re.match(r"^(?:ok(?:ay)?,?\s+)?(?:whatever|anyways?|moving on|never ?mind|nvm|enough of that|forget (?:it|that)(?=[,.!])|"
                         r"ok(?:ay)? then|alright then|fine then)[,.!]*\s+(?=\S+\s+\S)", msg, re.I)
         if lead:
@@ -6905,6 +6906,54 @@ class Assistant:
         n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", norm)).strip(" .!?")
         say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b99:{key}", b[key], **kw), via="everyday")  # noqa: E731
         films = b["films"]
+        ja = re.fullmatch(r"(?:i'?m|im|i am) (?:a |an )(?P<j>[a-z]+(?: [a-z]+){0,2}?),? (?:and )?(?P<a>\d{1,2})(?: years old| yrs| y/?o)?", n)
+        if ja and ja.group("j") not in ("tired", "happy", "sad", "bored", "fine", "good", "ok", "okay", "single", "married", "student") and \
+                10 <= int(ja.group("a")) <= 99:              # "im a dev, 34": the job and the age, not just the age
+            j_ = ja.group("j")
+            return self._learn(st, [f"I work as {'an' if j_[:1] in 'aeiou' else 'a'} {j_}.", f"I am {ja.group('a')} years old."], msg)
+        mf = re.fullmatch(r"(?:and )?my (?P<w>sister|brother|mom|mum|mother|dad|father|parents|best friend|grandma|grandpa|son|daughter|girlfriend|boyfriend|wife|husband|partner) "
+                          r"(?:lives|live|is living|are living|moved|has moved|have moved) (?:in|to) (?P<p>[a-z][a-z ]{1,25}?),? and i (?:really |so |kind of )?miss (?:her|him|them)(?: so much| a lot| loads)?", n)
+        if mf:                                            # "my sister lives in berlin and i miss her": the fact remembered, the missing heard
+            w_, p_ = mf.group("w"), _place_case(mf.group("p").strip())
+            pron = "them" if w_ in ("parents",) else "her" if w_ in ("sister", "mom", "mum", "mother", "grandma", "daughter", "girlfriend", "wife") else \
+                "him" if w_ in ("brother", "dad", "father", "grandpa", "son", "boyfriend", "husband") else "them"
+            subj = {"her": "she", "him": "he", "them": "they"}[pron]
+            rep = self._learn(st, [f"My {w_} {'live' if w_ == 'parents' else 'lives'} in {p_}."], msg)
+            rep.text = self._pick(st, "daily:b99:miss_far", b["miss_far"], X=p_, y=pron, z=subj if w_ != "parents" else "they").replace("they lives", "they live")
+            st.last_exp = {"valence": "negative", "topic": "people", "person": True, "text": msg, "turn": st.turn}
+            return rep
+        if re.fullmatch(r"(?:ok |okay |sure |yes |yeah |um |hmm |fine )?(?:maybe |then )?(?:a |the |one )?joke(?: please| then| maybe| pls)?|(?:let'?s do|go with|i'?ll take) (?:a |the )?joke", n):
+            return self._turn(st, "tell me a joke")       # "maybe a joke" after "want a joke, a fun fact …?"
+        if re.fullmatch(r"(?:ok |okay |sure |yes |yeah )?(?:maybe |then )?(?:a )?(?:fun )?fact(?: please| then| maybe)?", n):
+            return self._turn(st, "tell me a fun fact")
+        la_ = st.last_action or {}
+        if (la_.get("kind") or "").startswith("rec:") and st.turn - la_.get("turn", -99) <= 4:
+            gm = re.fullmatch(r"(?:and |what about |how about |maybe |ok |okay )?(?:any |got any |something |anything )?(?:a |an |some )?(?:more )?(?:good )?(?P<g>thrillers?|fantasy|sci-fi|scifi|science fiction|romance|romantic|crime|horror|scary|"
+                              r"funny|comedy|comedies|classics?|non-fiction|nonfiction|history|historical|exciting|dystopian)(?: ones?| books?| novels?| films?| movies?| series| shows?| stuff| please)?", n)
+            if gm and la_["kind"][4:] in ("book", "movie", "series"):
+                g = gm.group("g")
+                g = {"thrillers": "thriller", "classics": "classic", "comedies": "comedy"}.get(g, g)
+                from engramm.chat.everyday import _GENRES
+                tag = _GENRES.get(g)
+                kind_ = la_["kind"][4:]
+                items = self.bank.daily["recommend"][kind_]["items"]
+                if g in ("horror", "scary") and kind_ == "movie":   # "any horror?": the horror ones, not every thriller (no "Inception")
+                    seen_ = set(st.uses.get(f"rec_seen:{kind_}", []))
+                    hor = [i_ for i_, it in enumerate(items) if isinstance(it, dict) and "horror" in it.get("tags", "").split() and i_ not in seen_]
+                    if hor:
+                        pick_ = hor[:3]
+                        st.uses[f"rec_seen:{kind_}"] = sorted(seen_ | set(pick_))
+                        st.last_action = {"kind": la_["kind"], "genre": g, "turn": st.turn, "lang": "en"}
+                        st.last_list = {"kind": kind_, "titles": [items[i_].get("title") for i_ in pick_], "texts": [items[i_]["x"] for i_ in pick_],
+                                        "turn": st.turn, "genre": "thriller"}
+                        body = "\n".join("• " + items[i_]["x"] for i_ in pick_)
+                        return Reply(msg, "smalltalk", f"{b['horror_head']}\n\n{body}\n\n{b['genre_tail']}", via="everyday")
+                ex = b["genre_extra"].get(f"{la_['kind'][4:]} {tag}")
+                if ex and not any(tag in (it.get("tags", "") if isinstance(it, dict) else "").split() for it in items):
+                    st.last_action = {"kind": la_["kind"], "genre": g, "turn": st.turn, "lang": "en"}
+                    body = "\n".join("• " + x for x in ex["items"])
+                    return Reply(msg, "smalltalk", f"{ex['head']}\n\n{body}\n\n{b['genre_tail']}", via="everyday")
+                return self.everyday.recommend(st, msg, la_["kind"][4:], genre=g)   # "any thriller?" right after book tips
         cq = re.search(r"\b(?:capital|president|prime minister|population|currency|official language|national anthem|flag) of (?P<c>[a-z][a-z ]{2,30}?)$", n)
         if cq:
             st.uses["country_q"] = [cq.group("c"), st.turn]   # "and the biggest city?" may follow
@@ -10943,6 +10992,28 @@ def _ordinal_pick(norm: str, names: list[str]) -> str | None:
         return names[idx]
     except IndexError:
         return None
+
+
+def _casual(msg: str) -> str:
+    """Chat-style typing a person reads past: emojis around the words, stretched greetings ("heyyy"), a leading
+    "yo / idk / ngl / tbh" before a real sentence, "kinda", and "k bye" / "cya" / "gtg" as goodbyes."""
+    s = re.sub(r"\s*[\U0001F300-\U0001FAFF\u2600-\u27BF\uFE0F]+\s*", " ", msg).strip()
+    if not s:
+        return msg                                    # only emojis: left as they are
+    s = re.sub(r"(?i)^(?:h+e+y{2,}|he{2,}y+)\b", "hey", s)
+    s = re.sub(r"(?i)^h+i{2,}\b", "hi", s)
+    s = re.sub(r"(?i)^he+l{2,}o{2,}\b|^hel{3,}o+\b", "hello", s)
+    s = re.sub(r"(?i)^yo{2,}\b", "yo", s)
+    if len(s.split()) >= 3:
+        s = re.sub(r"(?i)^(?:yo|ngl|not gonna lie|tbh|to be honest|bruh|dude|so like|(?:idk|i don'?t know),?(?= (?:i'?m|im|i am)\b))[,!]?\s+(?=\S+\s+\S)", "", s)
+        # "yo can u recommend a book", "ngl im so bored"
+    s = re.sub(r"(?i)^(?:names|name'?s|my names)\s+(?=[a-z]+[.!]*$)", "my name is ", s)   # "names lisa" is no name "Names Lisa"
+    s = re.sub(r"(?i)\b(i'?m|im|i am) a (dev|swe)\b", lambda m_: f"{m_.group(1)} a {'developer' if m_.group(2).lower() == 'dev' else 'software engineer'}", s)
+    s = re.sub(r"(?i)\bkinda\b", "kind of", s)
+    s = re.sub(r"(?i)\bsorta\b", "sort of", s)
+    if re.fullmatch(r"(?i)\s*(?:k+|kk|ok(?:ay)?|alright|well)[,.!]*\s+(?:bye+|cya|ttyl)[.!]*\s*|\s*(?:cya|see ya|ttyl|gtg|g2g|got ?ta go|gotta run)[.!]*\s*", s):
+        s = "bye"
+    return s
 
 
 def _euro_key(country: str | None) -> str | None:

@@ -68,6 +68,8 @@ _CHAT_WORDS = {"hav": "have", "tomoro": "tomorrow", "tomorow": "tomorrow", "toni
 _YOURE_NEXT = re.compile(r"(?:the|so|very|really|too|such|amazing|awesome|great|welcome|funny|smart|right|wrong|"
                          r"kidding|joking|not|a|an|cute|sweet|nice|kind|weird|crazy|stupid|dumb|wild|lying|actually|"
                          r"just|literally|always|never|going|getting|being|doing|making|my)\b")
+_YOURE_LAST = frozenset("good bad cool helpful clever brilliant best genius hilarious fun correct mean rude annoying useless lovely "
+                        "awesome great smart funny".split())
 _CHAT_TAIL = re.compile(r"(?:[\s,]+(?:btw|tbh|lol|lmao|haha+|hehe+|xd|imo|ngl|fr|lowkey))+(?=[\s.!?]*$)", re.I)
 
 
@@ -92,7 +94,10 @@ def expand_chat(text: str) -> str:
                 and not (w[:1].isupper() and len(w) == 1 and nxt[:1].isupper()):     # "U Thant" is a name
             low = w.lower()
             rep = _CHAT_WORDS[low]
-            if low == "ur" and (k == 0 and len(words) > 1 or _YOURE_NEXT.match(nxt.lower())):
+            if low == "ur" and (k == 0 and len(words) > 1 or _YOURE_NEXT.match(nxt.lower()) or
+                                (k + 2 == len(words) and nxt.lower().strip(".!?") in _YOURE_LAST)) and \
+                    not re.match(r"(?:name|age|job|fav\w*|opinion|birthday|creator|maker|purpose|mom|mum|dad|family|thoughts|answer)\b", nxt.lower()):
+                # "lol ur good" is "you're good"; "ur name?" stays "your name?"
                 rep = "you're"                                # "ur funny", "thank u ur the best"
             out.append(m.group(1) + rep + m.group(3))
         else:
