@@ -7011,6 +7011,71 @@ class Assistant:
         n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", norm)).strip(" .!?")
         say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b99:{key}", b[key], **kw), via="everyday")  # noqa: E731
         films = b["films"]
+        bk = b["breakup"]
+        if re.search(r"\b(?:broke up with me|dumped me|left me|we (?:just )?broke up|ended (?:it|things) with me|got dumped)\b", n):
+            st.uses["breakup105"] = [st.turn]             # the first reply stays with the empathy rules; the follow-ups are this flow's
+            st.uses["breakup_pron"] = ["she", "her"] if re.search(r"\b(?:girlfriend|wife|she)\b", n) else \
+                ["he", "his"] if re.search(r"\b(?:boyfriend|husband|he)\b", n) else ["they", "their"]
+        bu = st.uses.get("breakup105")
+        if bu and st.turn - bu[-1] <= 6:
+            hit = None
+            tg = re.fullmatch(r"(?:and )?we(?: were| had been|'d been| have been|'ve been) together (?:for )?(?P<x>(?:almost |nearly |over |about )?(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten) (?:years?|months?))", n)
+            if tg:
+                hit = self._pick(st, "daily:b99:bk:together", bk["together"], x=tg.group("x"))
+            elif re.fullmatch(r"(?:and )?(?:i (?:didn'?t|did not) see it coming|it came out of nowhere|i had no idea|it was (?:a )?(?:total )?(?:shock|surprise))", n):
+                hit = self._pick(st, "daily:b99:bk:shock", bk["shock"], y=(st.uses.get("breakup_pron") or ["they"])[0])
+            elif re.fullmatch(r"(?:she|he|they) (?:said|says|told me) (?:she|he|they) (?:needs?|wants?) (?:some )?(?:space|time|a break)(?: to think)?", n):
+                hit = self._pick(st, "daily:b99:bk:space", bk["space"])
+            elif re.fullmatch(r"i keep (?:checking|looking at|staring at) my phone|i keep (?:waiting|hoping) for (?:a message|a text|her to (?:text|call)|him to (?:text|call))", n):
+                hit = self._pick(st, "daily:b99:bk:phone", bk["phone"])
+            elif re.fullmatch(r"(?:and )?i (?:can'?t|cannot|couldn'?t) sleep(?: at all)?|i (?:haven'?t|have not) slept", n):
+                st.uses["sleep_bk"] = st.turn
+                hit = self._pick(st, "daily:b99:bk:sleep", bk["sleep"])
+            elif re.fullmatch(r"(?:so )?what (?:should|can|do) i do(?: now)?|how do i (?:get over (?:it|her|him)|move on|deal with (?:it|this))", n):
+                hit = self._pick(st, "daily:b99:bk:advice", bk["advice"], z=(st.uses.get("breakup_pron") or ["they", "their"])[1])
+            elif re.fullmatch(r"(?:yeah,? |ok,? )?(?:maybe|i guess|perhaps|i'?ll try|we'?ll see)", n):
+                hit = self._pick(st, "daily:b99:bk:maybe", bk["maybe"])
+            elif re.fullmatch(r"my friends (?:say|said|think|keep saying|want me to|told me) (?:i should |to )?(?:go out|get out|meet (?:new )?people|move on|go party)(?: more)?", n):
+                hit = self._pick(st, "daily:b99:bk:friends", bk["friends"])
+            elif re.fullmatch(r"(?:but )?(?:i (?:don'?t|do not) feel like it|i'?m not ready|i (?:don'?t|do not) want to)", n):
+                hit = self._pick(st, "daily:b99:bk:not_ready", bk["not_ready"])
+            if hit:
+                bu.append(st.turn)
+                st.last_exp = {"valence": "negative", "topic": "people", "person": True, "text": msg, "turn": st.turn}
+                return Reply(msg, "empathy", hit, via="empathy")
+        sk = b["stress"]
+        if re.fullmatch(r"(?:and )?(?:work is (?:so |really |just )?(?:crazy|insane|a lot|too much|killing me|chaos)(?: right now| at the moment)?(?:,? and |,? )?)?(?:my )?boss keeps (?:adding|giving me|piling on|throwing) (?:more )?(?:stuff|things|tasks|work|projects)(?: on me)?|"
+                        r"work is (?:so |really |just )?(?:crazy|insane|too much|killing me)(?: right now| at the moment)?", n):
+            prev = st.uses.get("stress105")
+            key = "pile" if re.search(r"\bboss\b", n) else "crazy"
+            if prev and st.turn - prev[-1] <= 3 and key == "pile" and prev[0] == "pile":
+                key = "pile_again"
+            st.uses["stress105"] = [key, st.turn]
+            st.last_exp = {"valence": "negative", "topic": "work", "person": False, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, f"daily:b99:stress:{key}", sk[key]), via="empathy")
+        sr = st.uses.get("stress105")
+        if sr and st.turn - sr[-1] <= 6:
+            nb = re.fullmatch(r"i (?:haven'?t|have not|didn'?t) (?:had|have) (?:a |one )?(?:weekend|day off|break|free day|holiday) (?:in|for) (?:a |over a )?(?P<x>month|week|weeks|months|two weeks|three weeks)", n)
+            if nb:
+                sr.append(st.turn)
+                X = {"month": "A whole month", "week": "A whole week", "weeks": "Weeks", "months": "Months", "two weeks": "Two weeks",
+                     "three weeks": "Three weeks"}[nb.group("x")]
+                return Reply(msg, "empathy", self._pick(st, "daily:b99:stress:no_break", sk["no_break"], X=X), via="empathy")
+            if re.fullmatch(r"i feel like i'?m drowning|i (?:can'?t|cannot) keep up(?: anymore)?|it'?s (?:just )?too much|i'?m (?:completely )?overwhelmed", n):
+                sr.append(st.turn)
+                return Reply(msg, "empathy", self._pick(st, "daily:b99:stress:drowning", sk["drowning"]), via="empathy")
+            if re.fullmatch(r"(?:that'?s|that is|this is) (?:actually |really |super |very )?(?:helpful|useful|good advice|great advice)", n):
+                key = "helpful" if "say no" in (st.last_reply or "").lower() else "helpful_any"
+                return Reply(msg, "smalltalk", self._pick(st, f"daily:b99:stress:{key}", sk[key]), via="everyday")
+        le_ = st.last_exp or {}
+        if re.fullmatch(r"(?:thanks|thank you|thx)(?: so much)? for (?:listening|being there|talking|the chat|hearing me out)", n):
+            key = "thanks_listen"
+            return Reply(msg, "smalltalk", self._pick(st, f"daily:b99:{key}", b[key]), via="everyday")
+        if re.fullmatch(r"i think i'?ll (?:call|talk to|text|visit) (?:my )?(?:brother|sister|mom|mum|mother|dad|father|best friend|friend|parents|grandma)(?: later| tonight| now| tomorrow)?", n) and \
+                le_.get("valence") == "negative" and st.turn - le_.get("turn", -99) <= 10:
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b99:call_someone", b["call_someone"]), via="everyday")
+        if re.fullmatch(r"(?:ok |okay |alright |fine )?i'?ll (?:try|do it|talk to (?:him|her|them)|ask (?:him|her|them)) (?:it )?(?:tomorrow|later|on monday|next week|tonight|this week)", n):
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b99:try_later", b["try_later"]), via="everyday")
         ja = re.fullmatch(r"(?:i'?m|im|i am) (?:a |an )(?P<j>[a-z]+(?: [a-z]+){0,2}?),? (?:and )?(?P<a>\d{1,2})(?: years old| yrs| y/?o)?", n)
         if ja and ja.group("j") not in ("tired", "happy", "sad", "bored", "fine", "good", "ok", "okay", "single", "married", "student") and \
                 10 <= int(ja.group("a")) <= 99:              # "im a dev, 34": the job and the age, not just the age

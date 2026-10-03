@@ -14662,6 +14662,75 @@
    },
    "genre_tail": "Want something in a different mood instead?",
    "horror_head": "Some properly scary ones:",
+   "breakup": {
+    "together": [
+     "{x} is a big part of your life — of course this hurts so much.",
+     "After {x}, it's like a whole chapter suddenly ending. That's a lot to take in."
+    ],
+    "shock": [
+     "That makes it even more of a shock. Did {y} say why?",
+     "Out of nowhere — that's the hardest kind. Did you get any explanation?"
+    ],
+    "space": [
+     "That's hard to hear — “space” can feel so open-ended. Did she say whether it's for good, or for now?"
+    ],
+    "phone": [
+     "That's so normal — part of you is hoping for a message. It can help to mute the chat or put the phone in another room for a few hours."
+    ],
+    "sleep": [
+     "Heartbreak does that — your mind keeps replaying everything. Writing down what's going round in your head before bed helps some people switch off."
+    ],
+    "advice": [
+     "For now, go easy on yourself:\n\n• Let yourself feel it — being sad after a long relationship is normal\n• Keep a small routine: eat, sleep, move a little\n• Talk to people you trust\n• Take a break from {z} social media\n\nIt gets lighter, even if it doesn't feel like it right now."
+    ],
+    "maybe": [
+     "No pressure. One small thing at a time.",
+     "That's fine — there's no right speed for this."
+    ],
+    "friends": [
+     "They might be onto something — it doesn't have to be a big night out. Even a walk or a coffee with one friend can help."
+    ],
+    "not_ready": [
+     "That's completely okay — you don't have to be ready yet. Maybe a friend could just come over instead?"
+    ]
+   },
+   "stress": {
+    "pile": [
+     "That sounds exhausting — when tasks keep piling up, it never feels finished. Is it more than you can realistically manage right now?"
+    ],
+    "crazy": [
+     "Ugh, crazy weeks are so draining. What's making it so hectic right now?"
+    ],
+    "pile_again": [
+     "And it just keeps coming on top — no wonder you're stressed. Does your boss know how full your plate already is?"
+    ],
+    "no_break": [
+     "{X} without a break — no wonder you're stressed. That's not sustainable for anyone."
+    ],
+    "drowning": [
+     "That feeling is a sign you've been carrying too much for too long. Would it help to talk about how to push back on the extra work?"
+    ],
+    "helpful": [
+     "Glad it helps! Saying no gets easier with practice.",
+     "Happy to help — you deserve a workload you can actually manage."
+    ],
+    "helpful_any": [
+     "Glad it helps! 🙂",
+     "Happy to help — you deserve a workload you can actually manage."
+    ]
+   },
+   "thanks_listen": [
+    "Of course — I'm here anytime. Be gentle with yourself. 💙",
+    "Anytime. I'm glad you talked about it."
+   ],
+   "call_someone": [
+    "That sounds like a really good idea — talking to someone close helps. I hope it's a good chat.",
+    "Good idea. It helps to hear a familiar voice. 💙"
+   ],
+   "try_later": [
+    "Good luck — you've got this! Let me know how it goes.",
+    "Fingers crossed! Tell me how it went."
+   ],
    "try_that": [
     "Sounds good — let me know how it goes! 🙂",
     "Great — fingers crossed it helps!"

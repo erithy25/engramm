@@ -3431,6 +3431,32 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 801 bestanden. Regressionen: 0 Wiederholungen. Neu ist nur
   b76 „du bist echt schlau“ mit einem gleichwertigen Dank.
+- **Alltags-Batterie 105 (emotionale Unterstützung über viele Turns: Trennung mit 14 Turns, Arbeitsstress mit 7
+  Turns)**. Erster Lauf: 0 Wiederholungen, aber vieles daneben:
+  - „How are you holding up?“ kam zweimal hintereinander;
+  - „she said she needs space“ ergab „I see. Tell me more?“;
+  - „i keep checking my phone“ und „my friends say i should go out“ wurden als Fakten gemerkt;
+  - „yeah maybe“ ergab „How did you react?“, „i don't feel like it“ ergab „How's that going?“;
+  - „i think i'll call my brother“ ergab „I'll remember that about your brother“;
+  - „ok i'll try tomorrow“ ergab „Sounds like a plan — enjoy!“.
+
+  Neu:
+  - **Trennung als Ablauf**: Die erste Antwort bleibt bei den Empathie-Regeln. Danach folgen 9 Folgezustände:
+    - Dauer der Beziehung, unerwartet, „needs space“, Handy-Checken, Schlaf;
+    - „what should i do?“ mit kurzem Rat; das Pronomen folgt dem Wort „girlfriend“ bzw. „boyfriend“;
+    - „maybe“, Freunde wollen ausgehen, „nicht bereit“;
+  - **Arbeitsstress**: „work is crazy“, der Chef lädt mehr ab (beim zweiten Mal eine andere Antwort), keine
+    Pause seit Wochen, „drowning“, „helpful“ (je nachdem, ob gerade Rat zum Neinsagen kam);
+  - „thanks for listening“, „i think i'll call my brother“ nach einem schweren Moment, „i'll try tomorrow“.
+
+  Verallgemeinerungsprobe („my boyfriend dumped me“, „we'd been together for two years“, „work is killing me“,
+  „a day off in weeks“): alles passend, 0 Wiederholungen.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 802 bestanden. Regressionen: 0 Wiederholungen. Gewollte neue
+  Unterschiede:
+  - b43/b86 „thanks for listening“;
+  - b62 „work is crazy“ und danach „my boss keeps adding tasks“ (zwei verschiedene Antworten), „i'll talk to her
+    tonight“.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

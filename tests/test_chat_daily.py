@@ -3690,3 +3690,27 @@ def test_battery104_casual_german(chat):
     a.turn(st, "was sind 15 prozent von 80")
     assert a.turn(st, "und 20?").text == "20 % von 80 sind 16."
     assert "Lena" in a.turn(DialogState("l104"), "ich bin die lena btw").text
+
+
+def test_battery105_breakup_and_work_stress(chat):
+    a, _ = chat
+    st = DialogState("b105")
+    a.turn(st, "my girlfriend broke up with me yesterday")
+    seen = []
+    for msg, want in [("we were together for 3 years", "3 years"), ("i didn't see it coming", "?"), ("she said she needs space", "space"),
+                      ("i keep checking my phone", "mute"), ("i can't sleep", "Heartbreak"), ("what should i do?", "routine"),
+                      ("yeah maybe", "e"), ("my friends say i should go out", "walk"), ("i don't feel like it", "ready"),
+                      ("thanks for listening", "anytime"), ("i think i'll call my brother", "good idea")]:
+        t = a.turn(st, msg).text
+        assert want.lower() in t.lower() and t not in seen, (msg, t)
+        seen.append(t)
+    st = DialogState("s105")
+    a.turn(st, "i'm so stressed")
+    assert "piling up" in a.turn(st, "work is crazy and my boss keeps adding stuff").text
+    assert "A whole month" in a.turn(st, "i haven't had a weekend in a month").text
+    assert "carrying too much" in a.turn(st, "i feel like i'm drowning").text
+    t = a.turn(st, "ok i'll try tomorrow").text
+    assert "enjoy" not in t and ("Good luck" in t or "Fingers crossed" in t), t
+    st = DialogState("x105")
+    a.turn(st, "my boyfriend dumped me")
+    assert "his social media" in a.turn(st, "what should i do?").text
