@@ -220,7 +220,9 @@ Wächter gegen falsche Baujahre, englische Verallgemeinerungsprobe; 45 Dateien, 
 (Lauf 37095821620, Batterien 95–98: deutsche Alltagsprobe, Folgesätze nach einem Moment, langes Gespräch ohne
 dumme Echos, langes deutsches Gespräch ohne Rückfall-Antworten; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.28](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.28)
 (Lauf 37099684304, Batterien 99–101: Filmgespräch, Training und Elternbesuch auf Englisch und Deutsch, Reise im
-Kontext, Schreibhilfe fragt nach dem Anlass, Wissens-Folgefragen; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
+Kontext, Schreibhilfe fragt nach dem Anlass, Wissens-Folgefragen; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.29](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.29)
+(Lauf 37103146343, Batterien 102–104: Reise, Übersetzung, Nachricht an Chef/Vermieter auf Deutsch, lockere
+Schreibweise auf Englisch und Deutsch; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
