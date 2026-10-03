@@ -4109,3 +4109,43 @@ def test_battery117_lockout_haircut_birthday_tooth_washer_smoking_thesis_roommat
         for msg, want in turns:
             t = a.turn(st, msg).text
             assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)
+
+
+def test_battery118_mould_sunburn_hangover_jetlag_job_money_toddler_car(chat):
+    """Mould, sunburn, hangover, jet lag, a job rejection, a friend who owes money, a toddler who won't sleep, a dead battery."""
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"Tell me more\?|I see\.|I don't know|I'll remember|you live in|wear you down|Erzähl ruhig mehr|Erzähl gern mehr|"
+                      r"nicht ganz verstanden|nicht nachschlagen|wie findest du das|Oh no — I'm sorry", _re.I)
+    convs = [
+        ("en", [("there's mould in our bathroom", "mould"), ("it's black and in the corners of the ceiling", "condenses"),
+                ("we dry our laundry inside", "washing"), ("how do i get rid of it?", "isopropyl")]),
+        ("en", [("i got really sunburnt yesterday", "blisters"), ("my shoulders are bright red", "proper burn"), ("what helps?", "Aloe")]),
+        ("en", [("i'm so hungover", "Big night"), ("my head is pounding", "dehydration"), ("any tips?", "electrolyte"),
+                ("lol never again", "famous last words")]),
+        ("en", [("the jet lag is killing me", "jet lag"), ("how long does it last?", "per hour"),
+                ("ok i'll try to stay up until 10", "daylight")]),
+        ("en", [("i was in the final round", ""), ("i didn't get the job", ""), ("they went with an internal candidate", "internal"),
+                ("i really wanted it", "disappointed")]),
+        ("en", [("my brother owes me 300 euros", "family"), ("it's been six months", "fair"), ("how do i bring it up?", "instalments")]),
+        ("en", [("my toddler won't sleep", "How old"), ("he's two", "classic age"), ("he screams every time we leave the room", "he wants"),
+                ("what can we try?", "routine"), ("thanks, we'll try that", "")]),
+        ("en", [("my car won't start", "clicking"), ("it just clicks when i turn the key", "starter"), ("is it the battery?", "jump start"),
+                ("ok, my neighbour has jumper cables", "red to the plus")]),
+        ("de", [("wir haben schimmel im bad", "Schimmel"), ("hinter dem schrank, ganz grün", "Möbeln"), ("wie werde ich den los?", "Isopropyl")]),
+        ("de", [("ich hab einen heftigen sonnenbrand", "Blasen"), ("was hilft?", "Aloe")]),
+        ("de", [("ich hab so einen kater", "Lange Nacht"), ("mein kopf dröhnt", "Flüssigkeitsmangel"), ("nie wieder alkohol", "letzte Worte")]),
+        ("de", [("ich hab die stelle nicht bekommen", "Absage"), ("ich war in der letzten runde", "Kleinigkeiten"),
+                ("die haben einen anderen eingestellt", "kein Urteil")]),
+        ("de", [("ich hab meiner schwester geld geliehen", "Familie"), ("wie spreche ich das an?", "Raten"), ("ich ruf sie morgen an", "fair")]),
+        ("de", [("mein auto springt nicht an", "Klicken"), ("die lichter flackern", "Batterie"), ("ok, mein nachbar hat ein starthilfekabel", "rot an Plus")]),
+    ]
+    for i, (lang, turns) in enumerate(convs):
+        st = DialogState(f"c118-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        for msg, want in turns:
+            t = a.turn(st, msg).text
+            assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)
+    st = DialogState("c118-bed")
+    a.turn(st, "i'll stay up until 10")
+    assert "10" not in a.turn(st, "where do i live?").text

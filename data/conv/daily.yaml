@@ -4799,3 +4799,179 @@ b117:
       - "Was laut Studien am meisten hilft:\n\n• Ein festes Rauchstopp-Datum in den nächsten zwei Wochen – und anderen davon erzählen.\n• Nikotinersatz (Pflaster, Kaugummi, Lutschtabletten) verdoppelt etwa die Chancen – frag in der Apotheke oder beim Hausarzt.\n• Deine Auslöser kennen (Kaffee, Stress, nach dem Essen, Alkohol) und einen Ersatz planen: kurz rausgehen, Kaugummi, ein Glas Wasser.\n• Zigaretten, Feuerzeuge und Aschenbecher vorher wegwerfen.\n• Kostenlose Beratung, etwa das Rauchfrei-Telefon (0800 8 31 31 31), und Rauchstopp-Apps helfen spürbar.\n• Ein Rauchverlangen ist nach ein paar Minuten vorbei – aushalten lohnt sich."
     smoke_date:
       - "Super Schritt! Schreib es dir auf und erzähl es jemandem, dem du vertraust. Ich drück dir die Daumen. 💪"
+# battery 118: mould in the bathroom, sunburn, a hangover, jet lag, a job rejection after the final round, a friend
+# who owes money, a toddler who won't sleep, a car that won't start
+b118:
+  mould_start:
+    - "Ugh, mould is nasty — and it comes back unless you fix the cause. Where exactly is it?"
+  mould_where:
+    - "Black spots in the corners of the ceiling are typical: that's where warm, damp air cools down and condenses. So the real fix is less moisture."
+  mould_behind:
+    - "Behind furniture is a classic spot: the wall stays cold there and air can't circulate. Move the wardrobe a few centimetres away from the wall so air can get behind it."
+  mould_laundry:
+    - "That's a big one — a load of washing releases litres of water into the air. If you can, dry it outside or in a room you air out well, with the window open and the door shut."
+  mould_shower:
+    - "That's a lot of steam. After every shower, open the window wide for 5–10 minutes (or run the fan), wipe the tiles with a squeegee, and keep the door shut so the damp doesn't spread to the rest of the flat."
+  mould_how:
+    - "For small patches (up to about the size of a hand):\n\n• Wear gloves and a mask, and open the window.\n• Use a mould remover or 70 % isopropyl alcohol; on tiles and grout a chlorine product works too — never mix chlorine with acidic cleaners.\n• Wipe it off, don't dry-brush it — brushing spreads the spores.\n• Then fix the cause: air out after every shower, keep the bathroom warm, don't dry laundry indoors without ventilating.\n• A cheap hygrometer helps: aim for under 60 % humidity.\n\nIf it's bigger than about half a square metre, keeps coming back, or you rent, tell the landlord — it can be a building problem."
+  mould_spray:
+    - "Good — wear gloves and keep the window open while you use it. And the airing out afterwards is what stops it coming back. 🪟"
+  sun_start:
+    - "Ouch! Sunburn is miserable. How bad is it — red and sore, or are there blisters?"
+  sun_red:
+    - "Bright red means a proper burn. It usually peaks after a day or so and then slowly settles."
+  sun_blister:
+    - "Blisters mean a deeper burn. Don't pop them, keep them clean — and if they cover a large area or you feel feverish, see a doctor."
+  sun_hurts:
+    - "That sounds painful. Loose, soft cotton helps — and stay out of the sun until it has healed."
+  sun_help:
+    - "What helps:\n\n• Cool (not ice-cold) showers or damp cloths.\n• Aloe vera gel or an after-sun lotion — kept in the fridge it feels amazing.\n• Drink plenty of water.\n• Ibuprofen eases pain and inflammation.\n• Don't pop blisters, and skip greasy creams or butter.\n• See a doctor if you get large blisters, fever, chills or dizziness."
+  sun_aloe:
+    - "Good choice — put it in the fridge first. Get well soon! ☀️"
+  hang_start:
+    - "Oh no 😅 Big night? How bad is it?"
+  hang_party:
+    - "Sounds like it was a good party at least! 🎉"
+  hang_head:
+    - "Classic. A lot of that is dehydration — your head will thank you for some water."
+  hang_sick:
+    - "Ugh, the queasy kind. Small sips of water or tea, something plain like toast or crackers, and lie down for a bit."
+  hang_tips:
+    - "What helps:\n\n• Water — lots of it, or an electrolyte drink.\n• Something easy to eat: toast, a banana, soup or eggs.\n• Ibuprofen for the headache — skip paracetamol after drinking, it's hard on the liver.\n• Fresh air and a short walk.\n• Sleep if you can.\n• No “hair of the dog” — it only postpones it."
+  hang_never:
+    - "Haha, famous last words 😄 Take it easy today."
+  jet_start:
+    - "Ugh, jet lag is brutal — especially after crossing many time zones. How are you sleeping?"
+  jet_from:
+    - "From {x} — that's a big time difference. Give yourself a few days, and get outside in daylight as much as you can."
+  jet_early:
+    - "Waking up in the middle of the night is classic — your body still thinks it's daytime where you were."
+  jet_last:
+    - "Rule of thumb: about a day per hour of time difference, so after a long-haul trip it can take up to a week — often less if you get lots of daylight. What helps: morning light outside, naps no longer than 20 minutes, and going to bed at the normal local time."
+  jet_stay:
+    - "Good plan! Get some daylight this afternoon, skip caffeine after lunch, and keep the bedroom cool and dark tonight. 😴"
+  jet_tips:
+    - "What helps:\n\n• Daylight in the morning, outside if you can.\n• Naps no longer than 20 minutes.\n• Go to bed at the normal local time, even if you're not tired.\n• No caffeine after lunch, no alcohol in the evening.\n• Eat at local mealtimes."
+  job_start:
+    - "Ugh, I'm sorry. Setbacks like this are stressful. What do you think you'll do next?"
+  job_final:
+    - "Getting to the final round means they really liked you — at that point it often comes down to small details."
+  job_second:
+    - "Getting to a second interview means they took you seriously — at that stage it often comes down to small details."
+  job_internal:
+    - "Losing out to an internal candidate is often decided before the interviews even start — that's really not about you."
+  job_other:
+    - "That's not a verdict on you — at that stage it's often small details or reasons you never see. Did they give you any feedback?"
+  job_exp:
+    - "That's not a verdict on you — experience is the one thing you can't fake, and you'll have more next time. Did they give you any feedback?"
+  job_wanted:
+    - "Of course it hurts — you were so close and you really wanted it. It's okay to be disappointed for a while."
+  money_start:
+    - "Ugh, money between friends is awkward. How long ago was it?"
+  money_start_family:
+    - "Ugh, money in the family is extra awkward. How long ago was it?"
+  money_long:
+    - "That's long enough that it's completely fair to bring it up — you're not being petty."
+  money_dodge:
+    - "That's frustrating — and dodging it only makes it more awkward for both of you."
+  money_how:
+    - "A few things that help:\n\n• Talk in person or on the phone, not in a group chat or a quick text.\n• Be direct but friendly: “Hey, about the money — when can you pay it back? I need it.”\n• Offer a plan: “Would paying it back in instalments work?” — that makes it easier to say yes.\n• Assume good faith: {pron} might be embarrassed or short on money.\n• Agree on a date, and confirm it in a message afterwards.\n\nIf {pron} keeps dodging after a clear conversation, that tells you something too."
+  money_talk:
+    - "Good — that's the fair way to do it. I hope it goes well. Let me know!"
+  tod_start:
+    - "Oh, that's exhausting. How old is your little one?"
+  tod_age:
+    - "That's a classic age for sleep trouble — they're more aware, and separation anxiety often peaks around then."
+  tod_screams:
+    - "That's separation anxiety — {subject} wants to know you're still there. Very normal, but hard on everyone."
+  tod_tired:
+    - "Broken nights wear anyone down — no wonder you're running on empty. If you can, take turns so each of you gets a full night now and then."
+  tod_try:
+    - "Things that often help:\n\n• A calm, fixed bedtime routine: bath, pyjamas, story, song — same order every night.\n• A comfort object, like a cuddly toy or a T-shirt that smells of you.\n• Gradual retreat: sit by the bed, then a little further away each night, until you're at the door.\n• Short, boring check-ins: “I'm here, it's sleep time” — then leave again.\n• A night light and a dark, cool room.\n• Consistency beats any method — give it one to two weeks.\n\nIf nothing helps, your paediatrician can advise too."
+  tod_ok:
+    - "Good luck — be patient with yourselves, it does get better. 💤"
+  car_start:
+    - "Oh no! What happens when you turn the key — nothing at all, a clicking sound, or does the engine turn over slowly?"
+  car_click:
+    - "Clicking usually means the starter isn't getting enough power — most often a weak or flat battery."
+  car_dim:
+    - "Dim lights plus clicking — that really sounds like the battery. Cold nights or lights left on often drain it."
+  car_battery:
+    - "Very likely, yes. Try a jump start; if the car starts, drive for at least 30 minutes so the battery recharges. If it's older than about five years or goes flat again, have it tested — many garages do that quickly and cheaply."
+  car_cables:
+    - "Perfect! The order: red to the plus of the flat battery, red to the plus of the good one, black to the minus of the good one, black to bare metal on the engine of your car (not the flat battery). Start the good car, wait a few minutes, then try yours. 🔋"
+  de:
+    mould_start:
+      - "Oh je, Schimmel ist eklig – und er kommt wieder, wenn man die Ursache nicht angeht. Wo genau ist er?"
+    mould_where:
+      - "Schwarze Flecken oben in den Ecken sind typisch: Dort kühlt warme, feuchte Luft ab und schlägt sich nieder. Die eigentliche Lösung ist also weniger Feuchtigkeit."
+    mould_behind:
+      - "Hinter Möbeln ist eine klassische Stelle: Die Wand bleibt dort kalt, und die Luft kommt nicht ran. Rück den Schrank ein paar Zentimeter von der Wand ab, damit Luft dahinter zirkulieren kann."
+    mould_laundry:
+      - "Das ist ein großer Punkt – eine Ladung Wäsche gibt mehrere Liter Wasser an die Luft ab. Wenn möglich draußen trocknen oder in einem Raum, den du gut lüftest: Fenster auf, Tür zu."
+    mould_shower:
+      - "Das ist viel Dampf. Nach jedem Duschen das Fenster 5–10 Minuten weit öffnen (oder den Lüfter laufen lassen), die Fliesen mit einem Abzieher trocknen und die Tür zu lassen, damit die Feuchte nicht in die Wohnung zieht."
+    mould_how:
+      - "Bei kleinen Stellen (bis etwa Handgröße):\n\n• Handschuhe und Maske tragen, Fenster auf.\n• Schimmelentferner oder 70-prozentigen Isopropylalkohol nehmen; auf Fliesen und Fugen geht auch ein Chlorprodukt – Chlor nie mit säurehaltigen Reinigern mischen.\n• Abwischen, nicht trocken abbürsten – das verteilt die Sporen.\n• Dann die Ursache angehen: nach jedem Duschen lüften, das Bad warm halten, Wäsche nicht ohne Lüften drinnen trocknen.\n• Ein günstiges Hygrometer hilft: Ziel unter 60 % Luftfeuchtigkeit.\n\nIst die Fläche größer als etwa ein halber Quadratmeter, kommt er immer wieder oder wohnst du zur Miete: Sag dem Vermieter Bescheid – es kann ein Bauproblem sein."
+    mould_spray:
+      - "Gut – dabei Handschuhe tragen und das Fenster offen lassen. Und das Lüften danach verhindert, dass er wiederkommt. 🪟"
+    sun_start:
+      - "Autsch! Sonnenbrand ist echt fies. Wie schlimm ist es – rot und schmerzhaft, oder sind Blasen da?"
+    sun_red:
+      - "Knallrot heißt: ein richtiger Sonnenbrand. Meist ist er nach etwa einem Tag am schlimmsten und klingt dann langsam ab."
+    sun_blister:
+      - "Blasen bedeuten einen tieferen Sonnenbrand. Nicht aufstechen, sauber halten – und bei großen Flächen oder Fieber lieber zum Arzt."
+    sun_hurts:
+      - "Das klingt schmerzhaft. Locker sitzende, weiche Baumwolle hilft – und bis es verheilt ist, raus aus der Sonne."
+    sun_help:
+      - "Was hilft:\n\n• Kühle (nicht eiskalte) Duschen oder feuchte Tücher.\n• Aloe-vera-Gel oder eine After-Sun-Lotion – aus dem Kühlschrank fühlt sich das herrlich an.\n• Viel trinken.\n• Ibuprofen lindert Schmerzen und Entzündung.\n• Blasen nicht aufstechen, keine fettigen Cremes.\n• Zum Arzt bei großen Blasen, Fieber, Schüttelfrost oder Schwindel."
+    sun_aloe:
+      - "Gute Wahl – am besten vorher in den Kühlschrank. Gute Besserung! ☀️"
+    hang_start:
+      - "Oh nein 😅 Lange Nacht gehabt? Wie schlimm ist es?"
+    hang_party:
+      - "Klingt, als wär's wenigstens eine gute Feier gewesen! 🎉"
+    hang_head:
+      - "Der Klassiker. Vieles davon ist Flüssigkeitsmangel – dein Kopf freut sich über Wasser."
+    hang_sick:
+      - "Oh je, die flaue Sorte. Kleine Schlucke Wasser oder Tee, etwas Einfaches wie Zwieback oder Toast, und eine Weile hinlegen."
+    hang_tips:
+      - "Was hilft:\n\n• Wasser, viel Wasser – oder ein Elektrolytgetränk.\n• Etwas Leichtes essen: Toast, Banane, Suppe oder Eier.\n• Ibuprofen gegen die Kopfschmerzen – Paracetamol nach Alkohol lieber meiden, das belastet die Leber.\n• Frische Luft und ein kurzer Spaziergang.\n• Schlafen, wenn es geht.\n• Kein „Konterbier“ – das schiebt es nur auf."
+    hang_never:
+      - "Haha, berühmte letzte Worte 😄 Mach heute langsam."
+    job_start:
+      - "Oh nein, das tut mir leid. So eine Absage tut weh. Wie geht's dir damit?"
+    job_final:
+      - "Bis in die letzte Runde zu kommen heißt, dass sie dich wirklich gut fanden – da entscheiden oft Kleinigkeiten."
+    job_second:
+      - "Bis ins zweite Gespräch zu kommen heißt, dass sie dich ernst genommen haben – da entscheiden oft Kleinigkeiten."
+    job_internal:
+      - "Gegen einen internen Bewerber zu verlieren ist oft schon vor den Gesprächen entschieden – das liegt wirklich nicht an dir."
+    job_other:
+      - "Das ist kein Urteil über dich – in dem Stadium entscheiden oft Kleinigkeiten oder Gründe, die man nie erfährt. Hast du Feedback bekommen?"
+    job_exp:
+      - "Das ist kein Urteil über dich – Erfahrung kann man nicht vortäuschen, und beim nächsten Mal hast du mehr davon. Hast du Feedback bekommen?"
+    job_wanted:
+      - "Natürlich tut das weh – du warst so nah dran und wolltest es wirklich. Es ist okay, eine Weile enttäuscht zu sein."
+    money_start:
+      - "Oh je, Geld unter Freunden ist heikel. Wie lange ist das schon her?"
+    money_start_family:
+      - "Oh je, Geld in der Familie ist besonders heikel. Wie lange ist das schon her?"
+    money_long:
+      - "Das ist lange genug, dass du es völlig zu Recht ansprechen darfst – das ist nicht kleinlich."
+    money_dodge:
+      - "Das ist frustrierend – und das Ausweichen macht es für euch beide nur unangenehmer."
+    money_how:
+      - "Ein paar Dinge, die helfen:\n\n• Persönlich oder am Telefon reden, nicht im Gruppenchat oder per kurzer Nachricht.\n• Direkt, aber freundlich: „Du, wegen des Geldes – wann kannst du es mir zurückgeben? Ich brauche es.“\n• Einen Plan anbieten: „Wäre es in Raten leichter?“ – dann fällt das Ja leichter.\n• Erst mal Gutes annehmen: Vielleicht ist es {y} unangenehm oder knapp.\n• Ein Datum ausmachen und danach kurz schriftlich bestätigen.\n\nWenn das Thema danach weiter umgangen wird, sagt das auch etwas aus."
+    money_talk:
+      - "Gut – so ist es fair. Ich hoffe, es klappt. Erzähl mir, wie es lief!"
+    car_start:
+      - "Oh nein! Was passiert, wenn du den Schlüssel drehst – gar nichts, ein Klicken, oder dreht der Motor langsam?"
+    car_click:
+      - "Ein Klicken heißt meist, dass der Anlasser nicht genug Strom bekommt – am häufigsten ist die Batterie schwach oder leer."
+    car_dim:
+      - "Schwaches Licht plus Klicken – das klingt sehr nach der Batterie. Kalte Nächte oder ein vergessenes Licht entladen sie oft."
+    car_battery:
+      - "Sehr wahrscheinlich, ja. Versuch Starthilfe; springt er an, mindestens 30 Minuten fahren, damit die Batterie lädt. Ist sie älter als etwa fünf Jahre oder wieder leer, lass sie testen – das geht in vielen Werkstätten schnell und günstig."
+    car_cables:
+      - "Perfekt! Die Reihenfolge: rot an Plus der leeren Batterie, rot an Plus der vollen, schwarz an Minus der vollen, schwarz an blankes Metall am Motor deines Autos (nicht an die leere Batterie). Das Spenderauto starten, ein paar Minuten warten, dann deins versuchen. 🔋"

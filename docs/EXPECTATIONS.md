@@ -3878,6 +3878,35 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: NQ 22/9; Suite 816 bestanden. Gesprächsproben 111–117, Generisch, Held-out, Follow und Stimmung stehen bei 0.
   Test 117 hält 14 Gespräche fest.
+- **Probe 118: neunte ungesehene Gesprächsprobe** (3. Oktober 2026): 8 englische und 6 deutsche Gespräche, einmal
+  vor jeder Anpassung gemessen; jede Antwort gelesen, ohne KI-Richter. Die Umformulierungsprobe 118b (8 EN / 6 DE)
+  wurde nach den Anpassungen geschrieben und einmal gemessen.
+  Themen: Schimmel im Bad, Sonnenbrand, Kater, Jetlag, Absage nach der letzten Runde, ein Freund schuldet Geld,
+  Kleinkind schläft nicht, Auto springt nicht an.
+
+  | Stand | EN schwach (gelesen) | DE schwach (gelesen) |
+  |---|---|---|
+  | erster Lauf | 37 von 49 | 26 von 35 |
+  | nach b118 | 0 von 49 | 0 von 35 |
+  | Umformulierung 118b, erster Lauf nach b118 | 9 von 49 | 8 von 35 |
+  | Umformulierung 118b, nach Korrektur | 0 von 49 | 0 von 35 |
+
+  Die Umformulierungen trafen diesmal besser (117b: 14 und 10). Fehlende Unterfälle waren etwa Schimmel hinter dem
+  Schrank, Wäsche, die drinnen trocknet, „zweites Gespräch“ statt „letzte Runde“, ein interner Bewerber, Geld in der
+  Familie statt unter Freunden und „er“ statt „sie“ beim Kleinkind.
+
+  Gefundene Fehler (allgemein behoben):
+  - „ok i'll try to stay up until 10“ wurde als Wohnort „10“ gemerkt („stay“ zählte als „wohnen“). Uhrzeiten und
+    „stay up“ sind jetzt nie ein Wohnort.
+  - „thanks, we'll try that“ bekam zwei Antworten („Happy to help! That makes it even harder …“). Dank plus Vorhaben
+    ist jetzt eine Antwort; ein Vorhaben („we'll try that“) setzt nie mehr eine schlechte Nachricht fort.
+  - „thanks, i'll try that“ nach einem Rat bekam die Antwort für einen zweiten Prüfungsversuch („you'll go in knowing
+    more than last time“). Jetzt: „Good plan. I hope it helps!“
+
+  Routine gegen b117 (bbf0f3b): DEV-Satz unverändert, alle 80 Batterieausgaben (b32–b106b) identisch.
+
+  Messung: NQ 22/9; Suite 817 bestanden. Gesprächsproben 111–118 (mit 117b und 118b), Generisch, Held-out, Follow
+  und Stimmung stehen bei 0; Wiederholungen 5 von 700 wie zuvor. Test 118 hält 14 Gespräche fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

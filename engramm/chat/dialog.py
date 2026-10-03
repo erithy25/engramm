@@ -348,6 +348,8 @@ _BEEN_FEELING = re.compile(r"^(?:honestly,? |tbh,? |so,? )?(?:i'?ve|i have|ive) 
 _DOWN_VAGUE = re.compile(r"^(?:nothing (?:specific|in particular|really)|i don'?t know,? )?(?:,? ?(?:just )?(?:everything|life|all of it|"
                          r"a bit of everything|it'?s just everything|everything really))[.!]*$|^nothing specific[.!]*$")
 _TALK_HELPS = re.compile(r"^(?:maybe |i guess |i think )?(?:talking|talking about it|just talking) (?:helps|might help|could help|would help)[.!]*$")
+# "we'll try that", "ok i'll do that": a plan after advice, never more of the bad news
+_PLAN_ACK = re.compile(r"^(?:ok(?:ay)?,? |alright,? |sure,? )?(?:i'?ll|we'?ll|i will|we will) (?:try|do|give|test|look into|think about) (?:that|it|this|those|them)\b")
 _SARCASM = re.compile(r"^(?:yeah|oh|ah|yep|sure)[,!.]? (?:sure|right|totally|definitely)[,!.]* i (?:just )?(?:love|adore|enjoy|really love)"
                       r" (?P<x>[a-z0-9 ',-]{2,40}?)[.!]*(?: ?(?:lol|haha|🙄|😒))?$")
 _SARC_MONDAY = re.compile(r"^(?:oh |ah |ugh,? )?(?:great|yay|fantastic|wonderful|perfect|lovely|awesome|brilliant)[,!.]* (?:another|it'?s|its) "
@@ -1009,7 +1011,7 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_mem67(st, msg, s) or self._german_ctx117(st, msg, s) or self._german_ctx116(st, msg, s) or self._german_ctx115(st, msg, s) or self._german_ctx114(st, msg, s) or self._german_ctx113(st, msg, s) or self._german_ctx112(st, msg, s) or self._german_ctx111(st, msg, s) or self._german_ctx104(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx118(st, msg, s) or self._german_ctx117(st, msg, s) or self._german_ctx116(st, msg, s) or self._german_ctx115(st, msg, s) or self._german_ctx114(st, msg, s) or self._german_ctx113(st, msg, s) or self._german_ctx112(st, msg, s) or self._german_ctx111(st, msg, s) or self._german_ctx104(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
@@ -1530,6 +1532,137 @@ class Assistant:
             if pen:
                 st.uses["trip_de"] = [pen, kw.get("X", sl.get("o", "").capitalize()), st.turn]
         return Reply(msg, "empathy", self._pick(st, f"de:moments:{k2}", mb[k2], **kw), via="german")
+
+    def _german_ctx118(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 118 in German: Schimmel im Bad, Sonnenbrand, Kater, Absage nach der letzten Runde, ein Freund schuldet
+        Geld, das Auto springt nicht an."""
+        b = (self.bank.daily.get("b118") or {}).get("de")
+        if not b:
+            return None
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:%-]", " ", s)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:b118:{key}", b[key], **kw), via="german")   # noqa: E731
+        c = st.uses.get("c118")
+        topic = c[0] if c and st.turn - c[1] <= 5 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c118"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        tipps = bool(re.fullmatch(r"(?:hast du )?(?:ein paar |irgendwelche )?(?:tipps|tricks|ideen|ratschläge|hausmittel)(?: für mich| dagegen)?|was soll ich (?:tun|machen)", q))
+        frage = "?" in msg
+        if re.search(r"\b(?:schimmel) (?:im|in der|in unserem|in meinem|an der|an den) (?:bad|badezimmer|dusche|schlafzimmer|küche|wand|wänden|decke|fenster)\b|\b(?:haben|hab|habe) schimmel\b", q) and not frage:
+            keep("mould")
+            return say("mould_start")
+        if re.search(r"\bsonnenbrand\b", q) and not frage:
+            keep("sun")
+            return say("sun_start")
+        if re.search(r"\b(?:hab|habe) (?:so )?(?:einen|nen|'nen) (?:riesigen |fetten |heftigen |übelst(?:en)? )?kater\b|\bverkatert\b", q) and not frage:
+            keep("hang")
+            return say("hang_start")
+        if re.search(r"\b(?:stelle|job|zusage) nicht bekommen\b|\b(?:eine )?absage bekommen\b|\bdie haben (?:mir )?abgesagt\b", q) and not frage:
+            keep("job")
+            return say("job_start")
+        mm = re.search(r"\b(?:ein|mein|meine) (?P<w>freund|freundin|bruder|schwester|kollege|kollegin|cousin|mitbewohner(?:in)?) schuldet mir\b|\b(?:hab|habe) (?:meinem|meiner|einem|einer) (?P<w2>freund|freundin|bruder|schwester|kollegen|kollegin) geld geliehen\b", q)
+        if mm and not frage:
+            w = mm.group("w") or mm.group("w2") or "freund"
+            weiblich = w in ("freundin", "schwester", "kollegin", "mitbewohnerin")
+            keep("money", pron="sie" if weiblich else "ihn", dat="ihr" if weiblich else "ihm")
+            return say("money_start_family" if w in ("bruder", "schwester", "cousin") else "money_start")
+        if re.search(r"\b(?:mein |unser |das )?auto springt nicht (?:mehr )?an\b", q) and not frage:
+            keep("car")
+            return say("car_start")
+        if topic == "mould":
+            if re.search(r"\bhinter (?:dem|der|unserem|meinem) (?:schrank|bett|sofa|regal|kommode|möbeln?)\b", q) and not frage:
+                keep("mould")
+                return say("mould_behind")
+            if re.search(r"\b(?:schwarz|grün|ecken?|decke|fugen|silikon|fenster|wand)\b", q) and not frage:
+                keep("mould")
+                return say("mould_where")
+            if re.search(r"\bwäsche\b", q) and not frage:
+                keep("mould")
+                return say("mould_laundry")
+            if re.search(r"\b(?:duschen|dusche|baden|kein fenster|kein lüfter)\b", q) and not frage:
+                keep("mould")
+                return say("mould_shower")
+            if re.fullmatch(r"(?:und |also )?wie (?:werde|werden|krieg|kriege|bekomme) (?:ich|wir) (?:den|ihn|das|den schimmel) (?:wieder )?(?:los|weg)|was hilft (?:gegen schimmel|dagegen)", q) or tipps:
+                keep("mould")
+                return say("mould_how")
+            if re.search(r"\b(?:schimmelspray|schimmelentferner|anti-schimmel|chlor)\b", q) and not frage:
+                keep("mould")
+                return say("mould_spray")
+        if topic == "sun":
+            if re.search(r"\b(?:knallrot|rot|brennt|heiß|blasen|pellt)\b", q) and not frage:
+                keep("sun")
+                return say("sun_blister" if "blasen" in q else "sun_red")
+            if re.search(r"\btut (?:so |total )?weh\b|\bschmerzt\b", q) and not frage:
+                keep("sun")
+                return say("sun_hurts")
+            if re.fullmatch(r"(?:und |aber )?was hilft(?: dagegen)?|was kann ich (?:da )?(?:machen|draufmachen)", q) or tipps:
+                keep("sun")
+                return say("sun_help")
+            if re.search(r"\b(?:aloe|after-?sun|quark)\b", q) and not frage:
+                keep("sun")
+                return say("sun_aloe")
+        if topic == "hang":
+            if re.search(r"\b(?:geburtstag|party|feier|hochzeit|unterwegs|feiern|getrunken|kneipe|bar|club)\b", q) and not frage:
+                keep("hang")
+                return say("hang_party")
+            if re.search(r"\b(?:kopf|kopfschmerzen)\b.*\b(?:dröhnt|brummt|platzt|tut weh)\b|\bkopfschmerzen\b", q) and not frage:
+                keep("hang")
+                return say("hang_head")
+            if re.search(r"\bmir ist (?:so |total |echt )?(?:übel|schlecht)\b|\bmuss mich übergeben\b|\bgekotzt\b", q) and not frage:
+                keep("hang")
+                return say("hang_sick")
+            if re.fullmatch(r"(?:und |also )?was hilft(?: dagegen)?|wie werde ich (?:den|ihn) los", q) or tipps:
+                keep("hang")
+                return say("hang_tips")
+            if re.search(r"\bnie wieder\b", q):
+                keep("hang")
+                return say("hang_never")
+        if topic == "job":
+            if re.search(r"\b(?:letzten|finalen) (?:runde|gespräch|auswahlrunde)\b|\bso knapp\b", q) and not frage:
+                keep("job")
+                return say("job_final")
+            if re.search(r"\b(?:zweite|zweiten|dritte|dritten) (?:runde|gespräch|vorstellungsgespräch)\b", q) and not frage:
+                keep("job")
+                return say("job_second")
+            if re.search(r"\b(?:internen|interne|intern)\b", q) and not frage:
+                keep("job")
+                return say("job_internal")
+            if re.search(r"\b(?:jemanden|jemand anderen|einen anderen|eine andere) (?:mit mehr erfahrung )?(?:genommen|gewählt|eingestellt)\b|\bmehr erfahrung\b", q) and not frage:
+                keep("job")
+                return say("job_exp" if "erfahrung" in q else "job_other")
+            if re.search(r"\b(?:wollte|wollt) (?:den job|die stelle|das) (?:wirklich|unbedingt|so gern)\b|\btraumjob\b", q) and not frage:
+                keep("job")
+                return say("job_wanted")
+        if topic == "money":
+            pr = {"pron": info.get("pron", "ihn"), "y": info.get("dat", "ihm")}
+            if re.fullmatch(r"(?:schon |jetzt )?seit (?:einem|einer|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|elf|zwölf|ein paar|mehreren|\d+) (?:wochen|woche|monaten|monat|jahren|jahr)", q):
+                keep("money")
+                return say("money_long")
+            if re.search(r"\bwechselt (?:er|sie) (?:immer |jedes mal )?das thema\b|\b(?:weicht|lenkt) (?:er|sie)? ?(?:aus|ab)\b|\b(?:vertröstet|ignoriert) (?:er|sie)? ?mich\b", q) and not frage:
+                keep("money")
+                return say("money_dodge")
+            if re.fullmatch(r"(?:und |aber )?wie (?:spreche|sprech|sag) ich (?:das|es) (?:an|ihm|ihr)|wie (?:frage|frag) ich (?:nach dem geld|ihn|sie)(?: danach)?", q) or tipps:
+                keep("money")
+                return say("money_how", **pr)
+            if re.search(r"\b(?:red|rede|sprech|spreche) (?:am wochenende |morgen |bald )?mit (?:ihm|ihr)\b|\b(?:ruf|rufe) (?:ihn|sie) (?:am wochenende |morgen |heute |bald )?an\b|\b(?:ruf|rufe) (?:am wochenende |morgen |heute |bald )?(?:ihn|sie) an\b", q):
+                keep("money")
+                return say("money_talk")
+        if topic == "car":
+            if re.search(r"\bklickt\b|\bklicken\b", q) and not frage:
+                keep("car")
+                return say("car_click")
+            if re.search(r"\b(?:licht|lichter|armaturen\w*)\b.*\b(?:schwach|dunkel|flackert|flackern)\b", q) and not frage:
+                keep("car")
+                return say("car_dim")
+            if re.fullmatch(r"(?:und |also )?(?:ist (?:das|es) die batterie|ist die batterie leer|liegt (?:das|es) an der batterie)", q):
+                keep("car")
+                return say("car_battery")
+            if re.search(r"\b(?:starthilfekabel|überbrückungskabel|starthilfe|powerbank)\b", q) and not frage:
+                keep("car")
+                return say("car_cables")
+        return None
 
     def _german_ctx117(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """Battery 117 in German: ausgesperrt, misslungener Haarschnitt, vergessener Geburtstag, Zahnschmerzen,
@@ -5588,6 +5721,9 @@ class Assistant:
         if any(u.intent == "compliment_bot" for u in units):
             # "thanks! you're smart": one warm reply ("Aw, thanks!"), not "You're welcome! Aw, thanks!"
             units = [u for u in units if u.intent != "thanks"] or units
+        if len(units) == 2 and any(u.intent == "thanks" for u in units) and \
+                any(u.intent != "thanks" and _PLAN_ACK.match(u.norm) for u in units):
+            units = [u for u in units if u.intent == "thanks"]   # "thanks, we'll try that": one thank-you, not a second reply
         for u in units:
             if u.act in ("statement", "feeling") and self.everyday.activity_title(u.text):
                 learn.append(u)                  # "I just finished The Quiet Orchard": ask about it (see _learn)
@@ -6333,7 +6469,7 @@ class Assistant:
             st.uses["wedding"] = st.turn
         if _HONOUR.match(norm):
             return Reply(msg, "smalltalk", self._pick(st, "daily:wedding_role", d["wedding_role"]), via="empathy")
-        if le and st.turn - le.get("turn", -99) <= 2 and _FOLLOW_STATEMENT.match(norm) and experience(norm) is None and \
+        if le and st.turn - le.get("turn", -99) <= 2 and _FOLLOW_STATEMENT.match(norm) and experience(norm) is None and not _PLAN_ACK.match(norm) and \
                 not _FEELING_WORD.search(norm) and "?" not in msg and len(norm.split()) <= 10 and \
                 not set(r for f in facts_from_text(msg, "x") for r in f.relation) & _CATEGORY_LABELS:
             key = "exp_follow_neg" if le.get("valence") == "negative" else "exp_follow_pos"
@@ -6534,6 +6670,8 @@ class Assistant:
             ln = st.last_exp or {}
             key = "get_well" if sk2 is not None and st.turn - sk2 <= 6 else \
                 "try_again" if ln.get("valence") == "negative" and st.turn - ln.get("turn", -99) <= 4 else "future_plan"
+            if key != "get_well" and _PLAN_ACK.match(re.sub(r"^(?:ok(?:ay)?,? |thanks,? |thank you,? |good idea,? |alright,? )+", "", norm.strip())):
+                key = "talk_try"                          # "thanks, i'll try that": the advice just given, not a second attempt at something
             return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key]), via="smalltalk")
         sk = st.uses.get("sick")
         if sk is not None and st.turn - sk <= 5 and re.fullmatch(r"(?:so |but |and )?(?:should|can|do) i (?:still )?(?:go to|go into|go in to) "
@@ -7343,7 +7481,7 @@ class Assistant:
                                                      r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
             # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
             return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
-        evr = self._sounds(st, msg, norm) or self._daily_ctx31(st, msg, norm) or self._daily_ctx30(st, msg, norm) or self._daily_ctx29(st, msg, norm) or self._daily_ctx28(st, msg, norm) or self._daily_ctx27(st, msg, norm) or self._daily_ctx26(st, msg, norm) or self._daily_ctx25(st, msg, norm) or self._daily_ctx24(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
+        evr = self._sounds(st, msg, norm) or self._daily_ctx32(st, msg, norm) or self._daily_ctx31(st, msg, norm) or self._daily_ctx30(st, msg, norm) or self._daily_ctx29(st, msg, norm) or self._daily_ctx28(st, msg, norm) or self._daily_ctx27(st, msg, norm) or self._daily_ctx26(st, msg, norm) or self._daily_ctx25(st, msg, norm) or self._daily_ctx24(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
             self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
@@ -7455,7 +7593,7 @@ class Assistant:
                         return Reply(msg, "answer", self._pick(st, "daily:person_likes_answer", d["person_likes_answer"],
                                                                x=name, y=_cuisine_case(lm.group(1))), via="facts")
         return self._daily_ctx25_late(st, msg, norm) or self._daily_ctx28_late(st, msg, norm) or \
-            self._daily_ctx29(st, msg, norm, late=True) or self._daily_ctx30(st, msg, norm, late=True) or self._daily_ctx31(st, msg, norm, late=True)   # batteries 111/114/115/116/117: only where every other flow stayed silent
+            self._daily_ctx29(st, msg, norm, late=True) or self._daily_ctx30(st, msg, norm, late=True) or self._daily_ctx31(st, msg, norm, late=True) or self._daily_ctx32(st, msg, norm, late=True)   # batteries 111/114–118: only where every other flow stayed silent
 
     def _daily_ctx2(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 43: "same lol" after "how are you?", "that's sad" about ENGRAMM itself, why someone moved,
@@ -8306,6 +8444,187 @@ class Assistant:
             st.uses["fun_fact_seen"] = list(seen | {pick})
             return shown, pick, found.source, False
         return shown, found.sentences[0], found.source, True
+
+    def _daily_ctx32(self, st: DialogState, msg: str, norm: str, late: bool = False) -> Reply | None:
+        """Battery 118: mould in the bathroom, sunburn, a hangover, jet lag, not getting a job after the final round, a
+        friend who owes money, a toddler who won't sleep, and a car that won't start."""
+        b = self.bank.daily.get("b118")
+        if not b:
+            return None
+        n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", norm)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b118:{key}", b[key], **kw), via="everyday")  # noqa: E731
+        c = st.uses.get("c118")
+        topic = c[0] if c and st.turn - c[1] <= 5 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c118"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        tips = bool(re.fullmatch(r"(?:any |some |got any |do you have any )?(?:tips|advice|ideas|tricks|remedies)(?: for (?:me|that|this|it))?|what (?:should|can) (?:i|we) do", n))
+        q = "?" in msg
+        if late:                                          # a start no existing flow answered
+            if c and c[1] == st.turn and c[0] in ("job",):
+                from engramm.chat import moments
+                if moments.match(re.sub(r"[^\w\s'-]", " ", norm), "en"):
+                    return None
+                return say(f"{c[0]}_start")
+            return None
+        # -- topic starts --------------------------------------------------------------------------------------
+        if re.search(r"\b(?:there'?s|there is|we have|i have|we'?ve got|i'?ve got|got) (?:some |black |a lot of )?(?:mould|mold) (?:in|on)\b|\b(?:mould|mold) (?:in|on) (?:the|our|my) (?:bathroom|shower|bedroom|ceiling|walls?|kitchen|window)\b", n) and not q:
+            keep("mould")
+            return say("mould_start")
+        if re.search(r"\b(?:got|am|'m|i'?m) (?:really |so |badly |pretty )?(?:sunburnt|sunburned)\b|\b(?:bad |terrible |awful )?sunburn\b", n) and not q:
+            keep("sun")
+            return say("sun_start")
+        if re.search(r"\b(?:i'?m|i am|feeling|feel) (?:so |really |super |very |pretty )?hung ?over\b|\b(?:terrible |awful |bad |massive )?hangover\b", n) and not q:
+            keep("hang")
+            return say("hang_start")
+        if re.search(r"\b(?:the )?jet ?lag (?:is|'s) (?:killing|destroying|wrecking) me\b|\bi (?:have|'ve got|got) (?:bad |terrible |awful )?jet ?lag\b|\bso jet ?lagged\b|\bjet ?lag is (?:awful|terrible|brutal|bad)\b", n) and not q:
+            keep("jet")
+            return say("jet_start")
+        if re.search(r"\bi (?:didn'?t|did not) get the (?:job|position|role|offer)\b|\b(?:got|received) (?:a )?rejection (?:email|letter|call)?\b.*\b(?:job|interview|application)\b|\bthey (?:rejected|turned) me down\b", n) and not q:
+            keep("job")
+            return None                                   # the existing "setbacks like this" reply comes first
+        mm = re.search(r"\bmy (?P<w>friend|best friend|brother|sister|cousin|colleague|roommate|flatmate|ex) owes me (?:about |around )?(?P<x>[\d.,]+ ?(?:euros?|eur|€|dollars?|\$|pounds?|£|bucks)?|money)\b|\b(?:lent|loaned) (?:my )?(?P<w2>friend|brother|sister|cousin|colleague) (?:some )?(?:money|[\d.,]+ ?(?:euros?|€|dollars?|pounds?))\b", n)
+        if mm and not q:
+            who = mm.group("w") or mm.group("w2") or "friend"
+            keep("money", who=who)
+            return say("money_start_family" if who in ("brother", "sister", "cousin") else "money_start")
+        if re.search(r"\bmy (?:toddler|baby|little one|(?:\d|two|three|one)[- ]year[- ]old|daughter|son|kid) (?:won'?t|doesn'?t|does not|will not|refuses to) (?:sleep|go to sleep|go to bed|settle|stay in (?:her|his) bed)\b", n) and not q:
+            keep("tod")
+            return say("tod_start")
+        if re.search(r"\bmy car (?:won'?t|doesn'?t|will not|does not) start\b|\bcar (?:won'?t|doesn'?t) start\b", n) and not q:
+            keep("car")
+            return say("car_start")
+        # -- inside a topic ------------------------------------------------------------------------------------
+        if topic == "mould":
+            if re.search(r"\bbehind (?:the |a |our |my )?(?:wardrobe|closet|cupboard|bed|sofa|couch|furniture|shelf|dresser)\b", n) and not q:
+                keep("mould")
+                return say("mould_behind")
+            if re.search(r"\b(?:black|green|corners?|ceiling|grout|silicone|window|walls?)\b", n) and not q:
+                keep("mould")
+                return say("mould_where")
+            if re.search(r"\b(?:dry|drying|hang|hanging) (?:our |the |my )?(?:laundry|washing|clothes)\b", n) and not q:
+                keep("mould")
+                return say("mould_laundry")
+            if re.search(r"\b(?:shower|showers|bath|baths|no window|no fan|steam)\b", n) and not q:
+                keep("mould")
+                return say("mould_shower")
+            if re.fullmatch(r"(?:so |ok |and )?how (?:do|can|should) (?:i|we) (?:get rid of|remove|clean|kill|treat) (?:it|the mould|the mold|that)|what (?:kills|removes) (?:it|mould|mold)", n) or tips:
+                keep("mould")
+                return say("mould_how")
+            if re.search(r"\b(?:buy|get|use|try) (?:some |a )?(?:mould|mold|anti-mould|anti-mold) (?:spray|remover|cleaner)\b|\bbleach\b", n) and not q:
+                keep("mould")
+                return say("mould_spray")
+        if topic == "sun":
+            if re.search(r"\b(?:red|bright red|lobster|burning|hot|peeling|blisters?)\b", n) and not q:
+                keep("sun", blis="blister" in n)
+                return say("sun_blister" if "blister" in n else "sun_red")
+            if re.search(r"\bhurts?\b|\bpainful\b|\bcan'?t (?:sleep|wear)\b", n) and not q:
+                keep("sun")
+                return say("sun_hurts")
+            if re.fullmatch(r"(?:so |and |but )?what (?:helps|works|can i (?:do|put on it))|how (?:do|can) i (?:treat|soothe|cool) (?:it|this)", n) or tips:
+                keep("sun")
+                return say("sun_help")
+            if re.search(r"\baloe(?: vera)?\b|\bafter ?sun\b", n) and not q:
+                keep("sun")
+                return say("sun_aloe")
+        if topic == "hang":
+            if re.search(r"\b(?:went out|party|birthday|wedding|drinks|drank|bar|club|celebrat)\w*", n) and not q:
+                keep("hang")
+                return say("hang_party")
+            if re.search(r"\b(?:head|headache)\b.*\b(?:pounding|hurts|killing|splitting|throbbing)\b|\bheadache\b", n) and not q:
+                keep("hang")
+                return say("hang_head")
+            if re.search(r"\b(?:feel (?:so |really )?sick|nauseous|queasy|want to throw up|threw up|been sick)\b", n) and not q:
+                keep("hang")
+                return say("hang_sick")
+            if re.fullmatch(r"(?:so |and )?what (?:helps|works)|how (?:do|can) i (?:get rid of|cure|survive) (?:it|this|a hangover)", n) or tips:
+                keep("hang")
+                return say("hang_tips")
+            if re.search(r"\bnever (?:again|drinking again)\b", n):
+                keep("hang")
+                return say("hang_never")
+        if topic == "jet":
+            mf = re.search(r"\b(?:flew|got|came|just got) back from (?P<x>[a-z][a-z ]{1,25}?)(?: yesterday| today| last night| on \w+day)?$", n)
+            if mf and not q:
+                keep("jet")
+                return say("jet_from", x=" ".join(w.capitalize() for w in mf.group("x").split()))
+            if re.search(r"\b(?:awake|up|woke up) (?:at|since) (?:\d|four|five|three)\w*\b|\bcan'?t sleep\b|\bwide awake\b", n) and not q:
+                keep("jet")
+                return say("jet_early")
+            if re.fullmatch(r"(?:so |and |but )?how long (?:does|will) (?:it|this|jet ?lag) (?:last|take)|when (?:does|will) it (?:stop|go away|get better)", n):
+                keep("jet")
+                return say("jet_last")
+            if re.search(r"\bstay (?:up|awake) (?:until|till)\b|\b(?:go to bed|sleep) at (?:a normal|the normal|\d)", n) and not q:
+                keep("jet")
+                return say("jet_stay")
+            if tips or re.fullmatch(r"(?:so |and )?what (?:helps|works)|how (?:do|can) i (?:beat|get over|fix) (?:it|this|jet ?lag)", n):
+                keep("jet")
+                return say("jet_tips")
+        if topic == "job":
+            if re.search(r"\b(?:final|last) (?:round|stage|interview)\b|\bso close\b", n) and not q:
+                keep("job")
+                return say("job_final")
+            if re.search(r"\b(?:second|third|2nd|3rd) (?:interview|round)\b", n) and not q:
+                keep("job")
+                return say("job_second")
+            if re.search(r"\binternal (?:candidate|applicant|hire|person)\b|\bsomeone (?:from )?inside\b", n) and not q:
+                keep("job")
+                return say("job_internal")
+            if re.search(r"\b(?:chose|picked|hired|went with|took) (?:someone|somebody|another)\b|\bmore experience\b", n) and not q:
+                keep("job")
+                return say("job_exp" if "experience" in n else "job_other")
+            if re.search(r"\bi (?:really )?wanted (?:it|that job|this job|the job)\b|\bdream job\b|\bwas perfect for me\b", n) and not q:
+                keep("job")
+                return say("job_wanted")
+        if topic == "money":
+            w = info.get("who", "friend")
+            pron = "her" if w in ("sister",) else "him"
+            if re.fullmatch(r"(?:it'?s been|for|since) (?:about |almost |over )?(?:a|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|several|a few|\d+) (?:weeks?|months?|years?)(?: now)?", n):
+                keep("money")
+                return say("money_long")
+            if re.search(r"\b(?:changes the subject|avoids? (?:it|me|the topic)|ignores? (?:me|it)|makes excuses|says (?:next week|soon|later))\b", n) and not q:
+                keep("money")
+                return say("money_dodge")
+            if re.fullmatch(r"(?:so |but |and )?how (?:do|can|should) i (?:bring it up|ask (?:for it|him|her|them)(?: for it)?(?: back)?|get it back|talk to (?:him|her|them)(?: about it)?)(?: without (?:ruining|hurting|damaging|losing) (?:the|our) friendship)?|what should i say", n) or tips:
+                keep("money")
+                return say("money_how", pron=pron)
+            if re.search(r"\b(?:i'?ll|i will|going to|gonna) (?:talk to|speak to|ask|call|text) (?:him|her|them)\b", n):
+                keep("money")
+                return say("money_talk")
+        if topic == "tod":
+            ma = re.fullmatch(r"(?:she|he)(?:'s| is) (?:only |just )?(?P<a>one|two|three|four|\d)(?: years? old)?|(?:she|he) just turned (?P<b>one|two|three|\d)", n)
+            if ma:
+                keep("tod", he=n.startswith("he"))
+                return say("tod_age")
+            if re.search(r"\b(?:screams?|cries|crying|screaming|panics?|freaks out)\b.*\b(?:leave|leaves|out of the room|door)\b", n) and not q:
+                keep("tod")
+                he = bool(re.match(r"he\b", n)) or info.get("he")
+                return say("tod_screams", subject="he" if he else "she")
+            if re.search(r"\b(?:exhausted|so tired|wiped out|running on empty|haven'?t slept|zombies|no sleep)\b", n) and not q:
+                keep("tod")
+                return say("tod_tired")
+            if re.fullmatch(r"(?:so |and |but )?what (?:can|should|could) (?:we|i) (?:try|do)|how (?:do|can) (?:we|i) get (?:her|him|them) to sleep", n) or tips:
+                keep("tod")
+                return say("tod_try")
+            if re.search(r"\b(?:we'?ll|i'?ll|will) try (?:that|it|this)\b", n):
+                keep("tod")
+                return say("tod_ok")
+        if topic == "car":
+            if re.search(r"\bclick(?:s|ing)?\b", n) and not q:
+                keep("car")
+                return say("car_click")
+            if re.search(r"\b(?:lights?|dashboard)\b.*\b(?:dim|weak|flicker\w*|barely)\b", n) and not q:
+                keep("car")
+                return say("car_dim")
+            if re.fullmatch(r"(?:so |and )?is it (?:the|my) battery|(?:could|might) it be the battery|is the battery (?:dead|flat)", n):
+                keep("car")
+                return say("car_battery")
+            if re.search(r"\bjump(?:er)? (?:cables|leads|start)\b|\bjump ?starter\b|\bbooster\b", n) and not q:
+                keep("car")
+                return say("car_cables")
+        return None
 
     def _daily_ctx31(self, st: DialogState, msg: str, norm: str, late: bool = False) -> Reply | None:
         """Battery 117: locked out at night, a bad haircut before a wedding, a forgotten birthday, toothache, a
@@ -12449,7 +12768,7 @@ class Assistant:
                 if key == "talk_tough":
                     st.last_exp = {"valence": "negative", "topic": None, "person": False, "text": text, "turn": st.turn}
                 return self._pick(st, f"daily:{key}", d[key])
-        if le and st.turn - le.get("turn", -99) <= 2 and not re.search(r"\b(?:you|your)\b", norm):
+        if le and st.turn - le.get("turn", -99) <= 2 and not re.search(r"\b(?:you|your)\b", norm) and not _PLAN_ACK.match(norm):
             key = "exp_follow_neg" if le.get("valence") == "negative" else "exp_follow_pos"
             return self._pick(st, f"daily:{key}", d[key])
         val = _valence(norm)
@@ -12753,7 +13072,8 @@ class Assistant:
             return
         if le and st.turn - le.get("turn", -99) <= 2 and len(words) <= 5 and \
                 not re.search(r"\b(?:you|your)\b", u.text, re.I) and \
-                not re.search(r"\b(?:thanks|thank|thx|cheers|makes sense|sounds good|good idea|got it|fair enough|will do)\b", u.norm):   # "makes sense, thanks" closes, never continues
+                not re.search(r"\b(?:thanks|thank|thx|cheers|makes sense|sounds good|good idea|got it|fair enough|will do)\b", u.norm) and \
+                not re.match(r"(?:ok(?:ay)?,? |alright,? )?(?:i'?ll|we'?ll|i will|we will|i'?m going to|we'?re going to)\b", u.norm):   # "makes sense, thanks" / "we'll try that" close, never continue
 
             key = "exp_more_neg" if le.get("valence") == "negative" or re.search(
                 r"\b(?:hurt|hurts|pain|painful|sad|bad|awful|terrible|annoying|annoyed|sucked|sucks|worse|tired|scary|scared)\b", u.norm) else "exp_more_pos"
