@@ -65,7 +65,7 @@ purposes:
       close: ["Thanks a lot!"]
 
   day_off:
-    keys: ['day off', 'days off', 'time off', 'vacation', 'holiday', 'annual leave', 'leave of absence', 'personal day', 'take (?:a |the )?(?:day|week|afternoon|morning) off', 'take leave']
+    keys: ['day off', 'days off', 'time off', 'vacation', 'holiday', 'annual leave', 'leave of absence', 'personal day', 'take (?:a |the )?(?:day|week|afternoon|morning) off', 'take leave', '(?:tomorrow|today|friday|monday|tuesday|wednesday|thursday|the day|a day|next week) off']
     subject: ["Request for a Day Off {date_title}", "Time-Off Request {date_title}"]
     formal:
       open: ["I hope you are well.", "I hope this message finds you well."]

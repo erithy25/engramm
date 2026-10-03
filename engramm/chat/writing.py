@@ -292,7 +292,7 @@ def _topic_title(req: WritingRequest) -> str:
         return "Hello"
     if re.match(r"^(?:asking|to ask|ask|whether|if)\b", pt, re.I):
         return "A Quick Question"
-    pt = re.sub(r"^(?:about|regarding|concerning|re:?)\s+", "", pt, flags=re.I)
+    pt = re.sub(r"^(?:about|regarding|concerning|re:?|that)\s+", "", pt, flags=re.I)
     return _title(_flip_recipient(pt)[:60])
 
 

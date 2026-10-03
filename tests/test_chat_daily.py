@@ -3577,3 +3577,34 @@ def test_battery100_german_film_training_family(chat):
     a.turn(st, "hat mir gut gefallen")
     assert "“Dark”" not in a.turn(st, "was soll ich jetzt schauen?").text
     assert "Kochen" not in a.turn(DialogState("b100"), "ich geh dann mal").text
+
+
+def test_battery101_trip_writing_knowledge_follow_ups(chat):
+    a, _ = chat
+    st = DialogState("t101")
+    a.turn(st, "i'm planning a trip to japan")
+    assert "cherry blossom" in a.turn(st, "in april").text
+    a.turn(st, "what should i see there?")
+    t = a.turn(st, "how long is the flight from germany?").text
+    assert "13–14 hours" in t, t
+    assert "Germany is" not in a.turn(st, "is it expensive?").text
+    assert "yen" in a.turn(st, "what's the currency?").text
+    assert "arigatō" in a.turn(st, "cool, how do you say thank you in japanese?").text
+    assert "ramen" in a.turn(st, "nice. what food should i try?").text
+    assert "tonkatsu" in a.turn(st, "i don't like fish").text
+    st = DialogState("w101")
+    t = a.turn(st, "can you help me write a message to my boss?").text
+    assert "get in touch to get in touch" not in t and "?" in t, t
+    t = a.turn(st, "i need tomorrow off").text
+    assert "day off" in t and "tomorrow" in t, t
+    assert "because my kid is sick" in a.turn(st, "my kid is sick").text
+    assert "shorter" in a.turn(st, "make it shorter").text
+    st = DialogState("l101")
+    a.turn(st, "write an email to my landlord")
+    assert "has been broken since Monday" in a.turn(st, "the heating is broken since monday").text
+    st = DialogState("k101")
+    a.turn(st, "what's the capital of australia?")
+    a.turn(st, "how many people live there?")
+    assert "Australia" in a.turn(st, "and the biggest city?").text   # "Sydney" with the full pack; the test corpus lacks it
+    assert "1606" in a.turn(st, "who discovered australia?").text
+    assert "Duyfken" in a.turn(st, "when was that?").text

@@ -545,39 +545,40 @@ def money(message: str) -> ToolResult | None:
 
 
 _PHRASES = {
-    "hello": {"spanish": "hola", "french": "bonjour", "german": "hallo", "italian": "ciao", "portuguese": "olá"},
-    "hi": {"spanish": "hola", "french": "salut", "german": "hallo", "italian": "ciao", "portuguese": "oi"},
+    "hello": {"spanish": "hola", "french": "bonjour", "german": "hallo", "italian": "ciao", "portuguese": "olá", "japanese": "konnichiwa (こんにちは)"},
+    "hi": {"spanish": "hola", "french": "salut", "german": "hallo", "italian": "ciao", "portuguese": "oi", "japanese": "konnichiwa (こんにちは)"},
     "goodbye": {"spanish": "adiós", "french": "au revoir", "german": "auf Wiedersehen", "italian": "arrivederci",
-                "portuguese": "adeus"},
-    "bye": {"spanish": "adiós", "french": "salut", "german": "tschüss", "italian": "ciao", "portuguese": "tchau"},
+                "portuguese": "adeus", "japanese": "sayōnara (さようなら)"},
+    "bye": {"spanish": "adiós", "french": "salut", "german": "tschüss", "italian": "ciao", "portuguese": "tchau", "japanese": "jā ne (じゃあね)"},
     "thank you": {"spanish": "gracias", "french": "merci", "german": "danke", "italian": "grazie",
-                  "portuguese": "obrigado / obrigada"},
+                  "portuguese": "obrigado / obrigada", "japanese": "arigatō (ありがとう) — more politely “arigatō gozaimasu”"},
     "thanks": {"spanish": "gracias", "french": "merci", "german": "danke", "italian": "grazie",
-               "portuguese": "obrigado / obrigada"},
+               "portuguese": "obrigado / obrigada", "japanese": "arigatō (ありがとう)"},
     "please": {"spanish": "por favor", "french": "s'il vous plaît", "german": "bitte", "italian": "per favore",
-               "portuguese": "por favor"},
-    "yes": {"spanish": "sí", "french": "oui", "german": "ja", "italian": "sì", "portuguese": "sim"},
-    "no": {"spanish": "no", "french": "non", "german": "nein", "italian": "no", "portuguese": "não"},
+               "portuguese": "por favor", "japanese": "onegaishimasu (お願いします) — when you ask for something"},
+    "yes": {"spanish": "sí", "french": "oui", "german": "ja", "italian": "sì", "portuguese": "sim", "japanese": "hai (はい)"},
+    "no": {"spanish": "no", "french": "non", "german": "nein", "italian": "no", "portuguese": "não", "japanese": "iie (いいえ)"},
     "good morning": {"spanish": "buenos días", "french": "bonjour", "german": "guten Morgen", "italian": "buongiorno",
-                     "portuguese": "bom dia"},
+                     "portuguese": "bom dia", "japanese": "ohayō gozaimasu (おはようございます)"},
     "good night": {"spanish": "buenas noches", "french": "bonne nuit", "german": "gute Nacht", "italian": "buona notte",
-                   "portuguese": "boa noite"},
+                   "portuguese": "boa noite", "japanese": "oyasuminasai (おやすみなさい)"},
     "how are you": {"spanish": "¿cómo estás?", "french": "comment ça va ?", "german": "wie geht's?",
-                    "italian": "come stai?", "portuguese": "como vai?"},
+                    "italian": "come stai?", "portuguese": "como vai?", "japanese": "o-genki desu ka? (お元気ですか)"},
     "i love you": {"spanish": "te quiero", "french": "je t'aime", "german": "ich liebe dich", "italian": "ti amo",
-                   "portuguese": "eu te amo"},
+                   "portuguese": "eu te amo", "japanese": "aishiteru (愛してる)"},
     "sorry": {"spanish": "lo siento", "french": "désolé", "german": "Entschuldigung", "italian": "scusa",
-              "portuguese": "desculpa"},
+              "portuguese": "desculpa", "japanese": "gomen nasai (ごめんなさい)"},
     "excuse me": {"spanish": "disculpe", "french": "excusez-moi", "german": "Entschuldigung", "italian": "mi scusi",
-                  "portuguese": "com licença"},
+                  "portuguese": "com licença", "japanese": "sumimasen (すみません)"},
     "cheers": {"spanish": "¡salud!", "french": "santé !", "german": "prost!", "italian": "salute!",
-               "portuguese": "saúde!"},
+               "portuguese": "saúde!", "japanese": "kanpai! (乾杯)"},
     "welcome": {"spanish": "bienvenido", "french": "bienvenue", "german": "willkommen", "italian": "benvenuto",
-                "portuguese": "bem-vindo"},
+                "portuguese": "bem-vindo", "japanese": "yōkoso (ようこそ)"},
     "my name is": {"spanish": "me llamo", "french": "je m'appelle", "german": "ich heiße", "italian": "mi chiamo",
-                   "portuguese": "meu nome é"},
+                   "portuguese": "meu nome é", "japanese": "watashi no namae wa … desu (私の名前は…です)"},
 }
-_LANGS = {"spanish": "Spanish", "french": "French", "german": "German", "italian": "Italian", "portuguese": "Portuguese"}
+_LANGS = {"spanish": "Spanish", "french": "French", "german": "German", "italian": "Italian", "portuguese": "Portuguese",
+          "japanese": "Japanese"}
 _TRANSLATE = re.compile(r"^(?:how do (?:you|i) say|translate|what(?:'s| is))\s+[\"“']?(?P<p>[a-z' ]{1,30}?)[\"”']?\s+"
                         r"(?:in|to|into)\s+(?P<l>[a-z]+)\s*\??$", re.I)
 
@@ -593,7 +594,8 @@ def translate(message: str) -> ToolResult | None:
         return None
     hit = _PHRASES.get(phrase, {}).get(lang)
     if hit:
-        return ToolResult("translate", f"In {_LANGS[lang]}, “{phrase}” is “{hit}”.", hit)
+        main, _, note = hit.partition(" — ")          # "arigatō (ありがとう) — more politely …": the note outside the quotes
+        return ToolResult("translate", f"In {_LANGS[lang]}, “{phrase}” is “{main}”" + (f" — {note}." if note else "."), main)
     return ToolResult("translate", f"I only know a few everyday phrases in other languages — “{phrase}” in "
                                    f"{lang.capitalize()} isn't among them, sorry. A dictionary app will know.", None)
 

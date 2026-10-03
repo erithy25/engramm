@@ -3645,6 +3645,10 @@ class Assistant:
             st.uses["trip_ask"] = st.turn                     # "to greece" may follow
         if plm and rep.kind != "safety" and re.search(r"\b(?:vacation|holiday|trip|flying|travel)", message.lower()):
             st.uses["trip"] = [_place_case(plm.group(1).strip()), st.turn]
+        trip_now = st.uses.get("trip")
+        if plm and re.match(r"from\b", plm.group(0)) and trip_now and st.turn - trip_now[1] <= 12 and \
+                trip_now[0].lower() != plm.group(1).strip():
+            plm = None                                    # "how long is the flight from germany?" during a trip to Japan: still Japan
         if plm and plm.group(1).strip() in self.bank.daily.get("sights", {}) and rep.kind != "safety":
             st.uses["place_topic"] = [_place_case(plm.group(1).strip()), st.turn]   # "what should I see there?" may follow
         petm = re.search(r"\bmy (dog|cat|puppy|kitten|hamster|rabbit|bunny|parrot|bird|horse|guinea pig|turtle|tortoise|budgie)\b",
@@ -3995,6 +3999,16 @@ class Assistant:
             cmd = edit_command(msg) if writing_request(msg) is None else None
             if cmd is not None:
                 return self._edit_draft(st, msg, *cmd)
+            ld = st.last_draft
+            if ld.get("purpose") in ("day_off", "late", "extension", "cancel", "reschedule", "sick", "meeting", "apology") and \
+                    not ld.get("reason") and st.turn - st.draft_turn <= 2 and "?" not in msg and len(msg.split()) <= 12 and \
+                    re.match(r"(?i)\s*(?:because |it'?s because |since |the reason is )?(?:my|i|i'?m|i have|i've|we|we're|our)\b", msg):
+                # "my kid is sick" right after the day-off draft: the reason goes into the message
+                from engramm.chat.writing import WritingRequest
+                req = WritingRequest.from_dict(ld)
+                r_ = re.sub(r"(?i)^\s*(?:because |it'?s because |since |the reason is )", "", msg.strip().rstrip(".!"))
+                req.reason = "because " + re.sub(r"\bi\b", "I", r_[:1].lower() + r_[1:])
+                return self._show_draft(st, msg, req, note="I've added the reason:")
         if st.rps:
             st.rps = False
             m = re.fullmatch(r"(?:i (?:choose|pick|take) )?(rock|paper|scissors)", normalise(msg))
@@ -4289,6 +4303,12 @@ class Assistant:
                 # "can you help me write an email": ask who it's for and what about, like a person would
                 st.pending = {"slot": "draft_detail", "genre": req.genre, "turn": st.turn}
                 return Reply(text, "smalltalk", self._pick(st, "daily:draft_ask", self.bank.daily["draft_ask"], x=req.genre),
+                             via="writing")
+            if req.purpose == "generic" and not req.purpose_text and not req.item and not req.reason and not req.date:
+                # "help me write a message to my boss": ask what it should say instead of an empty "to get in touch"
+                st.pending = {"slot": "draft_purpose", "req": req.to_dict(), "turn": st.turn}
+                who = f"your {req.recipient}" if req.recipient else (req.recipient_name or "them")
+                return Reply(text, "smalltalk", self._pick(st, "daily:draft_ask_what", self.bank.daily["draft_ask_what"], x=who),
                              via="writing")
             return self._show_draft(st, text, req, intro=True)
         if task == "poem":
@@ -6689,6 +6709,92 @@ class Assistant:
         n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", norm)).strip(" .!?")
         say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b99:{key}", b[key], **kw), via="everyday")  # noqa: E731
         films = b["films"]
+        cq = re.search(r"\b(?:capital|president|prime minister|population|currency|official language|national anthem|flag) of (?P<c>[a-z][a-z ]{2,30}?)$", n)
+        if cq:
+            st.uses["country_q"] = [cq.group("c"), st.turn]   # "and the biggest city?" may follow
+        cy = st.uses.get("country_q")
+        if cy and st.turn - cy[1] <= 5 and re.fullmatch(r"(?:and |what about |how about |so )?(?:the |its )?(?:biggest|largest) city(?: there| then)?", n):
+            cy[1] = st.turn
+            return self._question(st, f"what is the largest city in {_place_case(cy[0])}?")
+        ff = re.fullmatch(r"(?:can you |could you )?(?:tell me|give me|do you know|share)(?: a| some| an| any)? (?:fun |interesting |cool |random |weird |amazing )?(?:fact|facts|thing|something)"
+                          r"(?: fun| interesting| cool)? about (?P<x>[a-z][a-z -]{2,30})|(?:a |any )?(?:fun|interesting|cool) facts? about (?P<x2>[a-z][a-z -]{2,30})", n)
+        topics_ctx23 = r"space|the universe|planets|stars|animals|the ocean|the sea|the human body|our body|history|science|food|nature"
+        if ff and not re.fullmatch(topics_ctx23, (ff.group("x") or ff.group("x2")).strip()):
+            x = (ff.group("x") or ff.group("x2")).strip()
+            seen = set(st.uses.get("fun_fact_seen", []))
+            found = self.about.find(x, n=10, max_chars=2400)
+            for sg in ([x[:-2], x[:-1]] if x.endswith("es") else [x[:-1]] if x.endswith("s") else []):
+                if found is None:
+                    found = self.about.find(sg, n=10, max_chars=2400)   # "octopuses" → "octopus"
+            if found is not None and found.sentences:
+                x = x if x.endswith("s") and not x.startswith("the ") else ("the " if x.startswith("the ") else "") + found.title
+                def fun_score(x_: str) -> int:
+                    sc = 2 * bool(re.search(r"\b(?:can|able to|up to|record|first|most|tallest|fastest|largest|biggest|smallest|oldest|longest|"
+                                            r"only|unique|world|surpass\w*|million|billion)\b", x_, re.I))
+                    sc += bool(re.search(r"\d", x_))
+                    sc -= 3 * bool(re.search(r"\b(?:term|refers? to|is used to describe|species of|subspecies|genus|family|classified|"
+                                             r"taxonom\w*|order|named after|may refer)\b", x_, re.I))
+                    return sc
+                cands = [(fun_score(x_), -k, x_) for k, x_ in enumerate(found.sentences[1:]) if 40 <= len(x_) <= 280 and x_ not in seen]
+                cands.sort(reverse=True)
+                if cands and cands[0][0] >= 2:
+                    pick = cands[0][2]
+                    st.uses["fun_fact_seen"] = list(seen | {pick})
+                    return Reply(msg, "about", self._pick(st, "daily:b101:fun_fact", self.bank.daily["b101"]["fun_fact"], x=x, y=pick),
+                                 source=found.source, evidence=pick, via="about")
+                return Reply(msg, "about", self._pick(st, "daily:b101:fun_fact_basic", self.bank.daily["b101"]["fun_fact_basic"], x=x,
+                                                      y=found.sentences[0]), source=found.source, evidence=found.sentences[0], via="about")
+        tb = self.bank.daily.get("b101")
+        if tb:
+            trip = st.uses.get("trip") if st.uses.get("trip") and st.turn - st.uses["trip"][1] <= 14 else None
+            pt = st.uses.get("place_topic") if st.uses.get("place_topic") and st.turn - st.uses["place_topic"][1] <= 10 else None
+            place = trip[0] if trip else (pt[0] if pt else None)
+            months = r"january|february|march|april|may|june|july|august|september|october|november|december"
+            mo = re.fullmatch(rf"(?:in |around |probably |maybe |early |late |mid |mid-|at the (?:start|end|beginning) of |next |this )*(?P<m>{months})(?: next year| this year)?", n)
+            if mo and trip and st.turn - trip[1] <= 3:      # "in april" right after "i'm planning a trip to japan"
+                trip[1] = st.turn
+                ck = tb["countries"].get(trip[0].lower(), trip[0].lower())
+                sp = tb["month_special"].get(f"{ck} {mo.group('m')}")
+                if sp:
+                    return Reply(msg, "smalltalk", sp, via="everyday")
+                return Reply(msg, "smalltalk", self._pick(st, "daily:b101:month_any", tb["month_any"], X=mo.group("m").capitalize()), via="everyday")
+            fl = re.fullmatch(r"(?:and |so )?how (?:long|many hours) (?:is|does|would|will) (?:the |a )?flight(?: take| be)?(?: from (?P<o>[a-z ]+?))?(?: to (?P<d>[a-z ]+?))?(?: from (?P<o2>[a-z ]+?))?|"
+                              r"(?:and |so )?how long (?:does it take|is it|would it take) to (?:fly|get) (?:there|to (?P<d2>[a-z ]+?))(?: from (?P<o3>[a-z ]+?))?", n)
+            if fl:
+                o_ = (fl.group("o") or fl.group("o2") or fl.group("o3") or "").strip()
+                d_ = (fl.group("d") or fl.group("d2") or "").strip() or (place or "").lower()
+                fk = d_ if d_ in tb["flight"] else tb["countries"].get(d_)
+                germany = {"germany", "frankfurt", "munich", "berlin", "hamburg", "düsseldorf", "dusseldorf", "cologne", "stuttgart", "here", ""}
+                if d_ and o_ in germany:
+                    if fk in tb["flight"]:
+                        return Reply(msg, "answer", tb["flight_lead"] + tb["flight"][fk], via="everyday",
+                                     source={"kind": "common", "source": "everyday facts", "key": ""})
+                    return Reply(msg, "smalltalk", self._pick(st, "daily:b101:flight_unknown", tb["flight_unknown"], x=_place_case(d_)), via="everyday")
+            cu = re.fullmatch(r"(?:and |so |ok,? )?(?:what(?:'s| is) the (?:local )?currency|what (?:money|currency) do they (?:use|have)|which currency do they use|what currency is used)"
+                              r"(?: there| in (?P<p>[a-z ]+?))?", n)
+            if cu and (cu.group("p") or place):
+                pl = (cu.group("p") or place).strip()
+                ck = tb["countries"].get(pl.lower())
+                if ck in tb["currency"]:
+                    shown = _place_case(pl) if pl.islower() else pl
+                    return Reply(msg, "answer", self._pick(st, "daily:b101:currency_says", tb["currency_says"], x=shown, y=tb["currency"][ck]),
+                                 via="everyday", source={"kind": "common", "source": "everyday facts", "key": ""})
+            fo = re.fullmatch(r"(?:ok,? |nice,? |cool,? |and |so )*(?:what (?:food|dishes|local food) (?:should|must|do i have to|can) i try(?: there)?|what should i eat there|what(?:'s| is) the food like(?: there)?|"
+                              r"any food (?:tips|recommendations)|what (?:should|must) i try to eat)", n)
+            if fo and place:
+                key = place.lower()
+                ck = tb["countries"].get(key)
+                st.uses["trip_food101"] = [ck or key, st.turn]
+                b69 = self.bank.daily.get("b69", {}).get("trip_food", {})
+                if key in b69 and key != "other":         # a city's own food first ("Food in Rome: carbonara, cacio e pepe …")
+                    return Reply(msg, "smalltalk", self._pick(st, f"daily:b69:food:{key}", b69[key]), via="everyday")
+                if ck in tb["food"]:
+                    return Reply(msg, "smalltalk", tb["food"][ck], via="everyday", source={"kind": "common", "source": "everyday facts", "key": ""})
+            tf = st.uses.get("trip_food101")
+            if tf and st.turn - tf[1] <= 3 and re.fullmatch(r"(?:but |hmm,? |oh,? )?(?:i (?:don'?t|do not|can'?t) (?:like|eat|stand) (?:fish|seafood|sushi|raw fish)(?: (?:at all|really|much))?|"
+                                                            r"i'?m not (?:a fan of|into) (?:fish|seafood|sushi)|no fish(?: for me)?|i hate fish)", n):
+                tf[1] = st.turn
+                return Reply(msg, "smalltalk", tb["food_nofish"].get(tf[0], tb["food_nofish"]["other"]), via="everyday")
 
         def similar(key: str | None, shown: str, liked: bool = True, general: bool = False) -> Reply:
             if key and key in b["similar"]:
@@ -9576,7 +9682,7 @@ class Assistant:
             return None                          # "asdfgh" is no favourite food
         if _REACTION.fullmatch(normalise(u.text).strip(" .!")):
             return None                          # "haha fair" is a reaction, not an answer
-        if pending.get("slot") not in ("who_mean", "correction") and \
+        if pending.get("slot") not in ("who_mean", "correction", "draft_purpose") and \
                 re.match(r"^(?:my|i|i'm|im|i am|i've|we)\b", u.text.strip(), re.I) and len(u.text.split()) >= 3:
             return None                          # a whole sentence about you: normal learning reads it right
         slot = pending.get("slot")
@@ -9601,6 +9707,33 @@ class Assistant:
                 if rep is not None:
                     return rep
             return self._question(st, q)
+        if slot == "draft_purpose":                      # "i need tomorrow off" after "what do you want to tell your boss?"
+            from engramm.chat import writing as w
+            req = w.WritingRequest.from_dict(pending["req"])
+            stmt = msg.strip().rstrip(".!")
+            purposes = self.bank.writing["purposes"]
+            req.purpose = w.classify_purpose(stmt, purposes)
+            dm = re.search(rf"\b(?:{w._DATE_WORDS})\b", stmt, flags=re.I)
+            rest = stmt
+            if dm and not re.search(r"\b(?:since|from|until|till|by)\s*$", stmt[:dm.start()], re.I) and \
+                    req.purpose in ("day_off", "late", "meeting", "reschedule", "cancel", "sick", "extension", "invitation", "reminder"):
+                req.date = dm.group(0).strip()            # "i need tomorrow off": the date; "broken since monday" keeps it in the sentence
+                rest = (rest[:dm.start()] + rest[dm.end():]).strip()
+            rsm = re.search(r"\b(?:because|as|due to|since(?!\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday|yesterday|last|this|the|"
+                            r"\d|a week|two|three|days|weeks|this morning)))\b\s+.+$", rest, flags=re.I)
+            if rsm:
+                req.reason = rsm.group(0).strip()
+                rest = rest[:rsm.start()].strip()
+            rest = re.sub(r"\s{2,}", " ", rest).strip(" ,")
+            clause = re.search(r"\b(?:is|are|was|were|has|have|had|isn'?t|aren'?t|doesn'?t|don'?t|won'?t|can'?t|broke|stopped|keeps|leaks|needs)\b", rest, re.I)
+            if req.purpose == "generic" or (clause and req.purpose not in ("day_off",)):
+                rest = re.sub(r"\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b", lambda m_: m_.group(1).capitalize(), rest, flags=re.I)
+                rest = re.sub(r"\b(is|are) ((?:not )?(?:broken|working|leaking|down|out|blocked|cold))(?= since\b)",
+                              lambda m_: ("has been " if m_.group(1) == "is" else "have been ") + m_.group(2), rest)   # "has been broken since monday"
+                req.purpose_text = "that " + re.sub(r"\bi\b", "I", rest)   # a whole sentence: "let you know that the heating is broken"
+            else:
+                req.purpose_text = rest
+            return self._show_draft(st, msg, req, intro=True)
         value = _slot_value(msg, slot)
         if value is None:
             return None

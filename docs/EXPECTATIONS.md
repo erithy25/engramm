@@ -3284,6 +3284,48 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 797 bestanden. Regressionen: 0 Wiederholungen, keine neuen
   Unterschiede außer Datum und Uhrzeit.
+- **Alltags-Batterie 101 (gemischt: Reiseplanung, Schreibhilfe, Wissens-Folgefragen; 3 Gespräche, 24 Turns)**.
+  Erster Lauf, die Fehler:
+
+  | Eingabe | vorher |
+  |---|---|
+  | „how long is the flight from germany?“ (Japan-Reise) | „I couldn't find anything reliable“, danach war Deutschland das Reiseziel |
+  | „is it expensive?“ / „what food should i try?“ | über Deutschland |
+  | „what's the currency?“ | Definition des Wortes „currency“ |
+  | „how do you say thank you in japanese?“ | „isn't among them“ |
+  | „help me write a message to my boss“ | „I wanted to get in touch to get in touch.“ |
+  | „i need tomorrow off“ / „my kid is sick“ | „Tell me more about that“ / „What happened with your kid?“ |
+  | „and the biggest city?“ (nach Australien) | „I don't know“ |
+  | „when was that?“ (nach der Entdeckung Australiens) | „I don't know“ |
+  | „tell me a fun fact about kangaroos“ | „I couldn't find anything“ |
+
+  Grundursache beim Ortswechsel: Das „from germany“ in der Flugfrage überschrieb das Reiseziel. Ein „from X“
+  während einer laufenden Reise ändert das Ziel jetzt nicht mehr.
+
+  Neu:
+  - Reise im Kontext: Reisemonat (5 belegte Sonderfälle wie Kirschblüte im April und Songkran), Flugzeit ab
+    Deutschland aus einer Tabelle typischer Werte (25 Ziele, als ungefähr gekennzeichnet; bei anderem
+    Abflugort keine Schätzung), Währung (28 Länder, Städte zugeordnet), Landesküche (eigene Stadtküche zuerst),
+    „i don't like fish“;
+  - Japanisch-Grundwörter (18 Wendungen mit Schriftzeichen);
+  - Schreibhilfe:
+    - fragt nach dem Anlass, wenn er fehlt;
+    - ein Satz als Anlass ergibt „let you know that …“ (inklusive „has been broken since Monday“);
+    - „tomorrow off“ ergibt den Antrag auf einen freien Tag;
+    - ein Satz direkt danach wird als Grund eingebaut („because my kid is sick“);
+  - „and the biggest city?“ nach einer Länderfrage;
+  - Entdeckung Australiens als belegte Antwort: Janszoon 1606, Aborigines seit mindestens 50.000 Jahren, Cook
+    1770, Folgefrage „when“;
+  - Fun Facts zu beliebigen Themen aus dem Artikelanfang, bewertet nach „können / Rekord / Zahl“ statt
+    Definition. Ohne passenden Satz kommen ehrlich die Grundlagen.
+
+  Verallgemeinerungsprobe (Thailand, Vermieter-Mail, Kanada, Pinguine): alles passend, 0 Wiederholungen.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 798 bestanden. Regressionen: 0 Wiederholungen. Gewollte
+  neue Unterschiede:
+  - b46: Rückfrage statt leerer Mail;
+  - b47: Rom-Küche statt Artikeltext;
+  - Kostentext ohne „trattorias“.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

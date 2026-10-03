@@ -1078,6 +1078,7 @@ common:
   - {q: "(?:and |so )?who was the first chancellor of (?:west )?germany", a: "Otto von Bismarck was the first chancellor of the German Empire (1871); Konrad Adenauer was the first chancellor of the Federal Republic of Germany (1949).", v: "Otto von Bismarck", t: "Chancellor of Germany"}
   - {q: "(?:and |so )?(?:what(?:'s| is) the |which is the )?longest river (?:in|of) germany", a: "The Rhine is the longest river flowing through Germany (about 865 km of it in Germany); the Danube is longer overall but most of it lies outside Germany.", v: "the Rhine", t: "Rhine"}
   - {q: "(?:and |so )?who invented the (?:airplane|aeroplane|plane)|who made the first (?:airplane|plane) flight", a: "The Wright brothers, Orville and Wilbur — they made the first powered, controlled airplane flight on 17 December 1903.", v: "the Wright brothers", t: "Wright brothers"}
+  - {q: "(?:and |so )?who (?:discovered|found|first found|first reached) australia", pre: true, a: "The first Europeans known to land in Australia were Dutch sailors under Willem Janszoon in 1606 — but Aboriginal Australians had lived there for at least 50,000 years. James Cook mapped the east coast in 1770.", v: "Willem Janszoon", t: "Willem Janszoon", de: "Die ersten Europäer, die nachweislich in Australien landeten, waren Niederländer unter Willem Janszoon im Jahr 1606 – aber die Aborigines lebten dort schon seit mindestens 50.000 Jahren. James Cook kartierte 1770 die Ostküste.", follow: [{q: "(?:and |so )?(?:when was (?:that|it)|when did (?:he do that|that happen|he get there)|what year was (?:that|it))\\??", dq: "(?:und )?(?:wann war (?:das|es)|in welchem jahr war (?:das|es))", a: "That was in 1606 — Janszoon's ship, the Duyfken, landed on the west coast of the Cape York Peninsula.", de: "Das war 1606 – Janszoons Schiff, die Duyfken, landete an der Westküste der Kap-York-Halbinsel."}]}
   - {q: "(?:and |so )?who discovered america", a: "Christopher Columbus reached the Americas in 1492 — but Indigenous peoples had lived there for thousands of years, and the Norse explorer Leif Erikson got there around the year 1000.", v: "Christopher Columbus", t: "Christopher Columbus", de: "Christoph Kolumbus erreichte 1492 Amerika – aber dort lebten schon seit Jahrtausenden indigene Völker, und der Wikinger Leif Eriksson war schon um das Jahr 1000 dort.", follow: [{q: "(?:and |so )?(?:when was (?:that|it)|when did (?:he do that|that happen|he get there)|what year was (?:that|it))\\??", a: "That was in 1492 — Columbus landed on an island in the Bahamas on 12 October 1492.", de: "Das war 1492 – Kolumbus landete am 12. Oktober 1492 auf einer Insel der Bahamas."}, {q: "(?:and |so )?(?:where (?:was he|did he come) from|where did he come from)\\??", a: "Columbus came from Genoa, in today's Italy, though he sailed for the Spanish crown.", de: "Kolumbus stammte aus Genua im heutigen Italien – er segelte aber im Auftrag der spanischen Krone."}]}
   - {q: "(?:and |so )?how many states (?:does|do|are (?:there )?in) the (?:usa|us|united states)(?: of america)?(?: have)?", a: "The United States has 50 states (plus Washington, D.C., which isn't a state).", v: "50", t: "United States"}
   - {q: "(?:and |so )?how many minutes (?:are )?in a day", a: "There are 1,440 minutes in a day (24 × 60).", v: "1,440", t: "Day"}
@@ -1537,6 +1538,9 @@ sights_tail:
   - "Shall I tell you what to eat there as well?"
 sights_none:
   - "I don't have a good list of sights for {x}, sorry — a travel guide like Wikivoyage will know more. Want to know a few general facts about it instead?"
+draft_ask_what:
+  - "Sure! What do you want to tell {x}?"
+  - "Of course — what should the message say?"
 draft_ask:
   - "Sure! Who's the {x} for, and what's it about?"
   - "Happy to help! Who are you writing to, and what do you want to say?"
@@ -1989,7 +1993,7 @@ cost_level:
   pricey: [paris, london, amsterdam, new york, new york city, san francisco, los angeles, washington, dubai, singapore, hong kong, sydney, copenhagen, stockholm, oslo, norway, helsinki, reykjavik, reykjavík, iceland, zurich, geneva, switzerland, denmark, sweden]
 cost_says:
   cheap: "{X} is fairly affordable compared with most of Western Europe and North America: eating out, public transport and museums won't break the bank."
-  mid: "{X} is mid-range: not cheap, but manageable. Hotels in the centre and tourist-trap restaurants add up; local trattorias, bakeries and public transport keep it reasonable."
+  mid: "{X} is mid-range: not cheap, but manageable. Hotels in the centre and tourist-trap restaurants add up; small local restaurants, markets and public transport keep it reasonable."
   pricey: "{X} is on the expensive side, especially hotels and eating out in the centre. Booking early, staying a bit further out and eating where locals eat helps a lot."
 trip_length:
   - "{X} days in {y} is a nice amount: enough for the highlights without rushing. Want a rough plan for the days?"
@@ -3018,6 +3022,174 @@ b99:
     bot_sport: ["Haha, ohne Körper kein Training – das Einzige, was ich trainiere, ist mein Gedächtnis. 😄 Aber erzähl mir gern von deinem!", "Leider keine Muskeln hier, nur viel Lesen. 😄 Und bei dir – wie läuft das Training?"]
     bye: ["Alles klar, bis bald! 👋", "Mach's gut – bis zum nächsten Mal!"]
     morning: ["Guten Morgen! ☀️ Wie geht's dir heute?", "Morgen! ☀️ Gut geschlafen?"]
+# battery 101: a trip being planned — the month, the flight from Germany, the currency, the food (also without
+# fish); values are typical and stated as approximate
+b101:
+  month_any: ["{X} — a nice time to travel! How long are you staying?", "{X} sounds good. How long will you be there?"]
+  month_special:
+    japan march: "Late March is when the cherry blossoms start — lovely timing! 🌸 How long are you staying?"
+    japan april: "April is cherry blossom season — perfect timing! 🌸 Just book early, it's a busy time. How long are you staying?"
+    japan november: "November is autumn-leaves season in Japan — the maples in Kyoto are stunning. 🍁 How long are you staying?"
+    thailand april: "April is the hottest month in Thailand, and mid-April is Songkran, the big water festival — expect to get soaked! 😄 How long are you staying?"
+    iceland june: "June in Iceland means the midnight sun — it barely gets dark. How long are you staying?"
+  flight_lead: "From Germany: "
+  fun_fact: ["Here's one about {x}: {y}", "A fun one about {x}: {y}"]
+  fun_fact_basic: ["I don't have a special fun fact about {x} — but here are the basics: {y}"]
+  flight:
+    japan: "about 13–14 hours nonstop from Frankfurt or Munich to Tokyo — a bit longer than before 2022, because flights avoid Russian airspace."
+    usa: "about 8–9 hours to New York; the West Coast (Los Angeles, San Francisco) is about 11–12 hours."
+    new york: "about 8–9 hours nonstop."
+    thailand: "about 10.5–11 hours nonstop to Bangkok."
+    dubai: "about 6 hours."
+    spain: "about 2–2.5 hours to Barcelona or Madrid."
+    italy: "about 1.5–2 hours to Rome or Milan."
+    greece: "about 3 hours to Athens."
+    portugal: "about 3 hours to Lisbon."
+    turkey: "about 3 hours to Istanbul."
+    egypt: "about 4–5 hours to Cairo or Hurghada."
+    uk: "about 1.5 hours to London."
+    france: "about 1–1.5 hours to Paris."
+    india: "about 7.5–8 hours to Delhi."
+    china: "about 9.5–10.5 hours to Beijing."
+    south korea: "about 12–13 hours to Seoul."
+    mexico: "about 11–12 hours to Mexico City or Cancún."
+    brazil: "about 11.5–12.5 hours to Rio or São Paulo."
+    south africa: "about 10.5–12 hours to Johannesburg or Cape Town."
+    australia: "there's no nonstop flight — with one stop (for example in Singapore, Dubai or Doha) it takes about 21–24 hours."
+    canada: "about 8.5–9 hours to Toronto."
+    iceland: "about 3.5–4 hours to Reykjavík."
+    indonesia: "there's no nonstop flight to Bali — with one stop it takes about 16–18 hours."
+    singapore: "about 12 hours nonstop."
+    morocco: "about 3.5 hours to Marrakech."
+  flight_unknown: ["I don't have a reliable flight time for {x}, sorry — a flight search site will show the exact options."]
+  currency:
+    japan: "the Japanese yen (¥). Japan still uses a lot of cash, so it's worth carrying some."
+    usa: "the US dollar ($)."
+    uk: "the pound sterling (£)."
+    euro: "the euro (€)."
+    switzerland: "the Swiss franc (CHF)."
+    thailand: "the Thai baht (฿)."
+    turkey: "the Turkish lira (₺)."
+    egypt: "the Egyptian pound."
+    china: "the renminbi, also called yuan (¥)."
+    india: "the Indian rupee (₹)."
+    australia: "the Australian dollar (A$)."
+    canada: "the Canadian dollar (C$)."
+    mexico: "the Mexican peso."
+    brazil: "the Brazilian real (R$)."
+    south africa: "the South African rand."
+    south korea: "the South Korean won (₩)."
+    denmark: "the Danish krone."
+    sweden: "the Swedish krona."
+    norway: "the Norwegian krone."
+    iceland: "the Icelandic króna."
+    czech republic: "the Czech koruna."
+    hungary: "the Hungarian forint."
+    poland: "the Polish złoty."
+    morocco: "the Moroccan dirham."
+    uae: "the UAE dirham."
+    singapore: "the Singapore dollar."
+    indonesia: "the Indonesian rupiah."
+  currency_says: ["In {x}, they use {y}"]
+  food:
+    japan: "Food to try in Japan: ramen, sushi and sashimi, tempura, okonomiyaki in Osaka, yakitori, gyoza, and onigiri from any convenience store — they're surprisingly good."
+    italy: "Food to try in Italy: pasta the local way (carbonara in Rome, pesto in Genoa), real Neapolitan pizza, risotto in the north, and gelato every day."
+    spain: "Food to try in Spain: tapas like patatas bravas and croquetas, paella in Valencia, jamón ibérico, and churros with chocolate."
+    france: "Food to try in France: croissants from a boulangerie, crêpes, a proper cheese plate, steak frites, and whatever the bistro's dish of the day is."
+    greece: "Food to try in Greece: souvlaki and gyros, moussaka, Greek salad with real feta, fresh seafood by the sea, and baklava."
+    thailand: "Food to try in Thailand: pad thai, green curry, som tam (papaya salad), tom yum soup, and mango sticky rice — street food is often the best."
+    mexico: "Food to try in Mexico: tacos al pastor, mole, tamales, fresh guacamole, and churros."
+    india: "Food to try in India: biryani, butter chicken, dosa in the south, chaat from street stalls, and fresh naan."
+    portugal: "Food to try in Portugal: pastéis de nata, grilled sardines, bacalhau, and a bifana sandwich."
+  food_nofish:
+    japan: "No problem — Japan has plenty beyond fish: ramen with pork or chicken broth, tonkatsu (breaded pork cutlet), yakitori, okonomiyaki, gyoza, Japanese curry rice and vegetable tempura."
+    other: "No problem — just say so when you order, and stick to the meat or vegetable dishes. Want me to note that you don't eat fish?"
+  countries:
+    japan: japan
+    tokyo: japan
+    kyoto: japan
+    osaka: japan
+    usa: usa
+    united states: usa
+    america: usa
+    new york: usa
+    los angeles: usa
+    san francisco: usa
+    thailand: thailand
+    bangkok: thailand
+    dubai: uae
+    spain: spain
+    barcelona: spain
+    madrid: spain
+    mallorca: spain
+    italy: italy
+    rome: italy
+    milan: italy
+    venice: italy
+    florence: italy
+    greece: greece
+    athens: greece
+    portugal: portugal
+    lisbon: portugal
+    turkey: turkey
+    istanbul: turkey
+    egypt: egypt
+    cairo: egypt
+    uk: uk
+    england: uk
+    london: uk
+    united kingdom: uk
+    france: france
+    paris: france
+    india: india
+    delhi: india
+    china: china
+    beijing: china
+    south korea: south korea
+    korea: south korea
+    seoul: south korea
+    mexico: mexico
+    brazil: brazil
+    south africa: south africa
+    cape town: south africa
+    australia: australia
+    sydney: australia
+    canada: canada
+    toronto: canada
+    iceland: iceland
+    reykjavik: iceland
+    bali: indonesia
+    indonesia: indonesia
+    singapore: singapore
+    morocco: morocco
+    marrakech: morocco
+    switzerland: switzerland
+    zurich: switzerland
+    denmark: denmark
+    copenhagen: denmark
+    sweden: sweden
+    stockholm: sweden
+    norway: norway
+    oslo: norway
+    prague: czech republic
+    czech republic: czech republic
+    budapest: hungary
+    hungary: hungary
+    poland: poland
+    warsaw: poland
+    germany: euro
+    berlin: euro
+    munich: euro
+    austria: euro
+    vienna: euro
+    netherlands: euro
+    amsterdam: euro
+    ireland: euro
+    dublin: euro
+    belgium: euro
+    brussels: euro
+    finland: euro
+    croatia: euro
 # battery 86: learning to code, as a short flow (which language, is it hard, how long, where to start)
 b86:
   start_ask:
