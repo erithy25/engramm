@@ -1295,6 +1295,8 @@ class Assistant:
         if re.fullmatch(r"(?:können|koennen|könnten|kannst) (?:wir|du) (?:bitte |jetzt )*(?:auf )?englisch (?:reden|sprechen|schreiben)(?: bitte)?|(?:lass uns|lasst uns) (?:auf )?englisch (?:reden|sprechen)|(?:auf )?englisch bitte", q):
             st.lang = "en"
             return Reply(msg, "smalltalk", self._pick(st, "daily:b86:lang_en", self.bank.daily["b86"]["lang_en"]), via="smalltalk")
+        if re.fullmatch(r"(?:wie|was) (?:kann|soll) ich (?:am besten )?(?:geld sparen|sparen)|tipps zum (?:geld )?sparen|wie spare ich (?:am besten )?geld", q):
+            return say("geld_sparen")
         cf = st.uses.get("common_follow")
         if cf and st.turn - cf[1] <= 4:                   # German follow-ups on a hand-checked fact ("wie lange braucht licht dahin?")
             for f in cf[0]:

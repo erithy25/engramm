@@ -3422,3 +3422,14 @@ def test_battery94_lost_items_never_grief(chat):
         assert "annoying" not in t and "last have" not in t, (msg, t)
     assert "cards" in a.turn(DialogState("lw94"), "i lost my wallet").text
     assert "Find my device" in a.turn(DialogState("lp94"), "i lost my phone").text
+
+
+def test_battery95_german_everyday_generalisation(chat):
+    a, _ = chat
+    t = a.turn(DialogState("k95"), "ich hab meinen schlüssel verloren").text
+    assert "erzählen" not in t and "zuletzt" in t, t                      # keys are no bereavement
+    for i, (msg, want) in enumerate([("heute geht alles schief", "so ein Tag"), ("ich hab gekündigt", "großer Schritt"),
+                                     ("heute ist mein erster arbeitstag", "ersten Tag"), ("ich lerne gerade kochen", "gekocht"),
+                                     ("kannst du mir einen podcast empfehlen?", "Podcasts"), ("wie kann ich geld sparen?", "sparst")]):
+        r = a.turn(DialogState(f"g95-{i}"), msg).text
+        assert want in r, (msg, r)

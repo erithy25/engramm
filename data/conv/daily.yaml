@@ -332,17 +332,17 @@ recommend:
   podcast:
     intro: ["A few podcasts people love:", "Some podcasts worth a listen:"]
     items:
-      - {x: "“Hardcore History” by Dan Carlin — long, gripping episodes about big moments in history", tags: "history"}
-      - {x: "“The Rest Is History”, two historians chatting about everything from Rome to the Cold War", tags: "history"}
+      - {x: "“Hardcore History” by Dan Carlin — long, gripping episodes about big moments in history", de: "„Hardcore History“ von Dan Carlin – lange, packende Folgen über große Momente der Geschichte (Englisch)", tags: "history"}
+      - {x: "“The Rest Is History”, two historians chatting about everything from Rome to the Cold War", de: "„Geschichten aus der Geschichte“ – zwei Historiker erzählen sich gegenseitig Geschichten aus allen Epochen", tags: "history"}
       - {x: "“Revolutions” by Mike Duncan, one revolution per season", tags: "history"}
-      - {x: "“Radiolab”, curious stories about science and people", tags: "science"}
-      - {x: "“Science Vs”, which checks popular claims against the evidence", tags: "science"}
-      - {x: "“Hidden Brain”, about why people do what they do", tags: "psychology science"}
-      - {x: "“Freakonomics Radio”, economics behind everyday things", tags: "nonfiction"}
-      - {x: "“99% Invisible”, about the design all around us", tags: "nonfiction"}
-      - {x: "“Serial”, the podcast that made true crime huge", tags: "crime"}
+      - {x: "“Radiolab”, curious stories about science and people", de: "„Radiolab“ – neugierige Geschichten über Wissenschaft und Menschen (Englisch)", tags: "science"}
+      - {x: "“Science Vs”, which checks popular claims against the evidence", de: "„Methodisch inkorrekt“ – zwei Physiker plaudern über neue Forschung, locker und witzig", tags: "science"}
+      - {x: "“Hidden Brain”, about why people do what they do", de: "„Hidden Brain“ – warum Menschen tun, was sie tun (Englisch)", tags: "psychology science"}
+      - {x: "“Freakonomics Radio”, economics behind everyday things", de: "„Lage der Nation“ – zwei Journalisten erklären jede Woche die Politik", tags: "nonfiction"}
+      - {x: "“99% Invisible”, about the design all around us", de: "„Zeit Verbrechen“ – echte Kriminalfälle, sorgfältig erzählt", tags: "nonfiction"}
+      - {x: "“Serial”, the podcast that made true crime huge", de: "„Mordlust“ – wahre Verbrechen, im Gespräch erzählt", tags: "crime"}
       - {x: "“This American Life”, a different set of true stories every week", tags: "nonfiction"}
-      - {x: "“Stuff You Should Know”, two friends explaining how things work", tags: "science nonfiction"}
+      - {x: "“Stuff You Should Know”, two friends explaining how things work", de: "„Gemischtes Hack“ – zwei Comedians plaudern über alles Mögliche", tags: "science nonfiction"}
     outro: "Want something about a particular topic — history, science, true crime?"
     outro_refined: "Does one of those sound like your thing?"
   gift:
@@ -2873,6 +2873,18 @@ b82:
     - {q: "i (?:just )?ran (?:a |my first )?(?:5k|10k|half marathon)", v: pos, a: "Nice one! 🏃 How did it feel?"}
   de:
     - {q: "ich (?:geh|gehe) (?:heute abend |heute |morgen |am wochenende )?(?:auf|zu) (?:ein|einem|eine|einer) (?:konzert|festival|party|hochzeit|spiel)(?: heute abend)?", v: pos, a: "Oh, wie cool! Wen oder was gehst du sehen?"}
+    - {q: "ich (?:hab|habe) (?:meinen |meine |mein )?(?:schlüssel|haustürschlüssel|autoschlüssel|brille) verloren|ich finde (?:meinen |meine )?(?:schlüssel|brille) nicht(?: mehr)?", v: neg, a: "Oh nein, wie nervig! Wo hattest du sie zuletzt? Meistens tauchen sie wieder auf, wenn man den Weg noch mal abgeht – Jackentaschen, Taschen, Sofa."}
+    - {q: "ich (?:hab|habe) (?:heute |gestern )?(?:ein|mein erstes|noch ein) tattoo (?:bekommen|stechen lassen|machen lassen)", v: pos, a: "Ooh, ein neues Tattoo! Was ist es denn – und wo?"}
+    - {q: "ich (?:hab|habe) (?:das essen|das abendessen|die pizza|den kuchen) (?:anbrennen lassen|verbrannt|verkokelt)|mir ist (?:das essen|der kuchen) angebrannt", v: neg, a: "Haha, passiert den Besten! 😄 Rauchmelder überlebt? Vielleicht wird's ein Abend mit Lieferdienst."}
+    - {q: "mir ist (?:so |total |echt )?langweilig (?:auf|bei) der arbeit|ich langweile mich (?:so )?(?:auf|bei) der arbeit", v: neg, a: "Ugh, langweilige Tage ziehen sich ewig. Was macht es heute so zäh?"}
+    - {q: "meine? (?:beste )?(?:freundin|freund) ist (?:weggezogen|umgezogen|ins ausland gezogen)", v: neg, a: "Oh, das ist schwer – du vermisst sie bestimmt. Wollt ihr euch besuchen oder viel telefonieren?"}
+    - {q: "ich (?:fahre|fliege|geh|gehe) (?:morgen|übermorgen|nächste woche|bald) in den urlaub", v: pos, a: "Wie schön – du hast es dir verdient! Wohin geht's denn?"}
+    - {q: "ich lerne (?:gerade |grad )?kochen", v: pos, a: "Wie toll! Was hast du schon gekocht – Erfolge oder leckere Katastrophen? 😄"}
+    - {q: "heute geht (?:echt |einfach |wirklich )?alles schief|nichts klappt heute|was für ein mieser tag", v: neg, a: "Oh nein, so ein Tag. Das tut mir leid. Was ist passiert – oder kommt einfach alles zusammen?"}
+    - {q: "heute ist mein erster (?:arbeitstag|tag im neuen job|tag)|ich fange heute (?:meinen neuen job|bei der neuen firma) an", v: pos, a: "Viel Erfolg am ersten Tag! Aufgeregt oder vorfreudig? Jeder ist mal neu – du schaffst das."}
+    - {q: "ich (?:hab|habe) (?:meinen job |meine stelle )?gekündigt", v: neg, a: "Wow, ein großer Schritt! Weißt du schon, wie es weitergeht – oder erst mal durchatmen?"}
+    - {q: "ich (?:hab|habe) (?:gerade|eben) (?:ein nickerchen|einen mittagsschlaf) gemacht", v: pos, a: "Ah, ein Nickerchen! Fühlst du dich frisch – oder eher noch verschlafen? 😄"}
+    - {q: "ich (?:hab|habe) (?:einen preis|den ersten platz|einen wettbewerb) gewonnen", v: pos, a: "Glückwunsch! 🎉 Das ist ja toll – wofür denn?"}
     - {q: "meine? (?:beste )?(?:freundin|freund|schwester|bruder|cousine|cousin) heiratet(?: bald| nächstes jahr| im sommer)?", v: pos, a: "Oh, wie schön! Bist du bei der Hochzeit dabei?"}
     - {q: "ich bin (?:gerade|eben|grad) (?:erst )?aufgewacht", v: pos, a: "Guten Morgen – egal, wie spät es ist! ☀️ Gut geschlafen?"}
     - {q: "ich bin (?:gerade )?(?:im fitnessstudio|beim sport|im gym)", v: pos, a: "Stark, gib Gas! 💪 Was trainierst du heute?"}
@@ -2944,6 +2956,7 @@ b86:
     - "Good plan — talk to them once you've slept a bit and you're calm. And fingers crossed tonight is quieter. 🤞"
     - "Sounds sensible. A friendly word tomorrow usually works better than a knock at 3 am. Hope you get some proper sleep tonight."
   de:
+    geld_sparen: ["So sparst du Geld:\n\n• Einen Monat lang alle Ausgaben aufschreiben – fast jeder entdeckt eine Überraschung\n• Abos kündigen, die du kaum nutzt, und Strom, Handy und Versicherungen vergleichen\n• Am Monatsanfang einen festen Betrag automatisch aufs Sparkonto überweisen\n• Vor größeren Käufen eine Nacht drüber schlafen\n\nWofür möchtest du sparen?"]
     act_out: ["Ein paar Ideen für draußen:\n\n• Eine Wanderung oder ein langer Spaziergang im Grünen\n• Eine Radtour irgendwohin, wo du noch nie warst\n• Flohmarkt oder Wochenmarkt\n• Ein Picknick, wenn das Wetter mitspielt\n\nKlingt davon etwas gut?"]
     act_rain: ["Dann vielleicht:\n\n• Museum oder Ausstellung\n• Kletterhalle oder Schwimmbad\n• Eine Café-Tour mit einem guten Buch\n• Oder trotzdem raus, mit Regenjacke – Regen hat auch was ☔\n\nWorauf hast du Lust?"]
     lang_de: ["Klar, gern! Dann reden wir wieder Deutsch. Worüber möchtest du sprechen?", "Na klar – ab jetzt wieder auf Deutsch. Was gibt's?"]

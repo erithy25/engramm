@@ -158,19 +158,21 @@ _REC_DE = [
              r"(?:vielleicht |dann |oder )?(?:ein buch|was zum lesen|lesen)[.,]? (?:was|welches) (?:empfiehlst du|würdest du (?:mir )?empfehlen)(?: mir)?|"
              r"was (?:empfiehlst du|würdest du empfehlen) (?:mir )?(?:für ein buch|an büchern|zum lesen)|welches buch (?:soll ich lesen|empfiehlst du(?: mir)?))"),
     ("movie", r"(?:(?:kannst du mir )?einen (?:guten )?film empfehlen|empfiehl mir einen film|filmempfehlungen?|"
-              r"was soll ich (?:heute )?(?:gucken|schauen|anschauen|ansehen|sehen)|welchen film soll ich (?:gucken|schauen|sehen)|"
+              r"was soll ich (?:heute |heute abend |jetzt |nachher )?(?:gucken|schauen|anschauen|ansehen|sehen)|welchen film soll ich (?:gucken|schauen|sehen)|"
               r"(?:vielleicht |dann |oder )?(?:ein film|einen film)[.,]? (?:was|welchen) (?:empfiehlst du|würdest du (?:mir )?empfehlen)(?: mir)?|"
               r"was (?:empfiehlst du|würdest du empfehlen) (?:mir )?(?:für einen film|an filmen)|welchen film empfiehlst du(?: mir)?)"),
     ("series", r"(?:(?:kannst du mir )?eine (?:gute )?serie empfehlen|empfiehl mir eine serie|serienempfehlungen?|"
                r"welche serie soll ich (?:gucken|schauen|sehen))"),
     ("music", r"(?:(?:kannst du mir )?musik empfehlen|musikempfehlungen?|was soll ich (?:hören|anhören))"),
+    ("podcast", r"(?:(?:kannst du mir |empfiehl mir )?(?:einen |ein paar )?(?:guten |gute )?podcasts? empfehlen|empfiehl mir (?:einen )?podcast|podcast-?(?:tipps?|empfehlungen?)|"
+                r"welchen podcast (?:soll ich hören|empfiehlst du))"),
     ("game", r"(?:(?:kannst du mir )?ein (?:gutes )?spiel empfehlen|spielempfehlungen?|was soll ich spielen|"
              r"was können wir spielen)"),
     ("activity", r"(?:(?:mir ist (?:so |total )?langweilig,? )?was (?:kann|soll|könnte) ich (?:(?:heute|abend|jetzt|noch|nachher|später|"
                  r"gleich|am wochenende|denn|so)\s+)*(?:machen|tun|unternehmen)|was kann man (?:heute |am wochenende )?machen|ideen für (?:heute|das wochenende|"
                  r"den abend))"),
     ("gift", r"(?:geschenkideen?|was schenkt man (?:so|denn|da|zu weihnachten|zum geburtstag|jemandem)?(?: so)?|was kann man (?:so )?schenken|"
-             r"was soll ich (?:meiner|meinem|meinen|einer|einem) [a-zäöüß]+ schenken|"
+             r"was soll ich (?:meiner|meinem|meinen|einer|einem) [a-zäöüß]+ schenken|was schenke ich (?:meiner|meinem|meinen) [a-zäöüß]+(?: zum geburtstag| zu weihnachten)?|"
              r"was kann ich (?:meiner|meinem|meinen) [a-zäöüß]+ schenken)"),
     ("travel", r"(?:wohin soll ich (?:reisen|fahren|in den urlaub)|reiseziele?|urlaubsideen|reiseideen)"),
     ("hobby", r"(?:(?:ein )?neues hobby|hobbyideen|welches hobby soll ich anfangen)"),

@@ -297,6 +297,7 @@ daily:
     focus: {intro: "Ein paar Wege, Dinge geschafft zu bekommen:", outro: "Was willst du heute erledigen?"}
     exercise: {intro: "Ein paar einfache Wege, mehr in Bewegung zu kommen:", outro: "Eher zu Hause oder draußen?"}
     petname: {intro: "Ein paar Namen, die viele mögen:", outro: "Ist es ein Hund, eine Katze oder etwas anderes?"}
+    podcast: {intro: "Ein paar Podcasts, die sich lohnen:", outro: "Eher Geschichte, Wissenschaft oder Unterhaltung?"}
   # Alltagsschicht (dialog._german_life)
   life:
     thanks: ["Sehr gern!", "Gern geschehen – dafür bin ich da.", "Immer gern!"]

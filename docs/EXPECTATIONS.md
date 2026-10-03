@@ -3127,6 +3127,23 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 791 bestanden. Regressionen 32 und 38–94 (61 Gespräche):
   0 Wiederholungen, Unterschiede wie bei 89.
+- **Deutsche Alltags-Verallgemeinerungsprobe (Batterie 95: 30 neue deutsche Einzelnachrichten, vorher nicht
+  angefasst)**: erster Lauf ungefähr 14 von 30 passend. Grob falsch war „ich hab meinen schlüssel verloren“ →
+  „Oh nein, das tut mir so leid. Magst du mir von ihm erzählen?“ (als Trauerfall gelesen). Sonst gab es viele
+  Rückfallantworten und fehlende Empfehlungsformen: „was soll ich heute abend schauen?“, „kannst du mir einen
+  podcast empfehlen?“, „was schenke ich meinem vater?“, „wie kann ich geld sparen?“.
+
+  Neu in der deutschen Ereignistabelle: Schlüssel/Brille verloren, Tattoo, Essen angebrannt, Langeweile bei der
+  Arbeit, beste Freundin weggezogen, Urlaub, Kochen lernen, alles geht schief, erster Arbeitstag, gekündigt,
+  Nickerchen, Preis gewonnen. Dazu kommen deutsche Podcast-Empfehlungen (mit deutschen Podcasts; englische sind
+  gekennzeichnet), Geldspar-Tipps sowie weitere Muster für Film und Geschenk. Danach ungefähr 29 von 30 (Bewertung
+  von Hand).
+
+  Die Regression fand eine doppelte Geldbörsen-Zeile, die den vorhandenen Eintrag verdrängte und mit „er“ für
+  „das Portemonnaie“ grammatisch falsch war. Sie ist gestrichen, b82 ist wieder identisch.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 792 bestanden. Regressionen (62 Gespräche):
+  0 Wiederholungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
