@@ -206,7 +206,10 @@ Wissensfehler behoben – Zugspitze, Harry Potter –, 40 feste Wissensfragen 39
 (Lauf 37052761578, Batterien 72–74: zweite Wissensstichprobe 38/0/2, Allergie kein Lieblingsessen, flüchtige Momente nicht
 gespeichert, Folgefragen über mehrere Turns; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.22](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.22)
 (Lauf 37061506271, Batterien 75–78: Alltagsrechnungen, Ironie, dritte Wissensstichprobe 40/0/0, ein ganzer Abend im
-Gespräch; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
+Gespräch; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.23](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.23)
+(Lauf 37074474964, Batterien 79–81: 40 echte Einzelnachrichten, Zustände von Dingen auf Englisch und Deutsch, Schmerzen
+mit Rat; erster Lauf 37069930936 hing beim Herunterladen der Paket-Artefakte, der Reuse-Job hat seitdem 20 Minuten
+Zeitlimit; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
