@@ -1133,7 +1133,10 @@ class Assistant:
                 "?" not in msg and not re.match(r"^(?:haha|hihi|hehe|lol|ok|okay|cool|super|ach so|achso|gut|klar|stimmt|aber)\b", s) and \
                 not (le.get("valence") == "positive" and re.search(r"\b(?:weh|schlimm|traurig|schlecht|furchtbar|schrecklich|leider|tot|"
                                                                     r"gestorben|vermisse|angst|allein|einsam)\b", s)) and \
-                not re.search(r"\b(?:vielleicht|morgen|wochenende|freitag|urlaub|plane|werde|will|freue)\b", s):
+                not re.search(r"\b(?:vielleicht|morgen|wochenende|freitag|urlaub|plane|werde|will|freue)\b", s) and \
+                not re.match(r"^(?:ende|anfang|mitte|nächste[nrs]?|übernächste[nrs]?|in \d+|bis|mal sehen|mal schauen|egal|keine ahnung|über|um|für|wegen|zum|zur|mit)\b", s) and \
+                not re.search(r"\bweiß (?:auch |es |doch |halt )?(?:nicht|net)\b|\bkeine ahnung\b", s) and \
+                not (le.get("valence") == "positive" and re.search(r"\b(?:meeting|ewig\w*|nervig\w*|anstrengend|stress\w*|langweilig\w*|knapp|deadline|sauer|müde|kaputt)\b", s)):
             # "die nachbarn waren laut" after "ich bin müde": more of the same moment
             key = "follow_neg" if le.get("valence") == "negative" else "follow_pos"
             st.last_exp = dict(le, turn=st.turn, text_en=(le.get("text_en") or "") + " " + _de_advice_hint(s))
@@ -1141,6 +1144,9 @@ class Assistant:
         stmt = self._de_statement(st, msg, s)
         if stmt is not None:
             return stmt
+        if "?" not in msg and len(s.split()) <= 12 and not re.match(r"^(?:kannst|könntest|hast du|bist du|weißt du|magst du|kennst du|gibt es|ist|sind|soll|darf)\b", s):
+            # a plain statement nothing understood: an engaged reply, never "Das verstehe ich leider nicht"
+            return Reply(msg, "smalltalk", self._pick(st, "de:b86:stmt_neutral", self.bank.daily["b86"]["de"]["stmt_neutral"]), via="german")
         return Reply(msg, "unknown", self._pick(st, "de:fallback", de["replies"]["fallback"]), via="german")
 
     def _german_mem67(self, st: DialogState, msg: str, s: str) -> Reply | None:
@@ -1297,6 +1303,47 @@ class Assistant:
             return Reply(msg, "smalltalk", self._pick(st, "daily:b86:lang_en", self.bank.daily["b86"]["lang_en"]), via="smalltalk")
         if re.fullmatch(r"(?:wie|was) (?:kann|soll) ich (?:am besten )?(?:geld sparen|sparen)|tipps zum (?:geld )?sparen|wie spare ich (?:am besten )?geld", q):
             return say("geld_sparen")
+        hd = st.uses.get("home_de61")
+        if hd and st.turn - hd[-1] <= 2:                  # "war okay" after "Wie war dein Tag?": an answer, never "Das verstehe ich nicht"
+            if re.fullmatch(r"(?:war |eigentlich |ganz |naja,? |hm,? )*(?:ok|okay|in ordnung|geht so|so lala|ging so|ganz okay|nicht schlecht|normal|wie immer)", q):
+                hd.append(st.turn)
+                return say("day_ok")
+            if re.fullmatch(r"(?:war |eigentlich |echt |richtig |ganz |sehr |total )*(?:gut|schön|super|toll|klasse|prima|entspannt|cool)(?:,? danke)?", q):
+                hd.append(st.turn)
+                return say("day_good")
+            if re.fullmatch(r"(?:war |eigentlich |echt |richtig |ganz |sehr |total |eher |nicht so )*(?:schlecht|mies|blöd|doof|nervig|scheiße|furchtbar|schrecklich|toll|gut)", q):
+                hd.append(st.turn)
+                return say("day_bad")
+        if re.fullmatch(r"(?:egal,? |und |also |okay,? |ok,? )?(?:was gibt(?:'| )?s|was gibt es) (?:bei dir |denn |so |eigentlich )*neues(?: bei dir)?|"
+                        r"(?:egal,? |und )?was ist bei dir so los|(?:egal,? |und )?(?:was|wie) läuft(?:'| )?s bei dir", q):
+            return say("neues_bot")
+        if re.fullmatch(r"(?:ich )?(?:überlege|überleg) (?:gerade |grad )?(?:,? )?was ich (?:heute |heute abend |jetzt |gleich )?(?:koche|koch|kochen soll|esse|essen soll|mache|machen soll)|"
+                        r"(?:ich )?weiß (?:noch )?nicht,? was ich (?:heute |heute abend )?(?:kochen|essen) soll", q):
+            st.uses["koch70"] = ["", st.turn]
+            return say("koch_ueberlege")
+        ko = st.uses.get("koch70")
+        mm = re.fullmatch(r"(?:vielleicht |und |dann |ja,? |eher )?mit (?P<y>pesto|tomatensoße|tomatensauce|tomaten|sahnesoße|sahnesauce|sahne|knoblauch|käse|parmesan|"
+                          r"gemüse|lachs|thunfisch|pilzen|champignons|spinat|hackfleisch|hack|speck|zucchini|brokkoli|olivenöl|garnelen)", q)
+        if mm and ko and st.turn - ko[1] <= 3:            # "mit pesto" right after "vielleicht pasta"
+            y, d = mm.group("y"), ko[0]
+            ko[1] = st.turn
+            y = y[:1].upper() + y[1:] if y not in ("tomaten", "pilzen", "champignons") else y.capitalize()
+            if d:
+                return say("mit_sauce", x=d[:1].upper() + d[1:] if d in ("pasta", "pizza", "lasagne", "spaghetti", "gnocchi", "risotto") else d,
+                           X=d[:1].upper() + d[1:], y=y)
+            return say("mit_sauce_nur", y=y)
+        fm = re.fullmatch(r"(?:und )?(?:magst|liebst|isst) du (?:gern |gerne )?(?P<x>pesto|pizza|pasta|sushi|schokolade|eis|kuchen|kaffee|tee|burger|tacos|curry|ramen|käse|brot|"
+                          r"salat|suppe|pfannkuchen|carbonara|lasagne|spaghetti|döner|pommes)(?: gern| gerne)?", q)
+        if fm:                                            # "magst du pesto?": a friendly food opinion
+            x = fm.group("x")
+            X = x[:1].upper() + x[1:]
+            return say("food_like", x=X, X=X)
+        if re.fullmatch(r"(?:okay,? |ok,? |so,? |gut,? |also,? |na dann,? )?(?:ich (?:koch|koche|geh|gehe) (?:jetzt|dann mal|dann jetzt|mal|jetzt mal)(?: kochen| los)?|"
+                        r"ich fang (?:jetzt |dann )?(?:mal )?an (?:zu kochen)?|ich mach mich (?:jetzt |dann )?(?:mal )?ans kochen|auf in die küche)", q):
+            st.uses.pop("koch70", None)
+            return say("koch_jetzt")
+        if re.fullmatch(r"(?:naja,? |tja,? |ja,? |hm+,? )?(?:mal sehen|mal schauen|schauen wir mal|wir werden sehen|mal gucken|abwarten)", q):
+            return say("mal_sehen")
         cf = st.uses.get("common_follow")
         if cf and st.turn - cf[1] <= 4:                   # German follow-ups on a hand-checked fact ("wie lange braucht licht dahin?")
             for f in cf[0]:
@@ -2183,6 +2230,9 @@ class Assistant:
                        r"gingen|kam|kamen|machte|machten|hatte|hatten)\b", q)) and \
                 not re.search(r"\b(?:nicht|meinte|überlege|verstehe|versteh)\b", q):
             key = "stmt_plain"                            # a story in the first person: ask for more
+        elif re.match(r"^(?:morgen|übermorgen|nachher|später|am wochenende|nächste woche|dann) (?:\w+ )?(?:ich|wir)\b|^(?:ich|wir) (?:werde|werden|will|wollen) ", q):
+            key = "stmt_plan"                             # "morgen pflanze ich neu": a plan, not "Was meinst du genau?"
+            return Reply(msg, "smalltalk", self._pick(st, "de:b86:stmt_plan", self.bank.daily["b86"]["de"]["stmt_plan"]), via="german")
         else:
             return None
         st.last_exp = {"valence": {"stmt_neg": "negative", "stmt_pos": "positive"}.get(key, "neutral"), "topic": None, "person": False, "text": msg,

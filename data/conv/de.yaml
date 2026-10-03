@@ -8,7 +8,7 @@
 
 detect:
   # words that are common in German and rare in English messages
-  german: [ich, du, bin, bist, ist, nicht, und, das, der, die, den, dem, ein, eine, einen, mir, mich, dir, dich,
+  german: [ich, eben, hause, gekommen, ging, hab, gehabt, ewiges, ewig, gegangen, gesehen, gemacht, kuchen, garten, sauer, kinder, fanden, besten, lustig, so, du, bin, bist, ist, nicht, und, das, der, die, den, dem, ein, eine, einen, mir, mich, dir, dich,
            stunden, stunde, minuten, tage, wochen, monate, jahre, ungefähr, etwa, circa, knapp, halbe,
            wohne, lebe, arbeite, heiße, hasse, schwester, bruder, mutter, vater, meinte, merk, vergiss, verschoben, termin,
            sprache, sprachen, spricht, sprechen, welche, welcher, welches, fiel, tief, beine, mensch, mond, erfunden,
@@ -315,8 +315,9 @@ daily:
     miss: ["Natürlich vermisst du {x}. Das zeigt, wie viel {y} dir bedeutet hat.",
            "Das verstehe ich gut. Gibt es etwas, das dich besonders an {x} erinnert?"]
     follow_neg: ["Das macht es natürlich nicht leichter. Wie geht's dir jetzt damit?",
-                 "Oh je, das kommt dann noch dazu. Kein Wunder, dass du erledigt bist."]
-    follow_pos: ["Wie schön! Erzähl ruhig mehr.", "Das klingt richtig gut!"]
+                 "Oh je, und dann auch noch das. Kein Wunder, dass dich das beschäftigt.",
+                 "Puh, das auch noch. Das tut mir leid.", "Hm, das klingt echt nicht leicht."]
+    follow_pos: ["Wie schön! Erzähl ruhig mehr.", "Das klingt richtig gut!", "Herrlich! 😊", "Das freut mich zu hören!", "Haha, wie schön!"]
     agree_hard: ["Ich hoffe, das hilft dir ein bisschen. Und sei heute Abend nett zu dir – du hattest einen harten Tag.",
                  "Freut mich, wenn das Sinn ergibt. Du musst heute nicht alles klären."]
     event: ["Oh, spannend! Viel Glück bei {x}! Bist du aufgeregt?", "{X} – drück dir die Daumen! Wie fühlst du dich?"]
@@ -731,9 +732,9 @@ daily:
       exams_well: ["Das ist das beste Gefühl! Wie feierst du?", "Super – Daumen drücken für die Ergebnisse! Jetzt erstmal entspannen."]
       time_off: ["{x} frei – das ist riesig! Schon Pläne, oder noch offen?", "Wow, {x} Freiheit! Reisen, ausruhen oder etwas Neues lernen?"]
       break_ideas: "So viel Zeit – ein paar Ideen:\n\n• Reise irgendwohin, wo du noch nie warst, auch mit kleinem Budget\n• Lerne etwas Neues: eine Sprache, ein Instrument, Kochen\n• Sammle Arbeitserfahrung oder mach ein Praktikum\n• Starte ein kleines Projekt, für das nie Zeit war\n• Und: ausruhen! Du hast es dir verdient.\n\nWas davon passt am ehesten zu dir?"
-      stmt_pos: ["Klingt richtig gut! Erzähl mehr – was war das Beste daran?", "Wie schön! Das freut mich für dich.", "Super! Wie kam's dazu?"]
+      stmt_pos: ["Klingt richtig gut! Erzähl mehr!", "Wie schön! Das freut mich für dich.", "Super, das hört man gern!"]
       stmt_neg: ["Oh je, das klingt anstrengend. Magst du erzählen, was los ist?", "Das ist blöd. Was ist passiert?", "Hm, das klingt nicht so toll. Wie geht's dir damit?"]
-      stmt_plain: ["Ah, verstehe. Erzähl ruhig mehr!", "Okay! Und wie war's?", "Interessant – wie ging's weiter?"]
+      stmt_plain: ["Ah, verstehe. Erzähl ruhig mehr!", "Spannend! Erzähl gern mehr.", "Interessant – und wie findest du das?"]
 
     g63:
       decide_why:
@@ -808,6 +809,7 @@ daily:
         pesto: ["Pesto – Basilikum, Pinienkerne, Parmesan, Knoblauch und Olivenöl. Einfach und so gut."]
         lasagne: ["Lasagne – Schicht für Schicht Glück! Die lohnt die Mühe."]
         spaghetti: ["Spaghetti gehen immer! Mit Tomatensoße oder was Besonderem?"]
+        pasta: ["Pasta geht immer! Mit welcher Soße – Tomate, Pesto oder was Cremiges?"]
       gericht_sonst: ["{X} – gute Wahl! Viel Spaß beim Kochen.", "Mmh, {x} – lecker. Guten Appetit!"]
       sahne: ["Klassisch nein – eine römische Carbonara besteht nur aus Eiern, Pecorino, Guanciale und Pfeffer; cremig wird sie durch Ei und Nudelwasser. Viele nehmen zu Hause aber trotzdem Sahne. Deine Küche, deine Regeln!"]
       trinken:

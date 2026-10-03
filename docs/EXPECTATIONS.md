@@ -3197,6 +3197,35 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 794 bestanden. Regressionen (64 Gespräche): 0 Wiederholungen.
   Neue Unterschiede gibt es nur in b42 und b78, dort wurde zwischen zwei gleichwertigen Echo-Varianten anders
   gewählt.
+- **Alltags-Batterie 98 (dasselbe 25-Turn-Gespräch wie 97, auf Deutsch)**. Erster Lauf: 9 Wiederholungen. Bei
+  12 von 25 Turns kam eine der drei Rückfall-Antworten („Das verstehe ich leider nicht …“, „Hm, da komme ich nicht
+  ganz mit …“). Bei „ende nächsten monat“ kam „Wie schön! Erzähl ruhig mehr.“, bei „ich bin die designerin“ kam
+  „Okay! Und wie war's?“.
+
+  Jetzt: 0 Wiederholungen und an jeder Stelle eine passende Antwort.
+
+  Neu:
+  - Antwort auf „war okay / ging so / war gut / mies“ nach „Wie war dein Tag?“;
+  - Kuchen (Sorte, „war echt lecker“), langes Meeting (Thema), App/Website-Projekt (wofür, eigene Rolle,
+    „macht spaß“), knappe Deadline (Termin mit Planungsrat) als deutsche Ereignisse mit Folgefragen;
+  - „mal sehen“;
+  - „was gibt's bei dir neues?“;
+  - „ich überlege, was ich koche“ → Pasta → „mit Pesto“ → „magst du Pesto?“ → „ich koch jetzt“ („Guten Appetit“);
+  - Pläne („morgen pflanze ich neu“).
+
+  Eine deutsche Aussage, die sonst niemand versteht, bekommt jetzt eine zugewandte neutrale Antwort statt der
+  Rückfall-Antwort. Fragen behalten den Rückfall. „Und wie war's?“ und „wie ging's weiter?“ unterstellen keine
+  Vergangenheit mehr. Die Folge-Empathie springt nicht mehr bei Satzstücken an („ende nächsten monat“, „um das
+  budget“, „ich weiß auch nicht“) und auch nicht bei Meeting- oder Stresswörtern nach einem positiven Moment. Die
+  Spracherkennung kennt 19 weitere deutsche Alltagswörter (eben, hause, gekommen, ging, hab …), sodass „bin eben
+  nach hause gekommen“ nicht mehr auf Englisch beantwortet wird.
+
+  Verallgemeinerungsprobe mit anderen Formulierungen (21 + 8 + 7 Turns: Muffins/Zitrone, „hab heute ein ewiges
+  meeting gehabt“, Website für einen Bäcker, Risotto mit Pilzen, Hund gräbt den Garten um, Zoo): 0 Wiederholungen,
+  kein Rückfall.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 795 bestanden. Regressionen: 0 Wiederholungen. Neu sind nur
+  die gewollten Wortlaute in b32, b57d und b67x (neue Folge-Varianten, keine Vergangenheitsform mehr).
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

@@ -3471,3 +3471,27 @@ def test_battery97_long_chat_no_dumb_echoes(chat):
     a.turn(st, "my colleague brought cake")
     assert "delicious" in a.turn(st, "chocolate").text
     assert "opinions" not in a.turn(DialogState("p97"), "do you like pesto?").text
+
+
+def test_battery98_german_long_chat(chat):
+    a, _ = chat
+    bad = ("verstehe ich leider nicht", "nicht ganz verstanden", "nicht ganz mit", "Und wie war's", "wie ging's weiter", "nicht nachschlagen")
+    st = DialogState("l98")
+    convo = ["hallo", "gut und dir?", "bin gerade von der arbeit gekommen", "war okay", "ein kollege hat kuchen mitgebracht", "schokolade",
+             "ja war echt lecker", "dann hatte ich ein langes meeting", "über das neue projekt", "wir bauen eine app", "zum buchen von yogakursen",
+             "ich bin die designerin", "ja macht spaß", "aber die deadline ist knapp", "ende nächsten monat", "mal sehen",
+             "egal, was gibt's bei dir neues?", "ich überlege was ich koche", "vielleicht pasta", "mit pesto", "magst du pesto?", "okay ich koch jetzt"]
+    seen = []
+    for msg in convo:
+        t = a.turn(st, msg).text
+        assert not any(b in t for b in bad), (msg, t)
+        assert t not in seen, (msg, t)
+        seen.append(t)
+    assert "lecker" in seen[5] and "Worum" in seen[7] and "Wofür" in seen[9] and "Bis wann" in seen[13]
+    assert "Wie schön" not in seen[14] and "Puffer" in seen[14]
+    assert "Pesto" in seen[19] and "Pesto" in seen[20] and "Appetit" in seen[21]
+    st = DialogState("m98")
+    a.turn(st, "ich hab heute ein ewiges meeting gehabt")
+    assert "Klingt wichtig" in a.turn(st, "um das budget").text
+    assert "Plan" in a.turn(DialogState("p98"), "morgen pflanze ich neu").text
+    assert a.turn(DialogState("e98"), "bin eben nach hause gekommen").via == "german"
