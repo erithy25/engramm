@@ -2912,6 +2912,38 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: Team-Dev-Satz 1 von 128 geändert (team-0077, Jupiter-Antwort ausführlicher). NQ 22/9, Suite 782
   bestanden. Regressionen 32 und 38–87 (56 Gespräche): 0 Wiederholungen.
+- **Alltags-Batterie 88 (zehn deutsche Mehrschritt-Gespräche)**. Vorher war Deutsch deutlich schwächer als
+  Englisch:
+
+  | Eingabe | vorher |
+  |---|---|
+  | „28“, „italienisch“ (Kurzantworten in einem deutschen Gespräch) | englische Antworten („Oh? Go on.“, „Ooh, italienisch. How did it go?“) |
+  | „ich will abnehmen“, „so 5 kilo“ | englisch erkannt („will“ zählte als englisches Wort) |
+  | „okay der war schlecht 😂“ nach einem Witz | „Das klingt schwer. Magst du erzählen, was passiert ist?“ |
+  | „okay, mach ich“ (zum Tierarzt) | „Viel Spaß dabei! 😊“ |
+  | „hi, ich bin lena“, „mein chef will alles bis freitag“ / „ich weiß nicht wie ich das schaffen soll“, „warst du schon mal da?“, „als marketing managerin“, „hat er den nobelpreis bekommen?“, „eher was draußen“ / „es soll regnen“, Geburtstag mit „wir gehen essen“ / „italienisch“ | Rückfallantworten |
+
+  Neu:
+  - Kurzantworten ohne englisches Wort bleiben in einem deutschen Gespräch deutsch;
+  - weitere Erkennungswörter;
+  - Name mit Begrüßung;
+  - Geburtstags-Ablauf (Alter wird gemerkt);
+  - Abnehmen (Ziel mit Wochenrechnung bei einem halben Kilo pro Woche, Essen, Sport);
+  - Witz-Kritik;
+  - Arbeitsdruck mit Rat;
+  - „warst du schon mal da?“ mit dem Ort aus dem Gespräch;
+  - Rolle nach dem Vorstellungsgespräch;
+  - Nobelpreis (Einstein, Curie) als geprüfte Fakten mit Pronomen, EN und DE;
+  - krankes Haustier (frisst nicht → Tierarzt; „mach ich“ → gute Besserung);
+  - Ideen für draußen und bei Regen (EN und DE).
+
+  Die erste Fassung der Reise-Regel nahm auch „warst du schon mal in paris?“ und verdrängte den Ablauf aus
+  Batterie 78 samt Folgefrage („ich war letztes jahr dort“). Der alte Test fand das. Die Regel gilt jetzt nur für
+  „da/dort“ und setzt denselben Folgezustand.
+
+  Messung: Team-Dev-Satz unverändert gegenüber Batterie 87. NQ 22/9, Suite 783 bestanden. Regressionen 32 und
+  38–88 (57 Gespräche): 0 Wiederholungen. Unterschiede gegen den Stand vor Batterie 86 nur wie bei 86/87
+  dokumentiert und bei Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

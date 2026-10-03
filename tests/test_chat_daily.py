@@ -3264,3 +3264,39 @@ def test_battery87_everyday_flows(chat):
     assert "Jupiter" in a.turn(st, "what's the biggest planet?").text
     assert "95" in a.turn(st, "how many moons does it have?").text
     assert "Melbourne" in a.turn(DialogState("s87"), "why isn't sydney the capital?").text
+
+
+def test_battery88_german_everyday(chat):
+    a, _ = chat
+    st = DialogState("n88")
+    assert "Lena" in a.turn(st, "hi, ich bin lena").text
+    assert "Lena" in a.turn(st, "wie heiße ich?").text
+    st = DialogState("b88")
+    a.turn(st, "ich hab heute geburtstag!")
+    assert "28" in a.turn(st, "28").text
+    a.turn(st, "wir gehen essen")
+    assert "Italienisch" in a.turn(st, "italienisch").text
+    st = DialogState("d88")
+    a.turn(st, "ich will abnehmen")
+    assert "10 Wochen" in a.turn(st, "so 5 kilo").text
+    assert "Gemüse" in a.turn(st, "was soll ich essen?").text
+    assert "Spaß" in a.turn(st, "und sport?").text
+    go = a.turn(st, "ok ich versuch's").text
+    assert "schaffst" in go or "Daumen" in go, go
+    st = DialogState("j88")
+    a.turn(st, "erzähl mir einen witz")
+    t = a.turn(st, "okay der war schlecht 😂").text
+    assert "schwer" not in t and ("flach" in t or "schwach" in t), t
+    st = DialogState("k88")
+    a.turn(st, "meine katze ist krank")
+    assert "Tierarzt" in a.turn(st, "sie frisst nichts mehr seit gestern").text
+    assert "Spaß" not in a.turn(st, "okay, mach ich").text
+    st = DialogState("w88")
+    a.turn(st, "was kann ich am wochenende machen?")
+    assert "draußen" in a.turn(st, "eher was draußen").text
+    assert "Museum" in a.turn(st, "es soll regnen").text
+    st = DialogState("e88")
+    a.turn(st, "wer hat die relativitätstheorie entwickelt?")
+    st.ctx.update({"answer": "Albert Einstein", "atype": "PERSON", "mention": "Albert Einstein"})
+    assert "1921" in a.turn(st, "hat er den nobelpreis bekommen?").text
+    assert "1921" in a.turn(DialogState("e88en"), "did einstein win a nobel prize?").text

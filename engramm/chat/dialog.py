@@ -1288,6 +1288,119 @@ class Assistant:
             st.uses["neigh86de"] = [st.turn]
             st.last_exp = {"valence": "negative", "topic": "people", "person": True, "text": msg, "turn": st.turn}
             return say("neigh_loud")
+        hm = re.fullmatch(r"(?:hi|hallo|hey|moin|servus|huhu|na)[,!.]? ich bin (?:die |der )?(?P<n>[a-zäöüß]{2,15})(?:[,!.]? (?:und |schön dich kennenzulernen|freut mich).*)?", q)
+        if hm and hm.group("n") not in set(self.bank.de["detect"]["german"]) | {"neu", "hier", "da", "zurück", "wieder", "wach", "fertig", "krank", "zuhause"}:
+            name = hm.group("n").capitalize()             # "hi, ich bin lena": a name, said with a greeting
+            try:
+                self._learn(st, [f"My name is {name}."], msg)
+            except Exception:
+                pass
+            return say("name_hi", x=name)
+        if re.search(r"\b(?:ich )?(?:hab|habe) heute geburtstag\b", q):
+            st.uses["bday88"] = [st.turn]                 # the greeting itself comes from the birthday rule; the follow-ups need it
+            return None
+        bd = st.uses.get("bday88")
+        if bd and st.turn - bd[-1] <= 4:
+            am = re.fullmatch(r"(?:ich werde |ich bin |werde |schon )?(?P<n>\d{1,3})(?: jahre?(?: alt)?)?(?: geworden)?", q)
+            if am and 1 <= int(am.group("n")) <= 110:
+                bd.append(st.turn)
+                try:
+                    self._learn(st, [f"I am {int(am.group('n'))} years old."], msg)
+                except Exception:
+                    pass
+                return say("bday_age", x=am.group("n"))
+            if re.fullmatch(r"(?:wir gehen|ich gehe|wir wollen|ich will|wir sind) (?:heute abend |abends |später )?(?:schön |lecker )?(?:essen|aus essen|essen gehen|feiern|was trinken)(?: gehen)?", q):
+                bd.append(st.turn)
+                return say("bday_out")
+            kc = re.fullmatch(r"(?:zum |beim |zu )?(?:einem )?(?P<k>italienisch|italiener|griechisch|griechen|japanisch|japaner|sushi|chinesisch|indisch|inder|mexikanisch|thai|vietnamesisch|burger|steak|pizza)(?:en)?", q)
+            if kc:
+                st.uses.pop("bday88", None)
+                return say("bday_food", x=kc.group("k").capitalize())
+        if re.fullmatch(r"(?:ich )?(?:will|möchte|muss|sollte|würde gern|würde gerne) (?:(?:ein paar|ein bisschen|etwas|\d{1,2}) (?:kilo|kg) )?abnehmen", q):
+            st.uses["diet88"] = [st.turn]
+            return say("diet_start")
+        dt = st.uses.get("diet88")
+        if dt and st.turn - dt[-1] <= 5:
+            km = re.fullmatch(r"(?:so |ungefähr |etwa |circa |ca |vielleicht |mindestens )?(?P<n>\d{1,2})(?: bis \d{1,2})? ?(?:kilo|kg)(?: oder so)?", q)
+            if km:
+                dt.append(st.turn)
+                n = int(km.group("n"))
+                return say("diet_goal", x=str(n), y=str(max(1, round(n / 0.5))))   # half a kilo a week
+            if re.fullmatch(r"(?:und |also )?was (?:soll|sollte|kann) ich (?:dann |da |am besten )?essen|(?:und )?was (?:esse|ess) ich (?:dann|am besten)", q):
+                dt.append(st.turn)
+                return say("diet_food")
+            if re.fullmatch(r"(?:und |was ist mit |wie ist es mit )?(?:sport|bewegung|training)(?: dazu)?|(?:und )?welcher sport|soll ich (?:auch )?sport machen", q):
+                dt.append(st.turn)
+                return say("diet_sport")
+            if re.fullmatch(r"(?:ok(?:ay)?,? |gut,? |alles klar,? )?(?:ich versuch(?:'| )?s|ich versuche es|ich probier(?:'| )?s|ich probiere es|ich fang morgen an|ich fange an|mach ich)", q):
+                st.uses.pop("diet88", None)
+                return say("diet_go")
+        if re.fullmatch(r"(?:ok(?:ay)?,? |naja,? |hm+,? |boah,? )?(?:der|das) (?:war|ist) (?:jetzt )?(?:echt |ziemlich |voll |total |richtig |aber )?(?:schlecht|flach|lahm|mies|doof|schwach|nicht lustig|kein bisschen lustig)", q):
+            la = st.last_action or {}
+            if "witz" in (st.last_reply or "").lower() or re.search(r"\?.+\.", st.last_reply or "") or (la.get("kind") or "").startswith("joke"):
+                return say("joke_bad")                    # "der war schlecht 😂" after a joke: no sympathy for a bad day
+        if re.fullmatch(r"(?:mein chef|meine chefin|mein boss|die chefin|der chef) (?:will|braucht|möchte|erwartet) (?:alles|das|es|das projekt|den bericht|die präsentation)"
+                        r"(?: schon)? (?:bis|zum|zu) (?:montag|dienstag|mittwoch|donnerstag|freitag|morgen|übermorgen|ende der woche|nächste woche)", q):
+            st.last_exp = {"valence": "negative", "topic": "work", "person": True, "text": msg, "turn": st.turn, "text_en": "my boss wants everything done by friday"}
+            st.uses["work88"] = [st.turn]
+            return say("deadline")
+        wk = st.uses.get("work88")
+        if wk and st.turn - wk[-1] <= 4 and re.fullmatch(r"(?:und )?ich weiß (?:echt |gar )?nicht,? wie ich das (?:alles )?schaffen soll|wie soll ich das (?:alles )?schaffen|"
+                                                          r"das schaffe ich nie|das ist (?:viel )?zu viel", q):
+            wk.append(st.turn)
+            return say("deadline_advice")
+        tm = re.fullmatch(r"(?:und )?(?:warst|bist) du (?:schon mal |schon einmal |jemals )?(?:da|dort)(?: gewesen)?", q)
+        if tm:                                            # "warst du schon mal da?" after Lissabon ("warst du in paris?" is battery 78's)
+            names = st.uses.get("de_names", {})
+            ment = self.bot.context.get("mention") or ""
+            place = (names.get(ment.lower()) or [ment])[0] if ment else ""
+            place = place[:1].upper() + place[1:]
+            if place:
+                st.uses["city78"] = [place.lower(), st.turn]   # "ich war letztes jahr dort" follows as in battery 78
+            return say("travel_bot", x=place) if place else say("travel_bot_none")
+        if re.search(r"\bvorstellungsgespräch\b", q):
+            st.uses["interview88"] = [st.turn]
+            return None
+        iv = st.uses.get("interview88")
+        if iv and st.turn - iv[-1] <= 3:
+            rm = re.fullmatch(r"(?:als |für (?:die stelle als |eine stelle als |den job als )?)(?P<x>[a-zäöüß][a-zäöüß -]{2,40})", q)
+            if rm:
+                iv.append(st.turn)
+                x = " ".join(w.capitalize() if w not in ("und", "für", "im", "in") else w for w in rm.group("x").split())
+                return say("interview_role", x=x)
+        nb = re.fullmatch(r"(?:und )?(?:hat|bekam|gewann) (?P<p>er|sie|[a-zäöüß ]+?) (?:den |einen |auch den |auch einen )?nobelpreis(?: bekommen| gewonnen| erhalten)?", q)
+        if nb:
+            p_ = nb.group("p")
+            if p_ in ("er", "sie"):
+                ctx = self.bot.context
+                p_ = (ctx.get("answer") if ctx.get("atype") == "PERSON" and ctx.get("answer") else None) or ctx.get("mention") or ""
+                if not p_:
+                    last = st.uses.get("kb_vals") or []
+                    p_ = last[-1][1] if last else ""
+            rep = self._common_fact(st, f"did {p_} win the nobel prize?") if p_ else None
+            if rep is not None:
+                return rep
+        la = st.last_action or {}
+        act = ((la.get("kind") or "") == "rec:activity" and st.turn - la.get("turn", -99) <= 3) or \
+            (st.uses.get("act88") and st.turn - st.uses["act88"] <= 3)
+        if act and re.fullmatch(r"(?:eher |lieber |vielleicht |am liebsten )?(?:was|etwas|irgendwas)? ?(?:für )?(?:draußen|an der frischen luft|in der natur)(?: bitte)?", q):
+            st.uses["act88"] = st.turn
+            return say("act_out")
+        if act and re.fullmatch(r"(?:aber |nur |leider )?(?:es soll|es wird|es könnte|es) (?:(?:am wochenende|morgen|heute) )?(?:regnen|regnet|schütten|schüttet)(?: am wochenende| morgen| leider)?|"
+                                r"(?:aber |nur )?(?:das wetter (?:soll|wird) (?:schlecht|mies)(?: werden)?|bei regen)", q):
+            st.uses["act88"] = st.turn
+            return say("act_rain")
+        if re.search(r"\b(?:meine|mein) (?:katze|kater|hund|hündin|kaninchen|hamster|meerschweinchen) (?:ist|scheint) (?:krank|so schlapp|nicht fit|komisch)", q):
+            st.uses["sickpet88"] = [st.turn]
+            return None
+        sp = st.uses.get("sickpet88")
+        if sp and st.turn - sp[-1] <= 4:
+            if re.search(r"\b(?:frisst|trinkt|isst) (?:seit [a-zäöüß ]+ )?(?:nichts|nix|kaum|gar nichts|nicht mehr)\b|\b(?:erbricht|kotzt|bricht|hat durchfall|schläft nur)\b", q):
+                sp.append(st.turn)
+                return say("sickpet_serious")
+            if re.fullmatch(r"(?:ok(?:ay)?,? |gut,? |ja,? )?(?:mach ich|das mach ich|ich ruf (?:da |gleich )?an|ich fahr(?:e)? hin|ich geh(?:e)? hin|wir fahren hin)", q):
+                st.uses.pop("sickpet88", None)
+                return say("sickpet_go")
         ng = st.uses.get("neigh86de")
         if ng and st.turn - ng[-1] <= 4:
             if re.fullmatch(r"(?:und |also )?soll ich (?:sie|die nachbarn|ihn|ihr) (?:mal )?(?:ansprechen|darauf ansprechen|was sagen|etwas sagen|bescheid sagen)|"
@@ -3388,8 +3501,8 @@ class Assistant:
                 return self._german(st, msg)      # "haha", "ok", "ja" in a German conversation stay German
             if _clearly_english(msg, de):
                 st.lang = "en"
-            elif len(re.findall(r"[a-zäöüß]+", msg.lower())) >= 2:
-                return self._german(st, msg)      # "die nachbarn waren laut": no English word, stays German
+            elif len(re.findall(r"[a-zäöüß]+", msg.lower())) >= 2 or re.fullmatch(r"\s*(?:\d{1,3}|[a-zäöüß]{3,20})[!.? ]*", msg.lower()):
+                return self._german(st, msg)      # "die nachbarn waren laut", "28", "italienisch": no English word, stays German
         msg = expand_chat(msg)                            # "wats ur name" → "what's your name"
         lead = re.match(r"^(?:ok(?:ay)?,?\s+)?(?:whatever|anyways?|moving on|never ?mind|nvm|enough of that|forget (?:it|that)(?=[,.!])|"
                         r"ok(?:ay)? then|alright then|fine then)[,.!]*\s+(?=\S+\s+\S)", msg, re.I)
@@ -6343,6 +6456,16 @@ class Assistant:
                             r"(?:yeah,? |ok(?:ay)?,? )?i'?ll (?:talk to them|say something|do that)(?: tomorrow| later)?", n):
                 st.uses.pop("neigh86", None)
                 return say("neigh_plan")
+        la = st.last_action or {}
+        act = ((la.get("kind") or "") == "rec:activity" and st.turn - la.get("turn", -99) <= 3) or \
+            (st.uses.get("act88") and st.turn - st.uses["act88"] <= 3)
+        if act and re.fullmatch(r"(?:maybe |rather |preferably |ideally )?(?:something|anything) (?:outside|outdoors|in nature|in the fresh air)|(?:more |rather )?outdoors?(?: stuff| things)?", n):
+            st.uses["act88"] = st.turn
+            return say("act_out")
+        if act and re.fullmatch(r"(?:but |only |unfortunately )?it'?s (?:supposed|going|meant) to rain(?: this weekend| tomorrow| all weekend)?|(?:but )?it(?:'s| is) raining|"
+                                r"(?:but )?the weather (?:is going to be|will be) (?:bad|awful|terrible)", n):
+            st.uses["act88"] = st.turn
+            return say("act_rain")
         dr = st.uses.get("drive86")
         if dr and st.turn - dr[-1] <= 5:
             if re.fullmatch(r"(?:it was |mostly |just |because of )?(?:the )?(?:parallel parking|parking|reverse parking|reversing|the roundabout|roundabouts|a roundabout|"

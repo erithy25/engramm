@@ -4056,7 +4056,36 @@
     "katze",
     "welpe",
     "heißt",
-    "hieß"
+    "hieß",
+    "will",
+    "abnehmen",
+    "zunehmen",
+    "kilo",
+    "diät",
+    "sport",
+    "draußen",
+    "regnen",
+    "regnet",
+    "gehen",
+    "italienisch",
+    "griechisch",
+    "japanisch",
+    "chinesisch",
+    "indisch",
+    "mexikanisch",
+    "warst",
+    "schon",
+    "krank",
+    "frisst",
+    "tierarzt",
+    "nobelpreis",
+    "bekommen",
+    "vorstellungsgespräch",
+    "nervös",
+    "stress",
+    "schaffen",
+    "versuch",
+    "versuche"
    ],
    "english": [
     "i",
@@ -9288,6 +9317,18 @@
     "de": "Weil Sydney und Melbourne beide Hauptstadt werden wollten. Der Kompromiss von 1908 war eine neue Stadt zwischen ihnen – Canberra wurde dafür eigens gebaut, das Parlament zog 1927 dorthin."
    },
    {
+    "q": "(?:and |so |but )?did (?:albert )?einstein (?:win|get|receive) (?:a|the) nobel prize|(?:and |so )?when did (?:albert )?einstein (?:win|get) (?:a|the|his) nobel prize",
+    "a": "Yes — Albert Einstein won the 1921 Nobel Prize in Physics, not for relativity but for explaining the photoelectric effect.",
+    "v": "1921",
+    "de": "Ja – Albert Einstein bekam 1921 den Nobelpreis für Physik, allerdings nicht für die Relativitätstheorie, sondern für die Erklärung des photoelektrischen Effekts."
+   },
+   {
+    "q": "(?:and |so |but )?did marie curie (?:win|get|receive) (?:a|the) nobel prize",
+    "a": "Yes, twice: the 1903 Nobel Prize in Physics (with Pierre Curie and Henri Becquerel) and the 1911 Nobel Prize in Chemistry. She was the first person to win two.",
+    "v": "1903 and 1911",
+    "de": "Ja, sogar zweimal: 1903 den Nobelpreis für Physik (mit Pierre Curie und Henri Becquerel) und 1911 den für Chemie. Sie war der erste Mensch mit zwei Nobelpreisen."
+   },
+   {
     "q": "(?:and |so )?who (?:designed|built|planned|engineered|made) (?:the )?eiffel tower",
     "a": "The Eiffel Tower was built by Gustave Eiffel's company. The design came from his engineers Maurice Koechlin and Émile Nouguier, and the architect Stephen Sauvestre shaped its look.",
     "v": "Gustave Eiffel's company",
@@ -13834,6 +13875,75 @@
     "Sounds sensible. A friendly word tomorrow usually works better than a knock at 3 am. Hope you get some proper sleep tonight."
    ],
    "de": {
+    "act_out": [
+     "Ein paar Ideen für draußen:\n\n• Eine Wanderung oder ein langer Spaziergang im Grünen\n• Eine Radtour irgendwohin, wo du noch nie warst\n• Flohmarkt oder Wochenmarkt\n• Ein Picknick, wenn das Wetter mitspielt\n\nKlingt davon etwas gut?"
+    ],
+    "act_rain": [
+     "Dann vielleicht:\n\n• Museum oder Ausstellung\n• Kletterhalle oder Schwimmbad\n• Eine Café-Tour mit einem guten Buch\n• Oder trotzdem raus, mit Regenjacke – Regen hat auch was ☔\n\nWorauf hast du Lust?"
+    ],
+    "name_hi": [
+     "Hallo {x}! Schön, dich kennenzulernen. 😊 Wie geht's dir?",
+     "Hi {x}, freut mich! Was führt dich her?"
+    ],
+    "bday_age": [
+     "{x} – herzlichen Glückwunsch! Ein richtig gutes Alter. 🎉",
+     "{x}! Alles Liebe – das wird ein tolles Jahr."
+    ],
+    "bday_out": [
+     "Wie schön! Wohin geht's denn?",
+     "Perfekt zum Feiern! Wo esst ihr?"
+    ],
+    "bday_food": [
+     "{x} – perfekt für einen Geburtstag! Lass es dir schmecken und feier schön. 🎂",
+     "Mmh, {x}! Genieß den Abend – du hast es dir verdient. 🎉"
+    ],
+    "diet_start": [
+     "Okay, das kriegst du hin! Wie viel hast du dir denn vorgenommen?",
+     "Gutes Ziel! An wie viel Kilo hast du gedacht?"
+    ],
+    "diet_goal": [
+     "{x} Kilo sind ein realistisches Ziel. Mit etwa einem halben Kilo pro Woche bist du in gut {y} Wochen da – ohne dich zu quälen."
+    ],
+    "diet_food": [
+     "Viel Gemüse und Eiweiß (Hülsenfrüchte, Fisch, Hähnchen, Quark, Eier), Vollkorn statt Weißmehl, wenig Zucker und keine süßen Getränke. Und nicht hungern – sonst kommt der Jojo-Effekt."
+    ],
+    "diet_sport": [
+     "Am besten etwas, das dir Spaß macht – sonst hältst du es nicht durch. Zum Beispiel dreimal pro Woche 30 Minuten zügig gehen, Radfahren oder Schwimmen, dazu zweimal kurz Krafttraining. Muskeln verbrennen auch in Ruhe mehr."
+    ],
+    "diet_go": [
+     "Du schaffst das! Kleine Schritte, und sei nicht zu streng mit dir, wenn's mal nicht klappt. 💪",
+     "Super! Erzähl mir gern, wie's läuft – ich drück dir die Daumen. 💪"
+    ],
+    "joke_bad": [
+     "Haha, okay – der war wirklich flach. 😅 Soll ich's nochmal versuchen?",
+     "Erwischt, der war schwach. 😄 Gibst du mir noch eine Chance?"
+    ],
+    "deadline": [
+     "Bis Freitag? Das ist sportlich. Kein Wunder, dass du gestresst bist.",
+     "Alles bis Freitag – puh, das ist echt viel auf einmal."
+    ],
+    "deadline_advice": [
+     "Schreib alles auf und sortier nach wichtig und dringend. Dann sprich früh mit deinem Chef, was bis Freitag realistisch ist – lieber jetzt als Donnerstagabend. Und plan kurze Pausen ein, sonst wird's nicht schneller, nur anstrengender."
+    ],
+    "travel_bot": [
+     "Ich war noch nirgends – ich kenne Orte nur aus dem, was ich gelesen habe. Aber {x} klingt toll! Warst du schon mal da?",
+     "Leider nein, ich reise nur durch Bücher und Artikel. {x} steht aber ganz oben auf meiner Wunschliste. Und du?"
+    ],
+    "travel_bot_none": [
+     "Ich war noch nirgends – ich kenne Orte nur vom Lesen. Warst du schon mal da?"
+    ],
+    "interview_role": [
+     "{x} – klingt spannend! Dann drück ich dir doppelt die Daumen.",
+     "Oh, {x}! Das passt bestimmt gut. Bist du gut vorbereitet?"
+    ],
+    "sickpet_serious": [
+     "Seit gestern gar nichts? Das würde ich ernst nehmen – gerade bei Katzen kann das schnell gefährlich werden. Ruf am besten heute noch beim Tierarzt an.",
+     "Das klingt nicht gut. Wenn ein Tier einen Tag lang nichts frisst, ist der Tierarzt die richtige Adresse – lieber heute als morgen."
+    ],
+    "sickpet_go": [
+     "Gute Entscheidung. Ich drück die Daumen, dass es nichts Schlimmes ist. 🍀",
+     "Gut so! Gute Besserung an deine Fellnase – sag Bescheid, wie es ihr geht."
+    ],
     "neigh_loud": [
      "Oh nein, wie rücksichtslos – kein Wunder, dass du müde bist. War es Musik oder eine Party?",
      "Das ist echt das Schlimmste. Wenn man wegen anderen nicht schlafen kann, ist das so frustrierend."
@@ -13850,6 +13960,12 @@
      "bolognese": "Soffritto (Zwiebel, Karotte, Sellerie) anschwitzen, Hackfleisch (Rind und etwas Schwein) dazu, ein Schuss Weißwein und Milch, etwas Tomate – und dann zwei bis drei Stunden sanft köcheln lassen."
     }
    },
+   "act_out": [
+    "Some ideas for outside:\n\n• A hike or a long walk somewhere green\n• A bike ride to a place you've never been\n• A flea market or farmers' market\n• A picnic, if the weather plays along\n\nAnything there sound good?"
+   ],
+   "act_rain": [
+    "Then maybe:\n\n• A museum or an exhibition\n• Climbing gym or swimming pool\n• A café crawl with a good book\n• Or a walk in a rain jacket anyway — rain has its charm ☔\n\nWhich one tempts you?"
+   ],
    "better": [
     "I'm really glad to hear that. 💛 I'm here whenever you want to talk.",
     "That's good to hear — really. Go easy on yourself today."
