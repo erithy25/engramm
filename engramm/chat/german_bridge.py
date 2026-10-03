@@ -62,6 +62,7 @@ RULES = [
     (rf"wer hat {_X} gemalt", "who painted {x}", "painted"),
     (rf"wer malte {_X}", "who painted {x}", "painted"),
     (rf"wer hat {_X} erfunden", "who invented {x}", "invented"),
+    (r"wer hat (?P<x>amerika) entdeckt", "who discovered america", "discovered"),     # the continent, not the United States
     (rf"wer hat {_X} entdeckt", "who discovered {x}", "discovered"),
     (rf"wer hat {_X} entwickelt", "who developed {x}", "invented"),
     (rf"wer hat {_X} gegründet", "who founded {x}", "founded_by"),
@@ -107,6 +108,9 @@ RULES = [
     (rf"wie alt (?:ist|war|wurde) {_X}", "how old is {x}", "age"),
     (rf"wann (?:wurde|ist|war) {_X} geboren", "when was {x} born", "born_when"),
     (rf"wo (?:wurde|ist|war) {_X} geboren", "where was {x} born", "born_where"),
+    (r"wann war (?P<x>das|es)", "when was that", "when_that"),
+    (r"seit wann(?: ist (?P<x>er|sie)(?: (?:im amt|kanzler|kanzlerin|bundeskanzler|bundeskanzlerin|chef|chefin|präsident|präsidentin))?)?", "since when has he been in office", "since"),
+    (r"(?:und )?(?:welche|in welcher) partei(?: ist| hat)?(?: (?P<x>er|sie))?(?: drin)?", "what party is he in", "party"),          # "wann war das?" after an event, not a death
     (rf"wann (?:ist|starb|war) {_X}(?: gestorben)?", "when did {x} die", "died_when"),
     (rf"wann starb {_X}", "when did {x} die", "died_when"),
     (rf"woran (?:ist|starb) {_X}(?: gestorben)?", "how did {x} die", "died_how"),
@@ -115,11 +119,16 @@ RULES = [
     (rf"wann wurde {_X} gegründet", "when was {x} founded", "founded_when"),
     (rf"wann wurde {_X} (?:gebaut|errichtet|fertiggestellt|eröffnet)", "when was {x} built", "built_when"),
     (rf"wann (?:kam|erschien) {_X}(?: heraus| raus)?", "when was {x} released", "released"),
+    (r"wo (?:hängt|hängen|ist|befindet sich) (?P<x>sie|es|er)(?: heute| jetzt)?", "where is it now", "where"),
+    (rf"wo (?:hängt|hängen) {_X}(?: heute| jetzt)?", "where is {x}", "where"),
     (rf"in welchem land (?:liegt|ist) {_X}", "what country is {x} in", "country"),
     (rf"wo (?:liegt|ist|befindet sich) {_X}", "where is {x}", "where"),
     (rf"welche (?:sprache|sprachen) (?:spricht man|wird) in {_X}(?: gesprochen)?", "what is the official language of {x}",
      "language"),
     (rf"was ist die (?:amtssprache|landessprache) von {_X}", "what is the official language of {x}", "language"),
+    (rf"welche sprachen? spricht man (?P<x>dort|da)", "what language do they speak", "language"),
+    (rf"welche währung (?:hat|benutzt|nutzt) (?:man )?(?P<x>dort|da)", "what currency do they use", "currency"),
+    (r"(?P<x>welche währung)", "what currency do they use", "currency"),
     (rf"welche währung (?:hat|benutzt|nutzt) {_X}", "what is the currency of {x}", "currency"),
     (rf"was ist die währung (?:von|in) {_X}", "what is the currency of {x}", "currency"),
     (rf"mit wem (?:ist|war) {_X} verheiratet", "who is {x} married to", "spouse"),
@@ -149,12 +158,13 @@ _MONTHS = {"January": "Januar", "February": "Februar", "March": "März", "April"
            "November": "November", "December": "Dezember"}
 
 
-_PRONOUNS = {"er": "he", "sie": "she", "ihn": "him", "ihm": "him", "es": "it", "ihr": "her", "ihnen": "them"}
+_PRONOUNS = {"er": "he", "sie": "she", "ihn": "him", "ihm": "him", "es": "it", "ihr": "her", "ihnen": "them",
+             "die": "it", "der": "it", "das": "it", "den": "it", "dort": "there", "da": "there"}
 
 
 def _english_name(x: str) -> str:
     x = x.strip(" ?.!,„“\"")
-    x = re.sub(r"^(?:der|die|das|den|dem|des)\s+", "", x)
+    x = re.sub(r"^(?:der|die|das|den|dem|des|ein|eine|einen|einem|einer)\s+", "", x)
     low = x.lower()
     if low in _PRONOUNS:
         return _PRONOUNS[low]                # "wann wurde er geboren?" → "when was he born" (resolved later)
@@ -178,13 +188,13 @@ def to_english(norm: str) -> tuple[str, str, str, str] | None:
         m = rx.match(s)
         if not m:
             continue
-        x = _english_name(m.group("x"))
+        x = _english_name(m.group("x") or "er")          # "seit wann?" names nobody: "he", resolved from the conversation
         if not x or len(x.split()) > 7:
             return None
         if kind == "about" and x.lower() in ("du", "ich", "das", "los", "dein name", "mein name", "it", "he", "she"):
             return None
         y = _english_name(m.group("y")) if "y" in rx.groupindex and m.group("y") else ""
-        return eng.format(x=x, y=y), kind, x, german_display(m.group("x"))
+        return eng.format(x=x, y=y), kind, x, german_display(m.group("x") or "er")
     return None
 
 
@@ -193,6 +203,18 @@ for _de, _en in EXONYMS.items():          # the first German name of a place is 
     if _en[:1].isupper() and not _de.startswith(("die ", "der ", "das ", "den ")) and _de.title() != _en \
             and _en not in ("England", "Israel", "Iran", "China", "Japan", "Portugal", "Mars", "Zugspitze"):
         _GERMAN_OF.setdefault(_en, " ".join(w[:1].upper() + w[1:] for w in _de.split()))
+
+
+_TITLES_DE = {"The Sorrows of Young Werther": "Die Leiden des jungen Werthers", "Romeo and Juliet": "Romeo und Julia",
+              "The Magic Flute": "Die Zauberflöte", "War and Peace": "Krieg und Frieden", "The Divine Comedy": "Die Göttliche Komödie",
+              "The Last Supper": "Das Abendmahl", "The Starry Night": "Die Sternennacht", "The Four Seasons": "Die vier Jahreszeiten",
+              "The Little Prince": "Der kleine Prinz", "The Metamorphosis": "Die Verwandlung", "The Trial": "Der Process",
+              "The Communist Manifesto": "Das Kommunistische Manifest", "The Origin of Species": "Über die Entstehung der Arten",
+              "On the Origin of Species": "Über die Entstehung der Arten", "The Odyssey": "Die Odyssee", "The Iliad": "Die Ilias",
+              "The Brothers Karamazov": "Die Brüder Karamasow", "Crime and Punishment": "Schuld und Sühne", "The Tin Drum": "Die Blechtrommel",
+              "The Magic Mountain": "Der Zauberberg", "Buddenbrooks": "Buddenbrooks", "The Robbers": "Die Räuber",
+              "Elective Affinities": "Die Wahlverwandtschaften", "Wilhelm Meister's Apprenticeship": "Wilhelm Meisters Lehrjahre",
+              "Italian Journey": "Italienische Reise", "The Sorcerer's Apprentice": "Der Zauberlehrling"}
 
 
 def de_value(v: str) -> str:
@@ -208,6 +230,8 @@ def de_value(v: str) -> str:
     v = re.sub(r"(?<=\d) (?:kilometres|kilometers)\b", " km", v)
     v = v.replace(" and ", " und ").replace(" (among others)", " (unter anderem)").replace("sq mi", "Quadratmeilen")
     v = v.replace(" BC", " v. Chr.").replace("(as of my data)", "(Stand meiner Daten)")
+    for en_t, de_t in _TITLES_DE.items():           # well-known works under their German titles
+        v = v.replace(en_t, de_t)
     # English place names back to their German names ("Rome" → "Rom", "Munich" → "München")
     return re.sub(r"\b(" + "|".join(re.escape(k) for k in sorted(_GERMAN_OF, key=len, reverse=True)) + r")\b",
                   lambda m: _GERMAN_OF[m.group(1)], v) if _GERMAN_OF else v
@@ -229,7 +253,7 @@ SENTENCES = {
     "died_when": "{x} starb am {v}.", "died_where": "{x} starb in {v}.", "died_how": "Todesursache bei {x}: {v}.",
     "founded_when": "{x} wurde {v} gegründet.", "built_when": "{x} wurde {v} fertiggestellt.",
     "released": "{x} erschien {v}.", "country": "{x} liegt in {v}.", "where": "{x} liegt in {v}.",
-    "language": "In {x} spricht man {v}.", "currency": "Die Währung von {x} ist {v}.",
+    "language": "In {x} spricht man {v}.", "currency": "Die Währung von {x} ist {v}.", "party": "{x} gehört zur Partei {v}.",
     "spouse": "{x} ist bzw. war mit {v} verheiratet.", "occupation": "{x}: {v}.", "from": "{x} stammt aus {v}.",
     "known_for": "{x} ist bekannt für {v}.", "works": "Zu den bekanntesten Werken von {x} gehören {v}.",
 }
@@ -248,6 +272,12 @@ def de_sentence(kind: str, x: str, value: str, age_text: str | None = None) -> s
     if tmpl is None or not value:
         return None
     v = de_value(value)
+    if kind == "party":                               # the usual German party names
+        v = {"Christian Democratic Union of Germany": "CDU", "Social Democratic Party of Germany": "SPD", "Alliance 90/The Greens": "Bündnis 90/Die Grünen",
+             "Free Democratic Party (Germany)": "FDP", "Free Democratic Party": "FDP", "Christian Social Union in Bavaria": "CSU",
+             "Alternative for Germany": "AfD", "The Left (Germany)": "Die Linke"}.get(value, v)
+    if kind == "currency":
+        v = v[:1].upper() + v[1:]                     # "Yen", "Euro": nouns are capitalised in German
     if kind == "born_when" and re.fullmatch(r"\d{3,4}", v):
         tmpl = "{x} wurde {v} geboren."
     if kind == "language":
@@ -276,3 +306,36 @@ def de_sentence(kind: str, x: str, value: str, age_text: str | None = None) -> s
         if re.match(r"^[A-ZÄÖÜ][a-zäöü]+ \d{3,4}$", v):
             v = "im " + v
     return tmpl.format(x=x, v=v)
+
+
+_TERMS = {"chemie": "chemistry", "informatik": "computer science", "erdkunde": "geography", "wirtschaft": "economics", "klima": "climate",
+          "klimawandel": "climate change", "schwerkraft": "gravity", "erdbeben": "earthquake", "vulkan": "volcano", "regenbogen": "rainbow",
+          "schwarzes loch": "black hole", "urknall": "Big Bang", "zelle": "cell (biology)", "atom": "atom", "stromkreis": "electric circuit",
+          "elektrizität": "electricity", "magnetismus": "magnetism", "verdauung": "digestion", "impfung": "vaccination", "virus": "virus",
+          "bakterien": "bacteria", "treibhauseffekt": "greenhouse effect", "inflation": "inflation", "mehrwertsteuer": "value-added tax",
+          "aktie": "stock", "zinsen": "interest", "blockchain": "blockchain", "künstliche intelligenz": "artificial intelligence"}
+
+
+def term_variants(x: str) -> list[str]:
+    """English spellings of a German technical word, for the English reading: "Photosynthese" → "Photosynthesis",
+    "Biologie" → "Biology", "Physik" → "Physics", "Demokratie" → "Democracy", "Kapitalismus" → "Capitalism"."""
+    low = re.sub(r"^(?:ein|eine|einen|einem|einer|der|die|das)\s+", "", x.strip().lower())
+    out = []
+    if low in _TERMS:
+        out.append(_TERMS[low])
+    rules = [(r"kratie$", "cracy"), (r"ese$", "esis"), (r"ie$", "y"), (r"ik$", "ics"), (r"ismus$", "ism"), (r"ität$", "ity"), (r"tion$", "tion"),
+             (r"ur$", "ure"), (r"ei$", "y"), (r"isch$", "ic"), (r"k", "c")]
+    for pat, rep in rules:
+        if re.search(pat, low):
+            v = re.sub(pat, rep, low, count=1)
+            if v != low or pat == r"tion$":
+                out.append(v)
+    out += [re.sub(r"k", "c", v) for v in list(out) if "k" in v]
+    seen, res = set(), []
+    for v in out:
+        v = v[:1].upper() + v[1:]
+        if v.lower() not in seen:
+            seen.add(v.lower())
+            res.append(v)
+    return res
+

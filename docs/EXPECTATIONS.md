@@ -3037,6 +3037,39 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 787 bestanden. Regressionen 32 und 38–89 (58 Gespräche):
   0 Wiederholungen, Unterschiede wie bei 89.
+- **Wissens-Batterie 92 (zehn deutsche Wissensgespräche mit Folgefragen)**. Vorher gab es 21 Rückfallantworten
+  und einen groben Fehler: „wer hat amerika entdeckt?“ → „Amerika wurde von Junior M.A.F.I.A entdeckt.“ „Amerika“
+  wurde als „United States“ übersetzt, und die Textsuche fand ein Rap-Album. Der englische Pfad kannte die
+  meisten Antworten; die deutsche Brücke war der Engpass.
+
+  Behoben:
+  - „Amerika“ beim Entdecken ist der Kontinent;
+  - „wann war das?“ ist kein Todesdatum mehr;
+  - Folgefragen geprüfter Fakten gelten auch auf Deutsch (eigene deutsche Muster und Texte): Kolumbus wann/woher,
+    Mond (Lichtlaufzeit, wer war dort, wer zuerst);
+  - deutsche Fakten können auf den englischen Eintrag verweisen, damit dessen Folgefragen greifen;
+  - „sie/er“ für Dinge ist „it“ („wo hängt sie?“, „wie groß ist sie?“ nach der Mona Lisa: Louvre, 77 × 53 cm);
+  - „er“ bleibt die Person, auch wenn die letzte Antwort ein Ort war (Goethe → Weimar → „was hat er
+    geschrieben?“);
+  - „und die zugspitze?“ übernimmt den Artikel richtig;
+  - „wo liegt die?“, „seit wann?“ (Merz, 6. Mai 2025, Stand meiner Daten), „welche partei?“ (CDU, deutsche
+    Parteinamen);
+  - „welche sprache spricht man dort?“, „und welche währung?“ (Yen großgeschrieben);
+  - Alter der Erde;
+  - „was ist photosynthese/demokratie/ein schwarzes loch?“: Aus dem deutschen Fachwort wird die englische Form
+    abgeleitet (-ese → -esis, -kratie → -cracy, -ik → -ics …), und der Rückfall „who is …“ entfällt für „was ist“;
+  - Prozent-Ellipse („und 20 prozent von 150?“);
+  - Quadratwurzel;
+  - „wann ist weihnachten?“ und „wie viele tage noch?“;
+  - „was schenkt man so?“;
+  - deutsche Titel bekannter Werke („Die Leiden des jungen Werthers“, „Die Wahlverwandtschaften“).
+
+  Ein neuer Fehler beim Einbau: Optionale Gruppen in den neuen Brückenregeln („seit wann?“ ohne Person) ließen die
+  Brücke abstürzen. Das fiel im ersten Probelauf auf. Fehlende Gruppen gelten jetzt als „er“, und ein Test prüft
+  das.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 788 bestanden. Regressionen 32 und 38–92 (60 Gespräche):
+  0 Wiederholungen, Unterschiede wie bei 89.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

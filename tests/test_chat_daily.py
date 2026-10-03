@@ -3367,3 +3367,26 @@ def test_battery91_edge_cases(chat):
     assert r is not None and "2 October 2026" in r.text
     idea = a.turn(DialogState("n91"), "i don't know what to ask").text
     assert "country" in idea or "Moon" in idea, idea
+
+
+def test_battery92_german_knowledge_follow_ups(chat):
+    from engramm.chat.german_bridge import to_english, term_variants, de_value
+    assert to_english("wer hat amerika entdeckt")[0] == "who discovered america"
+    assert to_english("seit wann") is not None and to_english("welche partei") is not None   # optional groups never crash
+    assert to_english("wann war das")[0] == "when was that"
+    assert term_variants("Photosynthese")[0] == "Photosynthesis" and "Democracy" in term_variants("Demokratie")
+    assert "Die Leiden des jungen Werthers" in de_value("The Sorrows of Young Werther")
+    a, _ = chat
+    st = DialogState("am92")
+    a.turn(st, "wer hat amerika entdeckt?")
+    assert "1492" in a.turn(st, "wann war das?").text
+    assert "Genua" in a.turn(st, "woher kam er?").text
+    st = DialogState("mo92")
+    a.turn(st, "wie weit ist der mond weg?")
+    assert "1,3 Sekunden" in a.turn(st, "wie lange braucht licht dahin?").text
+    assert "zwölf" in a.turn(st, "war schon mal jemand da?").text
+    assert "Armstrong" in a.turn(st, "wer?").text
+    st = DialogState("t92")
+    assert "82 Tage" in a.turn(st, "wann ist weihnachten?").text or "Tage" in a.turn(DialogState("t92b"), "wann ist weihnachten?").text
+    assert "9" in a.turn(DialogState("w92"), "was ist die wurzel aus 81?").text
+    assert "Milliarden" in a.turn(DialogState("e92"), "wie alt ist die erde?").text

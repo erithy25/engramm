@@ -6559,7 +6559,8 @@
       {
        "q": "(?:und )?wie weit ist der mond (?:von der erde )?(?:weg|entfernt)",
        "a": "Der Mond ist im Schnitt etwa 384.400 km von der Erde entfernt – Licht braucht dafür rund 1,3 Sekunden.",
-       "v": "384.400 km"
+       "v": "384.400 km",
+       "en": "how far is the moon"
       }
      ],
      "superlativ": {
@@ -9197,7 +9198,20 @@
     "q": "(?:and |so )?who discovered america",
     "a": "Christopher Columbus reached the Americas in 1492 — but Indigenous peoples had lived there for thousands of years, and the Norse explorer Leif Erikson got there around the year 1000.",
     "v": "Christopher Columbus",
-    "t": "Christopher Columbus"
+    "t": "Christopher Columbus",
+    "de": "Christoph Kolumbus erreichte 1492 Amerika – aber dort lebten schon seit Jahrtausenden indigene Völker, und der Wikinger Leif Eriksson war schon um das Jahr 1000 dort.",
+    "follow": [
+     {
+      "q": "(?:and |so )?(?:when was (?:that|it)|when did (?:he do that|that happen|he get there)|what year was (?:that|it))\\??",
+      "a": "That was in 1492 — Columbus landed on an island in the Bahamas on 12 October 1492.",
+      "de": "Das war 1492 – Kolumbus landete am 12. Oktober 1492 auf einer Insel der Bahamas."
+     },
+     {
+      "q": "(?:and |so )?(?:where (?:was he|did he come) from|where did he come from)\\??",
+      "a": "Columbus came from Genoa, in today's Italy, though he sailed for the Spanish crown.",
+      "de": "Kolumbus stammte aus Genua im heutigen Italien – er segelte aber im Auftrag der spanischen Krone."
+     }
+    ]
    },
    {
     "q": "(?:and |so )?how many states (?:does|do|are (?:there )?in) the (?:usa|us|united states)(?: of america)?(?: have)?",
@@ -9245,7 +9259,28 @@
     "q": "(?:and |so )?how far (?:away )?is the moon(?: from (?:the )?earth| from us)?|what(?:'s| is) the distance (?:between|from) (?:the )?(?:earth and the moon|moon (?:and|to) (?:the )?earth)",
     "a": "The Moon is on average about 384,400 km (238,900 miles) from Earth — light takes about 1.3 seconds.",
     "v": "384,400 km",
-    "t": "Moon"
+    "t": "Moon",
+    "de": "Der Mond ist im Schnitt etwa 384.400 km von der Erde entfernt – Licht braucht dafür rund 1,3 Sekunden.",
+    "follow": [
+     {
+      "q": "(?:and |so )?how long does (?:it take )?light (?:take )?(?:to get )?there|how long does it take (?:to get )?there",
+      "dq": "(?:und )?wie lange (?:braucht|dauert) (?:das )?licht(?: dahin| bis dahin| dorthin)?|wie lange braucht man (?:dahin|dorthin|bis dahin)",
+      "a": "Light needs about 1.3 seconds. A spacecraft takes about three days — Apollo 11 needed just over four days to land.",
+      "de": "Licht braucht etwa 1,3 Sekunden. Ein Raumschiff ist rund drei Tage unterwegs – Apollo 11 brauchte gut vier Tage bis zur Landung."
+     },
+     {
+      "q": "(?:and |so )?(?:has anyone|did anyone|have people|has anybody) (?:ever )?(?:been|gone|walked) (?:there|on it|to the moon)",
+      "dq": "(?:und )?(?:war|waren) (?:schon (?:mal |einmal )?)?(?:jemand|menschen|leute) (?:da|dort|auf dem mond|oben)",
+      "a": "Yes — twelve astronauts walked on the Moon between 1969 and 1972, all on NASA's Apollo missions.",
+      "de": "Ja – zwölf Astronauten sind zwischen 1969 und 1972 auf dem Mond gelaufen, alle mit den Apollo-Missionen der NASA."
+     },
+     {
+      "q": "(?:and |so )?who(?: was it| was first| was the first| were they)?",
+      "dq": "(?:und )?wer(?: war das| war der erste| waren die)?",
+      "a": "The first was Neil Armstrong on 20 July 1969, with Buzz Aldrin about 20 minutes later; the last was Gene Cernan in December 1972.",
+      "de": "Der Erste war Neil Armstrong am 20. Juli 1969, Buzz Aldrin folgte etwa 20 Minuten später; der Letzte war Gene Cernan im Dezember 1972."
+     }
+    ]
    },
    {
     "q": "(?:and |so )?what(?:'s| is) h2o",
@@ -9313,7 +9348,14 @@
     "q": "(?:and |so )?(?:where is|where can i see|in which museum is|where (?:is|can you see) the painting of) (?:the )?mona lisa(?: now| today| kept| displayed| hanging)?",
     "a": "The Mona Lisa hangs in the Louvre in Paris, behind bulletproof glass in the Salle des États.",
     "v": "the Louvre",
-    "t": "Mona Lisa"
+    "t": "Mona Lisa",
+    "de": "Die Mona Lisa hängt im Louvre in Paris, hinter Panzerglas im Salle des États."
+   },
+   {
+    "q": "(?:and |so )?(?:how (?:big|large) is (?:the )?mona lisa|what size is (?:the )?mona lisa|how big is the painting)",
+    "a": "Smaller than most people expect: the Mona Lisa is just 77 × 53 cm (about 30 × 21 inches), painted on a poplar wood panel.",
+    "v": "77 × 53 cm",
+    "de": "Kleiner, als die meisten denken: Die Mona Lisa ist nur 77 × 53 cm groß und auf eine Holztafel aus Pappel gemalt."
    },
    {
     "q": "(?:and |so )?when (?:did (?:vincent )?van gogh paint|was) the starry night(?: painted)?",
@@ -9349,6 +9391,24 @@
     "a": "Elon Musk has been Tesla's CEO since 2008 (as of my data).",
     "v": "Elon Musk",
     "de": "Elon Musk ist seit 2008 Chef von Tesla (Stand meiner Daten)."
+   },
+   {
+    "q": "(?:and |so )?how old is (?:the )?earth|what(?:'s| is) the age of (?:the )?earth",
+    "a": "About 4.54 billion years — measured from the oldest meteorites and rocks.",
+    "v": "4.54 billion years",
+    "de": "Etwa 4,54 Milliarden Jahre – das zeigen die ältesten Meteoriten und Gesteine."
+   },
+   {
+    "q": "(?:and |so )?where is (?:the )?zugspitze|in which country is (?:the )?zugspitze",
+    "a": "The Zugspitze is in the Wetterstein mountains in Bavaria, right on the border with Austria — at 2,962 m it's Germany's highest mountain.",
+    "v": "Bavaria",
+    "de": "Die Zugspitze liegt im Wettersteingebirge in Bayern, direkt an der Grenze zu Österreich – mit 2.962 m ist sie Deutschlands höchster Berg."
+   },
+   {
+    "q": "(?:and |so )?since when (?:is|has) friedrich merz (?:been )?(?:the )?(?:chancellor|in office|german chancellor)(?: of germany)?",
+    "a": "Friedrich Merz has been Chancellor of Germany since 6 May 2025 (as of my data).",
+    "v": "6 May 2025",
+    "de": "Friedrich Merz ist seit dem 6. Mai 2025 Bundeskanzler (Stand meiner Daten)."
    },
    {
     "q": "(?:and |so |but )?did (?:albert )?einstein (?:win|get|receive) (?:a|the) nobel prize|(?:and |so )?when did (?:albert )?einstein (?:win|get) (?:a|the|his) nobel prize",

@@ -876,7 +876,7 @@ daily:
         - {q: "(?:und )?wer war der erste römische kaiser", a: "Augustus (Octavian) – erster römischer Kaiser von 27 v. Chr. bis 14 n. Chr.", v: "Augustus"}
         - {q: "(?:und )?wofür steht dna|was bedeutet dna", a: "DNA steht für Desoxyribonukleinsäure (englisch deoxyribonucleic acid).", v: "Desoxyribonukleinsäure"}
         - {q: "(?:und )?was ist h2o", a: "H₂O ist Wasser – zwei Wasserstoffatome und ein Sauerstoffatom.", v: "Wasser"}
-        - {q: "(?:und )?wie weit ist der mond (?:von der erde )?(?:weg|entfernt)", a: "Der Mond ist im Schnitt etwa 384.400 km von der Erde entfernt – Licht braucht dafür rund 1,3 Sekunden.", v: "384.400 km"}
+        - {q: "(?:und )?wie weit ist der mond (?:von der erde )?(?:weg|entfernt)", a: "Der Mond ist im Schnitt etwa 384.400 km von der Erde entfernt – Licht braucht dafür rund 1,3 Sekunden.", v: "384.400 km", en: "how far is the moon"}
       superlativ:
         größte planet: "Der größte Planet ist Jupiter – etwa elfmal so breit wie die Erde."
         kleinste planet: "Der kleinste Planet ist Merkur – nur etwa 4.880 km breit."

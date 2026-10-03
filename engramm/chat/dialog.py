@@ -1295,6 +1295,13 @@ class Assistant:
         if re.fullmatch(r"(?:können|koennen|könnten|kannst) (?:wir|du) (?:bitte |jetzt )*(?:auf )?englisch (?:reden|sprechen|schreiben)(?: bitte)?|(?:lass uns|lasst uns) (?:auf )?englisch (?:reden|sprechen)|(?:auf )?englisch bitte", q):
             st.lang = "en"
             return Reply(msg, "smalltalk", self._pick(st, "daily:b86:lang_en", self.bank.daily["b86"]["lang_en"]), via="smalltalk")
+        cf = st.uses.get("common_follow")
+        if cf and st.turn - cf[1] <= 4:                   # German follow-ups on a hand-checked fact ("wie lange braucht licht dahin?")
+            for f in cf[0]:
+                if f.get("dq") and f.get("de") and re.fullmatch(f["dq"], q):
+                    cf[1] = st.turn
+                    return Reply(msg, "answer", f["de"], answer=f["de"], source={"kind": "common", "source": "everyday facts", "key": ""},
+                                 confidence=1.0, via="german")
         hm = re.fullmatch(r"(?:hi|hallo|hey|moin|servus|huhu|na)[,!.]? ich bin (?:die |der )?(?P<n>[a-zäöüß]{2,15})(?:[,!.]? (?:und |schön dich kennenzulernen|freut mich).*)?", q)
         if hm and hm.group("n") not in set(self.bank.de["detect"]["german"]) | {"neu", "hier", "da", "zurück", "wieder", "wach", "fertig", "krank", "zuhause"}:
             name = hm.group("n").capitalize()             # "hi, ich bin lena": a name, said with a greeting
@@ -1790,6 +1797,12 @@ class Assistant:
             return say("macher")
         for fk in g.get("fakten", []):
             if re.fullmatch(fk["q"], q):
+                if fk.get("en"):                          # the English fact's follow-ups apply too ("wie lange braucht licht dahin?")
+                    item = next((it for it in self.bank.daily.get("common", []) if re.fullmatch(it["q"], fk["en"])), None)
+                    if item is not None and item.get("follow"):
+                        st.uses["common_follow"] = [item["follow"], st.turn]
+                    if item is not None and item.get("t"):
+                        self.bot.context.update({"answer": None, "atype": None, "mention": item["t"], "kb_last": None})
                 return Reply(msg, "answer", fk["a"], answer=fk.get("v"), via="common", confidence=1.0)
         sup = re.fullmatch(r"(?:und )?(?:was|welche[rs]?|wie heißt) (?:ist )?(?:der|die|das) (?P<a>größte|grösste|kleinste) (?P<n>planet|ozean|kontinent|tier|wüste)"
                            r"(?: der welt| auf der welt| der erde| im sonnensystem| unseres sonnensystems)?", q)
@@ -2427,8 +2440,28 @@ class Assistant:
             return Reply(msg, "tool", self._pick(st, "de:ctx:pct", dc["pct"], a=fmt(a), b=fmt(b), c=fmt(c)), via="tool",
                          confidence=1.0)
         m = _DE_DAYS.match(q)
-        if m:
-            word = m.group("x") or m.group("y")
+        hw = re.fullmatch(r"(?:und )?wann (?:ist|feiert man|feiern wir|ist dieses jahr) (?P<x>weihnachten|heiligabend|silvester|neujahr|halloween|valentinstag|nikolaus)", q)
+        hl = st.uses.get("holiday_de")
+        word = (m.group("x") or m.group("y")) if m else None
+        if m is None and hw is None and hl and st.turn - hl[1] <= 3 and re.fullmatch(r"(?:und )?(?:wie viele|wieviele) tage (?:sind es )?(?:noch|bis dahin)|wie lange (?:noch|dauert es noch)", q):
+            word = hl[0]                                  # "wie viele tage noch?" right after "wann ist weihnachten?"
+        if hw is not None:
+            word = hw.group("x")
+            st.uses["holiday_de"] = [word, st.turn]
+            mo, da = _DE_HOLIDAYS[word]
+            import datetime as _dt
+            now = self._now() or _dt.datetime.now()
+            today = now.date() if hasattr(now, "date") else now
+            target = _dt.date(today.year, mo, da)
+            if target < today:
+                target = _dt.date(today.year + 1, mo, da)
+            days = ("Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag")
+            months = ("Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember")
+            extra = " – der erste Weihnachtstag ist der 25." if word == "weihnachten" else ""
+            when = "Heiligabend" if word == "weihnachten" else word.capitalize()
+            return Reply(msg, "tool", f"{when} ist am {days[target.weekday()]}, {target.day}. {months[target.month - 1]} {target.year}{extra} "
+                                      f"– noch {(target - today).days} Tage.", via="tool", confidence=1.0)
+        if word:
             now = self._now() or __import__("datetime").datetime.now()
             today = now.date() if hasattr(now, "date") else now
             mo, da = _DE_HOLIDAYS[word]
@@ -3178,7 +3211,13 @@ class Assistant:
                       "November", "Dezember"]
             return Reply(msg, "tool", f"Heute ist {days[now.weekday()]}, der {now.day}. {months[now.month - 1]} {now.year}.",
                          via="tool")
-        m = re.fullmatch(r"(?:was (?:ist|sind|ergibt|ergeben)|wie ?viel (?:ist|sind)|rechne|berechne) (\d+(?:[.,]\d+)?) ?"
+        rt = re.fullmatch(r"(?:und )?(?:was ist |wie ?viel ist |rechne |berechne )?(?:die )?(?:quadrat)?wurzel (?:aus|von) (\d+(?:[.,]\d+)?)", s)
+        if rt:                                            # "was ist die wurzel aus 81?"
+            v = float(rt.group(1).replace(",", ".")) ** 0.5
+            shown = (f"{v:.4f}".rstrip("0").rstrip(".")).replace(".", ",")
+            st.uses["last_calc"] = [st.turn, str(v)]
+            return Reply(msg, "tool", f"Die Wurzel aus {rt.group(1)} ist {shown}.", answer=shown, via="tool")
+        m = re.fullmatch(r"(?:und |(?:und )?(?:was (?:ist|sind|ergibt|ergeben)|wie ?viel (?:ist|sind)|rechne|berechne) )(\d+(?:[.,]\d+)?) ?"
                          r"(?:%|prozent) (?:von|aus) (\d+(?:[.,]\d+)?)", s)
         if m:
             a, b = float(m.group(1).replace(",", ".")), float(m.group(2).replace(",", "."))
@@ -3191,7 +3230,8 @@ class Assistant:
         if m and re.search(r"\b(?:wie|was|wer|wann|wo|warum|hat|ist|sind|war|viele|welche[rsnm]?)\b", m.group("x")):
             m = None                                     # "und wie viele einwohner hat sie?" is a new question
         if m and last and st.turn - last[0] <= 3 and last[2] and last[2] in last[1]:
-            again = last[1].replace(last[2], m.group("x").strip(), 1)
+            # "und die zugspitze?" after "wie hoch ist der mount everest?": the article goes with the new name
+            again = re.sub(rf"\b(?:der |die |das |den |dem )?{re.escape(last[2])}\b", m.group("x").strip(), last[1], count=1)
             return self._german_question(st, msg, again)
         return None
 
@@ -3199,8 +3239,9 @@ class Assistant:
         from engramm.chat.german_bridge import de_sentence, de_value, to_english
         ment = self.bot.context.get("mention")
         ans_ = self.bot.context.get("answer")
-        if isinstance(ans_, str) and ans_ and not re.search(r"\d", ans_) and len(ans_.split()) <= 4:
-            ment = ans_                                  # "die Hauptstadt … ist Canberra" → "sie" is Canberra
+        if isinstance(ans_, str) and ans_ and not re.search(r"\d", ans_) and len(ans_.split()) <= 4 and \
+                not (re.search(r"\b(?:er|ihn|ihm)\b", s) and ment and not self._not_a_person(ment) and self._not_a_person(ans_)):
+            ment = ans_                                  # "die Hauptstadt … ist Canberra" → "sie" is Canberra ("er" after "Goethe starb in Weimar" stays Goethe)
         s = re.sub(r"^(?:und|also|ok|okay) ", "", s)
         if ment and re.search(r"\b(?:leben|wohnen) (?:da|dort)\b|\b(?:da|dort) (?:leben|wohnen)\b", s):
             s = re.sub(r"\bwie viele (?:leute|menschen) (?:leben|wohnen) (?:da|dort)\b", f"wie viele einwohner hat {ment.lower()}", s)
@@ -3243,6 +3284,12 @@ class Assistant:
         if hit is None:
             return None
         english, kind, x_en, x_de = hit
+        ment = self.bot.context.get("mention") or ""
+        if x_en.lower() in ("he", "she", "him", "her") and ment and getattr(self.bot, "not_a_person", None) is not None and \
+                self.bot.not_a_person(ment) and not (self.bot.context.get("atype") == "PERSON" and self.bot.context.get("answer")):
+            # "wie groß ist sie?" after the Mona Lisa: German "sie" is the painting ("it"), not a woman
+            english = re.sub(rf"\b{x_en}\b", "it", english)
+            x_en = "it"
         st.uses["de_last_q"] = [st.turn, s, (x_de or "").lower()]
         st.uses["de_last_en"] = [st.turn, english + "?"]
         names = st.uses.setdefault("de_names", {})
@@ -3252,10 +3299,18 @@ class Assistant:
         dd = self.bank.de["daily"]
         if kind == "about":
             rep = self._about(st, Unit("about", english, english.lower(), data={"kind": "tell", "topic": x_en}))
+            if rep.kind != "about":
+                from engramm.chat.german_bridge import term_variants
+                for alt in term_variants(x_en):           # "Photosynthese" → "Photosynthesis"
+                    if self.about.find(alt) is not None:
+                        rep = self._about(st, Unit("about", f"tell me about {alt}", f"tell me about {alt.lower()}", data={"kind": "tell", "topic": alt}))
+                        break
             if rep.kind == "about":
                 rep.text = f"{dd['english_text']} {rep.text}"
                 rep.message = msg
                 return rep
+            if not s.startswith(("wer ", "und wer ")):
+                return Reply(msg, "unknown", self._pick(st, "de:unknown", dd["unknown"]), via="german")   # "was ist demokratie?": no "who is" guess
             rep = self._question(st, english.replace("tell me about", "who is"))
             if rep.kind != "answer":
                 return Reply(msg, "unknown", self._pick(st, "de:unknown", dd["unknown"]), via="german")
@@ -8519,6 +8574,9 @@ class Assistant:
             for f in cf[0]:
                 if re.fullmatch(f["q"], q):
                     cf[1] = st.turn
+                    if getattr(st, "lang", None) == "de" and f.get("de"):
+                        return Reply(text, "answer", f["de"], answer=f["de"], source={"kind": "common", "source": "everyday facts",
+                                                                                        "key": ""}, confidence=1.0, via="german")
                     return Reply(text, "answer", f["a"], answer=f["a"], source={"kind": "common", "source": "everyday facts",
                                                                                   "key": ""}, confidence=1.0, via="common")
         tp = st.topic if st.topic and st.turn - st.topic.get("turn", -99) <= 4 else None

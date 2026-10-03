@@ -169,7 +169,8 @@ _REC_DE = [
     ("activity", r"(?:(?:mir ist (?:so |total )?langweilig,? )?was (?:kann|soll|könnte) ich (?:(?:heute|abend|jetzt|noch|nachher|später|"
                  r"gleich|am wochenende|denn|so)\s+)*(?:machen|tun|unternehmen)|was kann man (?:heute |am wochenende )?machen|ideen für (?:heute|das wochenende|"
                  r"den abend))"),
-    ("gift", r"(?:geschenkideen?|was soll ich (?:meiner|meinem|meinen|einer|einem) [a-zäöüß]+ schenken|"
+    ("gift", r"(?:geschenkideen?|was schenkt man (?:so|denn|da|zu weihnachten|zum geburtstag|jemandem)?(?: so)?|was kann man (?:so )?schenken|"
+             r"was soll ich (?:meiner|meinem|meinen|einer|einem) [a-zäöüß]+ schenken|"
              r"was kann ich (?:meiner|meinem|meinen) [a-zäöüß]+ schenken)"),
     ("travel", r"(?:wohin soll ich (?:reisen|fahren|in den urlaub)|reiseziele?|urlaubsideen|reiseideen)"),
     ("hobby", r"(?:(?:ein )?neues hobby|hobbyideen|welches hobby soll ich anfangen)"),
