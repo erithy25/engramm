@@ -3999,3 +3999,39 @@ def test_battery114_long_distance_tax_cold_heat_games(chat):
     st = DialogState("c114-job")
     a.turn(st, "i keep dying at the first boss")
     assert "boss" not in a.turn(st, "what's my job?").text
+
+
+def test_battery115_test_nerves_moving_wedding_colleague_puppy_cooking_bike(chat):
+    """A child's first big test, moving, a small wedding, a colleague taking credit, a biting puppy, cooking, a flat tyre."""
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"Tell me more\?|I see\.|I don't know|work as|Phew, good news|speaking up|Erzähl ruhig mehr|Erzähl gern mehr|nicht ganz verstanden|"
+                      r"nicht nachschlagen|Puh, gute Nachricht", _re.I)
+    convs = [
+        ("en", [("my son has his first big test tomorrow", "big day"), ("he's really anxious", "nervousness"), ("he says his stomach hurts", "tummy"),
+                ("what can i say to him?", "proud")]),
+        ("en", [("we're moving next month", "move"), ("i have so much stuff", "declutter"), ("i don't know where to start packing", "box"),
+                ("any tips?", "Label")]),
+        ("en", [("we just got engaged!", ""), ("we want a small wedding", "small wedding"), ("maybe 40 guests", "40"), ("where do we even start?", "budget")]),
+        ("en", [("a colleague keeps taking credit for my work", "unfair"), ("it happened again in today's meeting", "accident"),
+                ("should i talk to my boss?", "facts")]),
+        ("en", [("our puppy keeps biting everything", "land-shark"), ("she's 3 months old", "teething"), ("how do i stop it?", "chew toy")]),
+        ("en", [("i want to learn how to cook", ""), ("i can only make pasta", "Pasta"), ("what should i learn first?", "tomato sauce")]),
+        ("en", [("my bike has a flat tire", ""), ("i've never fixed one", "easiest"), ("is it hard?", "tyre levers"), ("ok i'll give it a go", "got this")]),
+        ("en", [("any jazz albums you'd recommend?", "Kind of Blue")]),
+        ("de", [("mein sohn schreibt morgen seine erste große arbeit", "großer Tag"), ("er sagt ihm ist schlecht", "Bauch"), ("was kann ich ihm sagen?", "stolz")]),
+        ("de", [("wir ziehen nächsten monat um", "Umzug"), ("ich weiß nicht wo ich mit dem packen anfangen soll", "Karton"), ("hast du tipps?", "beschriften")]),
+        ("de", [("wir haben uns gerade verlobt!", ""), ("wir wollen eine kleine hochzeit", "kleine Hochzeit"), ("wo fangen wir an?", "Budget")]),
+        ("de", [("ein kollege gibt meine arbeit als seine aus", "unfair"), ("soll ich mit meinem chef reden?", "Fakten")]),
+        ("de", [("unser welpe beißt ständig", "Haifisch"), ("sie ist 3 monate alt", "Zahnwechsel"), ("wie gewöhne ich ihr das ab?", "Kauspielzeug")]),
+        ("de", [("mein fahrrad hat einen platten", ""), ("ich hab sowas noch nie repariert", "einfachsten"), ("ist das schwer?", "Reifenheber")]),
+    ]
+    for i, (lang, turns) in enumerate(convs):
+        st = DialogState(f"c115-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        for msg, want in turns:
+            t = a.turn(st, msg).text
+            assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)
+    st = DialogState("c115-job")
+    a.turn(st, "a colleague keeps taking credit for my work")
+    assert "colleague" not in a.turn(st, "what's my job?").text

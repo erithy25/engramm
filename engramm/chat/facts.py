@@ -664,8 +664,8 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
     if vcat == "#job" and value and set(value.lower().split()) & _NOT_A_JOB:
         vcat = None                      # "i'm a beginner": not an occupation, whatever the word typer says
         rel = [w for w in rel if w not in ("#job", "#work")]
-    if vcat == "#job" and not re.search(r"\b(?:i'?m|i am|im|she'?s|he'?s|they'?re|is|was|are|were|became|become|becoming|be|"
-                                         r"work|works|working|worked|job|jobs|profession|career|employed|trained|qualified|as)\b", " ".join(lw)):
+    if vcat == "#job" and not re.search(r"\b(?:i'?m|i am|im|she'?s|he'?s|they'?re|is|was|are|were|became|become|becoming|be)\b|"
+                                         r"\bwork(?:s|ing|ed)? (?:as|in)\b|\b(?:job|jobs|profession|career|employed|trained|qualified|as an?)\b", " ".join(lw)):
         vcat = None                      # "i keep dying at the first boss": a job word, but no sentence about a job
         rel = [w for w in rel if w not in ("#job", "#work")]
     if vcat == "#job" and ("#fav" in rel or "#dislike" in rel or set(lw) & {"loves", "love", "likes", "like", "enjoys",

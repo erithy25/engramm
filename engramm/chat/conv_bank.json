@@ -17652,6 +17652,154 @@
      "Etwa ein halbes Kilo pro Woche ist realistisch und gesund – 5 Kilo dauern also ungefähr 10–12 Wochen. Schneller heißt meist Wasser und Muskeln, und das kommt schnell zurück."
     ]
    }
+  },
+  "b115": {
+   "kidtest_start": [
+    "Oh, a big day for him! How's he feeling about it?"
+   ],
+   "kidtest_anx": [
+    "Poor thing — first big tests feel huge at that age. The good news: a bit of nervousness actually helps you focus."
+   ],
+   "kidtest_stomach": [
+    "That's very typical — nerves often show up as a tummy ache in kids. A calm evening, a light dinner and an early night help more than any extra studying now."
+   ],
+   "kidtest_say": [
+    "A few things that usually help:\n\n• “It's okay to be nervous — it means you care.”\n• “I'm proud of you for practising, whatever the result.”\n• “If you get stuck, skip it and come back later.”\n• Practise one slow breath together: in for four, out for six.\n• And a little note in his pencil case for tomorrow can work wonders. 💛"
+   ],
+   "move_start": [
+    "Exciting — and a lot of work! Is it a big move or just across town?"
+   ],
+   "move_stuff": [
+    "Moving is the perfect moment to declutter — everything you don't pack, you don't have to carry."
+   ],
+   "move_where": [
+    "Start where it hurts least: one box of things you won't need before the move — books, decorations, the guest room. Once the first boxes are packed, it gets easier. Want a few more packing tips?"
+   ],
+   "puppy_scratch": [
+    "Ouch — those little puppy teeth are like needles! Clean the scratches and hang in there; there are a few tricks that really help."
+   ],
+   "move_tips": [
+    "A few packing tips:\n\n• Start with the rooms and things you use least (books, guest room, decorations).\n• Declutter as you go: keep, donate, bin.\n• Label every box with room + contents, and number them.\n• Pack a “first night” box: chargers, toiletries, bedding, kettle, snacks.\n• Heavy things in small boxes, light things in big ones.\n• Take photos of cable setups before you unplug them."
+   ],
+   "move_room": [
+    "Exactly — one room at a time keeps it manageable. Start with the one you use least. 📦"
+   ],
+   "wed_start": [
+    "Congratulations, that's wonderful! 🎉💍"
+   ],
+   "wed_small": [
+    "A small wedding is lovely — more time with each guest and much less stress."
+   ],
+   "wed_guests": [
+    "Around 40 guests is a great size — big enough to feel like a party, small enough to stay personal."
+   ],
+   "wed_steps": [
+    "A good order to start in:\n\n• Agree on a rough budget together.\n• Pick a date (or a season) and the size — you've got that already.\n• Book the venue first — popular ones go 12+ months ahead.\n• Then the big helpers: photographer, caterer, and an officiant or registry office.\n• Send save-the-dates once date and venue are fixed.\n\nEverything else (dress, flowers, music) can follow later."
+   ],
+   "credit_start": [
+    "Ugh, that's so frustrating — and unfair. Has it happened before?"
+   ],
+   "credit_again": [
+    "Again? Then it's not an accident anymore. You have every right to be annoyed."
+   ],
+   "credit_boss": [
+    "It's worth raising — but calmly and with facts. What often works: first talk to the colleague directly (“I noticed my analysis was presented as yours — let's make sure credit is clear”). If it continues, go to your boss with concrete examples. And from now on, share your work in writing, e.g. by email with your boss in CC, so it's visible who did what."
+   ],
+   "credit_first": [
+    "Good plan — talking to her first is fair and often enough. Keep it calm and factual. Good luck! 💪"
+   ],
+   "puppy_start": [
+    "Ah, the land-shark phase! 🦈 How old is she?"
+   ],
+   "puppy_age": [
+    "3 months — that's peak teething time, so the biting is completely normal. The good news: it usually gets much better by 5–6 months."
+   ],
+   "puppy_tips": [
+    "What works for most puppies:\n\n• When she bites, say a short “ouch!” and stop playing for a moment — fun ends when teeth touch skin.\n• Immediately offer a chew toy instead and praise her when she takes it.\n• Frozen carrots or a wet, frozen cloth soothe teething gums.\n• Avoid wild hand-games — use toys, not hands.\n• Make sure she gets enough sleep: overtired puppies bite more (they need 16–18 hours!)."
+   ],
+   "cook_pasta": [
+    "Pasta is a great start — if you can make good pasta, you already know the basics of timing and seasoning."
+   ],
+   "cook_first": [
+    "Great next steps:\n\n• A proper tomato sauce from scratch (onion, garlic, tinned tomatoes) — the base of so many dishes.\n• Eggs three ways: scrambled, fried, omelette.\n• A simple stir-fry with rice — teaches chopping and high heat.\n• Roast vegetables in the oven with olive oil and salt.\n• A basic soup.\n\nOne new dish a week and you'll have a real repertoire in two months."
+   ],
+   "bike_never": [
+    "No problem — a flat is one of the easiest repairs to learn."
+   ],
+   "bike_hard": [
+    "Not really — it takes about 20 minutes the first time. You need tyre levers, a patch kit (or a new inner tube) and a pump:\n\n• Take the wheel off and lever the tyre off on one side.\n• Pull out the tube, pump it up a bit and find the hole (listen, or dip it in water).\n• Roughen the spot, glue, wait a minute, press the patch on.\n• Check the tyre for the thorn or glass that caused it!\n• Put everything back and pump up.\n\nThere are great step-by-step videos if you want to watch it once."
+   ],
+   "bike_go": [
+    "You've got this! And once you've done it once, you'll never need a bike shop for a flat again. 🚲"
+   ],
+   "jazz_albums": [
+    "Classic jazz albums people love:\n\n• Miles Davis – “Kind of Blue”\n• John Coltrane – “A Love Supreme”\n• Dave Brubeck Quartet – “Time Out”\n• Bill Evans Trio – “Waltz for Debby”\n• Ella Fitzgerald & Louis Armstrong – “Ella and Louis”\n\n“Kind of Blue” is the perfect place to start."
+   ],
+   "de": {
+    "kidtest_start": [
+     "Oh, ein großer Tag für ihn! Wie geht's ihm damit?"
+    ],
+    "kidtest_anx": [
+     "Der Arme – die ersten großen Arbeiten fühlen sich in dem Alter riesig an. Das Gute: Ein bisschen Aufregung hilft sogar beim Konzentrieren."
+    ],
+    "kidtest_stomach": [
+     "Das ist ganz typisch – Aufregung schlägt Kindern oft auf den Bauch. Ein ruhiger Abend, ein leichtes Abendessen und früh schlafen helfen jetzt mehr als noch mehr Lernen."
+    ],
+    "kidtest_say": [
+     "Was meistens hilft:\n\n• „Aufgeregt zu sein ist okay – das zeigt, dass es dir wichtig ist.“\n• „Ich bin stolz auf dich, dass du geübt hast, egal wie es ausgeht.“\n• „Wenn du hängst, überspring die Aufgabe und komm später zurück.“\n• Gemeinsam einmal langsam atmen: vier Sekunden ein, sechs aus.\n• Und ein kleiner Zettel im Mäppchen für morgen wirkt Wunder. 💛"
+    ],
+    "move_start": [
+     "Spannend – und viel Arbeit! Ist es ein großer Umzug oder nur innerhalb der Stadt?"
+    ],
+    "move_stuff": [
+     "Ein Umzug ist die perfekte Gelegenheit zum Ausmisten – alles, was du nicht packst, musst du auch nicht tragen."
+    ],
+    "move_where": [
+     "Fang da an, wo es am wenigsten wehtut: ein Karton mit Sachen, die du vor dem Umzug nicht mehr brauchst – Bücher, Deko, Gästezimmer. Wenn die ersten Kartons stehen, wird es leichter. Soll ich dir noch ein paar Pack-Tipps geben?"
+    ],
+    "move_tips": [
+     "Ein paar Pack-Tipps:\n\n• Mit den Räumen und Sachen anfangen, die du am wenigsten brauchst (Bücher, Gästezimmer, Deko).\n• Beim Packen gleich ausmisten: behalten, spenden, weg.\n• Jeden Karton mit Raum und Inhalt beschriften und nummerieren.\n• Eine „Erste-Nacht-Kiste“ packen: Ladekabel, Kulturbeutel, Bettzeug, Wasserkocher, Snacks.\n• Schweres in kleine Kartons, Leichtes in große.\n• Kabel fotografieren, bevor du sie absteckst."
+    ],
+    "move_room": [
+     "Genau – ein Zimmer nach dem anderen, dann bleibt es überschaubar. Fang mit dem an, das du am wenigsten nutzt. 📦"
+    ],
+    "wed_small": [
+     "Eine kleine Hochzeit ist wunderschön – mehr Zeit für jeden Gast und viel weniger Stress."
+    ],
+    "wed_guests": [
+     "Um die 40 Gäste ist eine tolle Größe – groß genug für ein Fest, klein genug, um persönlich zu bleiben."
+    ],
+    "wed_steps": [
+     "Eine gute Reihenfolge für den Start:\n\n• Gemeinsam ein grobes Budget festlegen.\n• Datum (oder Jahreszeit) und Größe wählen – die Größe habt ihr schon.\n• Zuerst die Location buchen – beliebte sind 12 Monate und mehr im Voraus weg.\n• Dann Standesamt, Fotograf und Catering.\n• „Save the Date“ verschicken, sobald Datum und Ort feststehen.\n\nAlles andere (Kleid, Blumen, Musik) kann später kommen."
+    ],
+    "credit_start": [
+     "Boah, das ist echt frustrierend – und unfair. Ist das schon öfter passiert?"
+    ],
+    "credit_again": [
+     "Schon wieder? Dann ist das kein Versehen mehr. Du hast jedes Recht, sauer zu sein."
+    ],
+    "credit_boss": [
+     "Ansprechen lohnt sich – aber ruhig und mit Fakten. Was oft funktioniert: zuerst direkt mit dem Kollegen reden („Mir ist aufgefallen, dass meine Auswertung als deine präsentiert wurde – lass uns klarstellen, wer was gemacht hat“). Wenn es weitergeht, mit konkreten Beispielen zum Chef. Und ab jetzt Arbeitsergebnisse schriftlich teilen, zum Beispiel per Mail mit dem Chef in CC."
+    ],
+    "puppy_start": [
+     "Ah, die Haifisch-Phase! 🦈 Wie alt ist sie denn?"
+    ],
+    "puppy_age": [
+     "3 Monate – genau die Zeit des Zahnwechsels, das Beißen ist völlig normal. Die gute Nachricht: Mit 5–6 Monaten wird es meist deutlich besser."
+    ],
+    "puppy_tips": [
+     "Was bei den meisten Welpen hilft:\n\n• Wenn sie zubeißt, kurz „Aua!“ sagen und das Spiel kurz unterbrechen – der Spaß endet, wenn Zähne Haut berühren.\n• Sofort ein Kauspielzeug anbieten und loben, wenn sie es nimmt.\n• Gefrorene Karotten oder ein nasses, eingefrorenes Tuch beruhigen das Zahnfleisch.\n• Keine wilden Handspiele – Spielzeug statt Hände.\n• Genug Schlaf: Übermüdete Welpen beißen mehr (sie brauchen 16–18 Stunden!)."
+    ],
+    "bike_never": [
+     "Kein Problem – ein Platten ist eine der einfachsten Reparaturen überhaupt."
+    ],
+    "bike_hard": [
+     "Eigentlich nicht – beim ersten Mal dauert es etwa 20 Minuten. Du brauchst Reifenheber, Flickzeug (oder einen neuen Schlauch) und eine Pumpe:\n\n• Rad ausbauen und den Mantel auf einer Seite abhebeln.\n• Schlauch rausnehmen, etwas aufpumpen und das Loch suchen (hören oder ins Wasser halten).\n• Stelle anrauen, Kleber drauf, kurz warten, Flicken andrücken.\n• Den Mantel nach dem Dorn oder der Scherbe absuchen!\n• Alles wieder einbauen und aufpumpen."
+    ],
+    "bike_go": [
+     "Du schaffst das! Und wenn du es einmal gemacht hast, brauchst du für einen Platten nie wieder die Werkstatt. 🚲"
+    ]
+   }
   }
  }
 }

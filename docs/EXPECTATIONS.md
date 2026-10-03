@@ -3789,6 +3789,34 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: NQ 22/9; Suite 813 bestanden. Gesprächsproben 111–114, Generisch und Held-out stehen bei 0;
   Wiederholungen 5 von 700, Valenz 0 falsch. Test 114 hält 13 Gespräche fest.
+- **Probe 115: sechste ungesehene Gesprächsprobe** (3. Oktober 2026): 8 englische und 6 deutsche Gespräche, einmal
+  vor jeder Anpassung gemessen; jede Antwort gelesen, ohne KI-Richter.
+  Themen: erste große Arbeit des Kindes, Umzug und Packen, kleine Hochzeit, Kollege schmückt sich mit fremden
+  Federn, beißender Welpe, Kochen lernen, Platten am Fahrrad, Jazz-Alben.
+
+  | Stand | EN schwach (gelesen) | DE schwach (gelesen) |
+  |---|---|---|
+  | erster Lauf | 24 von 45 | 20 von 34 |
+  | nach b115 | 0 von 45 | 0 von 34 |
+
+  Gefundene Fehler (allgemein behoben):
+  - „a colleague keeps taking credit for my work“ wurde als Beruf „colleague“ gemerkt; „my work“ reichte als
+    Hinweis. Jetzt braucht ein Beruf „i'm a / is a“, „work as / in“, „job“, „profession“ o. ä.
+  - „i've never fixed one“ (Platten) ergab „Phew, good news!“; die Moment-Folge las „fixed“ ohne die Verneinung.
+  - „where to start packing“ und danach „any tips?“ gaben zweimal dieselbe Liste. Jetzt kommt zuerst ein kleiner
+    erster Schritt.
+
+  Umgebung: Der Container wurde zwischendurch neu gestartet; `/dev/shm` war leer. Das beta.3-Paket wurde neu geladen
+  (alle SHA-256 geprüft). Die Vergleichsbasis wurde aus einem Worktree des letzten Commits erzeugt, damit sie
+  nicht vom geänderten Arbeitsverzeichnis abhängt.
+
+  Routine gegen diese Basis: DEV-Satz unverändert. Im ersten Lauf verdrängten die Regeln für Kinder-Prüfung (b49),
+  Kollegen (b48) und Umzug (b82, EN und DE) bessere bestehende Abläufe. Diese drei Themen laufen jetzt in der späten
+  Stufe (`_daily_ctx29(late=True)`, `_german_ctx115_late`). Übrig bleibt b49 Zeile 16: „Oh, a big day for him!“
+  statt „Got it — I'll remember that about your son.“; der Satz wird weiter gemerkt, der übrige Ablauf ist gleich.
+
+  Messung: NQ 22/9; Suite 814 bestanden. Gesprächsproben 111–115, Generisch und Held-out stehen bei 0. Test 115 hält
+  14 Gespräche fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
