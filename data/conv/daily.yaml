@@ -3101,6 +3101,207 @@ b101:
     mexico: "Food to try in Mexico: tacos al pastor, mole, tamales, fresh guacamole, and churros."
     india: "Food to try in India: biryani, butter chicken, dosa in the south, chaat from street stalls, and fresh naan."
     portugal: "Food to try in Portugal: pastéis de nata, grilled sardines, bacalhau, and a bifana sandwich."
+  de:
+    trip_new: ["{X} – wie spannend! Worauf freust du dich am meisten?", "Oh, {X}! Wie schön. Warst du schon mal dort?"]
+    month_any: ["{X} – eine schöne Reisezeit! Wie lange bleibst du?", "Im {X}, gute Wahl. Wie lange bist du dort?"]
+    month_special:
+      japan march: "Ende März beginnt die Kirschblüte – schönes Timing! 🌸 Wie lange bleibst du?"
+      japan april: "Im April ist Kirschblütenzeit – perfektes Timing! 🌸 Am besten früh buchen, es ist Hochsaison. Wie lange bleibst du?"
+      japan november: "Im November färben sich in Japan die Ahornbäume – Kyoto ist dann traumhaft. 🍁 Wie lange bleibst du?"
+      thailand april: "Der April ist in Thailand der heißeste Monat, und Mitte April ist Songkran, das große Wasserfest – du wirst nass! 😄 Wie lange bleibst du?"
+      iceland june: "Im Juni gibt es auf Island die Mitternachtssonne – es wird kaum dunkel. Wie lange bleibst du?"
+    sights:
+      japan: "Die Klassiker in Japan: Tokio, die Tempel von Kyoto, der Fuji, der Hirschpark in Nara, das Friedensdenkmal in Hiroshima und das Streetfood in Osaka."
+      thailand: "Die Klassiker in Thailand: die Tempel und der Königspalast in Bangkok, die Altstadt von Chiang Mai, die Ruinen von Ayutthaya und Inseln im Süden wie Ko Phi Phi oder Ko Samui."
+      italy: "Die Klassiker in Italien: das Kolosseum und der Vatikan in Rom, Florenz mit den Uffizien, die Kanäle von Venedig, die Amalfiküste und die Toskana."
+      spain: "Die Klassiker in Spanien: die Sagrada Família in Barcelona, der Prado in Madrid, die Alhambra in Granada, Sevilla und die Strände der Balearen."
+      france: "Die Klassiker in Frankreich: Paris mit Eiffelturm und Louvre, die Schlösser an der Loire, der Mont-Saint-Michel, die Provence und die Côte d'Azur."
+      greece: "Die Klassiker in Griechenland: die Akropolis in Athen, Santorini, die Klöster von Meteora, Delphi und Kreta."
+      usa: "Die Klassiker in den USA: New York, der Grand Canyon, San Francisco mit der Golden Gate Bridge, Yellowstone und Washington, D.C."
+      portugal: "Die Klassiker in Portugal: Lissabon mit Alfama und Belém, Porto am Douro, Sintra und die Algarve-Küste."
+    sights_none: ["Für {X} habe ich auf Deutsch noch keine Liste parat – frag mich gern auf Englisch, zum Beispiel „what should I see in {X}?“."]
+    flight_lead: "Von Deutschland aus: "
+    flight:
+      japan: "etwa 13–14 Stunden nonstop von Frankfurt oder München nach Tokio – etwas länger als vor 2022, weil die Flüge den russischen Luftraum meiden."
+      usa: "etwa 8–9 Stunden nach New York; an die Westküste (Los Angeles, San Francisco) etwa 11–12 Stunden."
+      new york: "etwa 8–9 Stunden nonstop."
+      thailand: "etwa 10,5–11 Stunden nonstop nach Bangkok."
+      dubai: "etwa 6 Stunden."
+      spain: "etwa 2–2,5 Stunden nach Barcelona oder Madrid."
+      italy: "etwa 1,5–2 Stunden nach Rom oder Mailand."
+      greece: "etwa 3 Stunden nach Athen."
+      portugal: "etwa 3 Stunden nach Lissabon."
+      turkey: "etwa 3 Stunden nach Istanbul."
+      egypt: "etwa 4–5 Stunden nach Kairo oder Hurghada."
+      uk: "etwa 1,5 Stunden nach London."
+      france: "etwa 1–1,5 Stunden nach Paris."
+      india: "etwa 7,5–8 Stunden nach Delhi."
+      china: "etwa 9,5–10,5 Stunden nach Peking."
+      south korea: "etwa 12–13 Stunden nach Seoul."
+      mexico: "etwa 11–12 Stunden nach Mexiko-Stadt oder Cancún."
+      brazil: "etwa 11,5–12,5 Stunden nach Rio oder São Paulo."
+      south africa: "etwa 10,5–12 Stunden nach Johannesburg oder Kapstadt."
+      australia: "es gibt keinen Direktflug – mit einem Zwischenstopp (etwa in Singapur, Dubai oder Doha) dauert es rund 21–24 Stunden."
+      canada: "etwa 8,5–9 Stunden nach Toronto."
+      iceland: "etwa 3,5–4 Stunden nach Reykjavík."
+      indonesia: "es gibt keinen Direktflug nach Bali – mit einem Zwischenstopp dauert es etwa 16–18 Stunden."
+      singapore: "etwa 12 Stunden nonstop."
+      morocco: "etwa 3,5 Stunden nach Marrakesch."
+    flight_unknown: ["Für {X} habe ich keine verlässliche Flugzeit, sorry – eine Flugsuche zeigt dir die genauen Verbindungen."]
+    currency_says: ["In {x} gilt {y}"]
+    currency:
+      japan: "der japanische Yen (¥). In Japan wird noch viel bar bezahlt – etwas Bargeld lohnt sich."
+      usa: "der US-Dollar ($)."
+      uk: "das britische Pfund (£)."
+      euro: "der Euro (€)."
+      switzerland: "der Schweizer Franken (CHF)."
+      thailand: "der thailändische Baht (฿)."
+      turkey: "die türkische Lira (₺)."
+      egypt: "das ägyptische Pfund."
+      china: "der Renminbi, auch Yuan genannt (¥)."
+      india: "die indische Rupie (₹)."
+      australia: "der australische Dollar (A$)."
+      canada: "der kanadische Dollar (C$)."
+      mexico: "der mexikanische Peso."
+      brazil: "der brasilianische Real (R$)."
+      south africa: "der südafrikanische Rand."
+      south korea: "der südkoreanische Won (₩)."
+      denmark: "die dänische Krone."
+      sweden: "die schwedische Krone."
+      norway: "die norwegische Krone."
+      iceland: "die isländische Krone."
+      czech republic: "die tschechische Krone."
+      hungary: "der ungarische Forint."
+      poland: "der polnische Złoty."
+      morocco: "der marokkanische Dirham."
+      uae: "der VAE-Dirham."
+      singapore: "der Singapur-Dollar."
+      indonesia: "die indonesische Rupiah."
+    cost:
+      cheap: "{X} ist im Vergleich zu Westeuropa eher günstig: Essen gehen, Nahverkehr und Museen sprengen das Budget nicht."
+      mid: "{X} liegt im Mittelfeld: nicht billig, aber machbar. Hotels im Zentrum und Touristenrestaurants gehen ins Geld; kleine lokale Restaurants, Märkte und der Nahverkehr halten es im Rahmen."
+      pricey: "{X} ist eher teuer, vor allem Hotels und Essen im Zentrum. Früh buchen, etwas außerhalb wohnen und dort essen, wo Einheimische essen, hilft sehr."
+    food:
+      japan: "Probier in Japan: Ramen, Sushi und Sashimi, Tempura, Okonomiyaki in Osaka, Yakitori, Gyoza – und Onigiri aus jedem Konbini, die sind überraschend gut."
+      italy: "Probier in Italien: Pasta nach regionaler Art (Carbonara in Rom, Pesto in Genua), echte neapolitanische Pizza, Risotto im Norden – und jeden Tag Gelato."
+      spain: "Probier in Spanien: Tapas wie Patatas bravas und Croquetas, Paella in Valencia, Jamón ibérico und Churros mit Schokolade."
+      france: "Probier in Frankreich: Croissants aus der Boulangerie, Crêpes, eine richtige Käseplatte, Steak frites und das Tagesgericht im Bistro."
+      greece: "Probier in Griechenland: Souvlaki und Gyros, Moussaka, Bauernsalat mit echtem Feta, frischen Fisch am Meer und Baklava."
+      thailand: "Probier in Thailand: Pad Thai, grünes Curry, Som Tam (Papayasalat), Tom-Yum-Suppe und Mango Sticky Rice – Streetfood ist oft das Beste."
+      mexico: "Probier in Mexiko: Tacos al Pastor, Mole, Tamales, frische Guacamole und Churros."
+      india: "Probier in Indien: Biryani, Butter Chicken, Dosa im Süden, Chaat von Straßenständen und frisches Naan."
+      portugal: "Probier in Portugal: Pastéis de Nata, gegrillte Sardinen, Bacalhau und ein Bifana-Sandwich."
+    food_none: ["Für {X} habe ich auf Deutsch keine Essensliste – mein bester Tipp: dort essen, wo die Einheimischen essen, und nach dem Gericht des Hauses fragen."]
+    food_nofish:
+      japan: "Kein Problem – Japan hat viel mehr als Fisch: Ramen mit Schweine- oder Hühnerbrühe, Tonkatsu (paniertes Schweineschnitzel), Yakitori, Okonomiyaki, Gyoza, japanisches Curry mit Reis und Gemüse-Tempura."
+      other: "Kein Problem – sag es einfach beim Bestellen und halt dich an Fleisch- oder Gemüsegerichte."
+    translate: ["Auf {y} heißt „{z}“ „{x}“."]
+    translate_none: ["Für „{z}“ auf {y} habe ich leider keine verlässliche Übersetzung – ein Wörterbuch weiß es sicher."]
+    draft_ask: ["Klar! Was möchtest du {x} sagen?", "Gern – worum geht es in der Nachricht?"]
+    draft_head: ["Hier ist ein Entwurf:", "So könnte die Nachricht aussehen:"]
+    draft_reason: ["Ich habe den Grund ergänzt:"]
+    draft_tail: "Soll ich etwas ändern?"
+    reaction: ["Ja, oder? 😊", "Finde ich auch! Willst du noch mehr wissen?"]
+    fun_fact: ["Einen Fun Fact über {x} habe ich auf Englisch gelesen: {y}"]
+    fun_basic: ["Einen besonderen Fun Fact über {x} habe ich nicht – aber auf Englisch weiß ich: {y}"]
+    countries:
+      japan: japan
+      tokio: tokyo
+      kyoto: kyoto
+      osaka: osaka
+      thailand: thailand
+      bangkok: bangkok
+      italien: italy
+      rom: rome
+      mailand: milan
+      venedig: venice
+      florenz: florence
+      spanien: spain
+      barcelona: barcelona
+      madrid: madrid
+      mallorca: mallorca
+      frankreich: france
+      paris: paris
+      griechenland: greece
+      athen: athens
+      portugal: portugal
+      lissabon: lisbon
+      türkei: turkey
+      die türkei: turkey
+      istanbul: istanbul
+      ägypten: egypt
+      kairo: cairo
+      england: uk
+      großbritannien: uk
+      london: london
+      usa: usa
+      die usa: usa
+      amerika: usa
+      new york: new york
+      kanada: canada
+      mexiko: mexico
+      brasilien: brazil
+      südafrika: south africa
+      kapstadt: cape town
+      australien: australia
+      sydney: sydney
+      island: iceland
+      bali: bali
+      indonesien: indonesia
+      indien: india
+      china: china
+      südkorea: south korea
+      korea: south korea
+      marokko: morocco
+      dubai: dubai
+      singapur: singapore
+      die schweiz: switzerland
+      schweiz: switzerland
+      österreich: austria
+      wien: vienna
+      dänemark: denmark
+      schweden: sweden
+      norwegen: norway
+      prag: prague
+      budapest: budapest
+      polen: poland
+      holland: netherlands
+      niederlande: netherlands
+      die niederlande: netherlands
+      amsterdam: amsterdam
+      irland: ireland
+      belgien: belgium
+      kroatien: croatia
+    animals:
+      känguru: kangaroo
+      kängurus: kangaroos
+      pinguin: penguin
+      pinguine: penguins
+      oktopus: octopus
+      oktopusse: octopuses
+      kraken: octopuses
+      elefant: elephant
+      elefanten: elephants
+      hai: shark
+      haie: sharks
+      delfin: dolphin
+      delfine: dolphins
+      wal: whale
+      wale: whales
+      katze: cat
+      katzen: cats
+      hund: dog
+      hunde: dogs
+      löwe: lion
+      löwen: lions
+      giraffe: giraffe
+      giraffen: giraffes
+      biene: bee
+      bienen: bees
+      eule: owl
+      eulen: owls
+      faultier: sloth
+      faultiere: sloths
   food_nofish:
     japan: "No problem — Japan has plenty beyond fish: ramen with pork or chicken broth, tonkatsu (breaded pork cutlet), yakitori, okonomiyaki, gyoza, Japanese curry rice and vegetable tempura."
     other: "No problem — just say so when you order, and stick to the meat or vegetable dishes. Want me to note that you don't eat fish?"

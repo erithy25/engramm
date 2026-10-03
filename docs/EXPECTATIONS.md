@@ -3326,6 +3326,39 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - b46: Rückfrage statt leerer Mail;
   - b47: Rom-Küche statt Artikeltext;
   - Kostentext ohne „trattorias“.
+- **Alltags-Batterie 102 (Batterie 101 auf Deutsch, 25 Turns)**. Erster Lauf: 2 Wiederholungen. Fast jede
+  Reisefrage ging in den Rückfall („Das kann ich auf Deutsch leider noch nicht nachschlagen“), die Schreibhilfe
+  verstand die Bitte nicht, „und die größte Stadt?“ war unbekannt, und der Fun Fact endete in „Erzähl gern weiter“.
+
+  Neu (`_german_ctx102`):
+  - Reise im Kontext: 67 deutsche Orts- und Ländernamen. Dazu gibt es auf Deutsch:
+    - Reisemonat mit denselben Sonderfällen wie im Englischen;
+    - Sehenswürdigkeiten für 8 Länder, sonst ein ehrlicher Hinweis;
+    - Flugzeit ab Deutschland für 25 Ziele;
+    - „ist es teuer?“ nach derselben Preisstufe wie im Englischen;
+    - Währung im Nominativ („In Japan gilt der japanische Yen“), Euro-Länder zusammengefasst; das behebt auch
+      das englische „currency in italy“;
+    - Landesküche und „ich mag keinen Fisch“;
+  - „wie sagt man / was heißt X auf Japanisch/Spanisch/…“ mit deutscher Anmerkung („höflicher …“);
+  - kurze deutsche Nachricht an Chef, Vermieter oder Lehrer in der Sie-Form:
+    - die Rückfrage nach dem Anlass;
+    - freier Tag mit ausgerechnetem Datum („morgen (Sonntag, 4. Oktober)“);
+    - jeder andere Satz als „Folgendes mitteilen: …“ mit großgeschriebenen Nomen, beim Vermieter mit Bitte um
+      Reparatur;
+    - der Grund wird danach als eigener Satz ergänzt;
+  - „und die größte Stadt?“ nach einer Länderfrage auf Deutsch;
+  - Fun Fact zu Tieren und Themen (deutsche Tiernamen übersetzt; der Satz selbst ist englisch und so gekennzeichnet);
+  - „interessant / krass / wow“ nach einer Antwort.
+
+  Außerdem nutzen handgeprüfte Fakten im deutschen Fragepfad jetzt ihren eigenen deutschen Text statt der
+  Schablone „X wurde von Y entdeckt“, zum Beispiel „Christoph Kolumbus erreichte 1492 Amerika – aber dort lebten
+  schon …“.
+
+  Verallgemeinerungsprobe (Italien im Juli, Vermieter mit kaputter Heizung, Kanada, Pinguine): alles passend, 0
+  Wiederholungen.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 799 bestanden. Regressionen: 0 Wiederholungen. Einziger neuer
+  Unterschied: b78 „wow“ nach einer Antwort bekommt die neue Reaktion.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

@@ -1008,7 +1008,7 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_mem67(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
@@ -1281,6 +1281,173 @@ class Assistant:
                 return Reply(msg, "forgot", f"Erledigt – ich habe vergessen, dass du {cap(x)} {'nicht magst' if neg else 'magst'}. Es ist wirklich weg, "
                              "nicht nur versteckt.", via="memory")
             return Reply(msg, "nothing", f"Dazu habe ich nichts gespeichert, was ich vergessen könnte.", via="memory")
+        return None
+
+    def _german_ctx102(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 102: battery 101 in German — a trip in context (Monat, Sehenswürdigkeiten, Flugzeit ab
+        Deutschland, teuer?, Währung, Essen, kein Fisch), "wie sagt man danke auf japanisch?", a short German
+        message to the boss or landlord with the reason added afterwards, "und die größte stadt?", a fun fact,
+        and "interessant" after an answer."""
+        tb = self.bank.daily.get("b101")
+        b = (tb or {}).get("de")
+        if not b:
+            return None
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", s)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:b101:{key}", b[key], **kw), via="german")   # noqa: E731
+        src = {"kind": "common", "source": "everyday facts", "key": ""}
+        cap = lambda w: " ".join(x[:1].upper() + x[1:] if x not in ("die", "der", "das") else x for x in w.split())   # noqa: E731
+        tm = re.fullmatch(r"(?:ich|wir) (?:plane|planen|mache|machen|mach) (?:gerade |bald |im \w+ )?(?:eine |einen )?(?:reise|urlaub|trip|städtetrip) nach (?P<p>[a-zäöüß ]{2,25}?)"
+                          r"(?: im \w+| nächstes jahr| bald| diesen sommer)?|(?:ich|wir) (?:fahre|fahren|fliege|fliegen|reise|reisen) (?:im \w+ |nächstes jahr |bald |im sommer )?"
+                          r"(?:in den urlaub )?nach (?P<p2>[a-zäöüß ]{2,25}?)(?: im \w+| nächstes jahr| bald)?", q)
+        if tm:
+            pde = (tm.group("p") or tm.group("p2")).strip()
+            pen = b["countries"].get(pde)
+            if pen:
+                st.uses["trip_de"] = [pen, cap(pde), st.turn]
+                return say("trip_new", X=cap(pde))
+        tr = st.uses.get("trip_de")
+        trip = tr if tr and st.turn - tr[2] <= 14 else None
+        if trip:
+            ck = tb["countries"].get(trip[0], trip[0])
+            months = {"januar": "january", "februar": "february", "märz": "march", "april": "april", "mai": "may", "juni": "june", "juli": "july",
+                      "august": "august", "september": "september", "oktober": "october", "november": "november", "dezember": "december"}
+            mo = re.fullmatch(r"(?:im |ende |anfang |mitte |wahrscheinlich im |vielleicht im |so im |nächsten )*(?P<m>" + "|".join(months) + r")(?: nächstes jahr)?", q)
+            if mo and st.turn - trip[2] <= 3:
+                trip[2] = st.turn
+                sp = b["month_special"].get(f"{ck} {months[mo.group('m')]}")
+                return Reply(msg, "smalltalk", sp, via="german") if sp else say("month_any", X=mo.group("m").capitalize())
+            if re.fullmatch(r"(?:und )?was (?:sollte|soll|kann|muss) (?:ich|man) (?:mir )?(?:dort|da|in \w+) (?:unbedingt )?(?:anschauen|ansehen|sehen|besichtigen|machen)|"
+                            r"was gibt(?:'| )?s (?:dort|da) zu sehen|(?:was sind )?(?:die )?sehenswürdigkeiten(?: dort)?", q):
+                trip[2] = st.turn
+                if ck in b["sights"]:
+                    return Reply(msg, "smalltalk", b["sights"][ck], via="german", source=src)
+                return say("sights_none", X=trip[1])
+            if re.fullmatch(r"(?:und )?wie lange (?:fliegt man|fliege ich|dauert der flug|ist der flug|brauche ich|braucht man)(?: (?:von|ab) (?:deutschland|frankfurt|münchen|berlin|hier))?(?: (?:dahin|dorthin|nach \w+))?|"
+                            r"wie lange (?:ist|dauert) (?:man|es) (?:dahin|dorthin) (?:unterwegs|mit dem flugzeug)", q):
+                fk = trip[0] if trip[0] in b["flight"] else ck
+                if fk in b["flight"]:
+                    return Reply(msg, "answer", b["flight_lead"] + b["flight"][fk], via="german", source=src)
+                return say("flight_unknown", X=trip[1])
+            if re.fullmatch(r"(?:und )?(?:ist es|ist das|ist (?:\w+ )?(?:dort|da)) (?:sehr |eigentlich |denn )?teuer(?: dort| da)?|(?:wie )?teuer ist es (?:dort|da)", q):
+                lv = next((k for k, v in self.bank.daily["cost_level"].items() if trip[0] in v or ck in v), None)
+                if lv:
+                    return Reply(msg, "smalltalk", b["cost"][lv].replace("{X}", trip[1]), via="german")
+            if re.fullmatch(r"(?:und )?(?:welche|was für eine?) währung (?:haben|hat|nutzen|benutzt|nutzt|gibt es) (?:die|sie|man)?(?: dort| da)?|womit (?:zahlt|bezahlt) man (?:dort|da)|"
+                            r"was für geld (?:haben|brauche ich) (?:die|man|ich)?(?: dort| da)?|welches geld (?:brauche ich|braucht man)(?: dort| da)?", q):
+                cur_k = _euro_key(tb["countries"].get(trip[0], trip[0]))
+                if cur_k in b["currency"]:
+                    return Reply(msg, "answer", self._pick(st, "de:b101:currency_says", b["currency_says"], x=trip[1], y=b["currency"][cur_k]), via="german", source=src)
+            if re.fullmatch(r"(?:und )?was (?:sollte|soll|muss|kann) ich (?:dort |da )?(?:unbedingt )?(?:essen|probieren)|was isst man (?:dort|da)|(?:hast du )?(?:essens)?tipps (?:zum essen|fürs essen)", q):
+                st.uses["trip_food_de"] = [ck, st.turn]
+                if ck in b["food"]:
+                    return Reply(msg, "smalltalk", b["food"][ck], via="german", source=src)
+                return say("food_none", X=trip[1])
+        tf = st.uses.get("trip_food_de")
+        if tf and st.turn - tf[1] <= 3 and re.fullmatch(r"(?:aber |hm,? )?ich (?:mag|esse|ess) (?:keinen|kein|gar keinen) (?:fisch|meeresfrüchte|sushi)(?: so gern| gern)?|ich hasse fisch|kein fisch(?: für mich)?", q):
+            tf[1] = st.turn
+            return Reply(msg, "smalltalk", b["food_nofish"].get(tf[0], b["food_nofish"]["other"]), via="german")
+        tl = re.fullmatch(r"(?:und )?wie sagt man (?P<p>[a-zäöüß' ]{2,30}?) auf (?P<l>japanisch|spanisch|französisch|italienisch|portugiesisch)|was heißt (?P<p2>[a-zäöüß' ]{2,30}?) auf (?P<l2>japanisch|spanisch|französisch|italienisch|portugiesisch)", q)
+        if tl:
+            from engramm.chat.tools import _PHRASES
+            p_de = (tl.group("p") or tl.group("p2")).strip()
+            l_de = tl.group("l") or tl.group("l2")
+            lang = {"japanisch": "japanese", "spanisch": "spanish", "französisch": "french", "italienisch": "italian", "portugiesisch": "portuguese"}[l_de]
+            pm = {"danke": "thank you", "dankeschön": "thank you", "vielen dank": "thank you", "hallo": "hello", "hi": "hi", "tschüss": "bye",
+                  "auf wiedersehen": "goodbye", "bitte": "please", "ja": "yes", "nein": "no", "guten morgen": "good morning", "gute nacht": "good night",
+                  "wie geht's": "how are you", "wie gehts": "how are you", "wie geht es dir": "how are you", "ich liebe dich": "i love you",
+                  "entschuldigung": "excuse me", "es tut mir leid": "sorry", "prost": "cheers", "willkommen": "welcome", "ich heiße": "my name is"}
+            hit = _PHRASES.get(pm.get(p_de, ""), {}).get(lang)
+            if hit:
+                main, _, note = hit.partition(" — ")
+                note = note.replace("more politely", "höflicher").replace("when you ask for something", "wenn du um etwas bittest") \
+                    .replace("“", "„").replace("”", "“")
+                text = self._pick(st, "de:b101:translate", b["translate"], x=main, y=l_de.capitalize(), z=p_de)
+                return Reply(msg, "tool", text[:-1] + (f" – {note}." if note else "."), via="tool")
+            return say("translate_none", z=p_de, y=l_de.capitalize())
+        dm = re.fullmatch(r"(?:kannst du mir helfen,? |könntest du mir helfen,? |hilf mir (?:mal |bitte )?)?(?:eine?n? |ne )?(?:nachricht|mail|e-mail|email|brief|text) (?:an|für) (?:meinen|meine|den|die) "
+                          r"(?P<r>chef|chefin|vermieter|vermieterin|lehrer|lehrerin|kollegen|kollegin|hausverwaltung) zu schreiben|"
+                          r"(?:kannst du |könntest du )?(?:mir )?(?:bitte )?(?:eine?n? )?(?:nachricht|mail|e-mail|email|brief) an (?:meinen|meine) "
+                          r"(?P<r2>chef|chefin|vermieter|vermieterin|lehrer|lehrerin|kollegen|kollegin|hausverwaltung) schreiben|schreib(?:e)? (?:mir )?(?:bitte )?(?:eine?n? )?(?:nachricht|mail|e-mail|brief) an (?:meinen|meine) "
+                          r"(?P<r3>chef|chefin|vermieter|vermieterin|lehrer|lehrerin|kollegen|kollegin|hausverwaltung)", q)
+        if dm:
+            r_ = dm.group("r") or dm.group("r2") or dm.group("r3")
+            fem = r_.endswith("in") or r_ == "hausverwaltung"
+            st.uses["draft_de"] = {"r": r_, "turn": st.turn, "body": None}
+            return say("draft_ask", x=("deiner " if fem else "deinem ") + r_.capitalize())
+        dd_ = st.uses.get("draft_de")
+        if dd_ and "?" not in msg and len(q.split()) <= 14:
+            nouns = {"kind", "sohn", "tochter", "mann", "frau", "partner", "partnerin", "mutter", "vater", "hund", "katze", "auto", "heizung", "wasser", "zug",
+                     "bahn", "bus", "termin", "arzttermin", "arzt", "wohnung", "fenster", "tür", "dusche", "toilette", "kinder", "eltern", "oma", "opa", "schule",
+                     "kita", "erkältung", "fieber", "grippe", "rücken", "montag", "dienstag", "mittwoch", "donnerstag", "freitag", "samstag", "sonntag",
+                     "woche", "heizkörper", "schimmel", "strom", "internet", "spülmaschine", "waschmaschine", "kühlschrank", "herd", "licht", "aufzug"}
+            sentence = lambda x_: " ".join(w[:1].upper() + w[1:] if w in nouns or i == 0 else w for i, w in enumerate(x_.split()))   # noqa: E731
+            today = self._today()
+            wd = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]
+            mn = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
+            if dd_["body"] is None and st.turn - dd_["turn"] <= 2:
+                fr = re.fullmatch(r"(?:ich )?(?:brauche|bräuchte|möchte|hätte gern|will) (?P<d>morgen|übermorgen|heute|am montag|am dienstag|am mittwoch|am donnerstag|am freitag|nächste woche|"
+                                  r"montag|dienstag|mittwoch|donnerstag|freitag) (?:frei|einen freien tag|urlaub)(?: nehmen| haben)?|(?:ich )?(?:brauche|möchte) (?:einen freien tag|frei) (?P<d2>morgen|übermorgen|heute|am \w+)", q)
+                if fr:
+                    d = (fr.group("d") or fr.group("d2")).replace("am ", "")
+                    import datetime as _dt
+                    off = {"heute": 0, "morgen": 1, "übermorgen": 2}.get(d)
+                    if off is None and d.capitalize() in wd:
+                        off = (wd.index(d.capitalize()) - today.weekday()) % 7 or 7
+                    if off is not None:
+                        day = today + _dt.timedelta(days=off)
+                        when = f"{d} ({wd[day.weekday()]}, {day.day}. {mn[day.month - 1]})" if d in ("heute", "morgen", "übermorgen") else \
+                            f"am {wd[day.weekday()]}, {day.day}. {mn[day.month - 1]},"
+                        subj = f"Freier Tag am {day.day}. {mn[day.month - 1]}"
+                        body = f"ich möchte Sie bitten, mir {when} einen freien Tag zu geben."
+                    else:
+                        subj, body = "Freier Tag", "ich möchte Sie bitten, mir nächste Woche einen freien Tag zu geben."
+                    tail = " Meine offenen Aufgaben übergebe ich vorher, und bei Dringendem bin ich per E-Mail erreichbar."
+                    dd_.update(body=body, tail=tail, subj=subj, reason="", turn=st.turn)
+                else:
+                    fix = ""
+                    if dd_["r"].startswith(("vermieter", "hausverwaltung")) and re.search(r"\b(?:kaputt|defekt|geht nicht|funktioniert nicht|tropft|undicht|schimmel|ausgefallen)\b", q):
+                        fix = " Könnten Sie sich bitte so bald wie möglich darum kümmern?"
+                    dd_.update(body=f"ich wollte Ihnen kurz Folgendes mitteilen: {sentence(q)}.", tail=fix, subj="Kurze Nachricht", reason="", turn=st.turn)
+                letter = f"Betreff: {dd_['subj']}\n\nGuten Tag [Name],\n\n{dd_['body']}{dd_['tail']}\n\nVielen Dank und freundliche Grüße\n[Ihr Name]"
+                head = self._pick(st, "de:b101:draft_head", b["draft_head"])
+                return Reply(msg, "writing", f"{head}\n\n{letter}\n\n{b['draft_tail']}", via="writing")
+            if dd_["body"] and not dd_["reason"] and st.turn - dd_["turn"] <= 2 and re.match(r"(?:weil |da |denn |der grund ist,? )?(?:mein|meine|ich|wir|unser|unsere)\b", q):
+                r_s = re.sub(r"^(?:weil |da |denn |der grund ist,? )", "", q)
+                dd_["reason"] = " " + sentence(r_s) + "."
+                dd_["turn"] = st.turn
+                body = dd_["body"] + dd_["reason"]
+                letter = f"Betreff: {dd_['subj']}\n\nGuten Tag [Name],\n\n{body}{dd_['tail']}\n\nVielen Dank und freundliche Grüße\n[Ihr Name]"
+                return Reply(msg, "writing", f"{self._pick(st, 'de:b101:draft_reason', b['draft_reason'])}\n\n{letter}", via="writing")
+        cq = re.search(r"\b(?:hauptstadt|einwohnerzahl|währung|amtssprache) (?:von|in) (?P<c>[a-zäöüß ]{3,25})$", q)
+        if cq:
+            from engramm.chat.german_bridge import to_english
+            hit = to_english(f"was ist die hauptstadt von {cq.group('c')}")
+            if hit and hit[2]:
+                st.uses["country_q_de"] = [hit[2], hit[3] or cap(cq.group("c")), st.turn]
+        cy = st.uses.get("country_q_de")
+        if cy and st.turn - cy[2] <= 5 and re.fullmatch(r"(?:und |was ist mit |wie ist es mit )?(?:die |der )?(?:größte|grösste) stadt(?: dort| da)?", q):
+            cy[2] = st.turn
+            rep = self._question(st, f"what is the largest city in {cy[0]}?")
+            if rep.kind == "answer" and rep.answer:
+                return Reply(msg, "answer", f"Die größte Stadt in {cy[1]} ist {rep.answer}.", answer=rep.answer, source=rep.source,
+                             evidence=rep.evidence, via="german", confidence=rep.confidence)
+        ffm = re.fullmatch(r"(?:erzähl|erzähle|sag|nenn) (?:mir )?(?:mal )?(?:einen|ein paar|einen interessanten|einen lustigen|einen witzigen|was|etwas) (?:interessantes |lustiges |witziges )?"
+                           r"(?:fun fact|funfact|fakt|fact|fun facts|fakten)?s? ?(?:über|zu) (?P<x>[a-zäöüß ]{2,30})", q)
+        if ffm:
+            x_de = ffm.group("x").strip()
+            x_en = b["animals"].get(x_de)
+            if not x_en:
+                from engramm.chat.german_bridge import to_english
+                hit = to_english(f"erzähl mir über {x_de}")
+                x_en = hit[2] if hit else x_de
+            f_ = self._fun_fact(st, x_en)
+            if f_ is not None:
+                _, sent, src_, basic = f_
+                return Reply(msg, "about", self._pick(st, "de:b101:" + ("fun_basic" if basic else "fun_fact"), b["fun_basic" if basic else "fun_fact"],
+                                                      x=cap(x_de), y=sent), source=src_, evidence=sent, via="german")
+        if q in ("interessant", "spannend", "krass", "wow", "echt", "wirklich", "cool", "ach was", "nicht schlecht", "verrückt") and \
+                st.last_kind in ("answer", "about", "tool"):
+            return say("reaction")
         return None
 
     def _german_ctx100(self, st: DialogState, msg: str, s: str) -> Reply | None:
@@ -3524,6 +3691,8 @@ class Assistant:
         if rep.kind != "answer":
             rep.text = self._pick(st, "de:unknown", dd["unknown"])
             return rep
+        if rep.via == "german" and (rep.source or {}).get("kind") == "common":
+            return rep                                    # a hand-checked fact with its own German text ("Kolumbus erreichte 1492 …")
         if kind == "first_holder" and rep.answer:
             rep.text = f"Das war {rep.answer}."
             return rep
@@ -6699,6 +6868,33 @@ class Assistant:
         if idx:
             st.uses[f"rec_seen:{kind}"] = sorted(set(st.uses.get(f"rec_seen:{kind}", [])) | idx)
 
+    def _fun_fact(self, st: DialogState, x: str) -> tuple[str, str, dict, bool] | None:
+        """A fun fact on any topic from the opening of its article: a sentence with "can / record / a number",
+        never the definition; without one, honestly the basics (shown, sentence, source, basic)."""
+        seen = set(st.uses.get("fun_fact_seen", []))
+        found = self.about.find(x, n=10, max_chars=2400)
+        for sg in ([x[:-2], x[:-1]] if x.endswith("es") else [x[:-1]] if x.endswith("s") else []):
+            if found is None:
+                found = self.about.find(sg, n=10, max_chars=2400)   # "octopuses" → "octopus"
+        if found is None or not found.sentences:
+            return None
+        shown = x if x.endswith("s") and not x.startswith("the ") else ("the " if x.startswith("the ") else "") + found.title
+
+        def fun_score(x_: str) -> int:
+            sc = 2 * bool(re.search(r"\b(?:can|able to|up to|record|first|most|tallest|fastest|largest|biggest|smallest|oldest|longest|"
+                                    r"only|unique|world|surpass\w*|million|billion)\b", x_, re.I))
+            sc += bool(re.search(r"\d", x_))
+            sc -= 3 * bool(re.search(r"\b(?:term|refers? to|is used to describe|species of|subspecies|genus|family|classified|"
+                                     r"taxonom\w*|order|named after|may refer)\b", x_, re.I))
+            return sc
+        cands = [(fun_score(x_), -k, x_) for k, x_ in enumerate(found.sentences[1:]) if 40 <= len(x_) <= 280 and x_ not in seen]
+        cands.sort(reverse=True)
+        if cands and cands[0][0] >= 2:
+            pick = cands[0][2]
+            st.uses["fun_fact_seen"] = list(seen | {pick})
+            return shown, pick, found.source, False
+        return shown, found.sentences[0], found.source, True
+
     def _daily_ctx24(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 99: a film just watched as a short flow — which one, did you like it, "have you seen it?", the
         music, "what else should i watch?" and "something like Interstellar" — plus "i'll try that" after advice
@@ -6721,29 +6917,12 @@ class Assistant:
         topics_ctx23 = r"space|the universe|planets|stars|animals|the ocean|the sea|the human body|our body|history|science|food|nature"
         if ff and not re.fullmatch(topics_ctx23, (ff.group("x") or ff.group("x2")).strip()):
             x = (ff.group("x") or ff.group("x2")).strip()
-            seen = set(st.uses.get("fun_fact_seen", []))
-            found = self.about.find(x, n=10, max_chars=2400)
-            for sg in ([x[:-2], x[:-1]] if x.endswith("es") else [x[:-1]] if x.endswith("s") else []):
-                if found is None:
-                    found = self.about.find(sg, n=10, max_chars=2400)   # "octopuses" → "octopus"
-            if found is not None and found.sentences:
-                x = x if x.endswith("s") and not x.startswith("the ") else ("the " if x.startswith("the ") else "") + found.title
-                def fun_score(x_: str) -> int:
-                    sc = 2 * bool(re.search(r"\b(?:can|able to|up to|record|first|most|tallest|fastest|largest|biggest|smallest|oldest|longest|"
-                                            r"only|unique|world|surpass\w*|million|billion)\b", x_, re.I))
-                    sc += bool(re.search(r"\d", x_))
-                    sc -= 3 * bool(re.search(r"\b(?:term|refers? to|is used to describe|species of|subspecies|genus|family|classified|"
-                                             r"taxonom\w*|order|named after|may refer)\b", x_, re.I))
-                    return sc
-                cands = [(fun_score(x_), -k, x_) for k, x_ in enumerate(found.sentences[1:]) if 40 <= len(x_) <= 280 and x_ not in seen]
-                cands.sort(reverse=True)
-                if cands and cands[0][0] >= 2:
-                    pick = cands[0][2]
-                    st.uses["fun_fact_seen"] = list(seen | {pick})
-                    return Reply(msg, "about", self._pick(st, "daily:b101:fun_fact", self.bank.daily["b101"]["fun_fact"], x=x, y=pick),
-                                 source=found.source, evidence=pick, via="about")
-                return Reply(msg, "about", self._pick(st, "daily:b101:fun_fact_basic", self.bank.daily["b101"]["fun_fact_basic"], x=x,
-                                                      y=found.sentences[0]), source=found.source, evidence=found.sentences[0], via="about")
+            ff_ = self._fun_fact(st, x)
+            if ff_ is not None:
+                shown, sent, src, basic = ff_
+                key = "fun_fact_basic" if basic else "fun_fact"
+                return Reply(msg, "about", self._pick(st, f"daily:b101:{key}", self.bank.daily["b101"][key], x=shown, y=sent),
+                             source=src, evidence=sent, via="about")
         tb = self.bank.daily.get("b101")
         if tb:
             trip = st.uses.get("trip") if st.uses.get("trip") and st.turn - st.uses["trip"][1] <= 14 else None
@@ -6774,7 +6953,7 @@ class Assistant:
                               r"(?: there| in (?P<p>[a-z ]+?))?", n)
             if cu and (cu.group("p") or place):
                 pl = (cu.group("p") or place).strip()
-                ck = tb["countries"].get(pl.lower())
+                ck = _euro_key(tb["countries"].get(pl.lower()))
                 if ck in tb["currency"]:
                     shown = _place_case(pl) if pl.islower() else pl
                     return Reply(msg, "answer", self._pick(st, "daily:b101:currency_says", tb["currency_says"], x=shown, y=tb["currency"][ck]),
@@ -10764,6 +10943,13 @@ def _ordinal_pick(norm: str, names: list[str]) -> str | None:
         return names[idx]
     except IndexError:
         return None
+
+
+def _euro_key(country: str | None) -> str | None:
+    """Euro countries share one currency entry ("italy" → "euro")."""
+    return "euro" if country in ("italy", "spain", "france", "greece", "portugal", "germany", "austria", "netherlands", "ireland", "belgium",
+                                 "finland", "croatia", "luxembourg", "slovenia", "slovakia", "estonia", "latvia", "lithuania", "malta",
+                                 "cyprus") else country
 
 
 def _cuisine_case(x: str) -> str:

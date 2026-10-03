@@ -3608,3 +3608,31 @@ def test_battery101_trip_writing_knowledge_follow_ups(chat):
     assert "Australia" in a.turn(st, "and the biggest city?").text   # "Sydney" with the full pack; the test corpus lacks it
     assert "1606" in a.turn(st, "who discovered australia?").text
     assert "Duyfken" in a.turn(st, "when was that?").text
+
+
+def test_battery102_german_trip_writing_knowledge(chat):
+    a, _ = chat
+    st = DialogState("t102")
+    assert "Japan" in a.turn(st, "ich plane eine reise nach japan").text
+    assert "Kirschblüte" in a.turn(st, "im april").text
+    assert "Kyoto" in a.turn(st, "was sollte ich mir dort anschauen?").text
+    assert "13–14 Stunden" in a.turn(st, "wie lange fliegt man von deutschland?").text
+    assert "Mittelfeld" in a.turn(st, "ist es teuer?").text
+    assert "Yen" in a.turn(st, "welche währung haben die?").text
+    t = a.turn(st, "wie sagt man danke auf japanisch?").text
+    assert "arigatō" in t and "höflicher" in t and "“arigatō gozaimasu”" not in t, t
+    assert "Ramen" in a.turn(st, "was sollte ich essen?").text
+    assert "Tonkatsu" in a.turn(st, "ich mag keinen fisch").text
+    st = DialogState("w102")
+    assert "?" in a.turn(st, "kannst du mir helfen, eine nachricht an meinen chef zu schreiben?").text
+    t = a.turn(st, "ich brauche morgen frei").text
+    assert "freien Tag" in t and "morgen (" in t, t
+    assert "Mein Kind ist krank." in a.turn(st, "mein kind ist krank").text
+    st = DialogState("v102")
+    a.turn(st, "schreib mir eine mail an meinen vermieter")
+    t = a.turn(st, "die heizung ist seit montag kaputt").text
+    assert "Die Heizung ist seit Montag kaputt." in t and "kümmern" in t, t
+    st = DialogState("k102")
+    a.turn(st, "wer hat amerika entdeckt?")
+    assert "1492" in st.last_reply and "indigene" in st.last_reply
+    assert "Euro" in a.turn(DialogState("i102"), "what's the currency in italy?").text.replace("euro", "Euro")
