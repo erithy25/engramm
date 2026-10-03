@@ -6646,6 +6646,16 @@ class Assistant:
         if re.fullmatch(r"(?:so |well |guess what,? )?i (?:just )?(?:quit my job|handed in my (?:notice|resignation))", n):
             st.uses["ev_follow"] = [b["quit_follow"], st.turn]   # the reply and the memory update stay with the job rules
             return None
+        if re.fullmatch(r"(?:well,? |oh well,? |yeah,? )?(?:we'?ll see|we will see|time will tell|guess we'?ll see|let'?s see|fingers crossed|hopefully)", n):
+            return say("we_see")                          # "we'll see": never "Oh no. What happened?"
+        le1 = st.last_exp or {}
+        if re.search(r"\bdeadline", (le1.get("text") or "").lower()) and st.turn - le1.get("turn", -99) <= 3 and \
+                re.fullmatch(r"(?:it'?s |by |until |at )?(?:the )?(?:end of (?:next |this )?(?:month|week)|next (?:week|month|friday|monday)|(?:on |this )?(?:friday|monday|tomorrow)|in (?:two|three|four|\d) (?:weeks|days))", n):
+            le1["turn"] = st.turn
+            return say("deadline_plan")
+        fm = re.fullmatch(r"(?:and )?do you (?:like|love|enjoy) (?P<x>pesto|pizza|pasta|sushi|chocolate|ice cream|cake|coffee|tea|burgers|tacos|curry|ramen|cheese|bread|salad|soup|pancakes|carbonara|lasagne|lasagna)", n)
+        if fm:                                            # "do you like pesto?": a friendly food opinion, not "I try not to have opinions"
+            return say("bot_food_like", x=fm.group("x"), X=fm.group("x").capitalize())
         phr = b["phrases"]
         lang_rx = "|".join(phr["langs"])
         lm2 = re.search(rf"\b(?:i'?m|i am|im|i'?ve been|i started|started|i want to start|i'?d like to start) (?:learning|to learn|studying|taking) (?P<l>{lang_rx})\b", n)
@@ -7184,6 +7194,16 @@ class Assistant:
             return say("think_of_it", x=x)
         ck = re.fullmatch(r"(?:i'?m|i am|im|we'?re|we are) (?:making|cooking|eating) (?P<x>[a-z ]+?) (?:tonight|today|for dinner|"
                           r"for lunch|later|this evening)|(?:i'?m|i am|im|we'?re|we are) having (?P<y>[a-z ]+?) for (?:dinner|lunch|tea)(?: tonight| today)?", n)
+        if ck is None and re.fullmatch(r"(?:i'?m|i am|im) (?:thinking about|wondering about|planning) (?:dinner|lunch|what to (?:cook|make|eat)(?: for dinner| tonight)?)(?: tonight)?", n):
+            st.uses["cook68"] = ["", st.turn]             # "i'm thinking about dinner": what are you making?
+            return say("cook_generic")
+        wm = re.fullmatch(r"(?:with |and )(?P<x>pesto|bolognese|carbonara|tomato sauce|cheese|garlic and oil|aglio e olio)", n)
+        co0 = st.uses.get("cook68")
+        if wm and co0 and st.turn - co0[1] <= 3:          # "maybe pasta" … "with pesto"
+            x = {"garlic and oil": "aglio e olio"}.get(wm.group("x"), wm.group("x"))
+            st.uses["cook68"] = [x, st.turn]
+            if x in b["dish"]:
+                return Reply(msg, "smalltalk", self._pick(st, f"daily:b68:dish:{x}", b["dish"][x]), via="smalltalk")
         if ck is None and re.fullmatch(r"(?:i'?m|i am|im|we'?re|we are|i'?ll be|gonna be) (?:cooking|making dinner|making lunch|cooking dinner|cooking lunch)"
                                        r"(?: tonight| today| later| this evening| for (?:my|the) (?:family|friends|kids|girlfriend|boyfriend|wife|husband|partner))?", n):
             st.uses["cook68"] = ["", st.turn]             # "i'm cooking tonight": what are you making?
@@ -8965,6 +8985,8 @@ class Assistant:
             return self._pick(st, "daily:disc:agree", d["agree"])
         if st.last_reply.rstrip().endswith("?") and re.search(r"\b(?:know|idk|dunno|sure|idea|guess)\b", n):
             return self._pick(st, "daily:disc:after_q", d["after_question"])
+        if re.search(r"\b(?:i (?:really )?(?:like|love|enjoy) it|it'?s (?:great|fun|good|nice|cool|amazing)|i'?m (?:happy|enjoying it))\b", n):
+            return self._pick(st, "daily:disc:liked", d["liked"])     # "yeah i like it": never "not everything needs an answer"
         return self._pick(st, "daily:disc:plain", d["plain"])
 
     def _plan(self, st: DialogState, u: Unit) -> str:
@@ -9441,8 +9463,14 @@ class Assistant:
                 not re.search(r"\b(?:you|your)\b", u.text, re.I):
             key = "exp_more_neg" if le.get("valence") == "negative" or re.search(
                 r"\b(?:hurt|hurts|pain|painful|sad|bad|awful|terrible|annoying|annoyed|sucked|sucks|worse|tired|scary|scared)\b", u.norm) else "exp_more_pos"
-            parts.append(_Part("main", self._pick(st, f"daily:{key}", self.bank.daily[key],
-                                                  x=u.text.strip(" .!").lower())))
+            frag = u.text.strip(" .!").lower()
+            # an echo only for a plain description ("work stuff mostly", "she loved it"), never for "maybe pasta",
+            # "we'll see", "end of next month" or "it hurt a bit"
+            if not re.match(r"(?:maybe|probably|perhaps|i think|i guess|we'?ll|we will|i'?ll|it'?s|it was|it|end of|next|in|on|at|by|with|for|about|"
+                            r"until|till|since|yes|no|yeah|nope|not|so|and|but|or|well|hopefully)\b", frag) and \
+                    not re.search(r"\b(?:will|'ll|gonna|going to|tomorrow|next|soon|later)\b", frag) and len(frag.split()) >= 2:
+                key += "_echo"
+            parts.append(_Part("main", self._pick(st, f"daily:{key}", self.bank.daily[key], x=frag)))
             return
         le_ = st.last_exp or {}
         talk = self._talk(st, u.text) if _TALK_FIRST.search(u.norm) or (

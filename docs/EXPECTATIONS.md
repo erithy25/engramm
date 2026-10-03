@@ -3167,6 +3167,36 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 793 bestanden. Regressionen (63 Gespräche):
   0 Wiederholungen, Unterschiede wie bei 89.
+- **Alltags-Batterie 97 (ein langes, realistisches Gespräch mit 25 Turns: Feierabend, Kuchen im Büro, Meeting,
+  App-Projekt, Deadline, Abendessen)**. Vorher wirkte rund die Hälfte der Antworten generisch oder falsch:
+
+  | Eingabe | vorher |
+  |---|---|
+  | „my colleague brought cake“ | „Got it — I'll remember that about your colleague.“ |
+  | „chocolate“ | Wikipedia-Definition von Schokolade |
+  | „for booking yoga classes“ | „Mm-hm. What's on your mind?“ |
+  | „yeah i like it“ | „That's okay — not everything needs an answer.“ |
+  | „we'll see“ | „Ugh, we'll see. What happened?“ |
+  | „maybe pasta“ | „Ooh, maybe pasta. How did it go?“ |
+  | „with pesto“ | „With pesto — love that. What was the best part?“ |
+  | „do you like pesto?“ | „I try not to have opinions“ |
+
+  Grundursache waren die Echo-Vorlagen, die beliebige Satzstücke wiederholten, teils mit falscher Zeitform. Jetzt
+  wird nur noch eine schlichte Beschreibung wiederholt („Ah, long day at work — …“, „Oh nice, she loved it!“).
+  Satzstücke mit maybe/we'll/it was, Zeitangaben oder Zukunft bekommen eine neutrale Vorlage, und „How did it go?“
+  entfällt ganz.
+
+  Neu:
+  - Kuchen von Kollegen (mit Sorte), langes Meeting (mit Thema), App-Projekt (wofür, eigene Rolle);
+  - „yeah i like it“;
+  - „we'll see / fingers crossed“;
+  - Deadline-Datum mit Planungsrat;
+  - „i'm thinking about dinner“ und danach „with pesto“;
+  - freundliche Essensmeinung („If I could eat, pesto would be high on my list!“).
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 794 bestanden. Regressionen (64 Gespräche): 0 Wiederholungen.
+  Neue Unterschiede gibt es nur in b42 und b78, dort wurde zwischen zwei gleichwertigen Echo-Varianten anders
+  gewählt.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

@@ -26,6 +26,9 @@ discourse:
     - "No worries — it doesn't have to be anything big. Want a fun fact while you think?"
     - "That's okay! We can talk about something else. Want a joke or a fun fact?"
     - "Fair enough. Shall I ask you something easier, or would you like a fun fact?"
+  liked:
+    - "That's great to hear! 😊"
+    - "Love that — it makes such a difference when you enjoy it."
   plain:
     - "That's okay — not everything needs an answer."
     - "Fair enough."
@@ -640,14 +643,20 @@ surprise_unknown:
   - "Yeah, that one's beyond what I've read. Try me with another question?"
   - "Sorry I couldn't help with that one. What else is on your mind?"
 # a short phrase that continues a moment the user just shared ({x}: "work stuff")
-exp_more_neg:
+exp_more_neg_echo:
   - "Ugh, {x}. What happened?"
   - "Ah, {x} — that can really wear you down. Want to tell me about it?"
-  - "{x}, hm. What's going on there?"
-exp_more_pos:
+exp_more_pos_echo:
   - "Oh nice, {x}! Tell me more?"
-  - "{x} — love that. What was the best part?"
-  - "Ooh, {x}. How did it go?"
+  - "{x} — love that! And then?"
+exp_more_neg:
+  - "Oh no. What happened?"
+  - "Hm, that sounds tough. Want to tell me more?"
+  - "That's not great. How are you feeling about it?"
+exp_more_pos:
+  - "Oh nice! Tell me more?"
+  - "That sounds good! And then?"
+  - "Ooh, I like the sound of that."
 # "have you seen it?" — {x}: the verb ("see"), {topic}: what was asked about
 bot_experience:
   - "I can't {x} anything myself — I only know what I've read. Have you?"
@@ -2839,6 +2848,9 @@ b82:
   events:
     - {q: "i(?:'m| am) going to (?:a |the )?(?:concert|gig|festival|show|game|match|party|wedding)(?: tonight| today| later| tomorrow| this weekend)?", v: pos, a: "Ooh, fun! Who or what are you going to see?"}
     - {q: "i (?:just )?woke up|(?:i'?m |im )?just up", v: pos, a: "Morning — whatever time it is! ☀️ Did you sleep well?"}
+    - {q: "my (?:colleague|coworker|co-worker|boss|friend|neighbou?r|roommate|flatmate|mom|mum|dad|sister|brother) (?:brought|made|baked) (?:a |some |us )?(?:cake|cookies|muffins|brownies|donuts|doughnuts|pizza|cupcakes|snacks)(?: for (?:us|everyone|me))?(?: today)?", v: pos, a: "Ooh, the best kind of surprise! What kind was it?", f: [{q: "(?:it was |a )?(?:chocolate|lemon|carrot|cheese|strawberry|apple|banana|vanilla|red velvet|coffee|lemon drizzle)(?: cake| ones)?", a: "Mmm, that sounds delicious — what a great colleague! 😋"}]}
+    - {q: "(?:then |and then |today )?i (?:had|sat in) (?:a |another )?(?:long|boring|endless|huge|three-hour|two-hour) meeting(?:s)?(?: today| this afternoon| this morning)?", v: neg, a: "Ugh, long meetings are so draining. What was it about?", f: [{q: "(?:it was )?about (?:the |a |our |my )?[a-z ]{2,40}", a: "Sounds important. How's it going so far?"}]}
+    - {q: "(?:we'?re|we are|i'?m|i am) (?:building|making|developing|working on|creating) (?:an |a )?(?:app|website|game|tool|startup|platform)(?: at work)?", v: pos, a: "Ooh, cool! What does it do?", f: [{q: "(?:it'?s )?(?:for|to help people|that lets you|that helps you|so you can) [a-z ]{2,50}", a: "That's a great idea — I can see people using that! What's your part in it?"}, {q: "i'?m (?:the |a )?(?:designer|developer|programmer|product manager|project manager|engineer|lead|founder|ceo)", a: "Oh nice, so you're shaping it! Do you enjoy it?"}]}
     - {q: "i (?:just )?got (?:a |my first |another |a new )?tattoo(?: today| yesterday)?", v: pos, a: "Ooh, a new tattoo! What did you get — and where?", f: [{q: "(?:it )?(?:hurt|hurts|was painful|stung)(?: a bit| a lot| like hell| so much)?|(?:it )?was (?:pretty |really |a bit )?painful", a: "Ouch — but that's the price of art! Keep it clean and moisturised while it heals, and it'll look great."}, {q: "(?:a |an )?(?:small |tiny |big |little )?[a-z ]{2,30} on my (?:wrist|arm|ankle|back|leg|shoulder|neck|hand|chest|finger|ribs)", a: "That sounds lovely! Does it mean something special to you?"}]}
     - {q: "i (?:lost|can'?t find) my (?:keys|glasses)(?: again)?", v: neg, a: "Oh no, that's so stressful! When did you last have them? Retracing your steps — pockets, bags, the last place you sat down — usually turns them up."}
     - {q: "i(?:'m| am) (?:so |really |super )?bored at work(?: today)?", v: neg, a: "Ugh, boring days drag on forever. What's making it so dull today?"}
@@ -3047,6 +3059,14 @@ b86:
             canadian: "Canada", russian: "Russia", japanese: "Japan", chinese: "China", indian: "India", polish: "Poland", swedish: "Sweden",
             norwegian: "Norway", danish: "Denmark", greek: "Greece", portuguese: "Portugal", mexican: "Mexico", brazilian: "Brazil",
             australian: "Australia", belgian: "Belgium"}
+  we_see:
+    - "Fingers crossed! 🤞"
+    - "True — one step at a time."
+  deadline_plan:
+    - "Tight, but doable if you plan backwards from that date: list the big pieces, give each a week, and keep a little buffer at the end. You've got this."
+  bot_food_like:
+    - "If I could eat, {x} would be high on my list! Do you make it yourself?"
+    - "{X}? Everything I've read about it sounds delicious. Is it one of your favourites?"
   lang_en:
     - "Sure, English it is! What would you like to talk about?"
     - "Of course — let's switch to English. What's on your mind?"

@@ -3455,3 +3455,19 @@ def test_battery96_moment_follow_ups(chat):
     st = DialogState("f96")
     a.turn(st, "it's my first day at a new job")
     assert "hired you" in a.turn(st, "what if they don't like me?").text
+
+
+def test_battery97_long_chat_no_dumb_echoes(chat):
+    a, _ = chat
+    st = DialogState("l97")
+    for msg in ["i'm thinking about dinner"]:
+        a.turn(st, msg)
+    t = a.turn(st, "maybe pasta").text
+    assert "How did it go" not in t and "maybe pasta" not in t.lower(), t
+    assert "Pesto" in a.turn(st, "with pesto").text
+    assert "What happened" not in a.turn(DialogState("w97"), "we'll see").text
+    assert "not everything needs an answer" not in a.turn(DialogState("y97"), "yeah i like it").text
+    st = DialogState("c97")
+    a.turn(st, "my colleague brought cake")
+    assert "delicious" in a.turn(st, "chocolate").text
+    assert "opinions" not in a.turn(DialogState("p97"), "do you like pesto?").text
