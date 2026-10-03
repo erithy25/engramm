@@ -224,7 +224,9 @@ Kontext, Schreibhilfe fragt nach dem Anlass, Wissens-Folgefragen; 45 Dateien, 6 
 (Lauf 37103146343, Batterien 102–104: Reise, Übersetzung, Nachricht an Chef/Vermieter auf Deutsch, lockere
 Schreibweise auf Englisch und Deutsch; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.30](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.30)
 (Lauf 37107152834, Batterien 105–108: Trennung und Arbeitsstress, Valenz-Probe 0/172, Füllantworten 5 von 700
-wiederholt; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
+wiederholt; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.31](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.31)
+(Lauf 37111092798, Batterie 109: Alltagsmomente nach Satzrahmen auf Englisch und Deutsch, Termine mit „tomorrow“
+wiederfinden; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
