@@ -1437,9 +1437,16 @@ class Assistant:
             return None
         q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", s)).strip(" .!?")
         say = lambda key: Reply(msg, "smalltalk", self._pick(st, f"de:g74:{key}", g[key]), via="german")   # noqa: E731
+        ef = st.uses.get("ev_follow")
+        if ef and st.turn - ef[1] <= 4:                   # the moment's own follow-ups ("ja, ich hab schon was neues" after "ich hab gekündigt")
+            for f in ef[0]:
+                if re.fullmatch(f["q"], q):
+                    ef[1] = st.turn
+                    return Reply(msg, "empathy", f["a"], via="german")
         for ev in self.bank.daily["b82"]["de"]:
             if re.fullmatch(ev["q"], q):
                 st.last_exp = {"valence": "negative" if ev["v"] == "neg" else "positive", "topic": None, "person": False, "text": msg, "turn": st.turn}
+                st.uses["ev_follow"] = [ev.get("f") or [], st.turn]
                 return Reply(msg, "empathy", ev["a"], via="german")
         g1 = (self.bank.de["daily"].get("ctx") or {}).get("g81") or {}
         if g1:
@@ -3453,6 +3460,8 @@ class Assistant:
             low_first = bool(re.match(r"(?:The|A|An|It|It's|There|This|That|Yes|No|He|She|They|We|You|About|Around|In|On|At|"
                                       r"Der|Die|Das|Ein|Eine|Es|Er|Sie|Ja|Nein|Im|Am|Um)\b", rep.text))   # never a name ("Faust …")
             rep.text = lead + (rep.text[:1].lower() + rep.text[1:] if low_first else rep.text)
+        if rep.via in ("about", "lookup") and rep.text:
+            rep.text = re.sub(r"(?<=[a-z]{2})\.(?=[A-Z][a-z])", ". ", rep.text)   # "in Italy.It is …": the space the source lost
         if rep.via == "facts" and rep.text:
             rep.text = _MONTH_LOW.sub(lambda m: m.group(0)[:1].upper() + m.group(0)[1:], rep.text)  # "on june 5" → "June 5"
         if rep.kind != "safety" and re.search(r"\b(?:getting sick|i'?m sick|i am sick|feel(?:ing)? sick|i have (?:a |the )?(?:cold|flu|fever|"
@@ -6634,6 +6643,9 @@ class Assistant:
             st.uses["topic_facts"] = list(seen | {pick["text"]})
             return Reply(msg, "about", _join(self._pick(st, "fact_intro", self.bank.reply("fact_intro")), pick["text"]),
                          source={"kind": "base", "source": "wiki", "key": pick.get("src", "")}, evidence=pick["text"], via="facts-bank")
+        if re.fullmatch(r"(?:so |well |guess what,? )?i (?:just )?(?:quit my job|handed in my (?:notice|resignation))", n):
+            st.uses["ev_follow"] = [b["quit_follow"], st.turn]   # the reply and the memory update stay with the job rules
+            return None
         phr = b["phrases"]
         lang_rx = "|".join(phr["langs"])
         lm2 = re.search(rf"\b(?:i'?m|i am|im|i'?ve been|i started|started|i want to start|i'?d like to start) (?:learning|to learn|studying|taking) (?P<l>{lang_rx})\b", n)
@@ -6715,9 +6727,16 @@ class Assistant:
         b = self.bank.daily["b78"]
         n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", norm)).strip(" .!?")
         say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b78:{key}", b[key], **kw), via="smalltalk")  # noqa: E731
+        ef = st.uses.get("ev_follow")
+        if ef and st.turn - ef[1] <= 4:                   # the moment's own follow-ups ("it hurt a bit" after a new tattoo)
+            for f in ef[0]:
+                if re.fullmatch(f["q"], n):
+                    ef[1] = st.turn
+                    return Reply(msg, "empathy", f["a"], via="empathy")
         for ev in self.bank.daily["b82"]["events"]:
             if re.fullmatch(ev["q"], n):
                 st.last_exp = {"valence": "negative" if ev["v"] == "neg" else "positive", "topic": None, "person": False, "text": msg, "turn": st.turn}
+                st.uses["ev_follow"] = [ev.get("f") or [], st.turn]
                 return Reply(msg, "empathy", ev["a"], via="empathy")
         b0 = self.bank.daily["b80"]
         sm = re.fullmatch(r"my (?P<o>[a-z]+(?: [a-z]+)?) (?:is|are|was|were|got|just|has|have) (?:so |too |really |very |a bit |kind of |super |completely |totally |still )?"
@@ -9420,7 +9439,8 @@ class Assistant:
             return
         if le and st.turn - le.get("turn", -99) <= 2 and len(words) <= 5 and \
                 not re.search(r"\b(?:you|your)\b", u.text, re.I):
-            key = "exp_more_neg" if le.get("valence") == "negative" else "exp_more_pos"
+            key = "exp_more_neg" if le.get("valence") == "negative" or re.search(
+                r"\b(?:hurt|hurts|pain|painful|sad|bad|awful|terrible|annoying|annoyed|sucked|sucks|worse|tired|scary|scared)\b", u.norm) else "exp_more_pos"
             parts.append(_Part("main", self._pick(st, f"daily:{key}", self.bank.daily[key],
                                                   x=u.text.strip(" .!").lower())))
             return

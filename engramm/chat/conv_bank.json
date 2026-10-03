@@ -13731,7 +13731,17 @@
     {
      "q": "i (?:just )?got (?:a |my first |another |a new )?tattoo(?: today| yesterday)?",
      "v": "pos",
-     "a": "Ooh, a new tattoo! What did you get — and where?"
+     "a": "Ooh, a new tattoo! What did you get — and where?",
+     "f": [
+      {
+       "q": "(?:it )?(?:hurt|hurts|was painful|stung)(?: a bit| a lot| like hell| so much)?|(?:it )?was (?:pretty |really |a bit )?painful",
+       "a": "Ouch — but that's the price of art! Keep it clean and moisturised while it heals, and it'll look great."
+      },
+      {
+       "q": "(?:a |an )?(?:small |tiny |big |little )?[a-z ]{2,30} on my (?:wrist|arm|ankle|back|leg|shoulder|neck|hand|chest|finger|ribs)",
+       "a": "That sounds lovely! Does it mean something special to you?"
+      }
+     ]
     },
     {
      "q": "i (?:lost|can'?t find) my (?:keys|glasses)(?: again)?",
@@ -13756,12 +13766,28 @@
     {
      "q": "(?:everything|it all) (?:is going|went|keeps going) wrong(?: today)?|nothing is going right(?: today)?|today (?:is|was) a disaster",
      "v": "neg",
-     "a": "Oh no, one of those days. I'm sorry. What happened — or is it just everything piling up?"
+     "a": "Oh no, one of those days. I'm sorry. What happened — or is it just everything piling up?",
+     "f": [
+      {
+       "q": "(?:i |so i |first i )?(?:missed|almost missed) (?:the|my) (?:bus|train|tram)(?: and .+)?|.*spilled (?:coffee|tea|water|juice) (?:on|all over) .+",
+       "a": "Ugh, the classic double whammy. By the way: cold water works best on a fresh coffee stain. The day can only get better from here!"
+      },
+      {
+       "q": "(?:and |plus )?my (?:boss|manager|teacher) was (?:annoyed|angry|mad|upset|in a bad mood)(?: with me| at me)?",
+       "a": "On top of everything else — that's really not fair. Tomorrow's a fresh start; try to do something nice for yourself tonight."
+      }
+     ]
     },
     {
      "q": "(?:it'?s|today is) my first day (?:at|of) (?:a |my )?new job|i start(?:ed)? my new job today",
      "v": "pos",
-     "a": "Good luck on your first day! Nervous or excited? Everyone's new at some point — you've got this."
+     "a": "Good luck on your first day! Nervous or excited? Everyone's new at some point — you've got this.",
+     "f": [
+      {
+       "q": "(?:but )?what if (?:they|people|my colleagues|my coworkers|nobody|no one) (?:don'?t|doesn'?t|won'?t) like me|what if i mess (?:it )?up|what if i(?:'m| am) not good enough",
+       "a": "That worry is so normal — and almost always bigger in your head. Be friendly, ask questions, learn names, and nobody expects you to know everything on day one. They hired you for a reason."
+      }
+     ]
     },
     {
      "q": "i(?:'m| am) getting a (?:puppy|kitten|dog|cat) (?:next week|soon|tomorrow|this weekend)",
@@ -13933,7 +13959,17 @@
     {
      "q": "heute geht (?:echt |einfach |wirklich )?alles schief|nichts klappt heute|was für ein mieser tag",
      "v": "neg",
-     "a": "Oh nein, so ein Tag. Das tut mir leid. Was ist passiert – oder kommt einfach alles zusammen?"
+     "a": "Oh nein, so ein Tag. Das tut mir leid. Was ist passiert – oder kommt einfach alles zusammen?",
+     "f": [
+      {
+       "q": "(?:ich (?:hab|habe) )?(?:erst )?(?:den|meinen) (?:bus|zug|bahn) verpasst(?: und .+)?|.*kaffee (?:verschüttet|übers hemd|aufs hemd).*",
+       "a": "Oh je, der Klassiker im Doppelpack. Übrigens: Kaffeeflecken gehen am besten frisch mit kaltem Wasser raus. Ab jetzt kann's nur besser werden!"
+      },
+      {
+       "q": "(?:und )?mein(?:e)? (?:chef|chefin|lehrer|lehrerin) war (?:auch noch )?(?:genervt|sauer|schlecht drauf|wütend)",
+       "a": "Das auch noch – das ist echt nicht fair. Morgen ist ein neuer Tag; gönn dir heute Abend etwas Schönes."
+      }
+     ]
     },
     {
      "q": "heute ist mein erster (?:arbeitstag|tag im neuen job|tag)|ich fange heute (?:meinen neuen job|bei der neuen firma) an",
@@ -13942,8 +13978,22 @@
     },
     {
      "q": "ich (?:hab|habe) (?:meinen job |meine stelle )?gekündigt",
-     "v": "neg",
-     "a": "Wow, ein großer Schritt! Weißt du schon, wie es weitergeht – oder erst mal durchatmen?"
+     "v": "pos",
+     "a": "Wow, ein großer Schritt! Weißt du schon, wie es weitergeht – oder erst mal durchatmen?",
+     "f": [
+      {
+       "q": "(?:ja,? )?(?:ich (?:hab|habe) )?(?:schon )?(?:was neues|einen neuen job|eine neue stelle)(?: gefunden| in aussicht)?",
+       "a": "Oh super, dann hast du schon was Neues – das macht es viel leichter! Was wird es denn?"
+      },
+      {
+       "q": "(?:bei |in )?(?:einem |einer )?(?:startup|start-up|kleinen firma|großen firma|bank|agentur|klinik|schule)",
+       "a": "Oh, spannend! Was machen die denn?"
+      },
+      {
+       "q": "(?:im|ab|am) [a-zäöüß0-9. ]+",
+       "a": "Dann ist es ja bald so weit! Genieß die Zeit dazwischen – eine kleine Pause vor etwas Neuem ist Gold wert."
+      }
+     ]
     },
     {
      "q": "ich (?:hab|habe) (?:gerade|eben) (?:ein nickerchen|einen mittagsschlaf) gemacht",
@@ -14502,6 +14552,20 @@
    ],
    "topic_fact_none": [
     "Hmm, I don't have a fun fact on that one ready. Want a random one instead?"
+   ],
+   "quit_follow": [
+    {
+     "q": "(?:yes,? |yeah,? |yep,? )?i (?:have|got|already have|already got) (?:a |another |a new )?(?:new )?(?:one|job|position)(?: lined up| already| waiting)?",
+     "a": "Oh nice, so you've got something lined up — that makes it so much easier! What's the new job?"
+    },
+    {
+     "q": "(?:it'?s )?(?:at |with |for )?(?:a |an )?(?:startup|start-up|small company|big company|bank|agency|hospital|school|university)",
+     "a": "Ooh, exciting! What do they do?"
+    },
+    {
+     "q": "i start (?:in|on|next) [a-z0-9 ]+",
+     "a": "Not long then! Enjoy the time in between — a little break before something new is gold."
+    }
    ],
    "agree_hard": [
     "I hope it helps a little. And go easy on yourself tonight — you've had a rough day.",

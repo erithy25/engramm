@@ -3433,3 +3433,25 @@ def test_battery95_german_everyday_generalisation(chat):
                                      ("kannst du mir einen podcast empfehlen?", "Podcasts"), ("wie kann ich geld sparen?", "sparst")]):
         r = a.turn(DialogState(f"g95-{i}"), msg).text
         assert want in r, (msg, r)
+
+
+def test_battery96_moment_follow_ups(chat):
+    a, _ = chat
+    st = DialogState("q96")
+    a.turn(st, "i quit my job")
+    assert "lined up" in a.turn(st, "yeah i have a new one lined up").text
+    assert "What do they do" in a.turn(st, "it's at a startup").text
+    st = DialogState("t96")
+    a.turn(st, "i got a tattoo today")
+    t = a.turn(st, "it hurt a bit").text
+    assert "How did it go" not in t and "Ouch" in t, t
+    st = DialogState("w96")
+    a.turn(st, "everything is going wrong today")
+    assert "coffee stain" in a.turn(st, "i missed the bus and spilled coffee on my shirt").text
+    st = DialogState("k96de")
+    a.turn(st, "ich hab gekündigt")
+    t = a.turn(st, "ja, ich hab schon was neues").text
+    assert "nicht leichter" not in t and "Neues" in t, t
+    st = DialogState("f96")
+    a.turn(st, "it's my first day at a new job")
+    assert "hired you" in a.turn(st, "what if they don't like me?").text

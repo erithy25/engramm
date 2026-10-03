@@ -3144,6 +3144,29 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 792 bestanden. Regressionen (62 Gespräche):
   0 Wiederholungen.
+- **Alltags-Batterie 96 (Tiefe nach einem Moment: acht Gespräche, EN + DE)**. Die erste Antwort auf ein Ereignis
+  passte, die Folgesätze danach nicht:
+
+  | Eingabe | vorher |
+  |---|---|
+  | „it hurt a bit“ (Tattoo) | „Ooh, it hurt a bit. How did it go?“ |
+  | „i missed the bus and spilled coffee on my shirt“ | „What went wrong with your shirt?“ |
+  | „what if they don't like me?“ (erster Arbeitstag) | „I don't know that about you yet“ |
+  | „ja, ich hab schon was neues“ (gekündigt) | „Das macht es natürlich nicht leichter.“ |
+
+  Neu:
+  - Einträge der Ereignistabelle können eigene Folgesätze tragen (Feld `f`, vier Turns lang, EN und DE): Tattoo,
+    alles geht schief (Bus/Kaffee, Chef), erster Arbeitstag, Kündigung (neuer Job, Startup, Startmonat);
+  - „Kündigung“ zählt auf Deutsch als großer, eher positiver Schritt;
+  - Echo-Rückfragen nehmen bei negativen Wörtern (hurt, sad, annoying …) die passende Vorlage;
+  - in Lesetexten fehlende Leerzeichen nach dem Punkt („in Italy.It is“) werden ergänzt.
+
+  Die erste Fassung legte „i quit my job“ in die Ereignistabelle und fing damit den Gedächtnis-Ablauf ab, der den
+  Beruf austrägt. Der alte Test fand das. Jetzt setzt die Zeile nur den Folgezustand; Antwort und Gedächtnis
+  bleiben beim alten Ablauf.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 793 bestanden. Regressionen (63 Gespräche):
+  0 Wiederholungen, Unterschiede wie bei 89.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
