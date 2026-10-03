@@ -88,7 +88,7 @@ _JOB_LIVING = re.compile(r"\b(?:earns?|earning|makes?|making|do|does|did|for) (?
 CONCEPT_PARENTS = {"#job": "#work", "#employer": "#work", "#home": "#place", "#origin": "#home"}
 _NOT_A_JOB = frozenset(("beginner", "newbie", "novice", "noob", "fan", "mess", "person", "owl", "bird", "perfectionist", "introvert",
                         "extrovert", "vegetarian", "vegan", "procrastinator", "worrier", "overthinker", "pro", "expert", "natural",
-                        "rookie", "learner", "member", "regular", "night", "morning", "lightweight", "foodie", "nerd", "geek"))
+                        "rookie", "learner", "member", "regular", "night", "morning", "lightweight", "foodie", "nerd", "geek", "interview", "interviews", "offer", "application", "search", "hunt", "fair"))
 _CALL_HOME = re.compile(r"\bcalls? (?:[a-z]+ ){0,2}home\b")     # "I call Lyon home" names a home, not a name
 # "remind me to call mom tomorrow", "i have to call the bank": phoning someone, not a name
 _CALL_PHONE = re.compile(r"\b(?:to|gotta|should|will|must|can|could|'ll|need to|have to|and|then|please|didn'?t|forgot to) call\b|"

@@ -3776,3 +3776,37 @@ def test_battery108_fillers_never_repeat(chat):
             t = a.turn(st, m).text
             assert t not in seen[-8:], (opener, m, t, seen[-8:])
             seen.append(t)
+
+
+def test_battery109_moments_by_frame(chat):
+    """Everyday moments in one sentence get a fitting reply by frame, never "Tell me more?" or a fact stored."""
+    import re as _re
+    a, _ = chat
+    generic = _re.compile(r"I'll remember|Noted|Tell me more|Nice to meet you|you live in|Erzähl ruhig mehr|Erzähl gern mehr|wie findest du das|merke ich mir", _re.I)
+    cases = [("our dishwasher broke", "warranty|fixed"), ("my dog chewed up my shoes", "Were the shoes"), ("i twisted my ankle at work", "raised"),
+             ("i repainted the living room", "living room"), ("i'm nervous about my presentation", "your presentation"),
+             ("i burnt my tongue on the pizza", "ice cube"), ("i planted some herbs on my balcony", "your own herbs grow"),
+             ("my plants all died", "too much water"), ("i made lasagna from scratch", "lasagna"), ("we got a puppy last week", "puppy"),
+             ("i booked flights to japan", "Japan"), ("i went to a concert last night", "who did you see")]
+    for i, (msg, want) in enumerate(cases):
+        st = DialogState(f"m109-{i}")
+        a.turn(st, "hi")
+        t = a.turn(st, msg).text
+        assert not generic.search(t) and _re.search(want, t), (msg, t)
+    for i, (msg, want) in enumerate([("mein laptop ist abgestürzt", "Laptop"), ("ich hab mir den knöchel verstaucht", "hochlegen"),
+                                     ("ich stand zwei stunden im stau", "Stau"), ("mein vater ist 60 geworden", "deinen Vater"),
+                                     ("ich war am samstag auf einer hochzeit", "Beste|war's"), ("ich bin die treppe runtergefallen", "Autsch"),
+                                     ("ich hab zum ersten mal lasagne gemacht", "stark")]):
+        st = DialogState(f"d109-{i}")
+        a.turn(st, "hallo")
+        t = a.turn(st, msg).text
+        assert not generic.search(t) and _re.search(want, t), (msg, t)
+
+
+def test_battery109_plans_remembered_with_their_time(chat):
+    a, _ = chat
+    st = DialogState("p109")
+    a.turn(st, "i have a job interview tomorrow")
+    t = a.turn(st, "when is my job interview?").text
+    assert "tomorrow" in t and "work as" not in t, t
+    assert "haven't told me" in a.turn(st, "when is my exam?").text

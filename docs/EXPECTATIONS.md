@@ -3516,6 +3516,65 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Zweiter Lauf: **5 von 700 (0,7 %)**, nur noch Einzelfälle. Test 108 prüft je 12 Füllwörter pro Sprache.
 
   Messung: Suite 805 bestanden, NQ 22/9. In 13 alten Batterien ändern sich nur Füllantworten gegen gleichwertige.
+- **Momente nach Satzrahmen, Probe 109 (`engramm/chat/moments.py`, `scratchpad/generic_probe.py`,
+  `heldout_probe.py`)**:
+  - Probe: 60 englische und 40 deutsche Alltagsereignisse, je ein Satz nach einem Gruß;
+  - gezählt werden generische Antworten („Tell me more?“, „Erzähl ruhig mehr“) und Ereignisse, die als Fakt
+    gemerkt werden („I'll remember that about your cat“).
+
+  Erster Lauf: **26 von 60 englisch und 31 von 40 deutsch generisch.** Dazu kamen grobe Fehler:
+  - „i had a job interview today“ ergab „I'll remember that you work as an interview“;
+  - „i made sushi at home“ ergab „I'll remember that you live there“.
+
+  Neu, statt einzelner Sätze **Satzrahmen**: 49 englische und 43 deutsche Rahmen der Form „wer hat was womit
+  gemacht“, zum Beispiel:
+  - Schaden je Gegenstandsart: Technik, Fahrzeug, Haushaltsgerät;
+  - Verschüttetes mit passendem Rat: Rotwein, Kaffee, Tastatur;
+  - Verbrennung mit Erste-Hilfe-Grenze, Zunge extra; Verstauchung; Sturz;
+  - Ausfall, Steckenbleiben, Mieterhöhung;
+  - Abschluss, Prüfung, Lauf, zum ersten Mal oder selbst gemacht, gestrichen, gepflanzt;
+  - neues Haustier, Baby, Meilensteine der Kinder, Geburtstag mit Alter;
+  - gebuchte Reise, Ausflug, Ausgehen (Konzert, Hochzeit, Beerdigung);
+  - Neuanfang (Therapie, Diät, Kurs, Instrument), Lob, Kennenlernen, Scheidung der Eltern, versetzt worden;
+  - Einsamkeit, Nervosität, Studienwahl, Stolz, Pflanzen, vergessener Geburtstag und weitere.
+
+  Die Rahmen greifen erst, wenn kein spezieller Ablauf zuständig ist: auf Englisch im Aussagezweig direkt vor
+  Merken und Rückfall, auf Deutsch am Ende der Alltagskette. Ein Gefühl mit eigener warmer Antwort (einsam,
+  nervös, bestanden) behält diese; die Rahmen füllen dort nur sachliche Missgeschicke.
+
+  Mitbehoben:
+  - „i went to a concert last night“ galt als Reise nach „A Concert Last Night“;
+  - „our dishwasher broke“ wurde nach der Namensfrage zu „Nice to meet you, Dishwasher Broke!“;
+  - „job interview“ wurde als Beruf gelesen;
+  - „when is my job interview?“ findet jetzt „tomorrow“. Relative Zeiten kommen aus den eigenen Aussagen,
+    „on Friday / at 3“ weiter aus dem Faktengedächtnis; ein unbekannter Termin wird ehrlich als unbekannt
+    benannt statt mit einem anderen Termin beantwortet;
+  - bei Vorhaben (Vorstellungsgespräch, gebuchte Reise, Sparziel) wird der Satz weiterhin gemerkt.
+
+  **Ehrliche Messung an neuen Sätzen** (40 englisch, 30 deutsch; anders formuliert und nicht zum Entwurf der
+  Rahmen benutzt; gemessen mit und ohne Rahmen):
+
+  | Sprache | ohne Rahmen | mit Rahmen (erster Lauf) | nach Korrektur der gefundenen Lücken |
+  |---|---|---|---|
+  | Englisch | 22/40 generisch | 0/40 | 0/40 |
+  | Deutsch | 23/30 generisch | 4/30 | 0/30 |
+
+  Die Spalte „nach Korrektur“ ist nicht mehr ungesehen, denn ihre Lücken haben die Korrekturen bestimmt. Bei
+  der Durchsicht fielen auch falsche Antworten auf, die die Zählung nicht erfasst; alle sind behoben:
+  - „our dishwasher broke“ wurde als Name gelesen;
+  - „my plants all died“ bekam eine Trauerantwort;
+  - „Were the shoes“ statt „Was the shoes“, „Alles Gute an deinen Vater“ statt „an deine Vater“;
+  - verbrannte Zunge;
+  - Verschüttetes auf der Tastatur.
+
+  Messung: Dev-Satz unverändert (team-0067/0077 wie bisher), NQ 22/9, Suite 807 bestanden. Gewollte neue
+  Unterschiede in alten Batterien sind spezifischere Antworten statt generischer:
+  - b40 „on vacation“;
+  - b44/b65/b84 deutsch einsam;
+  - b45/b58/b84 Vorstellungsgespräch morgen;
+  - b54/b79 bestanden, Marathon, Gitarre, nervös;
+  - b80 Kopfhörer;
+  - b82 Tee auf der Tastatur.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

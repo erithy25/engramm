@@ -1013,7 +1013,8 @@ class Assistant:
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
-                self._german_life(st, msg, s)
+                self._german_life(st, msg, s) or \
+                self._moment_de(st, msg, s)
             if life is not None:
                 return life
         if u.kind == "fallback" or u.kind == "feeling":
@@ -1292,6 +1293,111 @@ class Assistant:
                              "nicht nur versteckt.", via="memory")
             return Reply(msg, "nothing", f"Dazu habe ich nichts gespeichert, was ich vergessen könnte.", via="memory")
         return None
+
+    def _moment_key(self, key: str, sl: dict, lang: str) -> tuple[str, dict] | None:
+        """The reply key and its words for a moment frame (engramm/chat/moments.py)."""
+        o = sl.get("o", "") or sl.get("o2", "")
+        if key == "damage_tech" and re.search(r"\b(?:lost|arbeit ist weg|alles ist weg)\b", sl.get("_t", "")):
+            return "damage_tech_lost", {}
+        if key == "spill":
+            w = (o + " " + sl.get("on", "")).lower()
+            if re.search(r"\b(?:keyboard|laptop|computer|tastatur|rechner|handy|phone)\b", w):
+                return "spill_tech", {}
+            if re.search(r"\b(?:red wine|wine|rotwein|wein)\b", w):
+                return "spill_wine", {}
+            if lang == "en" and re.search(r"\bcoffee\b", w):
+                return "spill_coffee", {}
+            return "spill", {}
+        if key == "cancelled":
+            return ("cancelled_travel" if re.search(r"\b(?:flight|train|bus|flug|zug)\b", o) else "cancelled"), {}
+        if key == "stuck":
+            return ("stuck_lift" if re.search(r"\b(?:elevator|lift|aufzug|fahrstuhl)\b", o) else "stuck_traffic" if re.search(r"\b(?:traffic|stau)\b", o) else "stuck"), {}
+        if key == "going_out":
+            return ("going_camping" if o in ("camping", "zelten", "campen") else "going_out"), {"x": o}
+        if key == "learning" and o.startswith("to "):
+            return "learning_to", {"x": o}
+        if key == "nervous":
+            x_ = re.sub(r"\bmy\b", "your", o) if lang == "en" else o
+            return ("nervous_when" if o in ("tomorrow", "monday", "morgen", "montag") else "nervous_thing"), {"x": x_}
+        if key == "passed" and o in ("out", "away", "by", "it", "on", "the ball", "time"):
+            return None                                   # "i passed out" is no exam
+        if key == "first_make" and o in ("it", "that", "this", "a mistake", "fehler", "das", "es", "mistake", "a decision"):
+            return None
+        if key == "hurt" and lang == "en" and o in ("feelings", "your feelings", "it", "that"):
+            return None
+        if key == "turned":
+            return "turned", {"n": sl.get("n", ""), "y": sl.get("w", "")}
+        if key == "burn" and o in ("tongue", "mouth", "zunge", "mund"):
+            return "burn_tongue", {}
+        if key == "went_out":
+            return ("went_funeral" if o in ("funeral", "beerdigung") else "went_music" if o in ("concert", "gig", "festival", "konzert") else "went_out"), {}
+        if key == "first_make" and not re.search(r"\b(?:first time|zum ersten mal|das erste mal)\b", sl.get("_t", "")):
+            return ("home_make" if lang == "en" else "first_make"), {"x": o}
+        if key == "race_done" and lang == "de":
+            return "race_done", {"x": {"ersten marathon": "dein erster Marathon", "marathon": "ein Marathon", "halbmarathon": "ein Halbmarathon",
+                                       "triathlon": "ein Triathlon", "ersten lauf": "dein erster Lauf"}.get(o, o)}
+        if key == "pet_mischief":
+            plural = lang == "en" and re.search(r"(?<!s)s$", o.split()[-1] if o else "") is not None
+            return ("pet_mischief_pl" if plural else "pet_mischief"), {"x": o, "y": sl.get("w", "")}
+        if key == "trip_booked":
+            X = " ".join(w[:1].upper() + w[1:] for w in o.split())
+            return "trip_booked", {"X": X, "x": X}
+        return key, {"x": o, "X": o[:1].upper() + o[1:]}
+
+    def _moment_en(self, st: DialogState, msg: str, norm: str, feeling: bool = False) -> Reply | None:
+        """An everyday moment told in one sentence, by frame — after every specific flow (engramm/chat/moments.py)."""
+        from engramm.chat import moments
+        m = moments.match(re.sub(r"[^\w\s'-]", " ", norm), "en")
+        mb = self.bank.daily.get("moments")
+        if not m or not mb:
+            return None
+        key, sl = m
+        sl["_t"] = norm
+        km = self._moment_key(key, sl, "en")
+        if km is None or km[0] not in mb:
+            return None
+        k2, kw = km
+        if feeling and k2 in ("lonely", "nervous_when", "nervous_thing", "proud", "passed", "project_done", "race_done", "divorce", "stood_up", "sick_week",
+                              "baby", "kid_milestone", "met_someone", "praised", "team_won", "went_funeral"):
+            return None                                   # a feeling already has its own warm reply; frames fill in the plain mishaps
+        neg = k2 in ("damage_tech", "damage_tech_lost", "damage_car", "spill", "spill_wine", "spill_coffee", "burn", "hurt", "cancelled_travel", "cancelled",
+                     "stuck_lift", "stuck_traffic", "stuck", "rent", "divorce", "stood_up", "neighbour", "lonely", "plants_dying", "forgot_bday", "sick_week",
+                     "overslept", "went_funeral", "damage_any", "sprain", "pet_mischief_pl", "burn_tongue", "spill_tech")
+        st.last_exp = {"valence": "negative" if neg else "positive", "topic": None, "person": False, "text": msg, "turn": st.turn}
+        text = self._pick(st, f"daily:moments:{k2}", mb[k2], **kw)
+        if k2 in ("interview_future", "trip_booked", "saving"):
+            rep = self._learn(st, [msg], msg)             # a plan worth keeping ("when is my interview?" later); the reply stays the moment's
+            rep.text, rep.kind = text, "empathy"
+            return rep
+        return Reply(msg, "empathy", text, via="empathy")
+
+    def _moment_de(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """The German moments by frame (engramm/chat/moments.py), before the neutral fallback."""
+        from engramm.chat import moments
+        m = moments.match(re.sub(r"[^\w\s'-]", " ", s), "de")
+        mb = self.bank.daily.get("moments_de")
+        if not m or not mb:
+            return None
+        key, sl = m
+        sl["_t"] = s
+        km = self._moment_key(key, sl, "de")
+        if km is None or km[0] not in mb:
+            return None
+        k2, kw = km
+        if k2 == "damage_tech":
+            kw = {"x": {"handydisplay": "Handydisplay", "display": "Display", "wlan": "WLAN", "pc": "PC"}.get(kw.get("x", ""), kw.get("x", "").capitalize())}
+        if k2 in ("damage_car", "first_make", "learning", "planted", "trip_booked"):
+            kw = {k_: " ".join(w[:1].upper() + w[1:] if w not in ("km",) else w for w in v.split()) if isinstance(v, str) else v for k_, v in kw.items()}
+        if k2 == "turned":
+            kw["y"] = {"oma": "deine Oma", "opa": "deinen Opa", "mutter": "deine Mutter", "mama": "deine Mama", "vater": "deinen Vater", "papa": "deinen Papa",
+                       "tante": "deine Tante", "onkel": "deinen Onkel", "schwester": "deine Schwester", "bruder": "deinen Bruder", "frau": "deine Frau",
+                       "mann": "deinen Mann"}.get(kw.get("y", ""), kw.get("y", ""))
+        if k2 == "pet_mischief":
+            kw["x"] = kw.get("x", "").capitalize()
+        neg = k2 in ("damage_tech", "damage_tech_lost", "damage_car", "spill", "spill_wine", "burn", "hurt", "cancelled_travel", "cancelled", "stuck_lift",
+                     "stuck_traffic", "stuck", "rent", "divorce", "stood_up", "neighbour", "lonely", "plants_dying", "forgot_bday", "sick_week", "overslept", "went_funeral", "sprain", "burn_tongue", "spill_tech")
+        st.last_exp = {"valence": "negative" if neg else "positive", "topic": None, "person": False, "text": msg, "turn": st.turn}
+        return Reply(msg, "empathy", self._pick(st, f"de:moments:{k2}", mb[k2], **kw), via="german")
 
     def _german_ctx104(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """Battery 104: casual German — "bin übrigens jonas", "bin 31 und arbeite als pfleger" (both kept), the night
@@ -4441,6 +4547,10 @@ class Assistant:
                 r = self._intent(st, u, content, parts)
                 if r is not None and main is None:
                     main = r
+            elif u.act in ("statement", "feeling") and len(units) == 1 and \
+                    (mr := self._moment_en(st, u.text, u.norm, feeling=u.act == "feeling")) is not None:
+                parts.append(_Part("main", mr.text))      # an everyday moment by frame, before the generic "tell me more" or a fact stored
+                main = main or Reply(msg, mr.kind, "", via=mr.via)
             elif u.act == "statement":
                 exp = experience(u.norm)
                 if is_discourse(u.norm):
@@ -5228,6 +5338,9 @@ class Assistant:
             return Reply(msg, "smalltalk", self._pick(st, f"daily:subject:{key}", d["subject"][key],
                                                       x=subj[:1].upper() + subj[1:]), via="smalltalk")
         m = _TRIP.match(norm)
+        if m and re.match(r"(?:a|an|the|my|our)\s+(?:concert|gig|party|wedding|show|game|match|movies?|cinema|museum|festival|club|bar|restaurant|"
+                          r"meeting|doctor|dentist|gym|funeral|class|lecture|play|musical|comedy show|birthday|barbecue|bbq)\b", m.group("x").strip()):
+            m = None                                      # "i went to a concert last night" is an outing (moments), not a trip to "A Concert Last Night"
         if m and not _NOT_A_TRIP.fullmatch(m.group("x").strip()):
             place = m.group("x").strip()
             rep = self._learn(st, [msg], msg)
@@ -7120,6 +7233,22 @@ class Assistant:
         n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", norm)).strip(" .!?")
         say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b99:{key}", b[key], **kw), via="everyday")  # noqa: E731
         films = b["films"]
+        wm = re.fullmatch(r"(?:and |so )?when(?:'s| is| was) (?:my|the) (?P<x>(?:[a-z]+ )?(?:appointment|interview|exam|test|meeting|flight|party|date|class|lesson|surgery|operation|check-?up|wedding|trip|game|match|concert|presentation|deadline))(?: again)?", n)
+        if wm:                                            # "when is my job interview?" after "i have a job interview tomorrow"
+            x = wm.group("x")
+            head = x.split()[-1]
+            tm = r"(?:tomorrow(?: morning| afternoon| evening)?|today|tonight|the day after tomorrow|this (?:weekend|week|afternoon|evening|morning)|next (?:week|month)|in (?:two|three|\d+) (?:days|weeks))"
+            # relative times only: "on Friday" / "at 3" already come back through the fact memory
+            for sid, txt in reversed(list(self.bot.user_texts().items())):
+                low = txt.lower()
+                if re.search(rf"\b{re.escape(head)}\b", low) and (x == head or re.search(rf"\b{re.escape(x)}\b", low) or x.split()[0] in low):
+                    tmm = re.search(rf"\b{tm}\b", low)
+                    if tmm:
+                        when = tmm.group(0)
+                        return Reply(msg, "answer", f"You have your {x} {when}.", answer=when, via="memory",
+                                     source={"kind": "user", "source": sid}, confidence=1.0)
+            if not any(re.search(rf"\b{re.escape(head)}\b", txt.lower()) for txt in self.bot.user_texts().values()):
+                return Reply(msg, "unknown", f"You haven't told me about your {x} yet — when is it?", via="memory")
         bk = b["breakup"]
         if re.search(r"\b(?:broke up with me|dumped me|left me|we (?:just )?broke up|ended (?:it|things) with me|got dumped)\b", n):
             st.uses["breakup105"] = [st.turn]             # the first reply stays with the empathy rules; the follow-ups are this flow's
@@ -11362,6 +11491,9 @@ def _slot_value(msg: str, slot: str | None) -> str | None:
             return None
         if _NOT_A_NAME.search(s):
             return None                                   # "I'm not doing great" answers how, not who
+        if len(words) >= 2 and (re.match(r"(?i)(?:my|our|the|a|an|this|that|it|we|i)\b", s) or
+                                re.search(r"(?i)\b(?:broke|broken|died|crashed|is|are|was|were|got|went|had|did|made|lost|fell|keeps?)\b", s)):
+            return None                                   # "our dishwasher broke" is news, not a name
         return s
     if slot == "mood":
         return None
