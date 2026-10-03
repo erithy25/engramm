@@ -214,7 +214,9 @@ Zeitlimit; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.24](https
 Wissensstichprobe 39/40, natürliche Mehrschritt-Gespräche mit Haustier-Gedächtnis; 45 Dateien, 6 Installer,
 SHA256SUMS geprüft). [v3.1.0-beta.25](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.25)
 (Lauf 37085969483, Batterien 87–89: Korrekturen gelten, Deutsch im Alltag, Trauer/Schlaf/Langeweile, Grundwörter in
-sechs Sprachen, Nationalität ja/nein; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
+sechs Sprachen, Nationalität ja/nein; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.26](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.26)
+(Lauf 37091404744, Batterien 90–94: fünfte Wissensstichprobe 40/0/0, Grenzfälle, deutsches Wissen mit Folgefragen,
+Wächter gegen falsche Baujahre, englische Verallgemeinerungsprobe; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
