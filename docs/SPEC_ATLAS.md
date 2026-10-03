@@ -230,7 +230,9 @@ wiederfinden; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.32](ht
 (Lauf 37113244647, Probe 110: Folgeantworten nach Momenten, Lern-Gespräche, Urlaub bleibt im Reise-Ablauf;
 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.33](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.33)
 (Lauf 37116159237, Probe 111: ganze Alltagsgespräche mit Themengedächtnis, EN 27→0 von 72, DE 25→0 von 59;
-45 Dateien, 6 Installer, SHA256SUMS geprüft).
+45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.34](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.34)
+(Lauf 37118044401, Probe 112: Arzt, Beziehung, Geschenke, Konzepte erklären, Schlaf, erster Arbeitstag, Sprache
+lernen, TÜV; ungesehen EN 27→0 von 63, DE 23→0 von 42; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
