@@ -1296,7 +1296,10 @@ class Assistant:
 
     def _moment_key(self, key: str, sl: dict, lang: str) -> tuple[str, dict] | None:
         """The reply key and its words for a moment frame (engramm/chat/moments.py)."""
-        o = sl.get("o", "") or sl.get("o2", "")
+        o = sl.get("o", "") or sl.get("o2", "") or sl.get("o3", "")
+        if key == "new_pet" and (o.endswith("s") and o not in ("guinea pig",) or re.search(r"\b(?:two|zwei|katzen|hunde|kätzchen)\b", sl.get("_t", "")) and
+                                 re.search(r"\b(?:two|zwei|drei|three)\b", sl.get("_t", ""))):
+            return "new_pet_pl", {"x": o}
         if key == "damage_tech" and re.search(r"\b(?:lost|arbeit ist weg|alles ist weg)\b", sl.get("_t", "")):
             return "damage_tech_lost", {}
         if key == "spill":
@@ -1317,7 +1320,8 @@ class Assistant:
         if key == "learning" and o.startswith("to "):
             return "learning_to", {"x": o}
         if key == "nervous":
-            x_ = re.sub(r"\bmy\b", "your", o) if lang == "en" else o
+            x_ = re.sub(r"\bmy\b", "your", o) if lang == "en" else " ".join(w[:1].upper() + w[1:] if i == len(o.split()) - 1 and len(o.split()) > 1 else w
+                                                                             for i, w in enumerate(o.split()))
             return ("nervous_when" if o in ("tomorrow", "monday", "morgen", "montag") else "nervous_thing"), {"x": x_}
         if key == "passed" and o in ("out", "away", "by", "it", "on", "the ball", "time"):
             return None                                   # "i passed out" is no exam
@@ -1357,12 +1361,12 @@ class Assistant:
         if km is None or km[0] not in mb:
             return None
         k2, kw = km
-        if feeling and k2 in ("lonely", "nervous_when", "nervous_thing", "proud", "passed", "project_done", "race_done", "divorce", "stood_up", "sick_week",
+        if feeling and k2 in ("lonely", "nervous_when", "proud", "passed", "project_done", "race_done", "divorce", "stood_up", "sick_week",
                               "baby", "kid_milestone", "met_someone", "praised", "team_won", "went_funeral"):
             return None                                   # a feeling already has its own warm reply; frames fill in the plain mishaps
         neg = k2 in ("damage_tech", "damage_tech_lost", "damage_car", "spill", "spill_wine", "spill_coffee", "burn", "hurt", "cancelled_travel", "cancelled",
                      "stuck_lift", "stuck_traffic", "stuck", "rent", "divorce", "stood_up", "neighbour", "lonely", "plants_dying", "forgot_bday", "sick_week",
-                     "overslept", "went_funeral", "damage_any", "sprain", "pet_mischief_pl", "burn_tongue", "spill_tech")
+                     "overslept", "went_funeral", "damage_any", "sprain", "pet_mischief_pl", "burn_tongue", "spill_tech", "back", "tripped_pet")
         st.last_exp = {"valence": "negative" if neg else "positive", "topic": None, "person": False, "text": msg, "turn": st.turn}
         text = self._pick(st, f"daily:moments:{k2}", mb[k2], **kw)
         if k2 in ("interview_future", "trip_booked", "saving"):
@@ -1395,7 +1399,7 @@ class Assistant:
         if k2 == "pet_mischief":
             kw["x"] = kw.get("x", "").capitalize()
         neg = k2 in ("damage_tech", "damage_tech_lost", "damage_car", "spill", "spill_wine", "burn", "hurt", "cancelled_travel", "cancelled", "stuck_lift",
-                     "stuck_traffic", "stuck", "rent", "divorce", "stood_up", "neighbour", "lonely", "plants_dying", "forgot_bday", "sick_week", "overslept", "went_funeral", "sprain", "burn_tongue", "spill_tech")
+                     "stuck_traffic", "stuck", "rent", "divorce", "stood_up", "neighbour", "lonely", "plants_dying", "forgot_bday", "sick_week", "overslept", "went_funeral", "sprain", "burn_tongue", "spill_tech", "back", "tripped_pet")
         st.last_exp = {"valence": "negative" if neg else "positive", "topic": None, "person": False, "text": msg, "turn": st.turn}
         return Reply(msg, "empathy", self._pick(st, f"de:moments:{k2}", mb[k2], **kw), via="german")
 

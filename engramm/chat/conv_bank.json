@@ -15447,6 +15447,15 @@
    "burn_tongue": [
     "Ouch, the classic! Something cold helps — cold water, an ice cube or some yoghurt. It usually heals in a few days."
    ],
+   "new_pet_pl": [
+    "Aww, new {x}! 🐾 Congratulations — double the fun! Have you picked names yet?"
+   ],
+   "back": [
+    "Ouch, backs are no fun. Gentle movement, warmth and a bit of rest usually help — and lift with your legs next time! If it doesn't ease up in a few days, see a doctor."
+   ],
+   "tripped_pet": [
+    "Oh no — are you both okay? 😄 Pets always seem to be exactly where you step."
+   ],
    "sprain": [
     "Ouch! Rest it, cool it (wrapped in a cloth) and keep it raised. If you can't put weight on it or it swells a lot, get it checked."
    ],
@@ -15643,6 +15652,15 @@
    ],
    "burn_tongue": [
     "Autsch, der Klassiker! Etwas Kaltes hilft – kaltes Wasser, ein Eiswürfel oder Joghurt. Das heilt meistens in ein paar Tagen."
+   ],
+   "new_pet_pl": [
+    "Oh, wie süß – gleich mehrere! 🐾 Herzlichen Glückwunsch! Wie heißen sie denn?"
+   ],
+   "back": [
+    "Autsch, Rücken ist echt unangenehm. Vorsichtige Bewegung, Wärme und etwas Ruhe helfen meistens – und beim nächsten Mal aus den Beinen heben! Wenn es nach ein paar Tagen nicht besser wird, lieber zum Arzt."
+   ],
+   "tripped_pet": [
+    "Oh nein – seid ihr beide okay? 😄 Haustiere stehen irgendwie immer genau da, wo man hintritt."
    ],
    "sprain": [
     "Autsch! Schonen, kühlen (in ein Tuch gewickelt) und hochlegen. Wenn du nicht auftreten kannst oder es stark anschwillt, lieber abklären lassen."

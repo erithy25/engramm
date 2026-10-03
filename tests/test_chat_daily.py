@@ -3810,3 +3810,18 @@ def test_battery109_plans_remembered_with_their_time(chat):
     t = a.turn(st, "when is my job interview?").text
     assert "tomorrow" in t and "work as" not in t, t
     assert "haven't told me" in a.turn(st, "when is my exam?").text
+
+
+def test_battery109b_moments_second_heldout(chat):
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"I'll remember|Tell me more|you live in|a new kittens|Erzähl ruhig mehr|Erzähl gern mehr|wie findest du das", _re.I)
+    for i, (lang, msg, want) in enumerate([("en", "we adopted two kittens", "names"), ("en", "i hurt my back lifting boxes", "lift with your legs"),
+                                           ("en", "i tripped over the cat", "both okay"), ("en", "my car got a flat tyre", "car|happen"),
+                                           ("en", "i did a 10k this morning", "10k"), ("de", "ich hab die matheklausur bestanden", "Glückwunsch"),
+                                           ("de", "meine kleine hat ihr erstes wort gesagt", "Moment"), ("de", "ich hab mir am bügeleisen den finger verbrannt", "Wasser"),
+                                           ("de", "mein laptop geht nicht mehr an", "Laptop"), ("de", "ich steckte im schnee fest", "rausgekommen")]):
+        st = DialogState(f"h109-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        t = a.turn(st, msg).text
+        assert not bad.search(t) and _re.search(want, t), (msg, t)

@@ -3575,6 +3575,28 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - b54/b79 bestanden, Marathon, Gitarre, nervös;
   - b80 Kopfhörer;
   - b82 Tee auf der Tastatur.
+- **Zweite ungesehene Messung der Satzrahmen (`scratchpad/heldout2_probe.py`)**: 40 englische und 30 deutsche
+  neue Ereignissätze, erster Lauf vor jeder Korrektur:
+
+  | Sprache | ohne Rahmen | mit Rahmen |
+  |---|---|---|
+  | Englisch | 32/40 generisch | **3/40** |
+  | Deutsch | 24/30 generisch | **6/30** |
+
+  Die Rahmen verallgemeinern also deutlich über die Sätze hinaus, an denen sie entworfen wurden. Die gefundenen
+  Lücken sind geschlossen, danach 0/40 und 0/30; diese Zahl ist nicht mehr ungesehen. Geschlossen wurden:
+  - Grammatik: „new kittens“ (statt „a new kittens“), „Wie heißen sie denn?“, „wegen dem Vorstellungsgespräch“
+    mit großem Nomen;
+  - Rücken als eigener Fall: Bewegung, Wärme, „lift with your legs“;
+  - über die Katze gestolpert;
+  - „flat tyre“ (vorher als Wohnort gemerkt);
+  - „did a 10k this morning“, „am Bügeleisen“, „ihr erstes Wort“, „steckte im Schnee fest“;
+  - „geht nicht mehr an“, „meinen Bericht“, zusammengesetzte Prüfungen („Matheklausur“);
+  - „nervous about the interview“ (vorher „What happened?“) bekommt den Rahmen; „nervous about tomorrow“ bleibt
+    bei der Gefühlsantwort (Dev-Satz unverändert).
+
+  Messung: Dev-Satz unverändert, NQ 22/9, Suite 808 bestanden, Routine ohne neue Unterschiede. Test 109b hält 10
+  Fälle fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
