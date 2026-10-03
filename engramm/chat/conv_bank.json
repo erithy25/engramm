@@ -329,7 +329,13 @@
      "Alright. Anything else I can help with?",
      "Got it. Feel free to ask me anything.",
      "Sure thing.",
-     "Okay — I'm here if you need anything."
+     "Okay — I'm here if you need anything.",
+     "Mm-hm, got it.",
+     "Okay, cool.",
+     "All right! What shall we talk about?",
+     "Fair enough. I'm here if you want to chat.",
+     "Okay. Fancy a fun fact or a joke?",
+     "Understood."
     ]
    },
    {
@@ -354,7 +360,10 @@
      "Right? What else would you like to know?",
      "Happy to hear that!",
      "Nice! Anything else on your mind?",
-     "I thought so too!"
+     "I thought so too!",
+     "Right?! 😊",
+     "Love that you think so.",
+     "Same here!"
     ]
    },
    {
@@ -4422,7 +4431,10 @@
     "responses": [
      "Alles klar!",
      "Gut!",
-     "Prima."
+     "Prima.",
+     "Okay!",
+     "Passt!",
+     "Na dann!"
     ]
    },
    {
@@ -5358,7 +5370,13 @@
     ],
     "ack": [
      "Okay! Was liegt dir sonst auf dem Herzen?",
-     "Alles klar. Frag mich gern etwas."
+     "Alles klar. Frag mich gern etwas.",
+     "Mhm, verstehe.",
+     "Okay, gut.",
+     "Alles klar – worüber wollen wir reden?",
+     "Na gut. Ich bin da, wenn du was brauchst.",
+     "Okay! Lust auf einen Witz oder einen Fun Fact?",
+     "Verstanden."
     ],
     "yes": [
      "Super! Was möchtest du machen?",
@@ -5370,7 +5388,11 @@
     ],
     "positive": [
      "Freut mich, dass es dir gefällt!",
-     "Finde ich auch!"
+     "Finde ich auch!",
+     "Ja, oder? 😊",
+     "Schön, dass es dir gefällt!",
+     "Freut mich! 😊",
+     "Geht mir genauso!"
     ]
    },
    "dislike": [
@@ -5999,7 +6021,9 @@
      ],
      "me": [
       "Mir geht's gut, danke! Ich hab den ganzen Tag gelesen – wie immer. 😄",
-      "Alles bestens hier – ich warte auf gute Fragen. Und was machst du heute Abend noch?"
+      "Alles bestens hier – ich warte auf gute Fragen. Und was machst du heute Abend noch?",
+      "Bei mir? Ruhig wie immer – ich bin gespannt, was du erzählst.",
+      "Gut, danke der Nachfrage! Und bei dir – alles im Lot?"
      ],
      "hike": [
       "Oh, wie schön! Wo warst du denn?",
@@ -15498,7 +15522,11 @@
      "Okay, verstehe. Erzähl ruhig weiter – ich hör zu.",
      "Ah, okay. Und wie geht's dir damit?",
      "Verstehe. Magst du ein bisschen mehr erzählen?",
-     "Alles klar. Erzähl gern weiter, wenn du magst."
+     "Alles klar. Erzähl gern weiter, wenn du magst.",
+     "Mhm. Und dann?",
+     "Verstehe – erzähl, wenn du magst.",
+     "Okay. Was beschäftigt dich gerade am meisten?",
+     "Ah. Und wie siehst du das?"
     ],
     "stmt_plan": [
      "Klingt nach einem Plan! 👍",

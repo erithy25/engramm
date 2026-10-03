@@ -4038,6 +4038,10 @@ class Assistant:
         if rep.kind == "learned":                         # "Noted: march 3." → "Noted: March 3."
             rep.text = re.sub(r"\b(january|february|march|april|june|july|august|september|october|november|december)(?= \d)",
                               lambda m_: m_.group(1).capitalize(), rep.text)
+        if rep.text and rep.kind == "smalltalk" and rep.text in st.recent[-8:]:
+            alt = self._generic_alt(st, rep.text)
+            if alt:                                       # "Sure thing." twice in a few turns: another filler of the same kind
+                rep.text = alt
         st.last_message = message
         st.last_kind = rep.kind
         st.uses["last_via"], st.uses["last_via_turn"] = rep.via, st.turn
@@ -4050,6 +4054,31 @@ class Assistant:
         st.last_reply = rep.text
         st.recent = (st.recent + [rep.text])[-RECENT:]
         return rep
+
+    def _generic_alt(self, st: DialogState, text: str) -> str | None:
+        """Another reply of the same plain kind (an "okay", a "nice", a "go on") for a filler that was just used —
+        only for those generic pools, so a specific reply is never swapped for a generic one."""
+        pools = getattr(self, "_gen_pools", None)
+        if pools is None:
+            en, de = [], []
+            for iid in ("ack", "positive"):
+                it = self.bank.by_id.get(iid)
+                if it is not None:
+                    en += list(it.responses)
+            dd = (self.bank.de or {}).get("daily", {})
+            for k in ("ack", "positive"):
+                de += list((dd.get("short") or {}).get(k, []))
+            for it in (self.bank.de or {}).get("intents", []):
+                if it.get("id") == "yes":
+                    de += list(it.get("responses", []))
+            de += list(((self.bank.daily.get("b86") or {}).get("de") or {}).get("stmt_neutral", []))
+            pools = self._gen_pools = {"en": en, "de": de}
+        for lang, pool in pools.items():
+            if text in pool:
+                fresh = [x for x in pool if x not in st.recent[-12:] and x != text]
+                if fresh:
+                    return fresh[st.turn % len(fresh)]
+        return None
 
     def _track(self, st: DialogState, rep: Reply, msg: str) -> None:
         """Remember what the conversation is about: the topic (for "tell me more", "is it good?",

@@ -108,6 +108,9 @@ intents:
       - "Alles klar!"
       - "Gut!"
       - "Prima."
+      - "Okay!"
+      - "Passt!"
+      - "Na dann!"
   - id: no
     patterns: ['nein|ne|nee|nö|nicht wirklich|eher nicht|nein danke']
     responses:
@@ -489,10 +492,10 @@ daily:
       - "Worum geht es denn? Erzähl mir, was los ist, dann denken wir zusammen nach."
   short:
     laugh: ["Freut mich, dass ich dich zum Lachen bringe!", "Haha! 😄"]
-    ack: ["Okay! Was liegt dir sonst auf dem Herzen?", "Alles klar. Frag mich gern etwas."]
+    ack: ["Okay! Was liegt dir sonst auf dem Herzen?", "Alles klar. Frag mich gern etwas.", "Mhm, verstehe.", "Okay, gut.", "Alles klar – worüber wollen wir reden?", "Na gut. Ich bin da, wenn du was brauchst.", "Okay! Lust auf einen Witz oder einen Fun Fact?", "Verstanden."]
     yes: ["Super! Was möchtest du machen?", "Gut! Ich höre zu."]
     no: ["Okay, kein Problem.", "Alles klar – sag Bescheid, wenn du es dir anders überlegst."]
-    positive: ["Freut mich, dass es dir gefällt!", "Finde ich auch!"]
+    positive: ["Freut mich, dass es dir gefällt!", "Finde ich auch!", "Ja, oder? 😊", "Schön, dass es dir gefällt!", "Freut mich! 😊", "Geht mir genauso!"]
   # "ich mag keine pilze"
   dislike:
     - "Okay, {x} also nicht – merk ich mir! Was magst du denn gern?"
@@ -713,7 +716,7 @@ daily:
       sick: ["Oh nein – was hast du denn? Hals, Kopf, Fieber?", "Ach Mist. Was genau – Halsweh, Kopfweh, Fieber?"]
       home: ["Willkommen zurück! Wie war's bei der Arbeit?", "Schön, dass du da bist. Wie war dein Tag?"]
       long_day: ["Lange Tage schlauchen. Jetzt erstmal die Füße hochlegen?", "Klingt nach einem zähen Tag. Hast du jetzt Feierabend und Zeit für dich?"]
-      me: ["Mir geht's gut, danke! Ich hab den ganzen Tag gelesen – wie immer. 😄", "Alles bestens hier – ich warte auf gute Fragen. Und was machst du heute Abend noch?"]
+      me: ["Mir geht's gut, danke! Ich hab den ganzen Tag gelesen – wie immer. 😄", "Alles bestens hier – ich warte auf gute Fragen. Und was machst du heute Abend noch?", "Bei mir? Ruhig wie immer – ich bin gespannt, was du erzählst.", "Gut, danke der Nachfrage! Und bei dir – alles im Lot?"]
       hike: ["Oh, wie schön! Wo warst du denn?", "Wandern – herrlich! Wie war's?"]
       hike_good: ["Herrlich! Wo seid ihr hin?", "Das klingt toll! Wo wart ihr unterwegs?"]
       hike_where: ["Bei {x} – mit den Bergen so nah, Glück gehabt! Wie lange wart ihr unterwegs?", "Ein Berg bei {x}! Wie lange hat's gedauert?"]

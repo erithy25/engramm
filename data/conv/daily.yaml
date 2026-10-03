@@ -3509,7 +3509,7 @@ b86:
     food_like: ["Wenn ich essen könnte, stünde {x} ganz oben auf meiner Liste! Machst du das selbst?", "{X}? Alles, was ich darüber gelesen habe, klingt köstlich. Ist das eins deiner Lieblingsessen?"]
     koch_jetzt: ["Guten Appetit! Lass es dir schmecken. 😋", "Viel Spaß beim Kochen – und guten Appetit!"]
     mal_sehen: ["Genau – Schritt für Schritt. 🤞", "Daumen drücken! Das wird schon."]
-    stmt_neutral: ["Okay, verstehe. Erzähl ruhig weiter – ich hör zu.", "Ah, okay. Und wie geht's dir damit?", "Verstehe. Magst du ein bisschen mehr erzählen?", "Alles klar. Erzähl gern weiter, wenn du magst."]
+    stmt_neutral: ["Okay, verstehe. Erzähl ruhig weiter – ich hör zu.", "Ah, okay. Und wie geht's dir damit?", "Verstehe. Magst du ein bisschen mehr erzählen?", "Alles klar. Erzähl gern weiter, wenn du magst.", "Mhm. Und dann?", "Verstehe – erzähl, wenn du magst.", "Okay. Was beschäftigt dich gerade am meisten?", "Ah. Und wie siehst du das?"]
     stmt_plan: ["Klingt nach einem Plan! 👍", "Gute Idee – so machst du das Beste draus.", "Das ist die richtige Einstellung!"]
     geld_sparen: ["So sparst du Geld:\n\n• Einen Monat lang alle Ausgaben aufschreiben – fast jeder entdeckt eine Überraschung\n• Abos kündigen, die du kaum nutzt, und Strom, Handy und Versicherungen vergleichen\n• Am Monatsanfang einen festen Betrag automatisch aufs Sparkonto überweisen\n• Vor größeren Käufen eine Nacht drüber schlafen\n\nWofür möchtest du sparen?"]
     act_out: ["Ein paar Ideen für draußen:\n\n• Eine Wanderung oder ein langer Spaziergang im Grünen\n• Eine Radtour irgendwohin, wo du noch nie warst\n• Flohmarkt oder Wochenmarkt\n• Ein Picknick, wenn das Wetter mitspielt\n\nKlingt davon etwas gut?"]

@@ -3763,3 +3763,16 @@ def test_battery107_valence_never_flips(chat):
         a.turn(st, o)
         t = a.turn(st, p).text
         assert not gloom.search(t) and "Glückwunsch" in t, (o, p, t)
+
+
+def test_battery108_fillers_never_repeat(chat):
+    a, _ = chat
+    for opener, seq in (("hi", ["ok", "cool", "ok", "nice", "i see", "ok", "cool", "makes sense", "ok", "nice", "hmm", "cool"]),
+                        ("hallo", ["ok", "ja", "cool", "ok", "ja", "verstehe", "cool", "ok", "ja", "schön", "ok", "cool"])):
+        st = DialogState(f"f108-{opener}")
+        a.turn(st, opener)
+        seen = []
+        for m in seq:
+            t = a.turn(st, m).text
+            assert t not in seen[-8:], (opener, m, t, seen[-8:])
+            seen.append(t)

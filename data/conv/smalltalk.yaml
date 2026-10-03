@@ -187,6 +187,12 @@ intents:
       - "Got it. Feel free to ask me anything."
       - "Sure thing."
       - "Okay — I'm here if you need anything."
+      - "Mm-hm, got it."
+      - "Okay, cool."
+      - "All right! What shall we talk about?"
+      - "Fair enough. I'm here if you want to chat."
+      - "Okay. Fancy a fun fact or a joke?"
+      - "Understood."
 
   - id: positive
     patterns: ['(cool+|nice+|great+|awesome|amazing|wow+|perfect|excellent|neat|sweet|brilliant|fantastic|wonderful|super|splendid|lovely|that''s (cool|nice|great|awesome|amazing|perfect|good|interesting|wonderful|fantastic|neat|lovely|impressive)|how (cool|nice|interesting|amazing)|nice one|good one|well said|impressive|wow that''s (cool|amazing|interesting|great)|oh wow|oh nice|oh cool|yay+|woo+hoo+|woohoo|hooray)']
@@ -197,6 +203,9 @@ intents:
       - "Happy to hear that!"
       - "Nice! Anything else on your mind?"
       - "I thought so too!"
+      - "Right?! 😊"
+      - "Love that you think so."
+      - "Same here!"
 
   - id: fair_point
     patterns: ['(ok|okay|yeah|alright|hm+) (fair|true|fair point|good point)|fair|(haha|hah|lol|lmao|ha) (fair|true|right|exactly|fair enough|good point|so true|touch[eé])|(fair|true|so true|good point|fair point|touch[eé]) (haha|lol|lmao)']

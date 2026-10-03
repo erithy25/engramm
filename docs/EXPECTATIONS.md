@@ -3499,6 +3499,23 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Zweiter Lauf: 0 von 112 und 0 von 60. Test 107 hält 9 repräsentative Fälle fest. Suite 804 bestanden, NQ 22/9,
   Routine ohne neue Unterschiede.
+- **Wiederholungs-Probe 108 (`scratchpad/repeat_probe.py`)**: 50 Gespräche aus je einem Gruß und 14 zufälligen
+  kurzen Reaktionen („ok“, „haha“, „cool“, „really?“, „und du?“ …; 28 Reaktionen je Sprache, fester Zufallssamen):
+  700 Antworten, gezählt werden wörtliche Wiederholungen innerhalb eines Gesprächs.
+
+  Erster Lauf: **79 von 700 (11 %)**, zum Beispiel „Finde ich auch!“ zehnmal und „Okay — I'm here if you need
+  anything.“ siebenmal. Ursachen waren zu kleine Antwortlisten (englisch „ack“ mit 5 Antworten, deutsch
+  „short.ack“ und „short.positive“ mit je 2) und keine Sperre über Listen hinweg.
+
+  Behoben:
+  - die Listen für Füllantworten sind größer (ack 5 → 11, positive 5 → 8, deutsch ack 2 → 8, positive 2 → 6,
+    ja 3 → 6, neutrale Aussage 4 → 8, „und du?“ 2 → 4);
+  - neue Sperre: Kommt eine Füllantwort aus diesen allgemeinen Listen innerhalb von 8 Turns wieder, wird eine
+    noch nicht benutzte aus derselben Sprache gewählt; spezifische Antworten werden nie getauscht.
+
+  Zweiter Lauf: **5 von 700 (0,7 %)**, nur noch Einzelfälle. Test 108 prüft je 12 Füllwörter pro Sprache.
+
+  Messung: Suite 805 bestanden, NQ 22/9. In 13 alten Batterien ändern sich nur Füllantworten gegen gleichwertige.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
