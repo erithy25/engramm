@@ -3457,6 +3457,29 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - b43/b86 „thanks for listening“;
   - b62 „work is crazy“ und danach „my boss keeps adding tasks“ (zwei verschiedene Antworten), „i'll talk to her
     tonight“.
+- **Alltags-Batterie 106 (Batterie 105 auf Deutsch, 21 Turns)**. Erster Lauf mit einem echten Fehler: Auf „meine
+  freundin hat gestern schluss gemacht“ kam „Herrlich! 😊“, danach „Wie schön! Erzähl ruhig mehr.“, „Das klingt
+  richtig gut!“ und „Haha, wie schön!“.
+
+  Grundursache: Das vorherige „nicht so gut“ wurde als *positives* Gefühl gespeichert, weil die Verneinung die
+  Stimmung nicht umdrehte. Alle folgenden Sätze bekamen deshalb die positive Folge-Empathie. Eine verneinte
+  Stimmung dreht jetzt die Valenz; Test 106 schützt das.
+
+  Neu: Trennung und Arbeitsstress auf Deutsch mit denselben Zuständen wie im Englischen:
+  - Dauer im Dativ („nach drei Jahren“, „nach einem Jahr“);
+  - „hat er/sie gesagt, warum?“ nach dem Wort Freund bzw. Freundin;
+  - „Abstand“, Handy, Schlaf, Rat, „vielleicht“, Freunde, keine Lust, Anruf beim Bruder;
+  - Chef/Chefin lädt ab, beim zweiten Mal eine andere Antwort mit „deine Chefin“;
+  - keine Pause seit Wochen, „ich geh unter“;
+  - „wie sag ich meinem Chef nein?“ mit drei Formulierungen;
+  - „das hilft echt“ und „ich versuch's morgen“.
+
+  Verallgemeinerungsprobe („mein freund hat mich verlassen“, „ein jahr zusammen“, „die arbeit ist gerade echt zu
+  viel“, Chefin zweimal): alles passend, 0 Wiederholungen.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 803 bestanden. Regressionen: 0 Wiederholungen. Gewollte neue
+  Unterschiede: b41 (die alte deutsche Trennungsfolge wird von der neuen ersetzt, Inhalt gleichwertig, der Rat
+  ausführlicher) und b44 „die arbeit ist der wahnsinn“.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

@@ -1114,7 +1114,10 @@ class Assistant:
             opts = it.get("responses_named") if name and it.get("responses_named") else it["responses"]
             return Reply(msg, "smalltalk", self._pick(st, f"de:{it['id']}", opts, name=name or ""), via="german")
         if u.kind == "feeling":
-            st.last_exp = {"valence": u.data["valence"], "topic": None, "person": False, "text": msg,
+            val = u.data["valence"]
+            if u.data.get("negated"):                     # "nicht so gut" is a bad mood, never a reason for "Herrlich!" next
+                val = {"positive": "negative", "negative": "positive"}.get(val, val)
+            st.last_exp = {"valence": val, "topic": None, "person": False, "text": msg,
                            "text_en": _de_advice_hint(s), "turn": st.turn}
             fe = de["feelings"]
             if u.data["negated"]:
@@ -1311,6 +1314,77 @@ class Assistant:
             J = " ".join(w[:1].upper() + w[1:] for w in j_.split())
             self._learn(st, [f"I am {a_} years old.", f"I work as {J}."], msg)
             return say("learned_two", x=a_, y=J)
+        bk, sk = b["breakup"], b["stress"]
+        if re.search(r"\b(?:hat (?:gestern |heute |letzte woche |vorhin |jetzt )?(?:mit mir )?schluss gemacht|hat mich (?:gestern |heute )?verlassen|hat sich (?:gestern |heute )?(?:von mir )?getrennt|"
+                     r"wir haben uns (?:gestern |heute )?getrennt|wir sind nicht mehr zusammen|ich wurde verlassen|hat mit mir schluss gemacht)\b", q):
+            st.uses["breakup_de"] = [st.turn]
+            st.uses["breakup_de_pron"] = ["sie", "ihren"] if re.search(r"\b(?:freundin|frau|sie)\b", q) else \
+                ["er", "seinen"] if re.search(r"\b(?:freund|mann|er)\b", q) else ["sie", "deren"]
+            st.last_exp = {"valence": "negative", "topic": "people", "person": True, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, "de:b104:bk:start", bk["start"]), via="german")
+        bu = st.uses.get("breakup_de")
+        if bu and st.turn - bu[-1] <= 6:
+            pr = st.uses.get("breakup_de_pron") or ["sie", "deren"]
+            hit = None
+            tg = re.fullmatch(r"(?:und )?wir waren (?P<x>(?:fast |über |knapp |etwa )?(?:\d+|ein|eineinhalb|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn) (?:jahre?|monate?)) (?:lang )?zusammen", q)
+            if tg:
+                x = tg.group("x").replace("ein jahr", "ein Jahr")
+                x = re.sub(r"\b(jahre?|monate?)\b", lambda m_: m_.group(1).capitalize(), x)
+                x_dat = re.sub(r"\bJahre\b", "Jahren", re.sub(r"\bMonate\b", "Monaten", re.sub(r"\bein (Jahr|Monat)\b", r"einem \1", x)))   # "nach drei Jahren"
+                hit = self._pick(st, "de:b104:bk:together", bk["together"], x=x_dat, X=x[:1].upper() + x[1:])
+            elif re.fullmatch(r"(?:und )?ich (?:hab|habe) (?:das|es) (?:echt |gar |überhaupt )?nicht kommen sehen|das kam (?:total |völlig |einfach )?(?:aus dem nichts|aus heiterem himmel)|ich hatte (?:echt )?keine ahnung", q):
+                hit = self._pick(st, "de:b104:bk:shock", bk["shock"], y=pr[0])
+            elif re.fullmatch(r"(?:sie|er) (?:meinte|sagte|sagt|hat gesagt),? (?:dass )?(?:sie|er) (?:braucht|brauche|bräuchte) (?:etwas |ein bisschen )?(?:abstand|zeit|eine pause|raum)(?: für sich)?", q):
+                hit = self._pick(st, "de:b104:bk:space", bk["space"], y=pr[0])
+            elif re.fullmatch(r"ich (?:schau|schaue|guck|gucke) (?:ständig|dauernd|immer wieder|die ganze zeit|andauernd) (?:aufs|auf mein|auf das) handy|ich warte (?:ständig |dauernd )?auf eine nachricht(?: von (?:ihr|ihm))?", q):
+                hit = self._pick(st, "de:b104:bk:phone", bk["phone"])
+            elif re.fullmatch(r"(?:und )?ich kann (?:nicht|kaum|gar nicht) (?:mehr )?schlafen|ich schlafe (?:total |echt )?schlecht", q):
+                hit = self._pick(st, "de:b104:bk:sleep", bk["sleep"])
+            elif re.fullmatch(r"(?:und )?was soll ich (?:jetzt |nur )?(?:tun|machen)|wie komm(?:e)? ich (?:darüber|drüber) hinweg", q):
+                hit = self._pick(st, "de:b104:bk:advice", bk["advice"], z=pr[1])
+            elif re.fullmatch(r"(?:ja,? |ok,? )?(?:vielleicht|mal sehen|mal schauen|kann sein|ich versuch(?:'| )?s)", q):
+                hit = self._pick(st, "de:b104:bk:maybe", bk["maybe"])
+            elif re.fullmatch(r"meine freunde (?:sagen|meinen|wollen|finden)(?:,)? (?:ich soll|dass ich|mich)? ?(?:mehr )?(?:rausgehen|raus gehen|unter leute|feiern gehen|weggehen|ablenken)(?: soll| gehen soll)?", q):
+                hit = self._pick(st, "de:b104:bk:friends", bk["friends"])
+            elif re.fullmatch(r"(?:aber )?ich (?:hab|habe) (?:keine|null|gar keine) lust(?: drauf| dazu)?|ich bin (?:noch )?nicht (?:so weit|bereit)|ich will (?:nicht|das nicht)", q):
+                hit = self._pick(st, "de:b104:bk:not_ready", bk["not_ready"])
+            if hit:
+                bu.append(st.turn)
+                st.last_exp = {"valence": "negative", "topic": "people", "person": True, "text": msg, "turn": st.turn}
+                return Reply(msg, "empathy", hit, via="german")
+        sm = re.fullmatch(r"(?:und )?(?:die arbeit ist (?:gerade |echt |total |einfach |so )*(?:der wahnsinn|wahnsinn|zu viel|krass|stressig|chaos|der horror)(?: gerade)?(?:,? und |,? )?)?"
+                          r"(?:mein chef|meine chefin) (?:gibt|lädt|packt|haut|schiebt) mir (?:immer mehr|ständig mehr|noch mehr|immer noch mehr|dauernd neue aufgaben|immer neue aufgaben)(?: auf| drauf| zu)?|"
+                          r"die arbeit ist (?:gerade |echt |total |einfach |so )*(?:der wahnsinn|wahnsinn|zu viel|krass|stressig|chaos|der horror)(?: gerade)?", q)
+        if sm:
+            prev = st.uses.get("stress_de")
+            key = "pile" if re.search(r"\bchef", q) else "crazy"
+            if prev and st.turn - prev[-1] <= 3 and key == "pile" and prev[0] == "pile":
+                key = "pile_again"
+            st.uses["stress_de"] = [key, st.turn]
+            st.last_exp = {"valence": "negative", "topic": "work", "person": False, "text": msg, "turn": st.turn}
+            return Reply(msg, "empathy", self._pick(st, f"de:b104:stress:{key}", sk[key], y="deine Chefin" if "chefin" in q else "dein Chef"), via="german")
+        sr = st.uses.get("stress_de")
+        if sr and st.turn - sr[-1] <= 6:
+            nb = re.fullmatch(r"ich hatte seit (?P<x>einem monat|wochen|monaten|zwei wochen|drei wochen|einer woche) (?:kein|keinen|keine) (?:freies wochenende|freien tag|urlaub|pause|wochenende)(?: mehr)?", q)
+            if nb:
+                sr.append(st.turn)
+                X = {"einem monat": "Einen Monat", "wochen": "Wochen", "monaten": "Monate", "zwei wochen": "Zwei Wochen", "drei wochen": "Drei Wochen",
+                     "einer woche": "Eine Woche"}[nb.group("x")]
+                return Reply(msg, "empathy", self._pick(st, "de:b104:stress:no_break", sk["no_break"], X=X), via="german")
+            if re.fullmatch(r"ich (?:hab|habe) das gefühl,? ich (?:geh|gehe) unter|ich komm(?:e)? nicht mehr hinterher|es ist (?:einfach |echt )?zu viel|ich bin (?:total |völlig )?überfordert", q):
+                sr.append(st.turn)
+                return Reply(msg, "empathy", self._pick(st, "de:b104:stress:drowning", sk["drowning"]), via="german")
+            if re.fullmatch(r"das hilft (?:echt|wirklich|mir|sehr)?(?: weiter)?|das ist (?:echt |wirklich |sehr )?hilfreich|guter tipp|gute tipps", q):
+                key = "helpful" if "nein zu sagen" in (st.last_reply or "").lower() else "helpful_any"
+                return Reply(msg, "smalltalk", self._pick(st, f"de:b104:stress:{key}", sk[key]), via="german")
+        if re.fullmatch(r"(?:und )?wie (?:sag|sage) ich (?:meinem chef|meiner chefin|meinem boss) nein|wie lehne ich (?:aufgaben|arbeit|das) ab|wie (?:sag|sage) ich (?:freundlich )?nein", q):
+            return Reply(msg, "smalltalk", self._pick(st, "de:b104:stress:say_no", sk["say_no"]), via="german")
+        le_ = st.last_exp or {}
+        if re.fullmatch(r"ich (?:glaub|glaube|denke),? ich (?:ruf|rufe) (?:meinen|meine) (?:bruder|schwester|mutter|mama|vater|papa|eltern|beste freundin|besten freund|freund|freundin|oma) an(?: später| heute abend| gleich)?", q) and \
+                le_.get("valence") == "negative" and st.turn - le_.get("turn", -99) <= 10:
+            return say("call_someone")
+        if re.fullmatch(r"(?:ok |okay |gut )?ich (?:versuch|versuche)(?:'| )?s? (?:es )?(?:morgen|später|nächste woche|am montag)|ich (?:sprech|spreche|red|rede) (?:morgen|am montag|nächste woche) mit (?:ihm|ihr|ihnen)", q):
+            return say("try_later")
         rel = {"schwester": "sister", "bruder": "brother", "mutter": "mom", "mama": "mom", "vater": "dad", "papa": "dad", "eltern": "parents",
                "beste freundin": "best friend", "bester freund": "best friend", "oma": "grandma", "opa": "grandpa", "sohn": "son", "tochter": "daughter",
                "freundin": "friend", "freund": "friend"}

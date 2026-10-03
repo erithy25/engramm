@@ -3714,3 +3714,29 @@ def test_battery105_breakup_and_work_stress(chat):
     st = DialogState("x105")
     a.turn(st, "my boyfriend dumped me")
     assert "his social media" in a.turn(st, "what should i do?").text
+
+
+def test_battery106_german_breakup_and_stress(chat):
+    a, _ = chat
+    st = DialogState("b106")
+    a.turn(st, "nicht so gut ehrlich gesagt")
+    t = a.turn(st, "meine freundin hat gestern schluss gemacht").text
+    assert "Herrlich" not in t and "leid" in t, t
+    seen = [t]
+    for msg, want in [("wir waren drei jahre zusammen", "Jahre"), ("ich hab das nicht kommen sehen", "?"), ("sie meinte sie braucht abstand", "Abstand"),
+                      ("ich schau ständig aufs handy", "stummzuschalten"), ("ich kann nicht schlafen", "Liebeskummer"), ("was soll ich tun?", "Routine"),
+                      ("ja vielleicht", "e"), ("meine freunde sagen ich soll rausgehen", "Spaziergang"), ("ich hab keine lust", "okay"),
+                      ("ich glaub ich ruf meinen bruder an", "Idee")]:
+        t = a.turn(st, msg).text
+        assert want in t and t not in seen and "Herrlich" not in t and "Wie schön" not in t, (msg, t)
+        seen.append(t)
+    assert "Nach drei Jahre " not in " ".join(seen)
+    st = DialogState("s106")
+    a.turn(st, "ich bin so gestresst")
+    assert "mehr dazukommt" in a.turn(st, "die arbeit ist der wahnsinn und mein chef gibt mir immer mehr").text
+    assert "Einen Monat" in a.turn(st, "ich hatte seit einem monat kein freies wochenende").text
+    assert "zu viel trägst" in a.turn(st, "ich hab das gefühl ich geh unter").text
+    assert "Nein zu sagen" in a.turn(st, "wie sag ich meinem chef nein?").text
+    assert "Übung" in a.turn(st, "das hilft echt").text
+    t = a.turn(st, "ok ich versuch's morgen").text
+    assert "Daumen" in t or "Erfolg" in t, t

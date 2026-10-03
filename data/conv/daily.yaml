@@ -3060,6 +3060,28 @@ b99:
     hello_how: ["Mir geht's gut, danke! Und dir?", "Alles bestens hier – und bei dir?"]
     like_head: ["Wenn dir {x} gefallen hat, könnte dir das gefallen:", "Im Stil von {x}:"]
     thriller_books: "Ein paar spannende Bücher:"
+    breakup:
+      start: ["Oh nein, das tut mir so leid. Trennungen tun richtig weh – wie geht's dir gerade damit?", "Das tut mir leid – das ist hart. Magst du erzählen, was passiert ist?"]
+      together: ["{X} – das ist ein großer Teil deines Lebens. Klar, dass das so wehtut.", "Nach {x} ist das, als würde plötzlich ein ganzes Kapitel enden. Das ist viel auf einmal."]
+      shock: ["Das macht es noch härter. Hat {y} gesagt, warum?", "Aus heiterem Himmel – das ist das Schwerste. Hast du eine Erklärung bekommen?"]
+      space: ["Das ist schwer zu hören – „Abstand“ klingt so offen. Hat {y} gesagt, ob für immer oder erst mal?"]
+      phone: ["Das ist so normal – ein Teil von dir hofft auf eine Nachricht. Es kann helfen, den Chat stummzuschalten oder das Handy ein paar Stunden in ein anderes Zimmer zu legen."]
+      sleep: ["Liebeskummer macht das – der Kopf spielt alles immer wieder ab. Manchen hilft es, vor dem Schlafen aufzuschreiben, was einem durch den Kopf geht."]
+      advice: ["Für den Moment: sei nachsichtig mit dir.\n\n• Lass die Gefühle zu – Traurigkeit nach einer langen Beziehung ist normal\n• Behalte eine kleine Routine: essen, schlafen, ein bisschen Bewegung\n• Rede mit Menschen, denen du vertraust\n• Mach eine Pause von {z} Profilen in den sozialen Medien\n\nEs wird leichter, auch wenn es sich gerade nicht so anfühlt."]
+      maybe: ["Kein Druck. Ein kleiner Schritt nach dem anderen.", "Das ist okay – es gibt kein richtiges Tempo dafür."]
+      friends: ["Da ist vielleicht was dran – es muss ja kein großer Abend sein. Schon ein Spaziergang oder ein Kaffee mit einer Freundin kann guttun."]
+      not_ready: ["Das ist völlig okay – du musst noch nicht so weit sein. Vielleicht kann jemand einfach zu dir kommen?"]
+    stress:
+      crazy: ["Puh, solche Wochen schlauchen. Was macht es gerade so stressig?"]
+      pile: ["Das klingt erschöpfend – wenn ständig mehr dazukommt, wird man nie fertig. Ist es gerade mehr, als du realistisch schaffen kannst?"]
+      pile_again: ["Und es kommt immer noch was oben drauf – kein Wunder, dass du gestresst bist. Weiß {y}, wie voll dein Teller schon ist?"]
+      no_break: ["{X} ohne Pause – kein Wunder, dass du gestresst bist. Das hält niemand lange durch."]
+      drowning: ["Das Gefühl zeigt, dass du schon zu lange zu viel trägst. Magst du überlegen, wie du die Extra-Arbeit zurückweisen kannst?"]
+      say_no: ["Ein paar Wege, freundlich Nein zu sagen:\n\n• „Ich helfe gern, aber ich bin mit X und Y ausgelastet. Was davon soll ich dafür liegen lassen?“\n• „Diese Woche schaffe ich das nicht – geht es auch nächsten Montag?“\n• „Dafür bin ich nicht die beste Person, aber [Name] könnte das gut.“\n\nSo klingt es nicht nach Ablehnung, sondern nach Prioritäten."]
+      helpful: ["Freut mich! Nein sagen wird mit Übung leichter."]
+      helpful_any: ["Freut mich, dass es hilft! 🙂"]
+    call_someone: ["Das klingt nach einer richtig guten Idee – mit jemandem Vertrautem zu reden, hilft. Ich hoffe, es wird ein gutes Gespräch.", "Gute Idee. Eine vertraute Stimme tut gut. 💙"]
+    try_later: ["Viel Erfolg – du schaffst das! Erzähl mir, wie's gelaufen ist.", "Ich drück dir die Daumen! Sag Bescheid, wie es war."]
     morning: ["Guten Morgen! ☀️ Wie geht's dir heute?", "Morgen! ☀️ Gut geschlafen?"]
 # battery 101: a trip being planned — the month, the flight from Germany, the currency, the food (also without
 # fish); values are typical and stated as approximate
