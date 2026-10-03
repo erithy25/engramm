@@ -2832,6 +2832,46 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Messung: Team-Dev-Satz 1 von 128 geändert (team-0087, besser). NQ 22/9. Suite 777 bestanden.
   Regressionen 32 und 38–84 (54 Gespräche): 0 Wiederholungen. Unterschiede gibt es nur im Gemälde-Gespräch (b56,
   vorher viermal „weiß nicht“/Rückfrage, jetzt viermal richtig) und bei den Uhrzeiten.
+- **Alltags-Batterie 86 (zehn natürliche Mehrschritt-Gespräche, EN + DE: Langeweile, schlechter Tag mit dem Chef,
+  neuer Hund, Smalltalk über den Bot, Eiffelturm-Folgefragen, Programmieren lernen)**. Vorher gab es grobe Aussetzer:
+
+  | Eingabe | vorher |
+  |---|---|
+  | „what was her name again?“ (nach „her name is luna“) | Namensvorschläge für den Welpen |
+  | „what kind of dog do i have?“ | „Yeah it wasn't even your fault.“ |
+  | „and when was it built?“ (nach der Eiffelturm-Höhe) | „weiß nicht“, auf Deutsch dagegen richtig |
+  | „python probably“ | „Ooh, python probably. How did it go?“ |
+  | „are you smarter than me?“ | „I don't know that about you yet“ |
+  | „i work at a bakery“ | „you work at bakery“ |
+  | „i work for myself“ | „you work at myself“ |
+
+  Auf Deutsch fielen „einen labrador“, „er heißt bruno“, „wie heißt mein hund?“, „hast du eine idee?“ (nach dem
+  Ideen-Angebot), „vielleicht ein buch. was empfiehlst du?“ und „soll ich was sagen?“ alle in die Rückfallantwort.
+  „du hast recht“ nach einem Rat bekam „Das macht es natürlich nicht leichter.“, „Ein Katze“ und „ein Perserkatze“
+  waren falsche Artikel.
+
+  Gefundene Grundfehler:
+  1. „and when …?“ wurde als Ellipse gelesen („And of Germany?“) und zu „how tall is the when was Eiffel Tower
+     built?“ umgebaut. Eine Ellipse beginnt jetzt nie mit einem Fragewort.
+  2. Die Suche in den eigenen Sätzen antwortete schon bei bloßer Bedeutungsähnlichkeit. Jetzt ist mindestens ein
+     gemeinsames Wort oder Konzept Pflicht.
+
+  Neu:
+  - Haustier-Gedächtnis mit Name, Rasse und Geschlecht in EN und DE (deutsche Artikel nach Tier und Rasse);
+  - Programmieren-lernen-Ablauf (Sprache, schwer?, wie lange?, Einstieg, Projekte);
+  - „are you smart(er than me)?“;
+  - Zustimmung nach einem Rat an einem schlechten Tag (EN/DE);
+  - Selbstständigkeit und Homeoffice als Ereignisse;
+  - Firmen- und Artikelform in der Bestätigung („at a bakery“, „Google“);
+  - „how old is it?“ nach einem Bauwerk;
+  - geprüfte Fakten, die vor der Faktenbank gelten (`pre`, hier: Wer hat den Eiffelturm entworfen? Die Faktenbank
+    nennt nur den Architekten), mit deutschem Text (`de`).
+
+  Messung: Team-Dev-Satz 0 von 128 geändert, NQ 22/9, Suite 780 bestanden. Regressionen 32 und 38–86
+  (55 Gespräche): 0 Wiederholungen. Unterschiede gegen den letzten Commit:
+  - Eiffelturm-Entwurf in b38, b41, b56 und b69;
+  - b45: „you're right“ nach Trennungsrat, vorher „Glad I got that right!“;
+  - Datums- und Uhrzeitzeilen (Tageswechsel während des Laufs).
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

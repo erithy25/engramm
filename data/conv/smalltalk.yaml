@@ -770,6 +770,13 @@ intents:
     responses:
       - "Not the kind you might think: there's no neural network or language model inside me. I count words, follow rules and look things up in what I've read — which is why I can show you a source for each fact, and why I sometimes say “I don't know”."
 
+  - id: bot_smart
+    patterns: ['(are|r) (you|u) (smarter|cleverer|more intelligent|better) than (me|us|humans|a human|people|my teacher)|(are|r) (you|u) (smart|clever|intelligent|dumb|stupid)|is engramm (smart|clever|intelligent)|do you think you(''re| are) (smart|clever|intelligent)|who(''s| is) smarter,? (you|me)(,? or (me|you))?']
+    examples: [are you smarter than me, are you smart, are you intelligent, who's smarter you or me]
+    responses:
+      - "Smarter than you? No way. I know a lot of facts and I never forget what you tell me, but you understand jokes, people and new situations far better than I do. Let's say we make a good team."
+      - "In some narrow things, maybe — I can look up a date or a height faster than anyone. But understanding, judging and actually thinking things through? That's all you. I'm more of a very well-read notebook."
+
   - id: bot_tor
     patterns: ['what is tor|what''s tor|what does tor do|why tor|how does tor work|what is the tor network']
     examples: [what is tor, how does tor work]

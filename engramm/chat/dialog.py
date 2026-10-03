@@ -914,6 +914,13 @@ class _Part:
     text: str
 
 
+_PROPER_BREED_WORDS = {"persian", "siamese", "labrador", "german", "french", "british", "maine", "bengal", "siberian", "yorkshire",
+                       "chihuahua", "dalmatian", "pomeranian", "russian", "scottish", "norwegian", "jack", "russell", "bernese",
+                       "australian", "border", "shih", "tzu", "pekingese", "rottweiler", "doberman", "great", "dane", "ragdoll",
+                       "sphynx", "abyssinian", "burmese", "himalayan", "egyptian", "turkish", "cavalier", "king", "charles", "maltese",
+                       "havanese", "boston", "irish", "welsh", "corgi", "beagle", "weimaraner", "akita", "shiba"}
+
+
 class Assistant:
     def __init__(self, bot, bank: Bank | None = None, clock=None, kb_path=None, nlp_dir=None):
         self.bot = bot
@@ -1117,6 +1124,11 @@ class Assistant:
         if re.match(r"^(?:wer|was|wann|wo|wie|welche[rsmn]?|warum|wieso|weshalb|woher|wohin)\b", s):
             return Reply(msg, "unknown", self._pick(st, "de:knowledge", dd["knowledge_de"]), via="german")
         le = st.last_exp or {}
+        if le.get("valence") == "negative" and st.turn - le.get("turn", -99) <= 5 and \
+                re.fullmatch(r"(?:ja,? |ok(?:ay)?,? |hm+,? )?(?:du hast (?:ja )?recht|da hast du (?:wohl )?recht|stimmt(?: schon)?|guter punkt|macht sinn|"
+                             r"das macht sinn|vielleicht hast du recht|klingt vernünftig)", s.strip(" .!")):
+            # "du hast recht" after advice on a bad day: no "Das macht es natürlich nicht leichter"
+            return Reply(msg, "smalltalk", self._pick(st, "de:life:agree_hard", dd["life"]["agree_hard"]), via="german")
         if le and le.get("valence") in ("negative", "positive") and st.turn - le.get("turn", -99) <= 2 and len(s.split()) >= 2 and \
                 "?" not in msg and not re.match(r"^(?:haha|hihi|hehe|lol|ok|okay|cool|super|ach so|achso|gut|klar|stimmt|aber)\b", s) and \
                 not (le.get("valence") == "positive" and re.search(r"\b(?:weh|schlimm|traurig|schlecht|furchtbar|schrecklich|leider|tot|"
@@ -2022,16 +2034,51 @@ class Assistant:
             x = {"welpen": "Welpe", "hund": "Hund", "kätzchen": "Kätzchen", "katze": "Katze", "kaninchen": "Kaninchen",
                  "hasen": "Hase", "hamster": "Hamster"}[pm.group("x")]
             st.uses["new_pet_de"] = [x, None, None, st.turn]
-            return Reply(msg, "smalltalk", pk("pet_new", g["pet_new"], x=x), via="german")
+            fem, neut = x == "Katze", x in ("Kätzchen", "Kaninchen")
+            return Reply(msg, "smalltalk", pk("pet_new", g["pet_new"], x=x, a="Eine" if fem else "Ein", b="eine" if fem else "ein",
+                                              y="eine" if fem else "eins" if neut else "einer"), via="german")
+        pet = st.uses.get("new_pet_de")
+        if pet and (st.uses.get("pet_name_de") or pet[2]):   # "wie heißt mein hund nochmal?", "was für ein hund ist er?"
+            tiere = r"(?:hund|welpe|katze|kätzchen|kaninchen|hase|hamster|haustier)"
+            nm = st.uses.get("pet_name_de")
+            gg = pet[1] or {"Katze": "sie", "Kätzchen": "es", "Kaninchen": "es"}.get(pet[0], "er")
+            if nm and re.fullmatch(rf"(?:und |also |sorry,? |moment,? )?(?:wie (?:heißt|hieß|heisst|hiess) (?:mein(?:e)? {tiere}|er|sie|es)(?: nochmal| noch mal| gleich)?"
+                                   rf"|wie war (?:der name|sein name|ihr name)(?: von meinem {tiere}| meines {tiere}s?)?(?: nochmal| noch mal)?"
+                                   rf"|weißt du(?: noch)?,? wie (?:mein(?:e)? {tiere}|er|sie) heißt)", q):
+                poss = ("deine " if (pet[2] or pet[0]).lower().endswith(("katze", "hündin")) else "dein ") + (pet[2] or pet[0])
+                return Reply(msg, "answer", pk("pet_recall_name", g["pet_recall_name"], x=nm, y=poss,
+                                               z={"sie": "Sie", "es": "Es"}.get(gg, "Er")), answer=nm, via="memory", confidence=1.0)
+            if pet[2] and re.fullmatch(rf"(?:und |also )?(?:was für (?:ein(?:e|en)?|eine) {tiere} (?:ist (?:er|sie|es)|ist mein(?:e)? {tiere}|hab(?:e)? ich)(?: nochmal| noch mal)?"
+                                       rf"|welche rasse (?:ist|hat) (?:er|sie|es|mein(?:e)? {tiere})(?: nochmal| noch mal)?)", q):
+                return Reply(msg, "answer", pk("pet_recall_kind", g["pet_recall_kind"], x=pet[2], z={"sie": "Sie", "es": "Es"}.get(gg, "Er"),
+                                               y=nm or ("Deine " if pet[0] == "Katze" else "Dein ") + pet[0],
+                                               b="eine" if pet[2].lower().endswith(("katze", "hündin")) else "ein"),
+                             answer=pet[2], via="memory", confidence=1.0)
         if recent("new_pet_de", 4):
             pet = st.uses["new_pet_de"]
-            bm = re.fullmatch(r"(?:(?P<g>sie|er|es) ist )?(?:ein|eine) (?P<b>[a-zäöüß][a-zäöüß -]{2,30}?)", q)
+            nmm = re.fullmatch(r"(?:und )?(?:(?P<g>er|sie|es) heißt|(?:sein|ihr) name ist|(?:er|sie|es) hört auf (?:den namen )?|wir nennen (?:ihn|sie|es)) "
+                               r"(?P<n>[a-zäöüß]{2,20})", q)
+            if nmm:
+                name = nmm.group("n").capitalize()
+                st.uses["pet_name_de"] = name
+                if nmm.group("g") and not pet[1]:
+                    pet[1] = nmm.group("g")
+                pet[3] = st.turn
+                kind = {"Welpe": "Hund", "Kätzchen": "Katze"}.get(pet[0], pet[0])
+                facts = [f"My {'dog' if kind == 'Hund' else 'cat' if kind == 'Katze' else 'pet'} is called {name}."]
+                try:
+                    self._learn(st, facts, msg)           # the memory page shows it; "wie heißt mein hund?" later
+                except Exception:
+                    pass
+                return Reply(msg, "smalltalk", pk("pet_named", g["pet_named"], x=name), via="german")
+            bm = re.fullmatch(r"(?:(?P<g>sie|er|es) ist )?(?:ein|eine|einen) (?P<b>[a-zäöüß][a-zäöüß -]{2,30}?)", q)
             if bm and pet[0] in ("Welpe", "Hund", "Kätzchen", "Katze") and not re.search(r"\b(?:so|sehr|süß|lieb)\b", bm.group("b")):
-                gg = bm.group("g") or "es"
+                gg = bm.group("g") or {"Katze": "sie", "Kätzchen": "es"}.get(pet[0], "er")
                 b = " ".join(w if w in ("de", "la") else w[:1].upper() + w[1:] for w in bm.group("b").split())
                 pet[1], pet[2], pet[3] = gg, b, st.turn
-                return Reply(msg, "smalltalk", pk("pet_breed", g["pet_breed"], x=b, p=gg, d={"sie": "sie", "er": "ihn"}.get(gg, "es")),
-                             via="german")
+                fem = b.lower().endswith(("katze", "hündin"))
+                return Reply(msg, "smalltalk", pk("pet_breed", g["pet_breed"], x=b, p=gg, d={"sie": "sie", "er": "ihn"}.get(gg, "es"),
+                                                  a="Eine" if fem else "Ein", b="eine" if fem else "ein"), via="german")
             if re.search(r"\bnamen", q) and re.search(r"\b(?:idee|ideen|vorschl|vorschläge|hast du|weißt du|wie soll)", q):
                 key = {"sie": "female", "er": "male"}.get(pet[1] or "", "any")
                 pool = g["pet_pool"][key]
@@ -2564,7 +2611,9 @@ class Assistant:
         le = st.last_exp or {}
         s = s.strip(" ?!.")
         off = st.uses.get("de_offer")
-        if off and st.turn - off[1] <= 1 and re.fullmatch(r"(?:ja|jo|jap|gerne?|klar|ok(?:ay)?|bitte|ja bitte|ja gerne?)?[, ]*(?:ideen|ein paar ideen|ideen bitte|gib mir ideen)?(?: bitte)?", s) and s:
+        if off and st.turn - off[1] <= 1 and (re.fullmatch(r"(?:ja|jo|jap|gerne?|klar|ok(?:ay)?|bitte|ja bitte|ja gerne?)?[, ]*(?:ideen|ein paar ideen|ideen bitte|gib mir ideen)?(?: bitte)?", s) and s
+                                              or re.fullmatch(r"(?:ja,? |hm,? |also,? )?(?:hast du (?:eine |ein paar |irgendwelche )?(?:idee|ideen|vorschläge?)|was schlägst du vor|"
+                                                              r"was würdest du (?:mir )?(?:vorschlagen|empfehlen)|was empfiehlst du(?: mir)?)", s.strip(" ?!."))):
             st.uses.pop("de_offer", None)                 # "ja, ideen" after "soll ich dir Ideen geben?"
             return self.everyday.recommend(st, msg, "activity", off[0], lang="de")
         so = st.uses.get("de_sleep_offer")
@@ -3137,6 +3186,8 @@ class Assistant:
                     sent = article[:1].upper() + article[1:] + " " + sent    # "Der Eiffelturm ist 330 m hoch."
                 rep.text = sent
                 return rep
+        if rep.via == "german":
+            return rep                                    # already German (a hand-checked fact with its own German text)
         rep.text = f"{dd['english_text']} {rep.text}"
         return rep
 
@@ -5278,7 +5329,7 @@ class Assistant:
                                                      r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
             # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
             return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
-        evr = self._sounds(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
+        evr = self._sounds(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
             self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
@@ -6205,6 +6256,64 @@ class Assistant:
         subject = re.match(r"(.+?) was (?:completed|built|finished|opened|constructed)", rep.text or "")
         return (subject.group(1) if subject else name), year_now - int(m.group(1)), int(m.group(1))
 
+    def _daily_ctx23(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 86: learning to code as a short flow — which language, "is it hard?", "how long does it take?",
+        "where should I start?" and "wish me luck" all stay on the topic instead of becoming look-ups."""
+        b = self.bank.daily["b86"]
+        n = re.sub(r"\s+", " ", norm).strip(" .!?")
+        langs = r"python|javascript|js|java|c\+\+|c#|rust|go|golang|swift|kotlin|html(?: and css)?|ruby|php"
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b86:{key}", b[key], **kw), via="everyday")  # noqa: E731
+
+        def lang_key(x: str) -> str:
+            x = x.lower()
+            return {"js": "javascript", "golang": "go", "html and css": "html"}.get(x, x)
+
+        def lang_name(k: str) -> str:
+            return {"javascript": "JavaScript", "c++": "C++", "c#": "C#", "html": "HTML", "php": "PHP"}.get(k, k.capitalize())
+
+        m = re.fullmatch(rf"(?:so |well |actually |btw )?(?:i'?m|i am|im) (?:thinking (?:about|of)|planning (?:to|on)|going to|gonna|about to|trying to) "
+                         rf"(?:learn(?:ing)?|start(?:ing)?(?: to learn(?:ing)?)?) (?:how )?(?:to code|coding|to program|programming|(?P<l>{langs}))"
+                         rf"|(?:i )?(?:want|wanna|would like|'d like) to (?:learn|start) (?:how )?(?:to code|coding|to program|programming|(?P<l2>{langs}))"
+                         rf"|(?:i'?m|i am|im|i just) (?:learning|started learning|starting to learn|started) (?:how )?(?:to code|coding|to program|programming|(?P<l3>{langs}))", n)
+        if m:
+            lang = m.group("l") or m.group("l2") or m.group("l3")
+            st.uses["code86"] = [lang_key(lang) if lang else None, st.turn]
+            if lang:
+                k = lang_key(lang)
+                return say("start_lang", x=lang_name(k), y=b["lang"][k])
+            return say("start_ask")
+        le = st.last_exp or {}
+        if le.get("valence") == "negative" and st.turn - le.get("turn", -99) <= 5 and \
+                re.fullmatch(r"(?:yeah,? |ok(?:ay)?,? |hm+,? )?(?:you'?re right|youre right|true|good point|that makes sense|i guess you'?re right|maybe you'?re right|fair enough)", n):
+            return say("agree_hard")                      # "you're right" after advice on a bad day: not "Nice! What else would you like to know?"
+        c = st.uses.get("code86")
+        if not c or st.turn - c[1] > 6:
+            return None
+        lm = re.fullmatch(rf"(?:probably |maybe |i think |i guess |definitely |thinking |prob(?:ably)? )?(?P<l>{langs})(?: probably| maybe| i think| i guess| for sure)?", n)
+        if lm:
+            k = lang_key(lm.group("l"))
+            c[0], c[1] = k, st.turn
+            return say("start_lang", x=lang_name(k), y=b["lang"][k])
+        lang = lang_name(c[0]) if c[0] else "Python"
+        if re.fullmatch(rf"(?:but |and |so )?(?:is it|is (?:that|coding|programming|{langs})|will it be|would it be) (?:really |very |too )?(?:hard|difficult|easy|tough)(?: to learn)?"
+                        r"|(?:but |and )?how (?:hard|difficult) is it(?: to learn)?", n):
+            c[1] = st.turn
+            return say("hard")
+        if re.fullmatch(r"(?:and |so )?how long (?:does|will|would) (?:it|that|this) take(?: to learn(?: it)?)?|(?:and |so )?how long until i can (?:code|program|build (?:something|stuff))", n):
+            c[1] = st.turn
+            return say("how_long")
+        if re.fullmatch(r"(?:so |ok |okay )?(?:where|how) (?:should|do|can|would) i (?:start|begin)|any (?:tips|advice|resources)(?: for (?:a )?beginners?)?|"
+                        r"what should i do first|how do i get started|what(?:'s| is) the best way to (?:start|learn(?: it)?)", n):
+            c[1] = st.turn
+            return say("where_start", x=lang)
+        if re.fullmatch(r"(?:and |so )?what (?:can|could|should) i (?:build|make|do|code) (?:with it|first|as a beginner)?", n):
+            c[1] = st.turn
+            return say("build", x=lang)
+        if re.fullmatch(r"(?:ok(?:ay)?,? )?(?:wish me luck|i'?ll try|i'?ll give it a (?:try|go|shot)|let'?s do (?:it|this))", n):
+            st.uses.pop("code86", None)
+            return say("luck")
+        return None
+
     def _daily_ctx22(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 78: a whole evening in one chat — a moved deadline, chicken in the oven, "how old is the Eiffel
         Tower?" from the year it was built, "do you like Paris?", "I was there last year" / "the food was amazing",
@@ -6272,6 +6381,12 @@ class Assistant:
         m = re.fullmatch(r"(?:btw |by the way |and |so )?how old is (?P<x>the eiffel tower|the colosseum|the statue of liberty|the golden gate bridge|big ben|"
                          r"the brandenburg gate|the sydney opera house|the empire state building|the leaning tower of pisa|the tower bridge|cologne cathedral|"
                          r"the burj khalifa|the taj mahal|notre dame|the berlin wall|stonehenge|the great wall of china|neuschwanstein castle)", n)
+        ment = (self.bot.context.get("mention") or "").lower()
+        if not m and ment and re.fullmatch(r"(?:and |so )?how old is (?:it|that)(?: now)?", n):
+            # "how old is it?" after "how tall is the Eiffel Tower?": the landmark just talked about
+            m = re.fullmatch(r"(?P<x>(?:the )?(?:eiffel tower|colosseum|statue of liberty|golden gate bridge|brandenburg gate|sydney opera house|"
+                             r"empire state building|leaning tower of pisa|tower bridge|burj khalifa|taj mahal|great wall of china)|big ben|"
+                             r"cologne cathedral|notre dame|stonehenge|neuschwanstein castle)", ment)
         if m:
             got = self._age_built(st, m.group("x"))
             if got:
@@ -7201,25 +7316,48 @@ class Assistant:
             st.uses["new_pet"] = [pm.group("x"), None, None, None, st.turn]   # kind, he/she, breed, name, turn
             st.uses["pet"] = [pm.group("x"), st.turn]     # the pet memory: "her name is luna" is remembered
             return Reply(msg, "smalltalk", self._pick(st, "daily:pet_new", d["pet_new"], x=pm.group("x")), via="smalltalk")
+        pet = st.uses.get("new_pet")
+        if pet and (pet[3] or pet[2]):                    # "what was her name again?", "what kind of dog do i have?"
+            kinds = r"(?:dog|puppy|cat|kitten|bunny|rabbit|hamster|pet)"
+            pron = r"(?:her|his|its|the (?:dog|puppy|cat|kitten|bunny|rabbit|hamster)'?s|my " + kinds + r"'?s)"
+            ask_name = re.fullmatch(rf"(?:and |so |sorry,? |wait,? )?(?:what(?:'s| is| was)|whats|remind me(?: of)?|do you remember) {pron} name(?: again)?"
+                                    rf"|(?:and |so )?what did (?:i|we) (?:call|name) (?:her|him|it|my {kinds})(?: again)?"
+                                    rf"|(?:and |so )?what(?:'s| is) my {kinds} called(?: again)?", n)
+            ask_kind = re.fullmatch(rf"(?:and |so )?what (?:kind|breed|type|sort) of {kinds} (?:do i have|have i got|did i get|is (?:she|he|it|mine))(?: again)?"
+                                    rf"|(?:and |so )?what breed is (?:she|he|it|my {kinds})(?: again)?", n)
+            subj = {"she": "She", "he": "He"}.get(pet[1] or "", "It")
+            if ask_name and pet[3]:
+                pos = {"She": "Her", "He": "His"}.get(subj, "Its")
+                return Reply(msg, "answer", self._pick(st, "daily:pet_recall_name", d["pet_recall_name"], x=pet[3], y=pos,
+                                                       z=pet[2] or {"puppy": "dog", "kitten": "cat"}.get(pet[0], pet[0])),
+                             answer=pet[3], via="memory", confidence=1.0)
+            if ask_kind and pet[2]:
+                return Reply(msg, "answer", self._pick(st, "daily:pet_recall_kind", d["pet_recall_kind"], x=pet[2], y=subj,
+                                                       z=pet[3] or "your " + pet[0]),
+                             answer=pet[2], via="memory", confidence=1.0)
         if recent("new_pet", 4):
             pet = st.uses["new_pet"]
-            nm_ = re.search(r"\b(?:her|his|its|their) name is (?P<x>[a-z]+)|\b(?:she|he|it)(?:'s| is) called (?P<y>[a-z]+)", n)
+            nm_ = re.search(r"\b(?P<p>her|his|its|their) name is (?P<x>[a-z]+)|\b(?P<q>she|he|it)(?:'s| is) called (?P<y>[a-z]+)", n)
             if nm_:
                 pet[3], pet[4] = (nm_.group("x") or nm_.group("y")).capitalize(), st.turn
+                g = {"her": "she", "his": "he"}.get(nm_.group("p") or "", nm_.group("q") if nm_.group("q") in ("she", "he") else None)
+                if g and pet[1] in (None, "it"):
+                    pet[1] = g                            # "her name is luna": a she
                 return None                               # the pet flow remembers the name
             bm = re.fullmatch(r"(?:(?P<g>she|he|it)(?:'s| is) an? |an? )(?P<b>[a-z][a-z -]{2,30}?)(?: puppy| dog| kitten| cat)?", n)
             if bm and pet[0] in ("puppy", "dog", "kitten", "cat") and not re.search(r"\b(?:so|very|really|cute|good|bad)\b", bm.group("b")):
                 g = bm.group("g") or "it"
-                pet[1], pet[2], pet[4] = g, bm.group("b"), st.turn
+                breed = " ".join(w.capitalize() if w in _PROPER_BREED_WORDS else w for w in bm.group("b").split())
+                pet[1], pet[2], pet[4] = g, breed, st.turn
                 p_ = {"she": "she", "he": "he"}.get(g, "it")
                 kind = {"puppy": "dog", "kitten": "cat"}.get(pet[0], pet[0])
-                r = self._learn(st, [f"My {kind} is a {bm.group('b')}."], msg)    # "what breed is she?" later
+                r = self._learn(st, [f"My {kind} is a {breed}."], msg)    # "what breed is she?" later
                 st.uses["pet"] = [kind, st.turn]
-                st.uses["pet_breed"] = [bm.group("b"), st.turn]
+                st.uses["pet_breed"] = [breed, st.turn]
                 if pet[3]:
-                    r.text = self._pick(st, "daily:pet_breed_named", d["pet_breed_named"], x=bm.group("b"), y=pet[3])
+                    r.text = self._pick(st, "daily:pet_breed_named", d["pet_breed_named"], x=breed, y=pet[3])
                 else:
-                    r.text = self._pick(st, "daily:pet_breed2", d["pet_breed2"], x=bm.group("b"), p=p_,
+                    r.text = self._pick(st, "daily:pet_breed2", d["pet_breed2"], x=breed, p=p_,
                                         d={"she": "her", "he": "him"}.get(g, "it"))
                 return r
             if re.search(r"\b(?:name|names|call (?:her|him|it))\b", n) and re.search(r"\b(?:idea|ideas|suggest|suggestions|should|what)\b", n):
@@ -8060,6 +8198,8 @@ class Assistant:
             st.uses["common_when"] = [item["when"], st.turn]
         if item.get("first"):
             st.uses["common_first"] = [item["first"], st.turn]
+        if getattr(st, "lang", None) == "de" and item.get("de"):
+            return Reply(text, "answer", item["de"], answer=item.get("v", item["de"]), source=src, confidence=1.0, via="german")
         return Reply(text, "answer", item["a"], answer=item.get("v", item["a"]), source=src, confidence=1.0, via="common")
 
     def _superlative(self, st: DialogState, text: str) -> Reply | None:
@@ -8095,6 +8235,9 @@ class Assistant:
         if re.search(r"\b(?:wrote|written|directed|made|painted|sang|sung|composed|built|designed|invented|created|founded|produced|"
                      r"published|filmed) it\b(?! (?:by|was))", q):
             return None                                   # "who wrote it?": a pronoun, never Stephen King's novel "It"
+        nq = normalise(q).strip(" ?!.").lower()
+        if any(it.get("pre") and re.fullmatch(it["q"], nq) for it in self.bank.daily.get("common", [])):
+            return self._common_fact(st, q)               # a hand-checked fact the infobox gets half right (Eiffel Tower: one architect)
         try:
             ans = self.kgqa.answer(q)
         except Exception:                       # a damaged fact bank must not break the chat
@@ -8141,6 +8284,8 @@ class Assistant:
         if not m:
             return None
         new = m.group("x").strip()
+        if new.split()[0].lower() in _QUESTION_WORDS:
+            return None                                   # "and when was it built?" is a whole question, not "and Germany?"
         last = self.bot.context.get("kb_last")
         if last and st.last_q and last["question"].strip(" ?").lower() != st.last_q.strip(" ?").lower() \
                 and self.bot.resolve(st.last_q).strip(" ?").lower() != last["question"].strip(" ?").lower():
@@ -8591,6 +8736,13 @@ class Assistant:
                     x = article(f.object) if cat in ("job",) else f.object
                     if cat == "car":
                         x = f.object
+                    if cat == "employer":
+                        am = re.search(rf"\b(?:at|for|in) (a|an|the) {re.escape(f.object)}\b", f.sentence or "", re.I)
+                        if am:
+                            x = am.group(1).lower() + " " + f.object   # "you work at a bakery", as said
+                        elif f.object.islower() and f.object not in ("myself", "home", "me", "them", "him", "her", "us", "it") \
+                                and not re.search(rf"\b(?:a|an|the|my|our) {re.escape(f.object)}\b", f.sentence or "", re.I):
+                            x = " ".join(w.capitalize() for w in f.object.split())   # "i work for google": Google
                     liked = st.uses.get("last_like")
                     if cat == "fav" and liked and liked[0] == st.turn and liked[1].lower().endswith(f.object.lower()):
                         x = liked[1]                       # "the Beatles", as said

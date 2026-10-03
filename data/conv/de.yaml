@@ -312,6 +312,8 @@ daily:
     follow_neg: ["Das macht es natürlich nicht leichter. Wie geht's dir jetzt damit?",
                  "Oh je, das kommt dann noch dazu. Kein Wunder, dass du erledigt bist."]
     follow_pos: ["Wie schön! Erzähl ruhig mehr.", "Das klingt richtig gut!"]
+    agree_hard: ["Ich hoffe, das hilft dir ein bisschen. Und sei heute Abend nett zu dir – du hattest einen harten Tag.",
+                 "Freut mich, wenn das Sinn ergibt. Du musst heute nicht alles klären."]
     event: ["Oh, spannend! Viel Glück bei {x}! Bist du aufgeregt?", "{X} – drück dir die Daumen! Wie fühlst du dich?"]
     event_tips:
       vorstellungsgespräch: ["Ein paar Tipps fürs Vorstellungsgespräch:\n\n• Schau dir die Firma vorher kurz an und überleg, warum du genau dorthin willst.\n• Bereite zwei, drei Beispiele vor, in denen du etwas gut gelöst hast.\n• Hab selbst ein, zwei Fragen parat – das zeigt Interesse.\n• Atme vorher ruhig durch: Die wollen dich kennenlernen, nicht reinlegen."]
@@ -664,11 +666,14 @@ daily:
       barcelona: "Tapas, Pan con tomate, Paella und Crema catalana."
     g57:
       guess: ["Was denn? Erzähl!", "Oh, was ist passiert? Ich bin ganz Ohr!"]
-      pet_new: ["Ein {x}?! Wie schön – herzlichen Glückwunsch! Was für eine Rasse?", "Nein, wie toll, ein {x}! Was für einer?"]
-      pet_breed: ["Oh, ein {x} – die sind so lieb! Hat {p} schon einen Namen?", "Ein {x}! Wie willst du {d} nennen?"]
+      pet_new: ["{a} {x}?! Wie schön – herzlichen Glückwunsch! Was für eine Rasse?", "Nein, wie toll, {b} {x}! Was für {y}?"]
+      pet_breed: ["Oh, {b} {x} – die sind so lieb! Hat {p} schon einen Namen?", "{a} {x}! Wie willst du {d} nennen?"]
       pet_names_lead: ["Ein paar Ideen:", "Wie wäre es mit einem davon?"]
       pet_names_tail: ["Gefällt dir einer davon?", "Passt einer davon?"]
       pet_pick: ["{x} – wie schön! Das passt richtig gut.", "{x} also! Ein toller Name."]
+      pet_named: ["{x} – was für ein schöner Name! Den merke ich mir.", "{x}! Der Name passt bestimmt super. Ich merk ihn mir."]
+      pet_recall_name: ["{z} heißt {x} – {y}.", "{x}! So heißt {y}."]
+      pet_recall_kind: ["{z} ist {b} {x}.", "{y} ist {b} {x}."]
       fridge_empty: ["Oh nein, der Klassiker. Gar nichts mehr da – nicht mal Eier, Brot oder Nudeln?", "Ganz leer? Irgendwas findet sich meistens noch – Eier, Käse, Brot?"]
       fridge_dish: ["Daraus kannst du {x} machen! {y}", "Perfekt für {x}. {y}"]
       fridge_none: ["Hm, schwierig. Vielleicht heute Brot oder doch etwas bestellen?", "Da wird's knapp – vielleicht kurz einkaufen oder etwas liefern lassen?"]

@@ -1089,6 +1089,7 @@ common:
   - {q: "(?:and |so )?(?:where is|where can i see|in which museum is|where (?:is|can you see) the painting of) (?:the )?mona lisa(?: now| today| kept| displayed| hanging)?", a: "The Mona Lisa hangs in the Louvre in Paris, behind bulletproof glass in the Salle des États.", v: "the Louvre", t: "Mona Lisa"}
   - {q: "(?:and |so )?when (?:did (?:vincent )?van gogh paint|was) the starry night(?: painted)?", a: "Van Gogh painted The Starry Night in June 1889, from the window of his room at the asylum in Saint-Rémy-de-Provence.", v: "June 1889"}
   - {q: "(?:and |so )?(?:where is|where can i see|in which museum is) the starry night(?: now| today| kept| displayed| hanging)?", a: "The Starry Night hangs in the Museum of Modern Art (MoMA) in New York, where it has been since 1941.", v: "the Museum of Modern Art"}
+  - {q: "(?:and |so )?who (?:designed|built|planned|engineered|made) (?:the )?eiffel tower", a: "The Eiffel Tower was built by Gustave Eiffel's company. The design came from his engineers Maurice Koechlin and Émile Nouguier, and the architect Stephen Sauvestre shaped its look.", v: "Gustave Eiffel's company", pre: true, de: "Gebaut hat den Eiffelturm die Firma von Gustave Eiffel. Entworfen haben ihn seine Ingenieure Maurice Koechlin und Émile Nouguier, die Gestaltung stammt vom Architekten Stephen Sauvestre."}
   - {q: "(?:and |so )?(?:has anyone|did anyone|has anybody|did people|have people) (?:ever )?(?:climbed|reached the (?:top|summit) of|been to the top of) (?:mount )?everest|who (?:was the first (?:person |man |one )?to climb|first climbed|first reached the summit of) (?:mount )?everest", a: "Yes — Edmund Hillary and Tenzing Norgay were the first to reach the summit, on 29 May 1953. Thousands have climbed it since.", v: "Edmund Hillary and Tenzing Norgay", t: "Mount Everest", first: "Edmund Hillary from New Zealand and Tenzing Norgay, a Sherpa from Nepal — they reached the top together on 29 May 1953.", when: "That was on 29 May 1953."}
   - {q: "(?:and |so )?(?:how (?:big|large) is (?:the planet )?mercury|what(?:'s| is) the (?:size|diameter) of (?:the planet )?mercury|how wide is mercury|how big is mercury compared to (?:the )?earth)", a: "Mercury is about 4,879 km across — about 38% of Earth's width — the smallest planet.", v: "4,879 km", t: "Mercury"}
   - {q: "(?:and |so )?how far (?:away )?is mercury from the sun|what(?:'s| is) the distance (?:between|from) (?:the sun and mercury|mercury (?:and|to) the sun)", a: "Mercury is on average about 58 million km (0.39 AU) from the Sun.", v: "58 million km (0.39 AU)", t: "Mercury"}
@@ -2284,6 +2285,12 @@ pet_new:
 pet_breed2:
   - "Aww, a {x} — they're the sweetest. Does {p} have a name yet?"
   - "A {x}! Such a lovely dog. What are you going to call {d}?"
+pet_recall_name:
+  - "{y} name is {x} — your {z}."
+  - "{x}! {y} name is {x}."
+pet_recall_kind:
+  - "{y}'s a {x}."
+  - "{z} is a {x}."
 pet_names_lead:
   - "Some ideas for {p}:"
   - "How about one of these?"
@@ -2804,6 +2811,8 @@ b82:
   events:
     - {q: "i(?:'m| am) going to (?:a |the )?(?:concert|gig|festival|show|game|match|party|wedding)(?: tonight| today| later| tomorrow| this weekend)?", v: pos, a: "Ooh, fun! Who or what are you going to see?"}
     - {q: "i (?:just )?woke up|(?:i'?m |im )?just up", v: pos, a: "Morning — whatever time it is! ☀️ Did you sleep well?"}
+    - {q: "i work for myself|i(?:'m| am) self[- ]employed|i(?:'m| am) (?:a )?freelancer?|i(?:'m| am) freelancing|i run my own (?:business|company|shop)|i(?:'m| am) my own boss", v: pos, a: "Your own boss — nice! That takes guts. What do you do?"}
+    - {q: "i (?:mostly |usually |mainly )?work (?:from|at) home(?: now| these days| mostly)?|i(?:'m| am) working from home(?: today)?", v: pos, a: "Working from home — do you like it, or do you miss the office sometimes?"}
     - {q: "i(?:'m| am) at the gym(?: right now)?|(?:i'?m |im )?working out(?: right now)?", v: pos, a: "Nice, get it! 💪 What are you training today?"}
     - {q: "i (?:really |totally )?hate my (?:job|work)", v: neg, a: "That's rough — spending so many hours somewhere you don't like wears you down. Is it the work itself, the people, or something else?"}
     - {q: "(?:what do you think (?:about|of)|your (?:thoughts|opinion) on|how do you feel about) (?:ai|artificial intelligence)", v: pos, a: "AI is a big topic! Huge potential — medicine, research, translation — and real concerns: privacy, energy use, jobs, misinformation. I'm a different approach myself: no neural network, and everything stays on your computer."}
@@ -2850,3 +2859,40 @@ b82:
     - {q: "ich (?:hab|habe) eine gehaltserhöhung bekommen", v: pos, a: "Glückwunsch – das hast du dir verdient! 🎉 Wird gefeiert?"}
     - {q: "ich bin schwanger", v: pos, a: "Oh, wie schön – herzlichen Glückwunsch! 🎉 Wie fühlst du dich?"}
     - {q: "ich (?:hab|habe) (?:mit dem rauchen aufgehört|das rauchen aufgegeben)", v: pos, a: "Das ist riesig – stark! Die ersten Wochen sind die schwersten. Wie lange ist es schon her?"}
+# battery 86: learning to code, as a short flow (which language, is it hard, how long, where to start)
+b86:
+  start_ask:
+    - "Learning to code — great idea! Do you know which language yet? Python is a popular first one."
+    - "Oh, nice! Coding is a really useful skill. Any idea which language you want to start with?"
+  start_lang:
+    - "{x} — good choice! {y} Do you have something in mind you'd like to build?"
+    - "Nice, {x}! {y} What got you interested?"
+  lang:
+    python: "It's readable, forgiving for beginners, and you can do a lot with it quickly — scripts, data, websites, even little games."
+    javascript: "It runs in every browser, so you can see results on a web page right away."
+    java: "It's a bit more verbose, but very structured — and it's everywhere, from Android to big companies."
+    c++: "It's powerful and fast, but not the gentlest start — expect to fight the compiler a bit."
+    c#: "It's great for games with Unity and for Windows apps, and quite beginner-friendly."
+    rust: "It's loved for safety and speed, but it's a steep first language."
+    go: "It's simple, fast and popular for servers and tools."
+    swift: "It's the language for iPhone and Mac apps — nice if you want to build an app."
+    kotlin: "It's the modern choice for Android apps."
+    html: "Strictly it's not a programming language, but HTML and CSS are a great way to start — you build a web page on day one. JavaScript is the natural next step."
+    ruby: "It's friendly and readable, and known for the web framework Rails."
+    php: "It still powers a big part of the web, WordPress included."
+  hard:
+    - "The start is easier than most people think — the first programs are just a few lines. The hard part is staying with it when something doesn't work, and that's normal for everyone. A little every day beats one long weekend."
+    - "Honestly? Not at the beginning. It gets tricky in places, but everyone gets stuck on bugs — even professionals. Patience matters more than talent."
+  how_long:
+    - "For the basics — variables, loops, functions — a few weeks at 30 to 60 minutes a day. Building small projects on your own takes a few months. Getting job-ready is usually closer to a year of steady practice."
+    - "It depends on your goal: simple scripts after a few weeks, your own small projects after a few months, and job-level skills usually after about a year of regular practice."
+  where_start:
+    - "Pick one free course and stick with it — for {x}, the official tutorial, freeCodeCamp or Harvard's free CS50 course are good. Then build something tiny you actually care about, like a to-do list or a quiz. Projects teach more than videos."
+    - "Start small: install {x}, follow one beginner course from start to finish (freeCodeCamp and CS50 are free), and code a little every day. After the basics, build a small project — that's where it clicks."
+  build:
+    - "With {x} you could start with a number-guessing game, a to-do list, a little quiz, or a script that renames your files. Later: a website, a chatbot, or something with data you care about."
+  luck:
+    - "Love that! Start small, be patient with the bugs, and tell me what your first program does. 💻"
+  agree_hard:
+    - "I hope it helps a little. And go easy on yourself tonight — you've had a rough day."
+    - "Glad that makes sense. Whatever you decide, you don't have to sort it all out today."

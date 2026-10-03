@@ -1605,6 +1605,22 @@
     ]
    },
    {
+    "id": "bot_smart",
+    "patterns": [
+     "(are|r) (you|u) (smarter|cleverer|more intelligent|better) than (me|us|humans|a human|people|my teacher)|(are|r) (you|u) (smart|clever|intelligent|dumb|stupid)|is engramm (smart|clever|intelligent)|do you think you('re| are) (smart|clever|intelligent)|who('s| is) smarter,? (you|me)(,? or (me|you))?"
+    ],
+    "examples": [
+     "are you smarter than me",
+     "are you smart",
+     "are you intelligent",
+     "who's smarter you or me"
+    ],
+    "responses": [
+     "Smarter than you? No way. I know a lot of facts and I never forget what you tell me, but you understand jokes, people and new situations far better than I do. Let's say we make a good team.",
+     "In some narrow things, maybe — I can look up a date or a height faster than anyone. But understanding, judging and actually thinking things through? That's all you. I'm more of a very well-read notebook."
+    ]
+   },
+   {
     "id": "bot_tor",
     "patterns": [
      "what is tor|what's tor|what does tor do|why tor|how does tor work|what is the tor network"
@@ -4740,6 +4756,10 @@
      "Wie schön! Erzähl ruhig mehr.",
      "Das klingt richtig gut!"
     ],
+    "agree_hard": [
+     "Ich hoffe, das hilft dir ein bisschen. Und sei heute Abend nett zu dir – du hattest einen harten Tag.",
+     "Freut mich, wenn das Sinn ergibt. Du musst heute nicht alles klären."
+    ],
     "event": [
      "Oh, spannend! Viel Glück bei {x}! Bist du aufgeregt?",
      "{X} – drück dir die Daumen! Wie fühlst du dich?"
@@ -5696,12 +5716,12 @@
       "Oh, was ist passiert? Ich bin ganz Ohr!"
      ],
      "pet_new": [
-      "Ein {x}?! Wie schön – herzlichen Glückwunsch! Was für eine Rasse?",
-      "Nein, wie toll, ein {x}! Was für einer?"
+      "{a} {x}?! Wie schön – herzlichen Glückwunsch! Was für eine Rasse?",
+      "Nein, wie toll, {b} {x}! Was für {y}?"
      ],
      "pet_breed": [
-      "Oh, ein {x} – die sind so lieb! Hat {p} schon einen Namen?",
-      "Ein {x}! Wie willst du {d} nennen?"
+      "Oh, {b} {x} – die sind so lieb! Hat {p} schon einen Namen?",
+      "{a} {x}! Wie willst du {d} nennen?"
      ],
      "pet_names_lead": [
       "Ein paar Ideen:",
@@ -5714,6 +5734,18 @@
      "pet_pick": [
       "{x} – wie schön! Das passt richtig gut.",
       "{x} also! Ein toller Name."
+     ],
+     "pet_named": [
+      "{x} – was für ein schöner Name! Den merke ich mir.",
+      "{x}! Der Name passt bestimmt super. Ich merk ihn mir."
+     ],
+     "pet_recall_name": [
+      "{z} heißt {x} – {y}.",
+      "{x}! So heißt {y}."
+     ],
+     "pet_recall_kind": [
+      "{z} ist {b} {x}.",
+      "{y} ist {b} {x}."
      ],
      "fridge_empty": [
       "Oh nein, der Klassiker. Gar nichts mehr da – nicht mal Eier, Brot oder Nudeln?",
@@ -9229,6 +9261,13 @@
     "v": "the Museum of Modern Art"
    },
    {
+    "q": "(?:and |so )?who (?:designed|built|planned|engineered|made) (?:the )?eiffel tower",
+    "a": "The Eiffel Tower was built by Gustave Eiffel's company. The design came from his engineers Maurice Koechlin and Émile Nouguier, and the architect Stephen Sauvestre shaped its look.",
+    "v": "Gustave Eiffel's company",
+    "pre": "true",
+    "de": "Gebaut hat den Eiffelturm die Firma von Gustave Eiffel. Entworfen haben ihn seine Ingenieure Maurice Koechlin und Émile Nouguier, die Gestaltung stammt vom Architekten Stephen Sauvestre."
+   },
+   {
     "q": "(?:and |so )?(?:has anyone|did anyone|has anybody|did people|have people) (?:ever )?(?:climbed|reached the (?:top|summit) of|been to the top of) (?:mount )?everest|who (?:was the first (?:person |man |one )?to climb|first climbed|first reached the summit of) (?:mount )?everest",
     "a": "Yes — Edmund Hillary and Tenzing Norgay were the first to reach the summit, on 29 May 1953. Thousands have climbed it since.",
     "v": "Edmund Hillary and Tenzing Norgay",
@@ -12144,6 +12183,14 @@
    "Aww, a {x} — they're the sweetest. Does {p} have a name yet?",
    "A {x}! Such a lovely dog. What are you going to call {d}?"
   ],
+  "pet_recall_name": [
+   "{y} name is {x} — your {z}.",
+   "{x}! {y} name is {x}."
+  ],
+  "pet_recall_kind": [
+   "{y}'s a {x}.",
+   "{z} is a {x}."
+  ],
   "pet_names_lead": [
    "Some ideas for {p}:",
    "How about one of these?"
@@ -13436,6 +13483,16 @@
      "a": "Morning — whatever time it is! ☀️ Did you sleep well?"
     },
     {
+     "q": "i work for myself|i(?:'m| am) self[- ]employed|i(?:'m| am) (?:a )?freelancer?|i(?:'m| am) freelancing|i run my own (?:business|company|shop)|i(?:'m| am) my own boss",
+     "v": "pos",
+     "a": "Your own boss — nice! That takes guts. What do you do?"
+    },
+    {
+     "q": "i (?:mostly |usually |mainly )?work (?:from|at) home(?: now| these days| mostly)?|i(?:'m| am) working from home(?: today)?",
+     "v": "pos",
+     "a": "Working from home — do you like it, or do you miss the office sometimes?"
+    },
+    {
      "q": "i(?:'m| am) at the gym(?: right now)?|(?:i'?m |im )?working out(?: right now)?",
      "v": "pos",
      "a": "Nice, get it! 💪 What are you training today?"
@@ -13662,6 +13719,52 @@
      "v": "pos",
      "a": "Das ist riesig – stark! Die ersten Wochen sind die schwersten. Wie lange ist es schon her?"
     }
+   ]
+  },
+  "b86": {
+   "start_ask": [
+    "Learning to code — great idea! Do you know which language yet? Python is a popular first one.",
+    "Oh, nice! Coding is a really useful skill. Any idea which language you want to start with?"
+   ],
+   "start_lang": [
+    "{x} — good choice! {y} Do you have something in mind you'd like to build?",
+    "Nice, {x}! {y} What got you interested?"
+   ],
+   "lang": {
+    "python": "It's readable, forgiving for beginners, and you can do a lot with it quickly — scripts, data, websites, even little games.",
+    "javascript": "It runs in every browser, so you can see results on a web page right away.",
+    "java": "It's a bit more verbose, but very structured — and it's everywhere, from Android to big companies.",
+    "c++": "It's powerful and fast, but not the gentlest start — expect to fight the compiler a bit.",
+    "c#": "It's great for games with Unity and for Windows apps, and quite beginner-friendly.",
+    "rust": "It's loved for safety and speed, but it's a steep first language.",
+    "go": "It's simple, fast and popular for servers and tools.",
+    "swift": "It's the language for iPhone and Mac apps — nice if you want to build an app.",
+    "kotlin": "It's the modern choice for Android apps.",
+    "html": "Strictly it's not a programming language, but HTML and CSS are a great way to start — you build a web page on day one. JavaScript is the natural next step.",
+    "ruby": "It's friendly and readable, and known for the web framework Rails.",
+    "php": "It still powers a big part of the web, WordPress included."
+   },
+   "hard": [
+    "The start is easier than most people think — the first programs are just a few lines. The hard part is staying with it when something doesn't work, and that's normal for everyone. A little every day beats one long weekend.",
+    "Honestly? Not at the beginning. It gets tricky in places, but everyone gets stuck on bugs — even professionals. Patience matters more than talent."
+   ],
+   "how_long": [
+    "For the basics — variables, loops, functions — a few weeks at 30 to 60 minutes a day. Building small projects on your own takes a few months. Getting job-ready is usually closer to a year of steady practice.",
+    "It depends on your goal: simple scripts after a few weeks, your own small projects after a few months, and job-level skills usually after about a year of regular practice."
+   ],
+   "where_start": [
+    "Pick one free course and stick with it — for {x}, the official tutorial, freeCodeCamp or Harvard's free CS50 course are good. Then build something tiny you actually care about, like a to-do list or a quiz. Projects teach more than videos.",
+    "Start small: install {x}, follow one beginner course from start to finish (freeCodeCamp and CS50 are free), and code a little every day. After the basics, build a small project — that's where it clicks."
+   ],
+   "build": [
+    "With {x} you could start with a number-guessing game, a to-do list, a little quiz, or a script that renames your files. Later: a website, a chatbot, or something with data you care about."
+   ],
+   "luck": [
+    "Love that! Start small, be patient with the bugs, and tell me what your first program does. 💻"
+   ],
+   "agree_hard": [
+    "I hope it helps a little. And go easy on yourself tonight — you've had a rough day.",
+    "Glad that makes sense. Whatever you decide, you don't have to sort it all out today."
    ]
   }
  }

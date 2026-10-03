@@ -5,6 +5,7 @@ question words, and no word-for-word repeats — on the small test corpus (no pa
 from __future__ import annotations
 
 import datetime as dt
+import re
 
 import pytest
 
@@ -3178,3 +3179,46 @@ def test_battery85_he_and_it_after_a_painter(chat):
     assert a.bot.resolve("when did he paint it?") == "when did Vincent van Gogh paint The Starry Night?"
     a.bot.context.update({"answer": "Vincent van Gogh", "atype": "PERSON", "mention": "Vincent van Gogh"})
     assert a.bot.resolve("did he like it?") == "did Vincent van Gogh like it?"
+
+
+def test_battery86_pet_name_and_breed_are_recalled(chat):
+    a, _ = chat
+    st = DialogState("p86")
+    for msg in ["i got a puppy!", "a golden retriever", "her name is luna"]:
+        a.turn(st, msg)
+    r = a.turn(st, "what was her name again?")
+    assert "Luna" in r.text and "Milo" not in r.text, r.text
+    assert "golden retriever" in a.turn(st, "what kind of dog do i have?").text
+    st = DialogState("p86de")
+    for msg in ["ich hab einen hund bekommen!", "einen labrador", "er heißt bruno"]:
+        a.turn(st, msg)
+    assert "Bruno" in a.turn(st, "wie heißt mein hund?").text
+    assert "Labrador" in a.turn(st, "was für ein hund ist er?").text
+    st = DialogState("k86de")
+    t = a.turn(st, "ich habe eine katze bekommen").text
+    assert "Ein Katze" not in t and "ein Katze" not in t and ("Eine Katze" in t or "eine Katze" in t), t
+    assert "eine perserkatze" in a.turn(st, "eine perserkatze").text.lower()
+
+
+def test_battery86_coding_flow_and_small_talk(chat):
+    a, _ = chat
+    st = DialogState("c86")
+    a.turn(st, "i'm thinking about learning to code")
+    r = a.turn(st, "python probably")
+    assert "Python" in r.text and "How did it go" not in r.text, r.text
+    hard = a.turn(st, "is it hard?").text
+    assert "few lines" in hard or "beginning" in hard, hard
+    assert "weeks" in a.turn(st, "how long does it take?").text
+    assert "don't know that about you" not in a.turn(DialogState("s86b"), "are you smarter than me?").text
+    assert "at myself" not in a.turn(DialogState("w86"), "i work for myself").text
+    assert re.search(r"(?:at|for) a bakery", a.turn(DialogState("w86b"), "i work at a bakery").text)
+
+
+def test_battery86_and_question_is_no_ellipsis(chat):
+    a, _ = chat
+    assert a._ellipsis(DialogState("e86"), "and when was it built?") is None
+    st = DialogState("e86b")
+    a.bot.context.update({"answer": None, "atype": None, "mention": "France", "kb_last": None})
+    st.last_q = "what is the capital of France?"
+    a.bot.context["kb_last"] = {"question": "what is the capital of France?", "names": ["France", "France"]}
+    assert a._ellipsis(st, "and of Germany?") == "what is the capital of Germany?"

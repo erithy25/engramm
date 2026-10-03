@@ -767,7 +767,10 @@ class ChatBot:
             sc = concepts(low)
             if category_conflict(qconc, sc):
                 continue
-            score = len(qwords & tw) + len(qconc & set(sc)) + 0.5 * self._soft_overlap(qwords, tw)
+            hard = len(qwords & tw) + len(qconc & set(sc))
+            if not hard:
+                continue           # only a vague likeness ("what kind of dog do i have?" ~ "it wasn't my fault") is no answer
+            score = hard + 0.5 * self._soft_overlap(qwords, tw)
             if score > 0.25 and (best is None or score > best[0]):
                 best = (score, sid, text)
         if best is None:

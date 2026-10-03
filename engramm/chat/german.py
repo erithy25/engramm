@@ -154,9 +154,13 @@ _REC_DE = [
              r"was gibt es (?:heute )?zu essen|(?:essens|koch|rezept|abendessen)ideen?|ich weiß nicht,? was ich (?:essen|kochen) soll|"
              r"hast du (?:eine )?(?:idee|ideen) (?:fürs|für das) (?:abendessen|mittagessen|essen))"),
     ("book", r"(?:(?:kannst du mir |empfiehl mir |empfehl mir )?(?:ein|ein gutes) buch empfehlen|empfiehl mir ein buch|"
-             r"buchempfehlungen?|was soll ich (?:als nächstes )?lesen|hast du (?:ein )?buchtipps?)"),
+             r"buchempfehlungen?|was soll ich (?:als nächstes )?lesen|hast du (?:ein )?buchtipps?|"
+             r"(?:vielleicht |dann |oder )?(?:ein buch|was zum lesen|lesen)[.,]? (?:was|welches) (?:empfiehlst du|würdest du (?:mir )?empfehlen)(?: mir)?|"
+             r"was (?:empfiehlst du|würdest du empfehlen) (?:mir )?(?:für ein buch|an büchern|zum lesen)|welches buch (?:soll ich lesen|empfiehlst du(?: mir)?))"),
     ("movie", r"(?:(?:kannst du mir )?einen (?:guten )?film empfehlen|empfiehl mir einen film|filmempfehlungen?|"
-              r"was soll ich (?:heute )?(?:gucken|schauen|anschauen|ansehen|sehen)|welchen film soll ich (?:gucken|schauen|sehen))"),
+              r"was soll ich (?:heute )?(?:gucken|schauen|anschauen|ansehen|sehen)|welchen film soll ich (?:gucken|schauen|sehen)|"
+              r"(?:vielleicht |dann |oder )?(?:ein film|einen film)[.,]? (?:was|welchen) (?:empfiehlst du|würdest du (?:mir )?empfehlen)(?: mir)?|"
+              r"was (?:empfiehlst du|würdest du empfehlen) (?:mir )?(?:für einen film|an filmen)|welchen film empfiehlst du(?: mir)?)"),
     ("series", r"(?:(?:kannst du mir )?eine (?:gute )?serie empfehlen|empfiehl mir eine serie|serienempfehlungen?|"
                r"welche serie soll ich (?:gucken|schauen|sehen))"),
     ("music", r"(?:(?:kannst du mir )?musik empfehlen|musikempfehlungen?|was soll ich (?:hören|anhören))"),
@@ -181,7 +185,9 @@ _ADVICE_DE = re.compile(r"^(?:(?:und|also|okay|ok|hm+),? )*(?:was soll ich (?:je
                         r"was würdest du (?:an meiner stelle )?(?:tun|machen)|hast du (?:einen |ein paar )?(?:rat|tipp|tipps)"
                         r"(?: für mich)?|ich weiß nicht,? was ich (?:tun|machen) soll|was meinst du|was denkst du|"
                         r"was rätst du mir|wie gehe ich damit um|was kann ich (?:dagegen |da |jetzt |denn )?(?:tun|machen)|"
-                        r"was hilft (?:dagegen|da)|hast du (?:eine )?idee(?:,? was ich tun kann)?)$")
+                        r"was hilft (?:dagegen|da)|hast du (?:eine )?idee(?:,? was ich tun kann)?|"
+                        r"soll ich (?:was|etwas|das|es|ihm|ihr|ihnen) (?:was |etwas )?(?:sagen|ansprechen)|soll ich (?:mit )?(?:ihm|ihr|ihnen) reden|"
+                        r"soll ich (?:das|es) ansprechen|ich weiß nicht,? ob ich (?:was|etwas) sagen soll|soll ich mich beschweren)$")
 _NEG_DE = {"nervt": 2, "nervig": 2, "genervt": 2, "anstrengend": 2, "stressig": 2, "gestresst": 2, "schlimm": 2,
            "schrecklich": 3, "furchtbar": 3, "mies": 2, "blöd": 2, "doof": 2, "scheiße": 3, "beschissen": 3,
            "ätzend": 2, "langweilig": 1, "unfair": 2, "gemein": 2, "krank": 2, "kaputt": 2, "müde": 2,
