@@ -218,7 +218,9 @@ sechs Sprachen, Nationalität ja/nein; 45 Dateien, 6 Installer, SHA256SUMS gepr�
 (Lauf 37091404744, Batterien 90–94: fünfte Wissensstichprobe 40/0/0, Grenzfälle, deutsches Wissen mit Folgefragen,
 Wächter gegen falsche Baujahre, englische Verallgemeinerungsprobe; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.27](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.27)
 (Lauf 37095821620, Batterien 95–98: deutsche Alltagsprobe, Folgesätze nach einem Moment, langes Gespräch ohne
-dumme Echos, langes deutsches Gespräch ohne Rückfall-Antworten; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
+dumme Echos, langes deutsches Gespräch ohne Rückfall-Antworten; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.28](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.28)
+(Lauf 37099684304, Batterien 99–101: Filmgespräch, Training und Elternbesuch auf Englisch und Deutsch, Reise im
+Kontext, Schreibhilfe fragt nach dem Anlass, Wissens-Folgefragen; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
