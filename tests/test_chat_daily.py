@@ -3300,3 +3300,37 @@ def test_battery88_german_everyday(chat):
     st.ctx.update({"answer": "Albert Einstein", "atype": "PERSON", "mention": "Albert Einstein"})
     assert "1921" in a.turn(st, "hat er den nobelpreis bekommen?").text
     assert "1921" in a.turn(DialogState("e88en"), "did einstein win a nobel prize?").text
+
+
+def test_battery89_names_jobs_and_reminders(chat):
+    from engramm.chat.facts import facts_from_text
+    assert not any("#name" in f.relation for f in facts_from_text("remind me to call mom tomorrow", "x"))
+    assert any("#name" in f.relation for f in facts_from_text("call me tom", "x"))
+    assert not any("#job" in f.relation for f in facts_from_text("i'm a beginner", "x"))
+    assert any("#job" in f.relation for f in facts_from_text("i am a nurse", "x"))
+    a, _ = chat
+    st = DialogState("r89")
+    a.turn(st, "can you remind me to call mom tomorrow?")
+    assert "call mom tomorrow" in a.turn(st, "what do i have to do tomorrow?").text
+
+
+def test_battery89_everyday_flows(chat):
+    a, _ = chat
+    st = DialogState("g89")
+    a.turn(st, "my grandma passed away last week")
+    t = a.turn(st, "she was 91").text
+    assert "friendship" not in t and "her" in t, t
+    assert "recipe" in a.turn(st, "she made the best apple pie").text or "cooking" in a.turn(st, "she made the best apple pie").text
+    assert "nerves" in a.turn(DialogState("m89"), "a bit nervous but mostly excited").text
+    st = DialogState("p89")
+    a.turn(st, "how do i make pancakes?")
+    assert "oat milk works" in a.turn(st, "can i use oat milk?").text or "good swap" in a.turn(st, "can i use oat milk?").text
+    assert "8 to 10" in a.turn(st, "how many does that make?").text
+    st = DialogState("s89")
+    a.turn(st, "i'm learning spanish")
+    assert "gracias" in a.turn(st, "how do you say thank you?").text
+    assert "buenos días" in a.turn(st, "and good morning?").text
+    assert "Sorry" in a.turn(DialogState("u89"), "you didn't understand me earlier").text or "bad" in a.turn(DialogState("u89b"), "you didn't understand me earlier").text
+    st = DialogState("w89")
+    a.turn(st, "yeah work is just boring")
+    assert "skip meetings" in a.turn(st, "any tips to make it less boring?").text

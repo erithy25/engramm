@@ -1196,6 +1196,12 @@ work_field:
 grief_name:
   - "{x} — that's a lovely name. What was {pron} like?"
   - "{x}. I'm sure {pron} was very loved. Do you have a favourite memory?"
+grief_age_family:
+  - "{x} — what a long life. You must have so many memories of {pron}."
+  - "{x} years… that's a whole lifetime of stories. No wonder you miss {pron} so much."
+grief_memory:
+  - "That sounds like such a lovely memory. Do you have {pron} recipe, or is it something you remember by heart?"
+  - "Things like that stay with us. It sounds like {pron} love came through in {y} cooking."
 grief_age:
   - "{x} years is a long life together. You must have so many memories."
   - "{x} — that's a lot of years of friendship. No wonder it hurts so much."
@@ -1238,9 +1244,11 @@ howto:
     steps: ["Use plenty of water (about 1 litre per 100 g) and salt it well once it boils.", "Most dried pasta needs 8–12 minutes — the packet time is a good guide.", "Taste a minute before the end: it should be soft but still have a little bite (al dente).", "Keep a cup of pasta water before draining — it helps the sauce stick."]
   - keys: [[cook, rice], [make, rice], [boil, rice]]
     title: "Cooking rice"
+    yield: "One cup of uncooked rice gives about three cups cooked — enough for two to three people as a side."
     steps: ["Rinse the rice until the water runs almost clear.", "Use about 1.5 cups of water per cup of white rice (2 for brown).", "Bring to a boil, cover, turn the heat to low: 12–15 minutes (brown: 35–40).", "Let it rest covered for 5–10 minutes, then fluff with a fork."]
   - keys: [[pancake], [pancakes]]
     title: "Simple pancakes"
+    yield: "That makes about 8 to 10 small pancakes — enough for two hungry people."
     steps: ["Mix 200 g flour, 2 tsp baking powder, a pinch of salt and 1 tbsp sugar.", "Whisk in 1 egg, 300 ml milk and 2 tbsp melted butter until just smooth.", "Cook small ladlefuls in a lightly buttered pan on medium heat.", "Flip when bubbles appear on top — about 1–2 minutes per side."]
   - keys: [[puppy], [new, dog], [dog, tips], [puppy, owner]]
     title: "Tips for a new puppy"
@@ -2939,10 +2947,72 @@ b86:
     recipe:
       carbonara: "Auf römische Art, für zwei: 200 g Spaghetti, 100 g Guanciale (oder Pancetta), 2 Eier plus 1 Eigelb, 50 g geriebener Pecorino, viel schwarzer Pfeffer. Guanciale knusprig braten, Eier mit Pecorino und Pfeffer verquirlen, die Nudeln abseits vom Herd mit dem Guanciale mischen, dann die Eiermasse mit einem Schuss Nudelwasser unterrühren, bis es cremig wird. Keine Sahne."
       bolognese: "Soffritto (Zwiebel, Karotte, Sellerie) anschwitzen, Hackfleisch (Rind und etwas Schwein) dazu, ein Schuss Weißwein und Milch, etwas Tomate – und dann zwei bis drei Stunden sanft köcheln lassen."
+  phrase:
+    - "In {y}, “{z}” is “{x}”."
+    - "“{x}” — that's “{z}” in {y}."
+  phrases:
+    langs: [spanish, french, italian, german, portuguese, dutch]
+    alias: {"thanks": "thank you", "thank u": "thank you", "hi": "hello", "bye": "goodbye", "good bye": "goodbye", "sorry": "sorry", "pls": "please",
+            "good evening": "good evening", "goodnight": "good night", "how are u": "how are you", "cheers": "cheers", "i love u": "i love you",
+            "excuse me": "excuse me", "nice to meet you": "nice to meet you", "see you": "see you later", "see you later": "see you later"}
+    table:
+      thank you: {spanish: "gracias", french: "merci", italian: "grazie", german: "danke", portuguese: "obrigado (obrigada, if you're a woman)", dutch: "dank je"}
+      hello: {spanish: "hola", french: "bonjour", italian: "ciao", german: "hallo", portuguese: "olá", dutch: "hallo"}
+      good morning: {spanish: "buenos días", french: "bonjour", italian: "buongiorno", german: "guten Morgen", portuguese: "bom dia", dutch: "goedemorgen"}
+      good evening: {spanish: "buenas tardes (or buenas noches later on)", french: "bonsoir", italian: "buonasera", german: "guten Abend", portuguese: "boa noite", dutch: "goedenavond"}
+      good night: {spanish: "buenas noches", french: "bonne nuit", italian: "buonanotte", german: "gute Nacht", portuguese: "boa noite", dutch: "welterusten"}
+      goodbye: {spanish: "adiós", french: "au revoir", italian: "arrivederci", german: "tschüss (or auf Wiedersehen)", portuguese: "tchau", dutch: "doei (or tot ziens)"}
+      please: {spanish: "por favor", french: "s'il vous plaît (s'il te plaît with friends)", italian: "per favore", german: "bitte", portuguese: "por favor", dutch: "alsjeblieft"}
+      sorry: {spanish: "lo siento (or perdón)", french: "désolé", italian: "scusa (mi dispiace for something serious)", german: "Entschuldigung", portuguese: "desculpa", dutch: "sorry (or het spijt me)"}
+      how are you: {spanish: "¿cómo estás?", french: "comment ça va ?", italian: "come stai?", german: "wie geht's?", portuguese: "como está?", dutch: "hoe gaat het?"}
+      i love you: {spanish: "te quiero (or te amo)", french: "je t'aime", italian: "ti amo", german: "ich liebe dich", portuguese: "eu te amo", dutch: "ik hou van je"}
+      cheers: {spanish: "¡salud!", french: "santé !", italian: "cin cin!", german: "prost!", portuguese: "saúde!", dutch: "proost!"}
+      excuse me: {spanish: "disculpe", french: "excusez-moi", italian: "scusi", german: "Entschuldigung", portuguese: "com licença", dutch: "pardon"}
+      nice to meet you: {spanish: "encantado (encantada)", french: "enchanté(e)", italian: "piacere", german: "freut mich", portuguese: "prazer", dutch: "aangenaam"}
+      see you later: {spanish: "hasta luego", french: "à plus tard", italian: "a dopo", german: "bis später", portuguese: "até logo", dutch: "tot later"}
+      yes: {spanish: "sí", french: "oui", italian: "sì", german: "ja", portuguese: "sim", dutch: "ja"}
+      no: {spanish: "no", french: "non", italian: "no", german: "nein", portuguese: "não", dutch: "nee"}
   act_out:
     - "Some ideas for outside:\n\n• A hike or a long walk somewhere green\n• A bike ride to a place you've never been\n• A flea market or farmers' market\n• A picnic, if the weather plays along\n\nAnything there sound good?"
   act_rain:
     - "Then maybe:\n\n• A museum or an exhibition\n• Climbing gym or swimming pool\n• A café crawl with a good book\n• Or a walk in a rain jacket anyway — rain has its charm ☔\n\nWhich one tempts you?"
+  wow_number:
+    - "Right? Hard to even picture that many."
+    - "It is! Numbers like that are hard to imagine."
+  boring_work:
+    - "Ugh, boring days drag on forever. What makes it so dull — the tasks, or just too much of the same?"
+    - "That's rough — boredom can be more tiring than being busy. What's the most boring part?"
+  meetings:
+    - "Meetings all day would wear anyone down. Do they actually need you in all of them?"
+  boring_tips:
+    - "A few ideas: ask to skip meetings where you're not needed, set yourself a small goal or challenge each day, learn something new on the side (a course, a tool), and talk to your manager about a project that interests you. And if it stays boring for months, it might be a sign to look around."
+  mixed_feel:
+    - "That's the perfect mix — the nerves just mean it matters to you. You're going to do great!"
+    - "Nervous and excited is exactly how it should feel. Enjoy the next two weeks before you start!"
+  sub_ok:
+    - "Yes, {x} works fine — the result is just a tiny bit different."
+    - "Sure, {x} is a good swap here."
+  sleep_think:
+    - "Racing thoughts at night are the worst. Try writing down what's on your mind — it tells your brain it can let go until tomorrow."
+    - "That happens to so many people. Getting the thoughts out of your head and onto paper often helps — even a quick list."
+  sleep_work:
+    - "Work has a way of sneaking into the night. Jot down the one thing you're worried about and what you'll do about it tomorrow — then it's parked."
+  sleep_read:
+    - "Good idea — a paper book and dim light are perfect. Hope you drift off soon. 🌙"
+  misunderstood:
+    - "Sorry about that — I don't always get it on the first try. What did you mean? I'll give it another go."
+    - "My bad — I still misunderstand sometimes. Can you say it again, maybe a bit differently?"
+  nat_yes:
+    - "Yes — {x} was from {y}."
+  nat_no:
+    - "According to my data, {x} was from {y}."
+  demonym: {american: "United States", german: "German", british: "United Kingdom", english: "United Kingdom|England", scottish: "United Kingdom|Scotland",
+            irish: "Ireland", french: "France", italian: "Ital", spanish: "Spain", austrian: "Austria", swiss: "Switzerland", dutch: "Netherlands",
+            canadian: "Canada", russian: "Russia", japanese: "Japan", chinese: "China", indian: "India", polish: "Poland", swedish: "Sweden",
+            norwegian: "Norway", danish: "Denmark", greek: "Greece", portuguese: "Portugal", mexican: "Mexico", brazilian: "Brazil",
+            australian: "Australia", belgian: "Belgium"}
+  beginner:
+    - "Everyone starts somewhere! Ask me “how do you say … ?” anytime and I'll give you the basics."
   better:
     - "I'm really glad to hear that. 💛 I'm here whenever you want to talk."
     - "That's good to hear — really. Go easy on yourself today."

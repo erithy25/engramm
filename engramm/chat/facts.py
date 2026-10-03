@@ -86,7 +86,13 @@ _JOB_LIVING = re.compile(r"\b(?:earns?|earning|makes?|making|do|does|did|for) (?
 
 
 CONCEPT_PARENTS = {"#job": "#work", "#employer": "#work", "#home": "#place", "#origin": "#home"}
+_NOT_A_JOB = frozenset(("beginner", "newbie", "novice", "noob", "fan", "mess", "person", "owl", "bird", "perfectionist", "introvert",
+                        "extrovert", "vegetarian", "vegan", "procrastinator", "worrier", "overthinker", "pro", "expert", "natural",
+                        "rookie", "learner", "member", "regular", "night", "morning", "lightweight", "foodie", "nerd", "geek"))
 _CALL_HOME = re.compile(r"\bcalls? (?:[a-z]+ ){0,2}home\b")     # "I call Lyon home" names a home, not a name
+# "remind me to call mom tomorrow", "i have to call the bank": phoning someone, not a name
+_CALL_PHONE = re.compile(r"\b(?:to|gotta|should|will|must|can|could|'ll|need to|have to|and|then|please|didn'?t|forgot to) call\b|"
+                         r"\bcall(?:ed|ing)? (?:my|mom|mum|dad|him|her|them|back|the|a|an|you|someone|somebody|grandma|grandpa)\b")
 CATEGORIES = frozenset(("#food", "#colour", "#car", "#job", "#employer", "#home", "#birth", "#name", "#origin"))
 
 
@@ -105,7 +111,7 @@ def concepts(text: str) -> list[str]:
         low = _JOB_AT.sub(" employer ", low)
     out = [label for label, rx in CONCEPTS
            if rx.search(_JOB_LIVING.sub(" job ", low) if label == "#home" else
-                        _CALL_HOME.sub(" home ", low) if label == "#name" else low)]
+                        _CALL_PHONE.sub(" phone ", _CALL_HOME.sub(" home ", low)) if label == "#name" else low)]
     for _ in range(2):                    # parents of parents (#origin → #home → #place)
         out += [CONCEPT_PARENTS[c] for c in out if c in CONCEPT_PARENTS and CONCEPT_PARENTS[c] not in out]
     return out
@@ -639,7 +645,8 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
     last_v = max(vrange) if vrange else first_v
     np_end = last_v + 1 >= n or not ws[last_v + 1][0].isalpha() or lw[last_v + 1] in STOP or \
         lw[last_v + 1] in _NUMBER_WORDS or lw[last_v + 1] in ("currently", "now", "professionally")
-    if kind == "TEXT" and not has_category and art and subject == USER and np_end:
+    if kind == "TEXT" and not has_category and art and subject == USER and np_end and \
+            not set(lw[art[-1] + 1:]) & _NOT_A_JOB:          # "i'm a beginner", "i'm a morning person": no occupation
         before = lw[max(0, art[-1] - 3):art[-1]]
         if any(w in ("am", "was", "been", "became", "become", "becoming", "as", "remain", "remained") for w in before):
             rel += ["#job", "#work"]
@@ -651,6 +658,9 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
     if vcat and value and value[:1].isupper() and first_v > 0 and vcat not in concepts(" ".join(lw)) and \
             vcat in ("#food", "#colour", "#car", "#job"):
         vcat = None             # a capitalised name with no food/colour/car/job word around it ("I watched Inception")
+    if vcat == "#job" and value and set(value.lower().split()) & _NOT_A_JOB:
+        vcat = None                      # "i'm a beginner": not an occupation, whatever the word typer says
+        rel = [w for w in rel if w not in ("#job", "#work")]
     if vcat == "#job" and ("#fav" in rel or "#dislike" in rel or set(lw) & {"loves", "love", "likes", "like", "enjoys",
                                                                            "enjoy", "adores", "adore", "hates", "hate"}):
         vcat = None                      # "my sister loves art": a liking, not her job

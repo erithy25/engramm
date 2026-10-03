@@ -2944,6 +2944,44 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Messung: Team-Dev-Satz unverändert gegenüber Batterie 87. NQ 22/9, Suite 783 bestanden. Regressionen 32 und
   38–88 (57 Gespräche): 0 Wiederholungen. Unterschiede gegen den Stand vor Batterie 86 nur wie bei 86/87
   dokumentiert und bei Uhrzeiten.
+- **Alltags-Batterie 89 (zehn englische Mehrschritt-Gespräche: Mehrfachfragen, Ironie, Trauer, Zusage, Erinnerung,
+  Pfannkuchen, Schlaflosigkeit, Telefon-Erfinder, Spanisch lernen, Beleidigung)**. Vorher u. a.:
+
+  | Eingabe | vorher |
+  |---|---|
+  | „remind me to call mom tomorrow“ | als Name gespeichert, später „Good morning, mom tomorrow!“ |
+  | „i'm a beginner“ | „I'll remember that you work as a beginner.“ |
+  | „what do i have to do tomorrow?“ | weiß nicht, obwohl die Notiz da war |
+  | „she was 91“ nach der Oma | „that's a lot of years of friendship“ |
+  | „a bit nervous but mostly excited“ | „That's a shame.“ |
+  | „can i use oat milk?“ | „Yep, it's in there: … milk“ |
+  | „was he american?“ nach dem Telefon | dreimal dieselbe Rückfrage, welcher der vier Erfinder gemeint ist |
+  | „how do you say thank you?“ beim Spanischlernen | weiß nicht |
+
+  Neu:
+  - „call“ als Anrufen („to call mom“, „call the bank“) ist kein Name;
+  - Wörter wie beginner, fan, morning person, vegetarian sind kein Beruf;
+  - Notizen für morgen, heute Abend und diese Woche;
+  - Trauer mit Familienwort (ihr/sein Leben, Erinnerung an ihr Kochen);
+  - gemischte Gefühle;
+  - Ersatzzutaten und Portionen in Anleitungen;
+  - Schlaflosigkeit (Grübeln, Arbeit, Lesen);
+  - langweilige Arbeit mit Tipps;
+  - Staunen nach großen Zahlen;
+  - „you didn't understand me“;
+  - Grundwörter in sechs Sprachen (Spanisch, Französisch, Italienisch, Deutsch, Portugiesisch, Niederländisch);
+  - Ja/Nein-Fragen zur Nationalität aus der Faktenbank;
+  - bei mehreren Personen gilt eine deutlich bekanntere als gemeint („The best known of them is Alexander Graham
+    Bell.“, danach „he“ = Bell).
+
+  Panne beim Einbau: Eine Ersetzung mit einem Anker, der zweimal in der Datei vorkam, verdoppelte rund 5.100 Zeilen
+  von dialog.py. Bemerkt wurde das am Diff (+5.124 Zeilen). Die Datei wurde aus den Teilstücken exakt
+  wiederhergestellt (Syntax geprüft, nur die beabsichtigten 23 Zeilen geändert), bevor etwas committet wurde.
+
+  Messung: Team-Dev-Satz 2 von 128 geändert (team-0067 Telefon mit „best known“, team-0077 Jupiter). NQ 22/9,
+  Suite 785 bestanden. Regressionen 32 und 38–89 (58 Gespräche): 0 Wiederholungen. Weitere Unterschiede: Telefon-
+  Folgefragen in b56, b56d, b56de und b56f (jetzt Bell statt Rückfrage), b69 („merci“ über die neue Wortliste statt
+  das Übersetzungswerkzeug, gleicher Text), Uhrzeiten.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

@@ -707,7 +707,7 @@ _TODAY_Q = re.compile(r"^(?:so |and |ok |hey )?(?:(?:any|what are my|what'?s my|
                       r"what do i have (?:on |planned |going on )?today|what(?:'s| is) (?:on|happening) (?:for me )?today|"
                       r"do i have anything (?:on |planned )?today|anything (?:on|planned) (?:for )?today|what'?s up for today)\??$")
 _TODO_Q = re.compile(r"^(?:so |and |ok )?(?:what (?:do|did) i (?:need|have|want|wanted|have got) to do|what was i supposed to do|"
-                     r"what(?:'s| is) on my (?:list|to-?do list)|what did i ask you to remind me(?: of| about)?)(?: today| later| again)?\??$")
+                     r"what(?:'s| is) on my (?:list|to-?do list)|what did i ask you to remind me(?: of| about)?)(?: today| later| again| tomorrow| tonight| this week)?\??$")
 # "remind me to call mom at 6": no alarms here, but a note
 _REMIND = re.compile(r"^(?:can you |could you |please |pls )?remind me (?:to |that i (?:need|have) to |about )(?P<x>.{3,80})$")
 # fixed-date holidays: "what day is christmas this year?", "when is halloween"
@@ -4474,10 +4474,22 @@ class Assistant:
                 name = name[:1].upper() + name[1:]
                 return Reply(msg, "smalltalk", self._pick(st, "daily:grief_name", d["grief_name"], x=name,
                                                           pron=_PRON.get(m.group("p"), "they")), via="empathy")
+            fam = re.search(r"\b(?:my )?(?P<w>grandma|granny|nan|nana|grandmother|mom|mum|mother|aunt|sister|wife|daughter|grandpa|granddad|"
+                            r"grandfather|dad|father|uncle|brother|husband|son)\b", (le.get("text") or "").lower())
+            pron = None
+            if fam:
+                pron = "her" if fam.group("w") in ("grandma", "granny", "nan", "nana", "grandmother", "mom", "mum", "mother", "aunt",
+                                                   "sister", "wife", "daughter") else "him"
             m = _GRIEF_AGE.match(norm)
             if m:
+                if pron:                                  # "she was 91" after a grandmother: not "years of friendship"
+                    return Reply(msg, "smalltalk", self._pick(st, "daily:grief_age_family", d["grief_age_family"], x=m.group("n"), pron=pron),
+                                 via="empathy")
                 return Reply(msg, "smalltalk", self._pick(st, "daily:grief_age", d["grief_age"], x=m.group("n")),
                              via="empathy")
+            if pron and re.match(r"(?:she|he) (?:made|cooked|baked|used to make|used to bake|always made|would make|taught me|sang|told)\b", norm):
+                return Reply(msg, "smalltalk", self._pick(st, "daily:grief_memory", d["grief_memory"], pron=pron,
+                                                          y=pron if pron == "her" else "his"), via="empathy")
         if _WHAT_WAS_I.match(norm) and le and st.turn - le.get("turn", -99) <= 30 and le.get("text"):
             told = le["text"].strip().rstrip(".!")
             told = re.sub(r"\b(?:I'm|I am|im)\b", "you were", told, flags=re.I)
@@ -5067,6 +5079,9 @@ class Assistant:
             self.bot.refresh()
             todo = [re.sub(r"^I need to\s+", "", t).rstrip(".") for t in self.bot.user_texts().values()
                     if re.match(r"^I need to\s+", t)]
+            when = re.search(r"\b(tomorrow|tonight|this week)\b", norm)
+            if when and any(when.group(1) in t.lower() for t in todo):
+                todo = [t for t in todo if when.group(1) in t.lower()]   # "what do i have to do tomorrow?": tomorrow's notes
             if todo:
                 return Reply(msg, "memory", "You wanted to:\n" + "\n".join("• " + re.sub(r"\bmy\b", "your", t) for t in todo),
                              via="memory")
@@ -6456,6 +6471,79 @@ class Assistant:
                             r"(?:yeah,? |ok(?:ay)?,? )?i'?ll (?:talk to them|say something|do that)(?: tomorrow| later)?", n):
                 st.uses.pop("neigh86", None)
                 return say("neigh_plan")
+        lr = st.last_reply or ""
+        if st.last_kind == "answer" and re.search(r"\d{1,3}(?:,\d{3})+|\bmillion\b|\bbillion\b", lr) and \
+                re.fullmatch(r"(?:wow|whoa|damn|omg|oh wow|geez|jeez)?[,!. ]*(?:that'?s|thats|so) (?:a lot|so many|huge|massive|crazy|insane|a lot of people|big)", n):
+            return say("wow_number")                     # "wow that's a lot" after "14,264,798 people"
+        if re.fullmatch(r"(?:yeah,? |ugh,? |honestly,? )?(?:work|my job|my work) (?:is|has been) (?:just |so |really |super |pretty )?(?:boring|dull|so boring|mind[- ]numbing)(?: lately| these days)?", n):
+            st.uses["bore89"] = [st.turn]
+            st.last_exp = {"valence": "negative", "topic": "work", "person": False, "text": msg, "turn": st.turn}
+            return say("boring_work")
+        bo = st.uses.get("bore89")
+        if bo and st.turn - bo[-1] <= 4:
+            if re.fullmatch(r"(?:i )?(?:sit|am stuck|spend all day|spend the whole day|have) (?:in )?(?:back to back )?meetings(?: all day| the whole day| every day)?", n):
+                bo.append(st.turn)
+                return say("meetings")
+            if re.fullmatch(r"(?:any |do you have any |got any )?(?:tips|ideas|advice)(?: (?:to|on how to|for how to) make it (?:less boring|more interesting|better))?|"
+                            r"how (?:can|do) i make it (?:less boring|more interesting|better)|what (?:can|should) i do(?: about it)?", n):
+                bo.append(st.turn)
+                return say("boring_tips")
+        if re.fullmatch(r"(?:a bit |a little |kinda |kind of |slightly )?(?:nervous|anxious|scared) but (?:mostly |also |really |very |super )?(?:excited|happy|looking forward to it)|"
+                        r"(?:excited|happy) but (?:a bit |a little |also )?(?:nervous|anxious|scared)", n):
+            return say("mixed_feel")
+        le0 = st.last_exp or {}
+        if re.search(r"\b(?:can'?t|cannot|couldn'?t) sleep\b|\bstill awake\b", (le0.get("text") or "").lower()) and st.turn - le0.get("turn", -99) <= 4:
+            if re.fullmatch(r"(?:just |i'?m |i keep )?(?:thinking too much|overthinking|thinking about (?:stuff|things|everything)|my (?:mind|brain|head) (?:won'?t|wont|doesn'?t) (?:stop|shut up|switch off))", n):
+                le0["turn"] = st.turn
+                return say("sleep_think")
+            if re.fullmatch(r"(?:about |mostly |mainly )?(?:work|my job|the job)(?: mostly| stuff)?", n):
+                le0["turn"] = st.turn
+                return say("sleep_work")
+            if re.fullmatch(r"(?:maybe |ok |okay )?i'?ll (?:try )?(?:read(?:ing)?|read a bit|read a book)(?: a bit)?", n):
+                return say("sleep_read")
+        if re.fullmatch(r"(?:you )?(?:didn'?t|did not|don'?t|do not) (?:understand|get) (?:me|what i (?:said|meant|mean))(?: earlier| before| at all)?|you misunderstood(?: me)?", n):
+            return say("misunderstood")
+        lg0 = st.uses.get("lang89")
+        if lg0 and st.turn - lg0[1] <= 3 and re.fullmatch(r"(?:i'?m |i am )?(?:a (?:total |complete )?beginner|just starting|i just started|i'?m new(?: to it)?)", n):
+            return say("beginner")
+        nat = re.fullmatch(r"(?:and |so |but )?(?:was|is) (?P<p>he|she|[a-z][a-z .'-]{2,40}?) (?:an? )?(?P<d>american|german|british|english|scottish|irish|french|italian|spanish|"
+                           r"austrian|swiss|dutch|canadian|russian|japanese|chinese|indian|polish|swedish|norwegian|danish|greek|portuguese|mexican|brazilian|australian|belgian)", n)
+        if nat and self.kgqa is not None:
+            who = nat.group("p")
+            if who in ("he", "she"):
+                who = self.bot.resolve(who)
+            if who and who not in ("he", "she"):
+                try:
+                    ans = self.kgqa.answer(f"what nationality was {who}?")
+                except Exception:
+                    ans = None
+                vals_ok = [v for v in (ans.values if ans is not None else []) if v.lower() not in ("statelessness", "stateless")][:4]
+                if vals_ok:
+                    country = b["demonym"][nat.group("d")]
+                    vals = " ".join(vals_ok)
+                    where = _join_values(vals_ok)
+                    key = "nat_yes" if re.search(country, vals, re.I) else "nat_no"
+                    return Reply(msg, "answer", self._pick(st, f"daily:b86:{key}", b[key], x=ans.entity.name, y=where),
+                                 answer=where, source={"kind": "kb", "source": "dbpedia", "key": ans.entity.title}, confidence=1.0, via="kb")
+        phr = b["phrases"]
+        lang_rx = "|".join(phr["langs"])
+        lm2 = re.search(rf"\b(?:i'?m|i am|im|i'?ve been|i started|started|i want to start|i'?d like to start) (?:learning|to learn|studying|taking) (?P<l>{lang_rx})\b", n)
+        if lm2:
+            st.uses["lang89"] = [lm2.group("l"), st.turn]  # the reply comes from the hobby rules; phrases follow
+        tq = re.fullmatch(rf"(?:and |so |ok )?(?:how (?:do|would|can) (?:you|i|we) say|what(?:'s| is) (?:the word for)?|how is) [\"“']?(?P<p>[a-z' ]+?)[\"”']?"
+                          rf"(?: in (?P<l>{lang_rx}))?(?: again)?|(?:and |what about |how about )[\"“']?(?P<p2>[a-z' ]+?)[\"”']?", n)
+        lg = st.uses.get("lang89")
+        recent_lang = lg[0] if lg and st.turn - lg[1] <= 8 else None
+        lang, p_ = None, ""
+        if tq:
+            lang, p_ = tq.group("l") or recent_lang, (tq.group("p") or tq.group("p2") or "").strip()
+        elif lg and st.turn - lg[1] <= 3:
+            lang, p_ = lg[0], n                           # a bare "good morning?" right after a phrase ("and" is gone in normalising)
+        key = phr["alias"].get(p_, p_)
+        if lang and key in phr["table"] and phr["table"][key].get(lang):
+            st.uses["lang89"] = [lang, st.turn]
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b86:phrase", b["phrase"], x=phr["table"][key][lang], y=lang.capitalize(), z=key),
+                         via="everyday")
         la = st.last_action or {}
         act = ((la.get("kind") or "") == "rec:activity" and st.turn - la.get("turn", -99) <= 3) or \
             (st.uses.get("act88") and st.turn - st.uses["act88"] <= 3)
@@ -7850,6 +7938,14 @@ class Assistant:
             ing = (sb.group("a") or sb.group("b")).rstrip("s") if (sb.group("a") or sb.group("b")) != "baking powder" else "baking powder"
             if any(re.search(rf"\b{re.escape(ing)}", x, re.I) for x in steps) and ing in d["b75"]["subst"]:
                 return Reply(text, "smalltalk", d["b75"]["subst"][ing], via="everyday")
+        su = re.fullmatch(r"(?:and |so |but )?can (?:i|you|we) (?:use|take|do it with|make (?:it|them) with) (?P<x>oat milk|almond milk|soy milk|soya milk|plant milk|"
+                          r"coconut milk|rice milk|oil|olive oil|margarine|whole ?wheat flour|wholemeal flour|spelt flour|gluten[- ]free flour|honey|"
+                          r"brown sugar|maple syrup|water)(?: instead)?(?: of (?:the )?[a-z ]+)?", q)
+        if su:
+            return Reply(text, "smalltalk", self._pick(st, "daily:b86:sub_ok", d["b86"]["sub_ok"], x=su.group("x")), via="everyday")
+        if guide.get("yield") and re.fullmatch(r"(?:and |so )?(?:how many (?:does (?:that|it|this|the recipe) make|(?:pancakes|portions|servings|people)(?: does (?:that|it) make| is (?:that|it) for)?)|"
+                                               r"for how many (?:people|persons)|how many people (?:does (?:that|it) feed|is (?:that|it) for))", q):
+            return Reply(text, "smalltalk", guide["yield"], via="everyday")
         if re.search(r"\bhow long\b|\bhow many (?:minutes|hours|seconds)\b|\bhow much time\b|\bwhen (?:do|should) i (?:flip|turn|take)", q):
             timed = [s for s in steps if re.search(r"\d\s*(?:[–-]\s*\d+\s*)?(?:minutes?|mins?|seconds?|hours?)\b", s)]
             if timed:
@@ -8476,9 +8572,21 @@ class Assistant:
         work = ans.evidence.split(" — notable work: ", 1)[1] if ans.prop == "notableWork" and " — notable work: " in ans.evidence else None
         if work:                                          # "who painted the starry night?": "it" is the painting, "he" the painter
             atype = "PERSON"
-        self.bot.context.update({"answer": ans.values[0] if len(ans.values) == 1 else None, "atype": atype,
+        main = None
+        if len(ans.values) > 1 and atype == "PERSON":
+            try:                                          # "invented by Meucci, Gray, Bell and Reis": Bell is by far the best known
+                pops = [(self.kgqa.kb.db.execute("SELECT MAX(popularity) FROM entity WHERE title = ?", (v,)).fetchone()[0] or 0, v)
+                        for v in ans.values[:6]]
+                pops.sort(reverse=True)
+                if pops[0][0] > 0 and pops[0][0] >= 2 * pops[1][0]:
+                    main = pops[0][1]
+            except Exception:
+                main = None
+        if main:
+            ans.text = ans.text.rstrip() + f" The best known of them is {main}."
+        self.bot.context.update({"answer": main or (ans.values[0] if len(ans.values) == 1 else None), "atype": atype,
                                  "mention": work or ans.entity.name,
-                                 "many_people": [ans.entity.name, ans.values[:6]] if len(ans.values) > 1 and atype == "PERSON" else None})
+                                 "many_people": [ans.entity.name, ans.values[:6]] if len(ans.values) > 1 and atype == "PERSON" and not main else None})
         st.last_fact = {"evidence": ans.evidence, "source": src, "answer": value, "question": q, "sure": True}
         self.bot.context["kb_last"] = {"question": q, "names": [ans.entity.name, ans.entity.title]}
         named = ans.values[0] if len(ans.values) == 1 and not re.search(r"\d", ans.values[0]) else ans.entity.name
