@@ -3390,3 +3390,15 @@ def test_battery92_german_knowledge_follow_ups(chat):
     assert "82 Tage" in a.turn(st, "wann ist weihnachten?").text or "Tage" in a.turn(DialogState("t92b"), "wann ist weihnachten?").text
     assert "9" in a.turn(DialogState("w92"), "was ist die wurzel aus 81?").text
     assert "Milliarden" in a.turn(DialogState("e92"), "wie alt ist die erde?").text
+
+
+def test_battery93_german_generalisation_and_built_year_guard(chat):
+    from engramm.chat.dialog import _implausible
+    assert _implausible("when was Berlin Wall built?", "1989", "The Berlin Wall fell on 9 November 1989, when the border was opened.")
+    from engramm.chat.german_bridge import to_english
+    assert to_english("wann endete der zweite weltkrieg")[0] == "when did World War II end"
+    assert to_english("wer hat die sixtinische kapelle bemalt")[0] == "who painted Sistine Chapel"
+    a, _ = chat
+    assert "1961" in a.turn(DialogState("bw93"), "wann wurde die berliner mauer gebaut?").text
+    assert "Michelangelo" in a.turn(DialogState("sc93"), "who painted the sistine chapel?").text
+    assert "Acht" in a.turn(DialogState("pl93"), "wie viele planeten hat unser sonnensystem?").text

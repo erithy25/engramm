@@ -6422,6 +6422,11 @@
      ],
      "fakten": [
       {
+       "q": "(?:und )?wie viele planeten (?:hat|gibt es in) (?:unser(?:em)? |das )?sonnensystem|wie viele planeten gibt es",
+       "a": "Acht: Merkur, Venus, Erde, Mars, Jupiter, Saturn, Uranus und Neptun. Pluto gilt seit 2006 als Zwergplanet.",
+       "v": "8"
+      },
+      {
        "q": "(?:und )?(?:welcher planet ist|was ist) der rote planet|welcher planet wird (?:auch )?(?:der )?rote planet genannt|warum ist der mars rot",
        "a": "Der Mars ist der Rote Planet – seine Oberfläche ist mit eisenhaltigem Staub bedeckt, der quasi verrostet ist. Daher die rötliche Farbe.",
        "v": "Mars"
@@ -9397,6 +9402,33 @@
     "a": "About 4.54 billion years — measured from the oldest meteorites and rocks.",
     "v": "4.54 billion years",
     "de": "Etwa 4,54 Milliarden Jahre – das zeigen die ältesten Meteoriten und Gesteine."
+   },
+   {
+    "q": "(?:and |so )?when was (?:the )?berlin wall (?:built|put up|erected|constructed)|when did they build (?:the )?berlin wall",
+    "a": "The Berlin Wall went up on 13 August 1961, almost overnight, to stop people leaving East Germany — it fell on 9 November 1989.",
+    "v": "13 August 1961",
+    "de": "Die Berliner Mauer wurde am 13. August 1961 gebaut, fast über Nacht, um die Flucht aus der DDR zu stoppen – sie fiel am 9. November 1989."
+   },
+   {
+    "q": "(?:and |so )?who painted (?:the )?sistine chapel(?: ceiling)?|who painted the ceiling of (?:the )?sistine chapel",
+    "a": "Michelangelo painted the famous ceiling (1508–1512) and later the Last Judgement on the altar wall; the earlier wall frescoes are by Botticelli, Perugino, Ghirlandaio and others.",
+    "v": "Michelangelo",
+    "pre": "true",
+    "de": "Michelangelo hat die berühmte Decke (1508–1512) und später das Jüngste Gericht an der Altarwand gemalt; die älteren Wandfresken stammen von Botticelli, Perugino, Ghirlandaio und anderen."
+   },
+   {
+    "q": "(?:and |so )?who invented (?:the )?steam engine",
+    "a": "Thomas Newcomen built the first practical steam engine in 1712; James Watt made it far more efficient from 1769, which powered the Industrial Revolution.",
+    "v": "Thomas Newcomen",
+    "pre": "true",
+    "de": "Thomas Newcomen baute 1712 die erste brauchbare Dampfmaschine; James Watt machte sie ab 1769 viel effizienter – das trieb die Industrielle Revolution an."
+   },
+   {
+    "q": "(?:and |so )?where is (?:mount )?kilimanjaro|in which country is (?:mount )?kilimanjaro",
+    "a": "Mount Kilimanjaro is in north-eastern Tanzania, close to the border with Kenya — at 5,895 m it's the highest mountain in Africa.",
+    "v": "Tanzania",
+    "pre": "true",
+    "de": "Der Kilimandscharo liegt im Nordosten Tansanias, nahe der Grenze zu Kenia – mit 5.895 m ist er der höchste Berg Afrikas."
    },
    {
     "q": "(?:and |so )?where is (?:the )?zugspitze|in which country is (?:the )?zugspitze",

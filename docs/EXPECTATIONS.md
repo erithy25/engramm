@@ -3070,6 +3070,31 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 788 bestanden. Regressionen 32 und 38–92 (60 Gespräche):
   0 Wiederholungen, Unterschiede wie bei 89.
+- **Deutsche Verallgemeinerungsprobe (Batterie 93: 30 neue deutsche Einzelfragen, vorher nicht angefasst,
+  Prüfausdrücke vor dem Lauf festgelegt, `scratchpad/kq93.py`)**: erster Lauf **23 richtig, 2 falsch, 5 offen**.
+  Die Brückenverbesserungen aus Batterie 92 trugen also teilweise auch auf unbekannte Fragen. Falsch waren:
+  - „wann wurde die berliner mauer gebaut?“ → „Berlin Wall was built in 1989.“ Die Textsuche nahm das Jahr des
+    Mauerfalls; die englische Frage ohne Artikel umging die Vorsicht.
+  - „wo liegt der kilimandscharo?“ → „Kilimanjaro Region liegt in Tanzania.“ (Region statt Berg, englischer
+    Ländername).
+
+  Offen waren Sixtinische Kapelle, Planetenzahl, Marianengraben, Ende des Zweiten Weltkriegs und Dampfmaschine.
+
+  Behoben:
+  - Neuer Plausibilitäts-Wächter für „when was X built?“: Das Jahr muss nahe einem Bau-Wort stehen und darf nicht
+    bei fiel/zerstört/abgerissen stehen. Am alten Stand nachgeprüft: Er kippt nur den falschen Fall.
+  - Vokabular: Dampfmaschine, Sixtinische Kapelle, Marianengraben, Kilimandscharo, Erster/Zweiter Weltkrieg,
+    Tansania, Kenia, Buchdruck, Flugzeug, Auto.
+  - Neue Muster: „wann endete/begann X“, „wer hat X bemalt“.
+  - Geprüfte Fakten mit deutschem Text: Mauerbau 13. August 1961; Sixtinische Kapelle: Michelangelo (Decke),
+    Wandfresken von anderen; Dampfmaschine: Newcomen 1712, Watt ab 1769; Kilimandscharo in Tansania; acht
+    Planeten.
+  - Die Faktenbank nannte für die Sixtinische Kapelle nur Ghirlandaio. Jetzt gilt der geprüfte Fakt vorher.
+
+  Danach 30/0/0, und alle anderen Stichproben bleiben bei 40/0/0.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 789 bestanden. Regressionen (60 Gespräche): 0 Wiederholungen,
+  Unterschiede wie bei 89.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

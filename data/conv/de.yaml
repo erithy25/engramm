@@ -849,6 +849,7 @@ daily:
       name: ["Ich bin ENGRAMM!", "ENGRAMM – schön, dass du fragst!"]
       again_lead: ["Wie gesagt: ", "Wie vorhin schon: "]
       fakten:
+        - {q: "(?:und )?wie viele planeten (?:hat|gibt es in) (?:unser(?:em)? |das )?sonnensystem|wie viele planeten gibt es", a: "Acht: Merkur, Venus, Erde, Mars, Jupiter, Saturn, Uranus und Neptun. Pluto gilt seit 2006 als Zwergplanet.", v: "8"}
         - {q: "(?:und )?(?:welcher planet ist|was ist) der rote planet|welcher planet wird (?:auch )?(?:der )?rote planet genannt|warum ist der mars rot", a: "Der Mars ist der Rote Planet – seine Oberfläche ist mit eisenhaltigem Staub bedeckt, der quasi verrostet ist. Daher die rötliche Farbe.", v: "Mars"}
         - {q: "(?:und )?(?:was|welches) ist das größte (?:säugetier|tier)(?: der welt| der erde)?", a: "Der Blauwal – er wird bis zu 30 Meter lang und rund 150 Tonnen schwer. Er ist das größte Tier, das je gelebt hat.", v: "Blauwal"}
         - {q: "(?:und )?wie viele kontinente gibt es(?: auf der erde)?", a: "Meist zählt man sieben: Afrika, Antarktika, Asien, Australien (Ozeanien), Europa, Nordamerika und Südamerika. In manchen Ländern werden Amerika oder Europa und Asien zusammengezählt.", v: "7"}

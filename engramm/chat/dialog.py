@@ -9700,6 +9700,11 @@ def _implausible(q: str, answer: str | None, evidence: str | None, title: str = 
     fo = re.search(r"\b(?:father|mother|founder|king|queen|godfather|grandfather|inventor|pioneer) of (?:the |modern )?(?P<x>[a-z]+)", q, re.I)
     if fo and not re.search(rf"\b{re.escape(fo.group('x')[:6])}", evidence, re.I):
         return True                                   # "father of computers" ← "the father of pragmatism"
+    if re.match(r"^\s*when (?:was|were) .+ (?:built|constructed|erected|put up)\b", q, re.I) and re.search(r"\d{3,4}", answer) and \
+            (re.search(rf"\b(?:fell|fall of|demolish\w*|torn down|destroy\w*|collaps\w*|burn\w* down)\b[^.]{{0,60}}{re.escape(answer)}", evidence, re.I) or
+             not re.search(rf"\b(?:buil[td]|construct\w*|erect\w*|complet\w*|finish\w*|open\w*|put up|went up|rais\w*)\b[^.]{{0,80}}{re.escape(answer)}|"
+                           rf"{re.escape(answer)}[^.,;]{{0,40}}\b(?:buil[td]|construct\w*|erect\w*|complet\w*)", evidence, re.I)):
+        return True                                   # "Berlin Wall was built in 1989" ← the year it fell
     hm = re.match(r"^\s*how many (?P<n>[a-z]+)", q, re.I)
     if hm and re.search(rf"\b(?:the|these|those|both) {re.escape(answer)} {re.escape(hm.group('n').rstrip('s'))}", evidence, re.I):
         return True                                   # "the two countries are EU members" counts a pair, not the EU
