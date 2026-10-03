@@ -3891,3 +3891,42 @@ def test_battery111_whole_everyday_conversations(chat):
     a.turn(st, "i'm not good at public speaking")
     assert "Public" not in a.turn(st, "what's my name?").text
     assert "Sicily" not in a.turn(st, "tell me a joke then").text
+
+
+def test_battery112_more_whole_conversations(chat):
+    """Doctor and needles, a fight with a partner, a gift from hobbies, explaining a concept, sleep and coffee,
+    a new job, learning a language, a failed car inspection, a friend moving away — EN and DE."""
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"Tell me more\?|I see\.|I'll remember that|I don't know|can't check live data|work as|Erzähl ruhig mehr|"
+                      r"Erzähl gern mehr|nicht ganz verstanden|merk ich mir|deinem Freund denn", _re.I)
+    convs = [
+        ("en", [("i have a doctor's appointment tomorrow", ""), ("they want to do a blood test", "routine"), ("i hate needles", "look away")]),
+        ("en", [("i had a fight with my boyfriend", ""), ("he forgot our anniversary", "hurts"), ("he said sorry but i'm still upset", "time"),
+                ("should i forgive him?", "bigger picture")]),
+        ("en", [("my mom's birthday is next week", ""), ("i have no idea what to get her", "into"), ("she likes gardening and reading", "garden")]),
+        ("en", [("i don't understand hypothesis testing", "simple"), ("can you explain it simply?", "null hypothesis")]),
+        ("en", [("i've been having trouble sleeping", "asleep"), ("i keep waking up at 4am", "caffeine"), ("i drink coffee in the afternoon", "half-life"),
+                ("how much is too much?", "400 mg"), ("ok i'll cut back", "week")]),
+        ("en", [("i started a new job today", ""), ("it was ok, a bit overwhelming", "normal"), ("everyone was nice though", "most important")]),
+        ("en", [("i want to learn spanish", ""), ("i have about 20 minutes a day", "consistent"), ("which app is good?", "Duolingo"),
+                ("how long until i can have a conversation?", "months")]),
+        ("en", [("my car failed its inspection", ""), ("the brakes need replacing", "Brakes"), ("it's going to cost 600 euros", "second quote")]),
+        ("en", [("my friend is moving away", ""), ("she's my best friend since school", "Since school"), ("we're having a goodbye party saturday", "send-off"),
+                ("any ideas for a gift?", "photo")]),
+        ("de", [("ich hab morgen einen arzttermin", "Routine"), ("die wollen blut abnehmen", "Routine"), ("ich hasse spritzen", "schau weg")]),
+        ("de", [("ich hab mich mit meinem freund gestritten", ""), ("er hat unseren jahrestag vergessen", "weh"), ("soll ich ihm verzeihen?", "Gesamtbild")]),
+        ("de", [("meine mutter hat nächste woche geburtstag", ""), ("ich hab keine ahnung was ich ihr schenken soll", "Hobbys"), ("sie mag gärtnern und lesen", "Gartenwerkzeug")]),
+        ("de", [("ich schlaf seit wochen schlecht", "Einschlafen"), ("ich wach immer um 4 auf", "Koffein"), ("ich trink nachmittags noch kaffee", "Halbwertszeit")]),
+        ("de", [("mein auto ist durch den tüv gefallen", "bemängelt"), ("die bremsen müssen neu", "Bremsen"), ("das kostet 600 euro", "Angebot")]),
+        ("de", [("ich hab heute einen neuen job angefangen", ""), ("war ok, ein bisschen viel", "normal"), ("danke, wünsch mir glück", "Daumen")]),
+    ]
+    for i, (lang, turns) in enumerate(convs):
+        st = DialogState(f"c112-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        for msg, want in turns:
+            t = a.turn(st, msg).text
+            assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)
+    st = DialogState("c112-job")
+    a.turn(st, "we're having a goodbye party saturday")
+    assert "work as" not in a.turn(st, "what's my job?").text

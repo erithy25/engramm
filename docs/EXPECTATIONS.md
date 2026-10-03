@@ -3667,6 +3667,50 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: Dev-Satz unverändert; NQ 22/9; Suite 810 bestanden. Proben 109/110, Generisch und Held-out
   bleiben bei 0. Wiederholungen 5 von 700, Valenz 0 falsch. Test 111 hält 13 Gespräche fest.
+- **Probe 112: dritte ungesehene Gesprächsprobe** (3. Oktober 2026): 10 englische und 8 deutsche Gespräche zu
+  neuen Themen. Die Probe wurde vor jeder Anpassung einmal gemessen; gelesen wurde jede Antwort, ohne KI-Richter.
+  Themen: Arzttermin mit Blutabnahme und Spritzenangst, Streit wegen vergessenem Jahrestag, Geburtstagsgeschenk für
+  die Mutter, Statistikprüfung, Portugal-Reise, schlechter Schlaf mit Nachmittagskaffee, Abschied der besten
+  Freundin, erster Arbeitstag, Spanisch lernen, Auto durch den TÜV gefallen.
+
+  | Stand | EN schwach (gelesen) | DE schwach (gelesen) |
+  |---|---|---|
+  | erster Lauf | 27 von 63 | 23 von 42 |
+  | nach b112 | 0 von 63 | 0 von 42 |
+
+  Die Zahl im ersten Lauf ist wieder die ehrliche Übertragungsrate: Bei ganz neuen Themen war noch fast die Hälfte
+  schwach. Die Regeln aus 111 helfen bei neuen Themen kaum – jedes Alltagsthema braucht eigenes Wissen.
+
+  Gefundene Fehler (allgemein behoben):
+  - „we're having a goodbye party saturday“ wurde als Beruf gemerkt („you work as a goodbye party saturday“).
+    Feste, Mahlzeiten, Wochentage und ähnliche Wörter gelten jetzt nicht als Beruf.
+  - „should i forgive him?“ wurde als Gerätebefehl gelesen („I can't check live data“). Ratfragen mit
+    „should i / do you think i“ sind nie Gerätebefehle.
+  - „how long until i can have a conversation?“ wurde aus dem Gedächtnis beantwortet („You have about 20 minutes
+    a day.“).
+  - „it was ok, a bit overwhelming“ bekam „you must be really happy!“.
+  - „i hate needles“ wurde als Abneigung gemerkt („Noted — no needles for you“).
+  - Deutsch: „Was hat deinem Freund …“ – bei Personen steht das Possessivpronomen jetzt im Nominativ.
+  - „we're planning a trip to portugal“ → „and what food should we try?“: Das Essen-Muster kannte nur „i“.
+  - Deutsch „urlaub in portugal“ und „was sollten wir uns anschauen“ wurden nicht erkannt.
+
+  Neu (Block b112, `_daily_ctx26`, `_german_ctx112`):
+  - Spritzenangst mit Tipps.
+  - Streit in der Beziehung bis „should i forgive him?“.
+  - Geschenkideen aus Hobbys. Das gilt nur direkt nach der eigenen Rückfrage; der bestehende Geschenk-Ablauf mit
+    gemerkten Vorlieben behält Vorrang.
+  - Ein Konzept einfach erklären: eigene Kurzerklärungen für Schulthemen, sonst aus dem Wissenspaket.
+  - Schlaf, Koffein-Halbwertszeit und Menge, erster Arbeitstag, Sprache lernen (Zeit, Apps, Dauer),
+    Autoreparatur, Abschiedsgeschenk.
+  - Reise mit Monat und Dauer: „in may for a week“, „im mai für eine woche“.
+
+  Routine gegen den letzten Commit: DEV-Satz unverändert. Beim ersten Lauf verdrängte die Geschenkregel den
+  bestehenden Ablauf mit Vorlieben, Budget und Vergessen (b48); die Prüfungsregel fing „ich hab meine prüfung
+  bestanden“ ab (b95), und „wünsch mir glück“ verdrängte eine gute Antwort (b40). Alle drei sind behoben. Übrig
+  bleiben nur Verbesserungen: Grammatik in b32 und b95, die doppelte Trinkfrage in b39.
+
+  Messung: NQ 22/9; Suite 811 bestanden. Proben 109–111b, Generisch und Held-out stehen bei 0; Wiederholungen 5 von
+  700, Valenz 0 falsch. Test 112 hält 15 Gespräche fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

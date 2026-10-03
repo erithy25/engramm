@@ -239,6 +239,12 @@ def experience_de(s: str):
     m = re.search(r"\b(mein|meine|meinem|meinen|meiner) ([a-zäöüß]+)", s)
     if m and m.group(2) not in ("leben", "name", "gott"):
         topic, person = f"{_POSS_DE[m.group(1)]} {m.group(2)[:1].upper() + m.group(2)[1:]}", m.group(2) in _PEOPLE_DE
+        if person:                                        # "mit meinem freund gestritten": "Was hat dein Freund …", never "deinem Freund"
+            noun = m.group(2)
+            plural = noun in ("eltern", "kinder", "freunde", "freundinnen", "kollegen", "nachbarn", "geschwister", "großeltern", "schwiegereltern")
+            fem = noun.endswith("in") or noun in ("mutter", "mama", "schwester", "frau", "oma", "tante", "tochter", "cousine", "nichte", "familie")
+            art = "deine" if plural or fem else "dein"
+            topic = f"{art} {noun[:1].upper() + noun[1:]}"
     elif _PLACE_DE.search(s):
         topic = "die " + _PLACE_DE.search(s).group(1)[:1].upper() + _PLACE_DE.search(s).group(1)[1:]
     elif _EVENT_DE.search(s):

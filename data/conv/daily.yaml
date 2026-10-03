@@ -3093,6 +3093,7 @@ b99:
 # fish); values are typical and stated as approximate
 b101:
   month_any: ["{X} — a nice time to travel! How long are you staying?", "{X} sounds good. How long will you be there?"]
+  month_dur: ["{Y} in {X} — sounds perfect: enough time to settle in without rushing. Want tips on what to see?"]
   month_special:
     japan march: "Late March is when the cherry blossoms start — lovely timing! 🌸 How long are you staying?"
     japan april: "April is cherry blossom season — perfect timing! 🌸 Just book early, it's a busy time. How long are you staying?"
@@ -3171,6 +3172,7 @@ b101:
   de:
     trip_new: ["{X} – wie spannend! Worauf freust du dich am meisten?", "Oh, {X}! Wie schön. Warst du schon mal dort?"]
     month_any: ["{X} – eine schöne Reisezeit! Wie lange bleibst du?", "Im {X}, gute Wahl. Wie lange bist du dort?"]
+    month_dur: ["{Y} im {X} – klingt perfekt: genug Zeit, ohne zu hetzen. Soll ich dir sagen, was man sich anschauen sollte?"]
     month_special:
       japan march: "Ende März beginnt die Kirschblüte – schönes Timing! 🌸 Wie lange bleibst du?"
       japan april: "Im April ist Kirschblütenzeit – perfektes Timing! 🌸 Am besten früh buchen, es ist Hochsaison. Wie lange bleibst du?"
@@ -4046,3 +4048,159 @@ b111:
       - "Das ist eine richtig gute Idee – in einer Gruppe siehst du jede Woche dieselben Leute, und so entstehen Freundschaften. 💪"
     thought:
       - "Das denken viele – es ist aber tatsächlich {y}."
+b112:
+  doc_routine:
+    - "A check-up with a blood test is really routine — it's over in a couple of minutes, and it's good that you're getting it done."
+  needle_tips:
+    - "You're definitely not alone — lots of people feel that way. What helps: tell the nurse (they're used to it and can let you lie down), look away, breathe out slowly while they do it, and eat something beforehand. It's usually over in under a minute. 💪"
+  couple_forgot:
+    - "Ouch — that one really hurts, because it can feel like it says something about how much you matter. Does {p} know how much it upset you?"
+  couple_sorry:
+    - "That's completely fair — an apology doesn't switch the hurt off right away. It's okay to need a bit of time."
+  couple_forgive:
+    - "Honestly, it depends on the bigger picture. If it's a one-off and {p} is genuinely sorry, most people forgive — after saying calmly why it hurt so much. If it's part of a pattern of not feeling valued, that deserves a bigger conversation. How is {p} usually?"
+  gift_start:
+    - "Oh nice! Do you already have a gift in mind, or shall we brainstorm? What is {X} into?"
+  gift_ask:
+    - "Let's figure it out! What is {X} into — hobbies, things {p} always talks about, or something {p} would never buy for {d}?"
+  gift_ideas:
+    - "Nice — a few ideas:\n\n{X}\n\nA handwritten card on top always makes it personal."
+  gift_hobby:
+    gardening: ["a set of good garden tools or gloves", "a special plant or a herb-growing kit", "a voucher for a garden centre"]
+    reading: ["a new book by an author {p} loves", "a cosy reading light or a nice bookmark", "a bookshop voucher"]
+    cooking: ["a beautiful cookbook", "good olive oil or a spice set", "a cooking class together"]
+    baking: ["a baking book", "a nice set of baking tins"]
+    music: ["concert tickets", "a vinyl record of a favourite artist"]
+    running: ["running socks or a running belt", "entry to a fun run together"]
+    yoga: ["a good yoga mat", "a voucher for a yoga class"]
+    hiking: ["a good water bottle or a small backpack", "a hiking guide for the area"]
+    travel: ["a travel guide for a dream destination", "a weekend trip together"]
+    coffee: ["special coffee beans from a local roaster", "a nice mug or a milk frother"]
+    tea: ["a tea sampler set", "a pretty teapot"]
+    wine: ["a good bottle from a region {p} loves", "a wine tasting together"]
+    painting: ["quality paints and a sketchbook", "a painting workshop"]
+    art: ["museum tickets for a day out together", "a print from a local artist"]
+    knitting: ["beautiful yarn", "a knitting pattern book"]
+    photography: ["a photo book of your favourite pictures", "a photography walk or course"]
+    games: ["a new board game", "a puzzle with a beautiful motif"]
+    movies: ["cinema vouchers", "a film night box with snacks"]
+    sport: ["tickets to a match", "new sports gear"]
+    nature: ["a bird feeder", "a day trip to a nature park"]
+    fashion: ["a nice scarf", "a voucher for a favourite shop"]
+  gift_generic:
+    - "an experience together (a dinner, a concert, a day trip)"
+    - "a photo book of shared memories"
+  farewell_gift:
+    - "A few farewell ideas:\n\n• A photo book of your best moments together\n• A framed photo of the two of you\n• A set of “open when…” letters (open when you're homesick, when you need a laugh…)\n• Something from your town {p} will miss\n• A ticket to visit {d} in the new city 😊"
+  friend_long:
+    - "Since school — that's a friendship that has been through a lot. No wonder this hits hard."
+  farewell_party:
+    - "That's a lovely idea — a proper send-off. Are you organising it?"
+  concept_offer:
+    - "Let's untangle it together — want me to explain {X} in simple words?"
+  concept_lead:
+    - "Here's the short version of {X}:"
+  simple:
+    hypothesis testing: "You start with a boring default assumption (the null hypothesis), e.g. “this coin is fair”. Then you collect data and ask: if the default were true, how likely is a result this extreme? That probability is the p-value. If it's very small (usually below 0.05), you reject the default — the data speak against it. If not, you keep it (which doesn't prove it's true)."
+    p-value: "The p-value is the probability of seeing data at least this extreme if the default assumption (the null hypothesis) were true. Small p (like 0.01) = the data would be surprising under the default, so you doubt the default."
+    standard deviation: "Standard deviation says how spread out values are around the average. Small = most values close to the average; large = values scattered widely."
+    derivative: "A derivative measures how fast something changes — the slope of a curve at one point. Speed is the derivative of position over time."
+    integral: "An integral adds up infinitely many tiny pieces — for example the area under a curve, or the total distance from a changing speed."
+    photosynthesis: "Plants use sunlight to turn water and carbon dioxide into sugar (their food) and release oxygen as a by-product."
+    inflation: "Inflation means prices rise over time, so the same money buys less. With 2 % inflation, something costing 100 € costs about 102 € a year later."
+    compound interest: "Compound interest is interest on interest: you earn interest not just on what you put in, but also on the interest you've already earned — so growth speeds up over time."
+    supply and demand: "When something is scarce and many want it, the price goes up; when there's plenty and few want it, the price goes down. The price settles where supply meets demand."
+    regression: "Regression draws the best-fitting line (or curve) through data points, so you can see how one thing changes with another and make predictions."
+    correlation: "Correlation measures how strongly two things move together, from -1 (opposite) through 0 (unrelated) to +1 (in step). It doesn't prove that one causes the other."
+    confidence interval: "A confidence interval is a range that likely contains the true value. A 95 % interval means: if you repeated the study many times, about 95 % of those intervals would contain the true value."
+  sleep_start:
+    - "That's exhausting — I'm sorry. Is it falling asleep that's hard, or staying asleep?"
+  sleep_wake:
+    - "Waking at that hour and not getting back to sleep is really common with stress or caffeine. Do you drink coffee later in the day, or is something on your mind?"
+  sleep_coffee:
+    - "That could really be part of it — caffeine has a half-life of about 5–6 hours, so an afternoon coffee is still half in your system at bedtime. Try your last cup before noon or 2 pm for a week and see if it helps."
+  caffeine_amount:
+    - "For healthy adults, up to about 400 mg of caffeine a day is considered safe — roughly 3–4 cups of filter coffee. For sleep, though, the timing matters more than the amount."
+  sleep_cut:
+    - "Good plan — give it a week or two, the effect isn't instant. I hope you sleep better soon! 😴"
+  newjob_overwhelm:
+    - "Totally normal for day one — there's always far too much new information at once, and nobody expects you to remember it all yet. How were the people?"
+  newjob_nice:
+    - "That's honestly the most important part — the rest you'll learn step by step."
+  newjob_learn:
+    - "That's normal at the start. Write things down as you go, don't feel bad asking twice, and focus on the 2–3 tools you use most — in a few weeks it'll feel routine."
+  lang_time:
+    - "{X} a day is plenty if you're consistent — daily practice beats one long session a week."
+  lang_apps:
+    - "Popular choices: Duolingo (playful, great for a daily habit), Babbel (more grammar and real dialogues) and Busuu (feedback from native speakers). A beginner podcast on the way to work helps a lot too."
+  lang_howlong:
+    - "With about 20 minutes a day, most people manage simple conversations after roughly 4–6 months. Speaking early — even badly — speeds it up a lot."
+  car_brakes:
+    - "Brakes are one you really shouldn't put off — but it's also a very common repair. Did they give you a price?"
+  car_cost:
+    - "Ouch, that hurts. It can be worth getting a second quote from an independent garage — brake prices vary a lot, and some garages let you pay in instalments."
+  car_money:
+    - "That's stressful, I'm sorry. Ask them to do only the safety-critical part now (the brakes) and postpone anything optional — and a second quote can easily save you 100–200 €."
+  de:
+    doc_start:
+      - "Alles klar – hoffentlich nur was Routinemäßiges. Was steht denn an?"
+    doc_routine:
+      - "Blutabnehmen ist zum Glück richtig Routine – in ein, zwei Minuten vorbei, und gut, dass du das machen lässt."
+    needle_tips:
+      - "Da bist du echt nicht allein. Was hilft: Sag es vorher Bescheid (die kennen das und lassen dich auch liegen), schau weg, atme langsam aus, während sie stechen, und iss vorher etwas. Meist ist es in unter einer Minute vorbei. 💪"
+    couple_forgot:
+      - "Autsch – das tut richtig weh, weil es sich anfühlt, als wärst du nicht wichtig genug. Weiß {p}, wie sehr dich das getroffen hat?"
+    couple_sorry:
+      - "Völlig verständlich – eine Entschuldigung schaltet den Ärger nicht sofort ab. Es ist okay, ein bisschen Zeit zu brauchen."
+    couple_forgive:
+      - "Ehrlich gesagt kommt es aufs Gesamtbild an. Wenn es ein Ausrutscher war und es {d} wirklich leidtut, verzeihen die meisten – nachdem sie ruhig gesagt haben, warum es so wehgetan hat. Wenn du dich öfter nicht wertgeschätzt fühlst, lohnt sich ein größeres Gespräch. Wie ist {p} denn sonst so?"
+    gift_ask:
+      - "Lass uns überlegen! Was mag {X} denn – Hobbys, Dinge, von denen {p} oft erzählt, oder etwas, das {p} sich selbst nie kaufen würde?"
+    gift_ideas:
+      - "Schön – ein paar Ideen:\n\n{X}\n\nEine handgeschriebene Karte dazu macht es immer persönlich."
+    gift_hobby:
+      gärtnern: ["gutes Gartenwerkzeug oder Handschuhe", "eine besondere Pflanze oder ein Kräuter-Anzuchtset", "ein Gutschein für die Gärtnerei"]
+      garten: ["gutes Gartenwerkzeug oder Handschuhe", "eine besondere Pflanze oder ein Kräuter-Anzuchtset"]
+      lesen: ["ein neues Buch von einer Lieblingsautorin oder einem Lieblingsautor", "eine gemütliche Leselampe", "ein Buchhandlungs-Gutschein"]
+      kochen: ["ein schönes Kochbuch", "gutes Olivenöl oder ein Gewürzset", "ein Kochkurs zusammen"]
+      backen: ["ein Backbuch", "schöne Backformen"]
+      musik: ["Konzertkarten", "eine Schallplatte einer Lieblingsband"]
+      wandern: ["eine gute Trinkflasche oder ein kleiner Rucksack", "ein Wanderführer für die Gegend"]
+      reisen: ["ein Reiseführer für ein Traumziel", "ein Wochenendtrip zusammen"]
+      kaffee: ["besondere Bohnen von einer Rösterei", "eine schöne Tasse"]
+      tee: ["ein Tee-Probierset", "eine hübsche Teekanne"]
+      wein: ["eine gute Flasche aus der Lieblingsregion", "eine Weinprobe zusammen"]
+      malen: ["gute Farben und ein Skizzenbuch", "ein Malkurs"]
+      stricken: ["schöne Wolle", "ein Strickbuch"]
+      yoga: ["eine gute Yogamatte", "ein Gutschein für einen Yogakurs"]
+      sport: ["Tickets für ein Spiel", "neue Sportausrüstung"]
+      fotografieren: ["ein Fotobuch mit euren Lieblingsbildern", "ein Fotokurs"]
+    gift_generic:
+      - "ein gemeinsames Erlebnis (ein Essen, ein Konzert, ein Ausflug)"
+      - "ein Fotobuch mit gemeinsamen Erinnerungen"
+    exam_start:
+      - "Oh, wofür lernst du? Und wie fühlst du dich damit?"
+    sleep_start:
+      - "Das ist echt zermürbend – tut mir leid. Fällt dir das Einschlafen schwer, oder wachst du nachts auf?"
+    luck:
+      - "Ich drück dir ganz fest die Daumen! 🍀 Du schaffst das."
+    sleep_wake:
+      - "Um diese Uhrzeit aufzuwachen und nicht mehr einzuschlafen ist bei Stress oder Koffein echt häufig. Trinkst du später am Tag noch Kaffee, oder geht dir gerade viel durch den Kopf?"
+    sleep_coffee:
+      - "Das könnte gut ein Teil davon sein – Koffein hat eine Halbwertszeit von etwa 5–6 Stunden, ein Kaffee am Nachmittag ist beim Schlafengehen also noch zur Hälfte im Körper. Probier eine Woche lang den letzten Kaffee vor 12 oder 14 Uhr."
+    caffeine_amount:
+      - "Für gesunde Erwachsene gelten bis etwa 400 mg Koffein am Tag als unbedenklich – ungefähr 3–4 Tassen Filterkaffee. Für den Schlaf zählt aber vor allem, wann du ihn trinkst."
+    sleep_cut:
+      - "Guter Plan – gib dem Ganzen ein, zwei Wochen, das wirkt nicht sofort. Ich hoffe, du schläfst bald besser! 😴"
+    newjob_overwhelm:
+      - "Am ersten Tag völlig normal – da kommt viel zu viel Neues auf einmal, und niemand erwartet, dass du dir schon alles merkst. Wie waren die Leute?"
+    newjob_nice:
+      - "Das ist ehrlich gesagt das Wichtigste – der Rest kommt Schritt für Schritt."
+    car_start:
+      - "Ärgerlich! Was haben sie denn bemängelt?"
+    car_brakes:
+      - "Bei den Bremsen sollte man wirklich nicht warten – aber es ist auch eine sehr häufige Reparatur. Haben sie dir schon einen Preis genannt?"
+    car_cost:
+      - "Autsch, das tut weh. Ein zweites Angebot von einer freien Werkstatt lohnt sich oft – bei Bremsen schwanken die Preise stark, und manche Werkstätten bieten Ratenzahlung an."
+    car_money:
+      - "Das ist stressig, tut mir leid. Lass nur das Sicherheitsrelevante jetzt machen (die Bremsen) und schieb alles Optionale – ein zweites Angebot spart oft 100–200 €."
