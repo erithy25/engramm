@@ -4035,3 +4035,39 @@ def test_battery115_test_nerves_moving_wedding_colleague_puppy_cooking_bike(chat
     st = DialogState("c115-job")
     a.turn(st, "a colleague keeps taking credit for my work")
     assert "colleague" not in a.turn(st, "what's my job?").text
+
+
+def test_battery116_date_phone_parents_email_balcony_swim_return_babysit(chat):
+    """First date, cracked screen, ageing parents, email overload, balcony garden, swimming, returns, babysitting."""
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"Tell me more\?|I see\.|I don't know|work as|you like animals|I'll remember that\.|Erzähl ruhig mehr|Erzähl gern mehr|"
+                      r"nicht ganz verstanden|nicht nachschlagen", _re.I)
+    convs = [
+        ("en", [("i have a first date tomorrow", "first date"), ("i'm so nervous", "normal"), ("what should we talk about?", "Travel")]),
+        ("en", [("i dropped my phone and the screen cracked", "classic"), ("is it worth repairing?", "Rule of thumb"), ("it's two years old", "worth repairing")]),
+        ("en", [("my parents are getting older", "big thing"), ("they live three hours away", "Three hours"), ("how can i stay involved?", "weekly call")]),
+        ("en", [("i'm drowning in emails at work", "inbox"), ("like 200 a day", "200 a day"), ("any tricks?", "fixed times")]),
+        ("en", [("i want to start a balcony garden", "sun"), ("what's easy to grow?", "Herbs")]),
+        ("en", [("i'm 35 and i can't swim", "alone"), ("is it too late to learn?", "never too late")]),
+        ("en", [("i ordered shoes online but they don't fit", "lottery"), ("the shop wants me to pay for return shipping", "14-day"),
+                ("is that allowed?", "told you")]),
+        ("en", [("i'm babysitting my niece tonight", "How old"), ("she's 6", "lovely age"), ("what can we do together?", "fort"),
+                ("she loves animals", "animal")]),
+        ("de", [("ich hab morgen ein erstes date", "erstes Date"), ("worüber sollen wir reden?", "Reisen")]),
+        ("de", [("mir ist das handy runtergefallen und das display ist gesprungen", "Klassiker"), ("lohnt sich eine reparatur?", "Faustregel")]),
+        ("de", [("meine eltern werden älter", "großes Thema"), ("wie kann ich mich kümmern?", "Anruf")]),
+        ("de", [("ich ersticke in e-mails", "Postfach"), ("so 200 am tag", "200 am Tag"), ("hast du tricks?", "festen Zeiten")]),
+        ("de", [("ich will einen balkongarten anlegen", "Sonne"), ("was wächst leicht?", "Kräuter")]),
+        ("de", [("ich passe heute abend auf meine nichte auf", "Wie alt"), ("was können wir zusammen machen?", "Deckenhöhle"), ("sie liebt tiere", "Tier")]),
+    ]
+    for i, (lang, turns) in enumerate(convs):
+        st = DialogState(f"c116-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        for msg, want in turns:
+            t = a.turn(st, msg).text
+            assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)
+    st = DialogState("c116-like")
+    a.turn(st, "i'm babysitting my niece tonight")
+    a.turn(st, "she loves animals")
+    assert "animals" not in a.turn(st, "what do i like?").text

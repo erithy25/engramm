@@ -3817,6 +3817,34 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: NQ 22/9; Suite 814 bestanden. Gesprächsproben 111–115, Generisch und Held-out stehen bei 0. Test 115 hält
   14 Gespräche fest.
+- **Probe 116: siebte ungesehene Gesprächsprobe** (3. Oktober 2026): 8 englische und 6 deutsche Gespräche, einmal
+  vor jeder Anpassung gemessen; jede Antwort gelesen, ohne KI-Richter.
+  Themen: erstes Date, gesprungenes Display, älter werdende Eltern, E-Mail-Flut, Balkongarten, Schwimmen lernen
+  mit 35, Rücksendekosten, Babysitten der Nichte.
+
+  | Stand | EN schwach (gelesen) | DE schwach (gelesen) |
+  |---|---|---|
+  | erster Lauf | 31 von 46 | 22 von 34 |
+  | nach b116 | 0 von 46 | 0 von 34 |
+
+  Gefundene Fehler (allgemein behoben):
+  - „i'm drowning in emails at work“ wurde als Beruf „emails“ gemerkt. E-Mails, Meetings, Aufgaben u. ä. gelten
+    nicht als Beruf.
+  - „she loves animals“ (über die Nichte) wurde als Vorliebe des Nutzers gemerkt. Sätze mit „she/he/they“ und
+    „likes/loves“ sind nie Vorlieben des Nutzers. „niece“, „nephew“ und weitere Verwandte bzw. Bezugspersonen sind
+    jetzt eigene Personen („My niece loves animals.“ → Nichte).
+  - „like 200 a day“ wurde als Fakt gemerkt.
+  - Deutsche Sätze wie „ich ersticke in e-mails“ wurden als Englisch erkannt. Ein Satz, der mit „ich / wir / mein …“
+    beginnt, gilt jetzt immer als Deutsch.
+
+  Routine gegen b115 (c08a9a1): DEV-Satz unverändert. Im ersten Lauf verdrängte der neue Einstieg „gesprungenes
+  Display“ bestehende, gleich gute Antworten (b79, b94, b95; EN und DE). Er antwortet jetzt erst in der späten Stufe
+  (`_daily_ctx30(late=True)`, `_german_ctx116_late`); die Folgefragen (geht noch, lohnt sich, Alter, Angebot)
+  bleiben im Thema. Übrig bleibt b81 Zeile 42: „Oh nein – klingt, als wäre dein Handy heftig gewesen.“ wird zu
+  „Oh nein, der Klassiker! Funktioniert es wenigstens noch?“. Die alte Antwort war grammatisch schief, die neue ist besser.
+
+  Messung: NQ 22/9; Suite 815 bestanden. Gesprächsproben 111–116, Generisch und Held-out stehen bei 0. Test 116 hält
+  die Gespräche fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

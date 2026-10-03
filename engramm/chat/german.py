@@ -32,6 +32,8 @@ def is_german(text: str, spec: dict) -> bool:
     words = _WORD.findall(text.lower())
     if not words:
         return False
+    if words[0] in ("ich", "wir", "mein", "meine", "meinen", "meinem", "meiner", "mir", "mich", "kannst", "hast", "bist", "sind", "unser", "unsere") and len(words) >= 2:
+        return True                       # "ich ersticke in e-mails": no English sentence starts like this
     de, en = set(spec["detect"]["german"]), set(spec["detect"]["english"])
     ambiguous = set(spec["detect"].get("ambiguous", []))
     strict = sum(w in de and w not in ambiguous for w in words)

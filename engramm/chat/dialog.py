@@ -1009,7 +1009,7 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_mem67(st, msg, s) or self._german_ctx115(st, msg, s) or self._german_ctx114(st, msg, s) or self._german_ctx113(st, msg, s) or self._german_ctx112(st, msg, s) or self._german_ctx111(st, msg, s) or self._german_ctx104(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx116(st, msg, s) or self._german_ctx115(st, msg, s) or self._german_ctx114(st, msg, s) or self._german_ctx113(st, msg, s) or self._german_ctx112(st, msg, s) or self._german_ctx111(st, msg, s) or self._german_ctx104(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
@@ -1017,7 +1017,8 @@ class Assistant:
                 self._moment_de(st, msg, s) or \
                 self._german_ctx111_late(st, msg, s) or \
                 self._german_ctx114_late(st, msg, s) or \
-                self._german_ctx115_late(st, msg, s)
+                self._german_ctx115_late(st, msg, s) or \
+                self._german_ctx116_late(st, msg, s)
             if life is not None:
                 return life
         if u.kind == "fallback" or u.kind == "feeling":
@@ -1529,6 +1530,99 @@ class Assistant:
                 st.uses["trip_de"] = [pen, kw.get("X", sl.get("o", "").capitalize()), st.turn]
         return Reply(msg, "empathy", self._pick(st, f"de:moments:{k2}", mb[k2], **kw), via="german")
 
+    def _german_ctx116(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 116 in German: erstes Date, gesprungenes Display, älter werdende Eltern, E-Mail-Flut,
+        Balkongarten, Babysitten."""
+        b = (self.bank.daily.get("b116") or {}).get("de")
+        if not b:
+            return None
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:%-]", " ", s)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:b116:{key}", b[key], **kw), via="german")   # noqa: E731
+        c = st.uses.get("c116")
+        topic = c[0] if c and st.turn - c[1] <= 5 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c116"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        tipps = bool(re.fullmatch(r"(?:hast du )?(?:ein paar |irgendwelche )?(?:tipps|tricks|ideen|ratschläge)(?: für mich)?", q))
+        if re.search(r"\b(?:ich hab|ich habe|hab) (?:morgen|heute abend|am \w+|bald) (?:ein |mein )?erstes date\b", q):
+            keep("date")
+            return say("date_start")
+        if re.search(r"\b(?:handy|smartphone|display|bildschirm)\b.*\b(?:gesprungen|kaputt|zersplittert|gebrochen|gerissen)\b|\bhandy (?:ist )?runtergefallen\b", q) and "?" not in msg:
+            keep("phone")
+            return None                                   # an existing reply comes first; see _german_ctx116_late
+        if re.search(r"\bmeine eltern werden (?:langsam )?älter\b|\bmeine (?:mutter|mama|oma) wird (?:langsam )?älter\b|\bmein (?:vater|papa|opa) wird (?:langsam )?älter\b", q):
+            keep("parents")
+            return say("parents_start")
+        if re.search(r"\b(?:ersticke|ertrinke|versinke) in (?:e-mails|mails|emails|nachrichten)\b|\bzu viele (?:e-mails|mails|emails)\b", q):
+            keep("email")
+            return say("email_start")
+        if re.search(r"\b(?:einen )?balkongarten (?:anlegen|anfangen|machen|starten)\b|\bauf (?:meinem|dem) balkon (?:was |etwas )?(?:anbauen|pflanzen)\b", q):
+            keep("balcony")
+            return say("balcony_start")
+        if re.search(r"\b(?:ich )?pass(?:e)? (?:heute abend |heute |morgen )?auf (?:meine |meinen )?(?:nichte|neffen|cousine|cousin)\b", q):
+            keep("babysit")
+            return say("babysit_start")
+        if topic == "date":
+            if re.search(r"\b(?:nervös|aufgeregt|angst|panik)\b", q) and "?" not in msg:
+                keep("date")
+                return say("date_nervous")
+            if re.search(r"\b(?:kaffee trinken|auf einen kaffee|was trinken|essen gehen|spazieren)\b", q):
+                keep("date")
+                return say("date_coffee")
+            if re.fullmatch(r"(?:und )?worüber (?:sollen|sollten|können) (?:wir|ich) (?:reden|sprechen)|was soll ich sagen", q) or tipps:
+                keep("date")
+                return say("date_talk")
+        if topic == "phone":
+            if re.search(r"\b(?:geht noch|funktioniert noch|läuft noch)\b", q) and "?" not in msg:
+                keep("phone")
+                return say("phone_works")
+            if re.fullmatch(r"(?:und )?lohnt sich (?:eine |die )?reparatur|soll ich es reparieren lassen|soll ich ein neues kaufen", q):
+                keep("phone")
+                return say("phone_worth")
+            if re.fullmatch(r"(?:es ist |das ist )?(?:etwa |fast |ungefähr )?(?:ein|zwei|drei|vier|fünf|\d) jahre? alt", q):
+                keep("phone")
+                return say("phone_age")
+        if topic == "parents":
+            if re.search(r"\b(?:wohnen|wohnt|leben|lebt) (?:\w+ )?(?:stunden|km|kilometer) (?:weg|entfernt)\b|\bweit weg\b", q):
+                keep("parents")
+                return say("parents_distance")
+            if re.fullmatch(r"(?:und )?wie kann ich (?:mich (?:um sie )?kümmern|helfen|für sie da sein|sie unterstützen)", q) or tipps:
+                keep("parents")
+                return say("parents_tips")
+        if topic == "email":
+            if re.fullmatch(r"(?:so |etwa |ungefähr |über )?\d+ (?:am|pro) tag", q):
+                keep("email")
+                return say("email_count")
+            if re.search(r"\b(?:komm|komme) zu nichts (?:anderem )?(?:mehr)?\b|\bkeine zeit (?:mehr )?für (?:richtige|echte) arbeit\b", q):
+                keep("email")
+                return say("email_cant")
+            if tipps:
+                keep("email")
+                return say("email_tricks")
+            if re.search(r"\b(?:probier|versuch)(?:e)? ich (?:morgen|montag|nächste woche)\b", q):
+                keep("email")
+                return say("email_try")
+        if topic == "balcony":
+            if re.search(r"\b(?:sonne|schatten)\b", q) and "?" not in msg:
+                keep("balcony")
+                return say("balcony_sun")
+            if re.fullmatch(r"(?:und )?was wächst (?:da )?(?:leicht|gut)|was kann ich (?:da )?(?:anpflanzen|anbauen|pflanzen)", q) or tipps:
+                keep("balcony")
+                return say("balcony_easy")
+        if topic == "babysit":
+            if re.fullmatch(r"(?:sie|er) ist (?:erst |schon )?\d{1,2}(?: jahre alt)?", q):
+                keep("babysit")
+                return say("babysit_age")
+            if re.fullmatch(r"(?:und )?was können wir (?:zusammen |gemeinsam )?machen|was kann ich mit (?:ihr|ihm) machen", q) or tipps:
+                keep("babysit")
+                return say("babysit_ideas")
+            if re.search(r"\b(?:sie|er) (?:liebt|mag) tiere\b", q):
+                keep("babysit")
+                return say("babysit_animals")
+        return None
+
     def _german_ctx115(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """Battery 115 in German: die erste große Arbeit des Kindes, Umzug und Packen, kleine Hochzeit, Kollege
         schmückt sich mit fremden Federn, beißender Welpe, Platten am Fahrrad."""
@@ -1620,6 +1714,14 @@ class Assistant:
             if re.search(r"\b(?:probier|versuch)(?:e)?(?:'s| es| das)?\b", q):
                 keep("bike")
                 return say("bike_go")
+        return None
+
+    def _german_ctx116_late(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 116 in German, after every other flow: the first reply to a cracked phone screen."""
+        b = (self.bank.daily.get("b116") or {}).get("de")
+        c = st.uses.get("c116")
+        if b and c and c[0] == "phone" and c[1] == st.turn:
+            return Reply(msg, "smalltalk", self._pick(st, "de:b116:phone_start", b["phone_start"]), via="german")
         return None
 
     def _german_ctx115_late(self, st: DialogState, msg: str, s: str) -> Reply | None:
@@ -7102,7 +7204,7 @@ class Assistant:
                                                      r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
             # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
             return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
-        evr = self._sounds(st, msg, norm) or self._daily_ctx29(st, msg, norm) or self._daily_ctx28(st, msg, norm) or self._daily_ctx27(st, msg, norm) or self._daily_ctx26(st, msg, norm) or self._daily_ctx25(st, msg, norm) or self._daily_ctx24(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
+        evr = self._sounds(st, msg, norm) or self._daily_ctx30(st, msg, norm) or self._daily_ctx29(st, msg, norm) or self._daily_ctx28(st, msg, norm) or self._daily_ctx27(st, msg, norm) or self._daily_ctx26(st, msg, norm) or self._daily_ctx25(st, msg, norm) or self._daily_ctx24(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
             self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
@@ -7214,7 +7316,7 @@ class Assistant:
                         return Reply(msg, "answer", self._pick(st, "daily:person_likes_answer", d["person_likes_answer"],
                                                                x=name, y=_cuisine_case(lm.group(1))), via="facts")
         return self._daily_ctx25_late(st, msg, norm) or self._daily_ctx28_late(st, msg, norm) or \
-            self._daily_ctx29(st, msg, norm, late=True)   # batteries 111/114/115: only where every other flow stayed silent
+            self._daily_ctx29(st, msg, norm, late=True) or self._daily_ctx30(st, msg, norm, late=True)   # batteries 111/114/115/116: only where every other flow stayed silent
 
     def _daily_ctx2(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 43: "same lol" after "how are you?", "that's sad" about ENGRAMM itself, why someone moved,
@@ -8065,6 +8167,141 @@ class Assistant:
             st.uses["fun_fact_seen"] = list(seen | {pick})
             return shown, pick, found.source, False
         return shown, found.sentences[0], found.source, True
+
+    def _daily_ctx30(self, st: DialogState, msg: str, norm: str, late: bool = False) -> Reply | None:
+        """Battery 116: a first date, a cracked phone screen, ageing parents far away, email overload, a balcony
+        garden, learning to swim as an adult, return shipping for online orders, and babysitting a 6-year-old."""
+        b = self.bank.daily.get("b116")
+        if not b:
+            return None
+        n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", norm)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b116:{key}", b[key], **kw), via="everyday")  # noqa: E731
+        c = st.uses.get("c116")
+        topic = c[0] if c and st.turn - c[1] <= 5 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c116"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        tips = bool(re.fullmatch(r"(?:any |some |got any |do you have any )?(?:tips|advice|ideas|tricks)(?: for (?:me|that|this))?|what (?:should|can) i do", n))
+        # -- topic starts --------------------------------------------------------------------------------------
+        if re.search(r"\bi (?:have|'ve got|got) a (?:first )?date (?:tomorrow|tonight|on \w+|this weekend|later|next week)\b|\bfirst date (?:tomorrow|tonight|on \w+)\b", n) and "?" not in msg:
+            keep("date")
+            return say("date_start")
+        if re.search(r"\b(?:dropped|smashed|cracked|broke) my phone\b|\b(?:phone|screen|display) (?:is |got )?(?:cracked|smashed|shattered)\b|\bscreen cracked\b", n) and "?" not in msg:
+            if not late:
+                keep("phone")
+                return None                               # an existing cracked-screen reply comes first
+            return say("phone_start")
+        if late:
+            return None
+        if re.search(r"\bmy (?:parents|mum and dad|mom and dad|mother|father|mum|mom|dad) (?:is|are) getting (?:older|old)\b", n):
+            keep("parents")
+            return say("parents_start")
+        if re.search(r"\b(?:drowning|buried|swamped|overwhelmed) (?:in|with|by) (?:emails|e-mails|mails|messages)\b|\btoo many emails\b", n):
+            keep("email")
+            return say("email_start")
+        if re.search(r"\b(?:start|create|make|set up|plant) a (?:little |small )?balcony garden\b|\bgrow (?:things|plants|vegetables|herbs) on my balcony\b", n):
+            keep("balcony")
+            return say("balcony_start")
+        if re.search(r"\bi (?:can'?t|cannot|never learned to|never learnt to) swim\b", n):
+            keep("swim")
+            return say("swim_start")
+        if re.search(r"\b(?:ordered|bought) .{2,30} online\b.*\b(?:don'?t fit|doesn'?t fit|too small|too big|wrong size|broken)\b", n):
+            keep("return")
+            return say("return_start")
+        if re.search(r"\bi'?m babysitting (?:my )?(?P<w>niece|nephew|neighbou?r'?s kid|friend'?s (?:son|daughter|kid)|cousin)\b", n):
+            keep("babysit")
+            r = self._learn(st, [msg.strip().rstrip(".!") + "."], msg)   # still remembered, so "she loves animals" belongs to the niece
+            r.text = self._pick(st, "daily:b116:babysit_start", b["babysit_start"])
+            r.kind, r.via = "smalltalk", "everyday"
+            return r
+        # -- inside a topic ------------------------------------------------------------------------------------
+        if topic == "date":
+            if re.search(r"\b(?:nervous|anxious|scared|terrified|freaking out)\b", n) and "?" not in msg:
+                keep("date")
+                return say("date_nervous")
+            if re.search(r"\b(?:going|go|meeting|meet) (?:for|to get) (?:a )?(?:coffee|drink|drinks|dinner|lunch|a walk)\b", n):
+                keep("date")
+                return say("date_coffee")
+            if re.fullmatch(r"(?:so |and )?what (?:should|can|could) (?:we|i) talk about|(?:any )?(?:conversation )?topics|what do i say", n) or tips:
+                keep("date")
+                return say("date_talk")
+        if topic == "phone":
+            if re.search(r"\bstill works\b|\bit works\b", n) and "?" not in msg:
+                keep("phone")
+                return say("phone_works")
+            if re.fullmatch(r"(?:so |and )?is it worth (?:repairing|fixing|it)|should i (?:repair|fix) it|should i get a new one", n):
+                keep("phone")
+                return say("phone_worth")
+            if re.fullmatch(r"(?:it'?s|its|it is) (?:about |almost |nearly )?(?:one|two|three|four|five|\d) years? old", n):
+                keep("phone")
+                return say("phone_age")
+            if re.search(r"\b(?:get|ask for) a quote\b", n):
+                keep("phone")
+                return say("phone_quote")
+        if topic == "parents":
+            if re.search(r"\bi (?:worry|'m worried|am worried|keep worrying)\b", n):
+                keep("parents")
+                return say("parents_worry")
+            if re.search(r"\b(?:live|lives) (?:\w+ )?(?:hours?|km|kilometres|miles) away\b|\bfar away\b", n):
+                keep("parents")
+                return say("parents_distance")
+            if re.fullmatch(r"(?:so |and )?how (?:can|do|should) i (?:stay involved|help|support them|be there for them|take care of them)", n) or tips:
+                keep("parents")
+                return say("parents_tips")
+        if topic == "email":
+            if re.fullmatch(r"(?:like |about |around |over |maybe )?\d+ (?:a|per|every) day", n):
+                keep("email")
+                return say("email_count")
+            if re.search(r"\bcan'?t get (?:any )?(?:real |actual )?work done\b|\bno time for (?:real|actual) work\b", n):
+                keep("email")
+                st.uses["o116"] = st.turn
+                return say("email_cant")
+            if tips or (st.uses.get("o116") == st.turn - 1 and short_answer(n) == "yes"):
+                keep("email")
+                return say("email_tricks")
+            if re.search(r"\b(?:try|do) (?:that|it|this) (?:tomorrow|monday|next week|today)\b", n):
+                keep("email")
+                return say("email_try")
+        if topic == "balcony":
+            if re.search(r"\b(?:sun|sunshine|shade)\b", n) and "?" not in msg:
+                keep("balcony")
+                return say("balcony_sun")
+            if re.fullmatch(r"(?:so |and )?what(?:'s| is| would be) (?:easy|good|best) to grow|what (?:can|should) i (?:grow|plant)", n) or tips:
+                keep("balcony")
+                return say("balcony_easy")
+            if re.search(r"\bno (?:gardening )?experience\b|\bnever gardened\b|\bcomplete beginner\b", n):
+                keep("balcony")
+                return say("balcony_beginner")
+        if topic == "swim":
+            if re.search(r"\b(?:embarrassed|ashamed|awkward|stupid)\b", n) and "?" not in msg:
+                keep("swim")
+                return say("swim_embarrassed")
+            if re.fullmatch(r"(?:so |but )?is it too late(?: to learn)?|can (?:adults|you) still learn", n):
+                keep("swim")
+                return say("swim_late")
+            if re.search(r"\bbook (?:a |some )?(?:lesson|lessons|course|class)\b", n):
+                keep("swim")
+                return say("swim_book")
+        if topic == "return":
+            if re.search(r"\b(?:return (?:shipping|postage|costs)|pay for (?:the )?return)\b", n) and "?" not in msg:
+                keep("return", told=True)
+                return say("return_ship")
+            if re.fullmatch(r"(?:and |so )?is that (?:allowed|legal|ok|okay)|can they do that", n):
+                keep("return")
+                return say("return_allowed" if info.get("told") else "return_ship")
+        if topic == "babysit":
+            if re.fullmatch(r"(?:she|he)(?:'s| is) (?:only |just )?(?P<a>\d{1,2})(?: years old)?", n):
+                keep("babysit")
+                return say("babysit_age")
+            if re.fullmatch(r"(?:so |and )?what (?:can|could|should) (?:we|i) do(?: together| with (?:her|him))?|(?:any )?ideas(?: for (?:tonight|activities))?", n) or tips:
+                keep("babysit")
+                return say("babysit_ideas")
+            if re.search(r"\b(?:she|he) (?:loves|likes|is into|is crazy about) (?:animals|dogs|cats|horses|dinosaurs)\b", n):
+                keep("babysit")
+                return say("babysit_animals")
+        return None
 
     def _daily_ctx29(self, st: DialogState, msg: str, norm: str, late: bool = False) -> Reply | None:
         """Battery 115: a child's first big test, moving house and packing, planning a small wedding, a colleague

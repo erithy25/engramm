@@ -17800,6 +17800,178 @@
      "Du schaffst das! Und wenn du es einmal gemacht hast, brauchst du für einen Platten nie wieder die Werkstatt. 🚲"
     ]
    }
+  },
+  "b116": {
+   "date_start": [
+    "Ooh, exciting! A first date — how did you meet?"
+   ],
+   "date_nervous": [
+    "Totally normal — being nervous just means you care. And they're probably just as nervous as you are."
+   ],
+   "date_coffee": [
+    "Coffee is a great first date: relaxed, not too long, and easy to extend if it goes well. ☕"
+   ],
+   "date_talk": [
+    "Easy, low-pressure topics:\n\n• Travel — where they've been, where they'd love to go.\n• What they do in their free time, and what they're excited about lately.\n• Favourite food, films or series — and the “guilty pleasure” version.\n• Funny small stories (worst holiday, weirdest job).\n\nAsk open questions, really listen, and pick up on what lights them up. And it's fine to have a short pause — that's normal."
+   ],
+   "phone_start": [
+    "Oh no, the classic! Is it still working at least?"
+   ],
+   "phone_works": [
+    "At least it still works. Put a cheap screen protector over the crack so it doesn't spread or cut your finger."
+   ],
+   "phone_worth": [
+    "It depends on the phone. A screen repair usually costs 80–250 €, depending on the model. Rule of thumb: if the repair costs less than about a third of a new phone and the rest still works well, repairing is worth it. How old is it?"
+   ],
+   "phone_age": [
+    "At two years old it's usually worth repairing — the phone still has a few good years in it. Ask an independent repair shop for a quote; they're often cheaper than the manufacturer."
+   ],
+   "phone_quote": [
+    "Good plan — and ask whether they use original or third-party parts; that affects price and quality."
+   ],
+   "parents_start": [
+    "That's a big thing to think about. How are they doing at the moment?"
+   ],
+   "parents_worry": [
+    "Of course you do — that's love. Worrying from a distance is especially hard."
+   ],
+   "parents_distance": [
+    "Three hours is far enough to make spontaneous visits hard. That's a real strain."
+   ],
+   "parents_tips": [
+    "A few things that help many families:\n\n• A fixed weekly call — maybe a video call, so you see how they're doing.\n• Know their doctors, medication and important contacts, and keep a list.\n• Get to know a neighbour or friend nearby who could check in if needed.\n• Plan visits regularly, and use them to look out for small changes.\n• Talk early and openly about what they want if they need more help one day."
+   ],
+   "email_start": [
+    "Oh no, inbox overload — that's exhausting. How many are we talking about?"
+   ],
+   "email_count": [
+    "200 a day? No wonder there's no time for real work."
+   ],
+   "email_cant": [
+    "That's the classic trap — email eats the day. Want a few tricks that really help?"
+   ],
+   "email_tricks": [
+    "A few that really work:\n\n• Check email at fixed times (e.g. 9, 12, 16) instead of constantly.\n• Turn off notifications.\n• The 2-minute rule: if it takes under 2 minutes, do it now — otherwise schedule it.\n• Filters and folders for newsletters, CCs and automatic mails.\n• Block 1–2 hours a day for real work, with email closed.\n• Unsubscribe from everything you never read."
+   ],
+   "email_try": [
+    "Great — start with the fixed email times; it's the one that makes the biggest difference. Good luck! 💪"
+   ],
+   "balcony_start": [
+    "Lovely idea! How much sun does the balcony get?"
+   ],
+   "balcony_sun": [
+    "Morning sun is actually great — many plants love it, and they don't get scorched in the afternoon."
+   ],
+   "balcony_easy": [
+    "Easy winners for a morning-sun balcony:\n\n• Herbs: parsley, chives, mint, basil (basil likes a bit more sun)\n• Salad leaves and rocket — fast and forgiving\n• Strawberries in a hanging basket\n• Cherry tomatoes (a sunny corner helps)\n• Flowers: geraniums, petunias, nasturtiums (edible, too!)\n\nGood soil, pots with drainage holes and regular watering are 90 % of the job."
+   ],
+   "balcony_beginner": [
+    "Perfect — then start with 3–4 easy herbs and some salad. They grow quickly, so you see results fast and learn as you go. 🌱"
+   ],
+   "swim_start": [
+    "Honestly, lots of adults can't swim — you're far from alone."
+   ],
+   "swim_embarrassed": [
+    "Please don't be! It takes courage to want to learn as an adult."
+   ],
+   "swim_late": [
+    "It's never too late. Many pools offer adult beginner courses — usually small groups and very patient instructors. Most adults can swim a few lengths after 8–10 lessons."
+   ],
+   "swim_book": [
+    "That's a great step! Look for an “adult beginners” course — you'll be in good company. 🏊"
+   ],
+   "return_start": [
+    "Annoying! Online shoe sizes are a lottery."
+   ],
+   "return_ship": [
+    "In the EU you have a 14-day right of withdrawal for online purchases. The shop may make you pay the return shipping — but only if they told you so clearly before you bought. If they didn't, they have to cover it. Many shops pay it anyway, so check their returns page."
+   ],
+   "return_allowed": [
+    "Only if they told you clearly before you bought — otherwise they have to cover it. Worth checking their terms!"
+   ],
+   "babysit_start": [
+    "That sounds fun! How old is she?"
+   ],
+   "babysit_age": [
+    "6 is a lovely age — curious and full of energy."
+   ],
+   "babysit_ideas": [
+    "A few ideas for a 6-year-old:\n\n• Build a blanket fort and read stories inside with a torch\n• Bake simple cookies or decorate pancakes\n• Drawing, crafts or a mini treasure hunt\n• A board game like Memory or Uno\n• A dance party to her favourite songs"
+   ],
+   "babysit_animals": [
+    "Then animal ideas are perfect:\n\n• Watch a nature documentary or an animal film together\n• Make paper animal masks and play zoo\n• Animal charades: act one out, the other guesses\n• Draw her dream pet and invent its name and story\n• If it's still light: a walk to look for birds, squirrels or ducks 🐿️"
+   ],
+   "de": {
+    "date_start": [
+     "Oh, spannend! Ein erstes Date – wie habt ihr euch kennengelernt?"
+    ],
+    "date_nervous": [
+     "Ganz normal – Nervosität heißt nur, dass es dir wichtig ist. Und die andere Person ist wahrscheinlich genauso aufgeregt."
+    ],
+    "date_coffee": [
+     "Kaffee ist ein super erstes Date: locker, nicht zu lang, und wenn es gut läuft, kann man es leicht verlängern. ☕"
+    ],
+    "date_talk": [
+     "Lockere Themen, die fast immer funktionieren:\n\n• Reisen – wo die Person schon war, wo sie gern hinwill.\n• Was sie in ihrer Freizeit macht und worauf sie sich gerade freut.\n• Lieblingsessen, Filme, Serien – auch die heimlichen Favoriten.\n• Lustige kleine Geschichten (schlimmster Urlaub, seltsamster Job).\n\nOffene Fragen stellen, wirklich zuhören und auf das eingehen, wobei die Augen leuchten. Kurze Pausen sind völlig normal."
+    ],
+    "phone_start": [
+     "Oh nein, der Klassiker! Funktioniert es wenigstens noch?"
+    ],
+    "phone_works": [
+     "Immerhin geht es noch. Kleb eine günstige Schutzfolie drüber, damit der Sprung nicht weiterreißt und du dich nicht schneidest."
+    ],
+    "phone_worth": [
+     "Kommt aufs Handy an. Ein neues Display kostet meist 80–250 €, je nach Modell. Faustregel: Wenn die Reparatur weniger als etwa ein Drittel eines neuen Handys kostet und der Rest noch gut läuft, lohnt sie sich. Wie alt ist es denn?"
+    ],
+    "phone_age": [
+     "Bei zwei Jahren lohnt sich die Reparatur meistens – da ist noch einiges drin. Frag bei einem freien Reparaturshop nach einem Angebot; die sind oft günstiger als der Hersteller."
+    ],
+    "parents_start": [
+     "Das ist ein großes Thema. Wie geht es ihnen gerade?"
+    ],
+    "parents_distance": [
+     "Drei Stunden sind weit genug, dass spontane Besuche schwierig werden. Das ist echt belastend."
+    ],
+    "parents_tips": [
+     "Was vielen Familien hilft:\n\n• Ein fester wöchentlicher Anruf – gern per Video, damit du siehst, wie es ihnen geht.\n• Ärzte, Medikamente und wichtige Kontakte kennen und notieren.\n• Jemanden in der Nähe kennen (Nachbarn, Freunde), der im Notfall vorbeischauen kann.\n• Regelmäßige Besuche einplanen und dabei auf kleine Veränderungen achten.\n• Früh und offen darüber reden, was sie sich wünschen, falls sie irgendwann mehr Hilfe brauchen."
+    ],
+    "email_start": [
+     "Oh nein, Postfach-Flut – das ist echt zermürbend. Um wie viele geht es denn?"
+    ],
+    "email_count": [
+     "200 am Tag? Kein Wunder, dass für echte Arbeit keine Zeit bleibt."
+    ],
+    "email_cant": [
+     "Die klassische Falle – E-Mails fressen den Tag. Soll ich dir ein paar Tricks verraten, die wirklich helfen?"
+    ],
+    "email_tricks": [
+     "Ein paar, die wirklich funktionieren:\n\n• E-Mails zu festen Zeiten checken (z. B. 9, 12, 16 Uhr) statt ständig.\n• Benachrichtigungen ausschalten.\n• Zwei-Minuten-Regel: Was unter zwei Minuten dauert, sofort erledigen – sonst einplanen.\n• Filter und Ordner für Newsletter, CC und automatische Mails.\n• Täglich 1–2 Stunden für echte Arbeit blocken, mit geschlossenem Postfach.\n• Alles abbestellen, was du nie liest."
+    ],
+    "email_try": [
+     "Super – fang mit den festen E-Mail-Zeiten an, das bringt am meisten. Viel Erfolg! 💪"
+    ],
+    "balcony_start": [
+     "Schöne Idee! Wie viel Sonne bekommt der Balkon denn?"
+    ],
+    "balcony_sun": [
+     "Morgensonne ist sogar super – viele Pflanzen mögen das und verbrennen nicht in der Nachmittagshitze."
+    ],
+    "balcony_easy": [
+     "Leichte Kandidaten für einen Balkon mit Morgensonne:\n\n• Kräuter: Petersilie, Schnittlauch, Minze, Basilikum (mag etwas mehr Sonne)\n• Pflücksalat und Rucola – schnell und unkompliziert\n• Erdbeeren in einer Hängeampel\n• Cocktailtomaten (eine sonnige Ecke hilft)\n• Blumen: Geranien, Petunien, Kapuzinerkresse (sogar essbar!)\n\nGute Erde, Töpfe mit Abzugsloch und regelmäßiges Gießen sind 90 % der Arbeit."
+    ],
+    "babysit_start": [
+     "Das klingt schön! Wie alt ist sie denn?"
+    ],
+    "babysit_age": [
+     "6 ist ein tolles Alter – neugierig und voller Energie."
+    ],
+    "babysit_ideas": [
+     "Ein paar Ideen für eine Sechsjährige:\n\n• Eine Deckenhöhle bauen und darin mit Taschenlampe vorlesen\n• Einfache Kekse backen oder Pfannkuchen verzieren\n• Malen, Basteln oder eine kleine Schatzsuche\n• Ein Spiel wie Memory oder Uno\n• Eine Tanzparty zu ihren Lieblingsliedern"
+    ],
+    "babysit_animals": [
+     "Dann sind Tier-Ideen perfekt:\n\n• Zusammen eine Tierdoku oder einen Tierfilm schauen\n• Tiermasken aus Papier basteln und Zoo spielen\n• Tier-Pantomime: einer spielt vor, der andere rät\n• Ihr Traumhaustier malen und Name und Geschichte erfinden\n• Wenn es noch hell ist: ein Spaziergang, um Vögel, Eichhörnchen oder Enten zu entdecken 🐿️"
+    ]
+   }
   }
  }
 }

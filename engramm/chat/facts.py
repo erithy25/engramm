@@ -91,7 +91,8 @@ _NOT_A_JOB = frozenset(("beginner", "newbie", "novice", "noob", "fan", "mess", "
                         "rookie", "learner", "member", "regular", "night", "morning", "lightweight", "foodie", "nerd", "geek", "interview", "interviews", "offer", "application", "search", "hunt", "fair", "party", "parties", "barbecue", "bbq",
                         "picnic", "celebration", "wedding", "dinner", "lunch", "brunch", "meeting", "trip", "holiday", "vacation", "monday", "tuesday",
                         "wednesday", "thursday", "friday", "saturday", "sunday", "weekend", "tonight", "tomorrow", "apartment", "flat", "house",
-                        "room", "place", "home", "car", "phone", "laptop", "bike", "dog", "cat", "partner", "girlfriend", "boyfriend", "gift", "present"))
+                        "room", "place", "home", "car", "phone", "laptop", "bike", "dog", "cat", "partner", "girlfriend", "boyfriend", "gift", "present",
+                        "emails", "email", "mails", "messages", "meetings", "meeting", "paperwork", "calls", "tasks", "deadlines", "work", "stress"))
 _CALL_HOME = re.compile(r"\bcalls? (?:[a-z]+ ){0,2}home\b")     # "I call Lyon home" names a home, not a name
 # "remind me to call mom tomorrow", "i have to call the bank": phoning someone, not a name
 _CALL_PHONE = re.compile(r"\b(?:to|gotta|should|will|must|can|could|'ll|need to|have to|and|then|please|didn'?t|forgot to) call\b|"
@@ -126,10 +127,11 @@ POSSESSED = frozenset((
     "girlfriend", "boyfriend", "friend", "boss", "dog", "cat", "pet", "horse", "bird", "grandmother", "grandfather",
     "grandma", "grandpa", "uncle", "aunt", "cousin", "neighbour", "neighbor", "colleague", "baby", "child", "kid",
     "fiance", "fiancee", "roommate", "flatmate", "puppy", "pup", "doggy", "kitten", "kitty", "mommy", "daddy", "bro",
-    "sis", "hubby", "sibling", "parent", "pet",
+    "sis", "hubby", "sibling", "parent", "pet", "niece", "nephew", "granddaughter", "grandson", "stepson", "stepdaughter",
+    "stepmother", "stepfather", "godson", "goddaughter", "manager", "teacher", "landlord", "landlady", "coworker", "classmate",
     # plurals ("My children are called Mia and Leo")
     "children", "kids", "sons", "daughters", "parents", "brothers", "sisters", "siblings", "dogs", "cats", "pets",
-    "grandparents", "grandchildren", "twins"))
+    "grandparents", "grandchildren", "twins", "nieces", "nephews", "colleagues", "neighbours", "neighbors", "friends", "cousins"))
 # the same entity under another word ("my puppy" is "my dog")
 POSSESSED_CANON = {"puppy": "dog", "pup": "dog", "doggy": "dog", "kitten": "cat", "kitty": "cat", "mom": "mother",
                    "mum": "mother", "mommy": "mother", "dad": "father", "daddy": "father", "bro": "brother",
@@ -493,6 +495,10 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
     if re.search(r"\b(?:didn'?t|did not|haven'?t|have not|hasn'?t|wasn'?t|weren'?t)\b", s, re.I) and \
             not re.search(r"\b(?:never|ever)\b.*\b(?:been|lived|worked)\b", s, re.I):
         return []                        # "I didn't drink much water": what did not happen today, never a favourite
+    if re.match(r"\s*(?:she|he|they)\b", s, re.I) and re.search(r"\b(?:likes?|loves?|enjoys?|adores?|is into|are into|is crazy about)\b", s, re.I):
+        return []                        # "she loves animals" (the niece): someone else's liking, never the user's favourite
+    if re.match(r"\s*(?:like|about|around|maybe|roughly|almost)\s+\d", s, re.I):
+        return []                        # "like 200 a day": an aside with a number, no fact about the user
     ws = words(s)
     lw = [w.lower() for w in ws]
     n = len(ws)
@@ -699,6 +705,8 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
         rel += ["name", "#name"]               # "Frotam here.", "This is Frotam speaking."
     if kind == "NAME" and subject != USER and "#name" not in rel and not has_category:
         rel += ["#name"]                        # the name of your dog / brother
+    if "#job" in rel and value and set(value.lower().split()) & _NOT_A_JOB:
+        rel = [w for w in rel if w not in ("#job", "#work")]   # "i'm drowning in emails at work": emails are no job
     return extra + [Fact(subject, tuple(sorted(set(rel))), value, source, sentence.strip(), kind if kind != "TEXT"
                          else object_kind(value))]
 
