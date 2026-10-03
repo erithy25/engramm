@@ -8,7 +8,7 @@
 
 detect:
   # words that are common in German and rare in English messages
-  german: [ich, eben, hause, gekommen, ging, hab, gehabt, ewiges, ewig, gegangen, gesehen, gemacht, kuchen, garten, sauer, kinder, fanden, besten, lustig, so, du, bin, bist, ist, nicht, und, das, der, die, den, dem, ein, eine, einen, mir, mich, dir, dich,
+  german: [ich, muss, tot, fitnessstudio, eltern, laufen, knie, eben, hause, gekommen, ging, hab, gehabt, ewiges, ewig, gegangen, gesehen, gemacht, kuchen, garten, sauer, kinder, fanden, besten, lustig, so, du, bin, bist, ist, nicht, und, das, der, die, den, dem, ein, eine, einen, mir, mich, dir, dich,
            stunden, stunde, minuten, tage, wochen, monate, jahre, ungefähr, etwa, circa, knapp, halbe,
            wohne, lebe, arbeite, heiße, hasse, schwester, bruder, mutter, vater, meinte, merk, vergiss, verschoben, termin,
            sprache, sprachen, spricht, sprechen, welche, welcher, welches, fiel, tief, beine, mensch, mond, erfunden,

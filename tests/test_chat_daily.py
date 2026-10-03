@@ -3534,3 +3534,46 @@ def test_battery99_film_training_family_flows(chat):
     a.turn(st, "oppenheimer")
     assert "patience" in a.turn(st, "honestly it was too long").text
     assert "people love it" not in a.turn(st, "did you see it?").text
+
+
+def test_battery100_german_film_training_family(chat):
+    a, _ = chat
+    st = DialogState("g100")
+    a.turn(st, "ich komm grad vom fitnessstudio")
+    assert "Beintag" in a.turn(st, "beine").text
+    t = a.turn(st, "meine beine sind tot").text
+    assert "erzählen" not in t and "dehnen" in t, t
+    assert "welchen" in a.turn(st, "dann hab ich einen film geschaut").text
+    r = a.turn(st, "dune 2")
+    assert r.via == "german" and "Villeneuve" in r.text, r.text
+    a.turn(st, "war mega gut")
+    t = a.turn(st, "hast du den gesehen?").text
+    assert "The Den" not in t and "ich lese nur" in t, t
+    assert "Filmmusik" in a.turn(st, "die musik war krass").text
+    assert "Blade Runner 2049" in a.turn(st, "was soll ich als nächstes schauen?").text
+    assert "Arrival" in a.turn(st, "so was wie interstellar").text
+    t = a.turn(st, "ich muss los").text.lower()
+    assert "bis bald" in t or "bis zum nächsten mal" in t, t
+    assert "Morgen!" in a.turn(DialogState("m100"), "morgen").text
+    st = DialogState("e100")
+    assert "Stress" in a.turn(st, "meine eltern kommen am wochenende zu besuch").text
+    assert "schön und anstrengend" in a.turn(st, "beides irgendwie").text
+    a.turn(st, "meine mutter kritisiert immer meine wohnung")
+    a.turn(st, "ja das nervt")
+    assert "anspringen" in a.turn(st, "hast du tipps?").text
+    st = DialogState("l100")
+    assert "Wie oft" in a.turn(st, "ich hab letzten monat mit dem laufen angefangen").text
+    a.turn(st, "so dreimal die woche")
+    a.turn(st, "5 km bis jetzt")
+    assert "Physio" in a.turn(st, "mein knie tut danach etwas weh").text
+    assert "Nicht unbedingt" in a.turn(st, "soll ich aufhören?").text
+    assert "Laufgeschäft" in a.turn(st, "welche schuhe empfiehlst du?").text
+    t = a.turn(st, "machst du sport?").text
+    assert "Muskeln" in t or "Training" in t, t
+    st = DialogState("s100")
+    a.turn(st, "wir haben gestern eine serie geschaut")
+    t = a.turn(st, "dark").text
+    assert "sie dir" in t or "du sie" in t, t
+    a.turn(st, "hat mir gut gefallen")
+    assert "“Dark”" not in a.turn(st, "was soll ich jetzt schauen?").text
+    assert "Kochen" not in a.turn(DialogState("b100"), "ich geh dann mal").text

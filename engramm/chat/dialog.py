@@ -1008,7 +1008,7 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_mem67(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
@@ -1283,6 +1283,125 @@ class Assistant:
             return Reply(msg, "nothing", f"Dazu habe ich nichts gespeichert, was ich vergessen könnte.", via="memory")
         return None
 
+    def _german_ctx100(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 100: battery 99 in German — a film just watched (welcher, gefallen?, "hast du den gesehen?", die
+        Musik, was als Nächstes, "so was wie Interstellar"), training follow-ups before any grief reading ("meine
+        beine sind tot"), "ich muss los", "machst du sport?" and "morgen" as a greeting."""
+        b = (self.bank.daily.get("b99") or {}).get("de")
+        if not b:
+            return None
+        en = self.bank.daily["b99"]
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", s)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:b99:{key}", b[key], **kw), via="german")   # noqa: E731
+        ef = st.uses.get("ev_follow")
+        if ef and st.turn - ef[1] <= 4:                   # a moment's own follow-up first: "meine beine sind tot" after leg day is no bereavement
+            for f in ef[0]:
+                if re.fullmatch(f["q"], q):
+                    ef[1] = st.turn
+                    return Reply(msg, "empathy", f["a"], via="german")
+        alias = {"matrix": "the matrix", "der marsianer": "the martian", "dune teil zwei": "dune part two", "dune teil 2": "dune part two"}
+        notes = {"dune part two": "dune", "dune 2": "dune", "dune": "dune1", "the matrix": "matrix", "the martian": "martian",
+                 "blade runner 2049": "br2049"}
+        small = {"of", "the", "and", "a", "an", "in", "on", "to", "part", "der", "die", "das", "und", "von"}
+
+        def film(raw: str) -> tuple[str, dict | None]:
+            key = alias.get(raw, raw)
+            f = en["films"].get(key)
+            if f:
+                return key, f
+            return raw, None
+
+        def shown_of(raw: str, f: dict | None) -> str:
+            if f:
+                return f["t"]
+            return " ".join(w if i and w in small else w[:1].upper() + w[1:] for i, w in enumerate(raw.split()))
+
+        def similar(key: str | None, shown: str, liked: bool = True, general: bool = False) -> Reply:
+            if key and key in b["similar"]:
+                body = "\n".join("• " + x for x in b["similar"][key])
+                hk = "similar_head" if liked else "similar_head_bad"
+                head = self._pick(st, f"de:b99:{hk}", b[hk], x=shown)
+                return Reply(msg, "smalltalk", f"{head}\n\n{body}\n\n{b['similar_tail']}", via="german")
+            if general:
+                self._rec_mark_seen(st, "movie", shown)
+                return self.everyday.recommend(st, msg, "movie", lang="de")
+            return None
+
+        fm = re.fullmatch(r"(?:dann |danach |gestern |gestern abend |heute abend |und dann |außerdem |also )?(?:(?:hab|habe|haben) (?:ich|wir)|(?:ich|wir) (?:hab|habe|haben)) "
+                          r"(?:gestern |gestern abend |dann |heute |noch |grad |gerade )?(?:einen|nen|'nen|eine|ne|'ne) (?:neuen |neue |richtig guten |guten |langen )?"
+                          r"(?P<k>film|serie|doku|dokumentation) (?:geschaut|gesehen|geguckt|angeschaut|angesehen)(?: im kino| auf netflix)?|"
+                          r"(?:dann |gestern |gestern abend )?(?:ich war|war ich|wir waren|waren wir) (?:gestern |heute |dann )?im kino", q)
+        if fm:
+            st.uses["movie99"] = [None, st.turn]
+            st.uses.pop("movie99_liked", None)
+            st.uses["movie99_series"] = fm.group("k") == "serie"
+            return say("which_series" if fm.group("k") in ("serie",) else "which_movie")
+        mv = st.uses.get("movie99")
+        if mv and st.turn - mv[1] <= 6:
+            if mv[0] is None and st.turn - mv[1] <= 2 and "?" not in msg:
+                tm = re.fullmatch(r"(?:der |den |es war |das war |wir haben |ich hab |ich habe )?(?:neue[n]? )?(?P<t>[a-z0-9äöüß][a-z0-9äöüß :'-]{1,40}?)(?: nochmal| geschaut| gesehen)?", q)
+                if tm and len(tm.group("t").split()) <= 6 and not re.match(r"(?:ich|wir|es|ja|nein|nö|nicht|nichts|weiß|keine|haha|lol|ok|okay|war|der film|egal)\b", tm.group("t")):
+                    key, f = film(tm.group("t").strip())
+                    shown = shown_of(key, f)
+                    st.uses["movie99"] = [shown, st.turn, f["s"] if f else None, key]
+                    if f:
+                        nk = notes.get(key, key)
+                        if nk in b["notes"]:
+                            return say("movie_known", x=shown, y=b["notes"][nk])
+                    return say("series_new" if st.uses.get("movie99_series") else "movie_new", x=shown)
+            if mv[0]:
+                if re.fullmatch(r"(?:ja,? |oh ja,? |ehrlich gesagt,? )?(?:er war |der war |war |es war |das war )?(?:mega |echt |richtig |total |sehr |voll |super |absolut |einfach )?(?:gut|toll|klasse|genial|krass|spannend|"
+                                r"schön|stark|der hammer|ein meisterwerk|großartig|fantastisch|wunderschön|episch|mega)|(?:hat mir |fand ich (?:ihn )?)(?:mega |echt |richtig |total |sehr |voll )?(?:gut gefallen|gefallen|gut|super|toll|klasse)", q):
+                    mv[1] = st.turn
+                    st.uses["movie99_liked"] = True
+                    return say("movie_good")
+                if re.fullmatch(r"(?:ehrlich gesagt,? |naja,? |hm,? )?(?:er war |der war |war |es war |das war )?(?:echt |ziemlich |total |etwas |ein bisschen |viel |leider |eher )?(?:langweilig|schlecht|enttäuschend|"
+                                r"zu lang|lahm|naja|mies|überbewertet|langatmig|zäh)|(?:hat mir )?(?:nicht|gar nicht|nicht so) gefallen", q):
+                    mv[1] = st.turn
+                    st.uses["movie99_liked"] = False
+                    return say("movie_long" if re.search(r"\b(?:zu lang|langatmig|zäh)\b", q) else "movie_bad")
+                if re.fullmatch(r"(?:und )?(?:hast du|kennst du) (?:den|ihn|die|sie|das|es)(?: film)?(?: auch| schon)?(?: gesehen| geschaut| geguckt)?", q):
+                    mv[1] = st.turn
+                    if st.uses.get("movie99_liked") is False:
+                        return say("movie_seen_bad", x=mv[0])
+                    if len(mv) > 2 and mv[2]:
+                        return say("movie_seen_known", x=mv[0])
+                    return say("movie_seen")
+                am = re.fullmatch(r"(?:und |aber |auch )?(?:die |der |das )?(?P<a>musik|filmmusik|soundtrack|sound|bilder|effekte|optik|kamera|schauspieler|cast|besetzung|story|geschichte|handlung|ende|schluss)"
+                                  r" (?:war|waren|ist|sind) (?:so |echt |richtig |total |mega |voll |einfach |absolut )?(?:krass|genial|toll|gut|stark|unglaublich|der hammer|wunderschön|beeindruckend|"
+                                  r"mega|episch|super|großartig|fantastisch|der wahnsinn|wahnsinn)", q)
+                if am:
+                    mv[1] = st.turn
+                    k = {"musik": "music", "filmmusik": "music", "soundtrack": "music", "sound": "music", "bilder": "visuals", "effekte": "visuals",
+                         "optik": "visuals", "kamera": "visuals", "schauspieler": "acting", "cast": "acting", "besetzung": "acting", "story": "story",
+                         "geschichte": "story", "handlung": "story", "ende": "ending", "schluss": "ending"}[am.group("a")]
+                    return Reply(msg, "smalltalk", b["movie_aspect"][k], via="german")
+                if re.fullmatch(r"(?:und |also |ok |okay )?was (?:soll|kann|könnte) ich (?:als nächstes|als nächstes noch|jetzt|danach|noch|dann) (?:schauen|gucken|sehen|anschauen)|"
+                                r"(?:hast du )?(?:noch )?(?:andere |ähnliche |weitere )?(?:film)?tipps|was gibt(?:'| )?s (?:noch )?(?:ähnliches|so ähnliches)", q):
+                    mv[1] = st.turn
+                    if st.uses.get("movie99_series"):
+                        self._rec_mark_seen(st, "series", mv[0])
+                        return self.everyday.recommend(st, msg, "series", lang="de")
+                    return similar(mv[2] if len(mv) > 2 else None, mv[0], st.uses.get("movie99_liked") is not False, general=True)
+        lm = re.fullmatch(r"(?:vielleicht |am liebsten |eher )?(?:so )?(?:was|etwas|irgendwas|filme|einen film) (?:wie|ähnlich wie|in richtung) (?P<t>[a-z0-9äöüß][a-z0-9äöüß :'-]{1,40})", q)
+        if lm:
+            key, f = film(lm.group("t").strip())
+            if f:
+                st.uses["movie99"] = [shown_of(key, f), st.turn, f["s"], key]
+                return similar(f["s"], f["t"])
+        if ef and st.turn - ef[1] <= 2 and re.fullmatch(r"(?:ok(?:ay)?,? |gut,? |alles klar,? |danke,? |gute idee,? )*(?:probier ich|versuch ich|mach ich)(?: mal| so| dann| aus)?|"
+                                                         r"(?:ok(?:ay)?,? |ja,? )?(?:gute idee|klingt gut|das klingt gut|das probier ich|das mach ich)(?:,? danke)?|"
+                                                         r"(?:ok(?:ay)?,? |gut,? )*ich (?:probier|probiere|versuch|versuche) (?:das|es)(?: mal| aus)?", q):
+            return say("try_that")
+        if re.fullmatch(r"(?:und )?(?:machst|treibst) du (?:auch )?(?:sport|fitness)|(?:gehst|läufst) du (?:auch )?(?:joggen|laufen|ins fitnessstudio|ins gym)|trainierst du (?:auch)?", q):
+            return say("bot_sport")
+        if re.fullmatch(r"(?:so,? |okay,? |ok,? |gut,? |also,? )?(?:ich )?(?:muss|muß) (?:jetzt |dann |leider |mal )*(?:los|weg|weiter|schluss machen)|(?:so,? |okay,? |ok,? |gut,? )?ich (?:geh|gehe|bin) (?:dann |jetzt )*(?:mal)?(?: weg| los| off)?|"
+                        r"ich mach (?:dann |jetzt )*(?:mal )?schluss", q):
+            return say("bye")
+        if q in ("morgen", "morgähn") and not st.last_reply:   # "morgen" alone as the first word is a greeting ("guten morgen" has its own)
+            return say("morning")
+        return None
+
     def _german_ctx86(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """Battery 87 in German: loud neighbours (ansprechen? morgen vielleicht) as a short flow instead of fallbacks."""
         g = self.bank.daily["b86"]["de"]
@@ -1338,7 +1457,7 @@ class Assistant:
             x = fm.group("x")
             X = x[:1].upper() + x[1:]
             return say("food_like", x=X, X=X)
-        if re.fullmatch(r"(?:okay,? |ok,? |so,? |gut,? |also,? |na dann,? )?(?:ich (?:koch|koche|geh|gehe) (?:jetzt|dann mal|dann jetzt|mal|jetzt mal)(?: kochen| los)?|"
+        if re.fullmatch(r"(?:okay,? |ok,? |so,? |gut,? |also,? |na dann,? )?(?:ich (?:koch|koche) (?:jetzt|dann mal|dann jetzt|mal|jetzt mal)(?: kochen| los)?|ich (?:geh|gehe) (?:jetzt |dann |mal )+kochen|"
                         r"ich fang (?:jetzt |dann )?(?:mal )?an (?:zu kochen)?|ich mach mich (?:jetzt |dann )?(?:mal )?ans kochen|auf in die küche)", q):
             st.uses.pop("koch70", None)
             return say("koch_jetzt")
@@ -3621,13 +3740,16 @@ class Assistant:
         if re.fullmatch(r"\?{2,}!*|\?!+|!\?+", msg):                    # "???": that was unclear
             return Reply(msg, "smalltalk", self._pick(st, "daily:puzzled", self.bank.daily["puzzled"]), via="clarify")
         de = self.bank.de
-        if de and (is_german(msg, de) or _NA_DE.fullmatch(normalise(msg).strip(" ?!."))) and \
+        if de and (is_german(msg, de) or _NA_DE.fullmatch(normalise(msg).strip(" ?!.")) or
+                   (not st.last_reply and normalise(msg).strip(" ?!.") in ("morgen", "morgähn"))) and \
                 self.bank.safety_rule(normalise(msg, fillers=False)) is None:
             return self._german(st, msg)
         if de and st.lang == "de":
             from engramm.chat.german import neutral_de, normalise_de
             if neutral_de(normalise_de(msg)) is not None or re.fullmatch(r"(?:noch )?mehr|nochmal", normalise_de(msg)) \
                     or re.fullmatch(r"(?:grazie|merci|gracias|obrigad[oa]|arigato)(?: mille| beaucoup)?[!. ]*", normalise_de(msg)) \
+                    or (st.uses.get("movie99") and st.uses["movie99"][0] is None and st.turn - st.uses["movie99"][1] <= 2 and
+                        "?" not in msg and len(msg.split()) <= 6) \
                     or (any(st.uses.get(k) and st.turn - st.uses[k][1] <= 2 for k in ("koch70",)) and
                         re.fullmatch(r"[a-zäöüß]+(?: [a-zäöüß]+){0,2}[!. ]*", normalise_de(msg))) \
                     or re.fullmatch(r"(?:hey|hi|hallo|hello|moin|servus|yo|huhu)+(?: (?:hey|hi|du|engramm))?", normalise_de(msg)) \
@@ -6550,6 +6672,13 @@ class Assistant:
         subject = re.match(r"(.+?) was (?:completed|built|finished|opened|constructed)", rep.text or "")
         return (subject.group(1) if subject else name), year_now - int(m.group(1)), int(m.group(1))
 
+    def _rec_mark_seen(self, st: DialogState, kind: str, title: str) -> None:
+        """The film or series just watched never comes back as a tip."""
+        items = self.bank.daily["recommend"][kind]["items"]
+        idx = {i for i, it in enumerate(items) if isinstance(it, dict) and f"“{title}”".lower() in it["x"].lower()}
+        if idx:
+            st.uses[f"rec_seen:{kind}"] = sorted(set(st.uses.get(f"rec_seen:{kind}", [])) | idx)
+
     def _daily_ctx24(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 99: a film just watched as a short flow — which one, did you like it, "have you seen it?", the
         music, "what else should i watch?" and "something like Interstellar" — plus "i'll try that" after advice
@@ -6568,6 +6697,7 @@ class Assistant:
                 head = self._pick(st, f"daily:b99:{hk}", b[hk], x=shown)
                 return Reply(msg, "smalltalk", f"{head}\n\n{body}\n\n{b['similar_tail']}", via="everyday")
             if general:                                   # "what else should i watch?" after a film I don't know: the usual film tips
+                self._rec_mark_seen(st, "movie", shown)
                 return self.everyday.recommend(st, msg, "movie")
             return say("similar_unknown", x=shown)
 

@@ -3261,6 +3261,29 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 796 bestanden. Regressionen: 0 Wiederholungen, keine neuen
   Unterschiede außer Datum und Uhrzeit.
+- **Alltags-Batterie 100 (Batterie 99 auf Deutsch, 36 Turns)**. Erster Lauf: 0 Wiederholungen, aber fast alles
+  generisch:
+  - „meine beine sind tot“ bekam eine Trauerantwort: „Oh nein, das tut mir so leid. Magst du mir von ihm erzählen?“;
+  - „dune 2“ wurde auf Englisch beantwortet;
+  - „hast du den gesehen?“ suchte einen Titel namens „The Den“;
+  - auf „ich muss los“ kam „Das klingt richtig gut!“;
+  - „soll ich aufhören?“, „machst du sport?“ und „was soll ich als nächstes schauen?“ landeten im Rückfall.
+
+  Neu:
+  - deutsche Ereignisse mit Folgefragen für Training, Sportanfang und Elternbesuch. Die Folgefragen werden vor
+    jeder Trauer-Lesart geprüft;
+  - ein deutsches Filmgespräch mit derselben Logik wie im Englischen: deutsche Einordnungen, deutsche Titel bei
+    den ähnlichen Filmen, „Serie“ mit „sie“ und Serientipps ohne die gerade geschaute Serie;
+  - „ich muss los / ich geh dann mal“ als Abschied, „machst du sport?“, „morgen“ als erster Gruß;
+  - „probier ich / gute idee“ nach einem Rat;
+  - ein offener Filmtitel bleibt im deutschen Gespräch auf Deutsch.
+
+  Verallgemeinerungsprobe (4 Gespräche, 31 Turns: „hab grad trainiert“, Muskelkater, Kino mit Oppenheimer
+  „zu lang“, Serie „Dark“, Schwiegermutter meckert über das Essen, Schwimmen mit Schulterschmerzen): 0
+  Wiederholungen, alle Antworten passend.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 797 bestanden. Regressionen: 0 Wiederholungen, keine neuen
+  Unterschiede außer Datum und Uhrzeit.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
