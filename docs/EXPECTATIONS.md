@@ -3226,6 +3226,41 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 795 bestanden. Regressionen: 0 Wiederholungen. Neu sind nur
   die gewollten Wortlaute in b32, b57d und b67x (neue Folge-Varianten, keine Vergangenheitsform mehr).
+- **Alltags-Batterie 99 (neue englische Probe, 3 Gespräche mit 36 Turns: Training, Film, Elternbesuch,
+  Laufanfänger mit Knieschmerzen)**. Erster Lauf: 0 Wiederholungen, aber etwa die Hälfte der Antworten generisch
+  oder falsch:
+
+  | Eingabe | vorher |
+  |---|---|
+  | „i just got back from the gym“ | „How was gym today?“ |
+  | „yeah my legs are dead“ | „Oh really? Tell me more about that.“ |
+  | „dune part two“ | „Mm-hm. What's on your mind?“ |
+  | „what else should i watch?“ | „You haven't told me that yet.“ |
+  | „something like interstellar“ | „Interstellar — nice! I'll remember that.“ |
+  | „my parents are visiting this weekend“ | „Got it — I'll remember that about your parents.“ |
+  | „my knee hurts a bit after“ | „What went wrong with your knee?“ |
+  | „should i stop?“ | „I don't know that about you yet“ |
+  | „what shoes do you recommend?“ | „I couldn't find anything reliable“ |
+
+  Neu:
+  - **Filmgespräch als Ablauf**: Titel merken, bei 11 bekannten Filmen eine kurze belegte Einordnung, Meinung
+    gut/schlecht/zu lang, „have you seen it?“ ehrlich („I can't watch films — I only read“), Aspekte (Musik,
+    Bilder, Schauspiel, Geschichte, Ende), „what else should i watch?“ mit ähnlichen Filmen (bei unbekanntem Titel
+    die üblichen Filmtipps), „something like Interstellar“ nur bei bekannten Titeln. Sonst bleibt die bestehende
+    Empfehlung zuständig, „something like harry potter“ ist durch Test 35 geschützt;
+  - **Training**: Gym/Workout → Trainingstag → Muskelkater; Sportanfang → Häufigkeit → Strecke → Schmerzen
+    (Knie, Schulter, Rücken …) mit Rat und Arztgrenze → „should i stop?“ → Laufschuhe;
+  - **Elternbesuch**: Vorfreude/Stress/beides, Kritik der Mutter, „any tips?“, Vater vor dem Fernseher;
+  - „i'll try that“ (nur direkt nach einem dieser Ratschläge; Schlaf- und Empfehlungs-Antworten behalten ihren
+    eigenen Wortlaut);
+  - „do you exercise?“.
+
+  Verallgemeinerungsprobe mit anderen Formulierungen (4 Gespräche, 31 Turns: Brust/Trizeps, Oppenheimer „too
+  long“, unbekannter Film „The Holdovers“, „anything like the matrix?“, Schwiegereltern, Schwimmen mit
+  Schulterschmerzen): 0 Wiederholungen, alle Antworten passend.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 796 bestanden. Regressionen: 0 Wiederholungen, keine neuen
+  Unterschiede außer Datum und Uhrzeit.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

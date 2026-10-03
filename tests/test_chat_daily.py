@@ -3495,3 +3495,42 @@ def test_battery98_german_long_chat(chat):
     assert "Klingt wichtig" in a.turn(st, "um das budget").text
     assert "Plan" in a.turn(DialogState("p98"), "morgen pflanze ich neu").text
     assert a.turn(DialogState("e98"), "bin eben nach hause gekommen").via == "german"
+
+
+def test_battery99_film_training_family_flows(chat):
+    a, _ = chat
+    st = DialogState("g99")
+    a.turn(st, "i just got back from the gym")
+    assert "Leg day" in a.turn(st, "leg day").text
+    assert "stretching" in a.turn(st, "yeah my legs are dead").text
+    assert "which one" in a.turn(st, "then i watched a movie").text
+    assert "Villeneuve" in a.turn(st, "dune part two").text
+    t = a.turn(st, "it was amazing").text
+    assert "like most" in t or "stood out" in t, t
+    assert "can't watch films" in a.turn(st, "have you seen it?").text
+    assert "score" in a.turn(st, "the music was incredible").text
+    assert "Blade Runner 2049" in a.turn(st, "what else should i watch?").text
+    t = a.turn(st, "something like interstellar").text
+    assert "Arrival" in t and "The Martian" in t and "enjoyed" not in t, t
+    st = DialogState("p99")
+    assert "looking forward" in a.turn(st, "my parents are visiting this weekend").text
+    assert "lovely and exhausting" in a.turn(st, "kind of both").text
+    assert "remember" not in a.turn(st, "my mom always criticizes my apartment").text
+    a.turn(st, "yeah it's annoying")
+    assert "take the bait" in a.turn(st, "any tips?").text
+    st = DialogState("r99")
+    assert "How often" in a.turn(st, "i started running last month").text
+    a.turn(st, "about 3 times a week")
+    a.turn(st, "5k so far")
+    t = a.turn(st, "my knee hurts a bit after").text
+    assert "What went wrong" not in t and "physio" in t, t
+    assert "Not necessarily" in a.turn(st, "should i stop?").text
+    assert "prepared" not in a.turn(st, "ok i'll try that").text
+    assert "running shop" in a.turn(st, "what shoes do you recommend?").text
+    t = a.turn(st, "do you exercise?").text
+    assert "muscles" in t or "body to train" in t, t
+    st = DialogState("o99")
+    a.turn(st, "last night we watched a film")
+    a.turn(st, "oppenheimer")
+    assert "patience" in a.turn(st, "honestly it was too long").text
+    assert "people love it" not in a.turn(st, "did you see it?").text

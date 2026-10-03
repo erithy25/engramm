@@ -5623,7 +5623,7 @@ class Assistant:
                                                      r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
             # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
             return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
-        evr = self._sounds(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
+        evr = self._sounds(st, msg, norm) or self._daily_ctx24(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
             self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
@@ -6549,6 +6549,96 @@ class Assistant:
             return None
         subject = re.match(r"(.+?) was (?:completed|built|finished|opened|constructed)", rep.text or "")
         return (subject.group(1) if subject else name), year_now - int(m.group(1)), int(m.group(1))
+
+    def _daily_ctx24(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 99: a film just watched as a short flow — which one, did you like it, "have you seen it?", the
+        music, "what else should i watch?" and "something like Interstellar" — plus "i'll try that" after advice
+        and "do you exercise?"."""
+        b = self.bank.daily.get("b99")
+        if not b:
+            return None
+        n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", norm)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b99:{key}", b[key], **kw), via="everyday")  # noqa: E731
+        films = b["films"]
+
+        def similar(key: str | None, shown: str, liked: bool = True, general: bool = False) -> Reply:
+            if key and key in b["similar"]:
+                body = "\n".join("• " + x for x in b["similar"][key])
+                hk = "similar_head" if liked else "similar_head_bad"
+                head = self._pick(st, f"daily:b99:{hk}", b[hk], x=shown)
+                return Reply(msg, "smalltalk", f"{head}\n\n{body}\n\n{b['similar_tail']}", via="everyday")
+            if general:                                   # "what else should i watch?" after a film I don't know: the usual film tips
+                return self.everyday.recommend(st, msg, "movie")
+            return say("similar_unknown", x=shown)
+
+        if re.fullmatch(r"(?:then |and then |after that |later |last night |yesterday |tonight |so |also )?(?:i |we )(?:just )?(?:watched|saw|finished|went to see|streamed) "
+                        r"(?:a |an |the |this |that )?(?:new |really good |good |great |great new |long )?(?:movie|film|show|series|documentary)"
+                        r"(?: last night| yesterday| tonight| today| at the cinema| in the cinema| on netflix| with (?:my )?[a-z]+)?", n):
+            st.uses["movie99"] = [None, st.turn]
+            return say("which_movie")
+        mv = st.uses.get("movie99")
+        if mv and st.turn - mv[1] <= 6:
+            if mv[0] is None and st.turn - mv[1] <= 2 and "?" not in msg:
+                tm = re.fullmatch(r"(?:it was |it's |its |we watched |i watched |the new one,? |the new )?(?P<t>[a-z0-9][a-z0-9 :'-]{1,40}?)(?: again)?", n)
+                if tm and len(tm.group("t").split()) <= 6 and not re.match(r"(?:i|we|it|yes|no|yeah|nope|not|nothing|something|a |the movie|haha|lol|ok)\b", tm.group("t")):
+                    raw = tm.group("t").strip()
+                    f = films.get(raw)
+                    small = {"of", "the", "and", "a", "an", "in", "on", "to", "part"}
+                    shown = f["t"] if f else " ".join(w if i and w in small else w[:1].upper() + w[1:] for i, w in enumerate(raw.split()))
+                    st.uses["movie99"] = [shown, st.turn, f["s"] if f else None]
+                    st.uses.pop("movie99_liked", None)
+                    if f:
+                        return say("movie_known", x=shown, y=f["n"])
+                    return say("movie_new", x=shown)
+            if mv[0]:
+                if re.fullmatch(r"(?:yeah,? |yes,? |oh,? |honestly,? )?(?:it was |it's |its |was )?(?:so |really |absolutely |just |pretty |super )?(?:amazing|great|good|awesome|incredible|fantastic|brilliant|"
+                                r"so good|epic|beautiful|wonderful|perfect|a masterpiece|insane|mind-blowing|mind blowing)(?: honestly)?|(?:i )?(?:loved|really liked|liked) it(?: a lot)?", n):
+                    mv[1] = st.turn
+                    st.uses["movie99_liked"] = True
+                    return say("movie_good")
+                if re.fullmatch(r"(?:honestly,? |meh,? )?(?:it was |it's |its |was )?(?:so |really |pretty |kind of |a bit |super )?(?:boring|bad|meh|disappointing|too long|slow|terrible|awful|not great|"
+                                r"not that good|overrated)|(?:i )?(?:didn'?t like|hated) it", n):
+                    mv[1] = st.turn
+                    st.uses["movie99_liked"] = False
+                    return say("movie_long" if re.search(r"\b(?:too long|slow)\b", n) else "movie_bad")
+                if re.fullmatch(r"(?:and )?(?:have|did) you (?:seen|see|watched|watch) (?:it|that|that one|this one|this)(?: too| yet)?", n):
+                    mv[1] = st.turn
+                    if st.uses.get("movie99_liked") is False:
+                        return say("movie_seen_bad", x=mv[0])
+                    if len(mv) > 2 and mv[2]:
+                        return say("movie_seen_known", x=mv[0])
+                    return say("movie_seen")
+                am = re.fullmatch(r"(?:and |also |but )?(?:the |its |his )?(?P<a>music|soundtrack|score|sound|visuals|effects|special effects|cinematography|pictures|images|acting|cast|actors|story|plot|ending)"
+                                  r" (?:was|were|is|are) (?:so |really |absolutely |just |pretty |super )?(?:incredible|amazing|great|good|awesome|fantastic|brilliant|beautiful|stunning|insane|"
+                                  r"epic|perfect|wild|crazy)", n)
+                if am:
+                    mv[1] = st.turn
+                    a = am.group("a")
+                    k = {"soundtrack": "music", "score": "music", "sound": "music", "effects": "visuals", "special effects": "visuals",
+                         "cinematography": "visuals", "pictures": "visuals", "images": "visuals", "cast": "acting", "actors": "acting",
+                         "plot": "story"}.get(a, a)
+                    return Reply(msg, "smalltalk", b["movie_aspect"][k], via="everyday")
+                if re.fullmatch(r"(?:so |ok |okay |and )?what (?:else )?(?:should|can|could|would) i watch(?: next| now| after that| then)?|"
+                                r"(?:any )?(?:other |similar )?(?:movie|film)s? (?:recommendations|suggestions)|(?:what else|anything else) (?:like (?:that|it)|similar)", n):
+                    mv[1] = st.turn
+                    return similar(mv[2] if len(mv) > 2 else None, mv[0], st.uses.get("movie99_liked") is not False, general=True)
+        lm = re.fullmatch(r"(?:maybe |preferably |ideally |hmm,? )?(?:something|anything|a (?:movie|film)|movies|films|stuff) (?:like|similar to) (?P<t>[a-z0-9][a-z0-9 :'-]{1,40})", n)
+        if lm:
+            raw = lm.group("t").strip()
+            f = films.get(raw)
+            if not f:                                     # "something like harry potter": the general suggestions handle it
+                return None
+            small = {"of", "the", "and", "a", "an", "in", "on", "to", "part"}
+            shown = f["t"] if f else " ".join(w if i and w in small else w[:1].upper() + w[1:] for i, w in enumerate(raw.split()))
+            st.uses["movie99"] = [shown, st.turn, f["s"] if f else None]
+            return similar(f["s"] if f else None, shown)
+        ef = st.uses.get("ev_follow")
+        if ef and st.turn - ef[1] <= 2 and re.fullmatch(r"(?:ok(?:ay)?,? |alright,? |sure,? |thanks,? |good idea,? |cool,? )*(?:i'?ll|i will) (?:try|do) (?:that|it|this|those|these)(?: then| tomorrow| next time)?|"
+                        r"(?:ok(?:ay)?,? )?(?:will do|i'?ll give it a (?:try|go|shot))", n):
+            return say("try_that")                        # right after a moment's advice ("should i stop?"); other tips keep their own reply
+        if re.fullmatch(r"(?:and |so )?(?:do|can) you (?:exercise|work out|workout|do (?:any )?sports?|go to the gym|run|go running|lift|train)(?: at all| too)?", n):
+            return say("bot_exercise")
+        return None
 
     def _daily_ctx23(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 86: learning to code as a short flow — which language, "is it hard?", "how long does it take?",
