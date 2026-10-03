@@ -130,6 +130,7 @@ def understand(text: str, spec: dict) -> Understood:
     # "hallo, wie geht es dir": the greeting and the question are one message; the question counts
     rest = re.sub(r"^(?:hallo|hi|hey|moin|servus|na|guten (?:morgen|tag|abend))\b[ ,!.]*", "", s).strip()
     # "cool, tschüss" / "ok danke, bis dann": a short reaction before the real message
+    rest = re.sub(r"^(?:haha+|hehe+|hihi|lol)[ ,!.]+(?=(?:ok(?:ay)?[ ,!.]+)?(?:danke|vielen dank|dank dir))", "", rest)   # "haha ok danke": the thanks
     rest = re.sub(r"^(?:(?:cool|super|ok|okay|alles klar|gut|prima|toll|nice|perfekt|na dann|ja|alright)\b[ ,!.]*)+(?=\S)", "", rest).strip() or rest
     for form in ([rest, s] if rest and rest != s else [s]):
         for it in spec["intents"]:

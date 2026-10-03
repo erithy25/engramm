@@ -17972,6 +17972,247 @@
      "Dann sind Tier-Ideen perfekt:\n\n• Zusammen eine Tierdoku oder einen Tierfilm schauen\n• Tiermasken aus Papier basteln und Zoo spielen\n• Tier-Pantomime: einer spielt vor, der andere rät\n• Ihr Traumhaustier malen und Name und Geschichte erfinden\n• Wenn es noch hell ist: ein Spaziergang, um Vögel, Eichhörnchen oder Enten zu entdecken 🐿️"
     ]
    }
+  },
+  "b117": {
+   "lock_start": [
+    "Oh no! Does a neighbour, friend or your landlord have a spare key? Otherwise a locksmith — ask for the price first."
+   ],
+   "bday_start": [
+    "Oops — it happens to everyone. A call today and a small belated surprise usually make up for it."
+   ],
+   "wash_start": [
+    "Oh no, the {x}! That's so annoying. Can it be fixed, or is it time for a new one?"
+   ],
+   "smoke_start": [
+    "That takes real willpower — good for you! How much do you smoke at the moment?"
+   ],
+   "lock_inside": [
+    "The classic: door shut, keys on the wrong side. Is there anyone nearby who might have a spare?"
+   ],
+   "lock_late": [
+    "At that hour a locksmith usually adds a night surcharge, so a spare key is worth trying first. Anyone you could call?"
+   ],
+   "lock_smith": [
+    "If nobody has a spare: yes. But ask for the total price on the phone before they come. At night 100–250 € is common, and dodgy services charge far more. A good locksmith can usually open a door that's just pulled shut without damaging the lock."
+   ],
+   "lock_spare": [
+    "Perfect — that saves you a lot of money and hassle! Maybe leave a spare with them for good from now on. 🔑"
+   ],
+   "hair_start": [
+    "Oh no! A bad haircut really gets to you. What went wrong?"
+   ],
+   "hair_short": [
+    "Too short is the hardest kind, because there's nothing to fix — you can only wait it out."
+   ],
+   "hair_uneven": [
+    "Uneven is annoying — but that's the good kind of bad haircut: a hairdresser can usually even it out in ten minutes. Many salons fix their own mistakes for free."
+   ],
+   "hair_event": [
+    "Of course it had to happen right before a {x}! But a fresh cut always looks harsher on day one than a few days later."
+   ],
+   "hair_okay": [
+    "Very likely, yes. A fresh cut always looks harsher on the first day — after a few days it settles. A bit of styling product helps, and if it's uneven, a quick fix at the salon sorts it out."
+   ],
+   "hair_grow": [
+    "Honestly, not much: hair grows about a centimetre a month. But in a few days it won't look so ‘fresh’ any more, and a bit of styling product plus a nice outfit work wonders. Wear it confidently — short hair looks intentional when you own it."
+   ],
+   "bday_when": [
+    "Only a day late — that's very fixable. A belated wish still shows you care."
+   ],
+   "bday_when_more": [
+    "A few days late is still very fixable — a belated wish shows you care, and the sooner the better."
+   ],
+   "bday_awful": [
+    "The guilt shows how much {who} means to you. But one forgotten birthday doesn't undo a relationship."
+   ],
+   "bday_fix": [
+    "A few ideas:\n\n• Call {pron} today — don't just text. Own it: “I'm so sorry, I completely forgot.” No excuses.\n• Plan a belated celebration: coffee, cake or dinner, your treat.\n• A small, personal gift beats an expensive one — something that shows you know {pron}.\n• Put important birthdays in your phone calendar, with a reminder a few days ahead.\n\nMost people are much more forgiving than we fear, especially when the apology is honest."
+   ],
+   "bday_ok": [
+    "Good plan — I'm sure {who} will appreciate it. Let me know how it goes! 🎂"
+   ],
+   "tooth_start": [
+    "Ouch, toothache is the worst. How long has it been hurting?"
+   ],
+   "tooth_days": [
+    "If it's been going on that long, it probably won't go away on its own — worth getting it checked soon."
+   ],
+   "tooth_cold": [
+    "Pain with cold often points to an exposed tooth neck or a small cavity. A toothpaste for sensitive teeth can help for now, but a dentist should take a look."
+   ],
+   "tooth_bite": [
+    "Pain when biting can mean a crack, a cavity or an inflamed root. It's worth getting it checked soon — chew on the other side until then."
+   ],
+   "tooth_today": [
+    "If it's bearable, an appointment in the next day or two is usually fine. Go today or to an emergency dentist if your cheek swells, you get a fever, the pain throbs constantly or painkillers don't help."
+   ],
+   "tooth_wait": [
+    "If it only hurts with cold and is bearable, waiting until then is usually okay; ibuprofen or paracetamol help in the meantime. But go to an emergency dentist straight away if your cheek swells, you get a fever, the pain throbs constantly or keeps you awake."
+   ],
+   "tooth_call": [
+    "Good call. Tell them it's been hurting for a few days — many practices keep slots free for people in pain. Get well soon! 🦷"
+   ],
+   "wash_leak": [
+    "First turn off the water tap behind it and unplug it, then put towels down. Often it's just the filter, a hose or the door seal — the filter at the bottom front is the first thing to check."
+   ],
+   "wash_age_young": [
+    "That's middle age for a {x} — they often last 10–15 years. So a repair can still be well worth it."
+   ],
+   "wash_age_old": [
+    "That's a good age for a {x} already. A repair is only worth it if it's something small and cheap."
+   ],
+   "wash_decide": [
+    "Rule of thumb: if the repair costs less than about half the price of a new machine, repair it. A technician's visit plus a small part (pump, hose, seal) is often 100–200 €; a decent new machine starts around 350–400 €. Ask for a quote first — if it's the drum bearings or the motor, a new one is usually the better deal."
+   ],
+   "wash_decide_old": [
+    "At that age I'd only repair it if it's something small like a hose, the filter or a seal. If it's the motor, the bearings or the electronics, a new machine is usually the better deal — newer ones also use much less water and power."
+   ],
+   "smoke_count": [
+    "That's a real habit — but at that level lots of people manage to quit, especially with a plan."
+   ],
+   "smoke_failed": [
+    "That's completely normal — most ex-smokers needed several attempts. Every try teaches you more about your triggers."
+   ],
+   "smoke_help": [
+    "What helps most, according to the evidence:\n\n• Pick a quit date in the next two weeks and tell people about it.\n• Nicotine replacement (patches, gum, lozenges) roughly doubles your chances — ask at a pharmacy or your doctor.\n• Know your triggers (coffee, stress, after meals, alcohol) and plan a replacement: a short walk, gum, a glass of water.\n• Get rid of cigarettes, lighters and ashtrays before the day.\n• Free quit lines and quit apps make a real difference.\n• A craving peaks for a few minutes, then passes — ride it out."
+   ],
+   "smoke_date": [
+    "Great step! Write it down and tell someone you trust. I'm rooting for you. 💪"
+   ],
+   "thesis_start": [
+    "Oh, the thesis procrastination spiral — very common. When's the deadline?"
+   ],
+   "thesis_deadline": [
+    "That's tight but doable — if you start properly this week."
+   ],
+   "thesis_youtube": [
+    "Totally human — the brain picks the easy reward over the scary task. It's usually not laziness; the task just feels too big."
+   ],
+   "thesis_how": [
+    "Make it small and concrete:\n\n• Tiny first step: “open the document and write three sentences”, not “write chapter 2”.\n• Work in 25-minute blocks with 5-minute breaks (Pomodoro).\n• Phone in another room, and YouTube blocked during work blocks (a site blocker helps).\n• Plan backwards: what has to be done in each of the remaining weeks?\n• Same place, same time every day — the routine does the work.\n• Tell your supervisor or a friend your goal for the week."
+   ],
+   "thesis_try": [
+    "Good luck! Start with just one small block today — the first ten minutes are the hardest part. 📚"
+   ],
+   "room_start": [
+    "Ugh, living with a messy roommate is draining. What bothers you most?"
+   ],
+   "room_dishes": [
+    "Dishes piling up are the number one flat-share argument — you're definitely not alone."
+   ],
+   "room_mess": [
+    "Living in someone else's mess is exhausting — you're definitely not alone with that."
+   ],
+   "room_fight": [
+    "Makes sense — you have to live together. The good news: one calm talk usually works better than months of silent frustration."
+   ],
+   "room_bring": [
+    "A few things that help:\n\n• Pick a calm moment — not when you're annoyed or the sink is overflowing.\n• Use “I” sentences: “I find it hard to cook when the sink is full” instead of “You're so messy”.\n• Suggest a solution: a simple cleaning rota, or “dishes done the same day”.\n• Ask what bothers them too — that keeps it fair.\n• Start friendly: they may genuinely not notice."
+   ],
+   "de": {
+    "lock_start": [
+     "Oh nein! Hat ein Nachbar, Freund oder der Vermieter einen Ersatzschlüssel? Sonst Schlüsseldienst – vorher nach dem Preis fragen."
+    ],
+    "wash_start": [
+     "So ein Pech! Ist es etwas, das sich reparieren lässt?"
+    ],
+    "lock_inside": [
+     "Der Klassiker: Tür zu, Schlüssel auf der falschen Seite. Wohnt jemand in der Nähe, der einen Ersatzschlüssel haben könnte?"
+    ],
+    "lock_late": [
+     "Um die Uhrzeit verlangen Schlüsseldienste meist einen Nachtzuschlag – ein Ersatzschlüssel lohnt sich also erst recht. Kannst du jemanden anrufen?"
+    ],
+    "lock_smith": [
+     "Wenn niemand einen Ersatzschlüssel hat: ja. Aber lass dir am Telefon vorher den Gesamtpreis nennen. Nachts sind 100–250 € üblich, unseriöse Dienste verlangen deutlich mehr. Eine nur zugezogene Tür kann ein guter Schlüsseldienst meist ohne Schaden öffnen."
+    ],
+    "lock_spare": [
+     "Perfekt – das spart dir viel Geld und Ärger! Vielleicht lässt du ab jetzt dauerhaft einen Ersatzschlüssel dort. 🔑"
+    ],
+    "hair_start": [
+     "Oh nein! Ein misslungener Haarschnitt nervt richtig. Was ist schiefgelaufen?"
+    ],
+    "hair_short": [
+     "Zu kurz ist am schlimmsten, weil man nichts mehr korrigieren kann – nur abwarten."
+    ],
+    "hair_uneven": [
+     "Schief ist ärgerlich – aber die gute Sorte misslungener Haarschnitt: Das kann ein Friseur meist in zehn Minuten ausgleichen. Viele Salons korrigieren eigene Fehler kostenlos."
+    ],
+    "hair_event": [
+     "Natürlich genau vor {x}! Aber ein frischer Schnitt wirkt am ersten Tag immer härter als ein paar Tage später."
+    ],
+    "hair_grow": [
+     "Ehrlich gesagt nicht viel: Haare wachsen etwa einen Zentimeter im Monat. Aber nach ein paar Tagen wirkt es nicht mehr so „frisch“, und mit etwas Stylingprodukt und einem schönen Outfit fällt es kaum auf. Trag es selbstbewusst – dann wirkt kurz gewollt."
+    ],
+    "bday_start": [
+     "Oh je – das passiert wirklich jedem mal. Wann war er denn?"
+    ],
+    "bday_when": [
+     "Nur einen Tag zu spät – das lässt sich gut retten. Ein nachträglicher Glückwunsch zeigt trotzdem, dass {subject} dir wichtig ist."
+    ],
+    "bday_when_more": [
+     "Ein paar Tage zu spät lässt sich immer noch gut retten – je schneller du dich meldest, desto besser."
+    ],
+    "bday_awful": [
+     "Das schlechte Gewissen zeigt, wie wichtig {subject} dir ist. Aber ein vergessener Geburtstag macht keine Beziehung kaputt."
+    ],
+    "bday_fix": [
+     "Ein paar Ideen:\n\n• Ruf {pron} heute an – nicht nur schreiben. Steh dazu: „Es tut mir so leid, ich hab's total vergessen.“ Keine Ausreden.\n• Plan eine nachträgliche Feier: Kaffee, Kuchen oder Essen, du lädst ein.\n• Ein kleines, persönliches Geschenk wirkt mehr als ein teures.\n• Trag wichtige Geburtstage mit Erinnerung ein paar Tage vorher in den Handykalender ein.\n\nDie meisten verzeihen viel schneller, als man befürchtet – vor allem bei einer ehrlichen Entschuldigung."
+    ],
+    "bday_ok": [
+     "Gute Idee – da wird {subject} sich bestimmt freuen. Erzähl mir gern, wie es gelaufen ist! 🎂"
+    ],
+    "tooth_start": [
+     "Autsch, Zahnschmerzen sind das Schlimmste. Seit wann tut es denn weh?"
+    ],
+    "tooth_days": [
+     "Wenn es schon so lange anhält, geht es wahrscheinlich nicht von allein weg – lass es bald anschauen."
+    ],
+    "tooth_cold": [
+     "Schmerzen bei Kälte deuten oft auf einen freiliegenden Zahnhals oder ein kleines Loch hin. Eine Zahnpasta für empfindliche Zähne hilft vorübergehend, aber ein Zahnarzt sollte draufschauen."
+    ],
+    "tooth_bite": [
+     "Schmerzen beim Kauen können auf einen Riss, ein Loch oder eine entzündete Wurzel hindeuten. Lass es bald anschauen – bis dahin am besten auf der anderen Seite kauen."
+    ],
+    "tooth_today": [
+     "Wenn es auszuhalten ist, reicht meist ein Termin in den nächsten ein, zwei Tagen. Heute oder zum Notdienst solltest du, wenn die Wange anschwillt, du Fieber bekommst, es ständig pocht oder Schmerzmittel nicht helfen."
+    ],
+    "tooth_wait": [
+     "Wenn es nur bei Kälte wehtut und auszuhalten ist, kannst du meist bis dahin warten; Ibuprofen oder Paracetamol helfen in der Zwischenzeit. Geh aber sofort zum zahnärztlichen Notdienst, wenn die Wange anschwillt, du Fieber bekommst, es ständig pocht oder dich nicht schlafen lässt."
+    ],
+    "tooth_call": [
+     "Gute Entscheidung. Sag, dass es seit ein paar Tagen wehtut – viele Praxen halten Termine für Schmerzpatienten frei. Gute Besserung! 🦷"
+    ],
+    "wash_leak": [
+     "Dreh zuerst den Wasserhahn dahinter zu und zieh den Stecker, dann Handtücher drunter. Oft ist es nur das Flusensieb, ein Schlauch oder die Türdichtung – das Sieb unten vorne zuerst prüfen."
+    ],
+    "wash_age_young": [
+     "Das ist für {x} mittleres Alter – viele halten 10 bis 15 Jahre. Eine Reparatur kann sich also durchaus lohnen."
+    ],
+    "wash_age_old": [
+     "Das ist schon ein gutes Alter für {x}. Eine Reparatur lohnt sich nur, wenn es etwas Kleines und Günstiges ist."
+    ],
+    "wash_decide": [
+     "Faustregel: Wenn die Reparatur weniger als etwa die Hälfte einer neuen Maschine kostet, reparieren. Techniker plus kleines Teil (Pumpe, Schlauch, Dichtung) kosten oft 100–200 €, eine ordentliche neue Maschine gibt es ab etwa 350–400 €. Lass dir vorher einen Kostenvoranschlag geben – sind es die Trommellager oder der Motor, ist eine neue meist die bessere Wahl."
+    ],
+    "wash_decide_old": [
+     "In dem Alter würde ich nur reparieren, wenn es etwas Kleines ist, etwa Schlauch, Sieb oder Dichtung. Sind es Motor, Lager oder Elektronik, ist eine neue meist die bessere Wahl – neue Maschinen brauchen auch deutlich weniger Wasser und Strom."
+    ],
+    "smoke_start": [
+     "Das ist eine richtig gute Entscheidung! Wie viel rauchst du denn im Moment?"
+    ],
+    "smoke_count": [
+     "Das ist schon eine Gewohnheit – aber in dem Bereich schaffen es viele, vor allem mit einem Plan."
+    ],
+    "smoke_failed": [
+     "Das ist völlig normal – die meisten Ex-Raucher haben mehrere Anläufe gebraucht. Jeder Versuch zeigt dir mehr über deine Auslöser."
+    ],
+    "smoke_help": [
+     "Was laut Studien am meisten hilft:\n\n• Ein festes Rauchstopp-Datum in den nächsten zwei Wochen – und anderen davon erzählen.\n• Nikotinersatz (Pflaster, Kaugummi, Lutschtabletten) verdoppelt etwa die Chancen – frag in der Apotheke oder beim Hausarzt.\n• Deine Auslöser kennen (Kaffee, Stress, nach dem Essen, Alkohol) und einen Ersatz planen: kurz rausgehen, Kaugummi, ein Glas Wasser.\n• Zigaretten, Feuerzeuge und Aschenbecher vorher wegwerfen.\n• Kostenlose Beratung, etwa das Rauchfrei-Telefon (0800 8 31 31 31), und Rauchstopp-Apps helfen spürbar.\n• Ein Rauchverlangen ist nach ein paar Minuten vorbei – aushalten lohnt sich."
+    ],
+    "smoke_date": [
+     "Super Schritt! Schreib es dir auf und erzähl es jemandem, dem du vertraust. Ich drück dir die Daumen. 💪"
+    ]
+   }
   }
  }
 }

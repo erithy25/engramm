@@ -1009,7 +1009,7 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_mem67(st, msg, s) or self._german_ctx116(st, msg, s) or self._german_ctx115(st, msg, s) or self._german_ctx114(st, msg, s) or self._german_ctx113(st, msg, s) or self._german_ctx112(st, msg, s) or self._german_ctx111(st, msg, s) or self._german_ctx104(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx117(st, msg, s) or self._german_ctx116(st, msg, s) or self._german_ctx115(st, msg, s) or self._german_ctx114(st, msg, s) or self._german_ctx113(st, msg, s) or self._german_ctx112(st, msg, s) or self._german_ctx111(st, msg, s) or self._german_ctx104(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
@@ -1018,7 +1018,8 @@ class Assistant:
                 self._german_ctx111_late(st, msg, s) or \
                 self._german_ctx114_late(st, msg, s) or \
                 self._german_ctx115_late(st, msg, s) or \
-                self._german_ctx116_late(st, msg, s)
+                self._german_ctx116_late(st, msg, s) or \
+                self._german_ctx117_late(st, msg, s)
             if life is not None:
                 return life
         if u.kind == "fallback" or u.kind == "feeling":
@@ -1530,6 +1531,136 @@ class Assistant:
                 st.uses["trip_de"] = [pen, kw.get("X", sl.get("o", "").capitalize()), st.turn]
         return Reply(msg, "empathy", self._pick(st, f"de:moments:{k2}", mb[k2], **kw), via="german")
 
+    def _german_ctx117(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 117 in German: ausgesperrt, misslungener Haarschnitt, vergessener Geburtstag, Zahnschmerzen,
+        kaputte Waschmaschine, mit dem Rauchen aufhören."""
+        b = (self.bank.daily.get("b117") or {}).get("de")
+        if not b:
+            return None
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:%-]", " ", s)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:b117:{key}", b[key], **kw), via="german")   # noqa: E731
+        c = st.uses.get("c117")
+        topic = c[0] if c and st.turn - c[1] <= 5 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c117"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        tipps = bool(re.fullmatch(r"(?:hast du )?(?:ein paar |irgendwelche )?(?:tipps|tricks|ideen|ratschläge)(?: für mich)?|was soll ich (?:tun|machen)", q))
+        frage = "?" in msg
+        if re.search(r"\b(?:hab|habe) mich (?:gerade |schon wieder )?ausgesperrt\b|\bausgesperrt\b", q) and not frage:
+            keep("lock")
+            return None                                   # die bestehende Antwort mit Ersatzschlüssel kommt zuerst
+        if re.search(r"\bfriseur\b.*\b(?:misslungen|verschnitten|katastrophe|schrecklich|furchtbar|zu kurz|verhunzt)\b|\b(?:frisur|haarschnitt|haare) (?:ist|sind) (?:total |völlig )?(?:misslungen|schrecklich|furchtbar|verschnitten|eine katastrophe)\b", q) and not frage:
+            keep("hair")
+            return say("hair_start")
+        if re.search(r"\bgeburtstag (?:meiner|meines|von meiner|von meinem|meiner besten|meines besten) .{0,30}vergessen\b|\b(?:hab|habe) (?:den |seinen |ihren )?geburtstag .{0,40}vergessen\b", q) and not frage:
+            er = re.search(r"\b(?:meines|meinem|von meinem) (?:besten )?(?:freund|freundes|bruder|bruders|vater|vaters|papa|opa|kollegen|mann|mannes|sohn|sohnes|neffen|chef)s?\b", q)
+            keep("bday", subject="er" if er else "sie", pron="ihn" if er else "sie")
+            return None                                   # the moment frame answers first; see _german_ctx117_late
+        if re.search(r"\b(?:starke |schlimme |heftige |furchtbare )?zahnschmerzen\b|\bmein zahn tut (?:so |total )?weh\b", q) and not frage:
+            keep("tooth")
+            return None                                   # die bestehende Zahnschmerz-Antwort kommt zuerst
+        mw = re.search(r"\b(?P<x>waschmaschine|spülmaschine|geschirrspüler|trockner) (?:ist )?(?:kaputt|hinüber|defekt|läuft aus|geht nicht mehr)\b", q)
+        if mw and not frage:
+            keep("wash", x={"waschmaschine": "eine Waschmaschine", "spülmaschine": "eine Spülmaschine", "geschirrspüler": "einen Geschirrspüler",
+                            "trockner": "einen Trockner"}[mw.group("x")])
+            return None                                   # die bestehende Antwort "lässt sich das reparieren?" kommt zuerst
+        if re.search(r"\b(?:will|möchte|würde gern|würde gerne|muss) (?:endlich )?(?:mit dem rauchen aufhören|aufhören zu rauchen|das rauchen aufgeben)\b", q) and not frage:
+            keep("smoke")
+            return say("smoke_start")
+        if topic == "lock":
+            if re.search(r"\bschlüssel (?:liegt|steckt|ist|hängt) (?:noch )?(?:drinnen|drin|in der wohnung|innen)\b", q) and not frage:
+                keep("lock")
+                return say("lock_inside")
+            if re.fullmatch(r"(?:und )?es ist (?:schon |fast |gleich )?(?:\d{1,2}(?: uhr)?|mitternacht|spät|mitten in der nacht)(?: schon)?", q):
+                keep("lock")
+                return say("lock_late")
+            if re.fullmatch(r"(?:ok |also )?soll ich (?:den |einen )?schlüsseldienst (?:rufen|anrufen|holen)|ist (?:der |ein )?schlüsseldienst teuer|brauche ich einen schlüsseldienst", q):
+                keep("lock")
+                return say("lock_smith")
+            if re.search(r"\b(?:nachbar|nachbarin|vermieter|vermieterin|freund|freundin|schwester|bruder|mutter|vater|mitbewohner(?:in)?)\b.{0,25}\bersatzschlüssel\b", q):
+                keep("lock")
+                return say("lock_spare")
+        if topic == "hair":
+            if re.search(r"\b(?:viel |deutlich |echt )?zu kurz\b", q) and not frage:
+                keep("hair")
+                return say("hair_short")
+            if re.search(r"\b(?:schief|ungleich|ungleichmäßig|krumm|löchrig)\b", q) and not frage:
+                keep("hair")
+                return say("hair_uneven")
+            me = re.search(r"\b(?P<x>hochzeit|feier|party|vorstellungsgespräch|taufe|abschlussfeier|date)\b", q)
+            if me and not frage:
+                keep("hair")
+                return say("hair_event", x={"hochzeit": "einer Hochzeit", "feier": "einer Feier", "party": "einer Party", "taufe": "einer Taufe",
+                                            "abschlussfeier": "einer Abschlussfeier", "vorstellungsgespräch": "einem Vorstellungsgespräch",
+                                            "date": "einem Date"}[me.group("x")])
+            if re.fullmatch(r"(?:und |aber )?wächst (?:das|es|die) (?:bis dahin |rechtzeitig |schnell genug )?(?:wieder )?nach|wie schnell wachsen haare", q):
+                keep("hair")
+                return say("hair_grow")
+        if topic == "bday":
+            pr = {"subject": info.get("subject", "sie"), "pron": info.get("pron", "sie")}
+            mw = re.fullmatch(r"(?:der|er|das) war (?P<w>gestern|vorgestern|letzte woche|am \w+)", q)
+            if mw:
+                keep("bday")
+                return say("bday_when" if mw.group("w") == "gestern" else "bday_when_more", **pr)
+            if re.search(r"\b(?:fühl|fühle) mich (?:so |total |echt )?(?:schrecklich|mies|schlecht|schuldig|furchtbar)\b", q) and not frage:
+                keep("bday")
+                return say("bday_awful", **pr)
+            if re.fullmatch(r"(?:und |aber )?wie (?:mach|mache|kann) ich (?:das|es) (?:wieder )?gut(?: machen)?|wie kann ich das wiedergutmachen", q) or tipps:
+                keep("bday")
+                return say("bday_fix", **pr)
+            if re.search(r"\b(?:gute idee|super idee|mach ich|das mach ich|ruf (?:sie|ihn) an)\b", q):
+                keep("bday")
+                return say("bday_ok", **pr)
+        if topic == "tooth":
+            if re.fullmatch(r"(?:schon |so )?seit (?:gestern|vorgestern|zwei|drei|vier|ein paar|einigen|\d+) ?(?:tagen|wochen)?", q):
+                keep("tooth")
+                return say("tooth_days")
+            if re.search(r"\b(?:kalt|kaltem|kaltes|kalten|heiß|heißem|süß|süßem|eis)\b", q) and not frage:
+                keep("tooth")
+                return say("tooth_cold")
+            if re.search(r"\b(?:kauen|beißen|essen|draufbeißen)\b", q) and not frage:
+                keep("tooth")
+                return say("tooth_bite")
+            if re.fullmatch(r"(?:und |aber )?kann ich (?:noch )?bis (?:montag|morgen|nächste woche|\w+) warten", q):
+                keep("tooth")
+                return say("tooth_wait")
+            if re.fullmatch(r"(?:und |aber )?(?:ist das ein notfall|muss ich (?:sofort|heute|gleich) (?:hin|zum zahnarzt)|soll ich heute (?:noch )?hingehen)", q):
+                keep("tooth")
+                return say("tooth_today")
+            if re.search(r"\b(?:zahnarzt|zahnärztin)\b", q) and re.search(r"\b(?:ruf|rufe|an|termin|geh|gehe)\b", q) and not frage:
+                keep("tooth")
+                return say("tooth_call")
+        if topic == "wash":
+            if re.search(r"\b(?:läuft aus|leckt|alles nass|wasser überall|überschwemmt)\b", q) and not frage:
+                keep("wash")
+                return say("wash_leak")
+            ma = re.fullmatch(r"(?:sie|die|es|er) ist (?:etwa |fast |schon |über )?(?P<a>ein|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|elf|zwölf|fünfzehn|\d{1,2}) jahre? alt", q)
+            if ma:
+                a = ma.group("a")
+                words = ["ein", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn", "elf", "zwölf"]
+                age = int(a) if a.isdigit() else 15 if a == "fünfzehn" else words.index(a) + 1
+                keep("wash", age=age)
+                return say("wash_age_young" if age <= 9 else "wash_age_old", x=info.get("x", "eine Waschmaschine"))
+            if re.fullmatch(r"(?:und |also )?(?:soll ich (?:sie |es )?)?(?:reparieren (?:lassen )?oder (?:eine )?neue? (?:kaufen)?|lohnt sich (?:eine |die )?reparatur(?: noch)?)", q):
+                keep("wash")
+                return say("wash_decide_old" if info.get("age", 0) >= 10 else "wash_decide")
+        if topic == "smoke":
+            if re.fullmatch(r"(?:ich rauche )?(?:so |etwa |ungefähr |circa |fast )?(?:\d+|fünf|zehn|fünfzehn|zwanzig|eine schachtel|eine halbe schachtel) (?:zigaretten )?(?:am|pro) tag", q):
+                keep("smoke")
+                return say("smoke_count")
+            if re.search(r"\b(?:schon (?:mal|oft|ein paar mal|mehrmals) versucht|nicht geschafft|rückfällig)\b", q) and not frage:
+                keep("smoke")
+                return say("smoke_failed")
+            if re.fullmatch(r"(?:und |aber )?was hilft (?:wirklich|denn|da)?|wie schaffe ich das|wie höre ich auf", q) or tipps:
+                keep("smoke")
+                return say("smoke_help")
+            if re.search(r"\b(?:datum|stichtag|ab montag|ab morgen|rauchfrei ab)\b", q):
+                keep("smoke")
+                return say("smoke_date")
+        return None
+
     def _german_ctx116(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """Battery 116 in German: erstes Date, gesprungenes Display, älter werdende Eltern, E-Mail-Flut,
         Balkongarten, Babysitten."""
@@ -1714,6 +1845,14 @@ class Assistant:
             if re.search(r"\b(?:probier|versuch)(?:e)?(?:'s| es| das)?\b", q):
                 keep("bike")
                 return say("bike_go")
+        return None
+
+    def _german_ctx117_late(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 117 in German, after every other flow: a start ("ich hab mich gerade ausgesperrt") nothing else answered."""
+        b = (self.bank.daily.get("b117") or {}).get("de")
+        c = st.uses.get("c117")
+        if b and c and c[1] == st.turn and c[0] in ("lock", "wash", "bday", "tooth"):
+            return Reply(msg, "smalltalk", self._pick(st, f"de:b117:{c[0]}_start", b[f"{c[0]}_start"]), via="german")
         return None
 
     def _german_ctx116_late(self, st: DialogState, msg: str, s: str) -> Reply | None:
@@ -7204,7 +7343,7 @@ class Assistant:
                                                      r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
             # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
             return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
-        evr = self._sounds(st, msg, norm) or self._daily_ctx30(st, msg, norm) or self._daily_ctx29(st, msg, norm) or self._daily_ctx28(st, msg, norm) or self._daily_ctx27(st, msg, norm) or self._daily_ctx26(st, msg, norm) or self._daily_ctx25(st, msg, norm) or self._daily_ctx24(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
+        evr = self._sounds(st, msg, norm) or self._daily_ctx31(st, msg, norm) or self._daily_ctx30(st, msg, norm) or self._daily_ctx29(st, msg, norm) or self._daily_ctx28(st, msg, norm) or self._daily_ctx27(st, msg, norm) or self._daily_ctx26(st, msg, norm) or self._daily_ctx25(st, msg, norm) or self._daily_ctx24(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
             self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
@@ -7316,7 +7455,7 @@ class Assistant:
                         return Reply(msg, "answer", self._pick(st, "daily:person_likes_answer", d["person_likes_answer"],
                                                                x=name, y=_cuisine_case(lm.group(1))), via="facts")
         return self._daily_ctx25_late(st, msg, norm) or self._daily_ctx28_late(st, msg, norm) or \
-            self._daily_ctx29(st, msg, norm, late=True) or self._daily_ctx30(st, msg, norm, late=True)   # batteries 111/114/115/116: only where every other flow stayed silent
+            self._daily_ctx29(st, msg, norm, late=True) or self._daily_ctx30(st, msg, norm, late=True) or self._daily_ctx31(st, msg, norm, late=True)   # batteries 111/114/115/116/117: only where every other flow stayed silent
 
     def _daily_ctx2(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 43: "same lol" after "how are you?", "that's sad" about ENGRAMM itself, why someone moved,
@@ -8167,6 +8306,179 @@ class Assistant:
             st.uses["fun_fact_seen"] = list(seen | {pick})
             return shown, pick, found.source, False
         return shown, found.sentences[0], found.source, True
+
+    def _daily_ctx31(self, st: DialogState, msg: str, norm: str, late: bool = False) -> Reply | None:
+        """Battery 117: locked out at night, a bad haircut before a wedding, a forgotten birthday, toothache, a
+        broken washing machine, quitting smoking, procrastinating on a thesis, and a messy roommate."""
+        b = self.bank.daily.get("b117")
+        if not b:
+            return None
+        n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", norm)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b117:{key}", b[key], **kw), via="everyday")  # noqa: E731
+        c = st.uses.get("c117")
+        topic = c[0] if c and st.turn - c[1] <= 5 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c117"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        tips = bool(re.fullmatch(r"(?:any |some |got any |do you have any )?(?:tips|advice|ideas|tricks)(?: for (?:me|that|this))?|what (?:should|can) i do", n))
+        q = "?" in msg
+        if late:                                          # a start no existing flow answered ("i've locked myself out", "i'm trying to quit smoking")
+            if c and c[1] == st.turn and c[0] in ("lock", "bday", "wash", "smoke", "tooth"):
+                from engramm.chat import moments
+                if moments.match(re.sub(r"[^\w\s'-]", " ", norm), "en"):
+                    return None                           # a moment frame answers later and keeps its own follow-ups ("i called her" → "Phew!")
+                return say(f"{c[0]}_start", x=c[2].get("x", "washing machine"), who=c[2].get("who", "your friend"))
+            return None
+        # -- topic starts (existing first replies stay where they are good) -----------------------------------
+        if re.search(r"\bi(?: just|'ve| have)? (?:just )?locked myself out\b|\blocked out of my (?:apartment|flat|house|place|home)\b", n) and not q:
+            keep("lock")
+            return None                                   # the existing "does anyone have a spare key?" reply comes first
+        if re.search(r"\b(?:got|had|have) (?:a |the )?(?:terrible|bad|horrible|awful|disastrous|really bad|ugly) haircut\b|\bhaircut (?:is|was) (?:terrible|awful|a disaster|horrible)\b|\bhairdresser (?:ruined|messed up|butchered) my hair\b", n) and not q:
+            keep("hair")
+            return say("hair_start")
+        mb = re.search(r"\bi (?:completely |totally |just )?forgot (?P<w>(?:my |our )?(?:best friend|friend|mum|mom|mother|dad|father|sister|brother|wife|husband|girlfriend|boyfriend|partner|colleague|grandma|grandpa|son|daughter)'?s?) birthday\b", n)
+        if mb and not q:
+            w = re.sub(r"'?s$", "", mb.group("w")).replace("our ", "").replace("my ", "")
+            keep("bday", who=f"your {w}")
+            return None                                   # the existing "a call and a belated surprise" reply comes first
+        if re.search(r"\b(?:a |an )?(?:really |very )?(?:bad |terrible |awful |horrible )?toothache\b|\bmy tooth (?:hurts|is killing me|aches)\b", n) and not q:
+            keep("tooth")
+            return None                                   # the existing toothache reply (salt water, dentist) comes first
+        ma = re.search(r"\b(?:our |my |the )?(?P<x>washing machine|dishwasher|dryer|tumble dryer) (?:just )?(?:broke|is broken|died|stopped working|is leaking|packed up)\b", n)
+        if ma and not q:
+            keep("wash", x=ma.group("x"))
+            return None                                   # the existing "repair or new one?" reply comes first
+        if re.search(r"\bi(?: want| would like|'d like|'m trying| am trying|'m going| am going| need| really want) to (?:quit|stop) smoking\b|\btrying to quit smoking\b", n) and not q:
+            keep("smoke")
+            return None                                   # the existing "that takes willpower" reply comes first
+        if re.search(r"\b(?:keep |am |'m )?procrastinat\w* (?:on|with) my (?:thesis|dissertation|essay|paper|assignment|term paper)\b|\bcan'?t (?:start|get started on) my (?:thesis|dissertation)\b", n):
+            keep("thesis")
+            return say("thesis_start")
+        if re.search(r"\bmy (?:new )?(?:roommate|flatmate|housemate|room mate) is (?:really |so |super |very )?(?:messy|dirty|untidy|a slob|disgusting)\b", n) and not q:
+            keep("room")
+            return say("room_start")
+        # -- inside a topic ------------------------------------------------------------------------------------
+        if topic == "lock":
+            if re.search(r"\b(?:keys?|key) (?:is|are|'s|'re) (?:still )?(?:inside|in there|in the (?:flat|apartment|house))\b|\bleft (?:my|the) keys? inside\b", n) and not q:
+                keep("lock")
+                return say("lock_inside")
+            if re.fullmatch(r"(?:and |also )?(?:it'?s|its|it is) (?:already |almost |nearly )?(?:\d{1,2}(?::\d\d)? ?(?:pm|am)?|midnight|late|so late|the middle of the night)(?: already)?", n):
+                keep("lock")
+                return say("lock_late")
+            if re.fullmatch(r"(?:so |ok |okay )?should i (?:call|get) (?:a |the )?locksmith|do i need a locksmith|(?:is|are) (?:a )?locksmiths? expensive", n):
+                keep("lock")
+                return say("lock_smith")
+            if re.search(r"\b(?:neighbou?r|friend|landlord|landlady|sister|brother|mum|mom|dad|roommate|flatmate)\b.{0,10}\b(?:has|got|'s got|have) (?:a |my )?spare(?: key)?\b", n):
+                keep("lock")
+                return say("lock_spare")
+        if topic == "hair":
+            if re.search(r"\b(?:way |much |far |a bit |really )?too short\b|\bshaved (?:it|everything)\b", n) and not q:
+                keep("hair")
+                return say("hair_short")
+            if re.search(r"\b(?:uneven|lopsided|crooked|patchy|wonky)\b", n) and not q:
+                keep("hair")
+                return say("hair_uneven")
+            me = re.search(r"\b(?P<x>wedding|party|job interview|interview|graduation|photo shoot|christening|date)\b", n)
+            if me and not q:
+                keep("hair", ev=me.group("x"))
+                return say("hair_event", x=me.group("x"))
+            if re.fullmatch(r"(?:so |but )?(?:will|would) it (?:grow back|grow out)(?: (?:in time|by then|by \w+day))?|how (?:fast|quickly) does hair grow", n):
+                keep("hair")
+                return say("hair_grow")
+            if re.fullmatch(r"(?:so |but )?(?:will|would) it (?:be okay|be ok|look okay|look ok|look better|be fine)(?: (?:in time|by then|by \w+day))?", n):
+                keep("hair")
+                return say("hair_okay")
+        if topic == "bday":
+            mw = re.fullmatch(r"(?:it was|that was|it's been) (?P<w>yesterday|last night|on \w+day|two days ago|three days ago|a few days ago|last week)", n)
+            if mw:
+                keep("bday")
+                return say("bday_when" if mw.group("w") in ("yesterday", "last night") else "bday_when_more")
+            if re.search(r"\bi feel (?:so |really |just )?(?:awful|terrible|bad|guilty|horrible|like a bad (?:friend|son|daughter|sister|brother))\b", n) and not q:
+                keep("bday")
+                return say("bday_awful", who=info.get("who", "your friend"))
+            mp = re.fullmatch(r"(?:so |and |but )?how (?:do|can|should) i make it up to (?P<p>her|him|them)|how (?:do|can) i (?:fix|make up for) (?:this|it)", n)
+            if mp or tips:
+                keep("bday")
+                p = (mp.group("p") if mp and mp.group("p") else "them")
+                return say("bday_fix", pron=p, subject={"her": "she", "him": "he"}.get(p, "they"))
+            if re.search(r"\b(?:good|great|nice) idea\b|\bi'?ll do that\b|\bwill do\b|\bi'?ll call (?:her|him|them)\b", n):
+                keep("bday")
+                return say("bday_ok", who=info.get("who", "your friend"))
+        if topic == "tooth":
+            if re.fullmatch(r"(?:it'?s been |for |since )?(?:about |almost |nearly )?(?:one|two|three|four|five|a few|a couple of|\d+) (?:days?|weeks?)(?: now)?|since (?:yesterday|last week|\w+day)", n):
+                keep("tooth")
+                return say("tooth_days")
+            if re.search(r"\b(?:cold|hot|sweet|ice)\b", n) and re.search(r"\b(?:hurts?|pain|painful|sensitive|aches?)\b", n) and not q:
+                keep("tooth")
+                return say("tooth_cold")
+            if re.search(r"\b(?:chew|chewing|bite|biting|eat|eating)\b", n) and re.search(r"\b(?:hurts?|pain|painful|aches?)\b", n) and not q:
+                keep("tooth")
+                return say("tooth_bite")
+            if re.fullmatch(r"(?:so |but )?can i (?:wait|hold out) (?:until|till|for) \w+", n):
+                keep("tooth")
+                return say("tooth_wait")
+            if re.fullmatch(r"(?:so |but )?(?:should i go (?:now|today|tonight|straight away)|is (?:it|this) an emergency|do i need to go (?:now|today))", n):
+                keep("tooth")
+                return say("tooth_today")
+            if re.search(r"\b(?:call|ring|see|phone|book|go to) (?:the |a |my )?dentist\b|\bmake an appointment\b", n) and not q:
+                keep("tooth")
+                return say("tooth_call")
+        if topic == "wash":
+            x = info.get("x", "washing machine")
+            if re.search(r"\b(?:leaking|leaks|water everywhere|flooding|flooded|puddle)\b", n) and not q:
+                keep("wash")
+                return say("wash_leak")
+            ma = re.fullmatch(r"(?:it'?s|its|it is) (?:about |almost |nearly |over )?(?P<a>one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|\d{1,2}) years? old", n)
+            if ma:
+                a = ma.group("a")
+                age = int(a) if a.isdigit() else ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"].index(a) + 1 if a != "fifteen" else 15
+                keep("wash", age=age)
+                return say("wash_age_young" if age <= 9 else "wash_age_old", x=x)
+            if re.fullmatch(r"(?:so |and )?(?:should i )?(?:repair (?:it )?or (?:buy )?(?:a )?new (?:one)?|repair or replace(?: it)?|is it worth repairing|repair it or get a new one)", n):
+                keep("wash")
+                return say("wash_decide_old" if info.get("age", 0) >= 10 else "wash_decide", x=x)
+        if topic == "smoke":
+            if re.fullmatch(r"(?:i smoke )?(?:about |around |like |maybe |roughly )?(?:\d+|five|ten|fifteen|twenty|half a pack|a pack) (?:cigarettes )?(?:a|per) day", n):
+                keep("smoke")
+                return say("smoke_count")
+            if re.search(r"\b(?:tried|'ve tried|have tried) (?:it )?(?:before|already|to quit before|so many times)\b|\b(?:failed|relapsed)\b", n) and not q:
+                keep("smoke")
+                return say("smoke_failed")
+            if re.fullmatch(r"(?:so |but |and )?what (?:actually |really )?(?:helps|works)|how (?:do|can) i (?:actually )?(?:quit|stop)(?: this time)?", n) or tips:
+                keep("smoke")
+                return say("smoke_help")
+            if re.search(r"\bset (?:a|my) (?:quit )?date\b|\bquit (?:on|next) \w+\b|\bstart (?:on )?(?:monday|tomorrow)\b", n):
+                keep("smoke")
+                return say("smoke_date")
+        if topic == "thesis":
+            if re.search(r"\b(?:deadline|due|hand(?:ing)? it in)\b.*\b(?:in|next) (?:\w+ )?(?:weeks?|months?|days?)\b|\bdue (?:in|next)\b", n) and not q:
+                keep("thesis")
+                return say("thesis_deadline")
+            if re.search(r"\b(?:watch|watching) (?:youtube|netflix|videos|tiktok|series)\b|\bscroll(?:ing)? (?:on )?(?:my phone|instagram|tiktok)\b|\bgaming\b", n) and not q:
+                keep("thesis")
+                return say("thesis_youtube")
+            if re.fullmatch(r"(?:so |but |ok )?how (?:do|can|should) i (?:start|begin|get started)|where (?:do|should) i (?:start|begin)", n) or tips:
+                keep("thesis")
+                return say("thesis_how")
+            if re.search(r"\b(?:i'?ll try|try that|will try|give it a try)\b", n):
+                keep("thesis")
+                return say("thesis_try")
+        if topic == "room":
+            if re.search(r"\b(?:dishes|plates|pans|pots)\b", n) and not q:
+                keep("room")
+                return say("room_dishes")
+            if re.search(r"\b(?:mess|clothes|trash|rubbish|garbage|hair in the (?:sink|shower)|stuff everywhere|bathroom|kitchen)\b", n) and not q:
+                keep("room")
+                return say("room_mess")
+            if re.search(r"\b(?:don'?t|do not) want (?:to )?(?:start a fight|a fight|to argue|to be mean|to be that person|to make it awkward|drama)\b", n):
+                keep("room")
+                return say("room_fight")
+            if re.fullmatch(r"(?:so |but |ok )?how (?:do|can|should) i (?:bring it up|talk to (?:him|her|them)(?: about it)?|say it|tell (?:him|her|them))|what should i say", n) or tips:
+                keep("room")
+                return say("room_bring")
+        return None
 
     def _daily_ctx30(self, st: DialogState, msg: str, norm: str, late: bool = False) -> Reply | None:
         """Battery 116: a first date, a cracked phone screen, ageing parents far away, email overload, a balcony
@@ -12440,7 +12752,9 @@ class Assistant:
             parts.append(_Part("main", self._pick(st, f"daily:{key}", self.bank.daily[key])))
             return
         if le and st.turn - le.get("turn", -99) <= 2 and len(words) <= 5 and \
-                not re.search(r"\b(?:you|your)\b", u.text, re.I):
+                not re.search(r"\b(?:you|your)\b", u.text, re.I) and \
+                not re.search(r"\b(?:thanks|thank|thx|cheers|makes sense|sounds good|good idea|got it|fair enough|will do)\b", u.norm):   # "makes sense, thanks" closes, never continues
+
             key = "exp_more_neg" if le.get("valence") == "negative" or re.search(
                 r"\b(?:hurt|hurts|pain|painful|sad|bad|awful|terrible|annoying|annoyed|sucked|sucks|worse|tired|scary|scared)\b", u.norm) else "exp_more_pos"
             frag = u.text.strip(" .!").lower()
@@ -13374,6 +13688,9 @@ def _casual(msg: str) -> str:
     s = re.sub(r"(?i)^((?:tell|give|show) me (?:a|another|one more|some) (?:joke|fun fact|fact|riddle|quote|story)s?|another (?:one|joke|fact))"
                r",?\s+(?:then|pls|please|now|already|again|maybe)[.!]*$", r"\1", s)
     # "tell me a joke then": the request, not a question about "joke then"
+    s = re.sub(r"(?i)^(?:ok(?:ay)?,? |ah,? |right,? )?(?:that |it )?(?:makes (?:total |a lot of )?sense|fair enough|got it)[,.!]*\s+(thanks|thank you|thx|cheers)(?: a lot| so much)?[.!]*$",
+               r"\1", s)
+    # "makes sense, thanks" is a thank-you, not a new topic
     if re.fullmatch(r"(?i)\s*(?:k+|kk|ok(?:ay)?|alright|well)[,.!]*\s+(?:bye+|cya|ttyl)[.!]*\s*|\s*(?:cya|see ya|ttyl|gtg|g2g|got ?ta go|gotta run)[.!]*\s*", s):
         s = "bye"
     return s

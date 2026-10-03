@@ -4071,3 +4071,41 @@ def test_battery116_date_phone_parents_email_balcony_swim_return_babysit(chat):
     a.turn(st, "i'm babysitting my niece tonight")
     a.turn(st, "she loves animals")
     assert "animals" not in a.turn(st, "what do i like?").text
+
+
+def test_battery117_lockout_haircut_birthday_tooth_washer_smoking_thesis_roommate(chat):
+    """Locked out at night, bad haircut, forgotten birthday, toothache, broken washer, quitting smoking, thesis, roommate."""
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"Tell me more\?|I see\.|I don't know|I'll remember|wear you down|Erzähl ruhig mehr|Erzähl gern mehr|"
+                      r"nicht ganz verstanden|nicht nachschlagen|wie findest du das|freut sich er", _re.I)
+    convs = [
+        ("en", [("i locked myself out of my apartment", "spare key"), ("my keys are inside", "classic"), ("it's 11pm", "night surcharge"),
+                ("should i call a locksmith?", "total price"), ("ok, my neighbour has a spare key actually", "Perfect")]),
+        ("en", [("i got a terrible haircut today", "haircut"), ("it's way too short", "Too short"), ("i have a wedding on saturday", "wedding"),
+                ("will it grow back in time?", "centimetre")]),
+        ("en", [("i completely forgot my mom's birthday", "belated"), ("it was two days ago", "few days late"),
+                ("i feel so guilty", "your mom"), ("how do i make it up to her?", "Call her"), ("good idea, i'll do that", "your mom")]),
+        ("en", [("i have a really bad toothache", "How long"), ("it hurts when i drink something cold", "tooth neck"),
+                ("it hurts when i bite", "crack"), ("can i wait until monday?", "emergency dentist")]),
+        ("en", [("our washing machine just broke", ""), ("it's leaking water everywhere", "tap"),
+                ("it's 12 years old", "good age"), ("repair or buy a new one?", "small"), ("makes sense, thanks", "")]),
+        ("en", [("i'm trying to quit smoking", "willpower"), ("about a pack a day", "real habit"), ("what actually helps?", "Nicotine")]),
+        ("en", [("i keep procrastinating on my thesis", "deadline"), ("i just watch youtube instead", "easy reward"), ("how do i start?", "Pomodoro")]),
+        ("en", [("my new roommate is really messy", "roommate"), ("dishes everywhere", "Dishes"), ("how do i bring it up?", "calm moment")]),
+        ("de", [("ich hab mich ausgesperrt", "Ersatzschlüssel"), ("es ist 23 uhr", "Nachtzuschlag"), ("soll ich den schlüsseldienst rufen?", "Gesamtpreis"),
+                ("ok, die nachbarin hat zum glück einen ersatzschlüssel", "Perfekt")]),
+        ("de", [("ich war beim friseur und es ist total misslungen", "Haarschnitt"), ("total schief", "ausgleichen"),
+                ("nächste woche ist ein vorstellungsgespräch", "einem Vorstellungsgespräch"), ("wächst das bis dahin nach?", "Zentimeter")]),
+        ("de", [("ich hab den geburtstag von meinem bruder vergessen", "jedem"), ("ich fühl mich schrecklich", "wie wichtig er"),
+                ("wie mach ich das wieder gut?", "Ruf ihn"), ("gute idee", "wird er sich")]),
+        ("de", [("ich hab starke zahnschmerzen", "Seit wann"), ("bei kaltem trinken tut es weh", "Zahnhals"), ("ist das ein notfall?", "Notdienst")]),
+        ("de", [("die spülmaschine ist kaputt", "reparieren"), ("sie ist zwölf jahre alt", "eine Spülmaschine"), ("reparieren oder neu kaufen?", "Kleines")]),
+        ("de", [("ich will mit dem rauchen aufhören", "Wie viel"), ("ich rauche so zehn am tag", "Gewohnheit"), ("was hilft wirklich?", "Nikotinersatz")]),
+    ]
+    for i, (lang, turns) in enumerate(convs):
+        st = DialogState(f"c117-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        for msg, want in turns:
+            t = a.turn(st, msg).text
+            assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)

@@ -3845,6 +3845,39 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: NQ 22/9; Suite 815 bestanden. Gesprächsproben 111–116, Generisch und Held-out stehen bei 0. Test 116 hält
   die Gespräche fest.
+- **Probe 117: achte ungesehene Gesprächsprobe** (3. Oktober 2026): 8 englische und 6 deutsche Gespräche, einmal
+  vor jeder Anpassung gemessen; jede Antwort gelesen, ohne KI-Richter. Zusätzlich eine Umformulierungsprobe (117b,
+  8 EN / 6 DE, andere Wörter und Personen für dieselben Themen), erst nach den Anpassungen geschrieben.
+  Themen: ausgesperrt um 23 Uhr, misslungener Haarschnitt vor einer Hochzeit, vergessener Geburtstag, Zahnschmerzen,
+  kaputte Waschmaschine, mit dem Rauchen aufhören, Aufschieben der Abschlussarbeit, unordentlicher Mitbewohner.
+
+  | Stand | EN schwach (gelesen) | DE schwach (gelesen) |
+  |---|---|---|
+  | erster Lauf | 32 von 48 | 25 von 36 |
+  | nach b117 | 0 von 48 | 0 von 36 |
+  | Umformulierung 117b, erster Lauf nach b117 | 14 von 47 | 10 von 35 |
+  | Umformulierung 117b, nach Korrektur | 0 von 47 | 0 von 35 |
+
+  Die Umformulierungsprobe zeigt die Grenze ehrlich: Knapp ein Drittel der Antworten passte beim ersten Lauf nicht,
+  zum Beispiel „uneven“ mit der Antwort für „zu kurz“, „party“ als „wedding“, eine Spülmaschine als „Waschmaschine“,
+  „mom“ als „friend“. Behoben wurde das allgemein: Ereignis, Gerät und Person werden jetzt aus dem Satz übernommen,
+  in DE mit Artikel und Pronomen („vor einem Vorstellungsgespräch“, „Ruf ihn heute an“).
+
+  Gefundene Fehler (allgemein behoben):
+  - „makes sense, thanks“ nach einem Moment wurde als neue Klage aufgegriffen („that can really wear you down“).
+    Dank und Zustimmung schließen jetzt ab, statt den Moment fortzusetzen.
+  - „haha ok danke“ bekam eine Gegenfrage. Vor einem Dank wird „haha“ jetzt übersprungen; „haha ok“ allein bleibt
+    „Haha! 😄“.
+  - Regex-Fehler „i 'm“: „i'm trying to quit smoking“ wurde nicht erkannt.
+
+  Routine gegen b116 (9053ffa): DEV-Satz unverändert. Im ersten Lauf verdrängten der eigene Zahnschmerz-Einstieg
+  (b80, b81) und das neue Überspringen von „haha“ („haha ok“, b51, b61, b98) bestehende, bessere Antworten.
+  Außerdem nahm der späte EN-Einstieg den Moment-Frames ihre Folgeantwort weg („i called her, she was fine“ →
+  „Phew!“, Follow-Probe). Behoben: Einstiege, für die es schon einen Ablauf gibt (ausgesperrt, Geburtstag,
+  Waschmaschine, Rauchen, Zahnschmerzen), antworten nur noch spät und nur, wenn kein Moment-Frame passt.
+
+  Messung: NQ 22/9; Suite 816 bestanden. Gesprächsproben 111–117, Generisch, Held-out, Follow und Stimmung stehen bei 0.
+  Test 117 hält 14 Gespräche fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
