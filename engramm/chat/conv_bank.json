@@ -13716,6 +13716,51 @@
      "a": "Morning — whatever time it is! ☀️ Did you sleep well?"
     },
     {
+     "q": "i (?:just )?got (?:a |my first |another |a new )?tattoo(?: today| yesterday)?",
+     "v": "pos",
+     "a": "Ooh, a new tattoo! What did you get — and where?"
+    },
+    {
+     "q": "i (?:lost|can'?t find) my (?:keys|glasses)(?: again)?",
+     "v": "neg",
+     "a": "Oh no, that's so stressful! When did you last have them? Retracing your steps — pockets, bags, the last place you sat down — usually turns them up."
+    },
+    {
+     "q": "i(?:'m| am) (?:so |really |super )?bored at work(?: today)?",
+     "v": "neg",
+     "a": "Ugh, boring days drag on forever. What's making it so dull today?"
+    },
+    {
+     "q": "my (?:best )?friend (?:just )?moved (?:away|abroad|to another city)",
+     "v": "neg",
+     "a": "Oh, that's hard — you must really miss them. Are you planning to visit, or keep in touch with calls?"
+    },
+    {
+     "q": "i(?:'m| am) learning (?:how )?to cook",
+     "v": "pos",
+     "a": "Love that! What have you made so far — any successes (or delicious disasters)?"
+    },
+    {
+     "q": "(?:everything|it all) (?:is going|went|keeps going) wrong(?: today)?|nothing is going right(?: today)?|today (?:is|was) a disaster",
+     "v": "neg",
+     "a": "Oh no, one of those days. I'm sorry. What happened — or is it just everything piling up?"
+    },
+    {
+     "q": "(?:it'?s|today is) my first day (?:at|of) (?:a |my )?new job|i start(?:ed)? my new job today",
+     "v": "pos",
+     "a": "Good luck on your first day! Nervous or excited? Everyone's new at some point — you've got this."
+    },
+    {
+     "q": "i(?:'m| am) getting a (?:puppy|kitten|dog|cat) (?:next week|soon|tomorrow|this weekend)",
+     "v": "pos",
+     "a": "How exciting! Do you know the breed yet — and have you picked a name?"
+    },
+    {
+     "q": "i (?:just )?woke up from a nap|i just napped|i (?:just )?had a nap",
+     "v": "pos",
+     "a": "Ah, a nap! Feeling refreshed, or more groggy than before? 😄"
+    },
+    {
      "q": "i work for myself|i(?:'m| am) self[- ]employed|i(?:'m| am) (?:a )?freelancer?|i(?:'m| am) freelancing|i run my own (?:business|company|shop)|i(?:'m| am) my own boss",
      "v": "pos",
      "a": "Your own boss — nice! That takes guts. What do you do?"
@@ -13769,6 +13814,16 @@
      "q": "i (?:just )?(?:lost|can'?t find) my (?:wallet|purse)",
      "v": "neg",
      "a": "Oh no, that's so stressful! Retrace your last steps — and if it doesn't turn up, block your cards first, then report it to the police."
+    },
+    {
+     "q": "i (?:just )?(?:lost|can'?t find) my (?:phone|mobile|cell ?phone)(?: again)?",
+     "v": "neg",
+     "a": "Oh no! Try calling it from another phone or use “Find my device” on a computer — and if it's really gone, lock it remotely and change your important passwords."
+    },
+    {
+     "q": "i (?:just )?(?:lost|can'?t find) my (?:umbrella|bag|backpack|jacket|coat|ring|watch|earrings?|headphones|airpods|earbuds|charger|ticket|train ticket|id|id card|bank card|credit card|notebook|laptop|book|hat|gloves|scarf|sunglasses|bike lock|lipstick|pen)",
+     "v": "neg",
+     "a": "Oh no, that's annoying! Where did you last have it? Retracing your steps usually turns things up."
     },
     {
      "q": "i (?:forgot|left) my umbrella(?: at home)?",
@@ -14368,6 +14423,9 @@
    ],
    "drive_retake": [
     "It depends on where you live: in Germany you can usually retake it after about two weeks, in the UK after at least ten working days. Your driving school or test centre can book the next slot — maybe add a lesson or two on the tricky part first."
+   ],
+   "topic_fact_none": [
+    "Hmm, I don't have a fun fact on that one ready. Want a random one instead?"
    ],
    "agree_hard": [
     "I hope it helps a little. And go easy on yourself tonight — you've had a rough day.",

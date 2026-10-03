@@ -6554,6 +6554,8 @@ class Assistant:
             st.uses["bore89"] = [st.turn]
             st.last_exp = {"valence": "negative", "topic": "work", "person": False, "text": msg, "turn": st.turn}
             return say("boring_work")
+        if re.fullmatch(r"(?:ugh,? |honestly,? )?i(?:'m| am) (?:so |really |super )?bored at work(?: today)?", n):
+            st.uses["bore89"] = [st.turn]                 # the reply comes from the moments table; the tips follow
         bo = st.uses.get("bore89")
         if bo and st.turn - bo[-1] <= 4:
             if re.fullmatch(r"(?:i )?(?:sit|am stuck|spend all day|spend the whole day|have) (?:in )?(?:back to back )?meetings(?: all day| the whole day| every day)?", n):
@@ -6611,6 +6613,25 @@ class Assistant:
         if re.fullmatch(r"(?:i )?(?:don'?t|do not|dont) know what to (?:ask|say|talk about)|(?:i'?m |im )?(?:not sure|out of ideas)(?: what to (?:ask|say))?|"
                         r"what (?:should|can) i ask(?: you)?|what can we talk about|what do you want to talk about|give me (?:an idea|something to ask)", n):
             return say("no_idea")
+        tf = re.fullmatch(r"(?:(?:tell me|give me|do you know) (?:something|a fact|a fun fact|anything)|(?:a |any )?(?:fun )?facts?)(?: cool| interesting| fun| amazing| weird| random)? (?:about|on) "
+                          r"(?P<t>space|the universe|planets|stars|animals|the ocean|the sea|the human body|our body|history|science|food|nature)", n)
+        if tf:                                            # "tell me something cool about space": a fun fact on that topic
+            words_t = {"space": r"planet|moon|sun\b|star|galax|space|universe|venus|mars|jupiter|saturn|orbit|astronaut",
+                       "animals": r"octopus|animal|wombat|shark|cat|dog|bird|whale|elephant|ant\b|bee|cow|fish|snail",
+                       "ocean": r"ocean|sea\b|whale|shark|octopus|fish|coral", "body": r"human|body|heart|brain|bone|blood|skin",
+                       "history": r"\b1\d{3}\b|ancient|roman|egypt|king|queen|war|century", "science": r"atom|water|light|chemical|energy|physics|planet|dna",
+                       "food": r"honey|food|banana|chocolate|eat|apple|pizza", "nature": r"tree|plant|flower|forest|animal|mountain"}
+            t = tf.group("t")
+            key = "space" if t in ("space", "the universe", "planets", "stars") else "ocean" if t in ("the ocean", "the sea") else \
+                "body" if t in ("the human body", "our body") else t
+            facts = self.bank.fun.get("facts", []) if hasattr(self.bank, "fun") and isinstance(self.bank.fun, dict) else []
+            seen = set(st.uses.get("topic_facts", []))
+            pick = next((f for f in facts if re.search(words_t.get(key, key), f["text"], re.I) and f["text"] not in seen), None)
+            if pick is None:
+                return say("topic_fact_none")
+            st.uses["topic_facts"] = list(seen | {pick["text"]})
+            return Reply(msg, "about", _join(self._pick(st, "fact_intro", self.bank.reply("fact_intro")), pick["text"]),
+                         source={"kind": "base", "source": "wiki", "key": pick.get("src", "")}, evidence=pick["text"], via="facts-bank")
         phr = b["phrases"]
         lang_rx = "|".join(phr["langs"])
         lm2 = re.search(rf"\b(?:i'?m|i am|im|i'?ve been|i started|started|i want to start|i'?d like to start) (?:learning|to learn|studying|taking) (?P<l>{lang_rx})\b", n)

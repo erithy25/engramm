@@ -3095,6 +3095,36 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 789 bestanden. Regressionen (60 Gespräche): 0 Wiederholungen,
   Unterschiede wie bei 89.
+- **Englische Verallgemeinerungsprobe (Batterie 94: 40 neue Alltagsnachrichten, vorher nicht angefasst)**: erster
+  Lauf ungefähr 28 von 40 passend. Schwach waren:
+
+  | Eingabe | vorher |
+  |---|---|
+  | „i lost my keys“ | „What went wrong with your keys?“ |
+  | „everything is going wrong today“ | „Okay! Is there something you'd like to know?“ |
+  | „my best friend moved away“ | „Got it — I'll remember that about your friend.“ |
+  | „i'm bored at work“, „i just woke up from a nap“ | „Ah, okay. How's that going?“ |
+  | „it's my first day at a new job“ | „How are you going to celebrate?“ |
+  | Tattoo, Kochen lernen, Welpe nächste Woche | „tell me more“ |
+  | „can you recommend a podcast?“ | weiß nicht |
+  | „tell me something cool about space“ | weiß nicht |
+
+  Neu:
+  - neun Einträge in der Ereignistabelle (Langeweile bei der Arbeit führt weiter zu den Tipps);
+  - die Empfehlungs-Erkennung nimmt „can you …“ jetzt vor jeder Form, nicht nur vor der ersten;
+  - Fun Facts nach Thema (Weltraum, Tiere, Meer, Körper, Geschichte, Wissenschaft, Essen, Natur).
+
+  Die erste Fassung der Themenfakten nahm auch „something about history“. Nach einer Podcast-Empfehlung ist das
+  eine Genre-Nachfrage; der alte Test aus Batterie 22 fand das. Jetzt muss „tell me/give me“ oder „fact“ dabeistehen.
+  Danach etwa 39 von 40 (Bewertung von Hand, kein Prüfprogramm).
+
+  Die Regression fand noch etwas: Die neue Zeile für verlorene Dinge verdrängte den besseren Geldbörsen-Eintrag
+  („block your cards“). Sie gilt jetzt nur für Schlüssel und Brille. Telefon („Find my device“) und eine feste
+  Liste von Gegenständen haben eigene Einträge. Eine offene Form „lost my X“ hätte „i lost my mom“ als verlegten
+  Gegenstand behandelt; ein Test prüft, dass Trauer Trauer bleibt.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 791 bestanden. Regressionen 32 und 38–94 (61 Gespräche):
+  0 Wiederholungen, Unterschiede wie bei 89.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

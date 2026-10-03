@@ -3402,3 +3402,23 @@ def test_battery93_german_generalisation_and_built_year_guard(chat):
     assert "1961" in a.turn(DialogState("bw93"), "wann wurde die berliner mauer gebaut?").text
     assert "Michelangelo" in a.turn(DialogState("sc93"), "who painted the sistine chapel?").text
     assert "Acht" in a.turn(DialogState("pl93"), "wie viele planeten hat unser sonnensystem?").text
+
+
+def test_battery94_english_generalisation(chat):
+    a, _ = chat
+    for i, (msg, want) in enumerate([("i lost my keys", "last have"), ("everything is going wrong today", "one of those days"),
+                                     ("my best friend moved away", "miss them"), ("i got a tattoo today", "tattoo"),
+                                     ("it's my first day at a new job", "first day"), ("i'm getting a puppy next week", "breed"),
+                                     ("i just woke up from a nap", "nap"), ("i'm learning to cook", "made so far")]):
+        t = a.turn(DialogState(f"g94-{i}"), msg).text
+        assert want in t, (msg, t)
+    assert "podcast" in a.turn(DialogState("pc94"), "can you recommend a podcast?").text.lower()
+
+
+def test_battery94_lost_items_never_grief(chat):
+    a, _ = chat
+    for i, msg in enumerate(["i lost my mom last year", "i lost my dog", "i lost my grandpa"]):
+        t = a.turn(DialogState(f"lg94-{i}"), msg).text
+        assert "annoying" not in t and "last have" not in t, (msg, t)
+    assert "cards" in a.turn(DialogState("lw94"), "i lost my wallet").text
+    assert "Find my device" in a.turn(DialogState("lp94"), "i lost my phone").text

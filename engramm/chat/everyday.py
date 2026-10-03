@@ -230,7 +230,7 @@ _REC_NOUN = {"music": "music", "song": "music", "songs": "music", "album": "musi
              "activity": "activity", "activities": "activity"}
 _REC_FILLER = frozenset("a an some any good great nice new kind type sort of kinds types to the few".split())
 _REC_ANY = re.compile(
-    _LEAD + r"(?:what|which)(?: kind| kinds| type| types| sort)?(?: of)? (?P<n>[a-z\- ]{2,40}?) (?:do|would|can|could) you "
+    _LEAD + r"(?:(?:what|which)(?: kind| kinds| type| types| sort)?(?: of)? (?P<n>[a-z\- ]{2,40}?) (?:do|would|can|could) you "
     r"(?:recommend|suggest)(?: (?:to )?me)?(?: to (?:listen to|read|watch|play))?$|"
     r"(?:recommend|suggest)(?: (?:to )?me)? (?:a |an |some |any )?(?:good |great |nice |new )?(?P<n2>[a-z\- ]{2,40}?)"
     r"(?: to (?:listen to|read|watch|play))?$|"
@@ -239,7 +239,7 @@ _REC_ANY = re.compile(
     r"(?:what's|what is|whats|know|do you know) (?:a |an |some |any )?(?:good|great|nice|fun|decent) (?P<n4>[a-z\- ]{2,40}?)"
     r"(?: to (?:listen to|read|watch|play))?$|"
     r"(?:and |so |ok |okay )?(?:what|how) about (?:a |an |some |any )?(?:good |great |fun |nice )?(?P<n5>[a-z\- ]{2,30}?)"
-    r"(?: then| instead| now| too| as well)?\??$|(?:and|also|plus) (?:a|an|some) (?:good |great )?(?P<n6>[a-z\- ]{2,30}?)(?: too)?\??$")
+    r"(?: then| instead| now| too| as well)?\??$|(?:and|also|plus) (?:a|an|some) (?:good |great )?(?P<n6>[a-z\- ]{2,30}?)(?: too)?\??$)")   # "can you recommend a podcast?": the lead applies to every form
 _REC_VERB = re.compile(_LEAD + r"what (?:should|can|could|do you think) i (?P<v>read|watch|listen to|play)(?: next| now| tonight)?$")
 _REC_VERB_KIND = {"read": "book", "watch": "movie", "listen to": "music", "play": "game"}
 
