@@ -209,7 +209,10 @@ gespeichert, Folgefragen über mehrere Turns; 45 Dateien, 6 Installer, SHA256SUM
 Gespräch; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.23](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.23)
 (Lauf 37074474964, Batterien 79–81: 40 echte Einzelnachrichten, Zustände von Dingen auf Englisch und Deutsch, Schmerzen
 mit Rat; erster Lauf 37069930936 hing beim Herunterladen der Paket-Artefakte, der Reuse-Job hat seitdem 20 Minuten
-Zeitlimit; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
+Zeitlimit; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.24](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.24)
+(Lauf 37080858238, Batterien 82–86: Ereignisse in der Ich-Form, Sicherheitsnetz für Bestätigungen, vierte
+Wissensstichprobe 39/40, natürliche Mehrschritt-Gespräche mit Haustier-Gedächtnis; 45 Dateien, 6 Installer,
+SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
