@@ -1009,7 +1009,7 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_mem67(st, msg, s) or self._german_ctx112(st, msg, s) or self._german_ctx111(st, msg, s) or self._german_ctx104(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx113(st, msg, s) or self._german_ctx112(st, msg, s) or self._german_ctx111(st, msg, s) or self._german_ctx104(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
@@ -1525,6 +1525,124 @@ class Assistant:
             if pen:
                 st.uses["trip_de"] = [pen, kw.get("X", sl.get("o", "").capitalize()), st.turn]
         return Reply(msg, "empathy", self._pick(st, f"de:moments:{k2}", mb[k2], **kw), via="german")
+
+    def _german_ctx113(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 113 in German: Hausaufgaben, Wohnungssuche, Sparen, "was machst du so den ganzen Tag?", Hobbys,
+        auslaufende Waschmaschine, keine Motivation, Einschulung, Hunderassen für die Wohnung."""
+        b = (self.bank.daily.get("b113") or {}).get("de")
+        if not b:
+            return None
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:%-]", " ", s)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:b113:{key}", b[key], **kw), via="german")   # noqa: E731
+        c = st.uses.get("c113")
+        topic = c[0] if c and st.turn - c[1] <= 5 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c113"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        ja = bool(re.fullmatch(r"(?:ja|jo|gerne?|klar|ok(?:ay)?|ja gerne?|ja bitte|bitte|unbedingt)(?: danke)?|(?:hast du )?(?:ein paar |irgendwelche )?(?:tipps|tricks|ideen)", q))
+        o113 = st.uses.get("o113")
+        if o113 and o113[1] == st.turn - 1 and ja:
+            st.uses.pop("o113", None)
+            if topic:
+                keep(topic)
+            return say(o113[0])
+        if re.fullmatch(r"(?:und )?was machst du (?:so )?(?:eigentlich )?(?:den ganzen tag|tagsüber|den lieben langen tag)", q):
+            return say("bot_day")
+        if re.fullmatch(r"(?:und )?(?:wird|ist) (?:dir|es dir) (?:nie|nicht|eigentlich nie) langweilig|langweilst du dich (?:nie|manchmal)", q):
+            return say("bot_bored")
+        if re.search(r"\bmein(?:e)? (?:sohn|tochter|kind|kleiner|kleine) (?:macht|will) (?:seine |ihre |die )?hausaufgaben (?:nicht|nie)\b|\b(?:sohn|tochter|kind) (?:hat keine lust auf|verweigert) (?:die )?hausaufgaben\b", q):
+            keep("kid")
+            return say("kid_hw")
+        if re.search(r"\b(?:ich|wir) (?:suche|suchen) (?:gerade |dringend )?(?:eine |ne )?(?:neue |größere |kleinere )?(?:wohnung|bleibe)\b|\bwohnungssuche\b", q) and "?" not in msg and "tipps" not in q:
+            keep("flat")
+            return say("flat_start")
+        if re.search(r"\b(?:ich will|ich möchte|ich muss|ich sollte) (?:mehr |endlich |anfangen,? )?(?:geld )?sparen\b", q):
+            keep("save")
+            return say("save_start")
+        if re.search(r"\b(?:waschmaschine|spülmaschine|geschirrspüler|kühlschrank|rohr|leitung|toilette|heizung) (?:läuft aus|leckt|ist undicht|tropft)\b|\brohrbruch\b", q):
+            keep("leak")
+            return say("leak_start")
+        if re.search(r"\b(?:ich hab|hab|ich habe) (?:heute )?(?:null|keine|gar keine) motivation\b|\bich bin (?:heute )?(?:total |so )?(?:unmotiviert|antriebslos)\b", q):
+            keep("unmot")
+            return say("unmot_start")
+        if re.search(r"\bmein(?:e)? (?:tochter|sohn|kleine|kleiner|kind) (?:kommt|wird) (?:nächste woche |bald |morgen |im \w+ )?(?:in die schule|eingeschult|in den kindergarten)\b", q):
+            keep("school")
+            return say("school_start")
+        if re.search(r"\b(?:ideen|vorschläge) für (?:ein )?(?:neues )?hobby\b|\bich brauch(?:e)? (?:ein )?(?:neues )?hobby\b", q):
+            keep("hobby")
+            return say("hobby_ideas")
+        if re.search(r"\b(?:überlege|überleg) (?:mir |gerade )?(?:einen )?hund zu (?:holen|kaufen|adoptieren)\b|\bich will (?:mir )?einen hund (?:holen|zulegen)\b", q):
+            keep("dog")
+            return None
+        if topic == "kid":
+            ma = re.fullmatch(r"(?:er|sie) ist (?:erst |schon |fast )?(?P<a>\d{1,2})(?: jahre alt)?", q)
+            if ma:
+                keep("kid")
+                return say("kid_age", X=ma.group("a"))
+            if re.search(r"\b(?:zocken|spielen|spiele|konsole|handy|tablet|youtube|fortnite|minecraft|roblox)\b", q) and "?" not in msg:
+                keep("kid")
+                st.uses["o113"] = ["kid_tips", st.turn]
+                return say("kid_games")
+            if re.fullmatch(r"(?:und |also )?wie (?:kann|soll|könnte) ich (?:ihn|sie) (?:motivieren|dazu bringen)|hast du tipps", q):
+                keep("kid")
+                return say("kid_tips")
+        if topic == "flat":
+            if re.search(r"\bmieten?\b.*\b(?:verrückt|irre|wahnsinn|teuer|unbezahlbar|krank|absurd)\b", q):
+                keep("flat")
+                return say("flat_rent")
+            if re.search(r"\btipps\b", q):
+                keep("flat")
+                return say("flat_tips")
+        if re.search(r"\btipps für die wohnungssuche\b", q):
+            keep("flat")
+            return say("flat_tips")
+        if topic == "save":
+            if re.search(r"\b(?:essen gehen|restaurant|lieferando|bestellen|auswärts essen)\b", q):
+                keep("save")
+                return say("save_eatout")
+            if re.fullmatch(r"(?:und )?wie viel (?:geld )?(?:sollte|soll|muss) ich (?:im monat |monatlich |jeden monat )?(?:sparen|zurücklegen)(?: im monat| monatlich)?", q):
+                keep("save")
+                return say("save_how_much")
+            if re.fullmatch(r"(?:ok(?:ay)?,? )?(?:macht sinn|klingt gut|klingt vernünftig|guter plan|verstehe)", q):
+                return say("save_ok")
+        if topic == "leak":
+            if re.search(r"\b(?:überall|alles|der boden|die küche|das bad)\b.*\b(?:wasser|nass|unter wasser)\b|\bwasser überall\b|\büberall ist wasser\b", q):
+                keep("leak")
+                return say("leak_floor")
+            if re.fullmatch(r"(?:also |und )?soll(?:te)? ich (?:einen |den )?(?:klempner|installateur|handwerker|vermieter) (?:rufen|anrufen|holen|bescheid sagen)", q):
+                keep("leak")
+                return say("leak_plumber")
+            if re.search(r"\b(?:dreh|drehe|stell|stelle|mach|mache) (?:erst(?:mal)? )?(?:das wasser|den hahn|den haupthahn) (?:ab|zu|aus)\b", q):
+                keep("leak")
+                return say("leak_off")
+        if topic == "unmot":
+            if re.search(r"\bviel zu tun\b|\bkrieg(?:e)? nichts hin\b|\bkomm(?:e)? nicht in die gänge\b|\bschieb(?:e)? alles vor mir her\b", q):
+                keep("unmot")
+                st.uses["o113"] = ["unmot_tricks", st.turn]
+                return say("unmot_cant")
+            if re.fullmatch(r"(?:hast du )?(?:ein paar |irgendwelche )?(?:tricks|tipps)", q):
+                keep("unmot")
+                return say("unmot_tricks")
+            if re.search(r"\b(?:5|fünf) minuten\b", q):
+                keep("unmot")
+                return say("unmot_try")
+        if topic == "school":
+            if re.search(r"\b(?:aufgeregt|nervös|ängstlich|angst)\b", q) and "?" not in msg:
+                keep("school")
+                return say("school_nerves")
+            if re.fullmatch(r"(?:und )?wie kann ich (?:ihr|ihm) (?:helfen|den start erleichtern)|hast du tipps", q):
+                keep("school")
+                return say("school_tips")
+        if topic == "dog":
+            if re.fullmatch(r"(?:und )?welche (?:hunde)?rassen? (?:passen|eignen sich|sind gut)(?: dazu| dafür| für (?:eine )?(?:kleine )?wohnung(?:en)?)?", q):
+                keep("dog")
+                return say("dog_breeds")
+            if re.fullmatch(r"(?:und |aber )?ich arbeite (?:meistens |komplett )?(?:von zu hause|von zuhause|im homeoffice)|ich bin (?:den ganzen tag )?zu hause", q):
+                keep("dog")
+                return say("dog_wfh")
+        return None
 
     def _german_ctx112(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """Battery 112 in German: Arzttermin und Spritzen, Streit mit dem Partner ("soll ich ihm verzeihen?"),
@@ -5600,6 +5718,18 @@ class Assistant:
             # "how far is the moon?" → "8": a measure without its unit is no answer
             rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None
             rep.text = "I don't know for sure."
+        if rep.kind == "answer" and rep.via in ("facts", "memory") and rep.source and rep.source.get("kind") == "user" and \
+                re.match(r"(?i)(?:and |so )?how (?:much|many|long|often|soon)\b.*\b(?:should|can|could|do|would|will|until|till|before)\b.*\b(?:i|we)\b", q) and \
+                not re.search(r"(?i)\bmy\b", q):
+            stop_ = {"how", "much", "many", "long", "often", "soon", "should", "can", "could", "do", "would", "will", "until", "till", "before", "i", "we",
+                     "a", "an", "the", "each", "every", "per", "to", "be", "able", "is", "it", "and", "so", "have"}
+            qw = {w for w in re.findall(r"[a-z]+", q.lower()) if w not in stop_ and len(w) > 2}
+            ev = set(re.findall(r"[a-z]+", (rep.evidence or "").lower()))
+            if not any(w in ev or w[:4] in {e[:4] for e in ev} for w in qw):
+                # "how much should i save each month?" is advice, never "You've been to five viewings already."
+                rep.kind, rep.answer, rep.guess, rep.source = "unknown", None, None, None
+                rep.text = "I don't know, sorry — that depends on your situation."
+                return rep
         if rep.kind == "answer" and rep.via in ("facts", "memory") and rep.source and rep.source.get("kind") == "user":
             orig = self._fact_for(rep)
             cat = _asked_category(q) if orig is not None and orig.subject == USER else None
@@ -6750,7 +6880,7 @@ class Assistant:
                                                      r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
             # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
             return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
-        evr = self._sounds(st, msg, norm) or self._daily_ctx26(st, msg, norm) or self._daily_ctx25(st, msg, norm) or self._daily_ctx24(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
+        evr = self._sounds(st, msg, norm) or self._daily_ctx27(st, msg, norm) or self._daily_ctx26(st, msg, norm) or self._daily_ctx25(st, msg, norm) or self._daily_ctx24(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
             self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
@@ -7710,6 +7840,135 @@ class Assistant:
             st.uses["fun_fact_seen"] = list(seen | {pick})
             return shown, pick, found.source, False
         return shown, found.sentences[0], found.source, True
+
+    def _daily_ctx27(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 113: a child who won't do homework, apartment hunting, how much to save, "do you ever get bored?",
+        hobby ideas, a leaking washing machine, a day without motivation, a child starting school, apartment dog
+        breeds, and "is it scary?" about the film ENGRAMM just named as its favourite."""
+        b = self.bank.daily.get("b113")
+        if not b:
+            return None
+        n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", norm)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b113:{key}", b[key], **kw), via="everyday")  # noqa: E731
+        c = st.uses.get("c113")
+        topic = c[0] if c and st.turn - c[1] <= 5 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c113"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        yes = short_answer(n) == "yes" or bool(re.fullmatch(r"(?:yes|yeah|sure|ok|okay|please)?,? ?(?:any |some )?(?:tips|tricks|ideas)\??|(?:do you have |got )?any (?:tips|tricks|ideas|advice)\??", n))
+        o113 = st.uses.get("o113")
+        if o113 and o113[1] == st.turn - 1 and yes:
+            st.uses.pop("o113", None)
+            if topic:
+                keep(topic)
+            return say(o113[0])
+        if re.fullmatch(r"(?:aw+,? |oh,? )?(?:that'?s|you'?re|thats) (?:so |really |very )?(?:sweet|kind)(?: of you)?,? (?:thanks?|thank you)(?: so much)?", n):
+            return say("thanks_sweet")                    # "that's sweet, thank you": never "Oh no — I'm sorry"
+        if re.fullmatch(r"(?:and |but |so )?do you (?:ever )?get bored(?: sometimes)?|are you (?:ever )?bored|don'?t you get bored", n):
+            return say("bot_bored")
+        # -- topic starts --------------------------------------------------------------------------------------
+        mk = re.search(r"\bmy (?P<w>son|daughter|kid|child|boy|girl) (?:won'?t|doesn'?t|refuses to|never wants to|hates to) (?:do )?(?:his|her|their|the)? ?homework\b", n)
+        if mk:
+            w = mk.group("w")
+            keep("kid", she=w in ("daughter", "girl"))
+            return say("kid_hw", p="she" if w in ("daughter", "girl") else "he")
+        if re.search(r"\b(?:i'?m|i am|we'?re|we are) (?:looking|searching|hunting) for (?:a |an )?(?:new )?(?:apartment|flat|place to live|place|house to rent|room)\b|\bapartment hunting\b|\bflat hunting\b", n) and "?" not in msg:
+            keep("flat")
+            return say("flat_start")
+        if re.search(r"\b(?:any )?(?:ideas|suggestions) for (?:a )?(?:new )?hobby\b|\bwhat (?:hobby|new hobby) (?:should|could) i (?:start|try|pick up)\b|\bi need a (?:new )?hobby\b", n):
+            keep("hobby")
+            return say("hobby_ideas")
+        if re.search(r"\b(?:washing machine|dishwasher|fridge|boiler|pipe|sink|toilet|radiator) (?:is |has been |keeps )?(?:leaking|overflowing|flooding|dripping)\b|\b(?:pipe|hose) (?:burst|broke)\b", n) and "?" not in msg:
+            keep("leak")
+            return say("leak_start")
+        if re.search(r"\bi (?:feel|am|'m) (?:so |really |totally |completely )?(?:unmotivated|demotivated|lazy today|unproductive)\b|\bno motivation (?:today|at all)\b|\bcan'?t get (?:myself )?(?:motivated|going)\b", n):
+            keep("unmot")
+            return say("unmot_start")
+        ms = re.search(r"\bmy (?P<w>daughter|son|kid|little one|youngest|oldest) (?:is |'s )?(?:starting|starts|going to start) (?:school|kindergarten|first grade|year one|nursery)\b", n)
+        if ms:
+            fem = ms.group("w") == "daughter"
+            keep("school", she=fem)
+            return say("school_start", p="her" if fem else "his" if ms.group("w") == "son" else "their")
+        if re.search(r"\b(?:thinking (?:about|of) getting|want to get|planning to get|considering getting) a (?:dog|puppy)\b", n):
+            keep("dog")
+            return None
+        # -- inside a topic ------------------------------------------------------------------------------------
+        if topic == "kid":
+            ma = re.fullmatch(r"(?:he|she|they)(?:'s| is| are) (?:only |just |almost )?(?P<a>\d{1,2})(?: years old)?", n)
+            if ma:
+                keep("kid")
+                return say("kid_age", X=ma.group("a"))
+            if re.search(r"\b(?:video ?games|games|gaming|fortnite|minecraft|roblox|play(?:station)?|his phone|her phone|tablet|youtube|tiktok|screens?)\b", n) and "?" not in msg:
+                keep("kid")
+                st.uses["o113"] = ["kid_tips", st.turn]
+                return say("kid_games")
+            if re.fullmatch(r"(?:so |but )?how (?:can|do|should) i (?:motivate|get|make|help) (?:him|her|them)(?: to do (?:it|his homework|her homework|their homework))?(?: do it)?", n) or yes:
+                keep("kid")
+                return say("kid_tips")
+        if topic == "flat":
+            if re.search(r"\b(?:rent|rents|prices)\b.*\b(?:crazy|insane|ridiculous|expensive|through the roof|so high|mad)\b", n):
+                keep("flat")
+                return say("flat_rent")
+            if re.search(r"\b(?:viewings|viewed|seen|looked at)\b.*\b(?:already|so many|five|ten|\d+)\b|\b(?:five|ten|\d+) viewings\b", n):
+                keep("flat")
+                return say("flat_viewings")
+            if re.fullmatch(r"(?:any |some )?(?:tips|advice|ideas)(?: for (?:apartment|flat) (?:hunting|searching|search))?|how (?:can|do) i (?:find|get) (?:a |an )?(?:apartment|flat|place)(?: faster)?", n):
+                keep("flat")
+                return say("flat_tips")
+        if re.fullmatch(r"(?:so |and )?how much (?:money )?should i (?:save|be saving|put aside|put away)(?: (?:each|every|a|per) month)?|what percentage should i save", n):
+            return say("save_how_much")
+        if topic == "hobby" or (st.last_reply and "Any of those tempting?" in st.last_reply):
+            mh = re.fullmatch(r"(?:maybe |hmm,? |ok,? |i think |perhaps )?(?P<h>painting|drawing|knitting|photography|guitar|gardening|cooking|bouldering|crochet|an instrument|piano)(?: maybe| sounds (?:good|fun|nice))?", n)
+            if mh:
+                keep("hobby")
+                h = mh.group("h")
+                return Reply(msg, "smalltalk", b["hobby_pick"].get(h, b["hobby_pick"]["generic"]), via="everyday")
+        if topic == "leak":
+            if re.search(r"\b(?:water|puddle|flood)\b.*\b(?:everywhere|all over|on the floor|in the kitchen|in the bathroom)\b", n) and "?" not in msg:
+                keep("leak")
+                return say("leak_floor")
+            if re.fullmatch(r"(?:so |but )?(?:should|do i need to|do you think i should) (?:i )?(?:call|get) (?:a |the )?(?:plumber|repair ?man|technician|landlord)", n):
+                keep("leak")
+                return say("leak_plumber")
+            if re.search(r"\b(?:turn|turned|turning|shut|switch) (?:off )?(?:the )?(?:water|tap|valve)(?: off)?\b", n):
+                keep("leak")
+                return say("leak_off")
+        if topic == "unmot":
+            if re.search(r"\b(?:a lot|so much|loads|tons) to do\b|\bcan'?t (?:start|get started|begin|focus)\b|\bkeep procrastinating\b", n):
+                keep("unmot")
+                st.uses["o113"] = ["unmot_tricks", st.turn]
+                return say("unmot_cant")
+            if re.fullmatch(r"(?:any |some )?(?:tricks|tips|ideas)|(?:do you have |got )?any (?:tricks|tips)", n):
+                keep("unmot")
+                return say("unmot_tricks")
+            if re.search(r"\b(?:try|do) (?:the )?(?:5|five) minutes?\b", n):
+                keep("unmot")
+                return say("unmot_try")
+        if topic == "school":
+            if re.search(r"\b(?:nervous|anxious|scared|worried|excited)\b", n) and "?" not in msg:
+                keep("school")
+                return say("school_nerves")
+            if re.fullmatch(r"(?:so |and )?how (?:can|do|should) i (?:help|prepare|support) (?:her|him|them)(?: for it)?|any tips(?: for the first day)?", n):
+                keep("school")
+                return say("school_tips")
+        if topic == "dog":
+            if re.fullmatch(r"(?:so |and )?(?:which|what) (?:dog )?breeds? (?:are|is) (?:good|best|ok|okay|suitable)(?: for (?:an |small )?(?:apartments?|flats?|small spaces))?|(?:what|which) dog (?:should i get|is good for an apartment)", n):
+                keep("dog")
+                return say("dog_breeds")
+            if re.fullmatch(r"(?:and |but )?i (?:work|am working) from home(?: most days| every day| full time)?|i'?m (?:home|at home) all day", n):
+                keep("dog")
+                return say("dog_wfh")
+        if st.last_reply and "Back to the Future" in st.last_reply:
+            st.uses["fav113"] = st.turn                   # ENGRAMM just named its favourite film
+        fv = st.uses.get("fav113")
+        if fv is not None and st.turn - fv <= 4:
+            if re.fullmatch(r"(?:but |oh,? |hmm,? )?i(?:'ve| have)? never (?:seen|watched) (?:it|that one|that|the film|the movie)", n):
+                return say("movie_seen_not")
+            if re.fullmatch(r"(?:and |so )?is it (?:scary|violent|sad|for kids|kid friendly|good for kids|long)", n):
+                return say("movie_scary")
+        return None
 
     def _daily_ctx26(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 112: more whole conversations — a doctor's appointment and the fear of needles, a fight with a

@@ -3711,6 +3711,46 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: NQ 22/9; Suite 811 bestanden. Proben 109–111b, Generisch und Held-out stehen bei 0; Wiederholungen 5 von
   700, Valenz 0 falsch. Test 112 hält 15 Gespräche fest.
+- **Probe 113: vierte ungesehene Gesprächsprobe** (3. Oktober 2026): 10 englische und 8 deutsche Gespräche zu
+  Familie, Wohnen, Geld und Fragen an den Bot. Die Probe wurde vor jeder Anpassung einmal gemessen; gelesen wurde
+  jede Antwort, ohne KI-Richter.
+  Themen: Kind ohne Lust auf Hausaufgaben, Wohnungssuche, Sparen, „do you ever get bored?“, Hobby nach dem Puzzle,
+  auslaufende Waschmaschine, Motivationstief, Einschulung, Hund für eine kleine Wohnung, Lieblingsfilm des Bots.
+
+  | Stand | EN schwach (gelesen) | DE schwach (gelesen) |
+  |---|---|---|
+  | erster Lauf | 27 von 56 | 26 von 42 |
+  | nach b113 | 0 von 56 | 0 von 42 |
+
+  Auch hier gilt: Neue Themen sind ohne eigenes Wissen etwa zur Hälfte schwach. Deutsch ist dabei schwächer, weil
+  viele Fragen dort im allgemeinen Fallback enden („Das kann ich auf Deutsch leider noch nicht nachschlagen“).
+
+  Gefundene Fehler (allgemein behoben):
+  - „i'm looking for a new apartment“ wurde als Beruf gemerkt. Gesuchte Dinge (Wohnung, Haus, Auto, Handy …)
+    gelten nicht als Beruf.
+  - „how much should i save each month?“ wurde aus einer fremden Erinnerung beantwortet („You've been to five
+    viewings already.“). Ratfragen mit „how much / many / long / often … should / can / until i“ beantwortet der
+    persönliche Speicher nur noch, wenn Frage und gemerkter Satz ein Inhaltswort teilen.
+  - „that's sweet, thank you“ ergab „Oh no — I'm sorry“.
+
+  Neu (Block b113, `_daily_ctx27`, `_german_ctx113`):
+  - Hausaufgaben-Tipps.
+  - Wohnungssuche: Mappe, Suchaufträge, schnell antworten.
+  - Sparquote nach der 50/30/20-Regel.
+  - Gefühle und Tagesablauf des Bots.
+  - Hobby-Ideen und Einstiegstipps je Hobby.
+  - Auslaufende Waschmaschine: Hahn zu, Klempner ja oder nein.
+  - Motivationstricks, darunter die 5-Minuten-Regel.
+  - Einschulung.
+  - Hunderassen für die Wohnung; Homeoffice als Vorteil.
+  - Der Lieblingsfilm des Bots wird für Rückfragen gemerkt.
+
+  Routine gegen b112: DEV-Satz unverändert. Gefunden wurde eine Regression: „ich hab keine lust“ im Trennungs-
+  Gespräch wurde als Motivationstief gelesen (b106); jetzt zählt nur „keine Motivation“. Übrig bleibt eine
+  Verbesserung in b49 („do you get bored?“ wird direkt beantwortet).
+
+  Messung: NQ 22/9; Suite 812 bestanden; Proben 109–112, Generisch und Held-out stehen bei 0. Wiederholungen
+  5 von 700, Valenz 0 falsch. Test 113 hält 16 Gespräche fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

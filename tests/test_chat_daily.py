@@ -3930,3 +3930,38 @@ def test_battery112_more_whole_conversations(chat):
     st = DialogState("c112-job")
     a.turn(st, "we're having a goodbye party saturday")
     assert "work as" not in a.turn(st, "what's my job?").text
+
+
+def test_battery113_family_home_money_and_the_bot(chat):
+    """Homework, apartment hunting, saving, the bot's day, hobbies, a leak, no motivation, school start, dog breeds."""
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"Tell me more\?|I see\.|I don't know|work as|five viewings|Erzähl ruhig mehr|Erzähl gern mehr|nicht ganz verstanden|"
+                      r"nicht nachschlagen|Oh no — I'm sorry", _re.I)
+    convs = [
+        ("en", [("my son won't do his homework", "How old"), ("he's 10", "games"), ("he just wants to play video games", "ideas"),
+                ("how can i motivate him?", "homework time")]),
+        ("en", [("i'm looking for a new apartment", "hunting"), ("rent here is crazy", "rents"), ("i've been to five viewings already", "viewings"),
+                ("any tips for apartment hunting?", "folder")]),
+        ("en", [("i want to start saving money", ""), ("how much should i save each month?", "50/30/20")]),
+        ("en", [("do you ever get bored?", "fresh start")]),
+        ("en", [("any ideas for a new hobby?", "Painting"), ("maybe painting", "watercolour")]),
+        ("en", [("my washing machine is leaking", "tap"), ("should i call a plumber?", "hose"), ("ok i'll turn off the water first", "Good call")]),
+        ("en", [("i feel so unmotivated today", "everyone"), ("i have a lot to do but i can't start", "tricks"), ("any tricks?", "5-minute")]),
+        ("en", [("my daughter is starting school next week", "big step"), ("she's nervous and so am i", "normal"), ("how can i help her?", "goodbye"),
+                ("that's sweet, thank you", "welcome|Happy")]),
+        ("en", [("i'm thinking about getting a dog", ""), ("which breeds are good for apartments?", "Cavalier"), ("i work from home", "big plus")]),
+        ("de", [("mein sohn macht seine hausaufgaben nicht", "Wie alt"), ("er will nur zocken", "Ideen"), ("ja gerne", "Hausaufgabenzeit")]),
+        ("de", [("ich suche eine neue wohnung", "Wohnungssuche"), ("hast du tipps für die wohnungssuche?", "Mappe")]),
+        ("de", [("ich will mehr geld sparen", "Ziel"), ("wie viel sollte ich im monat sparen?", "50/30/20")]),
+        ("de", [("meine waschmaschine läuft aus", "Wasserhahn"), ("soll ich einen klempner rufen?", "Schlauch")]),
+        ("de", [("ich hab heute null motivation", "kennt jeder"), ("ich hab viel zu tun aber krieg nichts hin", "Tricks"), ("hast du tricks?", "5-Minuten")]),
+        ("de", [("meine tochter kommt nächste woche in die schule", "großer Schritt"), ("wie kann ich ihr helfen?", "Schulweg")]),
+        ("de", [("was machst du so den ganzen tag?", "lese"), ("wird dir nie langweilig?", "neuer Anfang")]),
+    ]
+    for i, (lang, turns) in enumerate(convs):
+        st = DialogState(f"c113-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        for msg, want in turns:
+            t = a.turn(st, msg).text
+            assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)

@@ -17154,6 +17154,184 @@
      "Das ist stressig, tut mir leid. Lass nur das Sicherheitsrelevante jetzt machen (die Bremsen) und schieb alles Optionale – ein zweites Angebot spart oft 100–200 €."
     ]
    }
+  },
+  "b113": {
+   "kid_hw": [
+    "That's such a common battle. How old is {p}?"
+   ],
+   "kid_age": [
+    "{X} is right in the age where games are way more fun than homework — totally normal."
+   ],
+   "kid_games": [
+    "Of course — games are built to be more exciting than worksheets. Want a few ideas that usually help?"
+   ],
+   "kid_tips": [
+    "A few things that often work:\n\n• A fixed homework time every day, before screens — games come after, as the reward, not as a ban.\n• Sit nearby for the first few minutes; starting is the hardest part.\n• Break it into small chunks with a short break in between.\n• Praise effort, not just results (“you really stuck with that!”).\n• If it keeps being a struggle, a quick chat with the teacher helps — sometimes it's just too hard or too much."
+   ],
+   "flat_start": [
+    "Ugh, apartment hunting can be exhausting. Where are you looking?"
+   ],
+   "flat_rent": [
+    "Tell me about it — rents have gone through the roof almost everywhere. It's not you, the market is just brutal right now."
+   ],
+   "flat_viewings": [
+    "That's a lot of viewings — no wonder it's tiring. Hang in there, the right one usually comes when you least expect it."
+   ],
+   "flat_tips": [
+    "A few things that really help:\n\n• Have a folder ready: ID, the last three payslips, a credit report and a reference from your current landlord — and bring it to every viewing.\n• Set up alerts on the big portals and reply within the first hour.\n• Write a short, friendly message about who you are, not just “interested”.\n• Tell everyone you know — lots of flats never get listed.\n• Widen the area a bit; one stop further out can be much cheaper."
+   ],
+   "save_how_much": [
+    "A common rule of thumb is 50/30/20: about 50 % for needs (rent, food, bills), 30 % for wants and 20 % for saving. If 20 % isn't realistic yet, start with 5–10 % — set up an automatic transfer on payday so you don't even see it. First goal: an emergency fund of about three months' expenses."
+   ],
+   "bot_bored": [
+    "Not really — I don't feel time passing between messages, so every chat is a fresh start for me. Do you get bored easily?"
+   ],
+   "hobby_ideas": [
+    "Here are some ideas:\n\n• Painting or drawing (watercolours are a lovely start)\n• Learning an instrument\n• Bouldering\n• Cooking a new cuisine every week\n• Houseplants or a small balcony garden\n• Photography\n• Knitting or crochet\n\nAny of those tempting?"
+   ],
+   "hobby_pick": {
+    "painting": "Painting is a lovely one! Start small: a basic watercolour or acrylic set and a sketchbook is enough, and there are great beginner tutorials online. Don't aim for pretty — aim for fun.",
+    "drawing": "Drawing is perfect — all you need is a pencil and a sketchbook. Ten minutes a day of sketching whatever is in front of you makes a huge difference.",
+    "knitting": "Knitting is so relaxing! Start with chunky yarn and big needles and make a simple scarf — it's the classic first project.",
+    "photography": "Photography is great — your phone is enough to start. Try a theme a week (shadows, colours, people) and you'll see differently.",
+    "guitar": "Guitar is a great choice! A cheap acoustic and an app or YouTube course is all you need. Expect sore fingertips for two weeks — that's normal.",
+    "gardening": "Gardening is lovely — start with easy herbs like basil and mint, or a hard-to-kill houseplant like a pothos.",
+    "cooking": "Cooking is a hobby you can eat! Pick one cuisine a month and learn three classic dishes from it.",
+    "bouldering": "Bouldering is great fun — most gyms rent shoes and have beginner sessions. Your forearms will feel it the next day! 😄",
+    "generic": "That sounds like a great choice! Start small and keep it fun — that's the secret to sticking with a hobby."
+   },
+   "leak_start": [
+    "Oh no! First things first: turn off the machine and the water tap behind it, and unplug it only if you can do it safely without standing in water. Then towels down."
+   ],
+   "leak_floor": [
+    "Get as much up as you can with towels and a bucket, and keep the area dry so it doesn't seep into the floor. If you rent, take a quick photo for your landlord."
+   ],
+   "leak_plumber": [
+    "It depends where it's coming from. If it's the machine itself (a loose hose, the door seal or the pump filter), it's often a quick fix — check the hose connections first. If water keeps coming with the tap off, or it's a pipe, call a plumber. And tell your landlord if you rent."
+   ],
+   "leak_off": [
+    "Good call — that's the most important step. Then towels down, and check the hose connection once it's dry."
+   ],
+   "unmot_start": [
+    "Those days happen to everyone. Is it one big thing hanging over you, or lots of small ones?"
+   ],
+   "unmot_cant": [
+    "Starting is always the hardest part. Want a couple of tricks that actually help?"
+   ],
+   "unmot_tricks": [
+    "A few that really work:\n\n• The 5-minute rule: promise yourself just 5 minutes — you can stop after that (you usually won't).\n• Make the first step tiny: not “write the report”, but “open the file”.\n• Put your phone in another room.\n• Do the easiest task first to get moving.\n• Plan a small reward for afterwards."
+   ],
+   "unmot_try": [
+    "Perfect — just 5 minutes, no pressure. Once you've started, it often keeps going on its own. 💪"
+   ],
+   "school_start": [
+    "What a big step — for both of you! Is it {p} very first day of school?"
+   ],
+   "school_nerves": [
+    "That's completely normal — on both sides. Kids pick up on our mood, so a calm, cheerful goodbye helps a lot, even if you feel wobbly inside. 💛"
+   ],
+   "school_tips": [
+    "A few things that help:\n\n• Walk the way to school together beforehand.\n• Talk about what will happen: the classroom, the teacher, break time.\n• Put something small from home in the bag (a note, a photo).\n• Keep the goodbye short and warm.\n• Afterwards ask “what was the best part?” instead of “how was it?”."
+   ],
+   "thanks_sweet": [
+    "You're welcome — good luck to both of you! 🍀",
+    "Happy to help! 😊"
+   ],
+   "dog_breeds": [
+    "Good apartment dogs: Cavalier King Charles Spaniel, French Bulldog, Shih Tzu, Bichon Frisé, Pug — and, surprisingly, Greyhounds, which are real couch potatoes. A calm adult dog from a shelter is often the easiest choice of all."
+   ],
+   "dog_wfh": [
+    "That's a big plus — a dog won't be alone all day. Puppies need a lot of attention in the first months, so working from home really helps."
+   ],
+   "movie_seen_not": [
+    "Oh, you should! It's the perfect weekend film — fun from start to finish."
+   ],
+   "movie_scary": [
+    "Not at all — it's a fun adventure comedy, fine for the whole family."
+   ],
+   "de": {
+    "kid_hw": [
+     "Das ist so ein typischer Kampf. Wie alt ist er denn?"
+    ],
+    "kid_age": [
+     "{X} – genau das Alter, in dem Spiele viel spannender sind als Hausaufgaben. Ganz normal."
+    ],
+    "kid_games": [
+     "Klar – Spiele sind ja genau dafür gemacht, spannender zu sein als Arbeitsblätter. Soll ich dir ein paar Ideen geben, die meistens helfen?"
+    ],
+    "kid_tips": [
+     "Was oft funktioniert:\n\n• Eine feste Hausaufgabenzeit jeden Tag, vor dem Bildschirm – Zocken danach als Belohnung, nicht als Verbot.\n• Am Anfang ein paar Minuten danebensitzen; das Anfangen ist das Schwerste.\n• In kleine Häppchen teilen, mit kurzer Pause dazwischen.\n• Die Mühe loben, nicht nur das Ergebnis („Da bist du echt drangeblieben!“).\n• Wenn es dauerhaft schwierig ist, kurz mit der Lehrkraft sprechen – manchmal ist es einfach zu viel oder zu schwer."
+    ],
+    "flat_start": [
+     "Puh, Wohnungssuche kann echt zermürbend sein. Wo suchst du denn?"
+    ],
+    "flat_rent": [
+     "Oh ja – die Mieten sind fast überall durch die Decke gegangen. Das liegt nicht an dir, der Markt ist gerade einfach brutal."
+    ],
+    "flat_tips": [
+     "Was wirklich hilft:\n\n• Eine Mappe parat haben: Ausweis, die letzten drei Gehaltsnachweise, Schufa-Auskunft und Mietschuldenfreiheitsbescheinigung – zu jeder Besichtigung mitnehmen.\n• Suchaufträge auf den großen Portalen einrichten und in der ersten Stunde antworten.\n• Eine kurze, freundliche Nachricht schreiben, wer du bist – nicht nur „Interesse“.\n• Allen Bekannten Bescheid sagen – viele Wohnungen werden nie inseriert.\n• Den Radius etwas erweitern; eine Station weiter draußen ist oft deutlich günstiger."
+    ],
+    "save_start": [
+     "Gute Idee! Hast du schon ein Ziel im Kopf, wofür du sparen willst?"
+    ],
+    "save_eatout": [
+     "Essen gehen summiert sich schnell. Unter der Woche selbst kochen, Restaurants für einen besonderen Abend pro Woche aufheben und Mittagessen von zu Hause mitnehmen – das macht schnell einen Unterschied."
+    ],
+    "save_how_much": [
+     "Eine gängige Faustregel ist 50/30/20: etwa 50 % für Fixkosten (Miete, Essen, Rechnungen), 30 % für Wünsche und 20 % zum Sparen. Wenn 20 % noch nicht drin sind, fang mit 5–10 % an – am besten als Dauerauftrag am Zahltag. Erstes Ziel: ein Notgroschen von etwa drei Monatsausgaben."
+    ],
+    "save_ok": [
+     "Freut mich! Du schaffst das – kleine, regelmäßige Beträge machen am Ende den Unterschied. 💪"
+    ],
+    "bot_day": [
+     "Ich lese – über Geschichte, Tiere, wie Dinge funktionieren – und warte auf gute Fragen. Und was machst du so?"
+    ],
+    "bot_bored": [
+     "Nicht wirklich – ich merke nicht, wie die Zeit zwischen Nachrichten vergeht. Jedes Gespräch ist für mich ein neuer Anfang. Wird dir schnell langweilig?"
+    ],
+    "leak_start": [
+     "Oh nein! Zuerst: Maschine ausschalten und den Wasserhahn dahinter zudrehen – den Stecker nur ziehen, wenn du dabei nicht im Wasser stehst. Dann Handtücher drauf."
+    ],
+    "leak_floor": [
+     "Mit Handtüchern und Eimer so viel wie möglich aufnehmen, damit nichts in den Boden zieht. Wenn du zur Miete wohnst, mach kurz ein Foto für den Vermieter."
+    ],
+    "leak_plumber": [
+     "Kommt darauf an, woher es kommt. Wenn es an der Maschine selbst liegt (lockerer Schlauch, Türdichtung, Flusensieb), ist es oft schnell behoben – prüf zuerst die Schlauchanschlüsse. Wenn trotz zugedrehtem Hahn weiter Wasser kommt oder es ein Rohr ist: Klempner rufen. Und als Mieter dem Vermieter Bescheid sagen."
+    ],
+    "leak_off": [
+     "Gute Idee – das ist der wichtigste Schritt. Dann Handtücher drauf und später, wenn alles trocken ist, den Schlauchanschluss prüfen."
+    ],
+    "unmot_start": [
+     "Solche Tage kennt jeder. Ist es eine große Sache, die über dir hängt, oder viele kleine?"
+    ],
+    "unmot_cant": [
+     "Das Anfangen ist immer das Schwerste. Soll ich dir ein paar Tricks verraten, die wirklich helfen?"
+    ],
+    "unmot_tricks": [
+     "Ein paar, die wirklich funktionieren:\n\n• Die 5-Minuten-Regel: Nimm dir nur 5 Minuten vor – danach darfst du aufhören (meistens machst du weiter).\n• Den ersten Schritt winzig machen: nicht „Bericht schreiben“, sondern „Datei öffnen“.\n• Das Handy in ein anderes Zimmer legen.\n• Mit der leichtesten Aufgabe anfangen, um in Schwung zu kommen.\n• Eine kleine Belohnung für danach planen."
+    ],
+    "unmot_try": [
+     "Perfekt – nur 5 Minuten, ganz ohne Druck. Wenn du erst mal angefangen hast, läuft es oft von allein. 💪"
+    ],
+    "school_start": [
+     "Was für ein großer Schritt – für euch beide! Ist es ihr allererster Schultag?"
+    ],
+    "school_nerves": [
+     "Das ist völlig normal – auf beiden Seiten. Kinder spüren unsere Stimmung, deshalb hilft ein ruhiger, fröhlicher Abschied sehr, auch wenn du innerlich nervös bist. 💛"
+    ],
+    "school_tips": [
+     "Was hilft:\n\n• Den Schulweg vorher gemeinsam ablaufen.\n• Erzählen, was passiert: Klassenzimmer, Lehrerin, Pause.\n• Etwas Kleines von zu Hause in den Ranzen stecken (ein Zettel, ein Foto).\n• Den Abschied kurz und herzlich halten.\n• Danach fragen „Was war das Schönste?“ statt „Wie war's?“."
+    ],
+    "dog_breeds": [
+     "Gut für Wohnungen: Cavalier King Charles Spaniel, Französische Bulldogge, Shih Tzu, Bichon Frisé, Mops – und überraschenderweise Windhunde, die echte Sofa-Fans sind. Ein ruhiger erwachsener Hund aus dem Tierheim ist oft die einfachste Wahl."
+    ],
+    "dog_wfh": [
+     "Das ist ein großer Vorteil – der Hund ist nicht den ganzen Tag allein. Welpen brauchen in den ersten Monaten viel Aufmerksamkeit, da hilft Homeoffice sehr."
+    ],
+    "hobby_ideas": [
+     "Ein paar Ideen:\n\n• Malen oder Zeichnen (Aquarell ist ein schöner Einstieg)\n• Ein Instrument lernen\n• Bouldern\n• Jede Woche eine neue Küche kochen\n• Zimmerpflanzen oder ein kleiner Balkongarten\n• Fotografieren\n• Stricken oder Häkeln\n\nIst was dabei?"
+    ]
+   }
   }
  }
 }
