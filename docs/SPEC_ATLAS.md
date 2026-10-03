@@ -238,7 +238,9 @@ lernen, TÜV; ungesehen EN 27→0 von 63, DE 23→0 von 42; 45 Dateien, 6 Instal
 (Lauf 37121061699, Probe 114: Fernbeziehung, Steuern, Erkältung, Nachbarschaftshilfe, Abnehmen, Hitze, Gaming;
 ungesehen EN 26→0 von 48, DE 22→0 von 36; deutsche Spracherkennung; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.37](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.37)
 (Lauf 37130333058, Probe 115: Prüfungsangst Kind, Umzug, Hochzeit, Kollege, Welpe, Kochen, Fahrrad, Jazz;
-ungesehen EN 24→0 von 45, DE 20→0 von 34; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
+ungesehen EN 24→0 von 45, DE 20→0 von 34; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.38](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.38)
+(Lauf 37137397902, Probe 116: erstes Date, gesprungenes Display, Eltern, E-Mail-Flut, Balkongarten, Schwimmen,
+Rücksendung, Babysitten; ungesehen EN 31→0 von 46, DE 22→0 von 34; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
