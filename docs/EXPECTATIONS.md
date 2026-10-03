@@ -2982,6 +2982,33 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Suite 785 bestanden. Regressionen 32 und 38–89 (58 Gespräche): 0 Wiederholungen. Weitere Unterschiede: Telefon-
   Folgefragen in b56, b56d, b56de und b56f (jetzt Bell statt Rückfrage), b69 („merci“ über die neue Wortliste statt
   das Übersetzungswerkzeug, gleicher Text), Uhrzeiten.
+- **Wissens-Batterie 90 (fünfte Stichprobe: 40 neue Allgemeinwissensfragen, 30 EN + 10 DE, Prüfausdrücke vor dem
+  Lauf festgelegt, `scratchpad/kq90.py`)**: erster Lauf 36 richtig, 0 falsch, 4 offen. Offen waren „what planet is
+  known as the red planet?“ (EN und DE), „was ist das größte säugetier?“ und „wie viele kontinente gibt es?“ (DE).
+  Ergänzt wurden geprüfte Fakten (Mars mit Begründung, Blauwal, sieben Kontinente mit Hinweis auf andere Zählweisen).
+  Danach 40/0/0.
+
+  Bei der Gegenprobe der früheren Stichproben blieben zwei Punkte offen und sind jetzt behoben:
+  - „who is the ceo of tesla?“ (72) beantwortet jetzt ein geprüfter Fakt mit „(as of my data)“.
+  - Die Teleskop-Frage (85) schrieb den Erfinder falsch („Lippershay“ aus der Faktenbank). Jetzt antwortet ein
+    geprüfter Fakt vor der Faktenbank: Lipperhey/Lippershey 1608, Metius und Janssen, Galileo 1609. Auf Deutsch
+    kennt die Brücke jetzt „Fernrohr“ und „Teleskop“.
+
+  Stand aller fünf Stichproben:
+
+  | Stichprobe | richtig | falsch | offen |
+  |---|---|---|---|
+  | 71 | 40 | 0 | 0 |
+  | 72 | 40 | 0 | 0 |
+  | 77 | 40 | 0 | 0 |
+  | 85 | 40 | 0 | 0 |
+  | 90 | 40 | 0 | 0 |
+
+  Das sind keine unabhängigen Tests mehr: Die Lücken wurden auf genau diesen Fragen geschlossen. Sie zeigen, dass
+  nichts zurückfällt; die Erstläufe (39/38/40/12/36 richtig) sind das ehrlichere Maß für neue Fragen.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 786 bestanden. Regressionen 32 und 38–89 (58 Gespräche):
+  0 Wiederholungen, Unterschiede wie bei 89.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

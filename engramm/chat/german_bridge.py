@@ -33,6 +33,7 @@ EXONYMS = {
     "kopenhagen": "Copenhagen", "athen": "Athens", "genf": "Geneva", "zürich": "Zurich", "kairo": "Cairo",
     "relativitätstheorie": "theory of relativity", "die relativitätstheorie": "theory of relativity",
     "glühbirne": "light bulb", "die glühbirne": "light bulb", "telefon": "telephone", "das telefon": "telephone",
+    "fernrohr": "telescope", "das fernrohr": "telescope", "teleskop": "telescope", "das teleskop": "telescope",
     "buchdruck": "printing press", "den buchdruck": "printing press", "dampfmaschine": "steam engine",
     "die dampfmaschine": "steam engine", "flugzeug": "airplane", "das flugzeug": "airplane", "auto": "automobile",
     "das auto": "automobile", "fernseher": "television", "den fernseher": "television", "das internet": "Internet",

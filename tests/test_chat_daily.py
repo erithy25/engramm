@@ -3334,3 +3334,11 @@ def test_battery89_everyday_flows(chat):
     st = DialogState("w89")
     a.turn(st, "yeah work is just boring")
     assert "skip meetings" in a.turn(st, "any tips to make it less boring?").text
+
+
+def test_battery90_fifth_knowledge_sample(chat):
+    a, _ = chat
+    assert "Mars" in a.turn(DialogState("k90a"), "what planet is known as the red planet?").text
+    assert "Blauwal" in a.turn(DialogState("k90b"), "was ist das größte säugetier?").text
+    assert "sieben" in a.turn(DialogState("k90c"), "wie viele kontinente gibt es?").text
+    assert "Mars" in a.turn(DialogState("k90d"), "welcher planet ist der rote planet?").text

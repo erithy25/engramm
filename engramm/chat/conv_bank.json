@@ -6422,6 +6422,21 @@
      ],
      "fakten": [
       {
+       "q": "(?:und )?(?:welcher planet ist|was ist) der rote planet|welcher planet wird (?:auch )?(?:der )?rote planet genannt|warum ist der mars rot",
+       "a": "Der Mars ist der Rote Planet – seine Oberfläche ist mit eisenhaltigem Staub bedeckt, der quasi verrostet ist. Daher die rötliche Farbe.",
+       "v": "Mars"
+      },
+      {
+       "q": "(?:und )?(?:was|welches) ist das größte (?:säugetier|tier)(?: der welt| der erde)?",
+       "a": "Der Blauwal – er wird bis zu 30 Meter lang und rund 150 Tonnen schwer. Er ist das größte Tier, das je gelebt hat.",
+       "v": "Blauwal"
+      },
+      {
+       "q": "(?:und )?wie viele kontinente gibt es(?: auf der erde)?",
+       "a": "Meist zählt man sieben: Afrika, Antarktika, Asien, Australien (Ozeanien), Europa, Nordamerika und Südamerika. In manchen Ländern werden Amerika oder Europa und Asien zusammengezählt.",
+       "v": "7"
+      },
+      {
        "q": "(?:und )?wer (?:war|ist) (?:der )?erste mensch auf dem mond|wer (?:war|ist) als erster auf dem mond|wer hat als erster den mond betreten",
        "a": "Neil Armstrong – er betrat am 20. Juli 1969 mit Apollo 11 als Erster den Mond. Buzz Aldrin folgte ihm etwa 20 Minuten später.",
        "v": "Neil Armstrong"
@@ -9315,6 +9330,25 @@
     "a": "Because Sydney and Melbourne both wanted to be the capital. In 1908 the compromise was a new city between them — Canberra was built from scratch for it, and Parliament moved there in 1927.",
     "v": "a compromise between Sydney and Melbourne",
     "de": "Weil Sydney und Melbourne beide Hauptstadt werden wollten. Der Kompromiss von 1908 war eine neue Stadt zwischen ihnen – Canberra wurde dafür eigens gebaut, das Parlament zog 1927 dorthin."
+   },
+   {
+    "q": "(?:and |so )?(?:what|which) planet is (?:known as |called |nicknamed )?the red planet|why is mars (?:called )?the red planet|why is mars red",
+    "a": "Mars is the Red Planet — its surface is covered in iron-rich dust that has rusted, which gives it that reddish colour.",
+    "v": "Mars",
+    "t": "Mars"
+   },
+   {
+    "q": "(?:and |so )?who (?:invented|made|built) (?:the )?(?:first )?telescope|who was the inventor of the telescope",
+    "a": "The telescope is usually credited to Hans Lipperhey (also spelled Lippershey), a Dutch spectacle-maker who applied for a patent in 1608 — Jacob Metius and Zacharias Janssen made similar claims. Galileo built a much better one in 1609 and pointed it at the sky.",
+    "v": "Hans Lipperhey",
+    "pre": "true",
+    "de": "Als Erfinder des Fernrohrs gilt meist Hans Lipperhey (auch Lippershey), ein niederländischer Brillenmacher, der 1608 ein Patent beantragte – Jacob Metius und Zacharias Janssen erhoben ähnliche Ansprüche. Galileo baute 1609 ein deutlich besseres und richtete es auf den Himmel."
+   },
+   {
+    "q": "(?:and |so )?who(?:'s| is) (?:the )?(?:ceo|boss|head|chief executive) of tesla(?: now| currently)?",
+    "a": "Elon Musk has been Tesla's CEO since 2008 (as of my data).",
+    "v": "Elon Musk",
+    "de": "Elon Musk ist seit 2008 Chef von Tesla (Stand meiner Daten)."
    },
    {
     "q": "(?:and |so |but )?did (?:albert )?einstein (?:win|get|receive) (?:a|the) nobel prize|(?:and |so )?when did (?:albert )?einstein (?:win|get) (?:a|the|his) nobel prize",

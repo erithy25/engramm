@@ -849,6 +849,9 @@ daily:
       name: ["Ich bin ENGRAMM!", "ENGRAMM – schön, dass du fragst!"]
       again_lead: ["Wie gesagt: ", "Wie vorhin schon: "]
       fakten:
+        - {q: "(?:und )?(?:welcher planet ist|was ist) der rote planet|welcher planet wird (?:auch )?(?:der )?rote planet genannt|warum ist der mars rot", a: "Der Mars ist der Rote Planet – seine Oberfläche ist mit eisenhaltigem Staub bedeckt, der quasi verrostet ist. Daher die rötliche Farbe.", v: "Mars"}
+        - {q: "(?:und )?(?:was|welches) ist das größte (?:säugetier|tier)(?: der welt| der erde)?", a: "Der Blauwal – er wird bis zu 30 Meter lang und rund 150 Tonnen schwer. Er ist das größte Tier, das je gelebt hat.", v: "Blauwal"}
+        - {q: "(?:und )?wie viele kontinente gibt es(?: auf der erde)?", a: "Meist zählt man sieben: Afrika, Antarktika, Asien, Australien (Ozeanien), Europa, Nordamerika und Südamerika. In manchen Ländern werden Amerika oder Europa und Asien zusammengezählt.", v: "7"}
         - {q: "(?:und )?wer (?:war|ist) (?:der )?erste mensch auf dem mond|wer (?:war|ist) als erster auf dem mond|wer hat als erster den mond betreten", a: "Neil Armstrong – er betrat am 20. Juli 1969 mit Apollo 11 als Erster den Mond. Buzz Aldrin folgte ihm etwa 20 Minuten später.", v: "Neil Armstrong"}
         - {q: "(?:und )?wie viele beine hat (?:eine )?spinne|wie viele beine haben spinnen", a: "Spinnen haben acht Beine – deshalb zählen sie nicht zu den Insekten (die haben sechs).", v: "8"}
         - {q: "(?:und )?wer hat (?:das buch |den roman )?1984 geschrieben|wer ist der autor von 1984", a: "George Orwell hat „1984“ geschrieben, erschienen 1949.", v: "George Orwell"}
