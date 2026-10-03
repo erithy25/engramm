@@ -3663,3 +3663,30 @@ def test_battery103_casual_typing(chat):
     assert "developer" in a.turn(st, "what do i do?").text
     assert "you're" in __import__("engramm.chat.bank", fromlist=["expand_chat"]).expand_chat("lol ur good")
     assert "your name" in __import__("engramm.chat.bank", fromlist=["expand_chat"]).expand_chat("ur name?")
+
+
+def test_battery104_casual_german(chat):
+    a, _ = chat
+    st = DialogState("c104")
+    r = a.turn(st, "na? 👋")
+    assert r.via == "german" and "Na" in r.text, r.text
+    assert "Auch gut" in a.turn(st, "joa passt, bei dir?").text
+    assert "Jonas" in a.turn(st, "bin übrigens jonas").text
+    assert "Pfleger" in a.turn(st, "bin 31 und arbeite als pfleger").text
+    assert "Nachtschichten" in a.turn(st, "hab heute nachtschicht 😩").text
+    assert "Schlaf" in a.turn(st, "ja ist hart aber ich mag meinen job").text
+    assert "Hamburg" in a.turn(st, "meine schwester wohnt in hamburg und ich vermisse sie").text
+    assert a.turn(st, "wie heiß ich nochmal?").text == "Du heißt Jonas."
+    assert "Pfleger" in a.turn(st, "was arbeite ich?").text
+    assert a.turn(st, "wo wohnt meine schwester?").text == "Deine Schwester wohnt in Hamburg."
+    assert "danke" in a.turn(st, "haha du bist gut").text.lower()
+    assert "Tschüss" in a.turn(st, "ok bis denne").text
+    st = DialogState("w104")
+    assert "Witz" in a.turn(st, "kp mir ist voll langweilig").text
+    a.turn(st, "nö")
+    j1 = a.turn(st, "vllt nen witz").text
+    j2 = a.turn(st, "noch einer").text
+    assert j1 != j2 and not any(w in j1 + j2 for w in ("verstehe", "Erzähl", "erzähl")), (j1, j2)
+    a.turn(st, "was sind 15 prozent von 80")
+    assert a.turn(st, "und 20?").text == "20 % von 80 sind 16."
+    assert "Lena" in a.turn(DialogState("l104"), "ich bin die lena btw").text

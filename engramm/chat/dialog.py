@@ -994,6 +994,7 @@ class Assistant:
         de = self.bank.de
         dd = de.get("daily", {})
         st.lang = "de"
+        msg = _casual_de(msg)
         s = normalise_de(msg)
         if re.search(r"\b(?:nochmal|noch mal|gleich nochmal|eigentlich)\b", s) and "?" in msg:
             msg = re.sub(r"\s+", " ", re.sub(r"\b(?:gleich nochmal|nochmal|noch mal|eigentlich)\b", "", msg, flags=re.I)).strip()
@@ -1008,7 +1009,7 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_mem67(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx104(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
@@ -1281,6 +1282,108 @@ class Assistant:
                 return Reply(msg, "forgot", f"Erledigt – ich habe vergessen, dass du {cap(x)} {'nicht magst' if neg else 'magst'}. Es ist wirklich weg, "
                              "nicht nur versteckt.", via="memory")
             return Reply(msg, "nothing", f"Dazu habe ich nichts gespeichert, was ich vergessen könnte.", via="memory")
+        return None
+
+    def _german_ctx104(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 104: casual German — "bin übrigens jonas", "bin 31 und arbeite als pfleger" (both kept), the night
+        shift, "meine schwester wohnt in hamburg und ich vermisse sie", "wo wohnt meine schwester?", "du bist gut",
+        "noch einer" after a joke, "und 20?" after a percentage, "reicht", "so was wie harry potter" after book tips."""
+        b = (self.bank.daily.get("b99") or {}).get("de")
+        if not b:
+            return None
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:%-]", " ", s)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:b104:{key}", b[key], **kw), via="german")   # noqa: E731
+        not_names = {"müde", "fertig", "krank", "traurig", "glücklich", "wach", "da", "hier", "zurück", "sauer", "gestresst", "hungrig", "satt", "neu",
+                     "allein", "single", "verheiratet", "schwanger", "sicher", "bereit", "raus", "weg", "online", "unterwegs", "zuhause", "daheim", "dabei",
+                     "dran", "durch", "pleite", "platt", "kaputt", "erkältet", "nervös", "aufgeregt", "gespannt", "froh", "happy", "ok", "okay", "gut",
+                     "student", "studentin", "schüler", "schülerin", "rentner", "rentnerin", "arbeitslos", "selbstständig", "verliebt", "ehrlich"}
+        nm = re.fullmatch(r"(?:ich )?bin (?:übrigens |btw |der |die )(?P<n>[a-zäöüß]{2,20})(?: übrigens| btw)?|(?:ich )?bin (?P<n2>[a-zäöüß]{2,20}) (?:übrigens|btw)", q)
+        if q in ("na wie gehts", "na wie geht's", "na alles gut", "na alles klar"):
+            return say("hello_how")
+        if q in ("huhu", "na", "na du", "servus", "tach", "hallöchen", "hey na", "moinsen", "grüß dich"):
+            return say("hello", X={"na du": "Na du", "hey na": "Hey", "grüß dich": "Grüß dich"}.get(q, q.capitalize()))
+        if nm and (nm.group("n") or nm.group("n2")) not in not_names:
+            return self._german(st, f"ich heiße {nm.group('n') or nm.group('n2')}")   # "bin übrigens jonas": a name, said casually
+        aj = re.fullmatch(r"(?:ich )?bin (?P<a>\d{1,2})(?: jahre alt)?,? und (?:ich )?arbeite als (?P<j>[a-zäöüß]+(?: [a-zäöüß]+)?)|"
+                          r"(?:ich )?arbeite als (?P<j2>[a-zäöüß]+(?: [a-zäöüß]+)?),? und (?:ich )?bin (?P<a2>\d{1,2})(?: jahre alt)?", q)
+        if aj:
+            a_, j_ = aj.group("a") or aj.group("a2"), aj.group("j") or aj.group("j2")
+            J = " ".join(w[:1].upper() + w[1:] for w in j_.split())
+            self._learn(st, [f"I am {a_} years old.", f"I work as {J}."], msg)
+            return say("learned_two", x=a_, y=J)
+        rel = {"schwester": "sister", "bruder": "brother", "mutter": "mom", "mama": "mom", "vater": "dad", "papa": "dad", "eltern": "parents",
+               "beste freundin": "best friend", "bester freund": "best friend", "oma": "grandma", "opa": "grandpa", "sohn": "son", "tochter": "daughter",
+               "freundin": "friend", "freund": "friend"}
+        rx_rel = "|".join(sorted(rel, key=len, reverse=True))
+        mf = re.fullmatch(rf"(?:und )?(?:meine?|mein) (?P<w>{rx_rel}) (?:wohnt|wohnen|lebt|leben) (?:jetzt |inzwischen |mittlerweile )?in (?P<p>[a-zäöüß ]{{2,25}}?),? und ich vermisse (?:sie|ihn)(?: so| sehr| total| voll)?", q)
+        if mf:
+            w_, P = mf.group("w"), " ".join(x[:1].upper() + x[1:] for x in mf.group("p").split())
+            en = rel[w_]
+            self._learn(st, [f"My {en} {'live' if en == 'parents' else 'lives'} in {P}."], msg)
+            plural = w_ == "eltern"
+            fem = w_ in ("schwester", "mutter", "mama", "beste freundin", "oma", "tochter", "freundin")
+            st.last_exp = {"valence": "negative", "topic": "people", "person": True, "text": msg, "turn": st.turn}
+            return say("miss_far", X=P, y="sie" if fem or plural else "ihn", z="sie" if fem or plural else "er", a="wohnen" if plural else "wohnt")
+        wq = re.fullmatch(rf"(?:und )?wo (?:wohnt|lebt|wohnen|leben) (?:meine?|mein) (?P<w>{rx_rel})(?: nochmal)?", q)
+        if wq:
+            en = rel[wq.group("w")]
+            rep = self._question(st, f"where {'do' if en == 'parents' else 'does'} my {en} live?")
+            m_ = re.search(r"live[s]? in (.+?)\.?$", rep.text or "")
+            if rep.kind == "answer" and m_:
+                fem = wq.group("w") in ("schwester", "mutter", "mama", "beste freundin", "oma", "tochter", "freundin")
+                art = "Deine" if fem or wq.group("w") == "eltern" else "Dein"
+                verb = "wohnen" if wq.group("w") == "eltern" else "wohnt"
+                return Reply(msg, "answer", f"{art} {wq.group('w').capitalize()} {verb} in {m_.group(1)}.", via="german", source=rep.source)
+            return Reply(msg, "unknown", "Das hast du mir noch nicht erzählt. Magst du es mir sagen?", via="german")
+        if re.fullmatch(r"(?:haha |lol |hihi |echt |wow )*du bist (?:echt |so |voll |richtig |ganz |wirklich |mega )?(?:gut|lustig|witzig|schlau|klug|cool|hilfreich|genial|der hammer|spitze|super)", q):
+            return say("compliment")
+        if re.fullmatch(r"(?:haha |hihi |lol |ok |okay |gut |)*(?:reicht|genug|das reicht|ist gut|passt schon)(?: jetzt| erstmal| für heute)?", q) and \
+                (st.last_action or {}).get("kind") == "joke":
+            st.last_action = None
+            return say("enough")
+        if re.fullmatch(r"(?:noch einer|noch einen|noch ein witz|noch einen witz|nochmal|mehr|und noch einer|einer geht noch)(?: bitte)?", q) and \
+                (st.last_action or {}).get("kind") == "joke" and st.turn - (st.last_action or {}).get("turn", -99) <= 3:
+            return self._german(st, "erzähl mir einen witz")
+        if re.fullmatch(r"(?:vielleicht|ok|okay|ja|gern|gerne|dann|na gut|lieber)? ?(?:einen |ein |noch einen )?witz(?: bitte| vielleicht| dann)?", q):
+            return self._german(st, "erzähl mir einen witz")   # "vllt nen witz" after "Ideen, ein Witz oder ein Quiz?"
+        lp = st.uses.get("last_pct")
+        pm = re.fullmatch(r"(?:und )?(?:mit |bei )?(?P<x>\d{1,3}(?:[.,]\d+)?)(?: ?%| prozent)?", q)
+        if lp and pm and st.turn - lp[0] <= 3:
+            base = float(str(lp[1]).replace(",", ""))
+            x = float(pm.group("x").replace(",", "."))
+            v = base * x / 100
+            shown = (f"{v:.2f}".rstrip("0").rstrip(".")).replace(".", ",")
+            st.uses["last_pct"] = [st.turn, lp[1]]
+            xs = pm.group("x").replace(".", ",")
+            return Reply(msg, "tool", f"{xs} % von {str(lp[1]).replace(',', '')} sind {shown}.", answer=shown, via="tool")
+        la_ = st.last_action or {}
+        if (la_.get("kind") or "").startswith("rec:") and st.turn - la_.get("turn", -99) <= 4:
+            kind = la_["kind"][4:]
+            lk = re.fullmatch(r"(?:so )?(?:was|etwas|irgendwas|bücher|filme|serien) (?:wie|ähnlich wie|in richtung) (?P<x>[a-z0-9äöüß' ]{2,40})", q)
+            if lk:
+                x = lk.group("x").strip()
+                d = self.bank.daily
+                genre = None
+                for sec in d["recommend"].values():
+                    for it in sec.get("items", []) if isinstance(sec, dict) else []:
+                        if isinstance(it, dict):
+                            title = str(it.get("title") or "").lower()
+                            if title and (x in title or title in x):
+                                tags = [g for g in str(it.get("tags", "")).split() if g not in ("fiction", "classic")]
+                                genre = genre or (tags[0] if tags else None)
+                genre = genre or _LIKE_GENRE.get(x)
+                if genre:
+                    rep = self.everyday.recommend(st, msg, kind, genre, lang="de")
+                    if "\n" in rep.text:
+                        shown = " ".join(w if w in ("of", "the", "and") else w[:1].upper() + w[1:] for w in x.split())
+                        body = "\n".join(l for l in rep.text.split("\n")[1:] if x not in l.lower())
+                        rep.text = self._pick(st, "de:b104:like_head", b["like_head"], x=shown) + "\n" + body
+                    return rep
+            if kind == "book" and re.fullmatch(r"(?:und )?(?:was |etwas |irgendwas |einen |ein |nen )?(?:spannendes|spannend|krimi|thriller|krimis|thrillers|spannende bücher)(?: vielleicht| bitte)?", q):
+                ex = self.bank.daily["b99"]["genre_extra"]["book thriller"]
+                body = "\n".join("• " + x.replace(" by ", " von ") for x in ex["items"])
+                st.last_action = {"kind": la_["kind"], "genre": "thriller", "turn": st.turn, "lang": "de"}
+                return Reply(msg, "smalltalk", f"{b['thriller_books']}\n\n{body}", via="german")
         return None
 
     def _german_ctx102(self, st: DialogState, msg: str, s: str) -> Reply | None:
@@ -3569,6 +3672,7 @@ class Assistant:
             v = a * b / 100
             shown = (f"{v:.2f}".rstrip("0").rstrip(".")).replace(".", ",")
             st.uses["last_calc"] = [st.turn, str(v)]
+            st.uses["last_pct"] = [st.turn, m.group(2)]   # "und 20?" next
             return Reply(msg, "tool", f"{m.group(1)} % von {m.group(2)} sind {shown}.", answer=shown, via="tool")
         m = re.fullmatch(r"und (?:von |in |für |bei |mit |über )?(?P<x>[a-zäöüß][a-zäöüß .-]{1,30})", s)
         last = st.uses.get("de_last_q")
@@ -3914,7 +4018,8 @@ class Assistant:
             return Reply(msg, "smalltalk", self._pick(st, "daily:puzzled", self.bank.daily["puzzled"]), via="clarify")
         de = self.bank.de
         if de and (is_german(msg, de) or _NA_DE.fullmatch(normalise(msg).strip(" ?!.")) or
-                   (not st.last_reply and normalise(msg).strip(" ?!.") in ("morgen", "morgähn"))) and \
+                   (not st.last_reply and re.sub(r"[\U0001F300-\U0001FAFF\u2600-\u27BF\uFE0F]", "", normalise(msg)).strip(" ?!.") in
+                    ("morgen", "morgähn", "na", "na du", "servus", "huhu", "hallöchen", "tach", "moinsen", "grüß dich", "na wie gehts", "na wie geht's"))) and \
                 self.bank.safety_rule(normalise(msg, fillers=False)) is None:
             return self._german(st, msg)
         if de and st.lang == "de":
@@ -11013,6 +11118,23 @@ def _casual(msg: str) -> str:
     s = re.sub(r"(?i)\bsorta\b", "sort of", s)
     if re.fullmatch(r"(?i)\s*(?:k+|kk|ok(?:ay)?|alright|well)[,.!]*\s+(?:bye+|cya|ttyl)[.!]*\s*|\s*(?:cya|see ya|ttyl|gtg|g2g|got ?ta go|gotta run)[.!]*\s*", s):
         s = "bye"
+    return s
+
+
+def _casual_de(msg: str) -> str:
+    """German chat typing read past like a person would: emojis, "kp / joa / naja" before a sentence, "vllt",
+    "nen", "thx", "wie heiß ich", and "bis denne / ciao" as goodbyes."""
+    s = re.sub(r"\s*[\U0001F300-\U0001FAFF\u2600-\u27BF\uFE0F]+\s*", " ", msg).strip()
+    if not s:
+        return msg
+    s = re.sub(r"(?i)^(?:joa|jo|jau|naja|na ja|ey|digga|alter|bro|(?:kp|keine ahnung)(?=[,!.]?\s+(?:mir |ich |bin |hab )))[,!.]?\s+(?=\S)", "", s)
+    # "kp mir ist langweilig" → "mir ist langweilig"; "keine ahnung was ich machen soll" stays
+    s = re.sub(r"(?i)\bvllt\b", "vielleicht", s)
+    s = re.sub(r"(?i)\bnen\b", "einen", s)
+    s = re.sub(r"(?i)\b(?:thx|thanks|danki|dankee+)\b", "danke", s)
+    s = re.sub(r"(?i)\bwie hei(?:ß|ss) ich\b", "wie heiße ich", s)
+    if re.fullmatch(r"(?i)\s*(?:ok(?:ay)?,? |so,? |gut,? )?(?:bis denne|bis dann|bis später|bis bald|ciao|tschau|tschö|tschüssi|ade|baba|man sieht sich|bin raus)[.!]*\s*", s):
+        s = "tschüss"
     return s
 
 

@@ -321,7 +321,7 @@ class Everyday:
             if isinstance(it, dict):
                 text = it.get("de") if de is not None and it.get("de") else it["x"]
                 if de is not None and not it.get("de"):
-                    text = text.replace(" by ", " von ").replace(" from Pixar", " von Pixar").replace(
+                    text = text.replace(" by ", " von ").replace(" and ", " und ").replace(" from Pixar", " von Pixar").replace(
                         ", a German mystery series", ", eine deutsche Mystery-Serie").replace(
                         " (the US version)", " (die US-Version)").replace(" with David Attenborough", " mit David Attenborough")
                 texts.append(text)

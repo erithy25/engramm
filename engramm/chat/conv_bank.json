@@ -14330,6 +14330,21 @@
      "a": "Das ist riesig – stark! Die ersten Wochen sind die schwersten. Wie lange ist es schon her?"
     },
     {
+     "q": "(?:ich )?(?:hab|habe) (?:heute |heute nacht |schon wieder |wieder |mal wieder )*(?:eine )?nachtschicht(?: heute| schon wieder)?|(?:schon wieder |wieder |mal wieder )?nachtschicht(?: heute| schon wieder| heute nacht)?|ich (?:arbeite|muss) (?:heute )?nachts(?: arbeiten)?",
+     "v": "neg",
+     "a": "Oh nein, Nachtschichten sind hart. Halt durch – hast du genug Kaffee und Snacks dabei? ☕",
+     "f": [
+      {
+       "q": "(?:ja,? )?(?:ist|es ist|das ist) (?:echt |schon |ziemlich |voll )?(?:hart|anstrengend|schwer|heftig)(?:,)? aber ich (?:mag|liebe) (?:meinen job|meine arbeit|den job|ihn|es)|(?:aber )?ich (?:mag|liebe) meinen job(?: trotzdem)?",
+       "a": "Das ist das Wichtigste – ein Job, den man mag, macht auch die harten Schichten wett. Achte danach gut auf deinen Schlaf! 😴"
+      },
+      {
+       "q": "(?:ja|jo|klar|logo)(?:,? genug)?(?: kaffee)?|(?:viel |genug )?kaffee",
+       "a": "Gut vorbereitet! Ich wünsch dir eine ruhige Nacht."
+      }
+     ]
+    },
+    {
      "q": "(?:ich )?(?:komm|komme|bin) (?:gerade |grad |eben |jetzt )?(?:vom|aus dem) (?:fitnessstudio|gym|training|sport|fitness)(?: zurück| gekommen| heim)?|(?:ich )?(?:hab|habe) (?:gerade |grad |eben )?(?:trainiert|mein training gemacht|mein workout gemacht|sport gemacht)|(?:mein )?training (?:ist )?(?:fertig|vorbei|geschafft)",
      "v": "pos",
      "a": "Stark, gut gemacht! 💪 Was hast du heute trainiert?",
@@ -14771,6 +14786,39 @@
      "Alles klar, bis bald! 👋",
      "Mach's gut – bis zum nächsten Mal!"
     ],
+    "miss_far": [
+     "Ach, das ist schwer – {X} ist ja nicht gerade um die Ecke. Siehst du {y} oft? (Ich merke mir, dass {z} dort {a}.)",
+     "Das kenne ich nur aus Gesprächen, aber es klingt hart, {y} so weit weg zu haben. Wann hast du {y} zuletzt gesehen? (Gemerkt: {z} {a} in {X}.)"
+    ],
+    "learned_two": [
+     "Gemerkt: du bist {x} und arbeitest als {y}.",
+     "Alles klar – {x} und {y}. Hab ich mir gemerkt!"
+    ],
+    "compliment": [
+     "Danke, das ist lieb von dir! 😊",
+     "Oh, danke – das freut mich!"
+    ],
+    "enough": [
+     "Alles klar! 😄 Sag Bescheid, wenn du noch was brauchst.",
+     "Okay, okay – Witzpause! 😄"
+    ],
+    "thanks": [
+     "Gern geschehen!",
+     "Immer gern! 😊"
+    ],
+    "hello": [
+     "{X}! Na, was gibt's?",
+     "{X}! Schön, dass du da bist. Was steht an?"
+    ],
+    "hello_how": [
+     "Mir geht's gut, danke! Und dir?",
+     "Alles bestens hier – und bei dir?"
+    ],
+    "like_head": [
+     "Wenn dir {x} gefallen hat, könnte dir das gefallen:",
+     "Im Stil von {x}:"
+    ],
+    "thriller_books": "Ein paar spannende Bücher:",
     "morning": [
      "Guten Morgen! ☀️ Wie geht's dir heute?",
      "Morgen! ☀️ Gut geschlafen?"

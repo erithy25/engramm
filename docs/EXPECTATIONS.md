@@ -3398,6 +3398,39 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Unterschiede:
   - b40 „something scary“ nennt nur Horrorfilme;
   - b69 „heyyy 😊“ wird als Gruß beantwortet.
+- **Alltags-Batterie 104 (lockeres Deutsch, 3 Gespräche, 26 Turns)**. Erster Lauf: 3 Wiederholungen, fast alles
+  im Rückfall:
+  - „na? 👋“ lief auf Englisch in die Nachschlage-Suche;
+  - „bin übrigens jonas“, „bin 31 und arbeite als pfleger“ und „meine schwester wohnt in hamburg und ich
+    vermisse sie“ wurden nicht gemerkt;
+  - „vllt nen witz“, „und 20?“ und „bis denne“ wurden nicht verstanden.
+
+  Neu:
+  - `_casual_de` vor jeder deutschen Nachricht:
+    - Emojis fallen weg;
+    - „joa / naja“ am Satzanfang fällt weg; „kp / keine ahnung“ nur vor „mir / ich / bin / hab“, damit „keine
+      ahnung was ich machen soll“ bleibt (durch Test 47 geschützt);
+    - „vllt“, „nen“, „thx“ und „wie heiß ich“ werden normalisiert;
+    - „bis denne / ciao / tschüssi“ werden zum Abschied;
+  - Grüße als erste Nachricht: „na“, „servus“, „huhu“ und weitere;
+  - `_german_ctx104`:
+    - „bin übrigens jonas / ich bin die lena btw“ als Name, mit einer Ausschlussliste für „bin müde“ und
+      Ähnliches;
+    - Alter und Beruf in einem Satz;
+    - Nachtschicht mit Folgefragen;
+    - Vermissen mit gemerktem Wohnort und „wo wohnt meine Schwester?“ ergibt „Deine Schwester wohnt in
+      Hamburg.“;
+    - „du bist gut“;
+    - „vllt nen witz / noch einer / reicht“;
+    - „und 20?“ nach einer Prozentrechnung;
+    - „so was wie harry potter“ und „was spannendes?“ nach Buchtipps;
+  - in deutschen Tipplisten wird „and“ zu „und“.
+
+  Verallgemeinerungsprobe (Lena, Bruder in Wien, „naja egal, erzähl mir nen witz“, „und 15?“): alles passend, 0
+  Wiederholungen.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 801 bestanden. Regressionen: 0 Wiederholungen. Neu ist nur
+  b76 „du bist echt schlau“ mit einem gleichwertigen Dank.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
