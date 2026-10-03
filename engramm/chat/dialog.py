@@ -1348,6 +1348,120 @@ class Assistant:
             return "trip_booked", {"X": X, "x": X}
         return key, {"x": o, "X": o[:1].upper() + o[1:]}
 
+    def _moment_follow(self, st: DialogState, msg: str, n: str, lang: str) -> Reply | None:
+        """The answer to the question a moment just asked ("her name is luna", "it was a bit burnt", "i think it's
+        fixable", "a cactus and a fern") — read against that moment, never as a new fact or a generic "tell me more"."""
+        mo = st.uses.get("moment110")
+        fb = self.bank.daily.get("moments_follow_de" if lang == "de" else "moments_follow")
+        if not mo or not fb or st.turn - mo[2] > 2 or "?" in msg:
+            return None
+        key, sl = mo[0], mo[1]
+        if key == "going_out" and re.search(r"holiday|vacation|urlaub", str(sl.get("o", ""))):
+            return None                                   # "where are you heading?" → "to greece" belongs to the trip flow (tips, language, packing)
+        de = lang == "de"
+        good = r"\b(?:great|good|amazing|delicious|perfect|well|fine|tasty|awesome|brilliant|lovely|super|gut|toll|lecker|klasse|prima|geil|mega)\b"
+        bad = r"\b(?:burnt|burned|flat|disaster|bad|awful|terrible|failed|didn'?t work|not great|not good|horrible|meh|verbrannt|misslungen|schlecht|nicht so gut|nicht gut|katastrophe|mies)\b"
+        cap = lambda w: " ".join(x[:1].upper() + x[1:] for x in w.split())   # noqa: E731
+
+        def out(k: str, **kw) -> Reply:
+            st.uses.pop("moment110", None)
+            return Reply(msg, "empathy", self._pick(st, f"{'de' if de else 'daily'}:mfollow:{k}", fb[k], **kw), via="german" if de else "empathy")
+
+        if key in ("new_pet", "new_pet_pl"):
+            if de:
+                m = re.fullmatch(r"(?:sie|er|es) heißt (?P<n>[a-zäöüß]+)|(?:wir haben (?:sie|ihn|es) )?(?P<n2>[a-zäöüß]+) genannt|(?:sie|er|es) heißen (?P<n3>[a-zäöüß]+(?: und [a-zäöüß]+)?)", n)
+            else:
+                m = re.fullmatch(r"(?:(?:her|his|its|their) names? (?:is|are)|(?:she|he|it)(?:'s| is) called|we (?:called|named) (?:her|him|it|them)|we'?re calling (?:her|him|it)) (?P<n>[a-z]+(?: and [a-z]+)?)|"
+                                 r"(?P<n2>[a-z]+)(?: is (?:her|his) name)?", n)
+            if m:
+                name = next(g for g in m.groups() if g)
+                if name not in ("yes", "no", "not", "nope", "yeah", "ja", "nein", "noch", "nicht", "idk", "dunno"):
+                    first = n.split()[0]
+                    y = ("sie" if first == "sie" else "er" if first == "er" else "es") if de else \
+                        ("she" if n.startswith("her") or "she" in n.split() else "he" if n.startswith("his") or "he" in n.split() else "they")
+                    animal = sl.get("o", "pet")
+                    if not de and animal and " and " not in name:
+                        self._learn(st, [f"My {animal.rstrip('s') if key == 'new_pet_pl' else animal} is called {cap(name)}."], msg)
+                    return out("pet_name", X=cap(name), y=y if not (y == "they" and not de) else "they")
+        if key in ("going_out", "going_camping"):
+            m = re.fullmatch(r"(?:to|at|in|near|by|around) (?:the )?(?P<p>[a-z][a-z' ]{2,30})", n) if not de else \
+                re.fullmatch(r"(?:an den|an die|ans|in die|in den|ins|nach|zum|zur|am|an|in) (?P<p>[a-zäöüß][a-zäöüß ]{2,30})", n)
+            if m:
+                return out("trip_where", X=cap(m.group("p")))
+        if key in ("first_make", "home_make"):
+            if re.search(bad, n):
+                return out("make_bad")
+            if re.search(good, n):
+                return out("make_good")
+        if key in ("damage_tech", "damage_car", "damage_any"):
+            if re.search(r"\b(?:tow truck|towed|help came|got help|breakdown service|mechanic came|abgeschleppt|pannenhilfe|adac|abschleppdienst)\b", n):
+                return out("helped")
+            if re.search(r"\b(?:fixable|fixed|repair|repaired|works again|warranty|under guarantee|reparieren|repariert|geht wieder|garantie)\b", n):
+                return out("fix_good")
+            if re.search(r"\b(?:dead|gone|new one|beyond repair|total loss|kaputt|neues|neuen|hinüber)\b", n):
+                return out("fix_bad")
+        if key in ("burn", "hurt", "sprain", "back", "tripped_pet", "burn_tongue"):
+            if re.search(r"\b(?:really hurts|swollen|swelling|blister|bleeding|can'?t walk|can'?t move|tut (?:sehr|echt|richtig) weh|geschwollen|blase|blutet)\b", n):
+                return out("hurt_bad")
+            if re.search(r"\b(?:not (?:that|so) bad|fine|okay|ok|just (?:a few )?(?:scratches|bruises?)|nothing serious|nur (?:ein paar )?(?:kratzer|blaue flecken)|geht schon|nicht so schlimm|alles gut)\b", n):
+                return out("hurt_mild")
+        if key == "cancelled_travel":
+            if re.search(r"\b(?:rebooked|new flight|next flight|got a new|umgebucht|neuen flug|nächsten zug)\b", n):
+                return out("rebooked")
+            if re.search(r"\b(?:stuck|stranded|no (?:other )?flights?|sitze fest|festsitze|kein (?:flug|zug))\b", n):
+                return out("stranded")
+        if key == "interview":
+            if re.search(bad, n):
+                return out("interview_bad")
+            if re.search(good, n):
+                return out("interview_good")
+        if key == "turned" and re.search(r"\b(?:party|celebrat\w*|dinner|cake|lunch|feiern|feier|essen|kuchen|fest)\b", n):
+            return out("celebrate")
+        if key == "met_someone" and len(n.split()) <= 10:
+            return out("met_where")
+        if key == "painted" and re.search(r"\b(?:yes|love|like|happy|ja|total|liebe|mag|gefällt)\b", n):
+            return out("love_it")
+        if key == "stood_up" and re.fullmatch(r"(?:no|nope|nothing|not a word|nein|gar nicht|nichts|kein wort)(?:,? (?:nothing|not a word|gar nicht|nichts))?", n):
+            return out("stood_up_nothing")
+        if key == "saving" and not de:
+            return out("goal")
+        if key == "joined" and re.search(r"\b(?:want to|wanna|to get|fitter|fit|lose weight|stronger|healthier|meet people|fun|will|möchte|abnehmen|stärker|gesünder|leute kennenlernen|spaß)\b", n):
+            return out("goal")
+        if key in ("project_done", "passed", "race_done") and re.search(r"\b(?:amazing|great|relieved|good|awesome|super|toll|erleichtert|gut)\b", n):
+            return out("earned")
+        if key == "went_music":
+            m = re.match(r"(?P<a>[a-z0-9&' ]{2,30}?)(?:,| -| and|$)", n)
+            if m and m.group("a") not in ("it", "yes", "no", "ja", "nein", "es"):
+                return out("live_music", X=cap(m.group("a")))
+        if key in ("pet_mischief", "pet_mischief_pl") and not de:
+            if re.search(r"\b(?:grandma|grandpa|mom|mum|gift|present|favou?rite|special|expensive|antique|heirloom)\b", n):
+                return out("keepsake")
+            if re.search(r"\b(?:no|nothing|cheap|just a|not really|didn'?t matter)\b", n):
+                return out("no_harm")
+        if key in ("learning", "learning_to"):
+            m = re.search(r"(?:about |around |for |almost |nearly |seit )?(?:\d+|one|two|three|four|five|six|a few|ein paar|zwei|drei|vier|fünf|einem|einer) ?(?:weeks?|months?|years?|days?|wochen|monaten|jahren|tagen|woche|monat|jahr)", n)
+            if m:
+                X = m.group(0)
+                return out("practice", X=X[:1].upper() + X[1:])
+        if key == "divorce" and re.search(r"\b(?:okay|ok|fine|coping|managing|es geht|okay|geht schon)\b", n):
+            return out("coping")
+        if key == "forgot_bday" and re.search(r"\b(?:called|fine|all good|no problem|didn'?t mind|angerufen|alles gut|nicht schlimm)\b", n):
+            return out("resolved")
+        if key == "plants_dying":
+            cac = re.search(r"\b(?:cact\w*|succulent\w*|kakte\w*|kaktus|sukkulent\w*)\b", n)
+            fern = re.search(r"\b(?:fern\w*|farn\w*)\b", n)
+            if cac and fern:
+                return out("plant_both")
+            if cac:
+                return out("plant_cactus")
+            if fern:
+                return out("plant_fern")
+            if len(n.split()) <= 8:
+                return out("plant_any")
+        if key == "nervous_thing" and not de and re.fullmatch(r"(?:yes|yeah|sure|ok|okay|please|yes please|sure,? why not|go on)", n):
+            return out("talk_through")
+        return None
+
     def _moment_en(self, st: DialogState, msg: str, norm: str, feeling: bool = False) -> Reply | None:
         """An everyday moment told in one sentence, by frame — after every specific flow (engramm/chat/moments.py)."""
         from engramm.chat import moments
@@ -1369,6 +1483,9 @@ class Assistant:
                      "overslept", "went_funeral", "damage_any", "sprain", "pet_mischief_pl", "burn_tongue", "spill_tech", "back", "tripped_pet")
         st.last_exp = {"valence": "negative" if neg else "positive", "topic": None, "person": False, "text": msg, "turn": st.turn}
         text = self._pick(st, f"daily:moments:{k2}", mb[k2], **kw)
+        st.uses["moment110"] = [k2, dict(sl, **{k_: v for k_, v in kw.items() if isinstance(v, str)}), st.turn]
+        if k2 == "trip_booked" and kw.get("X"):
+            st.uses["trip"] = [kw["X"], st.turn]          # "in june" next: the month for this trip
         if k2 in ("interview_future", "trip_booked", "saving"):
             rep = self._learn(st, [msg], msg)             # a plan worth keeping ("when is my interview?" later); the reply stays the moment's
             rep.text, rep.kind = text, "empathy"
@@ -1401,6 +1518,11 @@ class Assistant:
         neg = k2 in ("damage_tech", "damage_tech_lost", "damage_car", "spill", "spill_wine", "burn", "hurt", "cancelled_travel", "cancelled", "stuck_lift",
                      "stuck_traffic", "stuck", "rent", "divorce", "stood_up", "neighbour", "lonely", "plants_dying", "forgot_bday", "sick_week", "overslept", "went_funeral", "sprain", "burn_tongue", "spill_tech", "back", "tripped_pet")
         st.last_exp = {"valence": "negative" if neg else "positive", "topic": None, "person": False, "text": msg, "turn": st.turn}
+        st.uses["moment110"] = [k2, dict(sl, **{k_: v for k_, v in kw.items() if isinstance(v, str)}), st.turn]
+        if k2 == "trip_booked":
+            pen = ((self.bank.daily.get("b101") or {}).get("de") or {}).get("countries", {}).get(sl.get("o", ""))
+            if pen:
+                st.uses["trip_de"] = [pen, kw.get("X", sl.get("o", "").capitalize()), st.turn]
         return Reply(msg, "empathy", self._pick(st, f"de:moments:{k2}", mb[k2], **kw), via="german")
 
     def _german_ctx104(self, st: DialogState, msg: str, s: str) -> Reply | None:
@@ -1412,6 +1534,9 @@ class Assistant:
             return None
         q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:%-]", " ", s)).strip(" .!?")
         say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:b104:{key}", b[key], **kw), via="german")   # noqa: E731
+        mf_ = self._moment_follow(st, msg, q, "de")
+        if mf_ is not None:
+            return mf_
         not_names = {"müde", "fertig", "krank", "traurig", "glücklich", "wach", "da", "hier", "zurück", "sauer", "gestresst", "hungrig", "satt", "neu",
                      "allein", "single", "verheiratet", "schwanger", "sicher", "bereit", "raus", "weg", "online", "unterwegs", "zuhause", "daheim", "dabei",
                      "dran", "durch", "pleite", "platt", "kaputt", "erkältet", "nervös", "aufgeregt", "gespannt", "froh", "happy", "ok", "okay", "gut",
@@ -4260,6 +4385,10 @@ class Assistant:
                 return self._german(st, msg)      # "die nachbarn waren laut", "28", "italienisch": no English word, stays German
         msg = expand_chat(msg)                            # "wats ur name" → "what's your name"
         msg = _casual(msg)                                # "heyyy 👋" → "hey", "idk im kinda bored" → "im kind of bored", "k bye" → "bye"
+        if st.uses.get("moment110"):                      # the answer to a moment's question comes before any generic follow-up
+            mf0 = self._moment_follow(st, msg, re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", normalise(msg))).strip(" .!?"), "en")
+            if mf0 is not None:
+                return mf0
         lead = re.match(r"^(?:ok(?:ay)?,?\s+)?(?:whatever|anyways?|moving on|never ?mind|nvm|enough of that|forget (?:it|that)(?=[,.!])|"
                         r"ok(?:ay)? then|alright then|fine then)[,.!]*\s+(?=\S+\s+\S)", msg, re.I)
         if lead:
@@ -5710,6 +5839,25 @@ class Assistant:
         if lg and st.turn - lg[2] <= 8 and not ((st.last_exp or {}).get("turn", -99) > lg[2] or
                                                  (st.last_action or {}).get("turn", -99) > lg[2]):
             sec = d["learning"][lg[0]]
+            if st.turn - lg[2] <= 2 and "learn_answer" in d:       # the answer to the opening question ("how long?", "acoustic or electric?", "teacher or app?")
+                ans = None
+                if re.fullmatch(r"(?:(?:um+|uh+|oh|well|yeah|only|just|like),? )*(?:for |since )?(?:about |around |almost |nearly |like |maybe |roughly )?"
+                                r"(?:a|an|one|two|three|four|five|six|a few|a couple of?|couple|several|\d+) (?:days?|weeks?|months?|years?)(?: now| or so| ago)?[.!]*"
+                                r"|(?:i )?(?:just|only) (?:started|began)(?: (?:recently|last week|this week|last month|yesterday))?[.!]*"
+                                r"|since (?:january|february|march|april|may|june|july|august|september|october|november|december|last \w+|the summer|christmas)[.!]*",
+                                norm.strip()):
+                    ans = "duration_long" if re.search(r"\byears?\b", norm) and not re.search(r"\b(?:a|one) year\b", norm) else "duration"
+                elif re.fullmatch(r"(?:(?:um+|uh+|oh|well|yeah),? )*(?:an? |the )?(?:acoustic|electric|classical|bass)(?: one| guitar)?[.!]*", norm.strip()):
+                    ans = "kind"
+                elif re.fullmatch(r"(?:(?:um+|uh+|oh|well|yeah),? )*(?:with |on |using )?(?:a |an |my )?(?:teacher|app|apps|youtube|online|lessons|"
+                                  r"on my own|by myself|myself|alone|a course|duolingo)(?: mostly| and \w+)?[.!]*", norm.strip()):
+                    ans = "method"
+                elif re.fullmatch(r"(?:(?:um+|uh+|oh|well|yeah),? )*(?:a )?(?:practice pad|pad|kit|full kit|drum kit|electronic kit|e-kit)(?: at home)?[.!]*", norm.strip()):
+                    ans = "kind"
+                if ans:
+                    lg[2] = st.turn
+                    return Reply(msg, "smalltalk", self._pick(st, f"daily:learn_answer:{ans}", d["learn_answer"][ans], x=lg[1]),
+                                 via="everyday")
             for part, rx in _LEARN_FOLLOW:
                 if part in sec and rx.search(norm):
                     lg[2] = st.turn
@@ -7237,6 +7385,9 @@ class Assistant:
         n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", norm)).strip(" .!?")
         say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b99:{key}", b[key], **kw), via="everyday")  # noqa: E731
         films = b["films"]
+        mf_ = self._moment_follow(st, msg, n, "en")
+        if mf_ is not None:
+            return mf_
         wm = re.fullmatch(r"(?:and |so )?when(?:'s| is| was) (?:my|the) (?P<x>(?:[a-z]+ )?(?:appointment|interview|exam|test|meeting|flight|party|date|class|lesson|surgery|operation|check-?up|wedding|trip|game|match|concert|presentation|deadline))(?: again)?", n)
         if wm:                                            # "when is my job interview?" after "i have a job interview tomorrow"
             x = wm.group("x")

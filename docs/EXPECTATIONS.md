@@ -3597,6 +3597,31 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: Dev-Satz unverändert, NQ 22/9, Suite 808 bestanden, Routine ohne neue Unterschiede. Test 109b hält 10
   Fälle fest.
+- **Probe 110: Folgeantworten nach Momenten** (3. Oktober 2026): Auf eine Moment-Antwort mit Rückfrage („Is it
+  fixable?“, „How long have you been playing?“, „Wie heißt sie?“) folgen 30 englische und 20 deutsche zweite Sätze.
+  Gezählt wird eine schwache Antwort, wenn der Bot den Faden verliert („I see. Tell me more?“, Fakt gemerkt, Füllsatz).
+
+  | Stand | EN schwach | DE schwach |
+  |---|---|---|
+  | vor 110 | 8 von 30 | 4 von 20 |
+  | nach 110 | 0 von 30 | 0 von 20 |
+
+  Was dazukam:
+  - `_moment_follow` liest die Antwort gegen den gemerkten Moment (zwei Züge lang). Englisch läuft die Prüfung jetzt
+    vor allen anderen Abläufen, so greifen auch „i think it's fixable“ und „they rebooked me for tomorrow“;
+  - Panne: „the tow truck came“ / „ADAC war da“ → „gut, dass Hilfe kam“;
+  - Fitnessstudio: das genannte Ziel („i want to get fitter“, „ich will fitter werden“) bekommt eine Ziel-Antwort;
+  - Lernen (Gitarre, Klavier, Schlagzeug, Sprache): Antworten auf die Eröffnungsfrage („about two months“,
+    „acoustic“, „with an app“, „practice pad“). Ab „three years“ geht es nicht mehr um Anfängerprobleme;
+  - „Seit zwei Monaten“ statt „Seit Zwei Monaten“.
+
+  Gefundene und behobene Regression: „i'm going on vacation“ → „to greece“ landete im Moment statt im Reise-Ablauf.
+  Danach fehlten Tipps, und „what language do they speak there?“ verlor den Bezug (b40, b96). Urlaub ist jetzt vom
+  Moment-Folgeschritt ausgenommen.
+
+  Messung: Dev-Satz unverändert; NQ 22/9; Suite 809 bestanden. Batterien b32–b106b gegen den letzten Commit: ohne
+  Unterschiede außer Uhrzeiten. Generisch- und Held-out-Proben 0. Wiederholungen 5 von 700. Valenz 0 falsch.
+  Test 110 hält 8 Fälle fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

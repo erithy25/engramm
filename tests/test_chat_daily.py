@@ -3825,3 +3825,26 @@ def test_battery109b_moments_second_heldout(chat):
         a.turn(st, "hi" if lang == "en" else "hallo")
         t = a.turn(st, msg).text
         assert not bad.search(t) and _re.search(want, t), (msg, t)
+
+
+def test_battery110_moment_follow_ups(chat):
+    """The answer to a moment's question stays on that moment instead of falling back to a generic filler."""
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"Tell me more|I see\.|I'll remember|Noted|Erzähl ruhig mehr|Erzähl gern mehr|merke ich mir", _re.I)
+    for i, (lang, first, second, want) in enumerate([
+            ("en", "my laptop crashed", "i think it's fixable", "good news|Phew"),
+            ("en", "my flight got cancelled", "yeah they rebooked me for tomorrow", "rebooked"),
+            ("en", "i joined a gym", "i want to get fitter", "goal"),
+            ("en", "my car broke down on the highway", "yes, the tow truck came", "help came"),
+            ("en", "i'm learning to play the guitar", "about two months", "early days|trickiest|going"),
+            ("en", "i'm learning to play the guitar", "about three years", "beginner stage"),
+            ("de", "ich hab mich im fitnessstudio angemeldet", "ich will fitter werden", "Ziel")]):
+        st = DialogState(f"f110-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        a.turn(st, first)
+        t = a.turn(st, second).text
+        assert not bad.search(t) and _re.search(want, t), (first, second, t)
+    st = DialogState("f110-trip")                         # "where are you heading?" → "to greece" stays with the trip flow
+    a.turn(st, "i'm going on vacation tomorrow")
+    assert _re.search(r"tips|see or eat|what to see", a.turn(st, "to greece").text)
