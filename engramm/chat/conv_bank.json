@@ -13821,7 +13821,7 @@
      "a": "Oh no! Try calling it from another phone or use “Find my device” on a computer — and if it's really gone, lock it remotely and change your important passwords."
     },
     {
-     "q": "i (?:just )?(?:lost|can'?t find) my (?:umbrella|bag|backpack|jacket|coat|ring|watch|earrings?|headphones|airpods|earbuds|charger|ticket|train ticket|id|id card|bank card|credit card|notebook|laptop|book|hat|gloves|scarf|sunglasses|bike lock|lipstick|pen)",
+     "q": "i (?:just )?(?:lost|can'?t find) my (?:umbrella|bag|backpack|jacket|coat|ring|watch|earrings?|headphones|airpods|earbuds|ticket|train ticket|id|id card|bank card|credit card|notebook|laptop|book|hat|gloves|scarf|sunglasses|bike lock|lipstick|pen)",
      "v": "neg",
      "a": "Oh no, that's annoying! Where did you last have it? Retracing your steps usually turns things up."
     },

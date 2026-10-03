@@ -3121,7 +3121,9 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Die Regression fand noch etwas: Die neue Zeile für verlorene Dinge verdrängte den besseren Geldbörsen-Eintrag
   („block your cards“). Sie gilt jetzt nur für Schlüssel und Brille. Telefon („Find my device“) und eine feste
   Liste von Gegenständen haben eigene Einträge. Eine offene Form „lost my X“ hätte „i lost my mom“ als verlegten
-  Gegenstand behandelt; ein Test prüft, dass Trauer Trauer bleibt.
+  Gegenstand behandelt; ein Test prüft, dass Trauer Trauer bleibt. Nachgetragen nach dem Commit: Die Liste enthielt
+  „charger“ und verdrängte in b57 die kontextbezogene Antwort nach „my phone died“ („Of course it disappears now …
+  Anyone you could borrow one from?“). „charger“ ist gestrichen, b57 ist wieder identisch.
 
   Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 791 bestanden. Regressionen 32 und 38–94 (61 Gespräche):
   0 Wiederholungen, Unterschiede wie bei 89.
