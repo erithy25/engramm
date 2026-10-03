@@ -3622,6 +3622,51 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Messung: Dev-Satz unverändert; NQ 22/9; Suite 809 bestanden. Batterien b32–b106b gegen den letzten Commit: ohne
   Unterschiede außer Uhrzeiten. Generisch- und Held-out-Proben 0. Wiederholungen 5 von 700. Valenz 0 falsch.
   Test 110 hält 8 Fälle fest.
+- **Probe 111: ganze Alltagsgespräche** (3. Oktober 2026): Bisher prüften die Proben ein oder zwei Sätze. Jetzt
+  laufen ganze Gespräche mit 5 bis 8 Zügen: Feierabend mit schlecht gelauntem Chef, Wochenendplanung, Lärm der
+  Nachbarn, Hochzeitsrede, Beförderung, krankes Haustier, Wissensfrage mit Rückfrage, Laufen anfangen, Einsamkeit
+  nach einem Umzug, Langeweile, verbranntes Essen, Handykauf. Bewertet wurde durch Lesen jeder Antwort, ohne
+  KI-Richter. „Schwach“ heißt: Die Antwort passt nicht zum Zug, ist ein Füllsatz oder merkt sich Unsinn.
+
+  | Probe | Stand | EN | DE |
+  |---|---|---|---|
+  | 111 (10 EN / 9 DE Gespräche) | vorher, nur Muster | 10 von 72 | 7 von 59 |
+  | 111 | vorher, gelesen | 27 von 72 | 25 von 59 |
+  | 111 | nachher, gelesen | 0 von 72 | 0 von 59 |
+  | 111b, ungesehen (12 EN / 9 DE), erster Lauf | gelesen | 20 von 78 | 14 von 55 |
+  | 111b | nach Behebung der Kategorien | 0 von 78 | 0 von 55 |
+
+  Der erste Lauf von 111b ist die ehrliche Zahl dafür, wie gut die Regeln auf neue Formulierungen übertragen:
+  etwa jede vierte Antwort war noch schwach. Danach wurden Kategorien behoben, nicht einzelne Sätze.
+
+  Gefundene echte Fehler:
+  - „i'm not good at public speaking“ speicherte den Namen „Public“. Das Wort „speaking“ galt immer als
+    Namens-Hinweis („This is Frotam speaking“); das gilt jetzt nur noch am Satzende und nicht nach
+    „public / at / of“.
+  - „tell me a joke then“ wurde als Wissensfrage gelesen („The answer is Sicily.“).
+  - „thanks, i feel better“ ergab eine doppelte Antwort.
+  - „ich bin in letzter zeit oft einsam“ wurde als Umzug gelesen („Oh, nach Letzter Zeit Oft Einsam!“). „ich bin
+    in/nach X“ zählt jetzt nur mit „gezogen“ als Umzug.
+  - „meine katze ist ganz schlapp“ ergab eine Antwort über die Müdigkeit des Nutzers.
+  - Die Tippfehlerkorrektur machte aus „fiance“ „finance“ und aus „iphone“ „phone“. Es gibt jetzt eine Liste von
+    Alltagswörtern, die der Speller nicht kennt.
+  - „the forecast looks bad“: `normalise` entfernt ein führendes „but“, darum griff das Muster nicht.
+
+  Neu:
+  - Block b111 (`_daily_ctx25`, `_german_ctx111`): Ein Thema bleibt vier Züge lang gemerkt. So bleiben Kurzantworten
+    und „any tips?“ / „hast du tipps?“ beim Thema.
+  - Angebote („Want a show tip?“, „Soll ich dir eine Serie vorschlagen?“) lösen bei „yes“ / „ja gerne“ ein.
+  - Die Hochzeitsrede wird aus Namen, Kennenlernen und Beziehung entworfen.
+  - Ellipse „and what about sydney?“.
+  - „hast du eine serienempfehlung?“ / „filmtipp“ / „buchtipp“ werden als Empfehlungswunsch gelesen.
+
+  Erster Routinelauf: die neuen Regeln verdrängten gute bestehende Antworten (Hundename „Bruno“, Filmtipps, deutsche
+  Wochenendliste, DEV team-0032, gemerktes Hundealter). Darum läuft b111 jetzt zweistufig: früh nur Themen erkennen
+  und eigene Folgezüge, spät (`_daily_ctx25_late`, `_german_ctx111_late`) der Rest, nur wo sonst ein Füllsatz kam.
+  Danach bleiben 4 Batterie-Unterschiede, alle gleichwertig oder besser (Beförderung fragt nach der Rolle).
+
+  Messung: Dev-Satz unverändert; NQ 22/9; Suite 810 bestanden. Proben 109/110, Generisch und Held-out
+  bleiben bei 0. Wiederholungen 5 von 700, Valenz 0 falsch. Test 111 hält 13 Gespräche fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

@@ -73,7 +73,7 @@ CONCEPTS = [
                         r"enjoys|nothing beats|beats|fan|crazy about|go-to|obsessed with|choose|chose|pick|picked|"
                         r"top)\b")),
     ("#name", re.compile(r"\b(name|names|named|called|call|calls|go by|goes by|known as|know me as|answers? to|"
-                         r"speaking|introduce myself|introduce me|address me)\b")),
+                         r"(?<!public )(?<!at )(?<!of )(?<!about )(?<!in )speaking(?=\s*[.!]*$)|introduce myself|introduce me|address me)\b")),
     ("#place", re.compile(r"\b(where|place|city|town|country)\b")),
     # where someone comes from: a birthplace answers "Where is he from?"
     ("#origin", re.compile(r"\b(born in|born at|birthplace|place of birth|come from|comes from|came from|"

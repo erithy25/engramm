@@ -3848,3 +3848,46 @@ def test_battery110_moment_follow_ups(chat):
     st = DialogState("f110-trip")                         # "where are you heading?" → "to greece" stays with the trip flow
     a.turn(st, "i'm going on vacation tomorrow")
     assert _re.search(r"tips|see or eat|what to see", a.turn(st, "to greece").text)
+
+
+def test_battery111_whole_everyday_conversations(chat):
+    """Whole conversations keep their topic: boss, evening plan, weekend, wedding speech, promotion, sick pet, running, lonely."""
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"Tell me more\?|I see\.|I'll remember|Noted|I don't know|Erzähl ruhig mehr|Erzähl gern mehr|nicht ganz verstanden|merke ich mir|"
+                      r"wie findest du das|Bad days are real|nach Letzter", _re.I)
+    convs = [
+        ("en", [("my boss was in a bad mood all day", "moody boss|boss"), ("he snapped at me in a meeting", "snapped"),
+                ("i think i'll just order pizza and watch something", "show"), ("yes", "series|Sherlock|Breaking|Office|Dark|Friends|Fleabag|Stranger")]),
+        ("en", [("can you help me plan my weekend?", "outdoors|outside"), ("i want to do something outdoors", "hike"),
+                ("maybe hiking but it might rain", "plan B"), ("what could i do indoors then?", "Bouldering"), ("bouldering sounds fun actually", "shoes")]),
+        ("en", [("my sister is getting married next month", ""), ("i have to give a speech", ""), ("i'm not good at public speaking", "speech|writing it"),
+                ("can you help me write it?", "names"), ("her name is anna and her fiance is tom", "Anna and Tom"), ("they met at university", "raise your glasses")]),
+        ("en", [("i got a promotion today!!", "role|doing"), ("team lead", "Team lead"), ("a bit scared honestly, i've never managed people", "tips"),
+                ("any tips?", "1:1"), ("that makes sense", "Glad|Happy to help")]),
+        ("en", [("my dog is sick", ""), ("he's 12", "good age"), ("the vet is closed until monday", "emergency vet"),
+                ("ok i'll call the emergency vet", "Good idea|right call")]),
+        ("en", [("i want to start running", ""), ("i'm completely out of shape", "run-walk"), ("what about shoes?", "running shoes")]),
+        ("en", [("i feel kind of lonely lately", ""), ("i don't really know anyone here", "club"), ("maybe a running club could work", "good idea|could really work")]),
+        ("en", [("ugh i burnt my dinner", ""), ("it was supposed to be lasagna", "lasagna"), ("i guess i'll order something", "rescue")]),
+        ("de", [("ich glaub ich bestell mir pizza und schau was", "Serie"), ("ja gerne", "•")]),
+        ("de", [("kannst du mir helfen, mein wochenende zu planen?", "draußen"), ("ich will was draußen machen", "Wanderung"),
+                ("vielleicht wandern, aber es soll regnen", "Plan B"), ("was kann ich drinnen machen?", "Bouldern"), ("bouldern klingt gut", "Schuhe")]),
+        ("de", [("ich hab heute eine beförderung bekommen!", "Rolle"), ("teamleiter", "Teamleiter"),
+                ("ein bisschen angst hab ich schon, ich hab noch nie leute geführt", "Tipps"), ("hast du tipps?", "Einzelgespräch")]),
+        ("de", [("meine katze ist ganz schlapp", "die Arme"), ("sie frisst nichts", "Trinkt sie"), ("sie ist 14", "stolzes Alter"),
+                ("die praxis hat am wochenende zu", "Notdienst")]),
+        ("de", [("ich bin in letzter zeit oft einsam", ""), ("ich bin vor zwei monaten in eine neue stadt gezogen", "zwei Monate"),
+                ("ich hab hier noch keine freunde", "Sportverein")]),
+    ]
+    for i, (lang, turns) in enumerate(convs):
+        st = DialogState(f"c111-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        for msg, want in turns:
+            t = a.turn(st, msg).text
+            assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)
+    st = DialogState("c111-name")
+    a.turn(st, "hi")
+    a.turn(st, "i'm not good at public speaking")
+    assert "Public" not in a.turn(st, "what's my name?").text
+    assert "Sicily" not in a.turn(st, "tell me a joke then").text

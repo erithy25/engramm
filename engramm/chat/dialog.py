@@ -1009,12 +1009,13 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_mem67(st, msg, s) or self._german_ctx104(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx111(st, msg, s) or self._german_ctx104(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
                 self._german_life(st, msg, s) or \
-                self._moment_de(st, msg, s)
+                self._moment_de(st, msg, s) or \
+                self._german_ctx111_late(st, msg, s)
             if life is not None:
                 return life
         if u.kind == "fallback" or u.kind == "feeling":
@@ -1524,6 +1525,209 @@ class Assistant:
             if pen:
                 st.uses["trip_de"] = [pen, kw.get("X", sl.get("o", "").capitalize()), st.turn]
         return Reply(msg, "empathy", self._pick(st, f"de:moments:{k2}", mb[k2], **kw), via="german")
+
+    def _german_ctx111(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 111 in German: whole everyday conversations — "ich glaub ich bestell mir pizza und schau was"
+        (and "ja" to the series tip), the weekend (draußen, Regen, drinnen, "bouldern klingt gut"), the neighbours
+        who are "eigentlich ganz nett", a promotion and the fear of leading, a sick old dog when the vet is closed,
+        starting to run (unsportlich, Schuhe), lonely after a move, "kein bock zu lesen", "echt? ich dachte sydney"."""
+        b = (self.bank.daily.get("b111") or {}).get("de")
+        if not b:
+            return None
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:%-]", " ", s)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:b111:{key}", b[key], **kw), via="german")   # noqa: E731
+        c = st.uses.get("c111")
+        topic = c[0] if c and st.turn - c[1] <= 4 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c111"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        ja = bool(re.fullmatch(r"(?:ja|jo|jap|jep|gerne?|klar|ok(?:ay)?|na klar|ja gerne?|ja bitte|bitte|sehr gern|unbedingt|au ja|warum nicht)(?: danke)?", q))
+        tipps = bool(re.fullmatch(r"(?:hast du |irgendwelche |noch )?(?:tipps|ratschläge|ideen)(?: für mich)?|was (?:rätst|empfiehlst) du mir|was würdest du (?:mir )?(?:raten|empfehlen)", q))
+        o111 = st.uses.get("o111")
+        if o111 and o111[1] == st.turn - 1 and (ja or tipps):
+            st.uses.pop("o111", None)
+            if topic:
+                keep(topic)
+            if o111[0] == "series":
+                return self.everyday.recommend(st, msg, "series", lang="de")
+            if o111[0] in b:
+                return say(o111[0])
+        lf = st.last_fact or {}
+        tw = re.fullmatch(r"(?:echt|wirklich|ach|ach so|oh|hm+)?,? ?ich (?:dachte|hätte gedacht|war mir sicher)(?:,)? (?:es (?:ist|wäre|sei) |das (?:ist|wäre) |dass es )?(?P<x>[a-zäöüß][a-zäöüß .'-]{1,30}?)(?: ist| wäre)?", q)
+        if tw and lf.get("answer") and st.last_kind == "answer" and tw.group("x").lower() != str(lf["answer"]).lower():
+            return say("thought", y=lf["answer"])
+        if topic and re.fullmatch(r"ja|jo|jap|jep|jup|mhm|genau|stimmt|auf jeden fall|klar", q) and st.last_reply and \
+                not st.last_reply.rstrip().endswith("?") and st.turn - c[1] == 1:
+            return say("ack_yes")
+        # -- topics ---------------------------------------------------------------------------------------------
+        if re.search(r"\b(?:eine |meine )?beförderung bekommen\b|\bbin (?:heute |endlich |gerade )?befördert worden\b|\bwurde (?:heute |endlich )?befördert\b", q):
+            keep("promo")
+            return None                               # "ich wurde befördert" keeps its own reply; the role and the fear are followed here
+        if re.search(r"\b(?:hilf|helfen|hilfst) (?:du )?mir\b.*\bwochenende\b.*\bplanen\b|\bwochenende (?:zu )?planen\b|\bideen fürs wochenende\b", q):
+            keep("weekend")
+            return say("weekend_ask")
+        m = re.search(r"\bmein(?:e)? (?P<p>hund|katze|kater|hase|kaninchen|hamster|wellensittich|vogel) (?:ist|scheint|war|wirkt) (?:ganz |sehr |echt |total |so )?(?P<w>krank|nicht fit|schlapp|komisch|apathisch|müde)\b", q)
+        if m:
+            keep("pet", p=m.group("p"))
+            if m.group("w") != "krank":                   # "meine katze ist ganz schlapp": the cat, not the user, is tired
+                return say("pet_sick", X="die Arme" if m.group("p") in ("katze",) else "der Arme", p="sie" if m.group("p") in ("katze",) else "er")
+            return None
+        if re.fullmatch(r"ich (?:will|möchte|würde gern|werde) (?:mit dem |wieder mit dem )?(?:laufen|joggen)(?: anfangen| beginnen)?|ich fang(?:e)? (?:mit dem |jetzt mit dem )?(?:laufen|joggen) an", q):
+            keep("run")
+            return None
+        if re.search(r"\b(?:ich fühl(?:e)? mich|ich bin) (?:in letzter zeit |gerade |so |total |echt |oft |ziemlich )*einsam\b", q):
+            keep("lonely")
+            return None
+        if re.search(r"\b(?:nachbarn?|nachbarin|die von nebenan|die über mir|die unter mir)\b", q):
+            keep("neighbours")
+            if re.search(r"\b(?:trampel\w*|laut|lärm|party|feiern|feiert|musik|bass|schrei\w*|streit\w*|bell\w*|bohr\w*|hämmer\w*|rauch\w*|stampf\w*)\b", q) and \
+                    "?" not in msg and not re.search(r"\bbis \d", q):
+                keep("neighbours", noise=True)
+                return say("neighbour_noise")
+            return None
+        if topic == "neighbours" and info.get("noise") and re.fullmatch(r"(?:also |und )?soll(?:te)? ich (?:mit (?:ihnen|denen|ihm|ihr) reden|was sagen|(?:bei )?(?:ihnen|denen) klingeln|mich beschweren)(?: deswegen)?", q):
+            keep("neighbours")
+            return say("neighbour_talk")
+        mb = re.search(r"\bmein(?:e)? (?:chef(?:in)?|vorgesetzte[r]?|teamleiter(?:in)?)\b", q)
+        if mb:
+            keep("boss", she="chefin" in q or "vorgesetzte " in q or "teamleiterin" in q)
+            return None
+        if topic == "boss" and re.search(r"\b(?:er|sie) hat mich (?:vor (?:allen|dem (?:ganzen )?team|den kollegen|allen anderen) |im meeting |heute )*(?:kritisiert|angeschrien|angemacht|runtergemacht|angefahren|bloßgestellt|angepampt|fertiggemacht|niedergemacht)\b", q):
+            keep("boss")
+            return say("boss_snap")
+        if re.search(r"\b(?:mein|das) (?:abendessen|essen|mittagessen|kuchen|brot)\b.*\b(?:angebrannt|verbrannt|misslungen|verkocht)\b|\bmir ist (?:das|mein) (?:essen|abendessen) angebrannt\b", q):
+            keep("burnt")
+            return say("burnt")
+        if topic == "burnt":
+            ms = re.fullmatch(r"(?:es |das )?sollte (?:eigentlich )?(?P<x>[a-zäöüß ]{3,30}) werden|(?:eigentlich )?sollte es (?P<y>[a-zäöüß ]{3,30}) geben", q)
+            if ms:
+                keep("burnt")
+                return say("burnt_what", X=(ms.group("x") or ms.group("y")).capitalize())
+            if re.fullmatch(r"(?:pizza|sushi|burger|döner|chinesisch|thai|indisch|curry|nudeln)(?: wahrscheinlich| vielleicht| glaub ich)?", q):
+                keep("burnt")
+                return say("food_pick", X=q.split()[0].capitalize())
+        # -- inside a topic -------------------------------------------------------------------------------------
+        if topic == "weekend":
+            if re.search(r"\b(?:was|etwas) (?:draußen|an der frischen luft|aktives)\b|\braus (?:gehen|in die natur)\b|\bnach draußen\b", q) and "?" not in msg:
+                keep("weekend")
+                return say("outdoor")
+            if re.search(r"\baber (?:es )?(?:soll|könnte|wird|würde) (?:es )?regnen\b|\baber (?:das wetter|die vorhersage) (?:ist|sieht|soll|wird) (?:ja |eher )?(?:schlecht|mies|nach regen|regnerisch)(?: werden| sein| aus)?\b|\baber es regnet\b", q):
+                keep("weekend")
+                return say("rain")
+            if re.search(r"\bwas (?:kann|könnte|soll|sollte) (?:ich|man|wir) (?:dann )?(?:drinnen|zu hause|bei regen|wenn es regnet)\b|\bideen für drinnen\b|\bwas (?:für )?drinnen\b", q):
+                keep("weekend")
+                return say("indoor")
+        if topic == "weekend":
+            pk = re.fullmatch(r"(?:ok(?:ay)?,? |oh,? |hm+,? )?(?:(?P<x>[a-zäöüß ]{3,20}?) (?:klingt|hört sich) (?:gut|super|toll|spannend|nach spaß|cool|lustig)(?: an)?|(?:dann )?(?:mach|probier|nehm) ich (?P<y>[a-zäöüß ]{3,20}))", q)
+            if pk:
+                x = re.sub(r"^(?:das |der |die |ein |eine |ins |in den |ins )", "", (pk.group("x") or pk.group("y") or "").strip())
+                if x not in ("das", "es", "gut"):
+                    keep("weekend")
+                    txt = b["pick"].get(x) or b["pick"].get(re.sub(r"(?:en|n)$", "", x)) or b["pick"]["generic"]
+                    return Reply(msg, "smalltalk", txt, via="german")
+        if topic == "neighbours" and re.search(r"\b(?:eigentlich|sonst|normalerweise|ja auch|eigentlich auch) (?:sind|ist) (?:die|der|sie|er) (?:ganz |echt |total |sehr |ja |eigentlich |sonst )*(?:nett|freundlich|okay|ok|lieb|in ordnung)\b|"
+                                               r"\b(?:die|sie|er) (?:sind|ist) (?:eigentlich |sonst |normalerweise |ja |auch )+(?:ganz |echt |total |sehr )*(?:nett|freundlich|okay|lieb|in ordnung)\b", q):
+            keep("neighbours")
+            return say("usually_nice")
+        # -- small things ---------------------------------------------------------------------------------------
+        if re.fullmatch(r"(?:nee|nein|nö|ne|mh|ach)?,? ?(?:kein bock|keine lust)(?: zu| auf)? (?:lesen|bücher|fernsehen|rausgehen|kochen|sport|nichts|irgendwas)(?: gerade| jetzt| heute)?", q):
+            st.offer = {"kind": "joke_or_fact", "turn": st.turn}
+            return say("not_feel")
+        return None
+
+    def _german_ctx111_late(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 111 in German, after every other flow: "ich hab eine beförderung bekommen", the new role and the
+        fear of leading, the sick pet that doesn't eat and the closed practice, starting to run, lonely after a move,
+        and short plans ("ich bestell mir pizza und schau was") — where only a filler came before."""
+        b = (self.bank.daily.get("b111") or {}).get("de")
+        if not b:
+            return None
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:%-]", " ", s)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:b111:{key}", b[key], **kw), via="german")   # noqa: E731
+        c = st.uses.get("c111")
+        topic = c[0] if c and st.turn - c[1] <= 4 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c111"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        ja = bool(re.fullmatch(r"(?:ja|jo|jap|jep|gerne?|klar|ok(?:ay)?|na klar|ja gerne?|ja bitte|bitte|sehr gern|unbedingt|au ja|warum nicht)(?: danke)?", q))
+        tipps = bool(re.fullmatch(r"(?:hast du |irgendwelche |noch )?(?:tipps|ratschläge|ideen)(?: für mich)?|was (?:rätst|empfiehlst) du mir|was würdest du (?:mir )?(?:raten|empfehlen)", q))
+        if re.search(r"\b(?:eine |meine )?beförderung bekommen\b|\bbin (?:heute |endlich |gerade )?befördert worden\b|\bwurde (?:heute |endlich )?befördert\b", q):
+            keep("promo")
+            return say("promo")
+        if topic == "promo":
+            if re.search(r"\b(?:angst|nervös|bammel|unsicher|sorgen|respekt)\b", q) and re.search(r"\b(?:führ|leit|leute|team|chef|noch nie)\w*", q):
+                keep("promo")
+                st.uses["o111"] = ["lead_tips", st.turn]
+                return say("lead_fear")
+            if tipps:
+                keep("promo")
+                return say("lead_tips")
+            if c and st.turn - c[1] == 1 and re.fullmatch(r"(?:ich bin (?:jetzt )?|als |jetzt )?(?P<x>(?:team|abteilungs|bereichs|projekt|filial|schicht|gruppen|vertriebs|produkt)?(?:leiter(?:in)?|leitung|manager(?:in)?|chef(?:in)?|lead|teamlead|führungskraft|direktor(?:in)?|geschäftsführer(?:in)?|senior [a-zäöüß]+))", q):
+                keep("promo")
+                x = re.sub(r"^(?:ich bin (?:jetzt )?|als |jetzt )", "", q)
+                return say("promo_role", X=x[:1].upper() + x[1:])
+        if topic == "pet":
+            p = info.get("p", "hund")
+            er = "sie" if p in ("katze",) else "er"
+            if re.search(r"\b(?:frisst|fressen|isst|trinkt) (?:seit|schon seit|nicht|nichts|kaum)\b|\bfrisst nicht\b|\bfrisst (?:seit \w+ )?nichts\b", q):
+                keep("pet")
+                return say("pet_food", p=er)
+            ma = re.fullmatch(r"(?:er|sie|es) ist (?:schon |fast |etwa |ungefähr )?(?P<a>\d{1,2})(?: jahre alt| jahre)?", q)
+            if ma and int(ma.group("a")) >= 7:
+                keep("pet")
+                return say("pet_age", X=ma.group("a"))
+            if re.search(r"\b(?:tierarzt|tierärztin|praxis|klinik)\b.*\b(?:zu|geschlossen|erst (?:am )?(?:montag|morgen|dienstag)|nicht offen|hat (?:erst|wieder))\b", q):
+                keep("pet")
+                return say("vet_closed")
+        if topic == "run":
+            if re.search(r"\b(?:unsportlich|nicht fit|außer form|keine kondition|null kondition|ewig keinen sport|nie gelaufen|übergewicht|couch-?potato)\b", q):
+                keep("run")
+                return say("run_unfit")
+            if re.fullmatch(r"(?:und |ok,? |also )?(?:welche|was für|was ist mit|brauche ich (?:spezielle |gute |richtige )?)(?: lauf)?(?: den)? ?(?:schuhe|laufschuhe|schuhen)", q):
+                keep("run")
+                return say("run_shoes")
+        if topic == "lonely":
+            if re.search(r"\b(?:umgezogen|gezogen|hergezogen|hierher gekommen)\b", q):
+                keep("lonely")
+                dm = re.search(r"\bvor (?P<d>(?:einem|einer|zwei|drei|vier|fünf|sechs|ein paar|\d+) (?:wochen?|monaten?|monat))\b", q)
+                if dm:
+                    num, unit = dm.group("d").rsplit(" ", 1)
+                    num = {"einem": "ein", "einer": "eine"}.get(num, num)
+                    unit = {"monaten": "Monate", "monat": "Monat", "wochen": "Wochen", "woche": "Woche"}[unit]
+                    return say("lonely_move" if num not in ("ein", "eine") else "lonely_move1", X=f"{num} {unit}")
+                return say("lonely_move_plain")
+            if re.search(r"\b(?:ich )?kenn(?:e)? (?:hier )?(?:noch )?(?:niemanden|keinen|fast niemanden|kaum (?:jemanden|leute))\b|\bhab(?:e)? (?:hier )?(?:noch )?keine freunde\b", q):
+                keep("lonely")
+                return say("lonely_noone")
+            if re.search(r"\b(?:remote|nur remote|komplett remote)\b", q):
+                keep("lonely")
+                return say("lonely_remote")
+            if re.fullmatch(r"(?:vielleicht|ich glaub|eventuell)? ?(?:wäre|ist|könnte) (?:ein |eine |der |die |das )?[a-zäöüß ]{3,30} (?:was|etwas|eine idee|gut|hilfreich|was für mich)", q):
+                keep("lonely")
+                return say("maybe_could")
+        mp = re.fullmatch(r"(?:ok(?:ay)?,? |also,? |gut,? )?(?:ich glaub(?:e)?,? |vielleicht |wahrscheinlich )?(?:ich )?(?P<x>.{3,70})", q)
+        if mp:
+            x = mp.group("x")
+            if re.search(r"\b(?:bestell|hol|mach)(?:e)? (?:mir )?(?:eine |einen |ein |was |etwas )?(?:pizza|essen|sushi|burger|döner|was zu essen)\b", x) and re.search(r"\b(?:schau|guck|seh)(?:e)? (?:mir )?(?:was|etwas|eine serie|einen film|fern|netflix)\b", x):
+                st.uses["o111"] = ["series", st.turn]
+                return say("chill_watch")
+            if re.fullmatch(r"(?:schau|guck)(?:e)? (?:mir )?(?:heute |jetzt |einfach |mal |noch )*(?:was|etwas|eine serie|einen film|fern|netflix|serien|was auf netflix)(?: an)?", x):
+                st.uses["o111"] = ["series", st.turn]
+                return say("chill_watch")
+            if re.fullmatch(r"(?:bestell|hol)(?:e)? (?:mir )?(?:heute |einfach |dann |jetzt )*(?:eine |einen |ein |was |etwas )?(?:pizza|essen|sushi|burger|döner|was zu essen|was|etwas)?", x):
+                keep("burnt" if topic == "burnt" else "food")
+                return say("burnt_order" if topic == "burnt" else "chill_food")
+            if re.fullmatch(r"(?:geh(?:e)? (?:heute )?früh (?:ins bett|schlafen)|leg(?:e)? mich (?:früh )?hin|nehm(?:e)? ein bad)", x):
+                return say("chill_sleep")
+            if re.fullmatch(r"(?:ruf(?:e)?|telefonier(?:e)?) (?:den |beim |die )?(?:tierärztlichen )?(?:notdienst|tierarzt|notarzt|arzt|ärztin|tierklinik)(?: an)?(?: an)?", x):
+                return say("plan_vet")
+            if re.fullmatch(r"(?:red(?:e)?|sprech(?:e)?|spreche) (?:später |morgen |heute |mal )*mit (?:denen|ihnen|ihm|ihr|den nachbarn|meinem chef|meiner chefin)(?: später| morgen| heute)?", x):
+                return say("plan_ok")
+        return None
 
     def _german_ctx104(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """Battery 104: casual German — "bin übrigens jonas", "bin 31 und arbeite als pfleger" (both kept), the night
@@ -3139,6 +3343,8 @@ class Assistant:
                 rep.message = msg
                 return rep
         m = _DE_MOVING.match(q)
+        if m and re.match(r"(?:ich |wir )?(?:bin|sind) ", q) and not re.search(r"\b(?:um)?gezogen\b", q):
+            m = None                                      # "ich bin in letzter zeit oft einsam" is no move ("ich bin nach berlin gezogen" is)
         if m and m.group("x") not in ("hause", "bett", "ruhe", "der stadt", "die stadt"):
             city = _de_place_case(m.group("x"))
             st.uses["moved"] = [city, st.turn]
@@ -6394,7 +6600,8 @@ class Assistant:
                      w[:-3] + "y" if w.endswith("ies") else "", w[:-2] if w.endswith("er") else "", w[:-3] if w.endswith("est") else "",
                      w[:-2] if w.endswith("ly") else ""] if re.search(r"(?:ing|ed|es|s|er|est|ly)$", w) else []
             inflected = any(len(x) >= 3 and self.speller.known(x) for x in stems if x)   # "snowing" is snow + ing, not "showing"
-            if m and prev not in ("i'm", "im", "am", "called", "named", "is", "name", "call", "me") and not self.speller.known(m.group(1)) and not inflected:
+            if m and prev not in ("i'm", "im", "am", "called", "named", "is", "name", "call", "me") and not self.speller.known(m.group(1)) and not inflected \
+                    and m.group(1) not in _EVERYDAY_WORDS:
                 fixed = self.speller.fix_word(m.group(1))
                 if fixed and fixed.lower() != m.group(1) and self.speller.known(fixed.lower()):
                     tok = fixed.lower() + m.group(2)
@@ -6414,7 +6621,7 @@ class Assistant:
                                                      r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
             # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
             return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
-        evr = self._sounds(st, msg, norm) or self._daily_ctx24(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
+        evr = self._sounds(st, msg, norm) or self._daily_ctx25(st, msg, norm) or self._daily_ctx24(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
             self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
@@ -6525,7 +6732,7 @@ class Assistant:
                         name = self._person_name(noun) or name
                         return Reply(msg, "answer", self._pick(st, "daily:person_likes_answer", d["person_likes_answer"],
                                                                x=name, y=_cuisine_case(lm.group(1))), via="facts")
-        return None
+        return self._daily_ctx25_late(st, msg, norm)      # battery 111: only where every other flow stayed silent
 
     def _daily_ctx2(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 43: "same lol" after "how are you?", "that's sad" about ENGRAMM itself, why someone moved,
@@ -7375,6 +7582,273 @@ class Assistant:
             return shown, pick, found.source, False
         return shown, found.sentences[0], found.source, True
 
+    def _daily_ctx25(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 111: whole everyday conversations instead of single turns — a moody boss who snapped at you,
+        "i think i'll just order pizza and watch something" (and "yes" to the show tip), planning the weekend
+        (outdoors, rain, indoors, "bouldering sounds fun"), a wedding speech written together, a promotion and the
+        fear of leading people, a sick old dog when the vet is closed, starting to run (unfit, shoes), and feeling
+        lonely after a move. The topic is kept for a few turns so "any tips?" and short answers stay on it."""
+        b = self.bank.daily.get("b111")
+        if not b:
+            return None
+        n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", norm)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b111:{key}", b[key], **kw), via="everyday")  # noqa: E731
+        c = st.uses.get("c111")
+        topic = c[0] if c and st.turn - c[1] <= 4 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c111"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        yes = short_answer(n) == "yes" or bool(re.fullmatch(r"(?:yes|yeah|sure|ok|okay|please)?,? ?(?:any |some )?(?:other |more )?tips\??|(?:do you have |got )?any (?:other |more )?(?:tips|advice|ideas)\??|what do you (?:suggest|recommend)", n))
+        o111 = st.uses.get("o111")
+        if o111 and o111[1] == st.turn - 1 and yes:
+            st.uses.pop("o111", None)
+            if topic:
+                keep(topic)
+            if o111[0] == "series":
+                return self.everyday.recommend(st, msg, "series")
+            if o111[0] in b:
+                return say(o111[0])
+        if topic and re.fullmatch(r"yeah|yep|yes|yup|ya|mhm|mm-?hm|definitely|for sure|totally", n) and st.last_reply and \
+                not st.last_reply.rstrip().endswith("?") and st.turn - c[1] == 1:
+            return say("ack_yes")                         # "Enjoy your evening!" → "yeah": no "What would you like to do?"
+        # -- what starts a topic ------------------------------------------------------------------------------
+        if re.search(r"\bmy (?:boss|manager|supervisor|team lead)\b(?:(?! not ).)*\b(?:bad mood|grumpy|in a mood|moody|cranky|in a terrible mood|in a foul mood|in a horrible mood|took it out on)\b", n) and \
+                "?" not in msg and len(n.split()) <= 16:
+            keep("boss")                                  # "my boss yelled at me" keeps its own reply; a mood is what was missing
+            return say("boss_bad")
+        if re.search(r"\bmy (?:boss|manager|supervisor)\b", n):
+            keep("boss")
+        if topic == "boss" and re.search(r"\b(?:he|she|they) (?:criticised|criticized|blamed|humiliated|embarrassed|called) me (?:out )?(?:in front of|before)\b|\b(?:he|she|they) (?:criticised|criticized|blamed|humiliated) me\b", n):
+            keep("boss")
+            return say("boss_crit")
+        if topic == "boss" and re.search(r"\b(?:he|she|they) (?:snapped|yelled|shouted|went off|got angry|was rude|were rude)(?: at| to)? me\b", n):
+            keep("boss")
+            return say("boss_snap")
+        if re.search(r"\b(?:got|get|getting|received) (?:a |the |my )?promotion\b|\bi(?:'ve| have)? (?:just )?(?:been |got |finally got )promoted\b", n) and "?" not in msg:
+            keep("promo")
+            return say("promo")
+        if re.search(r"\b(?:can|could|would) you help me (?:to )?plan (?:my|the|this|our) weekend\b|^help me plan (?:my|the) weekend|"
+                     r"^(?:any |got any )?ideas for (?:the|this|my) weekend", n):
+            keep("weekend")
+            return say("weekend_ask")
+        m = re.search(r"\bmy (?P<p>dog|cat|puppy|kitten|rabbit|bunny|hamster|parrot|bird)(?:'s| is| seems| has been| was| got) (?:really |very |a bit |quite )?(?:sick|ill|unwell|not well|poorly|not eating)\b", n)
+        if m:
+            keep("pet", p=m.group("p"))
+            return None                                   # the first reply stays with the sick-pet flow; the follow-ups are kept here
+        if re.fullmatch(r"(?:i (?:want|would like|'d like|wanna|am going|plan) to|i'?m going to|i'?m gonna|i'?ll|i (?:just )?started|i'?ve (?:just )?started) (?:start |begin |get into |take up |get back into )?(?:running|jogging)(?: again)?", n):
+            keep("run")
+            return None
+        if re.search(r"\b(?:i (?:feel|am|'m|have been|'ve been)|i'?m feeling|feeling) (?:so |really |kind of |pretty |a bit |very )?lonely\b", n):
+            keep("lonely")
+            return None
+        if re.search(r"\bneighbou?rs?\b", n):
+            keep("neighbours")
+            if re.search(r"\b(?:stomp\w*|loud|noise|noisy|party|partying|music|bass|shout\w*|scream\w*|fight\w*|argu\w*|bark\w*|drill\w*|renovat\w*|hammer\w*|smok\w*)\b", n) and \
+                    "?" not in msg and not re.search(r"\buntil \d", n):
+                keep("neighbours", noise=True)
+                return say("neighbour_noise")
+            return None
+        if topic == "neighbours" and info.get("noise") and re.fullmatch(r"(?:so |but )?(?:should|shall|do you think i should) i (?:talk to|speak to|say something to|tell|complain to|knock on) (?:them|their door|him|her)(?: about it)?|(?:what|how) (?:should|do|can) i (?:say|tell them|do)(?: about it)?", n):
+            keep("neighbours")
+            return say("neighbour_talk")
+        if re.fullmatch(r"(?:nah|no|meh|nope|hmm)?,? ?i (?:don'?t|do not) (?:really )?(?:feel like|want to|wanna) (?:reading|read|watching (?:tv|anything)|going out|cooking|cook|working out|doing anything|playing)(?: (?:right now|today|now|tonight))?", n):
+            st.offer = {"kind": "joke_or_fact", "turn": st.turn}
+            return say("not_feel")
+        if topic == "neighbours" and re.fullmatch(r"(?:but |well |although |tbh |honestly )?(?:they'?re|they are|he'?s|she'?s|he is|she is) (?:usually|normally|actually|generally|really|otherwise) (?:really |very |quite |pretty )?(?:nice|friendly|okay|ok|lovely|decent|great|sweet|chill)(?: though| actually| people)?", n):
+            keep("neighbours")
+            return say("usually_nice")
+        if c and st.turn - c[1] == 1 and st.last_reply and "•" in st.last_reply and re.fullmatch(r"(?:ok(?:ay)?,? |yeah,? |hmm,? )?(?:that )?makes (?:a lot of |total )?sense(?:,? thanks?| thank you)?|good (?:point|tips?|advice)|(?:that'?s|those are) (?:really )?(?:helpful|good tips|great tips|useful)(?:,? thanks?)?", n):
+            return say("makes_sense")
+        if re.search(r"\b(?:i'?m|i am) (?:really |so |just )?(?:not good at|bad at|terrible at|awful at|scared of|afraid of|nervous about) (?:public speaking|speaking in public|giving speeches|speeches|talking in front of (?:people|a crowd|everyone))\b", n):
+            keep("speech")
+            st.uses["o111"] = ["speech_ask", st.turn]
+            return say("public_speaking")
+        if re.search(r"\b(?:i have to|i need to|i'?ll have to|i must|i'?m giving|i'?m doing) (?:give |make |hold |write )?(?:a |the )?(?:wedding )?speech\b", n):
+            keep("speech")
+            return None
+        mw = re.search(r"\bmy (?P<rel>sister|brother|best friend|cousin|friend|daughter|son)(?:'s| is) getting married\b", n)
+        if mw:
+            keep("speech", rel=mw.group("rel"))
+            return None
+        # -- inside a topic -----------------------------------------------------------------------------------
+        if topic == "speech":
+            if re.fullmatch(r"(?:yes|yeah|sure|please)?,? ?(?:can|could|would) you help me (?:write|with) (?:it|the speech|a speech)(?: please)?|(?:yes|yeah),? (?:please )?help me(?: write it)?|help me write it", n):
+                keep("speech")
+                return say("speech_ask")
+            nm = re.search(r"\b(?:her|his) name is (?P<a>[a-z]+)\b.*\b(?:her|his|the) (?:fianc[eé]e?|partner|husband|wife|groom|bride)(?: to be)?(?:'s name)? is (?P<b>[a-z]+)\b|"
+                           r"\b(?P<a2>[a-z]+) and (?P<b2>[a-z]+)(?: are their names)?$", n)
+            if nm and (nm.group("a") or len(n.split()) <= 6):
+                a_, b_ = (nm.group("a") or nm.group("a2")).capitalize(), (nm.group("b") or nm.group("b2")).capitalize()
+                keep("speech", a=a_, b=b_, she="she" if n.startswith("her ") else "he" if n.startswith("his ") else info.get("she"))
+                if info.get("met"):
+                    return self._speech111(st, msg, b, dict(info, a=a_, b=b_))
+                return say("speech_more", X=f"{a_} and {b_}")
+            mt = re.fullmatch(r"(?:they )?(?:met|got to know each other|first met) (?P<w>(?:at|in|on|through|during) .{2,40})", n)
+            if mt and info.get("a"):
+                keep("speech", met=mt.group("w"))
+                return self._speech111(st, msg, b, dict(info, met=mt.group("w")))
+        if re.fullmatch(r"(?:aw+,? |oh,? |wow,? )?(?:that'?s|this is|it'?s|that is) (?:so |really |just )?(?:lovely|perfect|beautiful|wonderful|amazing|great|so nice|really nice|very nice)(?:,? (?:thanks?|thank you)(?: so much)?)?", n) and \
+                st.last_reply and len(st.last_reply) > 200:
+            return say("lovely_thanks")
+        if topic == "promo":
+            if re.search(r"\b(?:scared|nervous|anxious|worried|terrified|afraid|unsure)\b", n) and re.search(r"\b(?:manag|lead|people|team|boss|never)\w*", n):
+                keep("promo")
+                st.uses["o111"] = ["lead_tips", st.turn]
+                return say("lead_fear")
+            if yes and not re.fullmatch(r"yes|yeah|sure|ok|okay", n):
+                keep("promo")
+                return say("lead_tips")
+            if c and st.turn - c[1] == 1 and re.fullmatch(r"(?:(?:i'?m|i am|as) (?:a |the |now )?|now )?(?P<x>(?:(?:senior|junior|head|team|lead|project|product|sales|marketing|engineering|store|shift|area|regional|assistant|deputy|general|department) )?(?:lead|leader|manager|director|head of [a-z]+|supervisor|partner|principal|chief|engineer|developer|coordinator|team lead))", n):
+                keep("promo")
+                x = re.sub(r"^(?:(?:i'?m|i am|as) (?:a |the |now )?|now )", "", n)
+                return say("promo_role", X=x[:1].upper() + x[1:])
+        if topic == "weekend":
+            if re.search(r"\b(?:something|anything|stuff|things?) (?:outdoors|outside|active)\b|\b(?:be|go|get) (?:outdoors|outside)\b", n) and "?" not in msg[:-1]:
+                keep("weekend")
+                return say("outdoor")
+            if re.search(r"\bbut (?:it(?:'s| is)? )?(?:might|could|will|may|is going to|'s going to|is supposed to|'s supposed to|is gonna|'s gonna) (?:rain|be rainy|pour)\b|"
+                         r"^(?:but )?(?:the )?(?:weather|forecast) (?:is|looks|'s|seems) (?:really |pretty |kind of )?(?:bad|rainy|terrible|awful|grim|not great)\b|^(?:but )?it(?:'s| is)? (?:supposed|going|gonna|meant) (?:to )?rain\b", n):
+                keep("weekend")
+                return say("rain")
+            if re.search(r"\bwhat (?:could|can|should|would) (?:i|we) do (?:indoors|inside|at home|when it rains|if it rains)\b|\b(?:any )?indoor (?:ideas|activities|options)\b|\bsomething (?:indoors|inside)\b", n):
+                keep("weekend")
+                return say("indoor")
+        if topic == "weekend":
+            pk = re.fullmatch(r"(?:ok(?:ay)?,? |oh,? |hmm,? )?(?:(?P<x>[a-z ]{3,20}?) sounds? (?:fun|good|great|nice|cool|interesting|like fun)(?: actually| to me)?|(?:let'?s|i'?ll|i think i'?ll|maybe i'?ll) (?:go with|try|do|go) (?P<y>[a-z ]{3,20}))", n)
+            if pk:
+                x = (pk.group("x") or pk.group("y") or "").replace("the ", "").replace("a ", "", 1).strip()
+                if x not in ("that", "this", "it"):
+                    keep("weekend")
+                    txt = b["pick"].get(x) or b["pick"].get(x.rstrip("s")) or b["pick"]["generic"]
+                    return Reply(msg, "smalltalk", txt, via="everyday")
+        if re.search(r"\bi (?:burnt|burned|ruined|messed up|overcooked) (?:my |the |our )?(?:dinner|lunch|food|meal|cake|pizza|lasagna|rice|pasta)\b", n):
+            keep("burnt")
+            return None
+        if topic == "burnt":
+            ms = re.fullmatch(r"(?:it was|that was) (?:supposed|meant|going) to be (?:a |an |my |homemade )?(?P<x>[a-z ]{3,30})", n)
+            if ms:
+                keep("burnt")
+                return say("burnt_what", X=ms.group("x"))
+            if re.fullmatch(r"(?:pizza|sushi|burgers?|a burger|chinese|thai|indian|kebab|a kebab|curry|noodles)(?: probably| i think| maybe)?", n):
+                keep("burnt")
+                return say("food_pick", X=n.split()[0] if n.split()[0] not in ("a",) else n.split()[1])
+        md = re.fullmatch(r"i (?:can'?t|cannot|can not) decide (?:whether|if) (?:i should |to )?(?:buy|get) (?:a )?new (?P<x>phone|laptop|car|bike|tv|computer|pc|tablet|watch|camera)(?: or not)?", n)
+        if md:
+            keep("decide", x=md.group("x"))
+            return say("decide_thing", X=md.group("x"))
+        if topic == "decide":
+            x = info.get("x", "phone")
+            ma = re.fullmatch(r"(?:mine|my (?:current |old )?(?:one|phone|laptop|car|bike|tv|computer|pc|tablet|watch|camera)|it)(?:'s| is) (?:about |almost |nearly )?(?P<a>\d{1,2}|one|two|three|four|five|six|seven|eight) years? old", n)
+            if ma:
+                keep("decide", age=ma.group("a"))
+                return say("decide_age", X=ma.group("a"), Y=x)
+            if re.search(r"\bbattery\b.*\b(?:dies|dead|drains|doesn'?t last|bad|terrible|empty|lasts)\b|\b(?:slow|laggy|lags|crashes|cracked|broken screen)\b", n):
+                keep("decide", issue="battery" if "battery" in n else "slow")
+                return say("decide_battery" if "battery" in n else "decide_slow", Y=x)
+            mm = re.fullmatch(r"(?:it'?s|its|it is|mine is|i have) an? (?P<m>(?:iphone|galaxy|samsung|pixel|xiaomi|oneplus|huawei|macbook|thinkpad)[a-z0-9 ]{0,15})", n)
+            if mm:
+                keep("decide")
+                m_ = mm.group("m").strip()
+                m_ = re.sub(r"\b(iphone|galaxy|samsung|pixel|xiaomi|oneplus|huawei|macbook|thinkpad)\b",
+                            lambda g: {"iphone": "iPhone", "macbook": "MacBook", "thinkpad": "ThinkPad", "oneplus": "OnePlus"}.get(g.group(1), g.group(1).capitalize()), m_)
+                return say("decide_model", X=m_.upper() if len(m_) <= 3 else m_)
+        return None
+
+    def _daily_ctx25_late(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 111, after every other everyday flow had its turn: a sick pet's age and the closed vet, starting
+        to run (unfit, shoes, tips), feeling lonely after a move, "i'll think about it", and short evening plans
+        ("i'll just order pizza and watch something", "i'll call the emergency vet") — where only a filler came before."""
+        b = self.bank.daily.get("b111")
+        if not b:
+            return None
+        n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", norm)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b111:{key}", b[key], **kw), via="everyday")  # noqa: E731
+        c = st.uses.get("c111")
+        topic = c[0] if c and st.turn - c[1] <= 4 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c111"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        yes = short_answer(n) == "yes" or bool(re.fullmatch(r"(?:yes|yeah|sure|ok|okay|please)?,? ?(?:any |some )?(?:other |more )?tips\??|(?:do you have |got )?any (?:other |more )?(?:tips|advice|ideas)\??|what do you (?:suggest|recommend)", n))
+        if topic == "pet":
+            he = "she" if re.search(r"\bshe\b|\bher\b", n) else "he"
+            if re.search(r"\b(?:won'?t|doesn'?t|does not|isn'?t|is not|hasn'?t|has not|stopped|refuses to|not) (?:been )?(?:eat|eating)\b", n):
+                keep("pet")
+                return say("pet_food", p=he)
+            ma = re.fullmatch(r"(?:he|she|it)(?:'s| is) (?:about |almost |nearly )?(?P<a>\d{1,2})(?: years old| now)?", n)
+            if ma and int(ma.group("a")) >= 7:
+                keep("pet")
+                r = self._learn(st, [f"My {info.get('p', 'dog')} is {ma.group('a')} years old."], msg)   # still kept for "how old is max?"
+                r.text = self._pick(st, "daily:b111:pet_age", b["pet_age"], X=ma.group("a"), p=he)
+                r.kind, r.via = "smalltalk", "everyday"
+                return r
+            if re.search(r"\b(?:vet|vets|clinic|practice)\b.*\b(?:closed|not open|shut|isn'?t open|opens? (?:on|again))\b", n):
+                keep("pet")
+                return say("vet_closed")
+        if topic == "run":
+            if re.search(r"\b(?:out of shape|unfit|not (?:very )?fit|not sporty|haven'?t (?:run|exercised|done sport) in (?:years|ages|forever)|never run|overweight|couch potato)\b", n):
+                keep("run")
+                return say("run_unfit")
+            if re.fullmatch(r"(?:and |ok,? |so )?(?:what about|which|what kind of|what|do i need (?:special |good |proper )?|should i get (?:special |proper |new )?)(?: running)? ?shoes(?: should i (?:get|buy|wear))?", n):
+                keep("run")
+                return say("run_shoes")
+            if yes and not re.fullmatch(r"yes|yeah|sure|ok|okay", n):
+                keep("run")
+                return say("run_tips")
+        if topic == "lonely":
+            if re.search(r"\b(?:moved|relocated|came)\b", n) and re.search(r"\b(?:moved|relocated|came here|came to)\b", n):
+                keep("lonely")
+                dm = re.search(r"\b(?P<d>(?:a|one|two|three|four|five|six|a few|a couple of|\d+) (?:weeks?|months?)) ago\b", n)
+                if dm:
+                    return say("lonely_move", X=dm.group("d"))
+                return say("lonely_move_plain")
+            if re.search(r"\bi (?:don'?t|do not) (?:really )?know (?:anyone|anybody|many people|a lot of people)\b|\bi have no (?:friends|one) here\b", n):
+                keep("lonely")
+                return say("lonely_noone")
+            if re.search(r"\b(?:remote|all remote|fully remote)\b", n):
+                keep("lonely")
+                return say("lonely_remote")
+            if re.fullmatch(r"(?:maybe|perhaps|i guess|i think)? ?(?:a |an |the )?[a-z ]{3,30} (?:could|might|would|may) (?:work|help|be (?:good|nice|an idea|fun))(?: for me)?", n):
+                keep("lonely")
+                return say("maybe_could")
+        if re.fullmatch(r"(?:ok(?:ay)?,? |hmm,? |alright,? |yeah,? )?(?:i'?ll|let me|i need to|i have to|i'?m gonna|i will) (?:think about it|think it over|sleep on it|consider it|think about that)(?: (?:a bit|some more|first))?", n):
+            return say("think_it_over")
+        # -- small plans ----------------------------------------------------------------------------------------
+        mp = re.fullmatch(r"(?:ok(?:ay)?,? |so,? |well,? |alright,? |yeah,? )?(?:i think |i guess |maybe |probably |honestly,? )?(?:i'?ll|i will|i'?m gonna|im gonna|gonna|i'?m going to) (?:just )?(?P<x>.{3,70})", n)
+        if mp and "?" not in msg:
+            x = mp.group("x")
+            if re.search(r"\b(?:watch|binge|stream)\w* (?:\w+ )?(?:something|netflix|a show|a series|series|tv|youtube|stuff|some tv|some shows?)\b|\bbinge\w* netflix\b|\bnetflix\b", x) and \
+                    not re.search(r"\b(?:movie|film|that one|it)\b", x):
+                st.uses["o111"] = ["series", st.turn]
+                return say("chill_watch")
+            if re.fullmatch(r"(?:just )?(?:order|get|grab|make) (?:some |a |myself (?:a |some )?)?(?:pizza|takeout|takeaway|food|sushi|chinese|indian|thai|burgers?|a burger|kebab|something to eat|something|something in)(?: then| instead| tonight| later| now)?", x):
+                keep("burnt" if topic == "burnt" else "food")
+                return say("burnt_order" if topic == "burnt" else "chill_food")
+            if re.fullmatch(r"(?:go to (?:bed|sleep) early|have an early night|sleep early|get some sleep|go to bed|take a (?:hot )?bath|rest|relax)(?: tonight| today| now)?", x):
+                return say("chill_sleep")
+            if re.fullmatch(r"(?:call|ring|phone|try|contact|go to|take (?:him|her|it|them) to) (?:the )?(?:emergency |out of hours |24 ?hour )?(?:vet|vets|doctor|doctors|gp|hospital|clinic|er|a&e)(?: then| now| tomorrow| first thing| in the morning)?", x):
+                return say("plan_vet")
+            if topic in ("pet",) and re.fullmatch(r"(?:call|ring|phone) (?:them|the emergency number)(?: then| now)?", x):
+                return say("plan_vet")
+        return None
+
+    def _speech111(self, st: DialogState, msg: str, b: dict, info: dict) -> Reply:
+        """A short wedding speech from what was told: the couple's names, how they met, who the speaker is."""
+        rel = info.get("rel") or "sister"
+        a_, b_ = info.get("a") or "the bride", info.get("b") or "the groom"
+        she = info.get("she") or {"sister": "she", "daughter": "she", "brother": "he", "son": "he"}.get(rel, "they")
+        rel_word = {"sister": "sibling", "brother": "sibling", "daughter": "parent", "son": "parent", "best friend": "best friend",
+                    "cousin": "cousin", "friend": "friend"}.get(rel, "friend")
+        met = info.get("met")
+        met_s = f"{a_} and {b_} met {met}, and " if met else ""
+        txt = self._pick(st, "daily:b111:speech_draft", b["speech_draft"], a=a_, b=b_, c=rel_word, d=rel, p=she, x=met_s)
+        txt = txt.replace("the wonderful person they is", "the wonderful person they are")
+        st.uses.pop("c111", None)
+        return Reply(msg, "smalltalk", txt, via="writing")
+
     def _daily_ctx24(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 99: a film just watched as a short flow — which one, did you like it, "have you seen it?", the
         music, "what else should i watch?" and "something like Interstellar" — plus "i'll try that" after advice
@@ -7700,7 +8174,7 @@ class Assistant:
             r = self._learn(st, [f"My name is {nick}."], msg)
             r.text = self._pick(st, "daily:b86:nickname", b["nickname"], x=full, y=nick)
             return r
-        if re.fullmatch(r"(?:(?:ok(?:ay)?|thanks?|thank you|thx|ty)[,!. ]+)?(?:i (?:do )?feel|i'?m feeling|feeling) (?:a (?:bit|little|lot)|much|so much|way|kind of|already) better(?: now)?"
+        if re.fullmatch(r"(?:(?:ok(?:ay)?|thanks?|thank you|thx|ty)[,!. ]+)?(?:i (?:do )?feel|i'?m feeling|feeling|i feel(?:'s| is)?) (?:(?:a (?:bit|little|lot)|much|so much|way|kind of|already|actually|really|somewhat) )?better(?: now| already)?"
                         r"(?:[,!. ]+(?:thanks?|thank you|thx))?|(?:that|this|talking) (?:helped|helps)(?: a (?:bit|lot|little))?(?:,? thanks?| thank you)?", n):
             st.last_exp = None                            # "thanks, i feel a bit better": glad — never "That makes it even harder"
             st.uses.pop("drive86", None)
@@ -10690,7 +11164,16 @@ _STOP_CHAT = frozenset("the and but not just really very so too also that this t
                        "i'm i've me my mine we our us".split())
 
 
-_ELLIPSIS = re.compile(r"^(?:and|what about|how about)(?: (?:of|for|in|with))? (?P<x>(?:the )?[A-Z][\w'\- ]{1,40}?)\s*\??$",
+# everyday words the reading-corpus speller does not know, never "corrected" ("fiance" is not "finance")
+_EVERYDAY_WORDS = frozenset(("fiance", "fiancee", "fiances", "bouldering", "takeout", "takeaway", "netflix", "spotify", "whatsapp", "instagram",
+                             "tiktok", "youtube", "podcast", "podcasts", "selfie", "selfies", "emoji", "emojis", "bestie", "besties", "hangry",
+                             "binge", "bingeing", "binging", "carpool", "workout", "workouts", "zoom", "uber", "airbnb", "playdate", "babysitter",
+                             "daycare", "kindergarten", "toddler", "toddlers", "onesie", "smoothie", "smoothies", "avocado", "hummus", "kombucha",
+                             "matcha", "latte", "lattes", "brunch", "meetup", "meetups", "roommate", "roommates", "flatmate", "flatmates",
+                             "landlord", "landlady", "wifi", "laptop", "laptops", "charger", "chargers", "headphones", "earbuds", "skincare",
+                             "iphone", "iphones", "ipad", "ipads", "macbook", "airpods", "android", "playstation", "xbox", "nintendo",
+                             "thinkpad", "oneplus", "xiaomi", "huawei", "samsung", "galaxy"))
+_ELLIPSIS = re.compile(r"^(?:and(?: what about| how about)?|what about|how about)(?: (?:of|for|in|with))? (?P<x>(?:the )?[A-Z][\w'\- ]{1,40}?)\s*\??$",
                        re.I)
 _QUESTION_WORDS = {"what", "who", "where", "when", "why", "how", "which", "whose", "is", "are", "does", "did", "can",
                    "was", "were"}
@@ -11574,6 +12057,11 @@ def _casual(msg: str) -> str:
     s = re.sub(r"(?i)\b(i'?m|im|i am) a (dev|swe)\b", lambda m_: f"{m_.group(1)} a {'developer' if m_.group(2).lower() == 'dev' else 'software engineer'}", s)
     s = re.sub(r"(?i)\bkinda\b", "kind of", s)
     s = re.sub(r"(?i)\bsorta\b", "sort of", s)
+    s = re.sub(r"(?i)^(?:lol|lmao|haha+|hehe+|ha+)[,!.]*\s+(?=(?:another|one more|again|more|next|tell|give|do|ok|okay)\b)", "", s)
+    # "lol another one", "haha tell me another"
+    s = re.sub(r"(?i)^((?:tell|give|show) me (?:a|another|one more|some) (?:joke|fun fact|fact|riddle|quote|story)s?|another (?:one|joke|fact))"
+               r",?\s+(?:then|pls|please|now|already|again|maybe)[.!]*$", r"\1", s)
+    # "tell me a joke then": the request, not a question about "joke then"
     if re.fullmatch(r"(?i)\s*(?:k+|kk|ok(?:ay)?|alright|well)[,.!]*\s+(?:bye+|cya|ttyl)[.!]*\s*|\s*(?:cya|see ya|ttyl|gtg|g2g|got ?ta go|gotta run)[.!]*\s*", s):
         s = "bye"
     return s
@@ -11591,6 +12079,13 @@ def _casual_de(msg: str) -> str:
     s = re.sub(r"(?i)\bnen\b", "einen", s)
     s = re.sub(r"(?i)\b(?:thx|thanks|danki|dankee+)\b", "danke", s)
     s = re.sub(r"(?i)\bwie hei(?:ß|ss) ich\b", "wie heiße ich", s)
+    rq = re.fullmatch(r"(?i)\s*(?:hey,? |und,? |also,? )?(?:hast du|hättest du|kennst du|weißt du)(?: vielleicht| noch| mal)? (?:eine?n? |ein paar |paar )?(?:gute[n]? )?"
+                      r"(serien|film|buch|bücher|podcast|spiele?|anime)(?:empfehlung|tipp|vorschl[aä]g)(?:en|e|s)?(?: für mich)?\s*\??\s*", s)
+    if rq:                                                # "hast du eine serienempfehlung?" → the recommendation request
+        k = rq.group(1).lower()
+        noun, art = {"serien": ("Serie", "eine"), "film": ("Film", "einen"), "buch": ("Buch", "ein"), "bücher": ("Buch", "ein"),
+                     "podcast": ("Podcast", "einen"), "spiel": ("Spiel", "ein"), "spiele": ("Spiel", "ein"), "anime": ("Anime", "einen")}[k]
+        s = f"kannst du mir {art} {noun.lower()} empfehlen?"
     if re.fullmatch(r"(?i)\s*(?:ok(?:ay)?,? |so,? |gut,? )?(?:bis denne|bis dann|bis später|bis bald|ciao|tschau|tschö|tschüssi|ade|baba|man sieht sich|bin raus)[.!]*\s*", s):
         s = "tschüss"
     return s

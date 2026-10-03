@@ -226,7 +226,9 @@ Schreibweise auf Englisch und Deutsch; 45 Dateien, 6 Installer, SHA256SUMS gepr�
 (Lauf 37107152834, Batterien 105–108: Trennung und Arbeitsstress, Valenz-Probe 0/172, Füllantworten 5 von 700
 wiederholt; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.31](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.31)
 (Lauf 37111092798, Batterie 109: Alltagsmomente nach Satzrahmen auf Englisch und Deutsch, Termine mit „tomorrow“
-wiederfinden; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
+wiederfinden; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.32](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.32)
+(Lauf 37113244647, Probe 110: Folgeantworten nach Momenten, Lern-Gespräche, Urlaub bleibt im Reise-Ablauf;
+45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 

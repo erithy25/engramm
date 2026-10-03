@@ -16517,6 +16517,309 @@
     "I hope it helps a little. And go easy on yourself tonight — you've had a rough day.",
     "Glad that makes sense. Whatever you decide, you don't have to sort it all out today."
    ]
+  },
+  "b111": {
+   "boss_bad": [
+    "Ugh, a moody boss makes the whole day heavier — even when it isn't about you. Did it land on you too?",
+    "That sounds draining. When the boss is in a mood, everyone feels it. Was it aimed at you, or just in the air?"
+   ],
+   "boss_snap": [
+    "That's not okay — being snapped at in front of others really stings, and it says more about their mood than about you. How are you feeling about it now?",
+    "Ouch. Getting snapped at in a meeting is embarrassing and unfair. Did anyone say anything, or did you just have to sit through it?"
+   ],
+   "chill_watch": [
+    "Honestly, that sounds like exactly the right plan after a day like that. 🍕 Want a show tip to go with it?",
+    "Comfort food and something on screen — the perfect reset after a day like that. Want me to suggest a show?"
+   ],
+   "chill_food": [
+    "Sounds like a good call — some days just need pizza on the couch. 🍕",
+    "Good plan. After a day like that you've earned an easy evening. 🍕"
+   ],
+   "chill_sleep": [
+    "Good idea — an early night can fix a lot. Sleep well! 😴",
+    "Sounds wise. Rest up — tomorrow will feel lighter. 😴"
+   ],
+   "plan_vet": [
+    "Good idea — better safe than sorry. I hope it's nothing serious; let me know what they say. 🤞",
+    "That's the right call. Fingers crossed it's something small — tell me how it goes. 🤞"
+   ],
+   "plan_ok": [
+    "Sounds like a good plan. Let me know how it goes!",
+    "Good idea — fingers crossed it goes well! 🤞"
+   ],
+   "weekend_ask": [
+    "Sure! What are you in the mood for — something active outside, something cosy, or time with friends?",
+    "Happy to! Do you feel like being outdoors, taking it easy, or doing something with people?"
+   ],
+   "outdoor": [
+    "Nice! A few outdoor ideas:\n\n• A hike or a long walk somewhere new\n• A bike tour with a picnic stop\n• A lake or river — swimming, a boat or just lying in the sun\n• A climbing park or outdoor bouldering\n• A farmers' market and coffee outside\n\nAnything there that sounds good?"
+   ],
+   "rain": [
+    "Then keep a plan B ready. A forest walk still works in light rain with a good jacket — and if it really pours, bouldering, a museum, the cinema or a cooking night with friends are great indoor options."
+   ],
+   "indoor": [
+    "Indoor ideas:\n\n• Bouldering or a climbing gym\n• A museum or a new exhibition\n• Cinema, or a film marathon at home\n• Cooking something new with friends\n• A board game café or an escape room\n\nWhat sounds good?"
+   ],
+   "pick": {
+    "bouldering": "Bouldering is a great pick! Most gyms rent shoes, and the routes are marked by difficulty, so you can just start. Your forearms will feel it the next day. 😄",
+    "climbing": "Climbing is a great pick! Most gyms offer a short intro course, and they rent all the gear.",
+    "escape room": "An escape room is so much fun — best with 3–5 people. Book ahead, weekends fill up fast.",
+    "museum": "A museum is a lovely, calm option. Check if there's a special exhibition — they're often the highlight.",
+    "cinema": "Cinema it is! Check what's on — and get the big popcorn. 🍿",
+    "hiking": "A hike is a great choice! Check the weather in the morning, pack water and a snack, and pick a route you can shorten if needed.",
+    "hike": "A hike is a great choice! Check the weather in the morning, pack water and a snack, and pick a route you can shorten if needed.",
+    "bike tour": "A bike tour is perfect — plan a café or lake stop halfway, that's the best part.",
+    "picnic": "A picnic sounds lovely! A blanket, something cold to drink and a few snacks — done.",
+    "board games": "A board game evening is always good. Classics like Catan or Codenames are great with a group.",
+    "cooking": "A cooking night with friends is the best — pick one dish everyone helps with, like homemade pizza or tacos.",
+    "generic": "Great pick — have fun! Tell me how it was."
+   },
+   "usually_nice": [
+    "Then that's a good sign — nice people usually just don't realise how loud they were, and they'll want to fix it.",
+    "That actually makes it easier: friendly neighbours mostly just need a heads-up. Keep it light and it'll probably go fine."
+   ],
+   "public_speaking": [
+    "Most people feel that way — and a wedding crowd is the friendliest audience there is: everyone's on your side. Keep it short (2–3 minutes), tell one warm story and practise it out loud a few times. Want help writing it?",
+    "That's really common, honestly. The trick is a short speech you know well: one story, a few kind words, a toast. Shall we write it together?"
+   ],
+   "speech_ask": [
+    "Of course! Tell me a little: their names, how they met, and maybe one sweet or funny memory. I'll turn it into a short speech."
+   ],
+   "speech_more": [
+    "{X} — lovely. How did they meet? And is there a memory you'd like to include?"
+   ],
+   "speech_draft": [
+    "Here's a first draft:\n\n“Good evening, everyone! For those who don't know me — I'm {a}'s {c}, so I've had a front-row seat to the wonderful person {p} is.\n\n{x}I could tell right away that this was something special. {b}, thank you for making my {d} so happy. {a}, I'm so proud of you.\n\nSo please raise your glasses — to {a} and {b}! 🥂”\n\nWant it funnier, more emotional, or shorter?"
+   ],
+   "lovely_thanks": [
+    "I'm so glad you like it! 💛",
+    "Happy to help — I'm glad you like it! 😊"
+   ],
+   "not_feel": [
+    "Fair enough — then something lighter: a joke, a fun fact or a quick quiz?",
+    "No problem. How about a joke, a fun fact or a quick quiz instead?"
+   ],
+   "promo": [
+    "Wow, congratulations! 🎉 That's huge — what's the new role?",
+    "That's amazing — well done! 🎉 What will you be doing now?"
+   ],
+   "promo_role": [
+    "{X} — that's a big step! How are you feeling about it?",
+    "{X}! That's brilliant. Excited, or a bit nervous too?"
+   ],
+   "lead_fear": [
+    "Totally normal — almost every new lead feels that. The fact that you're worried about it means you'll take it seriously, and that's half the job. Want a few tips for the first weeks?"
+   ],
+   "lead_tips": [
+    "A few things that help new leads:\n\n• Have a 1:1 with everyone in the first two weeks — ask what they need from you.\n• Listen more than you talk at the start.\n• Be clear about expectations and give credit generously.\n• It's fine to say “I'll find out” — nobody expects you to know everything.\n• Find another lead or a mentor to swap notes with."
+   ],
+   "pet_age": [
+    "{X} is a good age — so it's worth getting checked properly rather than waiting it out."
+   ],
+   "vet_closed": [
+    "Most areas have an emergency vet for exactly this — a quick call costs nothing, and they can tell you whether it can wait until the vet opens. With an older animal that's stopped eating, I'd call."
+   ],
+   "run_unfit": [
+    "That's the perfect place to start, honestly. Begin with run-walk: 1 minute running, 2 minutes walking, for 20 minutes, three times a week. In a few weeks you'll run 20 minutes straight."
+   ],
+   "run_shoes": [
+    "Proper running shoes are the one thing worth spending on. Ideally try them in a running shop where they watch you jog for a minute — comfort beats brand. Expect around 80–130 €, and replace them after roughly 600–800 km."
+   ],
+   "run_tips": [
+    "A few beginner tips: go slower than you think (you should be able to talk), run-walk at first, rest a day between runs, and don't add more than about 10 % per week."
+   ],
+   "lonely_move": [
+    "That's a big change — and {X} really isn't long. Building a social life from scratch takes time. Where did you move to?"
+   ],
+   "lonely_move_plain": [
+    "That's a big change. Building a social life from scratch takes time — it's not you, it's just how it works at the start. Where did you move to?"
+   ],
+   "boss_crit": [
+    "That's really not okay — criticism belongs in a private conversation, not in front of the whole team. How did you react?",
+    "Ugh, being called out in front of everyone is humiliating, even when there's a point behind it. Are you okay?"
+   ],
+   "neighbour_noise": [
+    "Ugh, that's exhausting — especially at night when you just want to sleep. Has it been going on for a while?"
+   ],
+   "neighbour_talk": [
+    "I would — calmly and in a quiet moment, not at 2 a.m. when you're angry. Something like: “Hey, I don't think you realise it, but the noise really carries at night.” Most people honestly don't know. If it keeps happening, a note or the landlord is the next step."
+   ],
+   "pet_food": [
+    "Oh no — not eating is always worth taking seriously. Is {p} at least drinking? If it lasts more than a day or {p} seems weak, I'd call the vet."
+   ],
+   "burnt_what": [
+    "Oh no, {X} — that's so much work to lose! 😩 Next time it'll turn out."
+   ],
+   "food_pick": [
+    "Good choice — you can't go wrong with {X}. 🍕 Enjoy your evening!"
+   ],
+   "decide_thing": [
+    "Tricky one! How old is your current {X}, and what bugs you about it?"
+   ],
+   "decide_age": [
+    "{X} years is a good run for a {Y}. Is it still doing what you need, or is something really getting on your nerves?"
+   ],
+   "decide_battery": [
+    "That's the classic sign. A new battery (often around 50–100 €) can buy you another year or two — worth checking before you buy a whole new {Y}."
+   ],
+   "decide_slow": [
+    "If it's getting slow or damaged, a new {Y} starts to make sense — but a reset or repair is worth pricing first."
+   ],
+   "decide_model": [
+    "The {X} is still a solid one. If the battery is the main problem, a replacement is the cheaper fix; if you want a better camera, more speed or more storage, upgrading makes sense."
+   ],
+   "burnt_order": [
+    "Honestly, the best rescue plan. 🍕 What are you in the mood for?"
+   ],
+   "ack_yes": [
+    "😊",
+    "Sounds good! 😊"
+   ],
+   "think_it_over": [
+    "Sure — no rush. Sleep on it! 😊",
+    "Good idea, take your time. Let me know what you decide!"
+   ],
+   "lonely_noone": [
+    "That's really hard. What often helps: a sports club or running group, a class, a language exchange, or meetups for people new in town — everyone there is in the same boat. Would any of that be your thing?"
+   ],
+   "lonely_remote": [
+    "That makes it even harder — remote work means whole days without a real conversation. Even one fixed weekly thing outside the house can change a lot."
+   ],
+   "maybe_could": [
+    "That's a really good idea — a club gives you the same faces every week, and that's how friendships start. 💪",
+    "I think that could really work — regular groups are one of the easiest ways to meet people."
+   ],
+   "maybe_generic": [
+    "That sounds like a good idea — worth a try!"
+   ],
+   "makes_sense": [
+    "Glad it helps! You've got this. 💪",
+    "Happy to help — you'll do great. 💪"
+   ],
+   "de": {
+    "chill_watch": [
+     "Klingt nach genau dem richtigen Plan nach so einem Tag. 🍕 Soll ich dir eine Serie vorschlagen?"
+    ],
+    "chill_food": [
+     "Gute Idee – manche Tage brauchen einfach Pizza auf dem Sofa. 🍕"
+    ],
+    "chill_sleep": [
+     "Gute Idee – früh schlafen hilft oft mehr als alles andere. Schlaf gut! 😴"
+    ],
+    "plan_vet": [
+     "Gute Idee – lieber einmal zu viel anrufen. Ich hoffe, es ist nichts Schlimmes. Sag Bescheid, was sie sagen! 🤞"
+    ],
+    "plan_ok": [
+     "Gute Idee! Viel Erfolg – erzähl mir, wie's gelaufen ist.",
+     "Klingt nach einem guten Plan. Drück dir die Daumen! 🤞"
+    ],
+    "weekend_ask": [
+     "Klar! Worauf hast du Lust – was Aktives draußen, was Gemütliches oder Zeit mit Freunden?"
+    ],
+    "outdoor": [
+     "Schön! Ein paar Ideen für draußen:\n\n• Eine Wanderung oder ein langer Spaziergang an einem neuen Ort\n• Eine Radtour mit Picknick-Pause\n• Ein See – schwimmen, Boot fahren oder einfach in der Sonne liegen\n• Ein Kletterpark oder Bouldern draußen\n• Ein Wochenmarkt und Kaffee in der Sonne\n\nIst da was dabei?"
+    ],
+    "rain": [
+     "Dann halt dir einen Plan B bereit. Bei leichtem Regen geht ein Waldspaziergang mit guter Jacke trotzdem – und wenn es richtig schüttet: Bouldern, Museum, Kino oder ein Kochabend mit Freunden."
+    ],
+    "indoor": [
+     "Ideen für drinnen:\n\n• Bouldern oder eine Kletterhalle\n• Ein Museum oder eine neue Ausstellung\n• Kino oder ein Filmabend zu Hause\n• Mit Freunden was Neues kochen\n• Ein Spielecafé oder ein Escape Room\n\nWas klingt gut?"
+    ],
+    "pick": {
+     "bouldern": "Bouldern ist eine super Wahl! In den meisten Hallen kann man Schuhe leihen, und die Routen sind nach Schwierigkeit markiert – du kannst einfach loslegen. Deine Unterarme merken es am nächsten Tag. 😄",
+     "klettern": "Klettern ist super! Die meisten Hallen bieten einen kurzen Einführungskurs an und verleihen die Ausrüstung.",
+     "escape room": "Ein Escape Room macht richtig Spaß – am besten mit 3–5 Leuten. Rechtzeitig buchen, am Wochenende ist es schnell voll.",
+     "museum": "Ein Museum ist eine schöne, ruhige Idee. Schau, ob es gerade eine Sonderausstellung gibt – die ist oft das Highlight.",
+     "kino": "Dann ab ins Kino! Schau, was läuft – und gönn dir das große Popcorn. 🍿",
+     "wandern": "Wandern ist eine tolle Wahl! Morgens kurz das Wetter checken, Wasser und Snacks einpacken und eine Route wählen, die man abkürzen kann.",
+     "radtour": "Eine Radtour ist perfekt – plan auf halber Strecke ein Café oder einen See ein, das ist das Beste daran.",
+     "picknick": "Ein Picknick klingt schön! Eine Decke, was Kaltes zu trinken und ein paar Snacks – fertig.",
+     "kochen": "Ein Kochabend mit Freunden ist das Beste – sucht euch ein Gericht, bei dem alle mithelfen, zum Beispiel selbstgemachte Pizza.",
+     "generic": "Gute Wahl – viel Spaß! Erzähl mir, wie's war."
+    },
+    "usually_nice": [
+     "Dann ist das ein gutes Zeichen – nette Leute merken oft einfach nicht, wie laut sie waren, und wollen es dann auch ändern."
+    ],
+    "not_feel": [
+     "Verständlich – dann was Leichteres: ein Witz, ein Fun Fact oder ein kleines Quiz?"
+    ],
+    "promo": [
+     "Wow, herzlichen Glückwunsch! 🎉 Das ist ja großartig – was ist die neue Rolle?"
+    ],
+    "promo_role": [
+     "{X} – das ist ein großer Schritt! Wie fühlst du dich damit?"
+    ],
+    "lead_fear": [
+     "Völlig normal – fast jede neue Führungskraft fühlt das. Dass du dir Gedanken machst, zeigt, dass du es ernst nimmst, und das ist schon die halbe Miete. Soll ich dir ein paar Tipps für die ersten Wochen geben?"
+    ],
+    "lead_tips": [
+     "Ein paar Dinge, die neuen Teamleitungen helfen:\n\n• Führ in den ersten zwei Wochen mit allen ein Einzelgespräch – frag, was sie von dir brauchen.\n• Hör am Anfang mehr zu, als du redest.\n• Sei klar bei Erwartungen und lob großzügig.\n• „Das finde ich heraus“ ist völlig okay – niemand erwartet, dass du alles weißt.\n• Such dir eine andere Führungskraft oder einen Mentor zum Austausch."
+    ],
+    "pet_food": [
+     "Oh je. Trinkt {p} wenigstens? Wenn {p} länger als einen Tag nicht frisst oder schlapp wirkt, würde ich den Tierarzt anrufen."
+    ],
+    "pet_age": [
+     "{X} ist ein stolzes Alter – da lohnt es sich, das richtig abklären zu lassen, statt abzuwarten."
+    ],
+    "vet_closed": [
+     "Für genau so was gibt es den tierärztlichen Notdienst – ein Anruf kostet nichts, und sie sagen dir, ob es bis Montag warten kann. Bei einem älteren Tier, das nicht frisst, würde ich anrufen."
+    ],
+    "run_unfit": [
+     "Das ist der perfekte Startpunkt, ehrlich. Fang mit Laufen und Gehen im Wechsel an: 1 Minute laufen, 2 Minuten gehen, 20 Minuten lang, dreimal pro Woche. In ein paar Wochen läufst du 20 Minuten am Stück."
+    ],
+    "run_shoes": [
+     "Gute Laufschuhe sind das Einzige, wofür sich Geld lohnt. Am besten im Laufladen anprobieren, wo sie dich kurz laufen lassen – Bequemlichkeit schlägt Marke. Rechne mit etwa 80–130 € und tausch sie nach etwa 600–800 km."
+    ],
+    "lonely_move": [
+     "Das ist ein großer Umbruch – und {X} sind noch gar nicht lange. Neue Leute kennenlernen braucht einfach Zeit."
+    ],
+    "lonely_move1": [
+     "Das ist ein großer Umbruch – und {X} ist noch gar nicht lange. Neue Leute kennenlernen braucht einfach Zeit."
+    ],
+    "lonely_move_plain": [
+     "Das ist ein großer Umbruch. Neue Leute kennenlernen braucht am Anfang einfach Zeit – das liegt nicht an dir."
+    ],
+    "boss_snap": [
+     "Das ist nicht okay – Kritik gehört in ein Gespräch unter vier Augen, nicht vor alle. Wie hast du reagiert?"
+    ],
+    "neighbour_noise": [
+     "Puh, das ist echt zermürbend – gerade nachts, wenn man einfach schlafen will. Geht das schon länger so?"
+    ],
+    "neighbour_talk": [
+     "Ich würde schon – aber ruhig und in einem entspannten Moment, nicht nachts, wenn du sauer bist. Etwa so: „Ich glaube, ihr merkt das gar nicht, aber man hört nachts echt viel.“ Die meisten wissen es wirklich nicht. Wenn es so bleibt, sind ein Zettel oder der Vermieter der nächste Schritt."
+    ],
+    "pet_sick": [
+     "Oh nein, {X}! Seit wann ist {p} so? Frisst und trinkt {p} normal?"
+    ],
+    "burnt": [
+     "Oh nein! 😅 Was sollte es denn werden?"
+    ],
+    "burnt_order": [
+     "Ehrlich gesagt die beste Rettung. 🍕 Worauf hast du Lust?"
+    ],
+    "ack_yes": [
+     "😊",
+     "Klingt gut! 😊"
+    ],
+    "burnt_what": [
+     "Oh nein, {X} – so viel Arbeit umsonst! 😩 Beim nächsten Mal klappt's."
+    ],
+    "food_pick": [
+     "Gute Wahl – mit {X} kann man nichts falsch machen. 🍕 Lass es dir schmecken!"
+    ],
+    "lonely_noone": [
+     "Das ist echt hart. Was oft hilft: ein Sportverein oder Lauftreff, ein Kurs, ein Sprachtandem oder Treffen für Neu-Zugezogene – da sind alle in derselben Lage. Wäre so was was für dich?"
+    ],
+    "lonely_remote": [
+     "Das macht es noch schwerer – Homeoffice heißt oft ganze Tage ohne echtes Gespräch. Schon ein fester Termin pro Woche außer Haus kann viel ändern."
+    ],
+    "maybe_could": [
+     "Das ist eine richtig gute Idee – in einer Gruppe siehst du jede Woche dieselben Leute, und so entstehen Freundschaften. 💪"
+    ],
+    "thought": [
+     "Das denken viele – es ist aber tatsächlich {y}."
+    ]
+   }
   }
  }
 }
