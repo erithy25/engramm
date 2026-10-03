@@ -35,7 +35,7 @@ _SLANG = {"u": "you", "r": "are", "ur": "your", "pls": "please", "plz": "please"
 _CHAT_WORDS = {"hav": "have", "tomoro": "tomorrow", "tomorow": "tomorrow", "tonite": "tonight", "thru": "through",
                "probs": "probably", "whatcha": "what are you", "watcha": "what are you", "wyd": "what are you doing", "u": "you", "r": "are", "ur": "your", "wat": "what", "wut": "what", "wht": "what", "wats": "what's",
                "whats": "what's", "whos": "who's", "hows": "how's", "wheres": "where's", "thats": "that's",
-               "abt": "about", "thx": "thanks", "thnx": "thanks", "tnx": "thanks", "ty": "thank you",
+               "abt": "about", "thx": "thanks", "thnx": "thanks", "tnx": "thanks", "thnks": "thanks", "thanx": "thanks", "ty": "thank you",
                "tysm": "thank you so much", "np": "no problem", "pls": "please", "plz": "please", "gf": "girlfriend",
                "bf": "boyfriend", "bday": "birthday", "smth": "something", "sth": "something", "nvm": "never mind",
                "ppl": "people", "tmrw": "tomorrow", "tmr": "tomorrow", "2moro": "tomorrow", "2day": "today",

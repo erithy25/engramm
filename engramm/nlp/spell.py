@@ -25,6 +25,14 @@ _CHAT_FORMS = {"whats", "hows", "wheres", "whos", "thats", "theres", "lets", "im
 _ACRONYMS = {"dna", "rna", "nasa", "fifa", "uefa", "html", "gps", "usb", "cpu", "gpu", "nba", "nfl", "nhl", "mlb",
              "unesco", "unicef", "nato", "opec", "ufo", "bmw", "vw", "hiv", "aids", "lgbt", "mri", "atm", "pdf", "url",
              "wifi", "lcd", "led", "ddr", "ssd", "hdd", "ram", "rom", "dvd", "cia", "fbi", "kgb", "bbc", "cnn", "who"}
+# frequent keyboard slips whose nearest dictionary word is the wrong one ("hwo" is "how", not "who")
+_KNOWN_TYPOS = {"hwo": "how", "yuo": "you", "yoru": "your", "waht": "what", "waht's": "what's", "whta": "what", "teh": "the", "adn": "and",
+                "taht": "that", "jsut": "just", "becuase": "because", "beacuse": "because", "thnks": "thanks", "thnaks": "thanks",
+                "thansk": "thanks", "plz": "please", "wiht": "with", "abotu": "about", "knwo": "know", "konw": "know", "dont": "don't",
+                "cant": "can't", "wont": "won't", "captial": "capital", "capitol": "capital", "frnace": "france", "germnay": "germany",
+                "wierd": "weird", "recieve": "receive", "beleive": "believe", "freind": "friend", "tommorow": "tomorrow",
+                "tomorow": "tomorrow", "realy": "really", "definately": "definitely", "probaly": "probably", "goign": "going",
+                "somthing": "something", "nto": "not", "hte": "the", "fro": "for", "ot": "to"}
 _CONFUSIONS = [(re.compile(r"\bcapitol of\b", re.I), "capital of"),
                (re.compile(r"\bwho's (?=book|song|painting)", re.I), "whose "),
                (re.compile(r"\bteh\b", re.I), "the"),
@@ -62,6 +70,9 @@ class Speller:
 
     def fix_word(self, w: str) -> str:
         low = w.lower()
+        if low in _KNOWN_TYPOS and low not in ("dont", "cant", "wont", "plz", "fro", "ot"):
+            fixed = _KNOWN_TYPOS[low]
+            return fixed[:1].upper() + fixed[1:] if w[:1].isupper() else fixed
         if len(low) < 3 or low in self.counts or not low.isalpha():
             return w
         if low in _CHAT_FORMS or low in _ACRONYMS:

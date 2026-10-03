@@ -423,6 +423,17 @@ def date_answer(message: str, now: dt.datetime | None = None) -> ToolResult | No
         return ToolResult("date", f"It's {now.strftime('%H:%M')} (on this computer's clock).", now.strftime("%H:%M"))
     if _DATE_Q.match(s):
         return ToolResult("date", f"Today is {_fmt_date(today)}.", today.isoformat())
+    tm = re.fullmatch(r"(?:and )?(?:what(?:'s| is)|whats) (?:the )?(?:date|day) (?:is it )?(?P<w>tomorrow|yesterday|the day after tomorrow)|"
+                      r"(?:and )?what (?:day|date) (?:is|was|will be) (?:it )?(?P<w2>tomorrow|yesterday|the day after tomorrow)|"
+                      r"(?:and )?what (?:was|is|will be) the (?:date|day) (?P<w4>tomorrow|yesterday|the day after tomorrow)|"
+                      r"(?:and )?(?:what(?:'s| is)|whats|which day is) (?P<w5>the day after tomorrow)|"
+                      r"(?:and )?(?P<w3>tomorrow|yesterday)\??", s, re.I)
+    if tm:                                     # "what day is it tomorrow?"
+        w = (tm.group("w") or tm.group("w2") or tm.group("w3") or tm.group("w4") or tm.group("w5")).lower()
+        shift = {"tomorrow": 1, "yesterday": -1, "the day after tomorrow": 2}[w]
+        day = today + dt.timedelta(days=shift)
+        verb = "was" if shift < 0 else "is"
+        return ToolResult("date", f"{w[:1].upper() + w[1:]} {verb} {_fmt_date(day)}.", day.isoformat())
     if _YEAR_Q.match(s):
         return ToolResult("date", f"It's {today.year}.", str(today.year))
     if _MONTH_Q.match(s):

@@ -13925,6 +13925,10 @@
     "act_rain": [
      "Dann vielleicht:\n\n• Museum oder Ausstellung\n• Kletterhalle oder Schwimmbad\n• Eine Café-Tour mit einem guten Buch\n• Oder trotzdem raus, mit Regenjacke – Regen hat auch was ☔\n\nWorauf hast du Lust?"
     ],
+    "lang_de": [
+     "Klar, gern! Dann reden wir wieder Deutsch. Worüber möchtest du sprechen?",
+     "Na klar – ab jetzt wieder auf Deutsch. Was gibt's?"
+    ],
     "name_hi": [
      "Hallo {x}! Schön, dich kennenzulernen. 😊 Wie geht's dir?",
      "Hi {x}, freut mich! Was führt dich her?"
@@ -14243,6 +14247,18 @@
     "australian": "Australia",
     "belgian": "Belgium"
    },
+   "lang_en": [
+    "Sure, English it is! What would you like to talk about?",
+    "Of course — let's switch to English. What's on your mind?"
+   ],
+   "lang_de": [
+    "Klar, gern! Dann reden wir Deutsch. Worüber möchtest du sprechen?",
+    "Na klar – ab jetzt auf Deutsch. Was liegt dir auf dem Herzen?"
+   ],
+   "no_idea": [
+    "No problem! You could ask me about a country, a famous person or an invention, ask for a fun fact, a joke or a quiz — or just tell me how your day is going.",
+    "Let me help: try “tell me about the Moon”, “who invented the telephone?”, “give me a quiz question” or “what should I cook tonight?”. Or tell me about your day!"
+   ],
    "beginner": [
     "Everyone starts somewhere! Ask me “how do you say … ?” anytime and I'll give you the basics."
    ],

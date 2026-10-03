@@ -3009,6 +3009,34 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 786 bestanden. Regressionen 32 und 38–89 (58 Gespräche):
   0 Wiederholungen, Unterschiede wie bei 89.
+- **Grenzfall-Batterie 91 (Emojis, Tippfehler, dreimal dieselbe Frage, Sprachwechsel auf Wunsch, Ein-Wort-Nachrichten,
+  lange Erzählung, Witz-Serie, Bot-Gefühle, Uhrzeit/Datum, Ratlosigkeit)**. Vorher u. a.:
+
+  | Eingabe | vorher |
+  |---|---|
+  | „hwo are yuo“ | zu „who are you“ korrigiert, daher die Namensantwort |
+  | „thnks“ | nicht als Dank erkannt |
+  | dreimal „what is the capital of italy?“ | dreimal wortgleich dieselbe Antwort |
+  | „can we speak english?“ | weiß nicht |
+  | „können wir wieder deutsch reden?“ | nicht verstanden |
+  | „ok last one“ (Witze), „something else“ (Fakten) | „Oh? Go on.“ |
+  | „what day is it tomorrow?“ | weiß nicht |
+  | „what was the date yesterday?“ | „December 7, 1941 was the date yesterday.“ (Textsuche) |
+  | „what is the day after tomorrow?“ | „2004 is the day after tomorrow.“ (der Film) |
+
+  Neu:
+  - Liste häufiger Tastatur-Vertipper, die vor der Wörterbuchnähe gilt (hwo → how, teh → the, captial → capital …);
+  - weitere Chat-Kürzel für Danke;
+  - dieselbe Frage direkt wiederholt: „Still the same answer: …“, beim dritten Mal „That's the third time you've
+    asked 😄 — …“, auf Deutsch „Immer noch dasselbe: …“. Kleingeschrieben wird nur ein Funktionswort am Anfang,
+    nie ein Name wie „Faust“;
+  - Sprachwechsel auf Wunsch (EN ↔ DE), der den Gesprächszustand umstellt;
+  - „last one“, „something else“, „hit me again“ zählen als „noch eins“;
+  - Datum für morgen, gestern und übermorgen;
+  - Vorschläge bei „i don't know what to ask“.
+
+  Messung: Team-Dev-Satz wie bei 89, NQ 22/9, Suite 787 bestanden. Regressionen 32 und 38–89 (58 Gespräche):
+  0 Wiederholungen, Unterschiede wie bei 89.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

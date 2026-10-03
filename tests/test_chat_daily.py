@@ -3342,3 +3342,28 @@ def test_battery90_fifth_knowledge_sample(chat):
     assert "Blauwal" in a.turn(DialogState("k90b"), "was ist das größte säugetier?").text
     assert "sieben" in a.turn(DialogState("k90c"), "wie viele kontinente gibt es?").text
     assert "Mars" in a.turn(DialogState("k90d"), "welcher planet ist der rote planet?").text
+
+
+def test_battery91_edge_cases(chat):
+    a, _ = chat
+    from engramm.nlp.spell import _KNOWN_TYPOS
+    assert _KNOWN_TYPOS["hwo"] == "how" and _KNOWN_TYPOS["yuo"] == "you"
+    st = DialogState("rp91")
+    first = a.turn(st, "what is 6 times 7?").text
+    second = a.turn(st, "what is 6 times 7?").text
+    assert first != second and "42" in second, (first, second)
+    st = DialogState("l91")
+    a.turn(st, "hallo")
+    assert "English" in a.turn(st, "can we speak english?").text
+    assert "Deutsch" in a.turn(st, "können wir wieder deutsch reden?").text
+    st = DialogState("j91")
+    a.turn(st, "tell me a joke")
+    assert "Go on" not in a.turn(st, "ok last one").text
+    from engramm.chat.tools import date_answer
+    import datetime as _dt
+    r = date_answer("what day is it tomorrow?", _dt.datetime(2026, 10, 3, 12, 0))
+    assert r is not None and "4 October 2026" in r.text
+    r = date_answer("what was the date yesterday?", _dt.datetime(2026, 10, 3, 12, 0))
+    assert r is not None and "2 October 2026" in r.text
+    idea = a.turn(DialogState("n91"), "i don't know what to ask").text
+    assert "country" in idea or "Moon" in idea, idea

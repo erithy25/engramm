@@ -1288,6 +1288,13 @@ class Assistant:
             st.uses["neigh86de"] = [st.turn]
             st.last_exp = {"valence": "negative", "topic": "people", "person": True, "text": msg, "turn": st.turn}
             return say("neigh_loud")
+        if re.fullmatch(r"(?:können|koennen|könnten|kannst) (?:wir|du) (?:wieder |bitte |jetzt )*(?:auf )?deutsch (?:reden|sprechen|schreiben|weitermachen)(?: bitte)?|"
+                        r"(?:lass uns|lasst uns) (?:wieder )?(?:auf )?deutsch (?:reden|sprechen|schreiben)|(?:wieder )?(?:auf )?deutsch bitte|bitte (?:wieder )?(?:auf )?deutsch|sprichst du deutsch", q):
+            st.lang = "de"
+            return say("lang_de")
+        if re.fullmatch(r"(?:können|koennen|könnten|kannst) (?:wir|du) (?:bitte |jetzt )*(?:auf )?englisch (?:reden|sprechen|schreiben)(?: bitte)?|(?:lass uns|lasst uns) (?:auf )?englisch (?:reden|sprechen)|(?:auf )?englisch bitte", q):
+            st.lang = "en"
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b86:lang_en", self.bank.daily["b86"]["lang_en"]), via="smalltalk")
         hm = re.fullmatch(r"(?:hi|hallo|hey|moin|servus|huhu|na)[,!.]? ich bin (?:die |der )?(?P<n>[a-zäöüß]{2,15})(?:[,!.]? (?:und |schön dich kennenzulernen|freut mich).*)?", q)
         if hm and hm.group("n") not in set(self.bank.de["detect"]["german"]) | {"neu", "hier", "da", "zurück", "wieder", "wach", "fertig", "krank", "zuhause"}:
             name = hm.group("n").capitalize()             # "hi, ich bin lena": a name, said with a greeting
@@ -3376,6 +3383,19 @@ class Assistant:
             lead = self._pick(st, "de:again_lead", g70["again_lead"]) if st.lang == "de" and g70.get("again_lead") else \
                 self._pick(st, "daily:again_lead", self.bank.daily["again_lead"])
             rep.text = lead + rep.text[:1].lower() + rep.text[1:] if rep.text[:2] not in ("I ", "I'") else lead + rep.text
+        if rep.text and rep.text in (st.last_reply, st.uses.get("same_q_text")) and rep.kind in ("answer", "about", "tool") and \
+                normalise(message).strip(" ?!.") == normalise(st.last_message or "").strip(" ?!.") and normalise(message).strip(" ?!."):
+            # the very same question twice or three times in a row: a person notices
+            n_same = st.uses.get("same_q", 1) + 1 if st.uses.get("same_q_text") == rep.text else 2
+            st.uses["same_q"], st.uses["same_q_text"] = n_same, rep.text
+            de = st.lang == "de"
+            if n_same >= 3:
+                lead = "Das ist jetzt das dritte Mal 😄 – " if de else "That's the third time you've asked 😄 — "
+            else:
+                lead = "Immer noch dasselbe: " if de else "Still the same answer: "
+            low_first = bool(re.match(r"(?:The|A|An|It|It's|There|This|That|Yes|No|He|She|They|We|You|About|Around|In|On|At|"
+                                      r"Der|Die|Das|Ein|Eine|Es|Er|Sie|Ja|Nein|Im|Am|Um)\b", rep.text))   # never a name ("Faust …")
+            rep.text = lead + (rep.text[:1].lower() + rep.text[1:] if low_first else rep.text)
         if rep.via == "facts" and rep.text:
             rep.text = _MONTH_LOW.sub(lambda m: m.group(0)[:1].upper() + m.group(0)[1:], rep.text)  # "on june 5" → "June 5"
         if rep.kind != "safety" and re.search(r"\b(?:getting sick|i'?m sick|i am sick|feel(?:ing)? sick|i have (?:a |the )?(?:cold|flu|fever|"
@@ -6525,6 +6545,17 @@ class Assistant:
                     key = "nat_yes" if re.search(country, vals, re.I) else "nat_no"
                     return Reply(msg, "answer", self._pick(st, f"daily:b86:{key}", b[key], x=ans.entity.name, y=where),
                                  answer=where, source={"kind": "kb", "source": "dbpedia", "key": ans.entity.title}, confidence=1.0, via="kb")
+        if re.fullmatch(r"(?:can|could) (?:we|you) (?:speak|talk|chat|continue|write)(?: in)? english(?: please| now| instead)?|(?:let'?s|lets) (?:speak|talk|chat|switch to)(?: in)? english|"
+                        r"english(?:,)? please|(?:please )?(?:speak|answer|reply) (?:in )?english(?: please)?|switch to english", n):
+            st.lang = "en"
+            return say("lang_en")
+        if re.fullmatch(r"(?:can|could) (?:we|you) (?:speak|talk|chat|continue|write)(?: in)? german(?: please| now| instead)?|(?:let'?s|lets) (?:speak|talk|chat|switch to)(?: in)? german|"
+                        r"german(?:,)? please|(?:please )?(?:speak|answer|reply) (?:in )?german(?: please)?|switch to german|do you speak german", n):
+            st.lang = "de"
+            return Reply(msg, "smalltalk", self._pick(st, "daily:b86:lang_de", b["lang_de"]), via="german")
+        if re.fullmatch(r"(?:i )?(?:don'?t|do not|dont) know what to (?:ask|say|talk about)|(?:i'?m |im )?(?:not sure|out of ideas)(?: what to (?:ask|say))?|"
+                        r"what (?:should|can) i ask(?: you)?|what can we talk about|what do you want to talk about|give me (?:an idea|something to ask)", n):
+            return say("no_idea")
         phr = b["phrases"]
         lang_rx = "|".join(phr["langs"])
         lm2 = re.search(rf"\b(?:i'?m|i am|im|i'?ve been|i started|started|i want to start|i'?d like to start) (?:learning|to learn|studying|taking) (?P<l>{lang_rx})\b", n)
@@ -9981,7 +10012,8 @@ def _name_match(asked: str, title: str) -> bool:
 
 _ANOTHER = re.compile(r"^(?:(?:ok|okay|yes|yeah|sure|haha|lol|nice|cool|great|wow)[ ,!]+)?(?:another(?: one)?|one more"
                       r"(?: please)?|again|more please|next(?: one)?|give me another(?: one)?|tell me another(?: one)?|"
-                      r"do another(?: one)?|more|any others?|anything else|any more|anymore|got any others?|what else|others?)(?: please)?\??$")
+                      r"do another(?: one)?|more|any others?|anything else|any more|anymore|got any others?|what else|others?|"
+                      r"(?:ok(?:ay)?,? )?(?:the |a )?last one|one last (?:one|time)|something else|hit me(?: again)?|keep (?:them|em) coming)(?: please)?\??$")
 _GENERAL_MOODS = frozenset(("angry", "sad", "tired", "stress", "anxious", "happy", "excited", "calm", "lonely",
                             "conflict"))
 _PLAN = re.compile(r"\b(?:i'm|i am|im|we're|we are) (?:thinking (?:about|of)|planning (?:to|on)|considering|hoping to|"
