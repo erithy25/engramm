@@ -212,7 +212,9 @@ mit Rat; erster Lauf 37069930936 hing beim Herunterladen der Paket-Artefakte, de
 Zeitlimit; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.24](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.24)
 (Lauf 37080858238, Batterien 82–86: Ereignisse in der Ich-Form, Sicherheitsnetz für Bestätigungen, vierte
 Wissensstichprobe 39/40, natürliche Mehrschritt-Gespräche mit Haustier-Gedächtnis; 45 Dateien, 6 Installer,
-SHA256SUMS geprüft).
+SHA256SUMS geprüft). [v3.1.0-beta.25](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.25)
+(Lauf 37085969483, Batterien 87–89: Korrekturen gelten, Deutsch im Alltag, Trauer/Schlaf/Langeweile, Grundwörter in
+sechs Sprachen, Nationalität ja/nein; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
