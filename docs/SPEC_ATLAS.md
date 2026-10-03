@@ -216,7 +216,9 @@ SHA256SUMS geprüft). [v3.1.0-beta.25](https://github.com/erithy25/engramm/relea
 (Lauf 37085969483, Batterien 87–89: Korrekturen gelten, Deutsch im Alltag, Trauer/Schlaf/Langeweile, Grundwörter in
 sechs Sprachen, Nationalität ja/nein; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.26](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.26)
 (Lauf 37091404744, Batterien 90–94: fünfte Wissensstichprobe 40/0/0, Grenzfälle, deutsches Wissen mit Folgefragen,
-Wächter gegen falsche Baujahre, englische Verallgemeinerungsprobe; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
+Wächter gegen falsche Baujahre, englische Verallgemeinerungsprobe; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.27](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.27)
+(Lauf 37095821620, Batterien 95–98: deutsche Alltagsprobe, Folgesätze nach einem Moment, langes Gespräch ohne
+dumme Echos, langes deutsches Gespräch ohne Rückfall-Antworten; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
