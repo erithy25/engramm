@@ -513,6 +513,8 @@ def personal_sentence(subject: str, relation, value: str, evidence: str | None) 
                     if flipped and value.lower() in flipped.lower() and len(flipped.split()) <= 16:
                         return _cap(flipped.strip().rstrip("!") if flipped.strip().endswith(".") else flipped.strip() + ".")
                 x = article(value) if cat == "#job" or (cat == "#employer" and value[:1].islower()) else value
+                if cat == "#name":                               # "tom" → "Tom", as a name is written
+                    x = " ".join(w[:1].upper() + w[1:] if w.islower() else w for w in value.split())
                 return tpl.format(x=x)
     elif subject.startswith("USER:") and "#name" in rel:
         noun = subject.partition(":")[2]

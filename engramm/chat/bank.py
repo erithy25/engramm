@@ -73,7 +73,9 @@ _CHAT_TAIL = re.compile(r"(?:[\s,]+(?:btw|tbh|lol|lmao|haha+|hehe+|xd|imo|ngl|fr
 
 def expand_chat(text: str) -> str:
     """"wats ur name" → "what's your name", "u r smart" → "you are smart", "ur funny" → "you're funny",
-    "i'm 25 btw" → "i'm 25" (a trailing "btw/lol/tbh" carries no content)."""
+    "i'm 25 btw" → "i'm 25" (a trailing "btw/lol/tbh" carries no content), a lone "y?" → "why?"."""
+    if re.fullmatch(r"\s*y\s*\?*\s*(?:(?:tho|though|not)\s*\?*)?\s*", text, re.I):
+        return re.sub(r"(?i)^\s*y\b", "why", text.strip())         # "y" in a chat is "why", never the letter
     toks = re.split(r"(\s+)", text)
     words = [t for t in toks if t.strip()]
     out = []

@@ -4035,7 +4035,28 @@
     "spielen",
     "lesen",
     "schenken",
-    "reisen"
+    "reisen",
+    "nachbarn",
+    "nachbar",
+    "nachbarin",
+    "waren",
+    "laut",
+    "leise",
+    "bis",
+    "ansprechen",
+    "vielleicht",
+    "sahne",
+    "nudeln",
+    "koche",
+    "mach",
+    "mache",
+    "geschlafen",
+    "schlecht",
+    "hund",
+    "katze",
+    "welpe",
+    "heißt",
+    "hieß"
    ],
    "english": [
     "i",
@@ -9261,6 +9282,12 @@
     "v": "the Museum of Modern Art"
    },
    {
+    "q": "(?:and |but |so )?(?:why (?:not|isn'?t it|isn'?t the capital) sydney|why isn'?t sydney the capital(?: of australia)?|why is canberra the capital(?: of australia)?(?: and not sydney)?)",
+    "a": "Because Sydney and Melbourne both wanted to be the capital. In 1908 the compromise was a new city between them — Canberra was built from scratch for it, and Parliament moved there in 1927.",
+    "v": "a compromise between Sydney and Melbourne",
+    "de": "Weil Sydney und Melbourne beide Hauptstadt werden wollten. Der Kompromiss von 1908 war eine neue Stadt zwischen ihnen – Canberra wurde dafür eigens gebaut, das Parlament zog 1927 dorthin."
+   },
+   {
     "q": "(?:and |so )?who (?:designed|built|planned|engineered|made) (?:the )?eiffel tower",
     "a": "The Eiffel Tower was built by Gustave Eiffel's company. The design came from his engineers Maurice Koechlin and Émile Nouguier, and the architect Stephen Sauvestre shaped its look.",
     "v": "Gustave Eiffel's company",
@@ -9475,9 +9502,28 @@
     "t": "Thomas Edison"
    },
    {
-    "q": "what(?:'s| is) the largest planet(?: in (?:our|the) solar system)?|which planet is the (?:largest|biggest)",
-    "a": "Jupiter is the largest planet in our solar system.",
-    "v": "Jupiter"
+    "q": "(?:and |so )?(?:what(?:'s| is) the (?:largest|biggest) planet(?: in (?:our|the) solar system)?|which planet is the (?:largest|biggest)|which is the (?:largest|biggest) planet)",
+    "a": "Jupiter is the largest planet in our solar system — more than 11 times wider than Earth.",
+    "v": "Jupiter",
+    "t": "Jupiter",
+    "follow": [
+     {
+      "q": "(?:and |but |so )?why is (?:it|jupiter) so (?:big|large|huge)",
+      "a": "It formed early, beyond the 'snow line' where ice was plentiful, so its core grew fast and pulled in huge amounts of hydrogen and helium before the young Sun blew the gas away. It's a gas giant — mostly gas, with no solid surface."
+     },
+     {
+      "q": "(?:and |so )?how many moons does (?:it|jupiter) have",
+      "a": "About 95 known moons — and the count keeps growing. The four big ones, Io, Europa, Ganymede and Callisto, were discovered by Galileo in 1610; Ganymede is even bigger than Mercury."
+     },
+     {
+      "q": "(?:and |so |but )?(?:could|can) (?:we|humans|people|you) (?:ever )?live (?:there|on it|on jupiter)",
+      "a": "No — Jupiter has no solid ground, crushing pressure, deadly radiation and storms bigger than Earth. Some of its moons are more interesting: Europa probably has an ocean under its ice."
+     },
+     {
+      "q": "(?:and |so )?(?:what|how) about mars|(?:and |so )?(?:could|can) (?:we|humans|people) live on mars",
+      "a": "Mars is the most realistic option: a solid surface, a day of 24.6 hours and water ice. But the air is thin and mostly CO₂, it's around −60 °C on average and there's lots of radiation — people would need sealed habitats."
+     }
+    ]
    },
    {
     "q": "what(?:'s| is) the fastest (?:land )?animal(?: in the world| on earth)?",
@@ -12834,6 +12880,16 @@
     "Ooh, {x} tonight — nice! What kind are you making?",
     "{X} tonight sounds great! What are you going for?"
    ],
+   "dish_enjoy": [
+    "Hope the {x} turns out great! 😋",
+    "Enjoy the {x} — and enjoy your evening!"
+   ],
+   "dish_recipe": {
+    "carbonara": "The Roman way, for two: 200 g spaghetti, 100 g guanciale (or pancetta), 2 eggs plus 1 yolk, 50 g grated pecorino, lots of black pepper. Fry the guanciale until crisp, whisk eggs with pecorino and pepper, toss the drained pasta with the guanciale off the heat, then stir in the egg mix with a splash of pasta water until creamy. No cream — the creaminess comes from eggs, cheese and starch.",
+    "bolognese": "Soffritto (onion, carrot, celery) in butter or oil, then minced beef (and pork), a splash of white wine and milk, a little tomato, and then simmer gently for two to three hours. In Bologna it goes with tagliatelle.",
+    "cacio e pepe": "Just three things: pecorino romano, black pepper and pasta water. Toast the pepper, add pasta water, then the pasta, and stir in finely grated pecorino off the heat until it turns into a smooth sauce.",
+    "aglio e olio": "Spaghetti, plenty of garlic sliced thin, olive oil, chilli flakes and parsley. Gently fry the garlic and chilli in the oil (don't let it brown), toss with the pasta and a splash of pasta water."
+   },
    "dish": {
     "carbonara": [
      "Carbonara — a classic! Eggs, pecorino, guanciale and lots of black pepper. Are you going the traditional way?"
@@ -13761,6 +13817,53 @@
    ],
    "luck": [
     "Love that! Start small, be patient with the bugs, and tell me what your first program does. 💻"
+   ],
+   "nickname": [
+    "{x}, but {y} for short — got it! I'll call you {y}.",
+    "Noted: {x} officially, {y} for everyone else. Hi, {y}!"
+   ],
+   "neigh_loud": [
+    "Ugh, that's so inconsiderate — no wonder you're exhausted. Was it music or a party?",
+    "Oh no, that's the worst. Being kept awake by other people's noise is so frustrating."
+   ],
+   "neigh_advice": [
+    "I would — but calmly, and not while you're still angry. Catch them in a quiet moment and keep it friendly: “Hey, the music was really loud until 3 last night and I couldn't sleep.” Most people honestly don't realise. If it keeps happening, a note or your landlord is the next step."
+   ],
+   "neigh_plan": [
+    "Good plan — talk to them once you've slept a bit and you're calm. And fingers crossed tonight is quieter. 🤞",
+    "Sounds sensible. A friendly word tomorrow usually works better than a knock at 3 am. Hope you get some proper sleep tonight."
+   ],
+   "de": {
+    "neigh_loud": [
+     "Oh nein, wie rücksichtslos – kein Wunder, dass du müde bist. War es Musik oder eine Party?",
+     "Das ist echt das Schlimmste. Wenn man wegen anderen nicht schlafen kann, ist das so frustrierend."
+    ],
+    "neigh_advice": [
+     "Ich würde schon – aber ruhig und nicht, solange du noch sauer bist. Sprich sie in einem ruhigen Moment freundlich an: „Hey, die Musik war gestern bis 3 Uhr echt laut, ich konnte nicht schlafen.“ Die meisten merken das gar nicht. Wenn es öfter passiert, sind ein Zettel oder der Vermieter der nächste Schritt."
+    ],
+    "neigh_plan": [
+     "Guter Plan – erst mal schlafen, dann ganz ruhig mit ihnen reden. Und hoffentlich wird die Nacht heute leiser. 🤞",
+     "Klingt vernünftig. Ein freundliches Wort morgen bringt meistens mehr als Klopfen um 3 Uhr nachts."
+    ],
+    "recipe": {
+     "carbonara": "Auf römische Art, für zwei: 200 g Spaghetti, 100 g Guanciale (oder Pancetta), 2 Eier plus 1 Eigelb, 50 g geriebener Pecorino, viel schwarzer Pfeffer. Guanciale knusprig braten, Eier mit Pecorino und Pfeffer verquirlen, die Nudeln abseits vom Herd mit dem Guanciale mischen, dann die Eiermasse mit einem Schuss Nudelwasser unterrühren, bis es cremig wird. Keine Sahne.",
+     "bolognese": "Soffritto (Zwiebel, Karotte, Sellerie) anschwitzen, Hackfleisch (Rind und etwas Schwein) dazu, ein Schuss Weißwein und Milch, etwas Tomate – und dann zwei bis drei Stunden sanft köcheln lassen."
+    }
+   },
+   "better": [
+    "I'm really glad to hear that. 💛 I'm here whenever you want to talk.",
+    "That's good to hear — really. Go easy on yourself today."
+   ],
+   "drive_part": [
+    "Ah, the {x} — that one trips up so many people. It's one of the most common reasons to fail, so you're in good company.",
+    "The {x}, of course — honestly one of the hardest parts under pressure. A couple of focused practice sessions usually fix it."
+   ],
+   "drive_nerves": [
+    "Totally normal — nearly everyone is nervous in the test. The good news: the second time usually feels calmer, because you know exactly what to expect.",
+    "Nerves get almost everyone in a driving test. Next time you'll know the route of the day, the examiner, the whole routine — that helps a lot."
+   ],
+   "drive_retake": [
+    "It depends on where you live: in Germany you can usually retake it after about two weeks, in the UK after at least ten working days. Your driving school or test centre can book the next slot — maybe add a lesson or two on the tricky part first."
    ],
    "agree_hard": [
     "I hope it helps a little. And go easy on yourself tonight — you've had a rough day.",

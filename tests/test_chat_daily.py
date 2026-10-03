@@ -3222,3 +3222,45 @@ def test_battery86_and_question_is_no_ellipsis(chat):
     st.last_q = "what is the capital of France?"
     a.bot.context["kb_last"] = {"question": "what is the capital of France?", "names": ["France", "France"]}
     assert a._ellipsis(st, "and of Germany?") == "what is the capital of Germany?"
+
+
+def test_battery87_corrections_and_nicknames(chat):
+    a, _ = chat
+    st = DialogState("c87")
+    for msg in ["i'm 34", "no wait, i'm 35"]:
+        a.turn(st, msg)
+    assert "35" in a.turn(st, "how old am i?").text
+    st = DialogState("n87")
+    a.turn(st, "my name is tom")
+    r = a.turn(st, "actually it's thomas, but everyone calls me tom")
+    assert "Thomas" in r.text and "Tom" in r.text and " tom " not in r.text, r.text
+    assert "Tom" in a.turn(st, "what's my name?").text
+    from engramm.chat.bank import expand_chat
+    assert expand_chat("y") == "why" and expand_chat("y?") == "why?" and expand_chat("what is y") == "what is y"
+
+
+def test_battery87_everyday_flows(chat):
+    a, _ = chat
+    st = DialogState("f87")
+    for msg in ["i failed my driving test", "the parallel parking"]:
+        a.turn(st, msg)
+    t = a.turn(st, "thanks, i feel a bit better").text
+    assert "harder" not in t and ("glad" in t or "good to hear" in t), t
+    st = DialogState("nb87")
+    a.turn(st, "my neighbours were loud until 3")
+    assert "calm" in a.turn(st, "should i say something to them?").text
+    st = DialogState("nb87de")
+    a.turn(st, "die nachbarn waren bis 3 laut")
+    assert "ruhig" in a.turn(st, "soll ich sie ansprechen?").text
+    st = DialogState("cb87")
+    for msg in ["i'm making pasta tonight", "carbonara"]:
+        a.turn(st, msg)
+    assert "Traditionally, no" in a.turn(st, "do you put cream in it?").text
+    st = DialogState("cb87de")
+    for msg in ["ich mach heute pasta", "carbonara"]:
+        a.turn(st, msg)
+    assert "Klassisch nein" in a.turn(st, "kommt da sahne rein?").text
+    st = DialogState("j87")
+    assert "Jupiter" in a.turn(st, "what's the biggest planet?").text
+    assert "95" in a.turn(st, "how many moons does it have?").text
+    assert "Melbourne" in a.turn(DialogState("s87"), "why isn't sydney the capital?").text

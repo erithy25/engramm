@@ -134,6 +134,7 @@ _SMALLTALK = [
 # "how old was George Washington when he died?": the pronoun points back into the same question
 OWN_PRONOUN = re.compile(r"\b(?:was|is|did|does|were) (?!(?:he|she|they|it|this|that)\b)[a-z][\w'.-]*(?: [\w'.-]+){0,4} "
                          r"(?:when|after|before|while|until|because|once) (?:he|she|they)\b", re.I)
+_SINGLE_VALUED = frozenset(("#age", "#name", "#home", "#job", "#employer", "#birth"))
 _PERSON_PRON = ("he", "she", "him", "his", "hers", "they", "them", "their")
 _THING_PRON = ("it", "its", "there")
 _PERSON_NOUNS = ("person", "man", "woman", "guy", "individual", "fellow", "lady", "gentleman", "author", "writer",
@@ -682,6 +683,13 @@ class ChatBot:
             facts = [f for f in self.facts.facts if f.subject in alts]
         if not facts:
             return None
+        order = {sid: i for i, sid in enumerate(self.user_texts())}
+        newest: dict = {}
+        for f in facts:                          # "i'm 34" … "no wait, i'm 35": the later statement replaces the earlier
+            lab = next((x for x in f.relation if x in _SINGLE_VALUED), None)
+            if lab and (lab not in newest or order.get(f.source, -1) > order.get(newest[lab].source, -1)):
+                newest[lab] = f
+        facts = [f for f in facts if not (lab := next((x for x in f.relation if x in _SINGLE_VALUED), None)) or newest[lab] is f]
         qlabels = {w for w in rel if w.startswith("#")}
         mw = {target.partition(":")[2]} if owned else set()
         qwords = [w for w in rel if not w.startswith("#") and w not in mw]

@@ -1008,7 +1008,7 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_mem67(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
@@ -1277,6 +1277,30 @@ class Assistant:
             return Reply(msg, "nothing", f"Dazu habe ich nichts gespeichert, was ich vergessen könnte.", via="memory")
         return None
 
+    def _german_ctx86(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 87 in German: loud neighbours (ansprechen? morgen vielleicht) as a short flow instead of fallbacks."""
+        g = self.bank.daily["b86"]["de"]
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',-]", " ", s)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:b86:{key}", g[key], **kw), via="german")   # noqa: E731
+        if re.fullmatch(r"(?:und |außerdem )?(?:die |meine |unsere )?nachbarn (?:waren|haben) (?:(?:bis \d{1,2}(?: uhr)?|die ganze nacht|gestern|heute nacht|letzte nacht|"
+                        r"wieder|so|total|echt|mega|richtig) )*(?:laut|am feiern|gefeiert|party gemacht|musik gehört|rumgeschrien|gestritten|am bohren|gebohrt)"
+                        r"(?: (?:bis \d{1,2}(?: uhr)?|die ganze nacht|gestern|heute nacht|letzte nacht|gewesen))*", q):
+            st.uses["neigh86de"] = [st.turn]
+            st.last_exp = {"valence": "negative", "topic": "people", "person": True, "text": msg, "turn": st.turn}
+            return say("neigh_loud")
+        ng = st.uses.get("neigh86de")
+        if ng and st.turn - ng[-1] <= 4:
+            if re.fullmatch(r"(?:und |also )?soll ich (?:sie|die nachbarn|ihn|ihr) (?:mal )?(?:ansprechen|darauf ansprechen|was sagen|etwas sagen|bescheid sagen)|"
+                            r"soll ich (?:mal )?(?:klingeln|mich beschweren|einen zettel schreiben|mit (?:ihnen|denen|den nachbarn) reden|"
+                            r"was sagen|etwas sagen|dem vermieter bescheid sagen)", q):
+                ng.append(st.turn)
+                return say("neigh_advice")
+            if re.fullmatch(r"(?:ja,? |ok(?:ay)?,? |gut,? )?(?:vielleicht |wahrscheinlich |dann |mach ich )?(?:morgen|später|wenn ich ruhiger bin|morgen früh)(?: vielleicht| mal)?|"
+                            r"(?:ja,? |ok(?:ay)?,? )?(?:ich rede|ich sprech|ich spreche) (?:morgen |später )?mit (?:ihnen|denen)", q):
+                st.uses.pop("neigh86de", None)
+                return say("neigh_plan")
+        return None
+
     def _german_ctx74(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """Battery 74 in German: "erzähl mehr" after an explanation, and choosing a dog or a cat."""
         g = (self.bank.de["daily"].get("ctx") or {}).get("g74")
@@ -1528,7 +1552,7 @@ class Assistant:
         if re.fullmatch(r"(?:mir geht'?s |mir gehts |auch |echt )?(?:gut|super|ganz gut|sehr gut|bestens|passt|alles gut|alles klar|geht so|okay|ok)"
                         r"(?:,? danke)?(?:,? und |, )(?:dir|selbst|bei dir|du|wie geht'?s dir)|danke,? und (?:dir|selbst|bei dir|du)", q):
             return say("gut_du")
-        ck = re.fullmatch(r"(?:ich|wir) (?:koche|kochen|mache|machen|esse|essen) (?:heute(?: abend)?|heut abend|gleich|nachher) (?P<x>[a-zäöüß ]+?)", q) or \
+        ck = re.fullmatch(r"(?:ich|wir) (?:koche|koch|kochen|mache|mach|machen|esse|ess|essen) (?:heute(?: abend)?|heut abend|gleich|nachher) (?P<x>[a-zäöüß ]+?)", q) or \
             re.fullmatch(r"(?:heute )?gibt'?s (?:heute(?: abend)? |bei uns )?(?P<x>[a-zäöüß ]+?)(?: heute(?: abend)?)?", q)
         if ck and len(ck.group("x").split()) <= 3 and ck.group("x") not in ("was", "nichts", "etwas", "irgendwas", "es", "das"):
             x = ck.group("x")
@@ -1545,8 +1569,14 @@ class Assistant:
                 return sub("gericht", d)
             if len(d.split()) <= 2:
                 return say("gericht_sonst", x=d, X=cap(d))
-        if re.search(r"\bsahne\b", q) and re.search(r"\bcarbonara\b", q):
-            return say("sahne")
+        if re.search(r"\bsahne\b", q) and (re.search(r"\bcarbonara\b", q) or (ko and ko[0] == "carbonara" and st.turn - ko[1] <= 4)):
+            return say("sahne")                           # "kommt da sahne rein?" right after "carbonara"
+        rez = self.bank.daily["b86"]["de"]["recipe"]
+        if ko and ko[0] in rez and st.turn - ko[1] <= 4 and re.fullmatch(
+                r"(?:und )?(?:wie (?:geht|macht man) (?:das|die|sie|es)(?: richtig| original)?|wie geht das original(?:rezept)?|was ist das (?:original)?rezept|"
+                r"was brauche ich (?:dafür|da)?|was kommt (?:da )?rein)", q):
+            ko[1] = st.turn
+            return Reply(msg, "smalltalk", rez[ko[0]], via="german")
         if re.fullmatch(r"(?:und )?was (?:trinke ich|trink ich|passt|kann ich trinken|soll ich trinken)(?: dazu| zu (?P<x>[a-zäöüß ]+))?(?: zu trinken)?", q):
             m = re.search(r"zu ([a-zäöüß ]+)", q)
             x = (m.group(1) if m else "") or (ko[0] if ko and st.turn - ko[1] <= 4 else "")
@@ -3349,7 +3379,7 @@ class Assistant:
             from engramm.chat.german import neutral_de, normalise_de
             if neutral_de(normalise_de(msg)) is not None or re.fullmatch(r"(?:noch )?mehr|nochmal", normalise_de(msg)) \
                     or re.fullmatch(r"(?:grazie|merci|gracias|obrigad[oa]|arigato)(?: mille| beaucoup)?[!. ]*", normalise_de(msg)) \
-                    or (st.uses.get("koch70") and st.turn - st.uses["koch70"][1] <= 2 and
+                    or (any(st.uses.get(k) and st.turn - st.uses[k][1] <= 2 for k in ("koch70",)) and
                         re.fullmatch(r"[a-zäöüß]+(?: [a-zäöüß]+){0,2}[!. ]*", normalise_de(msg))) \
                     or re.fullmatch(r"(?:hey|hi|hallo|hello|moin|servus|yo|huhu)+(?: (?:hey|hi|du|engramm))?", normalise_de(msg)) \
                     or gibberish(msg, self.speller.known if self.speller is not None else None) \
@@ -6282,6 +6312,50 @@ class Assistant:
                 k = lang_key(lang)
                 return say("start_lang", x=lang_name(k), y=b["lang"][k])
             return say("start_ask")
+        nk = re.fullmatch(r"(?:actually,? |well,? |technically,? )?(?:it'?s|my (?:full |real |actual )?name is|i'?m) (?P<full>[a-z]{2,20}),? but (?:everyone|everybody|people|"
+                          r"my friends|most people|all my friends) (?:calls?|call) me (?P<nick>[a-z]{2,20})", n)
+        if nk:                                            # "it's thomas, but everyone calls me tom": both, and the nickname is used
+            full, nick = nk.group("full").capitalize(), nk.group("nick").capitalize()
+            r = self._learn(st, [f"My name is {nick}."], msg)
+            r.text = self._pick(st, "daily:b86:nickname", b["nickname"], x=full, y=nick)
+            return r
+        if re.fullmatch(r"(?:(?:ok(?:ay)?|thanks?|thank you|thx|ty)[,!. ]+)?(?:i (?:do )?feel|i'?m feeling|feeling) (?:a (?:bit|little|lot)|much|so much|way|kind of|already) better(?: now)?"
+                        r"(?:[,!. ]+(?:thanks?|thank you|thx))?|(?:that|this|talking) (?:helped|helps)(?: a (?:bit|lot|little))?(?:,? thanks?| thank you)?", n):
+            st.last_exp = None                            # "thanks, i feel a bit better": glad — never "That makes it even harder"
+            st.uses.pop("drive86", None)
+            return say("better")
+        if re.search(r"\b(?:i )?(?:failed|didn'?t pass|did not pass|flunked|messed up) (?:my |the )?(?:driving|driver'?s) (?:test|exam|license test|licence test)\b", n):
+            st.uses["drive86"] = [st.turn]                # the reply itself comes from the moments table; the follow-ups need the context
+            return None
+        if re.fullmatch(r"(?:and |plus |also )?(?:my |the )?neighbou?rs? (?:were|was|kept|have been|has been) (?:being )?(?:so |really |super |very |extremely )?"
+                        r"(?:loud|noisy|partying|playing music|blasting music|yelling|shouting|arguing|fighting|drilling)(?: again)?(?: (?:all night|until \d{1,2}(?: ?am)?|till \d{1,2}(?: ?am)?|"
+                        r"last night|at night|the whole night))*", n):
+            st.uses["neigh86"] = [st.turn]
+            st.last_exp = {"valence": "negative", "topic": "people", "person": True, "text": msg, "turn": st.turn}
+            return say("neigh_loud")
+        ng = st.uses.get("neigh86")
+        if ng and st.turn - ng[-1] <= 4:
+            if re.fullmatch(r"(?:so |but |and )?(?:should i|do you think i should|would you) (?:say something|talk to them|tell them|complain|knock|"
+                            r"say something to them|speak to them|leave (?:them )?a note|call the police|tell the landlord)(?: to them| about it)?", n):
+                ng.append(st.turn)
+                return say("neigh_advice")
+            if re.fullmatch(r"(?:yeah,? |ok(?:ay)?,? |yes,? )?(?:maybe |probably |i'?ll do it |i will )?(?:tomorrow|later|when i'?m calmer|in the morning)(?: maybe)?|"
+                            r"(?:yeah,? |ok(?:ay)?,? )?i'?ll (?:talk to them|say something|do that)(?: tomorrow| later)?", n):
+                st.uses.pop("neigh86", None)
+                return say("neigh_plan")
+        dr = st.uses.get("drive86")
+        if dr and st.turn - dr[-1] <= 5:
+            if re.fullmatch(r"(?:it was |mostly |just |because of )?(?:the )?(?:parallel parking|parking|reverse parking|reversing|the roundabout|roundabouts|a roundabout|"
+                            r"the motorway|the highway|stalling|i stalled|speed(?:ing)?|a stop sign|the stop sign|right of way|turning|three[- ]point turn)", n):
+                dr.append(st.turn)
+                return say("drive_part", x=re.sub(r"^(?:it was |mostly |just |because of )?(?:the )?", "", n))
+            if re.fullmatch(r"(?:and )?i was (?:so |really |super |very |too )?(?:nervous|anxious|stressed|scared|shaking)(?: the whole time)?", n):
+                dr.append(st.turn)
+                return say("drive_nerves")
+            if re.fullmatch(r"(?:so |and )?(?:when|how soon|how long until) (?:can|could) i (?:retake|redo|take|do|try) (?:it|the test|the exam)(?: again)?(?: again)?|"
+                            r"how long do i (?:have to )?wait (?:to|before i can) (?:retake|redo|try again)(?: it)?", n):
+                dr.append(st.turn)
+                return say("drive_retake")
         le = st.last_exp or {}
         if le.get("valence") == "negative" and st.turn - le.get("turn", -99) <= 5 and \
                 re.fullmatch(r"(?:yeah,? |ok(?:ay)?,? |hm+,? )?(?:you'?re right|youre right|true|good point|that makes sense|i guess you'?re right|maybe you'?re right|fair enough)", n):
@@ -6771,6 +6845,10 @@ class Assistant:
             return say("think_of_it", x=x)
         ck = re.fullmatch(r"(?:i'?m|i am|im|we'?re|we are) (?:making|cooking|eating) (?P<x>[a-z ]+?) (?:tonight|today|for dinner|"
                           r"for lunch|later|this evening)|(?:i'?m|i am|im|we'?re|we are) having (?P<y>[a-z ]+?) for (?:dinner|lunch|tea)(?: tonight| today)?", n)
+        if ck is None and re.fullmatch(r"(?:i'?m|i am|im|we'?re|we are|i'?ll be|gonna be) (?:cooking|making dinner|making lunch|cooking dinner|cooking lunch)"
+                                       r"(?: tonight| today| later| this evening| for (?:my|the) (?:family|friends|kids|girlfriend|boyfriend|wife|husband|partner))?", n):
+            st.uses["cook68"] = ["", st.turn]             # "i'm cooking tonight": what are you making?
+            return say("cook_generic")
         if ck and len((ck.group("x") or ck.group("y")).split()) <= 3:
             x = re.sub(r"^(?:some|a|an|the|my|our) ", "", ck.group("x") or ck.group("y"))
             if x in ("dinner", "lunch", "breakfast", "food", "something", "something nice", "a meal", "meal", "tea", "supper"):
@@ -6788,7 +6866,8 @@ class Assistant:
             n = mb.group("x")
         if co and st.turn - co[1] <= 2 and re.fullmatch(r"[a-z]+(?: [a-z]+){0,2}", n) and not _REACTION.fullmatch(n) and \
                 not set(n.split()) & {"not", "sure", "yet", "idk", "something", "maybe", "probably", "just", "i", "you", "it", "know", "dunno",
-                                      "think", "what", "why", "how", "no", "yes", "thanks", "lol", "haha", "cool", "nice", "is", "was"} and \
+                                      "think", "what", "why", "how", "no", "yes", "thanks", "lol", "haha", "cool", "nice", "is", "was",
+                                      "sounds", "good", "great", "perfect", "delicious", "yum", "awesome", "will", "ill", "do", "that"} and \
                 n not in ("yes", "no", "yeah", "nope", "idk", "not sure", "dunno", "maybe", "why", "what", "ok", "okay", "thanks"):
             st.uses["cook68"] = [n, st.turn]
             if n in b["dish"]:
@@ -6797,6 +6876,20 @@ class Assistant:
                 return say("dish_other", X=n[:1].upper() + n[1:], x=n)
         if re.search(r"\bcream\b.*\bcarbonara\b|\bcarbonara\b.*\bcream\b", n) and re.match(r"(?:do you think|does|is|should|can|would)", n):
             return say("carbonara_cream")
+        if co and co[0] and st.turn - co[1] <= 4:         # follow-ups on the dish just named
+            dish = co[0]
+            if dish == "carbonara" and re.search(r"\bcream\b", n) and re.match(r"(?:but |so )?(?:do|does|should|can|would|is|are|do you) ", n):
+                co[1] = st.turn
+                return say("carbonara_cream")
+            rec = b.get("dish_recipe", {}).get(dish)
+            if rec and re.fullmatch(r"(?:and |so )?(?:what(?:'s| is) the (?:original|real|traditional|classic|authentic) (?:recipe|way)|how do (?:you|i) make (?:it|that|a good one)|"
+                                    r"what(?:'s| is) the recipe|what do i need(?: for it)?|what goes in(?: it| there)?|how is it made)", n):
+                co[1] = st.turn
+                return Reply(msg, "smalltalk", rec, via="everyday")
+            if re.fullmatch(r"(?:ok(?:ay)?,? |alright,? |yeah,? )?(?:sounds (?:good|great|delicious|yummy|perfect)|yum+|mm+|thanks?(?: a lot)?|thank you|perfect|great|nice|"
+                            r"i'?ll do that|i'?ll try that|will do)", n):
+                st.uses.pop("cook68", None)
+                return say("dish_enjoy", x=dish)
         if re.fullmatch(r"(?:what'?s|what is) your (?:opinion|take|view) on (?:pineapple pizza|pineapple on pizza|hawaiian pizza)|"
                         r"(?:does|should) pineapple (?:belong|go) on pizza|(?:do you like|thoughts on) pineapple (?:on )?pizza", n):
             return say("pineapple")
@@ -7990,6 +8083,12 @@ class Assistant:
         if m:
             what = (m.group("rest") or "").strip(" ?")
             what = "it" if not what or what in ("it", "that", "this", "them", "this one", "that one") else what
+            if what != "it" and not re.fullmatch(r"(?:the|a|an|that|this|my|your|his|her|their|our) [a-z]+", what):
+                # "have you seen inception?": Inception is now what "it" means ("the game" stays a game)
+                small = {"of", "the", "a", "an", "and", "in", "on", "to", "for", "at", "by"}
+                what = " ".join(w if (w in small and i) or not w.islower() else w.capitalize() for i, w in enumerate(what.split()))
+                self.bot.context.update({"answer": None, "atype": None, "mention": what, "kb_last": None})
+                st.topic = {"title": what, "name": what, "turn": st.turn}
             return Reply(msg, "smalltalk", self._pick(st, "daily:bot_experience", d["bot_experience"],
                                                       x=_VERB_BASE.get(m.group("v"), m.group("v")), topic=what),
                          via="smalltalk")
@@ -8730,8 +8829,9 @@ class Assistant:
                 if cue and not re.search(cue, f.sentence or "", re.I):
                     cat = None                         # "my soup is too salty" names no favourite food: a plain confirmation
                 if cat == "name":
-                    key = "learned.name_changed" if name_before and name_before != f.object else "learned.name_new"
-                    out.append(self._reply(st, key, x=f.object))
+                    key = "learned.name_changed" if name_before and name_before.lower() != f.object.lower() else "learned.name_new"
+                    shown = " ".join(w[:1].upper() + w[1:] if w.islower() else w for w in f.object.split())
+                    out.append(self._reply(st, key, x=shown))
                 elif cat:
                     x = article(f.object) if cat in ("job",) else f.object
                     if cat == "car":

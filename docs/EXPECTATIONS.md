@@ -2872,6 +2872,46 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   - Eiffelturm-Entwurf in b38, b41, b56 und b69;
   - b45: „you're right“ nach Trennungsrat, vorher „Glad I got that right!“;
   - Datums- und Uhrzeitzeilen (Tageswechsel während des Laufs).
+- **Alltags-Batterie 87 (zehn weitere Mehrschritt-Gespräche, EN + DE: Korrekturen, „y?“, Folgefragen zu Jupiter,
+  Nachbarn, Carbonara, Canberra, Fahrprüfung)**. Vorher gab es grobe Fehler:
+
+  | Eingabe | vorher |
+  |---|---|
+  | „no wait, i'm 35“ → „how old am i?“ | „You're 34.“ |
+  | „y“ (= why) | Wikipedia-Artikel über den Buchstaben Y, danach wurde „Y“ zum Thema („K. Bhagyaraj directed Y.“) |
+  | „thanks, i feel a bit better“ | „You're welcome! That makes it even harder.“ |
+  | „what's the biggest planet?“ | weiß nicht |
+  | Folgefragen zu Carbonara, „why not sydney?“, Fahrprüfung, Nachbarn | weiß nicht bzw. unpassender Rat |
+  | deutsch „carbonara“ | englischer Wikipedia-Text |
+  | „soll ich sie ansprechen?“, „ja vielleicht morgen“ | Rückfallantwort |
+  | Namen | kleingeschrieben („Your name is tom.“) |
+
+  Grundfehler:
+  1. Ein Korrektur-Vorspann („no wait,“, „actually“, „oops,“) machte aus „i'm 35“ eine Tatsache ohne Kategorie,
+     und bei gleichen Punkten entschied die Satz-ID statt der Reihenfolge. Jetzt fällt der Vorspann weg, und bei
+     einwertigen Kategorien (Alter, Name, Wohnort, Beruf, Arbeitgeber, Geburtstag) gilt die spätere Aussage.
+  2. Ein einzelnes „y“ wird jetzt als „why“ gelesen.
+
+  Neu:
+  - „it's thomas, but everyone calls me tom“;
+  - nach „have you seen/read X?“ ist X das Gesprächsthema („who wrote it?“ → Tolkien);
+  - Jupiter mit Folgefragen (warum so groß, Monde, bewohnbar, Mars);
+  - Carbonara (Sahne?, Originalrezept, „sounds good“), und „i'm cooking tonight“;
+  - Canberra statt Sydney (mit deutschem Text);
+  - Fahrprüfung (Einparken, Nervosität, Wiederholung);
+  - „i feel a bit better“;
+  - laute Nachbarn in der Vergangenheit (EN/DE: ansprechen?, morgen).
+
+  Die deutsche Pasta-Erweiterung lief zuerst als eigener Ablauf und fing den vorhandenen aus Batterie 70 ab (der
+  alte Test „Klassisch nein“ fand das). Sie ist jetzt in den alten Ablauf eingebaut („ich mach heute pasta“,
+  „kommt da sahne rein?“, Originalrezept). Die erste Fassung der Nachbarn-Regel nahm auch die Gegenwart („my
+  neighbors are so loud“) und verdrängte dort die bessere Rückfrage; sie gilt jetzt nur für die Vergangenheit.
+  „did you watch the game?“ macht aus „the game“ keinen Titel.
+
+  Offen: „Inception“ fehlt im Lite-Paket (150.000 Einträge). Mit dem Standard-Paket ist er vorhanden.
+
+  Messung: Team-Dev-Satz 1 von 128 geändert (team-0077, Jupiter-Antwort ausführlicher). NQ 22/9, Suite 782
+  bestanden. Regressionen 32 und 38–87 (56 Gespräche): 0 Wiederholungen.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

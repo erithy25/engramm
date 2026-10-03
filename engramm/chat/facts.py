@@ -388,6 +388,9 @@ def first_person_facts(sentence: str, source: str) -> list[Fact]:
 
 _GREETING = re.compile(r"^(?:(?:hi|hello|hey|hiya|greetings|good (?:morning|afternoon|evening)|(?:nice|pleased|glad) "
                        r"to meet you)\b[,!. ]*)+", re.I)
+# "no wait, i'm 35", "actually, i live in Hamburg": a correction lead says nothing about the fact itself
+_CORRECTION_LEAD = re.compile(r"^(?:(?:no|nope|oh|oops|sorry|my bad|hm+)[,!.]+\s*|(?:no,? |oh,? |oops,? |sorry,? )?(?:wait|actually|hold on|"
+                              r"correction|i mean|scratch that|let me correct that)\b[,:!. ]*)+", re.I)
 _VALUE_CUES = frozenset(("is", "am", "are", "was", "were", "a", "an", "as", "love", "loves", "like", "likes", "own",
                          "owns", "drive", "drives", "be", "called", "named", "at", "in", "to", "on", "by", "enjoy",
                          "prefer", "adore", "adores", "eat", "eats", "drink", "drinks", "play", "plays", "wear",
@@ -749,7 +752,7 @@ def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None,
     out = []
     topic = None
     for s in sents:
-        s = s.strip()
+        s = _CORRECTION_LEAD.sub("", s.strip())
         if not s:
             continue
         if s.endswith("?"):
