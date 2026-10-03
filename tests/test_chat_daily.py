@@ -3965,3 +3965,37 @@ def test_battery113_family_home_money_and_the_bot(chat):
         for msg, want in turns:
             t = a.turn(st, msg).text
             assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)
+
+
+def test_battery114_long_distance_tax_cold_heat_games(chat):
+    """Long distance, tax return, a cold before a presentation, an elderly neighbour, losing weight, heat, a hard game."""
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"Tell me more\?|I see\.|I don't know|work as|you like 35|Erzähl ruhig mehr|Erzähl gern mehr|nicht ganz verstanden|"
+                      r"nicht nachschlagen|Oh\? Go on|What's on your mind", _re.I)
+    convs = [
+        ("en", [("my girlfriend lives in another country", "long distance"), ("we see each other every two months", "counting"),
+                ("how do you make long distance work?", "next visit")]),
+        ("en", [("i have to do my tax return", "tax return"), ("i don't even know where to start", "folder"), ("any tips?", "software")]),
+        ("en", [("i'm having friends over for dinner on saturday", ""), ("six people", ""), ("one of them is vegetarian", "vegetarian guest")]),
+        ("en", [("i think i'm getting a cold", ""), ("my throat is sore and i keep sneezing", "cold"), ("what helps fast?", "honey")]),
+        ("en", [("my neighbour is old and lives alone", "kind"), ("i want to help her somehow", "lovely"), ("she can't carry heavy shopping", "shopping")]),
+        ("en", [("i want to lose 5 kilos before summer", ""), ("what about food?", "vegetables"), ("how fast is realistic?", "0.5 kg")]),
+        ("en", [("it's so hot today", ""), ("it's like 35 degrees", "proper heat"), ("any tips to stay cool?", "blinds")]),
+        ("en", [("i just started playing elden ring", "Elden Ring"), ("i keep dying at the first boss", "first boss")]),
+        ("de", [("meine freundin wohnt in einem anderen land", "Fernbeziehung"), ("wie klappt eine fernbeziehung?", "Besuch")]),
+        ("de", [("ich muss meine steuererklärung machen", "Steuererklärung"), ("hast du tipps?", "ELSTER")]),
+        ("de", [("ich hab am samstag freunde zum essen eingeladen", "Wie viele"), ("sechs leute", "Sechs"), ("einer ist vegetarier", "vegetarisch"),
+                ("was soll ich kochen?", "Curry")]),
+        ("de", [("es ist so heiß heute", ""), ("35 grad", "35 Grad"), ("hast du tipps?", "Rollläden")]),
+        ("de", [("ich will bis zum sommer 5 kilo abnehmen", "Ziel"), ("und beim essen?", "Gemüse"), ("wie schnell ist realistisch?", "halbes Kilo")]),
+    ]
+    for i, (lang, turns) in enumerate(convs):
+        st = DialogState(f"c114-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        for msg, want in turns:
+            t = a.turn(st, msg).text
+            assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)
+    st = DialogState("c114-job")
+    a.turn(st, "i keep dying at the first boss")
+    assert "boss" not in a.turn(st, "what's my job?").text

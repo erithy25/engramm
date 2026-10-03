@@ -3795,6 +3795,181 @@
  "de": {
   "detect": {
    "german": [
+    "also",
+    "bin",
+    "er",
+    "gut",
+    "tag",
+    "will",
+    "freundin",
+    "freund",
+    "freunde",
+    "wohnt",
+    "wohnen",
+    "einem",
+    "einer",
+    "eines",
+    "anderen",
+    "anderes",
+    "andere",
+    "ander",
+    "sehen",
+    "sehe",
+    "sieht",
+    "uns",
+    "unser",
+    "unsere",
+    "euch",
+    "alle",
+    "allen",
+    "zwei",
+    "drei",
+    "vier",
+    "fünf",
+    "sechs",
+    "sieben",
+    "acht",
+    "neun",
+    "zehn",
+    "zwölf",
+    "grad",
+    "morgens",
+    "abends",
+    "nachmittags",
+    "immer",
+    "manchmal",
+    "selten",
+    "nie",
+    "niemals",
+    "nichts",
+    "etwas",
+    "wenig",
+    "wenige",
+    "weniger",
+    "echt",
+    "total",
+    "ziemlich",
+    "bisschen",
+    "kaum",
+    "eigentlich",
+    "wahrscheinlich",
+    "wenn",
+    "ob",
+    "denn",
+    "trotzdem",
+    "deshalb",
+    "deswegen",
+    "sondern",
+    "obwohl",
+    "während",
+    "vor",
+    "seit",
+    "durch",
+    "gegen",
+    "ohne",
+    "zwischen",
+    "bei",
+    "zum",
+    "zur",
+    "vom",
+    "beim",
+    "ins",
+    "aus",
+    "unter",
+    "neben",
+    "hinter",
+    "hier",
+    "dort",
+    "da",
+    "dahin",
+    "daher",
+    "sich",
+    "ihnen",
+    "meinen",
+    "meinem",
+    "meiner",
+    "deinen",
+    "deinem",
+    "deiner",
+    "ihre",
+    "ihren",
+    "seid",
+    "gewesen",
+    "wird",
+    "werden",
+    "haben",
+    "hatte",
+    "hatten",
+    "können",
+    "konnte",
+    "musst",
+    "müssen",
+    "musste",
+    "sollst",
+    "sollen",
+    "willst",
+    "wollen",
+    "wollte",
+    "möchtest",
+    "magst",
+    "darf",
+    "machst",
+    "macht",
+    "gehe",
+    "gehst",
+    "komme",
+    "kommst",
+    "kommt",
+    "kommen",
+    "arbeitet",
+    "arbeiten",
+    "schlafe",
+    "schläft",
+    "schlafen",
+    "trinke",
+    "trinkt",
+    "trinken",
+    "esse",
+    "isst",
+    "kocht",
+    "kaufe",
+    "kauft",
+    "kaufen",
+    "suche",
+    "sucht",
+    "suchen",
+    "brauche",
+    "braucht",
+    "brauchen",
+    "wissen",
+    "glaube",
+    "glaubst",
+    "glaubt",
+    "finde",
+    "findest",
+    "findet",
+    "denke",
+    "denkst",
+    "denkt",
+    "schön",
+    "schwer",
+    "leicht",
+    "klein",
+    "kurz",
+    "kalt",
+    "heiß",
+    "froh",
+    "jahr",
+    "monat",
+    "woche",
+    "minute",
+    "uhr",
+    "zeit",
+    "wohnung",
+    "haus",
+    "stadt",
+    "geld",
+    "reise",
     "ich",
     "muss",
     "tot",
@@ -3822,7 +3997,6 @@
     "lustig",
     "so",
     "du",
-    "bin",
     "bist",
     "ist",
     "nicht",
@@ -3911,7 +4085,6 @@
     "heisse",
     "danke",
     "bitte",
-    "gut",
     "schlecht",
     "auch",
     "noch",
@@ -3964,7 +4137,6 @@
     "gute",
     "nacht",
     "abend",
-    "tag",
     "erzähl",
     "erzähle",
     "witz",
@@ -3990,14 +4162,12 @@
     "dann",
     "weil",
     "dass",
-    "also",
     "mal",
     "bitte",
     "vielen",
     "wann",
     "wurde",
     "wurden",
-    "er",
     "geboren",
     "gestorben",
     "geschrieben",
@@ -4092,7 +4262,6 @@
     "welpe",
     "heißt",
     "hieß",
-    "will",
     "abnehmen",
     "zunehmen",
     "kilo",
@@ -12005,10 +12174,10 @@
    "{X} people — a proper dinner! Any dietary needs, like vegetarian or allergies?"
   ],
   "guests_vegan": [
-   "Good to know. The easiest way is a main everyone can eat, so the vegan guest doesn't get a sad side dish. Want ideas?"
+   "Good to know. The easiest way is a main everyone can eat, so the {y} guest doesn't get a sad side dish. Want ideas?"
   ],
   "guests_menu_vegan": [
-   "For a group with a vegan guest:\n\n• A big vegetable and chickpea curry with rice and naan, everyone loves it\n• Chili sin carne with all the toppings, guests add what they like\n• Pasta with a rich tomato and roasted vegetable sauce\n\nAll of them scale easily for {x} and can be made ahead."
+   "For a group with a {y} guest:\n\n• A big vegetable and chickpea curry with rice and naan, everyone loves it\n• Chili sin carne with all the toppings, guests add what they like\n• Pasta with a rich tomato and roasted vegetable sauce\n\nAll of them scale easily for {x} and can be made ahead."
   ],
   "guests_menu": [
    "For {x} people, something you can make ahead works best:\n\n• Lasagne or a vegetable lasagne\n• A big curry with rice\n• A roast chicken with roast vegetables\n\nThen you can enjoy your guests instead of standing at the stove."
@@ -17330,6 +17499,157 @@
     ],
     "hobby_ideas": [
      "Ein paar Ideen:\n\n• Malen oder Zeichnen (Aquarell ist ein schöner Einstieg)\n• Ein Instrument lernen\n• Bouldern\n• Jede Woche eine neue Küche kochen\n• Zimmerpflanzen oder ein kleiner Balkongarten\n• Fotografieren\n• Stricken oder Häkeln\n\nIst was dabei?"
+    ]
+   }
+  },
+  "b114": {
+   "ld_start": [
+    "That takes a lot of love and patience. How long have you been doing long distance?"
+   ],
+   "ld_freq": [
+    "Every two months — so lots of counting down. The reunions must feel amazing, and the goodbyes rough."
+   ],
+   "ld_hard": [
+    "Of course it is — missing someone you love is hard, no matter how strong the relationship. You're allowed to find it tough."
+   ],
+   "ld_tips": [
+    "What helps many couples:\n\n• Always have the next visit booked — something to count down to.\n• Regular calls, but also “doing things together” apart: a film at the same time, cooking the same recipe.\n• Small surprises: a letter, a parcel, a voice message.\n• Talk honestly about the hard days, not only the nice ones.\n• A shared idea of when the distance will end makes a huge difference."
+   ],
+   "tax_start": [
+    "Ugh, the tax return — nobody's favourite. Have you done one before, or is this the first time?"
+   ],
+   "tax_putoff": [
+    "You're definitely not the only one. It usually takes less time than the dread suggests."
+   ],
+   "tax_where": [
+    "Totally normal. Make the first step tiny: this week, just collect the papers in one folder — nothing else. Want a few more tips for the actual return?"
+   ],
+   "tax_tips": [
+    "A few things that make it easier:\n\n• Gather everything first: payslips/annual tax statement, receipts for work costs, insurance and donations.\n• Use tax software or the official online portal — they guide you step by step.\n• Block two hours on a fixed day instead of “sometime”.\n• Start with what's easy; the tricky bits feel smaller once most is done.\n• If it gets complicated, a tax advisor or an income tax help association is worth it."
+   ],
+   "tax_weekend": [
+    "Good plan — put it in your calendar like an appointment. And reward yourself afterwards! 🙌"
+   ],
+   "cold_throat": [
+    "That sounds like a cold coming on — I'm sorry! Rest, warm drinks and plenty of water help most."
+   ],
+   "cold_present": [
+    "Oh no, perfect timing. Let's get you as fit as possible for tomorrow."
+   ],
+   "cold_tips": [
+    "What helps most right now:\n\n• Lots of warm drinks — tea with honey and lemon soothes the throat.\n• Sleep early tonight; rest is the best medicine.\n• Gargle with salt water, and suck throat lozenges.\n• For tomorrow: keep water nearby while presenting and speak a bit slower to spare your voice.\n• If you get a fever or it gets much worse, check with a pharmacist or doctor."
+   ],
+   "nb_start": [
+    "That's really kind of you to think of her. Does she have family nearby?"
+   ],
+   "nb_help": [
+    "That's lovely. Small things often matter most — she might not ask, but she'll probably appreciate it a lot."
+   ],
+   "nb_shopping": [
+    "Then offering to do her shopping, or taking her along when you go, could be a perfect start. You could simply ring and say: “I'm going to the supermarket on Saturday — can I bring you anything?”"
+   ],
+   "nb_more": [
+    "Other ideas: a short chat now and then, carrying up parcels, putting her bins out, or swapping phone numbers in case she needs help."
+   ],
+   "wl_gym": [
+    "Twice a week is a great base! Strength training helps a lot, because muscle keeps your metabolism up."
+   ],
+   "wl_food": [
+    "Food matters most for weight loss. Simple rules that work: lots of vegetables and protein (they keep you full), fewer sugary drinks and snacks, smaller portions of the high-calorie stuff — and no crash diets; you'll stick to small changes much longer."
+   ],
+   "wl_speed": [
+    "About 0.5 kg a week is realistic and healthy — so 5 kg takes roughly 10–12 weeks. Faster usually means losing water and muscle, and it comes back quickly."
+   ],
+   "heat_temp": [
+    "35 degrees — that's proper heat! Drink plenty and stay in the shade during the hottest hours."
+   ],
+   "heat_sleep": [
+    "That's the worst — hot nights are exhausting."
+   ],
+   "heat_tips": [
+    "A few tricks:\n\n• Keep windows and blinds shut during the day, open everything at night.\n• A damp sheet or a cool shower before bed helps.\n• Put a bowl of ice in front of a fan.\n• A hot-water bottle filled with cold water in bed works wonders.\n• Light cotton bedding, and drink enough during the day."
+   ],
+   "game_start": [
+    "Oh nice — Elden Ring is famous for being tough but so rewarding. How are you finding it so far?"
+   ],
+   "game_hard": [
+    "It's hard for everyone at the start — that's part of the game's reputation. Every death teaches you something."
+   ],
+   "game_boss": [
+    "The first boss stops so many players! Here's what helps:\n\n• Explore first and level up a bit — there's no shame in coming back stronger.\n• Learn the attack patterns and roll *into* attacks, not away.\n• Don't get greedy: one or two hits, then back off.\n• Use Spirit Ash summons if you have them.\n• And there's no rule that says you have to fight it now — the world is open."
+   ],
+   "game_tips": [
+    "General tips: explore before fighting bosses, upgrade your weapon, use Spirit Ashes, and take breaks when you're frustrated — fresh eyes win fights. 😄"
+   ],
+   "game_keep": [
+    "That's the spirit! You'll get it — and the moment you beat it feels incredible. 🎮"
+   ],
+   "de": {
+    "ld_start": [
+     "Das braucht viel Liebe und Geduld. Wie lange führt ihr schon eine Fernbeziehung?"
+    ],
+    "ld_freq": [
+     "Alle zwei Monate – da wird bestimmt viel heruntergezählt. Das Wiedersehen ist sicher schön, das Abschiednehmen umso härter."
+    ],
+    "ld_hard": [
+     "Natürlich – jemanden zu vermissen, den man liebt, ist schwer, egal wie stark die Beziehung ist. Du darfst das hart finden."
+    ],
+    "ld_tips": [
+     "Was vielen Paaren hilft:\n\n• Immer den nächsten Besuch schon gebucht haben – etwas zum Runterzählen.\n• Regelmäßig telefonieren, aber auch „gemeinsam“ Dinge tun: zur gleichen Zeit einen Film schauen, dasselbe Rezept kochen.\n• Kleine Überraschungen: ein Brief, ein Päckchen, eine Sprachnachricht.\n• Ehrlich über schwere Tage reden, nicht nur über schöne.\n• Eine gemeinsame Vorstellung davon, wann die Entfernung endet, macht viel aus."
+    ],
+    "tax_start": [
+     "Ach, die Steuererklärung – niemandes Lieblingsaufgabe. Hast du schon mal eine gemacht, oder ist es die erste?"
+    ],
+    "tax_putoff": [
+     "Da bist du echt nicht allein. Meistens dauert es weniger lang, als das schlechte Gefühl vermuten lässt."
+    ],
+    "tax_where": [
+     "Ganz normal. Mach den ersten Schritt winzig: diese Woche nur die Unterlagen in einen Ordner sammeln – sonst nichts. Soll ich dir noch Tipps für die Erklärung selbst geben?"
+    ],
+    "tax_tips": [
+     "Was es leichter macht:\n\n• Erst alles sammeln: Lohnsteuerbescheinigung, Belege für Werbungskosten, Versicherungen, Spenden.\n• ELSTER oder eine Steuer-Software nutzen – die führen Schritt für Schritt durch.\n• Zwei Stunden fest im Kalender blocken statt „irgendwann“.\n• Mit dem Einfachen anfangen; der Rest wirkt dann kleiner.\n• Wenn es kompliziert wird, lohnt sich ein Lohnsteuerhilfeverein oder eine Steuerberatung."
+    ],
+    "tax_weekend": [
+     "Guter Plan – trag es dir wie einen Termin in den Kalender. Und gönn dir danach was! 🙌"
+    ],
+    "guests_start": [
+     "Wie schön, ein Essen mit Freunden! Wie viele kommen denn?"
+    ],
+    "guests_count": [
+     "{X} Leute – ein richtiges Essen! Gibt es was zu beachten, vegetarisch oder Allergien?"
+    ],
+    "guests_veg": [
+     "Gut zu wissen. Am einfachsten ist ein Hauptgericht, das alle essen können – dann bekommt der Gast mit vegetarischer Ernährung keine traurige Beilage. Soll ich Ideen geben?"
+    ],
+    "guests_menu": [
+     "Für eine Runde mit Vegetarier:\n\n• Ein großes Gemüse-Kichererbsen-Curry mit Reis und Naan\n• Chili sin Carne mit vielen Toppings\n• Ofengemüse-Lasagne\n• Ein Risotto mit Pilzen\n\nAlles lässt sich gut vorbereiten und für {X} Leute hochrechnen."
+    ],
+    "cold_throat": [
+     "Klingt nach einer beginnenden Erkältung – gute Besserung! Ruhe, warme Getränke und viel Wasser helfen am meisten."
+    ],
+    "cold_tips": [
+     "Was jetzt am meisten hilft:\n\n• Viel Warmes trinken – Tee mit Honig und Zitrone tut dem Hals gut.\n• Heute früh schlafen; Ruhe ist die beste Medizin.\n• Mit Salzwasser gurgeln, Halspastillen lutschen.\n• Für morgen: Wasser bereitstellen und etwas langsamer sprechen, um die Stimme zu schonen.\n• Bei Fieber oder wenn es deutlich schlimmer wird: Apotheke oder Arzt fragen."
+    ],
+    "heat_temp": [
+     "35 Grad – das ist richtig heiß! Viel trinken und in der Mittagshitze im Schatten bleiben."
+    ],
+    "heat_sleep": [
+     "Das ist das Schlimmste – heiße Nächte sind zermürbend."
+    ],
+    "heat_tips": [
+     "Ein paar Tricks:\n\n• Tagsüber Fenster und Rollläden zu, nachts alles auf.\n• Ein feuchtes Laken oder eine kühle Dusche vor dem Schlafen.\n• Eine Schüssel Eis vor den Ventilator stellen.\n• Eine Wärmflasche mit kaltem Wasser ins Bett – wirkt Wunder.\n• Leichte Baumwollbettwäsche und tagsüber genug trinken."
+    ],
+    "wl_start": [
+     "Ein gutes Ziel! Machst du schon Sport, oder fängst du gerade an?"
+    ],
+    "wl_gym": [
+     "Zweimal die Woche ist eine super Basis! Krafttraining hilft besonders, weil Muskeln den Stoffwechsel oben halten."
+    ],
+    "wl_food": [
+     "Beim Abnehmen zählt das Essen am meisten. Einfache Regeln, die funktionieren: viel Gemüse und Eiweiß (macht satt), weniger süße Getränke und Snacks, kleinere Portionen vom Kalorienreichen – und keine Crash-Diäten; kleine Änderungen hältst du viel länger durch."
+    ],
+    "wl_speed": [
+     "Etwa ein halbes Kilo pro Woche ist realistisch und gesund – 5 Kilo dauern also ungefähr 10–12 Wochen. Schneller heißt meist Wasser und Muskeln, und das kommt schnell zurück."
     ]
    }
   }

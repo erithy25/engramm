@@ -1009,13 +1009,14 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_mem67(st, msg, s) or self._german_ctx113(st, msg, s) or self._german_ctx112(st, msg, s) or self._german_ctx111(st, msg, s) or self._german_ctx104(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx114(st, msg, s) or self._german_ctx113(st, msg, s) or self._german_ctx112(st, msg, s) or self._german_ctx111(st, msg, s) or self._german_ctx104(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
                 self._german_life(st, msg, s) or \
                 self._moment_de(st, msg, s) or \
-                self._german_ctx111_late(st, msg, s)
+                self._german_ctx111_late(st, msg, s) or \
+                self._german_ctx114_late(st, msg, s)
             if life is not None:
                 return life
         if u.kind == "fallback" or u.kind == "feeling":
@@ -1525,6 +1526,123 @@ class Assistant:
             if pen:
                 st.uses["trip_de"] = [pen, kw.get("X", sl.get("o", "").capitalize()), st.turn]
         return Reply(msg, "empathy", self._pick(st, f"de:moments:{k2}", mb[k2], **kw), via="german")
+
+    def _german_ctx114(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 114 in German: Fernbeziehung, Steuererklärung, Gäste zum Essen, Erkältung, Hitze, Abnehmen."""
+        b = (self.bank.daily.get("b114") or {}).get("de")
+        if not b:
+            return None
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:%-]", " ", s)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:b114:{key}", b[key], **kw), via="german")   # noqa: E731
+        c = st.uses.get("c114")
+        topic = c[0] if c and st.turn - c[1] <= 5 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c114"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        tipps = bool(re.fullmatch(r"(?:hast du )?(?:ein paar |irgendwelche )?(?:tipps|tricks|ideen|ratschläge)(?: für mich)?|was hilft(?: schnell| am besten)?|was kann ich (?:da )?(?:tun|machen)", q))
+        if re.search(r"\bmein(?:e)? (?:freundin|freund|partnerin|partner|frau|mann) (?:wohnt|lebt) (?:in einem anderen land|im ausland|in einer anderen stadt|weit weg)\b|\bfernbeziehung\b", q) and "?" not in msg:
+            keep("ld")
+            return say("ld_start")
+        if re.search(r"\b(?:ich muss|muss|ich sollte) (?:noch )?(?:meine |die )?steuererklärung (?:machen|abgeben|erledigen)\b", q):
+            keep("tax")
+            return say("tax_start")
+        mg = re.search(r"\b(?:freunde|leute|gäste|meine familie) zum essen eingeladen\b|\bich (?:koche|koch) am \w+ für (?:freunde|gäste)\b", q)
+        if mg:
+            keep("guests")
+            return say("guests_start")
+        if re.search(r"\bich glaub(?:e)? ich werde krank\b|\bich werd(?:e)? (?:wohl )?krank\b|\bich hab(?:e)? (?:mir )?(?:eine )?erkältung (?:eingefangen|geholt)\b", q):
+            keep("cold")
+            return None
+        if re.search(r"\bes ist (?:so |echt |total |mega )?(?:heiß|warm)(?: heute| draußen)?\b|\bhitzewelle\b", q):
+            keep("heat")
+            return None
+        if re.search(r"\bich will (?:bis (?:zum )?\w+ )?(?:\d+|ein paar) kilo abnehmen\b|\bich (?:will|möchte|muss) abnehmen\b", q):
+            keep("wl")
+            return None                                   # the existing weight flow answers first; see _german_ctx114_late
+        if topic == "ld":
+            if re.search(r"\b(?:sehen|besuchen|treffen) uns (?:nur )?(?:alle|einmal|jede)\b", q):
+                keep("ld")
+                return say("ld_freq")
+            if re.search(r"\b(?:ist es|es ist) (?:echt |so |ziemlich |manchmal )*(?:schwer|hart|anstrengend|einsam)\b", q) and "?" not in msg:
+                keep("ld")
+                return say("ld_hard")
+            if re.search(r"\bwie klappt (?:eine )?fernbeziehung\b|\bwie funktioniert (?:eine )?fernbeziehung\b", q) or tipps:
+                keep("ld")
+                return say("ld_tips")
+        if topic == "tax":
+            if re.search(r"\bschieb(?:e)? (?:das|es) (?:seit \w+ )?vor mir her\b|\bdrück(?:e)? mich (?:seit \w+ )?davor\b", q):
+                keep("tax")
+                return say("tax_putoff")
+            if re.search(r"\bwo ich anfangen soll\b|\bwie ich anfangen soll\b", q):
+                keep("tax")
+                return say("tax_where")
+            if tipps:
+                keep("tax")
+                return say("tax_tips")
+            if re.search(r"\b(?:fang|fange) (?:am wochenende|morgen|samstag|sonntag|heute abend) an\b", q):
+                keep("tax")
+                return say("tax_weekend")
+        if topic == "guests":
+            mn = re.fullmatch(r"(?:wir sind )?(?P<n>\d+|zwei|drei|vier|fünf|sechs|sieben|acht|zehn) (?:leute|personen|gäste)", q)
+            if mn:
+                keep("guests", n=mn.group("n"))
+                return say("guests_count", X=mn.group("n").capitalize())
+            if re.search(r"\b(?:vegetarier|vegetarierin|vegetarisch|veganer|veganerin|vegan)\b", q):
+                keep("guests", veg=True)
+                return say("guests_veg")
+            if re.fullmatch(r"(?:und )?was (?:soll|könnte|kann) ich (?:da )?kochen|(?:ja|gerne|ja gerne|ja bitte)", q) and info.get("veg"):
+                keep("guests")
+                return say("guests_menu", X=info.get("n", "alle"))
+        if topic == "heat":
+            if re.fullmatch(r"(?:es sind |hier sind )?(?:fast |über |locker )?\d{2} grad(?: draußen| heute)?", q):
+                keep("heat")
+                return say("heat_temp")
+            if re.search(r"\b(?:kann|konnte) (?:bei der hitze )?nicht schlafen\b|\bzu heiß zum schlafen\b", q):
+                keep("heat")
+                return say("heat_sleep")
+            if tipps:
+                keep("heat")
+                return say("heat_tips")
+        return None
+
+    def _german_ctx114_late(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 114 in German, after every other flow (cold, weight loss). Battery 114 in German: Fernbeziehung, Steuererklärung, Gäste zum Essen, Erkältung, Hitze, Abnehmen."""
+        b = (self.bank.daily.get("b114") or {}).get("de")
+        if not b:
+            return None
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:%-]", " ", s)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:b114:{key}", b[key], **kw), via="german")   # noqa: E731
+        c = st.uses.get("c114")
+        topic = c[0] if c and st.turn - c[1] <= 5 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c114"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        tipps = bool(re.fullmatch(r"(?:hast du )?(?:ein paar |irgendwelche )?(?:tipps|tricks|ideen|ratschläge)(?: für mich)?|was hilft(?: schnell| am besten)?|was kann ich (?:da )?(?:tun|machen)", q))
+        if re.search(r"\bich will (?:bis (?:zum )?\w+ )?(?:\d+|ein paar) kilo abnehmen\b|\bich (?:will|möchte|muss) abnehmen\b", q):
+            keep("wl")
+            return say("wl_start")
+        if topic == "cold":
+            if re.search(r"\b(?:hals tut weh|halsschmerzen|niesen|schnupfen|kopfweh|husten)\b", q) and "?" not in msg:
+                keep("cold")
+                return say("cold_throat")
+            if tipps:
+                keep("cold")
+                return say("cold_tips")
+        if topic == "wl":
+            if re.search(r"\b(?:fitnessstudio|gym|trainiere|training|sport)\b", q) and re.search(r"\b(?:zweimal|dreimal|\d mal|schon)\b", q):
+                keep("wl")
+                return say("wl_gym")
+            if re.fullmatch(r"(?:und )?(?:beim essen|was ist mit (?:dem )?essen|was soll ich essen|und die ernährung)", q):
+                keep("wl")
+                return say("wl_food")
+            if re.fullmatch(r"(?:und )?wie schnell (?:ist realistisch|geht das|kann ich das schaffen)|was ist realistisch", q):
+                keep("wl")
+                return say("wl_speed")
+        return None
 
     def _german_ctx113(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """Battery 113 in German: Hausaufgaben, Wohnungssuche, Sparen, "was machst du so den ganzen Tag?", Hobbys,
@@ -4832,7 +4950,8 @@ class Assistant:
                 return self._german(st, msg)      # "haha", "ok", "ja" in a German conversation stay German
             if _clearly_english(msg, de):
                 st.lang = "en"
-            elif len(re.findall(r"[a-zäöüß]+", msg.lower())) >= 2 or re.fullmatch(r"\s*(?:\d{1,3}|[a-zäöüß]{3,20})[!.? ]*", msg.lower()):
+            elif len(re.findall(r"[a-zäöüß]+", msg.lower())) >= 2 or re.fullmatch(r"\s*(?:\d{1,3}|[a-zäöüß]{3,20})[!.? ]*", msg.lower()) or \
+                    re.fullmatch(r"\s*(?:fast |über |etwa |ca\.? )?\d{1,4}(?:[.,]\d+)?\s*(?:grad|°c?|uhr|euro|€|kilo|kg|km|leute|personen|jahre|minuten|stunden|tage|wochen)[!.? ]*", msg.lower()):
                 return self._german(st, msg)      # "die nachbarn waren laut", "28", "italienisch": no English word, stays German
         msg = expand_chat(msg)                            # "wats ur name" → "what's your name"
         msg = _casual(msg)                                # "heyyy 👋" → "hey", "idk im kinda bored" → "im kind of bored", "k bye" → "bye"
@@ -6880,7 +6999,7 @@ class Assistant:
                                                      r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
             # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
             return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
-        evr = self._sounds(st, msg, norm) or self._daily_ctx27(st, msg, norm) or self._daily_ctx26(st, msg, norm) or self._daily_ctx25(st, msg, norm) or self._daily_ctx24(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
+        evr = self._sounds(st, msg, norm) or self._daily_ctx28(st, msg, norm) or self._daily_ctx27(st, msg, norm) or self._daily_ctx26(st, msg, norm) or self._daily_ctx25(st, msg, norm) or self._daily_ctx24(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
             self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
@@ -6991,7 +7110,7 @@ class Assistant:
                         name = self._person_name(noun) or name
                         return Reply(msg, "answer", self._pick(st, "daily:person_likes_answer", d["person_likes_answer"],
                                                                x=name, y=_cuisine_case(lm.group(1))), via="facts")
-        return self._daily_ctx25_late(st, msg, norm)      # battery 111: only where every other flow stayed silent
+        return self._daily_ctx25_late(st, msg, norm) or self._daily_ctx28_late(st, msg, norm)   # batteries 111/114: only where every other flow stayed silent
 
     def _daily_ctx2(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 43: "same lol" after "how are you?", "that's sad" about ENGRAMM itself, why someone moved,
@@ -7481,13 +7600,15 @@ class Assistant:
             m = _ONE_VEGAN.match(norm)
             if m:
                 gs.update(diet=m.group("d"), turn=st.turn)
-                return Reply(msg, "smalltalk", self._pick(st, "daily:guests_vegan", d["guests_vegan"]), via="everyday")
+                dy = "vegan" if "vegan" in m.group("d") else "vegetarian"   # "one of them is vegetarian": never "the vegan guest"
+                return Reply(msg, "smalltalk", self._pick(st, "daily:guests_vegan", d["guests_vegan"], y=dy), via="everyday")
             if _COOK_FOR.match(norm) or re.fullmatch(r"(?:so |ok )?what (?:should|could|can) (?:i|we) (?:cook|make|serve)(?: for (?:them|everyone|the guests))?\??|"
                                                      r"(?:yes|yeah|sure)(?: please)?[.!]*", norm):
                 gs["turn"] = st.turn
                 st.uses["guests_menu"] = st.turn
                 key = "guests_menu_vegan" if gs["diet"] in ("vegan", "vegetarian") else "guests_menu"
-                return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key], x=gs["n"] or "everyone"), via="everyday")
+                return Reply(msg, "smalltalk", self._pick(st, f"daily:{key}", d[key], x=gs["n"] or "everyone",
+                                                          y="vegan" if "vegan" in (gs["diet"] or "") else "vegetarian"), via="everyday")
             gm = st.uses.get("guests_menu")
             if gm is not None and st.turn - gm <= 3 and _FOOD_TIME.match(norm):
                 return Reply(msg, "smalltalk", self._pick(st, "daily:guests_time", d["guests_time"]), via="everyday")
@@ -7840,6 +7961,147 @@ class Assistant:
             st.uses["fun_fact_seen"] = list(seen | {pick})
             return shown, pick, found.source, False
         return shown, found.sentences[0], found.source, True
+
+    def _daily_ctx28(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 114: a long-distance relationship, the tax return put off for weeks, a cold the day before a
+        presentation, helping an elderly neighbour, losing 5 kilos (food, realistic pace), a heatwave night, and a
+        game that's too hard ("i keep dying at the first boss")."""
+        b = self.bank.daily.get("b114")
+        if not b:
+            return None
+        n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", norm)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b114:{key}", b[key], **kw), via="everyday")  # noqa: E731
+        c = st.uses.get("c114")
+        topic = c[0] if c and st.turn - c[1] <= 5 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c114"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        tips = bool(re.fullmatch(r"(?:any |some |got any |do you have any )?(?:tips|advice|ideas|tricks)(?: for (?:me|that|this))?|what (?:should|can) i do|what helps(?: fast| quickly)?", n))
+        # -- topic starts --------------------------------------------------------------------------------------
+        if re.search(r"\bmy (?:girlfriend|boyfriend|partner|wife|husband|gf|bf) (?:lives|is living|lives and works) (?:in another country|abroad|in a different country|in another city|far away|on the other side)\b|\blong[- ]distance (?:relationship|with my)\b", n):
+            keep("ld")
+            return say("ld_start")
+        if re.search(r"\b(?:i have to|i need to|i must|i still have to|gotta) (?:do|file|finish|submit) (?:my |our )?tax(?:es| return| declaration)\b", n):
+            keep("tax")
+            return say("tax_start")
+        if re.search(r"\bi (?:think i'?m|might be|am|'m) (?:getting|coming down with|catching) (?:a cold|the flu|sick|ill|something)\b", n):
+            keep("cold")
+            return None                                   # the first reply asks how it feels; the follow-ups are kept here
+        if re.search(r"\bmy (?:neighbou?r|elderly neighbou?r|old neighbou?r) is (?:old|elderly|very old|in (?:her|his) \d0s)\b.*\b(?:alone|by (?:herself|himself))\b|\bmy (?:old|elderly) neighbou?r lives alone\b", n):
+            keep("nb")
+            return say("nb_start")
+        if re.search(r"\bi (?:want|would like|need|'d like|am trying|'m trying) to lose (?:about |around )?(?:\d+|a few|some) ?(?:kilos?|kg|pounds|lbs|weight)\b", n):
+            keep("wl")
+            return None
+        if re.search(r"\b(?:it'?s|its|it is) (?:so |really |super |way too |too )?(?:hot|boiling|scorching)(?: today| outside| here)?\b|\bheat ?wave\b", n):
+            keep("heat")
+            return None
+        mg = re.search(r"\bi (?:just )?(?:started|began|am playing|'m playing|bought) (?:playing )?(?P<g>elden ring|dark souls|sekiro|bloodborne|hollow knight|[a-z ]{3,25}?)(?: on \w+)?$", n)
+        if mg and re.search(r"\b(?:elden ring|dark souls|sekiro|bloodborne|hollow knight|zelda|minecraft|fortnite|baldur'?s gate|the witcher)\b", n):
+            keep("game", g=mg.group("g"))
+            return say("game_start") if "elden ring" in n else None
+        # -- inside a topic ------------------------------------------------------------------------------------
+        if topic == "ld":
+            if re.search(r"\b(?:see each other|visit each other|meet up?|see (?:her|him|them))\b.*\b(?:every|once (?:a|every))\b", n):
+                keep("ld")
+                return say("ld_freq")
+            if re.search(r"\b(?:it'?s|it is|it can be|it gets) (?:really |so |pretty |kind of )?(?:hard|tough|difficult|lonely)\b", n) and "?" not in msg:
+                keep("ld")
+                return say("ld_hard")
+            if re.search(r"\bhow (?:do you|do people|can (?:we|you|i)|to) make (?:a )?long[- ]distance(?: relationship)? work\b|\blong[- ]distance tips\b", n) or tips:
+                keep("ld")
+                return say("ld_tips")
+        if topic == "tax":
+            if re.search(r"\b(?:putting it off|been avoiding it|procrastinating|pushing it|postponing)\b", n):
+                keep("tax")
+                return say("tax_putoff")
+            if re.search(r"\b(?:where to start|how to start|where to begin|no idea how)\b", n) and "?" not in msg:
+                keep("tax")
+                st.uses["o114"] = st.turn
+                return say("tax_where")
+            if tips:
+                keep("tax")
+                return say("tax_tips")
+            if re.search(r"\b(?:i'?ll|i will|i'?m gonna|gonna) (?:start|do it|sit down)\b.*\b(?:weekend|tomorrow|saturday|sunday|tonight|monday)\b", n):
+                keep("tax")
+                return say("tax_weekend")
+        if topic == "nb":
+            if re.search(r"\bi (?:want|would like|'d like) to help (?:her|him|them)\b", n):
+                keep("nb")
+                return say("nb_help")
+            if re.search(r"\b(?:can'?t|cannot|struggles to|has trouble) (?:carry|carrying|do|doing|get|getting) (?:the |her |his |heavy )?(?:shopping|groceries|bags)\b", n):
+                keep("nb")
+                return say("nb_shopping")
+            if tips:
+                keep("nb")
+                return say("nb_more")
+        if topic == "heat":
+            if re.fullmatch(r"(?:it'?s |its )?(?:like |about |around )?\d{2} (?:degrees|°c|c)(?: outside| today| here)?", n):
+                keep("heat")
+                return say("heat_temp")
+            if re.search(r"\bcan'?t sleep\b.*\b(?:heat|hot)\b|\btoo hot to sleep\b", n):
+                keep("heat")
+                return say("heat_sleep")
+            if tips or re.search(r"\b(?:tips|how) to (?:stay|keep) cool\b|\bhow (?:can|do) i (?:cool down|stay cool)\b", n):
+                keep("heat")
+                return say("heat_tips")
+        if topic == "game":
+            if re.fullmatch(r"(?:it'?s|its|it is) (?:so |really |super |way too )?(?:hard|difficult|tough|brutal)(?: though)?", n):
+                keep("game")
+                return say("game_hard")
+            if re.search(r"\b(?:keep|kept) dying\b|\bcan'?t beat (?:the )?(?:first |this )?boss\b|\bstuck (?:at|on) (?:the )?(?:first )?boss\b", n):
+                keep("game", boss=True)
+                return say("game_boss")
+            if tips:
+                keep("game")
+                return say("game_tips")
+            if re.search(r"\b(?:keep trying|try again|give it another go|not give up)\b", n):
+                keep("game")
+                return say("game_keep")
+        return None
+
+    def _daily_ctx28_late(self, st: DialogState, msg: str, norm: str) -> Reply | None:
+        """Battery 114, after every other flow: the cold before a presentation and losing weight — the existing
+        cold and weight flows answer first; this only replaces a filler. Battery 114: a long-distance relationship, the tax return put off for weeks, a cold the day before a
+        presentation, helping an elderly neighbour, losing 5 kilos (food, realistic pace), a heatwave night, and a
+        game that's too hard ("i keep dying at the first boss")."""
+        b = self.bank.daily.get("b114")
+        if not b:
+            return None
+        n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", norm)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b114:{key}", b[key], **kw), via="everyday")  # noqa: E731
+        c = st.uses.get("c114")
+        topic = c[0] if c and st.turn - c[1] <= 5 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c114"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        tips = bool(re.fullmatch(r"(?:any |some |got any |do you have any )?(?:tips|advice|ideas|tricks)(?: for (?:me|that|this))?|what (?:should|can) i do|what helps(?: fast| quickly)?", n))
+        if topic == "cold":
+            if re.search(r"\b(?:sore throat|throat (?:is sore|hurts)|sneezing|runny nose|headache|blocked nose|coughing|stuffy)\b", n) and "?" not in msg and \
+                    not re.match(r"(?:what|how|should|can|could|is|are|do|does|any)\b", n):
+                keep("cold")
+                return say("cold_throat")
+            if re.search(r"\b(?:presentation|exam|interview|meeting|wedding|flight) (?:tomorrow|on \w+|tonight)\b|\btomorrow\b.*\b(?:presentation|exam|interview)\b", n) and "?" not in msg:
+                keep("cold")
+                return say("cold_present")
+            if tips or re.fullmatch(r"what (?:helps|can i do|should i take)(?: (?:fast|quickly|against it|for a cold))?", n):
+                keep("cold")
+                return say("cold_tips")
+        if topic == "wl":
+            if re.search(r"\b(?:go|going|went) to the gym\b|\btrain(?:ing)? (?:twice|two times|three times|\d times)\b|\b(?:twice|two times|three times) a week\b", n) and "?" not in msg:
+                keep("wl")
+                return say("wl_gym")
+            if re.fullmatch(r"(?:and |but |so )?what about (?:food|eating|my diet|diet|nutrition)|(?:and )?what should i eat|how should i eat", n):
+                keep("wl")
+                return say("wl_food")
+            if re.fullmatch(r"(?:and |so )?how (?:fast|quickly|long) (?:is realistic|can i lose it|will it take|does it take)|what'?s (?:a )?realistic(?: pace)?", n):
+                keep("wl")
+                return say("wl_speed")
+        return None
 
     def _daily_ctx27(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 113: a child who won't do homework, apartment hunting, how much to save, "do you ever get bored?",

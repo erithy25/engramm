@@ -3751,6 +3751,44 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: NQ 22/9; Suite 812 bestanden; Proben 109–112, Generisch und Held-out stehen bei 0. Wiederholungen
   5 von 700, Valenz 0 falsch. Test 113 hält 16 Gespräche fest.
+- **Probe 114: fünfte ungesehene Gesprächsprobe** (3. Oktober 2026): 8 englische und 6 deutsche Gespräche, einmal
+  vor jeder Anpassung gemessen; jede Antwort gelesen, ohne KI-Richter.
+  Themen: Fernbeziehung, aufgeschobene Steuererklärung, Gäste zum Essen mit einem Vegetarier, Erkältung vor einer
+  Präsentation, ältere Nachbarin, 5 Kilo abnehmen, Hitzewelle, schweres Videospiel.
+
+  | Stand | EN schwach (gelesen) | DE schwach (gelesen) |
+  |---|---|---|
+  | erster Lauf | 26 von 48 | 22 von 36 |
+  | nach b114 | 0 von 48 | 0 von 36 |
+
+  Gefundene Fehler (allgemein behoben):
+  - „i want to help her somehow“ und „i keep dying at the first boss“ wurden als Beruf gemerkt („somehow“, „boss“).
+    Ein Beruf wird nur noch gemerkt, wenn der Satz von Arbeit spricht („i'm a“, „work“, „job“, „as a“ …).
+  - „it's like 35 degrees“ wurde als Vorliebe gemerkt („you like 35 degrees“). Ein Füll-„like“ ist keine Vorliebe.
+  - Ein vegetarischer Gast wurde zum „vegan guest“.
+  - Deutsche Sätze ohne Umlaut wurden als Englisch erkannt („meine freundin wohnt in einem anderen land“ → „Oh? Go
+    on.“). Die Erkennungsliste hat 169 häufige deutsche Wörter dazubekommen; Wörter, die es auch im Englischen gibt
+    (will, war, hat, bin, also, fast, kind, im, am, er …), zählen weiterhin nicht dazu. „35 grad“ bleibt im
+    deutschen Gespräch Deutsch.
+  - „where to start“ und danach „any tips?“ gaben zweimal dieselbe Liste. Jetzt kommt zuerst ein kleiner erster
+    Schritt, die Liste erst danach.
+
+  Neu (Block b114, `_daily_ctx28`, `_german_ctx114`):
+  - Fernbeziehung.
+  - Steuererklärung.
+  - Erkältung mit Präsentation am nächsten Tag.
+  - Hilfe für die Nachbarin.
+  - Abnehmen: Sport, Ernährung, realistisches Tempo.
+  - Hitze: Temperatur, Schlaf, Abkühlen.
+  - Schwerer Boss in Elden Ring.
+  - Auf Deutsch zusätzlich: Gäste zum Essen mit Vegetarier.
+
+  Routine gegen b113: DEV-Satz unverändert. Beim ersten Lauf verdrängten Erkältung und Abnehmen bestehende, bessere
+  Abläufe (b38, b60, b61, b88; b38 mit einer Wiederholung). Erkältung und Abnehmen laufen jetzt in der späten Stufe
+  (`_daily_ctx28_late`, `_german_ctx114_late`). Übrig bleibt b38 mit einer gleichwertigen Antwort.
+
+  Messung: NQ 22/9; Suite 813 bestanden. Gesprächsproben 111–114, Generisch und Held-out stehen bei 0;
+  Wiederholungen 5 von 700, Valenz 0 falsch. Test 114 hält 13 Gespräche fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

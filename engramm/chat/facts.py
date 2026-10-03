@@ -664,11 +664,18 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
     if vcat == "#job" and value and set(value.lower().split()) & _NOT_A_JOB:
         vcat = None                      # "i'm a beginner": not an occupation, whatever the word typer says
         rel = [w for w in rel if w not in ("#job", "#work")]
+    if vcat == "#job" and not re.search(r"\b(?:i'?m|i am|im|she'?s|he'?s|they'?re|is|was|are|were|became|become|becoming|be|"
+                                         r"work|works|working|worked|job|jobs|profession|career|employed|trained|qualified|as)\b", " ".join(lw)):
+        vcat = None                      # "i keep dying at the first boss": a job word, but no sentence about a job
+        rel = [w for w in rel if w not in ("#job", "#work")]
     if vcat == "#job" and ("#fav" in rel or "#dislike" in rel or set(lw) & {"loves", "love", "likes", "like", "enjoys",
                                                                            "enjoy", "adores", "adore", "hates", "hate"}):
         vcat = None                      # "my sister loves art": a liking, not her job
     if vcat and (not has_category or vcat in rel):
         rel.append(vcat)
+    if "#fav" in rel and re.search(r"\b(?:it'?s|it is|its|that'?s|that is|was|feels|felt|looks|looked|sounds|seems|seemed) like\b|\blike (?:\d|a few|maybe|about|around)\b",
+                                   " ".join(lw)) and not re.search(r"\b(?:love|loves|favou?rite|enjoy|enjoys|i like|i really like|prefer)\b", " ".join(lw)):
+        rel = [w for w in rel if w != "#fav"]   # "it's like 35 degrees": a filler "like", no favourite
     # "My employer's name is X", "a company called X": the name of that thing, not your name
     if "#name" in rel and set(rel) & (CATEGORIES - {"#name"}) and subject == USER and \
             not re.search(r"\b(?:i am|call me|calls me|my name)\b", " ".join(lw)):
