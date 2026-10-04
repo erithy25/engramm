@@ -1626,7 +1626,7 @@ class Assistant:
             if re.search(r"\b(?:so hart|lange) (?:dafür )?gearbeitet\b|\bdarauf hingearbeitet\b", q) and not frage:
                 keep("promo")
                 return say("promo_hard")
-            if re.fullmatch(r"(?:und |also )?wie (?:soll|kann) ich (?:das )?feiern", q) or tipps:
+            if re.fullmatch(r"(?:und |also )?wie (?:soll|kann) ich (?:das )?feiern", q):
                 keep("promo")
                 return say("promo_celebrate")
         return None
@@ -9164,7 +9164,7 @@ class Assistant:
             if re.search(r"\b(?:worked|work) (?:so |really )?hard\b|\b(?:waited|wanted|been waiting) (?:for )?(?:this|it) (?:for )?(?:so long|years|ages|a long time)\b", n) and not q:
                 keep("promo")
                 return say("promo_hard")
-            if re.fullmatch(r"(?:so |and )?how (?:should|can|do) i celebrate|any (?:ideas|tips) (?:to|for) celebrat\w*|what should i do to celebrate", n) or (tips and topic == "promo"):
+            if re.fullmatch(r"(?:so |and )?how (?:should|can|do) i celebrate|any (?:ideas|tips) (?:to|for) celebrat\w*|what should i do to celebrate", n):
                 keep("promo")
                 return say("promo_celebrate")
         if topic == "drive":

@@ -4021,6 +4021,35 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: NQ 22/9; Suite 821 bestanden. Gesprächsproben 111–122 (mit 117b–122b), Generisch, Held-out, Follow und
   Stimmung stehen bei 0 (in 120/120b bleibt der bekannte Fehlalarm); Wiederholungen 5 von 700. Test 122 hält 14 Gespräche fest.
+- **Probe 123: vierzehnte ungesehene Gesprächsprobe** (4. Oktober 2026): 8 englische und 6 deutsche Gespräche, einmal
+  vor jeder Anpassung gemessen; jede Antwort gelesen, ohne KI-Richter. Umformulierungsprobe 123b nach den Anpassungen
+  geschrieben und einmal gemessen. Diesmal mit zwei erfreulichen Anlässen (Beförderung, Führerschein).
+  Themen: Betrugsanruf, Kind vom Rad gestürzt, Quaddeln nach neuem Produkt, Energienachzahlung, fremdes Auto auf dem
+  Stellplatz, Mitbewohner zieht aus, Beförderung, Führerschein.
+
+  | Stand | EN schwach (gelesen) | DE schwach (gelesen) |
+  |---|---|---|
+  | erster Lauf | 32 von 45 | 26 von 30 |
+  | nach b123 | 0 von 45 | 0 von 30 |
+  | Umformulierung 123b, erster Lauf nach b123 | 11 von 40 | 4 von 30 |
+  | Umformulierung 123b, nach Korrektur | 0 von 40 | 0 von 30 |
+
+  Im ersten Lauf zählen falsche Begrüßungen mit: „i just got a weird call from someone“ wurde als **Name** „Weird“
+  gemerkt, danach begannen alle Gespräche mit „Hi weird!“ (EN 4, DE 5 Begrüßungen).
+
+  Gefundene Fehler (allgemein behoben):
+  - „a weird call“, „a call from my mum“: „call“ als Hauptwort ist nie ein Name; „call me Max“ bleibt einer.
+  - Die Umformulierungsprobe zeigte eine zweite Betrugsmasche (angeblicher Microsoft-Support mit Fernzugriff); sie
+    bekommt eigene Schritte (Internet trennen, Passwort von einem anderen Gerät ändern), statt der Bank-Schritte.
+  - Ein bestehender Test fing ab, dass Feier-Ideen nach einer Beförderung Führungstipps („any tips?“) verdrängten;
+    Feier-Ideen gibt es jetzt nur auf die Feier-Frage.
+  - Der Lesefilter der Proben blendete eine Antwort mit „Warnsignal“ aus (Filter auf „Warn“); er filtert jetzt nur
+    echte Python-Warnungen.
+
+  Routine gegen b122 (073b163): DEV-Satz unverändert, alle 80 Batterieausgaben identisch.
+
+  Messung: NQ 22/9; Suite 822 bestanden. Gesprächsproben 111–123 (mit 117b–123b), Generisch, Held-out, Follow und
+  Stimmung stehen bei 0 (in 120/120b bleibt der bekannte Fehlalarm); Wiederholungen 5 von 700. Test 123 hält 14 Gespräche fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
