@@ -23,12 +23,13 @@ hyperdimensional vectors and counted linear models (averaged perceptrons).
 
 | | |
 |---|---|
-| Download | desktop installers built by CI (`.github/workflows/desktop.yml`); the knowledge pack is downloaded on first start after you agree, or used from a folder |
-| Memory use | lite pack (727 MB): **0.53 GB peak** for the whole server while chatting (container measurement, `docs/EXPECTATIONS.md` E28) |
-| Start | 2–4 s until ready (container) |
-| Knowledge | lead sections of the 400 000 (lite) most-referenced Wikipedia articles + a fact bank from DBpedia and Wikidata |
-| Languages | English; German v1 for small talk, feelings, memory, advice, recommendations and common fact questions |
-| Internet (v3.1, optional) | **off by default**; three channels you switch on one by one — full Wikipedia articles from a static "shelf" (whole buckets plus decoys, no server of ours), news feeds fetched on a schedule, and single web pages over Tor. **The text of your question never leaves the computer**: ENGRAMM searches locally and fetches whole buckets, feeds or pages — the shelf host sees bucket numbers only; a page fetched by the messenger tells its site (anonymously, over Tor) which page was read. Every fetch is listed in the app's network log. Design and honest residual risks: `docs/SPEC_ATLAS.md` |
+| Version | **3.1.0** (prerelease), newest build [**v3.1.0-beta.45**](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.45) — all builds: [Releases](https://github.com/erithy25/engramm/releases) |
+| Download | installers for macOS (Apple Silicon and Intel), Windows and Linux, see [Download and install](#download-and-install); the knowledge pack is downloaded on first start after you agree, or used from a folder |
+| Knowledge packs | **lite ≈ 1.25 GB** (lead sections of 400 000 Wikipedia articles, 150 000-entity fact bank, shelf index) · **standard 2.73 GB** (1.5 million article leads, 1 million-entity fact bank, full shelf index, wayfinder) — the plan's ceiling is 5 GB |
+| Memory and speed | lite: **555 MB peak**, p95 answer time 0.09 s, ready in ≈ 5 s · standard: **≈ 1.05 GB peak**, p95 0.17 s, ready in ≈ 9 s (container measurements; also under a hard 1.5 GiB memory limit without hitting it — real 4 GB hardware with a hard disk is still to be measured; `docs/EXPECTATIONS.md`) |
+| Languages | English; German for small talk, feelings, memory, advice, recommendations, everyday situations and common fact questions |
+| Internet (optional) | **off by default**; three channels you switch on one by one — full Wikipedia articles from a static "shelf" (6.37 million articles in 7 425 buckets; whole buckets plus decoys, no server of ours), news feeds fetched on a schedule, and single web pages over Tor. **The text of your question never leaves the computer**: ENGRAMM searches locally and fetches whole buckets, feeds or pages — the shelf host sees bucket numbers only; a page fetched by the messenger tells its site (anonymously, over Tor) which page was read. Every fetch is listed in the app's network log. Design and honest residual risks: `docs/SPEC_ATLAS.md` |
+| Everyday conversation | read-tested on unseen conversations (probes 111–124, EN and DE, every answer read by a person, no AI judge): weak answers on the first run, 0 after fixing each category — the honest number is the first run, which is still high for new topics (`docs/EXPECTATIONS.md`) |
 
 **Honest limits.** It is *not* as good as ChatGPT at open conversation, explanation or writing — the plan's
 own estimate for full parity is ≤ 3 %, and the blind comparison (ChatBench, `docs/PREREG_CHATBENCH.md`) needs
@@ -36,6 +37,35 @@ human raters and has not run yet. What it does better is measurable: sources, no
 forgetting, offline, deterministic. With internet access on, answers from fetched text name their source
 and date; when ENGRAMM is not sure of a short answer, it quotes the sentence instead of guessing
 (development measurements: `docs/EXPECTATIONS.md` E30; registered test: `docs/PREREG_SEARCH_V0.md`, not run yet).
+
+### Download and install
+
+Pick the installer for your system from the [newest release](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.45)
+(the builds are prereleases, so GitHub's "latest" link does not show them):
+
+| System | File |
+|---|---|
+| macOS, Apple Silicon (M1 and newer) | `ENGRAMM_3.1.0_aarch64.dmg` |
+| macOS, Intel | `ENGRAMM_3.1.0_x64.dmg` |
+| Windows 10/11 | `ENGRAMM_3.1.0_x64-setup.exe` or `ENGRAMM_3.1.0_x64_en-US.msi` |
+| Linux (Debian, Ubuntu 22.04+) | `ENGRAMM_3.1.0_amd64.deb` |
+| Linux (Fedora, openSUSE) | `ENGRAMM-3.1.0-1.x86_64.rpm` |
+
+```bash
+# macOS (Apple Silicon; Intel: x64 instead of aarch64)
+V=v3.1.0-beta.45; curl -LO https://github.com/erithy25/engramm/releases/download/$V/ENGRAMM_3.1.0_aarch64.dmg
+# Linux (Debian/Ubuntu)
+V=v3.1.0-beta.45; curl -LO https://github.com/erithy25/engramm/releases/download/$V/ENGRAMM_3.1.0_amd64.deb && sudo apt install ./ENGRAMM_3.1.0_amd64.deb
+```
+
+- On first start the app asks before downloading the lite (≈ 1.25 GB) or standard (≈ 2.7 GB) pack. Offline
+  alternative: unzip `engramm-pack-lite.zip` from the release and choose the folder in the app.
+- The builds are not signed by Apple or Microsoft yet. macOS: open the app once, click "Done", then System
+  Settings → Privacy & Security → "Open Anyway". Windows: SmartScreen → "More info" → "Run anyway".
+- Check the download against `SHA256SUMS.txt` in the release.
+- Updating: install the new version over the old one; your memory and the pack stay. To remove everything,
+  delete the app and its data folder (`~/Library/Application Support/com.engramm.chat` on macOS,
+  `%APPDATA%\com.engramm.chat` on Windows, `~/.local/share/com.engramm.chat` on Linux).
 
 Build it yourself: `runtime/README.md`. Architecture: `docs/SPEC_CHAT_V3.md`. Data licences: `docs/DATA_LICENSES.md`.
 
@@ -188,9 +218,12 @@ A chat window in the style of ChatGPT, on top of the ENGRAMM chat system. It has
 - light and dark themes, and a layout for phones.
 
 ```bash
-python -m engramm.app          # website: opens http://127.0.0.1:8770 (loads in the background, ~1 min)
-cd desktop && npm install && npm start     # desktop app (Electron), see desktop/README.md
+python -m engramm.app --pack DIR   # local website: opens http://127.0.0.1:8770
 ```
+
+The desktop app is a Tauri 2 app (`runtime/app`, Rust core in `runtime/core`, the Python server frozen as a
+sidecar); installers come from the release workflow (see [Download and install](#download-and-install)). The
+older Electron shell in `desktop/` is kept for reference only.
 
 The logo (`engramm/app/web/logo.svg`) draws the E as a memory trace. It is also the app icon.
 
@@ -419,11 +452,28 @@ The rebuild is also a re-scoping. The research questions:
    claim (HDC adds ≥ 2 %) **refuted**; exact forgetting and the writing mode
    **met**.
 
+6. **ENGRAMM Chat v3 — the desktop assistant** — *released as prereleases* (v3.0 betas): conversation layer,
+   knowledge packs, Rust core, Tauri app with installers for macOS, Windows and Linux, German.
+7. **ENGRAMM Atlas (v3.1) — private web knowledge without a server** — *built*: one network gate with a per-fetch
+   log, the shelf (whole Wikipedia, 6.37 million articles), feeds, wayfinder and messenger over Tor, two-step
+   search with source and date per answer, packs measured at 1.25 and 2.73 GB. Open: checking several sources
+   against each other and showing contradictions, comparison tables and rankings from the fact bank, the
+   signing key for the shelf manifest, and the registered SearchBench test (`docs/PREREG_SEARCH_V0.md`), which
+   needs 400 human-written questions and human raters.
+8. **Next: understanding situations instead of hand-written topics** — a general situation parser (open
+   lexicons such as WordNet and FrameNet, the existing parser), answers composed from conversation moves,
+   how-to steps extracted from freely licensed texts with their source, and learning on the user's own computer
+   from corrections and reactions — still without a neural network, still offline and under 5 GB. Measured on
+   unseen conversations before any tuning; the plan is preregistered before work starts.
+
 Still open, all on the reference machine or with people:
 
 - confirming the accuracy figures bit-identically on the M4, and measuring energy there;
 - the human reading panel, with 3 readers × 60 pairs. The form is
-  [`results/lm/p6_panel_form.md`](results/lm/p6_panel_form.md).
+  [`results/lm/p6_panel_form.md`](results/lm/p6_panel_form.md);
+- the blind comparisons that need people: ChatBench (`docs/PREREG_CHATBENCH.md`) and SearchBench
+  (`docs/PREREG_SEARCH_V0.md`);
+- a measurement on real 4 GB hardware with a hard disk.
 
 ## Method
 
@@ -499,8 +549,25 @@ docs/                    design documents (D1–D8, partly fragmentary), SPEC_RE
                          SPEC_LM, PROTOCOL, EXPECTATIONS, DEVIATIONS, PREREG_ROBUSTNESS,
                          PREREG_LM, PREREG_LM_V2, audit
 docs/archive/edit-logs/  the Claude Code edit logs the recovery was reconstructed from
+engramm/chat/            the chat assistant: dialogue, conversation bank (built from data/conv/*.yaml with
+                         python -m engramm.chat.studio build), facts and exact forgetting, retrieval,
+                         answer extraction, German
+engramm/nlp/             POS tagger, dependency parser, intent classifier, speller (averaged perceptrons)
+engramm/kb/              fact bank (kb.sqlite) and its question answering
+engramm/web/             ENGRAMM Atlas: network gate, shelf client, feeds, wayfinder, page cleaning, signatures
+engramm/app/             the local server the app talks to, and the website version
+engramm/bench/           ChatBench and SearchBench tooling
+runtime/                 desktop app: Rust core (runtime/core, egress, Tor), Tauri app (runtime/app), sidecar
+ui/                      the React/Vite/TypeScript chat interface
+site/                    the project website
+release/                 release requests (request.json starts a release build)
+scripts/                 pack building and signing
+desktop/                 the older Electron shell; reference only
 legacy/                  recovered code fragments; reference only
 ```
+
+Further documents: `docs/SPEC_CHAT_V3.md`, `docs/SPEC_ATLAS.md`, `docs/DATA_LICENSES.md`, the
+preregistrations `docs/PREREG_*.md`, and every measurement in `docs/EXPECTATIONS.md`.
 
 ## License
 
