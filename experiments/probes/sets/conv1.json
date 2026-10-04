@@ -1,0 +1,179 @@
+{
+ "name": "conv1",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hey",
+    "not much, just got home from work",
+    "pretty tiring tbh, my boss was in a bad mood all day",
+    "yeah he snapped at me in a meeting",
+    "i think i'll just order pizza and watch something",
+    "any show recommendations?",
+    "i've seen that one already",
+    "ok thanks, good night"
+   ],
+   [
+    "hi there",
+    "can you help me plan my weekend?",
+    "i want to do something outdoors",
+    "maybe hiking but it might rain",
+    "what could i do indoors then?",
+    "bouldering sounds fun actually",
+    "have you ever tried it?",
+    "haha fair enough"
+   ],
+   [
+    "morning",
+    "i slept terribly",
+    "my neighbours were partying until 3",
+    "should i say something to them?",
+    "they're usually nice though",
+    "ok i'll talk to them later",
+    "thanks"
+   ],
+   [
+    "hello",
+    "my sister is getting married next month",
+    "i have to give a speech and i'm freaking out",
+    "i'm not good at public speaking",
+    "can you help me write it?",
+    "her name is anna and her fiance is tom",
+    "they met at university",
+    "that's lovely, thank you"
+   ],
+   [
+    "yo",
+    "i'm so bored",
+    "nah i don't feel like reading",
+    "tell me a joke then",
+    "lol another one",
+    "ok what should i cook tonight?",
+    "i have rice, eggs and some vegetables",
+    "sounds good"
+   ],
+   [
+    "hi",
+    "i got a promotion today!!",
+    "team lead",
+    "a bit scared honestly, i've never managed people",
+    "any tips?",
+    "that makes sense",
+    "thanks, i feel better"
+   ],
+   [
+    "hey",
+    "my dog is sick",
+    "he's not eating since yesterday",
+    "he's 12",
+    "the vet is closed until monday",
+    "ok i'll call the emergency vet",
+    "thank you"
+   ],
+   [
+    "hi",
+    "what's the capital of australia?",
+    "really? i thought it was sydney",
+    "how many people live there?",
+    "and what about sydney?",
+    "cool, thanks"
+   ],
+   [
+    "hello",
+    "i want to start running",
+    "i'm completely out of shape",
+    "how often should i run?",
+    "what about shoes?",
+    "great, i'll start tomorrow"
+   ],
+   [
+    "hi",
+    "i feel kind of lonely lately",
+    "i moved to a new city two months ago",
+    "i don't really know anyone here",
+    "work is fine but it's all remote",
+    "maybe a running club could work",
+    "thanks for listening"
+   ]
+  ],
+  "de": [
+   [
+    "hey",
+    "nicht viel, bin gerade von der arbeit gekommen",
+    "ziemlich anstrengend, mein chef war den ganzen tag schlecht gelaunt",
+    "ich glaub ich bestell mir pizza und schau was",
+    "hast du eine serienempfehlung?",
+    "kenn ich schon",
+    "ok danke, gute nacht"
+   ],
+   [
+    "hallo",
+    "kannst du mir helfen, mein wochenende zu planen?",
+    "ich will was draußen machen",
+    "vielleicht wandern, aber es soll regnen",
+    "was kann ich drinnen machen?",
+    "bouldern klingt gut",
+    "danke dir"
+   ],
+   [
+    "moin",
+    "ich hab total schlecht geschlafen",
+    "die nachbarn haben bis 3 party gemacht",
+    "soll ich was sagen?",
+    "eigentlich sind die ganz nett",
+    "ok ich red später mit denen",
+    "danke"
+   ],
+   [
+    "hi",
+    "ich hab heute eine beförderung bekommen!",
+    "teamleiter",
+    "ein bisschen angst hab ich schon, ich hab noch nie leute geführt",
+    "hast du tipps?",
+    "danke, das hilft"
+   ],
+   [
+    "hallo",
+    "mein hund ist krank",
+    "er frisst seit gestern nicht",
+    "er ist 12",
+    "der tierarzt hat erst montag wieder auf",
+    "ok ich ruf den notdienst an",
+    "danke"
+   ],
+   [
+    "hi",
+    "was ist die hauptstadt von australien?",
+    "echt? ich dachte sydney",
+    "wie viele leute wohnen da?",
+    "cool, danke"
+   ],
+   [
+    "hallo",
+    "ich will mit dem laufen anfangen",
+    "ich bin total unsportlich",
+    "wie oft sollte ich laufen?",
+    "und welche schuhe?",
+    "super, ich fang morgen an"
+   ],
+   [
+    "hey",
+    "ich fühl mich in letzter zeit einsam",
+    "ich bin vor zwei monaten in eine neue stadt gezogen",
+    "ich kenn hier niemanden",
+    "die arbeit ist nur remote",
+    "danke fürs zuhören"
+   ],
+   [
+    "na",
+    "mir ist so langweilig",
+    "nee, kein bock zu lesen",
+    "erzähl mir einen witz",
+    "noch einer",
+    "was soll ich heute kochen?",
+    "ich hab reis, eier und gemüse",
+    "klingt gut"
+   ]
+  ]
+ }
+}

@@ -1,0 +1,133 @@
+{
+ "name": "conv15b",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hey",
+    "my boyfriend asked me to marry him!",
+    "he got down on one knee at dinner",
+    "the ring is gorgeous",
+    "how do we even start planning a wedding?",
+    "cool, thanks"
+   ],
+   [
+    "hi",
+    "i'm pregnant!",
+    "it's our first",
+    "i'm about 10 weeks",
+    "honestly i'm a bit overwhelmed",
+    "when is a good time to tell my boss?",
+    "thank you"
+   ],
+   [
+    "hello",
+    "i got stung by a bee",
+    "the stinger is still in my arm",
+    "how do i get it out?",
+    "it's itchy now",
+    "thanks a lot"
+   ],
+   [
+    "hi",
+    "my tyre just burst on the motorway",
+    "i pulled onto the hard shoulder",
+    "i don't know how to change it",
+    "what now?",
+    "alright, i'll wait for the breakdown service"
+   ],
+   [
+    "hey",
+    "my ceiling is leaking",
+    "there's water coming from the apartment above",
+    "they're not home",
+    "help",
+    "thanks, i called the property manager"
+   ],
+   [
+    "hi",
+    "i knocked a cup of tea onto my keyboard",
+    "the laptop still works",
+    "will it survive?",
+    "i switched it off now",
+    "i hope so"
+   ],
+   [
+    "hello",
+    "i ran my first marathon yesterday",
+    "finished in just under 5 hours",
+    "everything hurts today",
+    "any recovery tips?",
+    "thanks!"
+   ],
+   [
+    "hey",
+    "my friend has been ghosting me",
+    "it's been about a month",
+    "maybe i upset him",
+    "what should i say to him?",
+    "ok, i'll text him tonight"
+   ]
+  ],
+  "de": [
+   [
+    "hey",
+    "wir sind jetzt verlobt!",
+    "er ist beim abendessen auf die knie gegangen",
+    "wie fangen wir mit der planung der hochzeit an?",
+    "cool, danke"
+   ],
+   [
+    "hi",
+    "ich bin schwanger!",
+    "ich bin in der zehnten woche",
+    "ich hab ehrlich gesagt ein bisschen angst",
+    "wann sag ich es meinem chef?",
+    "danke dir"
+   ],
+   [
+    "hallo",
+    "ich wurde von einer biene gestochen",
+    "der stachel steckt noch im arm",
+    "was hilft?",
+    "danke"
+   ],
+   [
+    "hi",
+    "mein reifen ist auf der autobahn geplatzt",
+    "ich steh auf dem standstreifen",
+    "ich weiß nicht, wie man den wechselt",
+    "ok, ich warte auf den adac"
+   ],
+   [
+    "hey",
+    "ich hab einen wasserschaden, es tropft von der decke",
+    "die nachbarn oben sind nicht da",
+    "was mach ich jetzt?",
+    "danke, ich hab die hausverwaltung angerufen"
+   ],
+   [
+    "hi",
+    "mir ist tee über die tastatur vom laptop gelaufen",
+    "der laptop läuft noch",
+    "ich hab ihn ausgeschaltet",
+    "hoffentlich überlebt er das"
+   ],
+   [
+    "hallo",
+    "ich hab meinen ersten marathon geschafft!",
+    "ich hab knapp fünf stunden gebraucht",
+    "ich hab so einen muskelkater",
+    "hast du tipps zur erholung?",
+    "danke!"
+   ],
+   [
+    "hey",
+    "mein bester freund meldet sich seit einem monat nicht mehr",
+    "vielleicht hab ich ihn verletzt",
+    "was soll ich ihm schreiben?",
+    "ok, ich schreib ihm heute abend"
+   ]
+  ]
+ }
+}

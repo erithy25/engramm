@@ -1,0 +1,122 @@
+{
+ "name": "conv8",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hi",
+    "i locked myself out of my apartment",
+    "my keys are inside",
+    "it's 11pm",
+    "should i call a locksmith?",
+    "ok, my neighbour has a spare key actually"
+   ],
+   [
+    "hey",
+    "i got a terrible haircut today",
+    "it's way too short",
+    "i have a wedding on saturday",
+    "will it grow back in time?",
+    "haha ok thanks"
+   ],
+   [
+    "hello",
+    "i forgot my best friend's birthday",
+    "it was yesterday",
+    "i feel awful",
+    "how do i make it up to her?",
+    "good idea, i'll do that"
+   ],
+   [
+    "hi",
+    "i have a really bad toothache",
+    "it's been two days",
+    "it hurts when i drink something cold",
+    "can i wait until monday?",
+    "ok i'll call the dentist"
+   ],
+   [
+    "hey",
+    "our washing machine just broke",
+    "it's leaking water everywhere",
+    "it's 8 years old",
+    "repair or buy a new one?",
+    "makes sense, thanks"
+   ],
+   [
+    "hi",
+    "i want to quit smoking",
+    "i smoke about 10 a day",
+    "i tried before and failed",
+    "what actually helps?",
+    "ok i'll set a date"
+   ],
+   [
+    "hello",
+    "i keep procrastinating on my thesis",
+    "the deadline is in six weeks",
+    "i just watch youtube instead",
+    "how do i start?",
+    "thanks, i'll try that"
+   ],
+   [
+    "hey",
+    "my new roommate is really messy",
+    "dishes everywhere",
+    "i don't want to start a fight",
+    "how do i bring it up?",
+    "ok thanks"
+   ]
+  ],
+  "de": [
+   [
+    "hi",
+    "ich hab mich ausgesperrt",
+    "der schlüssel liegt drinnen",
+    "es ist 23 uhr",
+    "soll ich den schlüsseldienst rufen?",
+    "ok, die nachbarin hat zum glück einen ersatzschlüssel"
+   ],
+   [
+    "hey",
+    "ich war beim friseur und es ist total misslungen",
+    "viel zu kurz",
+    "am samstag ist eine hochzeit",
+    "wächst das bis dahin nach?",
+    "haha ok danke"
+   ],
+   [
+    "hallo",
+    "ich hab den geburtstag meiner besten freundin vergessen",
+    "der war gestern",
+    "ich fühl mich schrecklich",
+    "wie mach ich das wieder gut?",
+    "gute idee"
+   ],
+   [
+    "hi",
+    "ich hab starke zahnschmerzen",
+    "seit zwei tagen",
+    "bei kaltem trinken tut es weh",
+    "kann ich bis montag warten?",
+    "ok ich ruf beim zahnarzt an"
+   ],
+   [
+    "hey",
+    "unsere waschmaschine ist kaputt",
+    "sie läuft aus",
+    "sie ist acht jahre alt",
+    "reparieren oder neu kaufen?",
+    "danke"
+   ],
+   [
+    "hallo",
+    "ich will mit dem rauchen aufhören",
+    "ich rauche so zehn am tag",
+    "ich hab es schon mal versucht",
+    "was hilft wirklich?",
+    "ok, ich setz mir ein datum"
+   ]
+  ]
+ }
+}

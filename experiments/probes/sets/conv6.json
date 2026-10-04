@@ -1,0 +1,117 @@
+{
+ "name": "conv6",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hi",
+    "my son has his first big test tomorrow",
+    "he's really anxious",
+    "he says his stomach hurts",
+    "what can i say to him?",
+    "thanks, that's sweet"
+   ],
+   [
+    "hey",
+    "we're moving next month",
+    "i have so much stuff",
+    "i don't know where to start packing",
+    "any tips?",
+    "ok, one room at a time"
+   ],
+   [
+    "hello",
+    "we just got engaged!",
+    "we want a small wedding",
+    "maybe 40 guests",
+    "where do we even start?",
+    "thank you so much"
+   ],
+   [
+    "hi",
+    "a colleague keeps taking credit for my work",
+    "it happened again in today's meeting",
+    "i'm so angry",
+    "should i talk to my boss?",
+    "ok i'll talk to her first"
+   ],
+   [
+    "hey",
+    "our puppy keeps biting everything",
+    "she's 3 months old",
+    "my hands are full of scratches",
+    "how do i stop it?",
+    "thanks!"
+   ],
+   [
+    "hi",
+    "i want to learn how to cook",
+    "i can only make pasta",
+    "what should i learn first?",
+    "ok i'll try that this week"
+   ],
+   [
+    "hello",
+    "my bike has a flat tire",
+    "i've never fixed one",
+    "is it hard?",
+    "ok i'll give it a go"
+   ],
+   [
+    "hey",
+    "what kind of music do you like?",
+    "i love jazz",
+    "any jazz albums you'd recommend?",
+    "nice, i'll check it out"
+   ]
+  ],
+  "de": [
+   [
+    "hi",
+    "mein sohn schreibt morgen seine erste große arbeit",
+    "er hat total angst",
+    "er sagt ihm ist schlecht",
+    "was kann ich ihm sagen?",
+    "danke"
+   ],
+   [
+    "hey",
+    "wir ziehen nächsten monat um",
+    "ich hab so viel zeug",
+    "ich weiß nicht wo ich mit dem packen anfangen soll",
+    "hast du tipps?",
+    "ok, ein zimmer nach dem anderen"
+   ],
+   [
+    "hallo",
+    "wir haben uns gerade verlobt!",
+    "wir wollen eine kleine hochzeit",
+    "vielleicht 40 gäste",
+    "wo fangen wir an?",
+    "danke dir"
+   ],
+   [
+    "hi",
+    "ein kollege gibt meine arbeit als seine aus",
+    "heute im meeting schon wieder",
+    "ich bin so wütend",
+    "soll ich mit meinem chef reden?",
+    "ok"
+   ],
+   [
+    "hey",
+    "unser welpe beißt ständig",
+    "sie ist 3 monate alt",
+    "wie gewöhne ich ihr das ab?",
+    "danke!"
+   ],
+   [
+    "hallo",
+    "mein fahrrad hat einen platten",
+    "ich hab sowas noch nie repariert",
+    "ist das schwer?",
+    "ok ich probier's"
+   ]
+  ]
+ }
+}

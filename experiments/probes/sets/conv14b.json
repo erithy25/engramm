@@ -1,0 +1,108 @@
+{
+ "name": "conv14b",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hey",
+    "someone called me pretending to be from microsoft",
+    "they wanted remote access to my laptop",
+    "i gave them my password",
+    "what should i do now?",
+    "ok, i'll change it right away"
+   ],
+   [
+    "hi",
+    "my daughter came off her scooter",
+    "she grazed both elbows",
+    "what should i put on it?",
+    "she's fine now"
+   ],
+   [
+    "hello",
+    "i broke out in a rash",
+    "it's after using a new detergent",
+    "should i see a doctor?",
+    "i'll throw it away"
+   ],
+   [
+    "hi",
+    "my gas bill is way higher than expected",
+    "it's a shock",
+    "what can i do?",
+    "i'll call them about a payment plan"
+   ],
+   [
+    "hey",
+    "a neighbour keeps parking in my driveway",
+    "it belongs to me",
+    "can i have it towed?",
+    "ok, i'll talk to my landlord"
+   ],
+   [
+    "hi",
+    "my roommate is leaving at the end of the month",
+    "the rent is too expensive on my own",
+    "where can i find someone?",
+    "thanks"
+   ],
+   [
+    "hello",
+    "i got the promotion!",
+    "i've been waiting for this for years",
+    "any ideas to celebrate?",
+    "thanks"
+   ],
+   [
+    "hey",
+    "i got my driver's license today",
+    "i was terrified during the test",
+    "thanks"
+   ]
+  ],
+  "de": [
+   [
+    "hey",
+    "jemand hat angerufen, angeblich von der bank",
+    "die wollten meine pin",
+    "war das echt?",
+    "ok, ich ruf die bank an"
+   ],
+   [
+    "hi",
+    "meine kleine ist mit dem roller gestürzt",
+    "sie hat sich das knie aufgeschlagen",
+    "wie versorge ich das?",
+    "danke"
+   ],
+   [
+    "hallo",
+    "ich hab einen ausschlag bekommen",
+    "ich hab ein neues waschmittel benutzt",
+    "muss ich zum arzt?",
+    "danke"
+   ],
+   [
+    "hi",
+    "ich hab eine hohe nebenkostennachzahlung bekommen",
+    "so viel hab ich nicht erwartet",
+    "was kann ich tun?",
+    "ok, ich frag nach raten"
+   ],
+   [
+    "hey",
+    "ein nachbar parkt immer in meiner einfahrt",
+    "das ist mein eigener platz",
+    "darf ich abschleppen lassen?",
+    "danke"
+   ],
+   [
+    "hallo",
+    "ich hab die beförderung bekommen!",
+    "ich hab so hart dafür gearbeitet",
+    "wie kann ich das feiern?",
+    "danke!"
+   ]
+  ]
+ }
+}

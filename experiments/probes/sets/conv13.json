@@ -1,0 +1,116 @@
+{
+ "name": "conv13",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hi",
+    "i found a tick on my leg",
+    "it's still stuck in my skin",
+    "how do i get it out?",
+    "should i see a doctor?",
+    "ok thanks"
+   ],
+   [
+    "hey",
+    "i have a terrible migraine",
+    "light makes it worse",
+    "i get them every few weeks",
+    "what helps?",
+    "thanks, i'll lie down in the dark"
+   ],
+   [
+    "hello",
+    "my neighbour's dog barks all day",
+    "i work from home",
+    "it drives me crazy",
+    "how do i bring it up with them?",
+    "ok, i'll leave a friendly note"
+   ],
+   [
+    "hi",
+    "my old landlord won't give back my deposit",
+    "i moved out three months ago",
+    "the flat was spotless",
+    "what can i do?",
+    "ok, i'll send him a letter"
+   ],
+   [
+    "hey",
+    "i sat on my glasses and broke them",
+    "i can barely see without them",
+    "i don't have a spare pair",
+    "what should i do?",
+    "good idea, thanks"
+   ],
+   [
+    "hi",
+    "i want to sell my car",
+    "it's a 2015 golf",
+    "how do i figure out the price?",
+    "should i sell it privately or to a dealer?",
+    "thanks"
+   ],
+   [
+    "hello",
+    "my son keeps lying to me",
+    "he's eight",
+    "it's about small things like homework",
+    "how should i react?",
+    "thank you"
+   ],
+   [
+    "hey",
+    "i got called for jury duty",
+    "i've never done it before",
+    "what happens?",
+    "ok, sounds interesting actually"
+   ]
+  ],
+  "de": [
+   [
+    "hi",
+    "ich hab eine zecke am bein",
+    "die steckt noch fest",
+    "wie krieg ich die raus?",
+    "muss ich zum arzt?",
+    "danke"
+   ],
+   [
+    "hey",
+    "ich hab eine heftige migräne",
+    "licht macht es schlimmer",
+    "was hilft?",
+    "danke, ich leg mich hin"
+   ],
+   [
+    "hallo",
+    "der hund vom nachbarn bellt den ganzen tag",
+    "ich arbeite im homeoffice",
+    "wie spreche ich das an?",
+    "ok, ich schreib einen netten zettel"
+   ],
+   [
+    "hi",
+    "mein alter vermieter gibt die kaution nicht zurück",
+    "ich bin vor drei monaten ausgezogen",
+    "was kann ich tun?",
+    "ok, ich schreib ihm"
+   ],
+   [
+    "hey",
+    "ich hab mich auf meine brille gesetzt",
+    "ohne seh ich kaum was",
+    "was soll ich machen?",
+    "danke"
+   ],
+   [
+    "hallo",
+    "mein sohn lügt mich ständig an",
+    "er ist acht",
+    "wie soll ich reagieren?",
+    "danke"
+   ]
+  ]
+ }
+}

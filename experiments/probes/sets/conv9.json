@@ -1,0 +1,122 @@
+{
+ "name": "conv9",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hi",
+    "there's mould in our bathroom",
+    "it's black and in the corners of the ceiling",
+    "we shower twice a day",
+    "how do i get rid of it?",
+    "ok, i'll buy some mould spray"
+   ],
+   [
+    "hey",
+    "i got really sunburnt yesterday",
+    "my shoulders are bright red",
+    "it hurts to wear a shirt",
+    "what helps?",
+    "thanks, i'll get some aloe vera"
+   ],
+   [
+    "hello",
+    "i'm so hungover",
+    "we went out for a friend's birthday",
+    "my head is pounding",
+    "any tips?",
+    "lol never again"
+   ],
+   [
+    "hi",
+    "i just got back from japan",
+    "the jet lag is killing me",
+    "i was awake at 4am",
+    "how long does it last?",
+    "ok i'll try to stay up until 10"
+   ],
+   [
+    "hey",
+    "i didn't get the job",
+    "i was in the final round",
+    "they chose someone with more experience",
+    "i really wanted it",
+    "thanks, that helps a bit"
+   ],
+   [
+    "hi",
+    "my friend owes me 300 euros",
+    "it's been six months",
+    "every time i ask he changes the subject",
+    "how do i bring it up without ruining the friendship?",
+    "ok, i'll talk to him this weekend"
+   ],
+   [
+    "hello",
+    "my toddler won't sleep",
+    "she's two",
+    "she screams every time we leave the room",
+    "we're exhausted",
+    "what can we try?",
+    "thanks, we'll try that"
+   ],
+   [
+    "hey",
+    "my car won't start",
+    "it just clicks when i turn the key",
+    "the lights are really dim",
+    "is it the battery?",
+    "ok, my neighbour has jumper cables"
+   ]
+  ],
+  "de": [
+   [
+    "hi",
+    "wir haben schimmel im bad",
+    "der ist schwarz, oben in den ecken",
+    "wir duschen zweimal am tag",
+    "wie werde ich den los?",
+    "ok, ich kauf ein schimmelspray"
+   ],
+   [
+    "hey",
+    "ich hab einen heftigen sonnenbrand",
+    "die schultern sind knallrot",
+    "was hilft?",
+    "danke"
+   ],
+   [
+    "hallo",
+    "ich hab so einen kater",
+    "wir waren gestern auf einem geburtstag",
+    "mein kopf dröhnt",
+    "hast du tipps?",
+    "nie wieder alkohol"
+   ],
+   [
+    "hi",
+    "ich hab die stelle nicht bekommen",
+    "ich war in der letzten runde",
+    "die haben jemanden mit mehr erfahrung genommen",
+    "ich wollte den job wirklich",
+    "danke, das hilft ein bisschen"
+   ],
+   [
+    "hey",
+    "ein freund schuldet mir 300 euro",
+    "seit sechs monaten",
+    "jedes mal wechselt er das thema",
+    "wie spreche ich das an?",
+    "ok, ich red am wochenende mit ihm"
+   ],
+   [
+    "hallo",
+    "mein auto springt nicht an",
+    "es klickt nur",
+    "das licht ist ganz schwach",
+    "ist das die batterie?",
+    "ok, mein nachbar hat ein starthilfekabel"
+   ]
+  ]
+ }
+}

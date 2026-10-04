@@ -1,0 +1,457 @@
+"""Situation frames: what happened, to whom, with what — read from one chat message (English or German).
+
+The frame is general: it is built from the situation lexicon (engramm/understand/lex.py: WordNet classes, FrameNet
+evidence) and a handful of syntactic patterns (possessives, copula + state word, "doesn't work", questions), never
+from a list of conversation topics. A message about a cracked tablet screen, a burst pipe or a bitten finger gets a
+frame although no line of code names tablets, pipes or fingers.
+
+    Frame.kind    DAMAGE INJURY ILLNESS LOSS THEFT CONFLICT FAILURE MONEY DELAY WORRY SUCCESS MILESTONE ACQUIRE
+                  DEATH FEEL_NEG FEEL_POS PLAN ACTIVITY or "" (no situation)
+    Frame.who     me / child / partner / relative / friend / pet / colleague / other   (whom it happened to)
+    Frame.obj     the main thing (lemma), Frame.obj_cats its categories, Frame.body a body part
+    Frame.cause   an animal or person that caused it ("a wasp stung me")
+    Frame.ask     what a question asks: what_do / how / should / is_bad / when / why / can / yesno / opinion
+
+The frame classifier is rule-scored here; engramm/learn/ adjusts its weights from the user's corrections.
+"""
+from __future__ import annotations
+
+import re
+from dataclasses import dataclass, field
+
+from engramm.understand.lex import Entry, lexicon
+
+# ---- function words (never looked up in the lexicon) ------------------------------------------------------------
+_STOP_EN = set("""a an the this that these those my your his her its our their me i we you he she it they them us him
+some any no not never very really so too just also only even still yet again already of in on at to for from with by
+about into onto over under out up down off and or but if because when while as than then there here what which who whom
+whose where why how is am are was were be been being do does did have has had will would shall should can could may
+might must ok okay oh hey hi hello yeah yes well um uh lol haha omg pls please like got get gets getting""".split())
+_STOP_DE = set("""der die das den dem des ein eine einen einem einer eines mein meine meinen meinem meiner meines dein
+deine deinen deinem deiner sein seine seinen seinem seiner ihr ihre ihren ihrem ihrer unser unsere unseren ich du er sie
+es wir ihr mich mir dich dir uns euch ihn ihm ihnen man nicht nie kein keine keinen sehr so zu auch nur noch schon
+wieder gerade eben mal halt doch ja nein und oder aber wenn weil als dass ob dann da hier was wer wen wem wie wo warum
+wann welche welcher welches ist bin bist sind war waren sein habe hab hast hat haben hatte hatten wird werde werden
+würde kann kannst können konnte soll sollte sollen muss musst müssen darf will willst wollen von vom zum zur im am an
+auf aus bei mit nach seit über unter vor durch für gegen ohne um bis ok okay hey hi hallo na also echt total voll
+ganz einfach jetzt heute gestern morgen""".split())
+
+_PERSON_EN = {
+    "child": "son daughter kid kids child children baby toddler boy girl little one",
+    "partner": "wife husband girlfriend boyfriend partner fiance fiancee spouse",
+    "relative": "mom mum mother dad father parents brother sister grandma grandpa grandmother grandfather aunt uncle "
+                "cousin niece nephew family",
+    "friend": "friend friends bestie mate buddy roommate flatmate housemate neighbour neighbor",
+    "colleague": "boss colleague coworker co-worker manager teacher landlord client customer",
+    "pet": "dog cat puppy kitten pet rabbit hamster bird horse",
+}
+_PERSON_DE = {
+    "child": "sohn tochter kind kinder baby kleiner kleine junge mädchen",
+    "partner": "frau mann freundin freund partner partnerin verlobter verlobte",
+    "relative": "mama mutter papa vater eltern bruder schwester oma opa großmutter großvater tante onkel cousin cousine "
+                "nichte neffe familie",
+    "friend": "kumpel mitbewohner mitbewohnerin nachbar nachbarin bekannte bekannter",
+    "colleague": "chef chefin kollege kollegin vorgesetzter lehrer lehrerin vermieter vermieterin kunde kundin",
+    "pet": "hund katze welpe kätzchen haustier hase hamster vogel pferd",
+}
+_PRON_EN = {"son": "he", "boy": "he", "husband": "he", "boyfriend": "he", "dad": "he", "father": "he", "brother": "he",
+            "grandpa": "he", "grandfather": "he", "uncle": "he", "nephew": "he", "fiance": "he", "boss": "they",
+            "daughter": "she", "girl": "she", "wife": "she", "girlfriend": "she", "mom": "she", "mum": "she",
+            "mother": "she", "sister": "she", "grandma": "she", "grandmother": "she", "aunt": "she", "niece": "she",
+            "fiancee": "she"}
+_PRON_DE = {"sohn": "er", "junge": "er", "mann": "er", "freund": "er", "papa": "er", "vater": "er", "bruder": "er",
+            "opa": "er", "großvater": "er", "onkel": "er", "neffe": "er", "kleiner": "er", "kumpel": "er",
+            "chef": "er", "kollege": "er", "nachbar": "er", "vermieter": "er", "hund": "er", "welpe": "er",
+            "tochter": "sie", "mädchen": "sie", "frau": "sie", "freundin": "sie", "mama": "sie", "mutter": "sie",
+            "schwester": "sie", "oma": "sie", "großmutter": "sie", "tante": "sie", "nichte": "sie", "kleine": "sie",
+            "chefin": "sie", "kollegin": "sie", "nachbarin": "sie", "katze": "sie"}
+
+# general state words and patterns (no topics): broken things, bodies, feelings
+_BROKEN_EN = re.compile(r"\b(?:does not|doesn't|do not|won't|will not|wont|isn't|is not|can't|cannot|can not) "
+                        r"(?:work|start|turn on|switch on|charge|load|open|close|connect|boot|flush|drain|lock|print)\b|"
+                        r"\bstopped working\b|\bkeeps? (?:crashing|freezing|breaking|dying|leaking|beeping)\b|"
+                        r"\b(?:is|was|went|got) (?:dead|flat|stuck|frozen|broken|busted|cracked|smashed|soaked|wet)\b|"
+                        r"\bacting up\b|\bplaying up\b|\bmaking (?:a|weird|strange) noises?\b|\bout of order\b")
+_BROKEN_DE = re.compile(r"\b(?:geht|funktioniert|läuft|springt|startet|lädt|öffnet|schließt) (?:\w+ )?(?:nicht|nicht mehr|"
+                        r"gar nicht)\b|\bkaputt\w*\b|\bspinnt\b|\bstreikt\b|\bhängt sich auf\b|\b(?:ist|sind) "
+                        r"(?:platt|leer|nass|gesprungen|gerissen|verstopft|undicht|defekt)\b|\bmacht (?:komische )?"
+                        r"geräusche\b")
+_DAMAGE_ADJ = {"broken", "cracked", "damaged", "smashed", "shattered", "dented", "scratched", "ruined", "busted", "torn",
+               "ripped", "wrecked", "faulty", "flat", "dead", "stuck", "frozen", "soaked", "burst", "leaking", "blocked",
+               "clogged", "kaputt", "gesprungen", "gerissen", "verstopft", "defekt", "undicht", "platt", "nass"}
+_URGENT = re.compile(r"\b(?:can't|cannot|can not) breathe\b|\bunconscious\b|\bnot breathing\b|\bchest pain\b|"
+                     r"\bwon't stop bleeding\b|\bbleeding (?:a lot|heavily|badly)\b|\bseizure\b|\boverdos\w*\b|"
+                     r"\bthroat (?:is )?(?:closing|swelling)\b|\bon fire\b|\bhouse is burning\b|\bsmell gas\b|"
+                     r"\bkeine luft\b|\bbewusstlos\b|\batmet nicht\b|\bbrustschmerz\w*\b|\bblutet (?:stark|sehr)\b|"
+                     r"\bkrampfanfall\b|\bbrennt\b.*\b(?:wohnung|haus|küche)\b|\briecht nach gas\b")
+_FUTURE_EN = re.compile(r"\b(?:tomorrow|tonight|next (?:week|month|year|monday|tuesday|wednesday|thursday|friday|"
+                        r"saturday|sunday|weekend)|later today|this (?:weekend|evening|afternoon)|in (?:a|two|three|"
+                        r"\d+) (?:days?|weeks?|months?)|soon)\b|\b(?:going to|gonna|will|'ll|about to|planning to|"
+                        r"plan to|want to|thinking (?:of|about))\b")
+_FUTURE_DE = re.compile(r"\b(?:morgen|übermorgen|heute abend|nächste[nrs]? (?:woche|monat|jahr|wochenende)|bald|"
+                        r"am (?:montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag|wochenende)|in (?:einer|"
+                        r"zwei|drei|\d+) (?:tagen?|wochen?|monaten?))\b|\b(?:werde|wird|will|möchte|plane|vorhabe)\b")
+_ASK_EN = [
+    ("what_do", r"(?:so |and |ok |okay |but )?(?:what (?:should|can|do|could|would) (?:i|we) do|what now|now what|"
+                r"what do you (?:suggest|recommend|think i should do)|any (?:tips|advice|ideas)|(?:can|could) you help|"
+                r"help(?: me)?|what are my options|how do i (?:fix|handle|deal with|get rid of|stop) (?:it|this|that))\b"),
+    ("is_bad", r"(?:is|was) (?:it|that|this) (?:bad|serious|dangerous|normal|okay|ok|a problem|worth it|too late|"
+               r"weird|rude|wrong|fine)\b|should i (?:be )?worr(?:y|ied)\b"),
+    ("should", r"(?:so |and |but )?should (?:i|we)\b|do you think (?:i|we) should\b|would you\b"),
+    ("how", r"(?:so |and |but )?how (?:do|can|should|could) (?:i|we|you)\b|how to\b"),
+    ("when", r"(?:so |and )?(?:when|how long|how soon|how often)\b"),
+    ("why", r"(?:so |and |but )?why\b"),
+    ("can", r"(?:so |and |but )?(?:can|could|may) (?:i|we)\b"),
+    ("opinion", r"what do you think\b|what's your opinion|how do you feel about\b|do you like\b"),
+]
+_ASK_DE = [
+    ("what_do", r"(?:und |also |ok |okay |aber )?(?:was (?:soll|kann|muss|könnte|sollte) ich (?:jetzt |denn |da )?"
+                r"(?:tun|machen)|was (?:mach|mache|tu|tue) ich (?:jetzt|da|nun)|und jetzt|was nun|hast du (?:ein paar )?"
+                r"(?:tipps|ideen|rat)|(?:tipps|ideen)|kannst du mir helfen|hilfe)\b"),
+    ("is_bad", r"(?:ist|war) (?:das|es) (?:schlimm|gefährlich|normal|okay|ok|ein problem|zu spät|unhöflich|falsch)\b|"
+               r"muss ich mir sorgen machen\b"),
+    ("should", r"(?:und |also |aber )?soll(?:te)? ich\b|würdest du\b"),
+    ("how", r"(?:und |also |aber )?wie (?:kann|soll|mach|mache|krieg|bekomm)\w* ich\b"),
+    ("when", r"(?:und |also )?(?:wann|wie lange|wie schnell|wie oft)\b"),
+    ("why", r"(?:und |also |aber )?warum\b|wieso\b|weshalb\b"),
+    ("can", r"(?:und |also |aber )?(?:kann|darf) ich\b"),
+    ("opinion", r"was hältst du (?:von|davon)\b|was denkst du\b|wie findest du\b|magst du\b"),
+]
+
+_REL_END_EN = re.compile(r"\b(?:dumped|broke up|break up|breaking up|split up|divorc\w*|cheated on|cheating on|"
+                         r"left me|ghost\w*|unfriended|blocked me|is mad at me|angry at me|not talking to me|"
+                         r"stopped talking to me|fell out|falling out|had a (?:fight|row|argument)|argu\w+ with)\b")
+_REL_END_DE = re.compile(r"\b(?:schluss gemacht|getrennt|trennung|scheidung|lassen uns scheiden|betrogen|fremdgegangen|"
+                         r"verlassen|ghostet|geghostet|blockiert|ist sauer auf mich|redet nicht mehr mit mir|gestritten|"
+                         r"streit (?:mit|gehabt)|zerstritten)\b")
+_SILENT_EN = re.compile(r"\b(?:stopped|stop|not|isn't|is not|doesn't|does not|won't|hasn't|has not|never) "
+                        r"(?:replying|responding|answering|texting|calling|talking|writing|messaging|reply|respond|answer|"
+                        r"text|call|talk|write)\b|\bignor(?:es|ing|ed) me\b")
+_SILENT_DE = re.compile(r"\b(?:antwortet|meldet sich|reagiert|schreibt|redet|ruft)\b.*\b(?:nicht mehr|nicht|gar nicht|"
+                        r"nie)\b|\bignoriert mich\b")
+
+_KIND_VALENCE = {"DAMAGE": -1, "INJURY": -1, "ILLNESS": -1, "LOSS": -1, "THEFT": -1, "CONFLICT": -1, "FAILURE": -1,
+                 "MONEY": -1, "DELAY": -1, "WORRY": -1, "DEATH": -1, "FEEL_NEG": -1, "SUCCESS": 1, "MILESTONE": 1,
+                 "ACQUIRE": 1, "FEEL_POS": 1, "PLAN": 0, "ACTIVITY": 0, "": 0}
+_CONCRETE = {"DEVICE", "VEHICLE", "P-VEHICLE", "P-DEVICE", "BUILDPART", "P-BUILDING", "BUILDING", "FURNITURE",
+             "P-FURNITURE", "CLOTHING", "P-CLOTHING", "CONTAINER", "TOOL", "DOCUMENT", "KEYTHING", "JEWELRY", "MONEY",
+             "FOOD", "DRINK", "PLANT"}
+
+
+_LIGHT_EN = set("""do does did done doing make makes made making have has had having go goes went gone going come comes
+came take takes took want wants wanted need needs needed know knows knew think thinks thought say says said tell told see
+saw seen look looks looked let lets try tried keep kept put seem seems feel feels felt find found give gave thing things
+stuff lot bit way time today yesterday tomorrow tonight morning night week day days year now right new old good bad great
+nice little big much many more most one two three first last next other""".split())
+_LIGHT_DE = set("""tun tue tust tut machen mache mach macht machst gemacht gehen geht ging gegangen kommen kommt kam
+gekommen sagen sage sagt gesagt wissen weiß finden finde findet gefunden geben gibt gab gegeben sehen sieht gesehen lassen
+lässt gelassen ding dinge sache sachen zeit tag tage woche jahr mal heute gestern morgen gut schlecht neu alt groß klein
+viel viele mehr erst ersten letzte nächste andere""".split())
+_SUBJ_EN = {"i", "we", "you", "he", "she", "they", "it", "has", "have", "had", "was", "were", "is", "are", "am", "got",
+            "get", "been", "to", "will", "would", "can", "could", "just", "also", "accidentally", "finally", "who",
+            "someone", "somebody", "nobody", "not", "never", "that", "which"}
+_SUBJ_DE = {"ich", "wir", "du", "er", "sie", "es", "man", "hab", "habe", "hat", "haben", "bin", "ist", "sind", "war",
+            "wurde", "wurden", "werde", "wird", "jemand", "niemand", "nicht", "nie", "gerade", "schon"}
+_PARTICLES = {"up", "down", "out", "off", "away", "in", "on", "over", "back", "through", "apart"}
+_POSS = {"my", "our", "your", "his", "her", "their", "mein", "meine", "meinen", "meinem", "meiner", "unser", "unsere",
+         "unseren", "unserem", "dein", "deine", "deinen", "deinem", "sein", "seine", "seinen", "seinem", "ihr", "ihre",
+         "ihren", "ihrem"}
+_DETS = {"a", "an", "the", "this", "that", "some", "der", "die", "das", "den", "dem", "des", "ein", "eine", "einen",
+         "einem", "einer", "vom", "zum", "zur", "im", "am", "beim"}
+
+
+def _role(w: str, prev: str, by: dict, lang: str, subj_before: set, prev_role: str) -> str:
+    """N, V or A for one content word from its readings and the word before it."""
+    if len(by) == 1:
+        return {"n": "N", "v": "V", "a": "A"}[next(iter(by))]
+    if prev in _POSS or prev in _DETS or prev_role == "A":
+        return "N" if "n" in by else "A" if "a" in by else "V"
+    if lang == "en":
+        if prev in subj_before and "v" in by:
+            return "V"
+        if prev_role == "N" and "v" in by and re.search(r"[^s]s$", w):
+            return "V"                              # "my tooth hurts", "the tap drips"
+        if re.search(r"(?:ed|ing)$", w) and "v" in by:
+            return "V" if not (prev in ("is", "was", "are", "were", "got", "get", "so", "very", "really", "feel",
+                                        "feeling", "felt") and "a" in by) else "A"
+        if prev in ("is", "am", "are", "was", "were", "so", "very", "really", "too", "totally", "completely", "feel",
+                    "feeling", "felt", "look", "looks", "looked", "seem", "seems", "got", "get", "getting", "became",
+                    "become", "pretty", "kinda", "quite", "super", "extremely") and "a" in by:
+            return "A"
+        return "N" if "n" in by else "V" if "v" in by else "A"
+    if re.fullmatch(r"(?:\w*ge\w+(?:t|en)|\w+(?:iert|ert|elt))", w) and "v" in by:
+        return "V"                                  # gekippt, aufgeschürft, repariert
+    if prev in ("ist", "bin", "bist", "sind", "war", "so", "sehr", "total", "echt", "ganz", "voll") and "a" in by:
+        return "A"
+    if prev in subj_before and "v" in by:
+        return "V"
+    return "N" if "n" in by else "V" if "v" in by else "A"
+
+
+@dataclass
+class Frame:
+    lang: str = "en"
+    kind: str = ""
+    valence: int = 0
+    who: str = ""                 # me / child / partner / relative / friend / colleague / pet / other
+    who_word: str = ""            # "son", "sohn"
+    pron: str = ""                # he / she / they; er / sie
+    obj: str = ""                 # lemma of the main thing
+    obj_word: str = ""            # as written ("laptop", "handy")
+    obj_det: str = ""             # the user's determiner before it ("my", "meinen")
+    obj_cats: frozenset = field(default_factory=frozenset)
+    body: str = ""
+    cause: str = ""
+    pred: str = ""
+    evidence: frozenset = field(default_factory=frozenset)
+    future: bool = False
+    urgent: bool = False
+    negated: bool = False
+    ask: str = ""                 # what a question asks, "" for statements
+    question: bool = False
+    words: tuple = ()
+
+    @property
+    def problem(self) -> bool:
+        return self.valence < 0 and bool(self.kind)
+
+    def slots(self) -> set[str]:
+        return {k for k in ("who", "obj", "body", "cause") if getattr(self, k)}
+
+
+def _ask(text: str, lang: str) -> str:
+    s = text.strip().lower()
+    for name, rx in (_ASK_EN if lang == "en" else _ASK_DE):
+        if re.match(rx, s) or (name in ("what_do", "is_bad", "opinion") and re.search(rx, s)):
+            return name
+    if "?" in text:
+        return "yesno" if re.match(r"(?:is|are|was|do|does|did|can|could|will|would|ist|sind|war|hast|hat|kann|kannst|"
+                                   r"wird|würde|gibt)\b", s) else "other"
+    return ""
+
+
+def parse(text: str, lang: str = "en") -> Frame:
+    """The situation frame of one message. Empty kind when nothing happened (a greeting, a bare question)."""
+    from engramm.chat.facts import expand_contractions
+    lx = lexicon(lang)
+    raw = text.strip()
+    s = expand_contractions(raw.lower()) if lang == "en" else raw.lower()
+    s = s.replace("’", "'")
+    words = re.findall(r"[a-zäöüß]+(?:-[a-zäöüß]+)?|\d+", s)
+    f = Frame(lang=lang, words=tuple(words))
+    f.ask = _ask(raw, lang)
+    f.question = bool(f.ask) or raw.endswith("?")
+    f.urgent = bool(_URGENT.search(s))
+    f.future = bool((_FUTURE_EN if lang == "en" else _FUTURE_DE).search(s))
+    f.negated = bool(re.search(r"\b(?:not|never|no longer|nicht|nie|kein\w*)\b", s))
+    stop = _STOP_EN if lang == "en" else _STOP_DE
+    persons = {w: k for k, ws in (_PERSON_EN if lang == "en" else _PERSON_DE).items() for w in ws.split()}
+    prons = _PRON_EN if lang == "en" else _PRON_DE
+    first = re.search(r"\b(?:i|me|my|we|our|us|mine)\b" if lang == "en" else r"\b(?:ich|mir|mich|mein\w*|wir|uns|unser\w*)\b", s)
+
+    # whom it happened to: "my son", "meine Tochter"; else the speaker
+    poss = r"(?:my|our)" if lang == "en" else r"(?:mein|meine|meinen|meinem|meiner|unser|unsere|unseren|unserem)"
+    for m in re.finditer(poss + r" (?:(?:little|best|older|younger|big|kleine[rn]?|beste[rn]?|große[rn]?|ältere[rn]?|"
+                                r"jüngere[rn]?) )?([a-zäöüß-]+)", s):
+        w = m.group(1)
+        base = w[:-1] if lang == "en" and w.endswith("s") and w[:-1] in persons else w
+        if base in persons:
+            f.who, f.who_word = persons[base], base
+            f.pron = prons.get(base, "they" if lang == "en" else "")
+            break
+    if not f.who and first:
+        f.who = "me"
+
+    # readings of the content words: a light tagger (determiner → noun, pronoun/aux → verb, -ed/-ing → verb)
+    light = _LIGHT_EN if lang == "en" else _LIGHT_DE
+    subj_before = _SUBJ_EN if lang == "en" else _SUBJ_DE
+    tags: list[tuple[str, Entry | None, list[Entry]]] = []
+    for i, w in enumerate(words):
+        if w in stop or w.isdigit() or len(w) < 2 or w in light or w in persons:
+            tags.append(("S", None, []))
+            continue
+        rs = lx.lookup(w)
+        if not rs:
+            tags.append(("?", None, []))
+            continue
+        by = {r.pos: r for r in reversed(rs)}
+        prev = words[i - 1] if i else ""
+        role = _role(w, prev, by, lang, subj_before, tags[-1][0] if tags else "")
+        if role != "V" and "v" in by and (w in lx.forms and lang == "en" or prev in persons) and \
+                not (prev in _POSS or prev in _DETS):
+            role = "V"                              # "my son fell", "stung": an irregular past is a verb
+        nxt2 = words[i + 2] if i + 2 < len(words) else ""
+        if role == "V" and lang == "en" and i + 1 < len(words) and words[i + 1] in _PARTICLES and \
+                not (nxt2 in _POSS or nxt2 in _DETS or (nxt2 and nxt2 not in stop)):
+            ph = lx.get(f"{by['v'].lemma} {words[i + 1]}", "v")
+            if ph is not None:
+                rs = [ph] + rs                      # "threw up", "broke down", "passed away"
+                by["v"] = ph
+        tags.append((role, by.get({"N": "n", "V": "v", "A": "a"}[role]), rs))
+    ev: set[str] = set()
+    body_ev = False                               # bodily evidence from a noun, an adjective or a body verb
+    best_obj: tuple[int, str, str, str, frozenset] | None = None
+    pred_entry: Entry | None = None
+    i = 0
+    while i < len(words):
+        role, e, rs = tags[i]
+        if role in ("N", "A") and e is not None:
+            j = i                                  # a noun phrase: modifiers + head (the last noun)
+            while j + 1 < len(words) and tags[j + 1][0] in ("N", "A") and tags[j + 1][1] is not None:
+                j += 1
+            members = [(k, tags[k][2]) for k in range(i, j + 1)]
+            head = next((k for k in range(j, i - 1, -1) if tags[k][0] == "N" and any(r.pos == "n" for r in tags[k][2])), None)
+            prev = words[i - 1] if i else ""
+            for k, readings in members:
+                for r in readings:
+                    if r.pos == "a" and (r.lemma in _DAMAGE_ADJ or words[k] in _DAMAGE_ADJ):
+                        ev.add("HARM")
+                    if r.pos == "a" and tags[k][0] == "A":
+                        ev |= set(r.ev)
+                        body_ev = body_ev or "BODY" in r.ev
+            if head is not None:
+                hn = next(r for r in tags[head][2] if r.pos == "n")
+                group = [next((r for r in tags[k][2] if r.pos == "n"), None) for k, _ in members if tags[k][0] == "N"]
+                group = [g for g in group if g is not None]
+                if "BODYPART" in hn.cats and not hn.cats & {"LIQUID", "FOOD", "DRINK"} and not f.body:
+                    f.body = words[head]
+                elif hn.cats & {"INSECT", "ANIMAL"} and not hn.cats & {"PET"} and not f.cause:
+                    f.cause = hn.lemma
+                else:
+                    pick = hn if hn.cats & (_CONCRETE | {"PET"}) else next(
+                        (g for g in reversed(group) if g.cats & (_CONCRETE | {"PET"})), None)
+                    if pick is not None:
+                        score = 3 if prev in _POSS else 2 if prev in _DETS else 1
+                        if best_obj is None or score > best_obj[0]:
+                            best_obj = (score, pick.lemma, words[head] if pick is hn else pick.lemma,
+                                        prev if (prev in _POSS or prev in _DETS) else "", pick.cats)
+                    ev |= set(hn.ev)
+                    body_ev = body_ev or ("BODY" in hn.ev and "ILLNESS" in hn.cats)
+            i = j + 1
+            continue
+        if role == "V" and e is not None:
+            v = rs[0] if rs and rs[0].pos == "v" and " " in rs[0].lemma else e
+            vev = set(v.ev) or set(e.ev)
+            if v.ss == "body":
+                vev.add("BODY")
+                body_ev = True
+            if len(vev) > 4:                        # a verb of many senses: keep what fits the rest of the sentence
+                vev &= {"HARM", "FLUID", "IMPACT", "LOSE", "THEFT", "BODY"} if best_obj or f.body else {"DEATH", "REL", "JOB", "WIN", "FAIL", "CONFLICT", "BODY"}
+            if vev and (pred_entry is None or not pred_entry.ev):
+                pred_entry = v
+            ev |= vev
+        i += 1
+    if best_obj:
+        _, f.obj, f.obj_word, f.obj_det, f.obj_cats = best_obj
+    if pred_entry:
+        f.pred = pred_entry.lemma
+    if (_BROKEN_EN if lang == "en" else _BROKEN_DE).search(s):
+        ev.add("BROKEN")
+    if any(w in _DAMAGE_ADJ for w in words) and best_obj:
+        ev.add("HARM")                            # "the pipe burst", "das Display ist gesprungen"
+    if best_obj and best_obj[4] & {"DEVICE", "P-DEVICE", "FURNITURE", "CLOTHING", "DOCUMENT"} and any(
+            r.pos == "n" and r.cats & {"LIQUID", "DRINK"} for _, _, rs in tags for r in rs[:1]):
+        ev.add("FLUID")                           # coffee over the laptop, Saft aufs Sofa
+    if (_REL_END_EN if lang == "en" else _REL_END_DE).search(s):
+        ev.add("RELEND")
+    if (_SILENT_EN if lang == "en" else _SILENT_DE).search(s) and f.who and f.who not in ("me", "pet"):
+        ev.add("RELEND")
+    # who moved: "my phone fell" (a thing) vs "my son fell" / "i fell" (a person)
+    first_v = next((k for k, (r, e, _) in enumerate(tags) if r == "V" and e is not None and "IMPACT" in e.ev), None)
+    if first_v is not None:
+        before = words[:first_v]
+        person_before = any(w in ("i", "we", "he", "she", "they", "ich", "wir", "er", "sie") or w in persons for w in before)
+        thing_before = best_obj is not None and best_obj[2] in before
+        if person_before and not (thing_before and before.index(best_obj[2]) > max(
+                (before.index(w) for w in before if w in persons or w in ("i", "we", "he", "she", "they", "ich", "wir", "er", "sie")), default=-1)):
+            ev.add("FALL")
+    if body_ev:
+        ev.add("BODYX")
+    f.evidence = frozenset(ev)
+    f.kind = _decide(f, s)
+    f.valence = _KIND_VALENCE.get(f.kind, 0)
+    if f.kind in ("PLAN", "ACTIVITY", "") and ev & {"EMO"}:
+        from engramm.chat.smart import experience
+        e = experience(s) if lang == "en" else None
+        if e:
+            f.valence = -1 if e.valence == "negative" else 1
+    return f
+
+
+def _decide(f: Frame, s: str) -> str:
+    ev, cats = f.evidence, f.obj_cats
+    thing = bool(cats & _CONCRETE)
+    exam = re.search(r"\b(?:exam|test|exams|tests|driving test|interview|audition|class|course|prüfung|klausur|"
+                     r"test|führerscheinprüfung|vorstellungsgespräch|probezeit)\b", s)
+    if exam and re.search(r"\b(?:passed|pass|aced|nailed|got through|bestanden|geschafft)\b", s) and not f.negated:
+        return "PLAN" if f.future else "SUCCESS"
+    if exam and re.search(r"\b(?:failed|fail|flunked|bombed|messed up|durchgefallen|vergeigt|verhauen|nicht bestanden|"
+                          r"durch (?:die |den |das )?\w+ gefallen)\b", s):
+        return "FAILURE"
+    if "RELEND" in ev:
+        return "CONFLICT"
+    if "FALL" in ev and not f.question:
+        return "INJURY"
+    neg_emo = re.search(r"\b(?:sad|lonely|bored|tired|exhausted|stressed|overwhelmed|depressed|down|anxious|nervous|"
+                        r"worried|scared|afraid|upset|angry|frustrated|traurig|einsam|gelangweilt|müde|erschöpft|"
+                        r"gestresst|überfordert|deprimiert|ängstlich|nervös|besorgt|wütend|sauer|genervt)\b", s)
+    pos_emo = re.search(r"\b(?:happy|excited|proud|thrilled|relieved|glad|great|amazing|awesome|glücklich|aufgeregt|"
+                        r"stolz|erleichtert|froh|super|toll|mega)\b", s)
+    if f.question and not (ev or thing or f.body or f.cause):
+        return ""
+    if "BIRTH" in ev or re.search(r"\b(?:pregnant|expecting (?:a baby|twins|our first|a child)|having a baby|"
+                                  r"schwanger|(?:bekommen|kriegen) (?:ein|unser erstes) (?:baby|kind)|nachwuchs)\b", s):
+        return "MILESTONE"
+    if "DEATH" in ev and not (cats & {"SPORT", "EVENT"}) and not ("LOSE" in ev and thing):
+        if re.search(r"\b(?:died|passed away|passed|dead|death|funeral|lost my (?:mom|mum|dad|grand\w+|"
+                     r"father|mother|brother|sister|friend|wife|husband|dog|cat)|gestorben|verstorben|tot|"
+                     r"beerdigung|verloren)\b", s) and not thing:
+            return "DEATH"
+    if "THEFT" in ev:
+        return "THEFT"
+    if "LOSE" in ev and (thing or "can not find" in s or "cannot find" in s or "finde" in s):
+        return "LOSS"
+    if (ev & {"HARM", "IMPACT", "FIRE", "FLUID", "BROKEN"}) and thing and not f.body:
+        return "DAMAGE"
+    if "BROKEN" in ev:
+        return "DAMAGE"
+    if (ev & {"HARM", "IMPACT", "BODY"}) and (f.body or f.cause):
+        return "INJURY"
+    if "BODYX" in ev and f.who and not thing:
+        return "ILLNESS"
+    if "HARM" in ev and f.who and f.who != "me" and not thing:
+        return "INJURY"
+    if "REL" in ev:
+        if re.search(r"\b(?:divorce\w*|dumped|broke up|break up|split up|cheat\w*|scheidung|getrennt|schluss gemacht|"
+                     r"betrogen)\b", s):
+            return "CONFLICT"
+        return "MILESTONE"
+    if "CONFLICT" in ev and (f.who not in ("me", "") or re.search(
+            r"\b(?:with|at|against) (?:my|him|her|them|someone|somebody|a)\b|\b(?:mit|auf) (?:meine\w*|ihm|ihr|ihnen|jemand)\b", s)):
+        return "CONFLICT"
+    if "FAIL" in ev or ("WIN" in ev and f.negated):
+        return "FAILURE"
+    if "WIN" in ev:
+        return "SUCCESS"
+    if "JOB" in ev:
+        if re.search(r"\b(?:fired|laid off|let go|sacked|lost my job|gekündigt|entlassen|rausgeworfen)\b", s):
+            return "FAILURE"
+        return "MILESTONE" if not f.future else "PLAN"
+    if "MONEY" in ev and not ("BUY" in ev and not neg_emo):
+        return "MONEY"
+    if "DELAY" in ev:
+        return "DELAY"
+    if neg_emo and not f.future:
+        return "WORRY" if re.search(r"\b(?:nervous|anxious|worried|scared|afraid|nervös|ängstlich|besorgt|angst)\b", s) \
+            else "FEEL_NEG"
+    if f.future and (ev or thing or cats & {"EVENT"}):
+        return "PLAN"
+    if "BUY" in ev and (thing or "new" in s or "neu" in s):
+        return "ACQUIRE"
+    if pos_emo:
+        return "FEEL_POS"
+    if "LOSE" in ev:
+        return "LOSS" if thing else ""
+    if ev & {"COOK", "TRAVEL", "LEARN", "CELEB", "SLEEP", "EAT", "MOVE"}:
+        return "PLAN" if f.future else "ACTIVITY"
+    return ""

@@ -1,0 +1,185 @@
+{
+ "name": "conv2",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hi",
+    "long day",
+    "my manager was super grumpy and took it out on everyone",
+    "she criticized me in front of the whole team",
+    "i'm gonna get takeout and binge netflix",
+    "yes please",
+    "good night"
+   ],
+   [
+    "hey",
+    "any ideas for the weekend?",
+    "i'd like to be outside",
+    "but the forecast looks bad",
+    "what can we do inside then?",
+    "an escape room sounds fun",
+    "thanks!"
+   ],
+   [
+    "hello",
+    "my upstairs neighbours stomp around all night",
+    "should i talk to them?",
+    "they're actually really friendly",
+    "i'll talk to them tomorrow",
+    "thanks"
+   ],
+   [
+    "hi",
+    "my best friend is getting married in june",
+    "i need to give a speech",
+    "i'm terrible at speaking in public",
+    "yes please help me",
+    "her name is lisa and her husband to be is mark",
+    "they met through friends",
+    "this is perfect, thanks"
+   ],
+   [
+    "hey",
+    "i'm bored out of my mind",
+    "no i don't want to read",
+    "joke please",
+    "haha one more",
+    "thanks"
+   ],
+   [
+    "hi",
+    "i've been promoted!",
+    "project manager",
+    "honestly i'm nervous, i've never led a team",
+    "yes",
+    "makes sense, thanks"
+   ],
+   [
+    "hi",
+    "my cat seems really ill",
+    "she won't eat anything",
+    "she's 14",
+    "the clinic is closed on weekends",
+    "i'll call the emergency vet then",
+    "thanks"
+   ],
+   [
+    "hey",
+    "who wrote hamlet?",
+    "really? i thought it was marlowe",
+    "when was he born?",
+    "and what about marlowe?",
+    "ok thanks"
+   ],
+   [
+    "hi",
+    "i'm going to start running again",
+    "i haven't run in years",
+    "which shoes should i get?",
+    "any other tips?",
+    "thanks!"
+   ],
+   [
+    "hello",
+    "i've been feeling really lonely",
+    "we relocated here for my job in spring",
+    "i have no friends here yet",
+    "i work from home every day",
+    "maybe a climbing gym would help",
+    "thank you"
+   ],
+   [
+    "hey",
+    "ugh i burnt my dinner",
+    "it was supposed to be lasagna",
+    "i guess i'll order something",
+    "pizza probably",
+    "yeah"
+   ],
+   [
+    "hi",
+    "i can't decide whether to buy a new phone",
+    "mine is 4 years old",
+    "the battery dies by lunch",
+    "it's an iphone 11",
+    "ok i'll think about it"
+   ]
+  ],
+  "de": [
+   [
+    "hi",
+    "langer tag heute",
+    "meine chefin war mega schlecht drauf",
+    "sie hat mich vor allen kritisiert",
+    "ich glaub ich schau einfach netflix",
+    "ja gerne",
+    "gute nacht"
+   ],
+   [
+    "hey",
+    "hast du ideen fürs wochenende?",
+    "ich würde gern raus in die natur",
+    "aber das wetter soll schlecht werden",
+    "und was kann man bei regen machen?",
+    "escape room klingt gut",
+    "danke!"
+   ],
+   [
+    "hallo",
+    "meine nachbarn über mir trampeln die ganze nacht",
+    "soll ich mit ihnen reden?",
+    "die sind sonst eigentlich echt nett",
+    "ok ich sprech morgen mit ihnen",
+    "danke"
+   ],
+   [
+    "hi",
+    "ich wurde befördert!",
+    "abteilungsleiterin",
+    "ehrlich gesagt hab ich respekt davor, ich hab noch nie ein team geleitet",
+    "ja gerne",
+    "danke"
+   ],
+   [
+    "hallo",
+    "meine katze ist ganz schlapp",
+    "sie frisst nichts",
+    "sie ist 14",
+    "die praxis hat am wochenende zu",
+    "ich ruf den notdienst an",
+    "danke"
+   ],
+   [
+    "hey",
+    "ich will wieder mit dem joggen anfangen",
+    "ich hab null kondition",
+    "brauche ich spezielle schuhe?",
+    "danke!"
+   ],
+   [
+    "hallo",
+    "ich bin in letzter zeit oft einsam",
+    "wir sind im frühling hergezogen",
+    "ich hab hier noch keine freunde",
+    "ich arbeite nur von zu hause",
+    "danke dir"
+   ],
+   [
+    "hi",
+    "mir ist langweilig",
+    "keine lust auf lesen",
+    "witz bitte",
+    "noch einen",
+    "danke"
+   ],
+   [
+    "hey",
+    "mein abendessen ist angebrannt",
+    "ich bestell mir einfach was",
+    "pizza wahrscheinlich",
+    "ja"
+   ]
+  ]
+ }
+}

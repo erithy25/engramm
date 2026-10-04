@@ -1,0 +1,113 @@
+{
+ "name": "conv12b",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hey",
+    "i was in a small car accident",
+    "everyone's fine",
+    "my neck feels stiff though",
+    "do i need to call the police?",
+    "ok, i'll see a doctor"
+   ],
+   [
+    "hi",
+    "my kitten is missing",
+    "he usually comes back for dinner",
+    "i can't sleep",
+    "how do i find him?",
+    "i'll ask the neighbours"
+   ],
+   [
+    "hello",
+    "my husband snores like a chainsaw",
+    "i'm exhausted",
+    "what can i do?",
+    "i'll speak to him tomorrow"
+   ],
+   [
+    "hi",
+    "i'm locked out of my iphone",
+    "security lockout, try again in an hour",
+    "how do i reset it?",
+    "thanks"
+   ],
+   [
+    "hey",
+    "i feel completely burnt out",
+    "i have no energy left",
+    "i can't switch off at night",
+    "how do i recover?",
+    "i'll see my gp"
+   ],
+   [
+    "hi",
+    "my nose keeps bleeding",
+    "for about five minutes now",
+    "head back or forward?",
+    "thanks"
+   ],
+   [
+    "hello",
+    "my suitcase didn't arrive",
+    "i'm in rome for a wedding",
+    "my medication is in there",
+    "will i get it back?",
+    "thanks, i'll go to the counter"
+   ],
+   [
+    "hey",
+    "my phone fell into the pool",
+    "i got it out straight away",
+    "does rice help?",
+    "ok, i'll wait"
+   ]
+  ],
+  "de": [
+   [
+    "hey",
+    "ich hatte einen kleinen unfall",
+    "allen geht's gut",
+    "mein nacken ist steif",
+    "wer zahlt den schaden?",
+    "danke"
+   ],
+   [
+    "hi",
+    "unser kater ist seit zwei tagen verschwunden",
+    "er kommt sonst immer zum fressen",
+    "wie finde ich ihn?",
+    "ich frag die nachbarn"
+   ],
+   [
+    "hallo",
+    "mein mann schnarcht total laut",
+    "ohrstöpsel helfen nicht",
+    "was kann ich tun?",
+    "ich red mit ihm"
+   ],
+   [
+    "hi",
+    "ich fühl mich total ausgebrannt",
+    "ich kann nicht mehr abschalten",
+    "was kann ich tun?",
+    "ich geh zur hausärztin"
+   ],
+   [
+    "hey",
+    "meine nase blutet",
+    "seit fünf minuten",
+    "soll ich den kopf in den nacken legen?",
+    "danke"
+   ],
+   [
+    "hallo",
+    "mein gepäck ist nicht angekommen",
+    "meine medikamente sind drin",
+    "bekomme ich den koffer wieder?",
+    "danke"
+   ]
+  ]
+ }
+}

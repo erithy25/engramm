@@ -1,0 +1,144 @@
+{
+ "name": "conv4",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hi",
+    "my son won't do his homework",
+    "he's 10",
+    "he just wants to play video games",
+    "how can i motivate him?",
+    "good idea, thanks"
+   ],
+   [
+    "hey",
+    "i'm looking for a new apartment",
+    "rent here is crazy",
+    "i've been to five viewings already",
+    "any tips for apartment hunting?",
+    "thanks, i'll try that"
+   ],
+   [
+    "hello",
+    "i want to start saving money",
+    "i spend way too much on eating out",
+    "how much should i save each month?",
+    "ok that makes sense"
+   ],
+   [
+    "hi",
+    "what do you do all day?",
+    "do you ever get bored?",
+    "do you have feelings?",
+    "that's kind of sad",
+    "haha ok"
+   ],
+   [
+    "hey",
+    "i just finished a 1000 piece puzzle",
+    "it took me two weeks",
+    "i want to start another one",
+    "any ideas for a new hobby though?",
+    "maybe painting"
+   ],
+   [
+    "hi",
+    "my washing machine is leaking",
+    "there's water all over the floor",
+    "should i call a plumber?",
+    "ok i'll turn off the water first"
+   ],
+   [
+    "hello",
+    "i feel so unmotivated today",
+    "i have a lot to do but i can't start",
+    "any tricks?",
+    "ok i'll try 5 minutes",
+    "thanks"
+   ],
+   [
+    "hey",
+    "my daughter is starting school next week",
+    "she's nervous and so am i",
+    "how can i help her?",
+    "that's sweet, thank you"
+   ],
+   [
+    "hi",
+    "i'm thinking about getting a dog",
+    "i live in a small apartment",
+    "which breeds are good for apartments?",
+    "i work from home"
+   ],
+   [
+    "hey",
+    "what's your favorite movie?",
+    "why that one?",
+    "i've never seen it",
+    "is it scary?",
+    "ok i'll watch it this weekend"
+   ]
+  ],
+  "de": [
+   [
+    "hi",
+    "mein sohn macht seine hausaufgaben nicht",
+    "er ist 10",
+    "er will nur zocken",
+    "wie kann ich ihn motivieren?",
+    "danke"
+   ],
+   [
+    "hey",
+    "ich suche eine neue wohnung",
+    "die mieten hier sind verrückt",
+    "hast du tipps für die wohnungssuche?",
+    "danke, probier ich"
+   ],
+   [
+    "hallo",
+    "ich will mehr geld sparen",
+    "ich geb zu viel fürs essen gehen aus",
+    "wie viel sollte ich im monat sparen?",
+    "ok macht sinn"
+   ],
+   [
+    "hi",
+    "was machst du so den ganzen tag?",
+    "wird dir nie langweilig?",
+    "hast du gefühle?",
+    "haha ok"
+   ],
+   [
+    "hey",
+    "meine waschmaschine läuft aus",
+    "überall ist wasser",
+    "soll ich einen klempner rufen?",
+    "ok ich dreh erst das wasser ab"
+   ],
+   [
+    "hallo",
+    "ich hab heute null motivation",
+    "ich hab viel zu tun aber krieg nichts hin",
+    "hast du tricks?",
+    "ok ich probier 5 minuten",
+    "danke"
+   ],
+   [
+    "hi",
+    "meine tochter kommt nächste woche in die schule",
+    "sie ist aufgeregt und ich auch",
+    "wie kann ich ihr helfen?",
+    "danke, lieb von dir"
+   ],
+   [
+    "hey",
+    "ich überlege mir einen hund zu holen",
+    "ich wohne in einer kleinen wohnung",
+    "welche rassen passen dazu?",
+    "ich arbeite von zu hause"
+   ]
+  ]
+ }
+}

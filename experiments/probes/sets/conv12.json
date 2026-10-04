@@ -1,0 +1,114 @@
+{
+ "name": "conv12",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hi",
+    "someone rear-ended me at a red light",
+    "nobody got hurt",
+    "but my bumper is dented",
+    "what do i need to do now?",
+    "ok, i'll call my insurance"
+   ],
+   [
+    "hey",
+    "my cat hasn't come home since yesterday",
+    "she's never been gone this long",
+    "i'm really worried",
+    "what should i do?",
+    "thanks, i'll put up posters"
+   ],
+   [
+    "hello",
+    "my partner snores so loudly",
+    "i haven't slept properly in weeks",
+    "earplugs don't help",
+    "any ideas?",
+    "ok, i'll talk to him about it"
+   ],
+   [
+    "hi",
+    "i forgot the pin for my phone",
+    "it's locked now",
+    "all my photos are on it",
+    "can i get back in?",
+    "ok thanks"
+   ],
+   [
+    "hey",
+    "i think i'm burned out",
+    "i'm exhausted all the time",
+    "i can't concentrate at work anymore",
+    "what should i do?",
+    "thank you, i'll talk to my doctor"
+   ],
+   [
+    "hi",
+    "i have a nosebleed that won't stop",
+    "it's been about ten minutes",
+    "should i tilt my head back?",
+    "ok thanks"
+   ],
+   [
+    "hello",
+    "the airline lost my luggage",
+    "i just landed in lisbon",
+    "all my clothes are in it",
+    "what can i do?",
+    "ok, i'll file a report at the desk"
+   ],
+   [
+    "hey",
+    "i dropped my phone in the toilet",
+    "i fished it out right away",
+    "should i put it in rice?",
+    "ok, i'll let it dry"
+   ]
+  ],
+  "de": [
+   [
+    "hi",
+    "mir ist jemand an der ampel hinten drauf gefahren",
+    "verletzt ist keiner",
+    "aber die stoßstange ist verbeult",
+    "was muss ich jetzt machen?",
+    "ok, ich ruf die versicherung an"
+   ],
+   [
+    "hey",
+    "meine katze ist seit gestern nicht nach hause gekommen",
+    "ich mach mir große sorgen",
+    "was soll ich tun?",
+    "danke, ich häng zettel auf"
+   ],
+   [
+    "hallo",
+    "mein freund schnarcht so laut",
+    "ich schlaf seit wochen schlecht",
+    "hast du ideen?",
+    "ok, ich sprech ihn drauf an"
+   ],
+   [
+    "hi",
+    "ich glaub ich hab ein burnout",
+    "ich bin ständig erschöpft",
+    "was soll ich tun?",
+    "danke, ich geh zum arzt"
+   ],
+   [
+    "hey",
+    "ich hab nasenbluten und es hört nicht auf",
+    "soll ich den kopf nach hinten legen?",
+    "ok danke"
+   ],
+   [
+    "hallo",
+    "die airline hat meinen koffer verloren",
+    "da sind alle meine sachen drin",
+    "was kann ich tun?",
+    "ok, ich mach eine verlustmeldung"
+   ]
+  ]
+ }
+}

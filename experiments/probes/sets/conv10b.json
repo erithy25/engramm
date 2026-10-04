@@ -1,0 +1,119 @@
+{
+ "name": "conv10b",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hey",
+    "my bike got stolen",
+    "i had a cable lock on it",
+    "it was a new e-bike",
+    "is it worth reporting?",
+    "ok, i'll go to the police"
+   ],
+   [
+    "hi",
+    "we have a power cut",
+    "it's just our building",
+    "my laptop battery is almost dead",
+    "how long does it usually last?",
+    "thanks"
+   ],
+   [
+    "hello",
+    "the heating stopped working",
+    "it's 15 degrees inside",
+    "the landlady keeps ignoring us",
+    "can i reduce the rent?",
+    "thanks, i'll write to her"
+   ],
+   [
+    "hi",
+    "my son is getting bullied",
+    "he's 12",
+    "he doesn't want to go to school anymore",
+    "what should i do?",
+    "thanks"
+   ],
+   [
+    "hey",
+    "i might have food poisoning",
+    "had chicken from a food truck",
+    "i can't keep anything down",
+    "do i need a doctor?",
+    "ok i'll rest"
+   ],
+   [
+    "hi",
+    "i got a speeding ticket",
+    "the speed limit sign was hidden behind a tree",
+    "can i contest it?",
+    "i'll take pictures tomorrow"
+   ],
+   [
+    "hello",
+    "i lost my passport",
+    "we're flying on friday",
+    "i turned the flat upside down",
+    "can i still fly?",
+    "ok, i'll go to the town hall tomorrow"
+   ],
+   [
+    "hey",
+    "i'm trying to cancel my gym contract",
+    "i never go",
+    "they want a registered letter",
+    "can they do that?",
+    "thanks"
+   ]
+  ],
+  "de": [
+   [
+    "hey",
+    "mein e-bike wurde gestohlen",
+    "war mit einem schloss angeschlossen",
+    "das war richtig teuer",
+    "lohnt sich eine anzeige?",
+    "ok, geh ich hin"
+   ],
+   [
+    "hi",
+    "stromausfall bei uns",
+    "nur in unserem haus",
+    "wie lange dauert so was?",
+    "danke"
+   ],
+   [
+    "hallo",
+    "die heizung geht nicht mehr",
+    "es ist eiskalt",
+    "die hausverwaltung meldet sich nicht",
+    "kann ich die miete mindern?",
+    "danke"
+   ],
+   [
+    "hi",
+    "mein sohn wird gemobbt",
+    "er ist zwölf",
+    "er will nicht mehr in die schule",
+    "was kann ich tun?",
+    "danke"
+   ],
+   [
+    "hey",
+    "ich hab glaub ich was falsches gegessen",
+    "ich hatte hähnchen vom imbiss",
+    "ich hab durchfall und erbreche",
+    "muss ich zum arzt?",
+    "danke"
+   ],
+   [
+    "hallo",
+    "ich hab ein knöllchen bekommen",
+    "das schild war zugewachsen",
+    "lohnt sich ein einspruch?",
+    "danke"
+   ]
+  ]
+ }
+}

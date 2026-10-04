@@ -1,0 +1,122 @@
+{
+ "name": "conv5",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hi",
+    "my girlfriend lives in another country",
+    "we see each other every two months",
+    "it's hard sometimes",
+    "how do you make long distance work?",
+    "thanks, that's helpful"
+   ],
+   [
+    "hey",
+    "i have to do my tax return",
+    "i've been putting it off for weeks",
+    "i don't even know where to start",
+    "any tips?",
+    "ok i'll start this weekend"
+   ],
+   [
+    "hello",
+    "i'm having friends over for dinner on saturday",
+    "six people",
+    "one of them is vegetarian",
+    "what should i cook?",
+    "sounds perfect"
+   ],
+   [
+    "hi",
+    "i think i'm getting a cold",
+    "my throat is sore and i keep sneezing",
+    "i have a presentation tomorrow",
+    "what helps fast?",
+    "thanks, i'll make some tea"
+   ],
+   [
+    "hey",
+    "my neighbour is old and lives alone",
+    "i want to help her somehow",
+    "she can't carry heavy shopping",
+    "that's a good idea",
+    "thanks"
+   ],
+   [
+    "hi",
+    "i want to lose 5 kilos before summer",
+    "i already go to the gym twice a week",
+    "what about food?",
+    "how fast is realistic?",
+    "ok thanks"
+   ],
+   [
+    "hello",
+    "it's so hot today",
+    "it's like 35 degrees",
+    "i can't sleep in this heat",
+    "any tips to stay cool?",
+    "thanks"
+   ],
+   [
+    "hey",
+    "i just started playing elden ring",
+    "it's so hard",
+    "i keep dying at the first boss",
+    "any tips?",
+    "haha ok i'll keep trying"
+   ]
+  ],
+  "de": [
+   [
+    "hi",
+    "meine freundin wohnt in einem anderen land",
+    "wir sehen uns alle zwei monate",
+    "manchmal ist es echt schwer",
+    "wie klappt eine fernbeziehung?",
+    "danke"
+   ],
+   [
+    "hey",
+    "ich muss meine steuererklärung machen",
+    "ich schieb das seit wochen vor mir her",
+    "ich weiß nicht mal wo ich anfangen soll",
+    "hast du tipps?",
+    "ok ich fang am wochenende an"
+   ],
+   [
+    "hallo",
+    "ich hab am samstag freunde zum essen eingeladen",
+    "sechs leute",
+    "einer ist vegetarier",
+    "was soll ich kochen?",
+    "klingt super"
+   ],
+   [
+    "hi",
+    "ich glaub ich werde krank",
+    "mein hals tut weh und ich muss ständig niesen",
+    "morgen hab ich eine präsentation",
+    "was hilft schnell?",
+    "danke"
+   ],
+   [
+    "hey",
+    "es ist so heiß heute",
+    "35 grad",
+    "ich kann bei der hitze nicht schlafen",
+    "hast du tipps?",
+    "danke"
+   ],
+   [
+    "hallo",
+    "ich will bis zum sommer 5 kilo abnehmen",
+    "ich geh schon zweimal die woche ins fitnessstudio",
+    "und beim essen?",
+    "wie schnell ist realistisch?",
+    "ok danke"
+   ]
+  ]
+ }
+}

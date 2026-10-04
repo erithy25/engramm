@@ -1,0 +1,120 @@
+{
+ "name": "conv11b",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hey",
+    "the people upstairs are so loud tonight",
+    "it's already midnight",
+    "i have an early shift",
+    "can i call the police?",
+    "ok, i'll go up and ask them"
+   ],
+   [
+    "hi",
+    "i can't find my wallet",
+    "my id and cash were in it",
+    "might have left it in a taxi",
+    "what's the first step?",
+    "i'll cancel my cards"
+   ],
+   [
+    "hello",
+    "i'm having a wisdom tooth removed on friday",
+    "i'm so nervous",
+    "they'll put me under",
+    "how long does recovery take?",
+    "thanks"
+   ],
+   [
+    "hi",
+    "i'm learning to drive",
+    "roundabouts scare me",
+    "my instructor shouts at me",
+    "how do i get better at it?",
+    "thanks"
+   ],
+   [
+    "hey",
+    "i've got terrible hay fever",
+    "my nose is blocked and my eyes are watery",
+    "is there anything i can take?",
+    "ok thanks"
+   ],
+   [
+    "hi",
+    "i clicked a dodgy link in an email",
+    "it pretended to be paypal",
+    "i typed in my card details",
+    "how bad is it?",
+    "i'll contact my bank"
+   ],
+   [
+    "hello",
+    "someone stole my phone on the metro",
+    "they took my wallet too",
+    "my flight home is on sunday",
+    "what do i do now?",
+    "i'll go to the embassy"
+   ],
+   [
+    "hey",
+    "i start a new job on monday",
+    "i'm excited but nervous",
+    "it's a new city too",
+    "what should i wear?",
+    "wish me luck"
+   ]
+  ],
+  "de": [
+   [
+    "hey",
+    "die nachbarn sind total laut",
+    "es ist schon mitternacht",
+    "ich hab frühschicht",
+    "darf ich die polizei rufen?",
+    "ok, ich klopf mal"
+   ],
+   [
+    "hi",
+    "mein portemonnaie ist weg",
+    "bargeld und führerschein waren drin",
+    "ich glaub im zug",
+    "was muss ich jetzt machen?",
+    "ich lass die karten sperren"
+   ],
+   [
+    "hallo",
+    "ich hab morgen meine weisheitszahn-op",
+    "ich hab bammel",
+    "mit vollnarkose",
+    "was darf ich danach essen?",
+    "danke"
+   ],
+   [
+    "hi",
+    "ich mach gerade den führerschein",
+    "der kreisverkehr macht mich fertig",
+    "mein fahrlehrer ist total ungeduldig",
+    "hast du tipps?",
+    "danke"
+   ],
+   [
+    "hey",
+    "ich hab eine pollenallergie",
+    "die nase läuft und die augen tränen",
+    "was kann ich nehmen?",
+    "danke"
+   ],
+   [
+    "hallo",
+    "ich hab auf einen gefälschten link geklickt",
+    "sah aus wie von meiner bank",
+    "ich hab meine zugangsdaten eingegeben",
+    "wie schlimm ist das?",
+    "danke"
+   ]
+  ]
+ }
+}

@@ -1,0 +1,116 @@
+{
+ "name": "conv11",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hi",
+    "my neighbours are having a loud party",
+    "it's 1am",
+    "i have to get up at 6",
+    "should i call the police?",
+    "ok, i'll knock on their door first"
+   ],
+   [
+    "hey",
+    "i lost my wallet",
+    "it had my bank cards and id in it",
+    "i think i left it on the bus",
+    "what should i do first?",
+    "ok, i'll block my cards now"
+   ],
+   [
+    "hello",
+    "i'm getting my wisdom teeth out tomorrow",
+    "i'm really scared",
+    "all four at once",
+    "what should i eat afterwards?",
+    "thanks, that helps"
+   ],
+   [
+    "hi",
+    "i started driving lessons",
+    "i'm terrible at parking",
+    "my instructor gets impatient",
+    "any tips?",
+    "ok i'll practise more"
+   ],
+   [
+    "hey",
+    "my hay fever is terrible this year",
+    "my eyes are itchy and i keep sneezing",
+    "what helps?",
+    "thanks"
+   ],
+   [
+    "hi",
+    "i think i clicked on a phishing link",
+    "it looked like a message from my bank",
+    "i entered my password",
+    "what do i do now?",
+    "ok, i'll call the bank right away"
+   ],
+   [
+    "hello",
+    "i got pickpocketed in barcelona",
+    "they took my phone and cash",
+    "i'm flying home in two days",
+    "what should i do?",
+    "thanks, i'll go to the police station"
+   ],
+   [
+    "hey",
+    "tomorrow is my first day at a new job",
+    "i'm nervous",
+    "i don't know anyone there",
+    "how do i make a good impression?",
+    "thanks, wish me luck"
+   ]
+  ],
+  "de": [
+   [
+    "hi",
+    "die nachbarn feiern eine laute party",
+    "es ist ein uhr nachts",
+    "ich muss um sechs raus",
+    "soll ich die polizei rufen?",
+    "ok, ich klingel erst mal"
+   ],
+   [
+    "hey",
+    "ich hab meinen geldbeutel verloren",
+    "da waren meine karten und mein ausweis drin",
+    "was soll ich zuerst machen?",
+    "ok, ich sperr die karten"
+   ],
+   [
+    "hallo",
+    "mir werden morgen die weisheitszähne gezogen",
+    "ich hab richtig angst",
+    "was kann ich danach essen?",
+    "danke"
+   ],
+   [
+    "hi",
+    "ich hab mit fahrstunden angefangen",
+    "einparken klappt gar nicht",
+    "hast du tipps?",
+    "ok, ich übe mehr"
+   ],
+   [
+    "hey",
+    "mein heuschnupfen ist dieses jahr schlimm",
+    "die augen jucken und ich niese ständig",
+    "was hilft?",
+    "danke"
+   ],
+   [
+    "hallo",
+    "ich glaub ich hab auf einen phishing-link geklickt",
+    "ich hab mein passwort eingegeben",
+    "was mache ich jetzt?",
+    "ok, ich ruf sofort die bank an"
+   ]
+  ]
+ }
+}

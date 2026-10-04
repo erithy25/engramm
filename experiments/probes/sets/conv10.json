@@ -1,0 +1,117 @@
+{
+ "name": "conv10",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hi",
+    "someone stole my bike last night",
+    "it was locked outside my building",
+    "it was pretty expensive",
+    "should i report it to the police?",
+    "ok, i'll do that today"
+   ],
+   [
+    "hey",
+    "the power just went out",
+    "the whole street is dark",
+    "my phone is at 20 percent",
+    "what should i do?",
+    "ok thanks"
+   ],
+   [
+    "hello",
+    "our heating has been broken for a week",
+    "it's freezing in the flat",
+    "the landlord isn't responding",
+    "what are my rights?",
+    "ok, i'll send him an email"
+   ],
+   [
+    "hi",
+    "my daughter is being bullied at school",
+    "she's 10",
+    "she cries every morning before school",
+    "how do i help her?",
+    "thank you, that helps"
+   ],
+   [
+    "hey",
+    "i think i have food poisoning",
+    "i ate sushi last night",
+    "i've been throwing up all morning",
+    "when should i see a doctor?",
+    "ok, i'll keep drinking water"
+   ],
+   [
+    "hi",
+    "i got a parking ticket",
+    "the sign was really unclear",
+    "it's 60 euros",
+    "can i appeal it?",
+    "ok, i'll take photos of the sign"
+   ],
+   [
+    "hello",
+    "i can't find my passport",
+    "my flight is in five days",
+    "i've searched everywhere",
+    "what do i do now?",
+    "ok, i'll call the passport office tomorrow"
+   ],
+   [
+    "hey",
+    "i want to cancel my gym membership",
+    "i haven't been in months",
+    "they say i have to cancel in person",
+    "is that even legal?",
+    "great, thanks"
+   ]
+  ],
+  "de": [
+   [
+    "hi",
+    "mir wurde gestern das fahrrad geklaut",
+    "es war abgeschlossen vor dem haus",
+    "soll ich das bei der polizei anzeigen?",
+    "ok, mach ich heute"
+   ],
+   [
+    "hey",
+    "bei uns ist gerade der strom ausgefallen",
+    "die ganze straße ist dunkel",
+    "was soll ich machen?",
+    "ok danke"
+   ],
+   [
+    "hallo",
+    "unsere heizung ist seit einer woche kaputt",
+    "der vermieter reagiert nicht",
+    "welche rechte habe ich?",
+    "ok, ich schreib ihm eine mail"
+   ],
+   [
+    "hi",
+    "meine tochter wird in der schule gemobbt",
+    "sie ist zehn",
+    "sie weint jeden morgen",
+    "wie kann ich ihr helfen?",
+    "danke"
+   ],
+   [
+    "hey",
+    "ich glaube, ich hab eine lebensmittelvergiftung",
+    "ich muss mich ständig übergeben",
+    "wann sollte ich zum arzt?",
+    "ok, ich trink viel wasser"
+   ],
+   [
+    "hallo",
+    "ich hab einen strafzettel bekommen",
+    "das schild war total unklar",
+    "kann ich einspruch einlegen?",
+    "ok, ich mach fotos vom schild"
+   ]
+  ]
+ }
+}

@@ -1,0 +1,151 @@
+{
+ "name": "conv3",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hi",
+    "i have a doctor's appointment tomorrow",
+    "i'm a bit nervous",
+    "it's just a check up but they want to do a blood test",
+    "i hate needles",
+    "ok thanks",
+    "bye"
+   ],
+   [
+    "hey",
+    "i had a fight with my boyfriend",
+    "he forgot our anniversary",
+    "he said sorry but i'm still upset",
+    "should i forgive him?",
+    "yeah you're right",
+    "thanks for listening"
+   ],
+   [
+    "hello",
+    "my mom's birthday is next week",
+    "i have no idea what to get her",
+    "she likes gardening and reading",
+    "what's a good book for her?",
+    "great idea, thanks"
+   ],
+   [
+    "hi",
+    "i have an exam on friday",
+    "it's statistics and i'm so stressed",
+    "i don't understand hypothesis testing",
+    "can you explain it simply?",
+    "ok that helps a bit",
+    "wish me luck"
+   ],
+   [
+    "hey",
+    "we're planning a trip to portugal",
+    "in may for a week",
+    "what should we see?",
+    "and what food should we try?",
+    "sounds amazing"
+   ],
+   [
+    "hi",
+    "i've been having trouble sleeping",
+    "i keep waking up at 4am",
+    "i drink coffee in the afternoon",
+    "how much is too much?",
+    "ok i'll cut back"
+   ],
+   [
+    "hello",
+    "my friend is moving away",
+    "she's my best friend since school",
+    "i'll really miss her",
+    "we're having a goodbye party saturday",
+    "any ideas for a gift?"
+   ],
+   [
+    "hey",
+    "i started a new job today",
+    "it was ok, a bit overwhelming",
+    "everyone was nice though",
+    "i have to learn so much software",
+    "thanks"
+   ],
+   [
+    "hi",
+    "i want to learn spanish",
+    "i have about 20 minutes a day",
+    "which app is good?",
+    "how long until i can have a conversation?",
+    "cool, thanks"
+   ],
+   [
+    "hey",
+    "my car failed its inspection",
+    "the brakes need replacing",
+    "it's going to cost 600 euros",
+    "ugh, money is tight this month",
+    "yeah"
+   ]
+  ],
+  "de": [
+   [
+    "hi",
+    "ich hab morgen einen arzttermin",
+    "bin ein bisschen nervös",
+    "die wollen blut abnehmen",
+    "ich hasse spritzen",
+    "danke"
+   ],
+   [
+    "hey",
+    "ich hab mich mit meinem freund gestritten",
+    "er hat unseren jahrestag vergessen",
+    "er hat sich entschuldigt, aber ich bin noch sauer",
+    "soll ich ihm verzeihen?",
+    "danke fürs zuhören"
+   ],
+   [
+    "hallo",
+    "meine mutter hat nächste woche geburtstag",
+    "ich hab keine ahnung was ich ihr schenken soll",
+    "sie mag gärtnern und lesen",
+    "danke, gute idee"
+   ],
+   [
+    "hi",
+    "ich hab am freitag eine prüfung",
+    "statistik, und ich bin total gestresst",
+    "kannst du mir helfen?",
+    "danke, wünsch mir glück"
+   ],
+   [
+    "hey",
+    "wir planen einen urlaub in portugal",
+    "im mai für eine woche",
+    "was sollten wir uns anschauen?",
+    "klingt super"
+   ],
+   [
+    "hallo",
+    "ich schlaf seit wochen schlecht",
+    "ich wach immer um 4 auf",
+    "ich trink nachmittags noch kaffee",
+    "ok ich trink weniger"
+   ],
+   [
+    "hi",
+    "ich hab heute einen neuen job angefangen",
+    "war ok, ein bisschen viel",
+    "die kollegen sind nett",
+    "danke"
+   ],
+   [
+    "hey",
+    "mein auto ist durch den tüv gefallen",
+    "die bremsen müssen neu",
+    "das kostet 600 euro",
+    "geld ist gerade eh knapp"
+   ]
+  ]
+ }
+}

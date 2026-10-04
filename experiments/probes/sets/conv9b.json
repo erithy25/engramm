@@ -1,0 +1,122 @@
+{
+ "name": "conv9b",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hey",
+    "we've got mold on the bedroom wall",
+    "it's behind the wardrobe",
+    "we dry our laundry inside",
+    "what kills it?",
+    "ok i'll try bleach"
+   ],
+   [
+    "hi",
+    "i have a terrible sunburn",
+    "there are some blisters",
+    "it's so painful",
+    "any remedies?",
+    "ok, thanks"
+   ],
+   [
+    "hello",
+    "ugh i have a massive hangover",
+    "we were at a wedding",
+    "i feel sick",
+    "what helps?",
+    "never drinking again"
+   ],
+   [
+    "hi",
+    "i'm so jet lagged",
+    "flew back from new york yesterday",
+    "i can't sleep at night",
+    "when does it get better?",
+    "thanks"
+   ],
+   [
+    "hey",
+    "they turned me down for the job",
+    "it was my second interview",
+    "they went with an internal candidate",
+    "it was my dream job",
+    "thanks"
+   ],
+   [
+    "hi",
+    "my brother owes me money",
+    "for about a year now",
+    "he always says next week",
+    "how do i get it back?",
+    "i'll call him tomorrow"
+   ],
+   [
+    "hello",
+    "my son refuses to go to bed",
+    "he's three",
+    "he cries when we leave the room",
+    "we haven't slept properly in weeks",
+    "any tips?",
+    "we'll try it"
+   ],
+   [
+    "hey",
+    "my car doesn't start",
+    "it's clicking",
+    "the dashboard lights flicker",
+    "could it be the battery?",
+    "my dad has a jump starter"
+   ]
+  ],
+  "de": [
+   [
+    "hey",
+    "wir haben schimmel an der wand im schlafzimmer",
+    "hinter dem schrank, ganz grün",
+    "wir trocknen die wäsche drinnen",
+    "was hilft gegen schimmel?",
+    "danke"
+   ],
+   [
+    "hi",
+    "ich hab mir einen sonnenbrand geholt",
+    "es haben sich blasen gebildet",
+    "was kann ich draufmachen?",
+    "ok, ich nehm aloe vera"
+   ],
+   [
+    "hallo",
+    "ich bin total verkatert",
+    "wir waren auf einer hochzeit",
+    "mir ist so übel",
+    "was hilft dagegen?",
+    "nie wieder"
+   ],
+   [
+    "hi",
+    "ich hab eine absage bekommen",
+    "es war das zweite gespräch",
+    "die haben einen anderen eingestellt",
+    "das war mein traumjob",
+    "danke"
+   ],
+   [
+    "hey",
+    "ich hab meiner schwester geld geliehen",
+    "seit einem jahr",
+    "sie vertröstet mich immer",
+    "wie frage ich sie danach?",
+    "ich ruf sie morgen an"
+   ],
+   [
+    "hallo",
+    "unser auto springt nicht mehr an",
+    "es klickt nur",
+    "die lichter flackern",
+    "ist die batterie leer?",
+    "mein vater hat überbrückungskabel"
+   ]
+  ]
+ }
+}

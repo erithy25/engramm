@@ -1,0 +1,118 @@
+{
+ "name": "conv7",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hi",
+    "i have a first date tomorrow",
+    "i'm so nervous",
+    "we're going for coffee",
+    "what should we talk about?",
+    "ok, wish me luck"
+   ],
+   [
+    "hey",
+    "i dropped my phone and the screen cracked",
+    "it still works but it's hard to read",
+    "is it worth repairing?",
+    "it's two years old",
+    "ok i'll get a quote"
+   ],
+   [
+    "hello",
+    "my parents are getting older",
+    "i worry about them a lot",
+    "they live three hours away",
+    "how can i stay involved?",
+    "thanks, that helps"
+   ],
+   [
+    "hi",
+    "i'm drowning in emails at work",
+    "like 200 a day",
+    "i can't get any real work done",
+    "any tricks?",
+    "i'll try that tomorrow"
+   ],
+   [
+    "hey",
+    "i want to start a balcony garden",
+    "it gets sun in the morning",
+    "what's easy to grow?",
+    "i have no gardening experience",
+    "great, thanks"
+   ],
+   [
+    "hi",
+    "i'm 35 and i can't swim",
+    "i'm a bit embarrassed",
+    "is it too late to learn?",
+    "ok maybe i'll book a lesson"
+   ],
+   [
+    "hello",
+    "i ordered shoes online but they don't fit",
+    "the shop wants me to pay for return shipping",
+    "is that allowed?",
+    "ok thanks"
+   ],
+   [
+    "hey",
+    "i'm babysitting my niece tonight",
+    "she's 6",
+    "what can we do together?",
+    "she loves animals",
+    "perfect, thanks"
+   ]
+  ],
+  "de": [
+   [
+    "hi",
+    "ich hab morgen ein erstes date",
+    "ich bin so nervös",
+    "wir gehen einen kaffee trinken",
+    "worüber sollen wir reden?",
+    "ok, drück mir die daumen"
+   ],
+   [
+    "hey",
+    "mir ist das handy runtergefallen und das display ist gesprungen",
+    "es geht noch, aber man sieht schlecht",
+    "lohnt sich eine reparatur?",
+    "es ist zwei jahre alt"
+   ],
+   [
+    "hallo",
+    "meine eltern werden älter",
+    "ich mach mir viele sorgen",
+    "sie wohnen drei stunden weg",
+    "wie kann ich mich kümmern?",
+    "danke"
+   ],
+   [
+    "hi",
+    "ich ersticke in e-mails",
+    "so 200 am tag",
+    "ich komm zu nichts anderem mehr",
+    "hast du tricks?",
+    "probier ich morgen"
+   ],
+   [
+    "hey",
+    "ich will einen balkongarten anlegen",
+    "der balkon hat morgens sonne",
+    "was wächst leicht?",
+    "danke!"
+   ],
+   [
+    "hallo",
+    "ich passe heute abend auf meine nichte auf",
+    "sie ist 6",
+    "was können wir zusammen machen?",
+    "sie liebt tiere",
+    "super, danke"
+   ]
+  ]
+ }
+}

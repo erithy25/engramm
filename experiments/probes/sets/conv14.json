@@ -1,0 +1,113 @@
+{
+ "name": "conv14",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hi",
+    "i just got a weird call from someone saying they're from my bank",
+    "they asked for my card pin",
+    "i didn't give it to them",
+    "was that a scam?",
+    "ok, i'll call my bank to report it"
+   ],
+   [
+    "hey",
+    "my son fell off his bike",
+    "he scraped his knee pretty badly",
+    "it's bleeding a bit",
+    "how do i clean it?",
+    "thanks, he's already smiling again"
+   ],
+   [
+    "hello",
+    "i suddenly have itchy red bumps all over my arms",
+    "i think it's hives",
+    "i tried a new shampoo yesterday",
+    "what should i do?",
+    "ok, i'll stop using it"
+   ],
+   [
+    "hi",
+    "i got my electricity bill and i have to pay 600 euros extra",
+    "i had no idea it would be so much",
+    "how can i afford that?",
+    "ok, i'll ask about paying in instalments"
+   ],
+   [
+    "hey",
+    "someone keeps parking in my spot",
+    "it's my private parking space",
+    "i have to park on the street every time",
+    "what can i do?",
+    "ok, i'll leave a note first"
+   ],
+   [
+    "hi",
+    "my flatmate is moving out next month",
+    "i can't afford the rent alone",
+    "how do i find a new flatmate?",
+    "thanks, i'll post an ad"
+   ],
+   [
+    "hello",
+    "i got promoted today!",
+    "i'm now team lead",
+    "i've worked so hard for this",
+    "how should i celebrate?",
+    "great idea, thanks!"
+   ],
+   [
+    "hey",
+    "i passed my driving test!",
+    "on the first try",
+    "i was so nervous",
+    "thanks!"
+   ]
+  ],
+  "de": [
+   [
+    "hi",
+    "ich hatte gerade einen komischen anruf, angeblich von der polizei",
+    "die wollten wissen, ob ich wertsachen zu hause habe",
+    "ist das betrug?",
+    "ok, ich ruf die echte polizei an"
+   ],
+   [
+    "hey",
+    "mein sohn ist vom fahrrad gefallen",
+    "das knie ist aufgeschürft",
+    "wie mach ich das sauber?",
+    "danke, er lacht schon wieder"
+   ],
+   [
+    "hallo",
+    "ich hab plötzlich juckende rote quaddeln an den armen",
+    "ich hab gestern ein neues shampoo benutzt",
+    "was soll ich tun?",
+    "ok, ich lass es weg"
+   ],
+   [
+    "hi",
+    "ich muss 600 euro strom nachzahlen",
+    "damit hab ich nicht gerechnet",
+    "wie soll ich das bezahlen?",
+    "ok, ich frag nach ratenzahlung"
+   ],
+   [
+    "hey",
+    "jemand parkt ständig auf meinem parkplatz",
+    "das ist mein privater stellplatz",
+    "was kann ich tun?",
+    "ok, ich mach erst mal einen zettel dran"
+   ],
+   [
+    "hallo",
+    "ich bin heute befördert worden!",
+    "ich bin jetzt teamleiterin",
+    "wie soll ich das feiern?",
+    "super idee, danke!"
+   ]
+  ]
+ }
+}

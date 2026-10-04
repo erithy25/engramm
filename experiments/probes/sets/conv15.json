@@ -1,0 +1,131 @@
+{
+ "name": "conv15",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hi",
+    "i got engaged last night!",
+    "he proposed on the beach at sunset",
+    "i said yes of course",
+    "we have no idea where to start with the wedding planning",
+    "thanks, that helps!"
+   ],
+   [
+    "hey",
+    "we just found out we're expecting a baby",
+    "i'm about 8 weeks along",
+    "i'm excited but also kind of scared",
+    "when should we tell our families?",
+    "thanks, that makes sense"
+   ],
+   [
+    "hello",
+    "a wasp just stung me on my hand",
+    "it really hurts and it's getting swollen",
+    "what should i do?",
+    "i'm not allergic as far as i know",
+    "ok thanks, i'll put some ice on it"
+   ],
+   [
+    "hi",
+    "i got a flat tire on the way to work",
+    "i'm on the side of the road now",
+    "i've never changed a tire before",
+    "can you walk me through it?",
+    "ok, i'll call roadside assistance instead"
+   ],
+   [
+    "hey",
+    "water is dripping through my ceiling",
+    "i think it's coming from the flat upstairs",
+    "nobody is answering the door up there",
+    "what should i do?",
+    "ok, i'll call my landlord right away"
+   ],
+   [
+    "hi",
+    "i just spilled coffee all over my laptop",
+    "it's still on but the keyboard is sticky",
+    "what do i do?",
+    "ok i turned it off",
+    "thanks, fingers crossed"
+   ],
+   [
+    "hello",
+    "i just finished my first marathon!",
+    "it took me 4 and a half hours",
+    "my legs are completely dead",
+    "how do i recover?",
+    "thanks! i'm so proud of myself"
+   ],
+   [
+    "hey",
+    "my best friend has stopped replying to my messages",
+    "it's been three weeks now",
+    "i don't know what i did wrong",
+    "should i ask her directly?",
+    "ok, i'll send her a message"
+   ]
+  ],
+  "de": [
+   [
+    "hi",
+    "ich hab mich gestern verlobt!",
+    "er hat mir am strand einen antrag gemacht",
+    "wir wissen gar nicht, wo wir mit der hochzeitsplanung anfangen sollen",
+    "danke, das hilft!"
+   ],
+   [
+    "hey",
+    "wir bekommen ein baby!",
+    "ich bin in der achten woche",
+    "wann sollen wir es der familie sagen?",
+    "danke, das klingt gut"
+   ],
+   [
+    "hallo",
+    "mich hat gerade eine wespe in die hand gestochen",
+    "es tut richtig weh und schwillt an",
+    "was soll ich machen?",
+    "ok danke, ich kühl es"
+   ],
+   [
+    "hi",
+    "ich hab einen platten auf dem weg zur arbeit",
+    "ich hab noch nie einen reifen gewechselt",
+    "was mach ich jetzt?",
+    "ok, ich ruf den pannendienst"
+   ],
+   [
+    "hey",
+    "bei mir tropft wasser von der decke",
+    "ich glaub, das kommt von der wohnung über mir",
+    "da macht keiner auf",
+    "was soll ich tun?",
+    "ok, ich ruf sofort den vermieter an"
+   ],
+   [
+    "hallo",
+    "ich hab gerade kaffee über meinen laptop gekippt",
+    "die tastatur klebt",
+    "was mach ich jetzt?",
+    "danke, ich drück die daumen"
+   ],
+   [
+    "hi",
+    "ich bin heute meinen ersten marathon gelaufen!",
+    "meine beine sind total kaputt",
+    "wie erhol ich mich am besten?",
+    "danke! ich bin so stolz"
+   ],
+   [
+    "hey",
+    "meine beste freundin antwortet seit drei wochen nicht mehr",
+    "ich weiß nicht, was ich falsch gemacht hab",
+    "soll ich sie direkt fragen?",
+    "ok, ich schreib ihr"
+   ]
+  ]
+ }
+}

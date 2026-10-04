@@ -1,0 +1,120 @@
+{
+ "name": "conv8b",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hey there",
+    "ugh i just locked myself out",
+    "left my keys inside",
+    "and it's midnight",
+    "do i need a locksmith?",
+    "oh wait, my sister has a spare key"
+   ],
+   [
+    "hi",
+    "my hairdresser ruined my hair",
+    "it's really uneven",
+    "and there's a party on friday",
+    "will it look okay by then?",
+    "ok thanks"
+   ],
+   [
+    "hello",
+    "i completely forgot my mom's birthday",
+    "it was two days ago",
+    "i feel so guilty",
+    "how can i make it up to him?",
+    "great idea, thanks"
+   ],
+   [
+    "hi",
+    "my tooth hurts",
+    "since yesterday",
+    "it hurts when i bite",
+    "should i go today?",
+    "ok i'll make an appointment"
+   ],
+   [
+    "hey",
+    "the dishwasher stopped working",
+    "it's 12 years old",
+    "should i repair it or buy a new one?",
+    "makes total sense, thanks"
+   ],
+   [
+    "hi",
+    "i'm trying to quit smoking",
+    "about a pack a day",
+    "i've tried so many times",
+    "how do i actually quit this time?",
+    "i'll start on monday"
+   ],
+   [
+    "hello",
+    "i can't get started on my dissertation",
+    "it's due next month",
+    "i keep scrolling on my phone",
+    "where do i start?",
+    "ok i'll give it a try"
+   ],
+   [
+    "hey",
+    "my flatmate is so dirty",
+    "clothes and trash everywhere",
+    "i don't want to make it awkward",
+    "what should i say?",
+    "thanks"
+   ]
+  ],
+  "de": [
+   [
+    "hallo",
+    "ich hab mich gerade ausgesperrt",
+    "mein schlüssel steckt noch drin",
+    "und es ist schon mitternacht",
+    "ist ein schlüsseldienst teuer?",
+    "zum glück hat mein bruder einen ersatzschlüssel"
+   ],
+   [
+    "hi",
+    "meine frisur ist eine katastrophe",
+    "total schief",
+    "nächste woche ist ein vorstellungsgespräch",
+    "wächst das rechtzeitig nach?",
+    "danke"
+   ],
+   [
+    "hey",
+    "ich hab den geburtstag von meinem bruder vergessen",
+    "das war vorgestern",
+    "ich fühle mich so schlecht",
+    "hast du tipps?",
+    "mach ich"
+   ],
+   [
+    "hi",
+    "mein zahn tut so weh",
+    "seit drei tagen",
+    "beim kauen tut es weh",
+    "ist das ein notfall?",
+    "ok, ich mach einen termin beim zahnarzt"
+   ],
+   [
+    "hallo",
+    "die spülmaschine ist kaputt",
+    "sie ist zwölf jahre alt",
+    "lohnt sich eine reparatur noch?",
+    "danke dir"
+   ],
+   [
+    "hey",
+    "ich möchte aufhören zu rauchen",
+    "etwa eine schachtel am tag",
+    "ich hab es schon oft versucht",
+    "wie schaffe ich das?",
+    "ab montag bin ich rauchfrei"
+   ]
+  ]
+ }
+}

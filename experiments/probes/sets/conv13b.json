@@ -1,0 +1,114 @@
+{
+ "name": "conv13b",
+ "note": "Gesprächsprobe aus den Runden 111–124 (verbraucht: nach dem ersten Lauf angepasst)",
+ "convs": {
+  "en": [
+   [
+    "hey",
+    "a tick bit my daughter",
+    "we pulled it out but the head stayed in",
+    "do we need a doctor?",
+    "thanks"
+   ],
+   [
+    "hi",
+    "i've got another migraine",
+    "every noise hurts",
+    "it happens several times a month",
+    "what can i take?",
+    "ok, i'll rest"
+   ],
+   [
+    "hello",
+    "the dog next door won't stop barking",
+    "it's been going on for weeks",
+    "i can't concentrate",
+    "what should i say to them?",
+    "thanks, i'll knock on their door"
+   ],
+   [
+    "hi",
+    "i didn't get my deposit back",
+    "i handed back the keys in june",
+    "there was no damage",
+    "can he keep it?",
+    "i'll write to him"
+   ],
+   [
+    "hey",
+    "i stepped on my glasses",
+    "i can hardly see anything",
+    "how fast can i get new ones?",
+    "thanks"
+   ],
+   [
+    "hi",
+    "i'm thinking about selling my car",
+    "it's a 2012 toyota yaris",
+    "how much can i get for it?",
+    "is it better to trade it in?",
+    "thanks"
+   ],
+   [
+    "hello",
+    "my daughter lies all the time",
+    "she's six",
+    "mostly about brushing her teeth",
+    "what should i do?",
+    "thanks"
+   ],
+   [
+    "hey",
+    "i have jury duty next week",
+    "no idea what to expect",
+    "how does it work?",
+    "thanks"
+   ]
+  ],
+  "de": [
+   [
+    "hey",
+    "meine tochter hatte eine zecke",
+    "der kopf ist noch drin",
+    "sollten wir zum arzt?",
+    "danke"
+   ],
+   [
+    "hi",
+    "ich hab schon wieder migräne",
+    "jedes geräusch tut weh",
+    "was kann ich nehmen?",
+    "ich leg mich ins dunkle"
+   ],
+   [
+    "hallo",
+    "der nachbarshund kläfft den ganzen tag",
+    "ich arbeite von zu hause",
+    "was soll ich sagen?",
+    "danke, ich klingel mal"
+   ],
+   [
+    "hi",
+    "ich hab meine kaution noch nicht zurück",
+    "die schlüssel hab ich im juni abgegeben",
+    "darf er die behalten?",
+    "ich schreib ihm"
+   ],
+   [
+    "hey",
+    "meine brille ist runtergefallen und kaputt",
+    "ich seh kaum was",
+    "wie schnell bekomme ich eine neue?",
+    "danke"
+   ],
+   [
+    "hallo",
+    "meine tochter schwindelt ständig",
+    "sie ist sechs",
+    "meistens beim zähneputzen",
+    "was soll ich tun?",
+    "danke"
+   ]
+  ]
+ }
+}
