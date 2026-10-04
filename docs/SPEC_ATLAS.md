@@ -254,7 +254,9 @@ Taschendieb, erster Arbeitstag; ungesehen EN 32→0/47, DE 20→0/31, Umformulie
 (Lauf 37190790076, Probe 121: Auffahrunfall, Katze, Schnarchen, Handy-PIN, Burnout, Nasenbluten, Gepäck, Handy im
 Wasser; ungesehen EN 32→0/46, DE 20→0/30, Umformulierung 7/44 und 12/31 → 0; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.43](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.43)
 (Lauf 37202392060, Probe 122: Zecke, Migräne, bellender Hund, Kaution, Brille, Auto verkaufen, Kind lügt, Geschworenendienst;
-ungesehen EN 34→0/47, DE 26→0/31, Umformulierung 5/45 und 5/31 → 0; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
+ungesehen EN 34→0/47, DE 26→0/31, Umformulierung 5/45 und 5/31 → 0; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.44](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.44)
+(Lauf 37215225427, Probe 123: Betrugsanruf, Kind gestürzt, Quaddeln, Energienachzahlung, Falschparker, Mitbewohner zieht aus,
+Beförderung, Führerschein; ungesehen EN 32→0/45, DE 26→0/30, Umformulierung 11/40 und 4/30 → 0; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
