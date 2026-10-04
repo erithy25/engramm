@@ -707,9 +707,11 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
         rel += ["#name"]                        # the name of your dog / brother
     if "#job" in rel and value and set(value.lower().split()) & _NOT_A_JOB:
         rel = [w for w in rel if w not in ("#job", "#work")]   # "i'm drowning in emails at work": emails are no job
-    if "#home" in rel and value and (re.search(r"\bstay(?:ing|ed)? up\b", s) or
-                                     re.fullmatch(r"\d{1,2}(?:[:.]\d\d)?(?: ?[ap]\.?m\.?)?|midnight|noon|late", value.lower())):
-        return extra                            # "i'll try to stay up until 10": a bedtime, not a home
+    if "#home" in rel and value and (re.search(r"\bstay(?:ing|ed)? up\b|\bhome (?:in|on|next|this|tomorrow|tonight|today|after)\b", s) or
+                                     re.fullmatch(r"\d{1,2}(?:[:.]\d\d)?(?: ?[ap]\.?m\.?)?|midnight|noon|late|one|two|three|four|five|six|seven|eight|nine|ten|a few|a couple|tomorrow|today|soon", value.lower())):
+        return extra                            # "i'll try to stay up until 10", "i'm flying home in two days": no home
+    if "#home" in rel and value:
+        value = re.sub(r"\s+(?:tomorrow|today|tonight|soon|later|next (?:week|month|year|weekend)|this (?:week|weekend|month|year))$", "", value, flags=re.I)
     return extra + [Fact(subject, tuple(sorted(set(rel))), value, source, sentence.strip(), kind if kind != "TEXT"
                          else object_kind(value))]
 

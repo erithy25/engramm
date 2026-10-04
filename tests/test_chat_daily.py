@@ -4189,3 +4189,42 @@ def test_battery119_bike_power_heating_bullying_food_ticket_passport_gym(chat):
         for msg, want in turns:
             t = a.turn(st, msg).text
             assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)
+
+
+def test_battery120_party_wallet_wisdom_driving_hayfever_phishing_pickpocket_firstday(chat):
+    """Loud party next door, lost wallet, wisdom teeth, driving lessons, hay fever, phishing, pickpocketed, first day."""
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"Tell me more\?|I see\.|I don't know|I'll remember|you live in|wear you down\. Want|\{|Erzähl ruhig mehr|Erzähl gern mehr|"
+                      r"nicht ganz verstanden|nicht nachschlagen|wie findest du das|celebrate", _re.I)
+    convs = [
+        ("en", [("the people upstairs are so loud tonight", "at night"), ("it's 1am", "quiet hours"), ("i have to get up at 6", "early"),
+                ("should i call the police?", "noise disturbance"), ("ok, i'll knock on their door first", "get up early")]),
+        ("en", [("i lost my wallet", "block your cards"), ("i think i left it on the bus", "lost and found"), ("what should i do first?", "116 116")]),
+        ("en", [("i'm getting my wisdom teeth out tomorrow", "big one"), ("they'll put me under", "sleep through"),
+                ("what should i eat afterwards?", "straw")]),
+        ("en", [("i started driving lessons", "exciting"), ("i'm terrible at parking", "practice"), ("any tips?", "reference points")]),
+        ("en", [("i've got terrible hay fever", "miserable"), ("what helps?", "cetirizine")]),
+        ("en", [("i clicked a dodgy link in an email", "don't panic"), ("i typed in my card details", "card blocked"),
+                ("what do i do now?", "official website")]),
+        ("en", [("i got pickpocketed in barcelona", "on a trip"), ("they took my phone and cash", "block"), ("what should i do?", "Barcelona")]),
+        ("en", [("tomorrow is my first day at a new job", "nerves"), ("it's a new city too", "fresh start"),
+                ("how do i make a good impression?", "names")]),
+        ("de", [("die nachbarn feiern eine laute party", "nachts"), ("es ist ein uhr nachts", "Nachtruhe"), ("soll ich die polizei rufen?", "Ruhestörung")]),
+        ("de", [("ich hab meinen geldbeutel verloren", "116 116"), ("ich glaub im zug", "Fundbüro"), ("was soll ich zuerst machen?", "Bürgeramt")]),
+        ("de", [("mir werden morgen die weisheitszähne gezogen", "großes Ding"), ("mit vollnarkose", "abholen"), ("was kann ich danach essen?", "Strohhalm")]),
+        ("de", [("ich mach gerade den führerschein", "spannend"), ("der kreisverkehr macht mich fertig", "Knackpunkte"),
+                ("hast du tipps?", "langsamer")]),
+        ("de", [("ich hab eine pollenallergie", "Heuschnupfen"), ("was kann ich nehmen?", "Cetirizin")]),
+        ("de", [("ich hab auf einen gefälschten link geklickt", "keine Panik"), ("ich hab mein passwort eingegeben", "wertlos"),
+                ("was mache ich jetzt?", "offiziellen Website")]),
+    ]
+    for i, (lang, turns) in enumerate(convs):
+        st = DialogState(f"c120-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        for msg, want in turns:
+            t = a.turn(st, msg).text
+            assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)
+    st = DialogState("c120-home")
+    a.turn(st, "i'm flying home in two days")
+    assert "two" not in a.turn(st, "where do i live?").text.lower()

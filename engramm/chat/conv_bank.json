@@ -18686,6 +18686,238 @@
      "Gute Idee – am besten von deinem Parkplatz aus, ungefähr zur gleichen Uhrzeit, und mit Straßenname im Bild. 📸"
     ]
    }
+  },
+  "b120": {
+   "party_start": [
+    "Ugh, that's exhausting — especially at night when you just want to sleep. Has it been going on for a while?"
+   ],
+   "party_late": [
+    "At that hour it's really not okay anymore — in many places quiet hours start at 10 pm."
+   ],
+   "party_early": [
+    "Oh no, that makes it so much worse. Every hour of lost sleep counts when you have to be up early."
+   ],
+   "party_police": [
+    "You can — a loud party in the middle of the night is a noise disturbance (in Germany you can call the police or the local public order office). But if you feel comfortable, knocking and asking them to turn it down often works faster and keeps the peace with your neighbours. If that doesn't help, call."
+   ],
+   "party_knock": [
+    "Good idea — friendly but clear: “Sorry, I have to get up early — could you turn it down?” Most people react better than you'd expect. And if they don't, you can still call."
+   ],
+   "wallet_start": [
+    "Oh no, that's so stressful! Retrace your last steps — and if it doesn't turn up, block your cards first, then report it to the police."
+   ],
+   "wallet_cards": [
+    "Then blocking and reporting come first — that protects you from anyone using your cards or documents."
+   ],
+   "wallet_where": [
+    "Then contact the lost and found — bus and rail companies and taxi firms all have one, and wallets are handed in surprisingly often. Many have an online form."
+   ],
+   "wallet_first": [
+    "In this order:\n\n• Block your bank cards right away — through your bank's app or hotline (in Germany: the central blocking number 116 116).\n• Report the lost ID to the police or your local authority, so nobody can misuse it.\n• Check the lost and found of the bus company, and the place where you last had it.\n• Watch your account for strange transactions over the next weeks.\n• Then order replacement cards and a new ID."
+   ],
+   "wallet_block": [
+    "Good — that's the most important step. Fingers crossed someone hands it in! 🍀"
+   ],
+   "wisdom_start": [
+    "Oh, that's a big one! How are you feeling about it?"
+   ],
+   "wisdom_scared": [
+    "That's completely understandable. The good news: it's one of the most common procedures, and you won't feel anything during it thanks to the anaesthetic."
+   ],
+   "wisdom_under": [
+    "Then you'll sleep through the whole thing. Make sure someone picks you up afterwards — you're not allowed to drive that day."
+   ],
+   "wisdom_four": [
+    "All at once is actually common — one recovery instead of several. Expect a few swollen days, but it's over in one go."
+   ],
+   "wisdom_eat": [
+    "For the first days: soft, cool or lukewarm food.\n\n• Yoghurt, pudding, smoothies (with a spoon, not a straw — sucking can loosen the clot).\n• Lukewarm soup, mashed potatoes, scrambled eggs, porridge.\n• Avoid hot, spicy, crunchy or crumbly food (nuts, crisps, seeds), and no alcohol or smoking for a few days.\n\nCooling your cheeks from the outside helps with the swelling. Follow what your dentist tells you about painkillers."
+   ],
+   "wisdom_recover": [
+    "Most people feel much better after three to five days. Rest, cool your cheeks, keep your head a bit raised when you sleep, and rinse gently only when your dentist says so."
+   ],
+   "drive_start": [
+    "Oh nice, exciting! How's it going so far?"
+   ],
+   "drive_parking": [
+    "Parking is the thing almost everyone struggles with at first — it's pure practice, not talent."
+   ],
+   "drive_skill": [
+    "That's one of the classic tricky bits at the start — it gets easier the more you do it."
+   ],
+   "drive_instructor": [
+    "That doesn't help when you're learning. It's okay to tell them calmly that you learn better without pressure — and if it doesn't change, you can switch instructors."
+   ],
+   "drive_tips": [
+    "For parking:\n\n• Go really slowly — slow is how you stay in control.\n• Use fixed reference points (when the car next to you lines up with your mirror or back window) and ask your instructor to show you yours.\n• Practise in an empty car park, with someone who's patient.\n• Use your mirrors constantly, and don't be afraid to correct — pulling out and trying again is completely normal.\n• Ask your instructor to explain it differently if it doesn't click."
+   ],
+   "drive_tips_general": [
+    "A few things that help with the tricky bits:\n\n• Slow down early — most stress comes from arriving too fast.\n• Look far ahead and decide early which lane and exit you need.\n• Ask your instructor to practise that one situation several times in a row.\n• Sit in as a passenger and watch how experienced drivers handle it.\n• Remind yourself: hesitating a moment is fine — that's what learners do."
+   ],
+   "drive_ok": [
+    "That's the way — every round makes it easier. You'll get there! 🚗"
+   ],
+   "hay_start": [
+    "Ugh, hay fever can be miserable. What's bothering you most?"
+   ],
+   "hay_symptoms": [
+    "That sounds exhausting — when your nose and eyes act up like that, it really wears you down."
+   ],
+   "hay_help": [
+    "What usually helps:\n\n• Antihistamine tablets (for example cetirizine or loratadine) from the pharmacy.\n• A steroid nasal spray works well if your nose is the main problem — use it daily.\n• Antihistamine eye drops for itchy eyes.\n• Shower and wash your hair before bed, and don't leave the day's clothes in the bedroom.\n• Keep windows closed when pollen counts are high, and check a pollen app.\n• Sunglasses help outside.\n\nIf it's bad every year, ask your doctor about allergy immunotherapy — it can reduce symptoms long-term."
+   ],
+   "phish_start": [
+    "Okay, don't panic — if you act quickly you can limit the damage. Did you enter any data, like a password or card details?"
+   ],
+   "phish_looked": [
+    "That's how they get you — those messages are made to look exactly like the real thing."
+   ],
+   "phish_entered": [
+    "Then act now, but calmly. The most important thing is to make that password worthless quickly."
+   ],
+   "phish_card": [
+    "Then call your bank right away and have the card blocked — card details can be misused within minutes."
+   ],
+   "phish_what": [
+    "Right away:\n\n• Call your bank on the number from their official website or your card — not the one in the message — and have online banking or your card blocked if needed (in Germany also via 116 116).\n• Change the password on the real website, and everywhere else you use the same one.\n• Turn on two-factor authentication if you haven't.\n• Check your account for transactions you don't recognise.\n• Forward the message to your bank's phishing address, then delete it.\n• If money was taken, report it to the police too."
+   ],
+   "phish_bank": [
+    "Good — that's exactly the right move. Use the number on your card or their official website. You're handling this well. 💪"
+   ],
+   "pick_start": [
+    "Oh no, that's awful — especially on a trip. What did they take?"
+   ],
+   "pick_start_local": [
+    "Oh no, that's awful. What did they take?"
+   ],
+   "pick_took": [
+    "Ugh, that's a lot to lose at once. At least you can block most things quickly."
+   ],
+   "pick_flight": [
+    "Okay, that's enough time to sort the important things."
+   ],
+   "pick_what": [
+    "Step by step:\n\n• Block your SIM with your mobile provider and lock or erase the phone remotely (Find My iPhone / Find My Device).\n• Block any bank cards that were taken.\n• Report it at a police station in {x} — you'll need the report for insurance.\n• If your passport or ID was taken, contact your embassy or consulate for an emergency travel document.\n• Need cash? A friend can send money via a money transfer service, or ask your bank about emergency cash."
+   ],
+   "pick_police": [
+    "Good — and ask for a copy of the report, ideally in English. Hope the rest of the trip is calmer! 🍀"
+   ],
+   "pick_embassy": [
+    "Good — they can issue an emergency travel document if you need one. Bring a police report and a passport photo if you can. 🍀"
+   ],
+   "first_start": [
+    "Exciting! First days are always a mix of nerves and excitement. How are you feeling?"
+   ],
+   "first_nervous": [
+    "Totally normal — nobody expects you to know everything on day one. They hired you for a reason."
+   ],
+   "first_noone": [
+    "That's how it is for every new person — and colleagues usually make an effort with someone new. You'll know faces by the end of the week."
+   ],
+   "first_city": [
+    "A new job and a new city at once is a lot — but also a fresh start. Colleagues are often the first people you get to know there."
+   ],
+   "first_impression": [
+    "A few things that really help:\n\n• Be a little early, and dress like the team does (if unsure, slightly smarter).\n• Learn names — write them down after each introduction.\n• Ask questions; nobody expects you to know everything yet.\n• Listen more than you talk on day one, and take notes.\n• Say yes to lunch or coffee with colleagues.\n• A friendly smile and a short “Hi, I'm new — nice to meet you” go a long way."
+   ],
+   "first_luck": [
+    "Good luck! You'll do great — and tell me how it went. 🍀"
+   ],
+   "de": {
+    "party_start": [
+     "Puh, das ist echt zermürbend – gerade nachts, wenn man einfach schlafen will. Geht das schon länger so?"
+    ],
+    "party_late": [
+     "Um die Uhrzeit geht das wirklich nicht mehr – die Nachtruhe gilt meist ab 22 Uhr."
+    ],
+    "party_early": [
+     "Oh nein, das macht es noch schlimmer. Jede Stunde Schlaf zählt, wenn man früh raus muss."
+    ],
+    "party_police": [
+     "Darfst du – laute Musik mitten in der Nacht ist eine Ruhestörung, da kannst du die Polizei oder das Ordnungsamt rufen. Wenn du dich traust, wirkt aber oft schneller und freundlicher: klingeln und bitten, leiser zu machen. Hilft das nicht, ruf an."
+    ],
+    "party_knock": [
+     "Gute Idee – freundlich, aber klar: „Sorry, ich muss früh raus – könnt ihr leiser machen?“ Die meisten reagieren besser als gedacht. Und wenn nicht, kannst du immer noch anrufen."
+    ],
+    "wallet_start": [
+     "Oh nein, wie stressig! Geh deine letzten Wege nochmal ab – und wenn es nicht wieder auftaucht: zuerst die Karten sperren (116 116), dann bei der Polizei melden."
+    ],
+    "wallet_cards": [
+     "Dann geht es jetzt vor allem ums Sperren und Melden – damit niemand deine Karten oder Papiere missbraucht."
+    ],
+    "wallet_where": [
+     "Dann lohnt sich das Fundbüro – Verkehrsbetriebe, Bahn und Taxiunternehmen haben eins, und Geldbeutel werden erstaunlich oft abgegeben. Viele haben ein Online-Formular."
+    ],
+    "wallet_first": [
+     "In dieser Reihenfolge:\n\n• Bankkarten sofort sperren – über die App deiner Bank oder den Sperr-Notruf 116 116.\n• Den verlorenen Ausweis bei der Polizei oder dem Bürgeramt melden, damit niemand ihn missbraucht.\n• Beim Fundbüro und dort nachfragen, wo du ihn zuletzt hattest.\n• In den nächsten Wochen das Konto auf seltsame Abbuchungen prüfen.\n• Dann Ersatzkarten und einen neuen Ausweis beantragen."
+    ],
+    "wallet_block": [
+     "Gut – das ist der wichtigste Schritt. Ich drück dir die Daumen, dass ihn jemand abgibt! 🍀"
+    ],
+    "wisdom_start": [
+     "Oh, das ist ein großes Ding! Wie geht es dir damit?"
+    ],
+    "wisdom_scared": [
+     "Das ist völlig verständlich. Die gute Nachricht: Das ist einer der häufigsten Eingriffe überhaupt, und dank Betäubung spürst du dabei nichts."
+    ],
+    "wisdom_under": [
+     "Dann verschläfst du das Ganze. Wichtig: Lass dich danach abholen – an dem Tag darfst du nicht selbst fahren."
+    ],
+    "wisdom_four": [
+     "Alle auf einmal ist sogar üblich – dann hast du nur einmal Heilung statt mehrmals. Rechne mit ein paar geschwollenen Tagen."
+    ],
+    "wisdom_eat": [
+     "In den ersten Tagen: weich, kühl oder lauwarm.\n\n• Joghurt, Pudding, Smoothies (mit dem Löffel, nicht mit Strohhalm – das Saugen kann das Blutgerinnsel lösen).\n• Lauwarme Suppe, Kartoffelbrei, Rührei, Haferbrei.\n• Nichts Heißes, Scharfes, Knuspriges oder Krümeliges (Nüsse, Chips, Körner), und ein paar Tage kein Alkohol und keine Zigaretten.\n\nVon außen kühlen hilft gegen die Schwellung. Bei Schmerzmitteln an die Anweisung deines Zahnarztes halten."
+    ],
+    "drive_start": [
+     "Oh cool, spannend! Wie läuft es bisher?"
+    ],
+    "drive_parking": [
+     "Einparken ist das, womit fast alle am Anfang kämpfen – das ist reine Übung, kein Talent."
+    ],
+    "drive_skill": [
+     "Das ist einer der klassischen Knackpunkte am Anfang – das wird mit jeder Fahrt leichter."
+    ],
+    "drive_instructor": [
+     "Das hilft beim Lernen gar nicht. Du darfst ruhig sagen, dass du ohne Druck besser lernst – und wenn sich nichts ändert, kannst du den Fahrlehrer wechseln."
+    ],
+    "drive_tips": [
+     "Fürs Einparken:\n\n• Ganz langsam fahren – langsam heißt Kontrolle.\n• Feste Bezugspunkte nutzen (wann das Nachbarauto im Spiegel oder in der Heckscheibe auftaucht) – lass sie dir von deinem Fahrlehrer zeigen.\n• Auf einem leeren Parkplatz mit jemand Geduldigem üben.\n• Ständig in die Spiegel schauen und keine Angst vorm Korrigieren – nochmal rausfahren ist völlig normal.\n• Bitte deinen Fahrlehrer, es anders zu erklären, wenn es nicht klickt."
+    ],
+    "drive_tips_general": [
+     "Ein paar Dinge, die bei den kniffligen Stellen helfen:\n\n• Früh langsamer werden – der meiste Stress entsteht, wenn man zu schnell ankommt.\n• Weit vorausschauen und früh entscheiden, welche Spur und Ausfahrt du brauchst.\n• Deinen Fahrlehrer bitten, genau diese Situation mehrmals hintereinander zu üben.\n• Als Beifahrer zuschauen, wie erfahrene Fahrer das machen.\n• Sag dir: Kurz zögern ist okay – dafür bist du in der Fahrschule."
+    ],
+    "drive_ok": [
+     "Genau so – jede Runde macht es leichter. Du schaffst das! 🚗"
+    ],
+    "hay_start": [
+     "Oh je, Heuschnupfen kann richtig fies sein. Was nervt dich am meisten?"
+    ],
+    "hay_symptoms": [
+     "Das klingt anstrengend – wenn Nase und Augen so verrücktspielen, zermürbt das richtig."
+    ],
+    "hay_help": [
+     "Was meistens hilft:\n\n• Antihistaminika-Tabletten (zum Beispiel Cetirizin oder Loratadin) aus der Apotheke.\n• Ein kortisonhaltiges Nasenspray hilft gut, wenn vor allem die Nase betroffen ist – täglich anwenden.\n• Antiallergische Augentropfen gegen das Jucken.\n• Abends duschen und Haare waschen, die Kleidung vom Tag nicht im Schlafzimmer lassen.\n• Bei starkem Pollenflug Fenster zu, und eine Pollen-App nutzen.\n• Draußen hilft eine Sonnenbrille.\n\nWenn es jedes Jahr schlimm ist: Frag deinen Arzt nach einer Hyposensibilisierung – die kann die Beschwerden langfristig senken."
+    ],
+    "phish_start": [
+     "Okay, keine Panik – wenn du schnell handelst, lässt sich der Schaden begrenzen. Hast du Daten eingegeben, zum Beispiel ein Passwort oder Kartendaten?"
+    ],
+    "phish_looked": [
+     "Genau so funktioniert die Masche – die Nachrichten sehen täuschend echt aus."
+    ],
+    "phish_entered": [
+     "Dann jetzt handeln, aber in Ruhe. Das Wichtigste ist, das Passwort schnell wertlos zu machen."
+    ],
+    "phish_card": [
+     "Dann ruf sofort deine Bank an und lass die Karte sperren (auch über 116 116) – Kartendaten können innerhalb von Minuten missbraucht werden."
+    ],
+    "phish_what": [
+     "Sofort:\n\n• Die Bank anrufen – mit der Nummer von der offiziellen Website oder deiner Karte, nicht aus der Nachricht – und bei Bedarf Online-Banking oder Karte sperren lassen (auch über 116 116).\n• Das Passwort auf der echten Website ändern, und überall, wo du dasselbe nutzt.\n• Zwei-Faktor-Anmeldung einschalten, falls noch nicht aktiv.\n• Das Konto auf unbekannte Buchungen prüfen.\n• Die Nachricht an die Phishing-Adresse deiner Bank weiterleiten und dann löschen.\n• Ist Geld weg: zusätzlich Anzeige bei der Polizei."
+    ],
+    "phish_bank": [
+     "Gut – genau richtig. Nimm die Nummer von deiner Karte oder der offiziellen Website. Du machst das gut. 💪"
+    ]
+   }
   }
  }
 }
