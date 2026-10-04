@@ -5675,3 +5675,191 @@ b123:
       - "Dann hast du es dir richtig verdient. Genieß den Moment – darauf kannst du stolz sein. 🎉"
     promo_celebrate:
       - "Ein paar Ideen:\n\n• Ein Essen mit den Menschen, die dich auf dem Weg unterstützt haben.\n• Gönn dir etwas, das du dir schon lange wünschst.\n• Kuchen oder Kaffee fürs Team mitbringen – ein schöner Start in die neue Rolle.\n• Einen Abend ganz frei nehmen, nur für dich.\n\nUnd schreib dir auf, was dich hierher gebracht hat – das ist an schwierigeren Tagen eine schöne Erinnerung."
+b124:
+  baby_start:
+    - "Oh wow, congratulations! 🎉 That's huge news. How are you feeling?"
+  baby_weeks:
+    - "Still early days, then — that's a lot to take in at once."
+  baby_scared:
+    - "That's completely normal — almost every parent-to-be feels that way at some point. You don't have to have it all figured out now."
+  baby_tell:
+    - "There's no fixed rule. Many couples wait until after the first trimester — around week 12 — because the risk of miscarriage drops noticeably by then. Others tell close family earlier, so they have support whatever happens. Do whatever feels right for the two of you."
+  engage_story:
+    - "That sounds like a scene from a film — so romantic! 💍"
+  engage_yes:
+    - "Of course you did! 😄 Enjoy this time — it's a really special one."
+  engage_plan:
+    - "Totally normal — nobody knows where to start at first. A good order:\n\n• Enjoy being engaged for a few weeks first — there's no rush.\n• Agree on a rough budget together.\n• Think about the size and style: small and relaxed, or a big party?\n• Pick a season or date range — popular venues are often booked a year ahead.\n• Book the venue first; the date, caterer, photographer and so on follow from that.\n• Keep one shared list or spreadsheet for guests, costs and to-dos.\n\nWhat kind of wedding do you picture?"
+  wasp_start:
+    - "Ouch! Stings like that really hurt. 😣"
+  wasp_swell:
+    - "Pain, redness and some swelling around the sting are normal — it usually peaks in the first day or two and then goes down."
+  wasp_what:
+    - "What helps:\n\n• Wash the spot with soap and water.\n• Cool it — an ice pack or cold cloth for 10–15 minutes at a time (not ice directly on the skin).\n• Keep the hand raised; take off rings before it swells more.\n• An antihistamine or a cooling gel from the pharmacy helps with itching and swelling.\n• Try not to scratch.\n\nCall emergency services right away if you have trouble breathing, your face, lips or throat swell, you feel dizzy or sick, or you were stung in the mouth or throat."
+  wasp_what_bee:
+    - "What helps:\n\n• If the stinger is still in, scrape it out sideways with a fingernail or card — don't squeeze it.\n• Wash the spot and cool it — an ice pack or cold cloth for 10–15 minutes at a time.\n• Keep the area raised; take off rings if it's on your hand.\n• An antihistamine or a cooling gel from the pharmacy helps with itching and swelling.\n\nCall emergency services right away if you have trouble breathing, your face, lips or throat swell, you feel dizzy or sick, or you were stung in the mouth or throat."
+  wasp_safe:
+    - "Then it's most likely just a local reaction — painful, but harmless. Keep an eye on it for the next hour or so anyway."
+  wasp_ice:
+    - "Good — wrap the ice in a cloth so it doesn't hurt your skin. Hope it calms down soon! 🐝"
+  tire_start:
+    - "Oh no, a flat is the last thing you need. Are you somewhere safe?"
+  tire_start_work:
+    - "Oh no, that's the last thing you need on the way to work. Are you somewhere safe?"
+  tire_safe:
+    - "Okay. Hazard lights on, and if you have them, put on the high-vis vest and set up the warning triangle. On a busy road, wait behind the barrier, not next to the car."
+  tire_never:
+    - "No worries — lots of people never have. You can give it a try, or call roadside assistance if you'd rather not."
+  tire_how:
+    - "Step by step:\n\n• Only on flat, firm ground and away from traffic — on a motorway hard shoulder it's safer to call for help.\n• Handbrake on, engine off, put it in gear (or P).\n• Get out the spare, jack and wrench — usually under the boot floor.\n• Loosen the wheel nuts half a turn while the wheel is still on the ground.\n• Put the jack at the marked point under the car and lift until the wheel is off the ground.\n• Unscrew the nuts, swap the wheel, screw the nuts on by hand.\n• Lower the car, then tighten the nuts firmly in a cross pattern.\n\nA small spare (space saver) is only for short distances and usually max. 80 km/h (50 mph) — get the tyre fixed soon. Your car's manual shows the exact jack points."
+  tire_call:
+    - "Sensible — wait somewhere safe away from the traffic until they arrive. 🚗"
+  tire_call_work:
+    - "Sensible — wait somewhere safe away from the traffic, and let work know you'll be late. 🚗"
+  leak_start:
+    - "Oh no! Put a bucket or towels under it first. Do you know where it's coming from?"
+  leak_upstairs:
+    - "Then try to reach them quickly — the sooner the water is turned off, the less damage."
+  leak_noanswer:
+    - "Then call your landlord, property management or the caretaker right away — many have an emergency number. If water is near lights or sockets, switch off the power to that room at the fuse box."
+  leak_what:
+    - "Right now:\n\n• Catch the water — buckets, towels — and move electronics and valuables away.\n• If water is near lights, sockets or the ceiling bulges: switch off the power to that area at the fuse box and stay out from under it.\n• Keep trying the neighbours upstairs; leave a note on their door.\n• Call your landlord, property management or caretaker — use their emergency number if they have one.\n• If a lot of water is coming through and nobody can be reached, call the fire brigade — they can help in emergencies.\n• Take photos and videos of the damage for the insurance."
+  leak_call:
+    - "Good — and take photos of the damage for the insurance. Fingers crossed it stops soon. 💧"
+  laptop_start:
+    - "Oh no! Switch it off right now and unplug it — don't wait."
+  laptop_on:
+    - "Turn it off now — hold the power button if you have to. As long as it's on with liquid inside, it can short-circuit."
+  laptop_what:
+    - "Here's what to do:\n\n• Switch it off and unplug it (if it's not off already); remove anything plugged in.\n• Turn it upside down like a tent over a towel so the liquid can drain out of the keyboard.\n• Dab — don't wipe — the outside dry with a cloth.\n• Let it dry for at least 24–48 hours. No hairdryer, no rice, and don't switch it on to test it.\n• Coffee with sugar or milk leaves sticky residue — a repair shop can open and clean it. If it's under warranty or insured, check that first.\n• Once it runs again, back up your files right away."
+  laptop_off:
+    - "Good. Now unplug it, flip it upside down like a tent over a towel and let it dry for at least 24–48 hours — don't switch it on to test it."
+  laptop_luck:
+    - "Fingers crossed! 🤞 Many laptops survive this when they're switched off quickly."
+  run_time:
+    - "That's a really solid time for a first marathon — and finishing is what counts!"
+  run_legs:
+    - "No wonder after 42 km — they've earned a rest. The next two or three days are usually the worst."
+  run_recover:
+    - "For the next days:\n\n• Keep moving gently — short walks help more than lying still all day.\n• Eat and drink well: carbohydrates, protein and plenty of fluids.\n• Sleep as much as you can — that's when your body repairs itself.\n• No running for about a week; easy cycling or swimming is fine once you feel like it.\n• A warm bath or a gentle massage after a day or two can feel great.\n\nSee a doctor if you have sharp pain in one spot, a lot of swelling, or you can't put weight on a leg."
+  run_proud:
+    - "You absolutely should be! Very few people ever run a marathon. 🏅"
+  friend_start:
+    - "Oh, that hurts — especially with someone you're close to. How long has it been?"
+  friend_long:
+    - "That's a long time, especially with someone so close. No wonder it's on your mind."
+  friend_wrong:
+    - "It might not be about you at all — sometimes people go quiet because they're struggling with something themselves."
+  friend_ask:
+    - "Yes, I think so — gently and without blame. Something like: “Hey, I haven't heard from you in a while and I miss you. Is everything okay? If I did something that upset you, I'd really like to know.” That leaves the door open."
+  friend_send:
+    - "I hope you hear back soon. Whatever the reason, reaching out is the right thing to do. 💛"
+  baby_first:
+    - "Your first — that makes it extra special. 💛"
+  baby_tell_boss:
+    - "There's usually no legal deadline, but in many countries your pregnancy protections only fully apply once your employer knows. Many people tell their boss after week 12. If your job involves heavy lifting, chemicals, radiation, night shifts or other risks, it's better to tell them earlier so your work can be adjusted."
+  engage_start:
+    - "Oh wow, congratulations! 💍 That's huge — tell me everything!"
+  engage_ring:
+    - "Aww, that's lovely! 💍 It must feel so real now."
+  wasp_stinger_seen:
+    - "Then get it out quickly — the sooner it's out, the less venom gets in."
+  wasp_stinger:
+    - "Scrape it out sideways with a fingernail or the edge of a bank card. Don't squeeze it with your fingers or tweezers — that can push more venom in. Then wash the spot and cool it."
+  laptop_survive:
+    - "There's a good chance, if it was switched off quickly and dries properly. Water is the most forgiving; coffee, tea with sugar or milk, and juice leave residue that can cause problems later — a repair shop can clean it. Don't switch it on for at least 24–48 hours."
+  friend_what:
+    - "Keep it gentle and without blame — something like: “Hey, I haven't heard from you in a while and I miss you. Is everything okay? If I did something that upset you, I'd really like to know.” That leaves the door open."
+  de:
+    baby_weeks:
+      - "Dann ist es ja noch ganz frisch – das ist erst mal viel auf einmal."
+    baby_scared:
+      - "Das ist völlig normal – fast alle werdenden Eltern kennen dieses Gefühl. Du musst jetzt noch nicht alles wissen."
+    baby_tell:
+      - "Eine feste Regel gibt es nicht. Viele warten bis nach den ersten drei Monaten – etwa bis zur 12. Woche –, weil das Risiko einer Fehlgeburt danach deutlich sinkt. Andere sagen es der engsten Familie früher, damit sie in jedem Fall Unterstützung haben. Macht es so, wie es sich für euch beide richtig anfühlt."
+    baby_thanks:
+      - "Gern! Alles Gute euch – und genießt die Vorfreude. 💛"
+    engage_story:
+      - "Das klingt wie aus einem Film – total romantisch! 💍"
+    engage_yes:
+      - "Natürlich! 😄 Genießt diese Zeit – die ist etwas ganz Besonderes."
+    engage_plan:
+      - "Ganz normal – am Anfang weiß das keiner. Eine gute Reihenfolge:\n\n• Erst mal ein paar Wochen das Verlobtsein genießen – es eilt nicht.\n• Gemeinsam ein grobes Budget festlegen.\n• Größe und Stil überlegen: klein und entspannt oder großes Fest?\n• Jahreszeit oder Zeitraum wählen – beliebte Locations sind oft ein Jahr im Voraus ausgebucht.\n• Zuerst die Location buchen; Termin, Catering, Fotograf usw. ergeben sich daraus. Den Termin beim Standesamt kann man in Deutschland bis zu sechs Monate vorher anmelden.\n• Eine gemeinsame Liste für Gäste, Kosten und Aufgaben anlegen.\n\nWie stellt ihr euch die Hochzeit vor?"
+    wasp_start:
+      - "Autsch! So ein Stich tut richtig weh. 😣"
+    wasp_swell:
+      - "Schmerzen, Rötung und etwas Schwellung um den Stich sind normal – das ist meist am ersten oder zweiten Tag am stärksten und geht dann zurück."
+    wasp_what:
+      - "Was hilft:\n\n• Die Stelle mit Wasser und Seife waschen.\n• Kühlen – Kühlpack oder kaltes Tuch, jeweils 10–15 Minuten (Eis nicht direkt auf die Haut).\n• Die Hand hochlagern; Ringe abnehmen, bevor es weiter anschwillt.\n• Ein kühlendes Gel oder ein Antihistaminikum aus der Apotheke hilft gegen Jucken und Schwellung.\n• Möglichst nicht kratzen.\n\nSofort die 112 rufen bei Atemnot, Schwellung von Gesicht, Lippen oder Hals, Schwindel oder Übelkeit – oder wenn der Stich im Mund oder Rachen ist."
+    wasp_what_bee:
+      - "Was hilft:\n\n• Steckt der Stachel noch, ihn seitlich mit dem Fingernagel oder einer Karte herausschieben – nicht drücken.\n• Die Stelle waschen und kühlen – Kühlpack oder kaltes Tuch, jeweils 10–15 Minuten.\n• Hochlagern; Ringe abnehmen, wenn es die Hand ist.\n• Ein kühlendes Gel oder ein Antihistaminikum aus der Apotheke hilft gegen Jucken und Schwellung.\n\nSofort die 112 rufen bei Atemnot, Schwellung von Gesicht, Lippen oder Hals, Schwindel oder Übelkeit – oder wenn der Stich im Mund oder Rachen ist."
+    wasp_safe:
+      - "Dann ist es sehr wahrscheinlich nur eine örtliche Reaktion – schmerzhaft, aber harmlos. Behalte es trotzdem die nächste Stunde im Blick."
+    wasp_ice:
+      - "Gut – das Eis in ein Tuch wickeln, damit die Haut nicht leidet. Gute Besserung! 🐝"
+    tire_start:
+      - "Oh nein, eine Panne fehlt gerade noch. Stehst du sicher?"
+    tire_start_work:
+      - "Oh nein, das fehlt gerade noch auf dem Weg zur Arbeit. Stehst du sicher?"
+    tire_safe:
+      - "Okay. Warnblinker an, Warnweste anziehen und das Warndreieck aufstellen. Auf einer vielbefahrenen Straße hinter der Leitplanke warten, nicht neben dem Auto."
+    tire_never:
+      - "Kein Problem – das haben viele noch nie. Du kannst es versuchen oder den Pannendienst rufen, wenn dir das lieber ist."
+    tire_how:
+      - "Schritt für Schritt:\n\n• Nur auf ebenem, festem Boden und abseits vom Verkehr – auf dem Standstreifen der Autobahn lieber den Pannendienst rufen.\n• Handbremse an, Motor aus, Gang einlegen (oder P).\n• Ersatzrad, Wagenheber und Radschlüssel holen – meist unter dem Kofferraumboden.\n• Radmuttern eine halbe Umdrehung lösen, solange das Rad noch auf dem Boden steht.\n• Wagenheber am markierten Punkt ansetzen und anheben, bis das Rad frei ist.\n• Muttern abschrauben, Rad tauschen, Muttern von Hand andrehen.\n• Auto ablassen und die Muttern über Kreuz fest anziehen.\n\nEin Notrad ist nur für kurze Strecken und meist höchstens 80 km/h gedacht – den Reifen bald reparieren lassen. Die genauen Ansatzpunkte stehen in der Betriebsanleitung. Hast du keinen Ersatzreifen, sondern ein Pannenset, hilft die Anleitung im Set."
+    tire_call:
+      - "Vernünftig – warte an einer sicheren Stelle abseits vom Verkehr, bis sie da sind. 🚗"
+    tire_call_work:
+      - "Vernünftig – warte an einer sicheren Stelle abseits vom Verkehr und sag bei der Arbeit Bescheid, dass es später wird. 🚗"
+    leak_start:
+      - "Oh nein! Stell erst mal einen Eimer oder Handtücher drunter. Weißt du, woher es kommt?"
+    leak_upstairs:
+      - "Dann versuch, die Leute oben schnell zu erreichen – je früher das Wasser abgedreht ist, desto kleiner der Schaden."
+    leak_noanswer:
+      - "Dann ruf sofort den Vermieter, die Hausverwaltung oder den Hausmeister an – viele haben eine Notfallnummer. Ist Wasser in der Nähe von Lampen oder Steckdosen, schalte für den Raum die Sicherung aus."
+    leak_what:
+      - "Jetzt sofort:\n\n• Wasser auffangen – Eimer, Handtücher – und Elektrogeräte und Wertsachen wegräumen.\n• Ist Wasser in der Nähe von Lampen oder Steckdosen oder wölbt sich die Decke: Sicherung für den Bereich ausschalten und nicht darunter stehen.\n• Weiter bei den Nachbarn oben klingeln und einen Zettel an die Tür hängen.\n• Vermieter, Hausverwaltung oder Hausmeister anrufen – am besten die Notfallnummer.\n• Kommt viel Wasser und ist niemand erreichbar: die Feuerwehr (112) hilft in solchen Notfällen.\n• Fotos und Videos vom Schaden für die Versicherung machen – für deine Sachen ist die Hausratversicherung zuständig, für das Gebäude die des Vermieters."
+    leak_call:
+      - "Gut – und mach Fotos vom Schaden für die Versicherung. Ich drück die Daumen, dass es bald aufhört. 💧"
+    laptop_start:
+      - "Oh nein! Sofort ausschalten und den Stecker ziehen – nicht abwarten."
+    laptop_on:
+      - "Dann jetzt ausschalten – notfalls den Einschaltknopf gedrückt halten. Solange er mit Flüssigkeit drin läuft, droht ein Kurzschluss."
+    laptop_what:
+      - "So gehst du vor:\n\n• Ausschalten und Stecker ziehen (falls noch nicht geschehen); alles Angeschlossene abziehen.\n• Den Laptop umgedreht wie ein Zelt auf ein Handtuch stellen, damit die Flüssigkeit aus der Tastatur laufen kann.\n• Außen tupfen, nicht wischen.\n• Mindestens 24–48 Stunden trocknen lassen. Kein Föhn, kein Reis, und nicht zum Testen einschalten.\n• Kaffee mit Zucker oder Milch hinterlässt klebrige Reste – eine Werkstatt kann ihn öffnen und reinigen. Vorher prüfen, ob Garantie oder Versicherung greift.\n• Läuft er wieder: sofort eine Sicherung deiner Daten machen."
+    laptop_off:
+      - "Gut. Jetzt Stecker raus, umgedreht wie ein Zelt auf ein Handtuch stellen und mindestens 24–48 Stunden trocknen lassen – nicht zum Testen einschalten."
+    laptop_luck:
+      - "Ich drück mit! 🤞 Viele Laptops überleben das, wenn sie schnell ausgeschaltet werden."
+    run_time:
+      - "Das ist eine richtig gute Zeit für den ersten Marathon – und Ankommen ist das, was zählt!"
+    run_legs:
+      - "Kein Wunder nach 42 Kilometern – die haben sich die Pause verdient. Die nächsten zwei, drei Tage sind meist die schlimmsten."
+    run_recover:
+      - "Für die nächsten Tage:\n\n• In Bewegung bleiben, aber locker – kurze Spaziergänge helfen mehr als den ganzen Tag liegen.\n• Gut essen und trinken: Kohlenhydrate, Eiweiß und viel Flüssigkeit.\n• So viel schlafen wie möglich – da repariert sich der Körper.\n• Etwa eine Woche nicht laufen; lockeres Radfahren oder Schwimmen ist okay, sobald du Lust hast.\n• Ein warmes Bad oder eine sanfte Massage nach ein, zwei Tagen tut gut.\n\nZum Arzt bei stechenden Schmerzen an einer Stelle, starker Schwellung oder wenn du ein Bein nicht belasten kannst."
+    run_proud:
+      - "Das darfst du auch sein! Die allerwenigsten laufen je einen Marathon. 🏅"
+    friend_start:
+      - "Oh, das tut weh – gerade bei jemandem, der dir so nahesteht. Das beschäftigt dich bestimmt sehr."
+    friend_wrong:
+      - "Vielleicht hat es gar nichts mit dir zu tun – manchmal ziehen sich Menschen zurück, weil sie selbst gerade mit etwas kämpfen."
+    friend_ask:
+      - "Ja, ich glaube schon – behutsam und ohne Vorwurf. Etwa so: „Hey, ich hab lange nichts von dir gehört und vermisse dich. Ist alles okay bei dir? Falls ich etwas gemacht habe, das dich verletzt hat, würde ich es gern wissen.“ So bleibt die Tür offen."
+    friend_send:
+      - "Ich hoffe, du hörst bald etwas. Egal, was dahintersteckt – den ersten Schritt zu machen, ist richtig. 💛"
+    baby_first:
+      - "Euer erstes – das macht es noch besonderer. 💛"
+    baby_tell_boss:
+      - "Eine gesetzliche Frist gibt es in Deutschland nicht. Aber der Mutterschutz greift erst richtig, wenn dein Arbeitgeber Bescheid weiß – etwa der besondere Kündigungsschutz und das Verbot gefährlicher Tätigkeiten. Viele sagen es nach der 12. Woche. Hast du einen körperlich belastenden Job, Nachtschichten oder Kontakt mit Chemikalien, sag es lieber früher, damit deine Arbeit angepasst werden kann."
+    engage_start:
+      - "Oh wow, herzlichen Glückwunsch! 💍 Das ist ja riesig – erzähl alles!"
+    engage_ring:
+      - "Wie schön! 💍 Jetzt fühlt es sich bestimmt richtig echt an."
+    wasp_stinger_seen:
+      - "Dann hol ihn schnell raus – je früher, desto weniger Gift gelangt in die Haut."
+    wasp_stinger:
+      - "Schieb ihn seitlich mit dem Fingernagel oder dem Rand einer Karte heraus. Nicht mit den Fingern oder einer Pinzette drücken – sonst kann noch mehr Gift hineingelangen. Danach die Stelle waschen und kühlen."
+    laptop_survive:
+      - "Gute Chancen, wenn er schnell ausgeschaltet wurde und richtig trocknet. Wasser ist am harmlosesten; Kaffee, Tee mit Zucker oder Milch und Saft hinterlassen Rückstände, die später Probleme machen können – eine Werkstatt kann ihn reinigen. Mindestens 24–48 Stunden nicht einschalten."
+    friend_what:
+      - "Am besten behutsam und ohne Vorwurf, etwa so: „Hey, ich hab lange nichts von dir gehört und vermisse dich. Ist alles okay bei dir? Falls ich etwas gemacht habe, das dich verletzt hat, würde ich es gern wissen.“ So bleibt die Tür offen."

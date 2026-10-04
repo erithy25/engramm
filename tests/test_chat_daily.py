@@ -4338,3 +4338,49 @@ def test_battery123_scam_fall_hives_bill_parking_flatmate_promotion_license(chat
     st = DialogState("c123-name")
     a.turn(st, "i got a weird call from someone today")
     assert "weird" not in a.turn(st, "what's my name?").text.lower()
+
+
+def test_battery124_engaged_baby_sting_tyre_leak_laptop_marathon_friend(chat):
+    """Engagement, a baby on the way, a wasp/bee sting, a flat tyre, a leaking ceiling, coffee on a laptop, a first
+    marathon and a friend who went silent — plus the memory slips they used to cause."""
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"Tell me more\?|I see\.|I don't know|I'll remember|work as a baby|you live in|\{|Erzähl ruhig mehr|"
+                      r"Erzähl gern mehr|nicht ganz verstanden|nicht nachschlagen|wie findest du das|How's that going", _re.I)
+    convs = [
+        ("en", [("my girlfriend proposed to me last night", "congratulations"), ("she got down on one knee", "romantic"),
+                ("where do we start with planning the wedding?", "budget")]),
+        ("en", [("we're expecting a baby", "congratulations"), ("i'm 9 weeks along", "early days"), ("i'm kind of nervous", "normal"),
+                ("when should we tell our parents?", "week 12"), ("when should i tell my employer?", "employer knows")]),
+        ("en", [("i got stung by a wasp", "Ouch"), ("it's swollen and red", "normal"), ("what should i do?", "emergency")]),
+        ("en", [("a bee stung me", "Ouch"), ("how do i get the stinger out?", "Scrape")]),
+        ("en", [("i have a flat tyre", "somewhere safe"), ("can you walk me through it?", "jack"), ("i'll call the breakdown service", "until they arrive")]),
+        ("en", [("water is leaking through the ceiling", "bucket"), ("nobody's home upstairs", "landlord"), ("what should i do?", "fuse box")]),
+        ("en", [("i spilled wine on my laptop", "Switch it off"), ("will it survive?", "good chance"), ("i turned it off", "upside down")]),
+        ("en", [("i just ran a marathon", ""), ("my legs are so sore", "rest"), ("how do i recover?", "fluids")]),
+        ("en", [("my best friend isn't replying to my texts", "hurts"), ("it's been two weeks", "long time"), ("what should i write to her?", "without blame")]),
+        ("de", [("er hat mir gestern einen antrag gemacht", "Glückwunsch"), ("wie sollen wir die hochzeit planen?", "Budget")]),
+        ("de", [("ich bin schwanger", ""), ("ich bin in der 9. woche", "frisch"), ("wann sag ich es meiner chefin?", "Mutterschutz")]),
+        ("de", [("mich hat eine wespe gestochen", "Autsch"), ("was hilft?", "112")]),
+        ("de", [("ich hab einen platten", "sicher"), ("ich ruf den adac", "bis sie da sind")]),
+        ("de", [("bei mir tropft es von der decke", "Eimer"), ("da ist keiner zu hause", "Hausverwaltung")]),
+        ("de", [("ich hab kaffee über die tastatur von meinem laptop geschüttet", "ausschalten"), ("was soll ich tun?", "Zelt")]),
+        ("de", [("meine freundin meldet sich nicht mehr bei mir", "tut weh"), ("was soll ich ihr schreiben?", "ohne Vorwurf")]),
+    ]
+    for i, (lang, turns) in enumerate(convs):
+        st = DialogState(f"c124-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        for msg, want in turns:
+            t = a.turn(st, msg).text
+            assert not bad.search(t) and (not want or _re.search(want, t, _re.I)), (msg, t)
+    st = DialogState("c124-mem")
+    a.turn(st, "we just found out we're expecting a baby")
+    a.turn(st, "i got a flat tire on the way to work")
+    a.turn(st, "i think it's coming from the flat upstairs")
+    assert "baby" not in a.turn(st, "what's my job?").text.lower()
+    t = a.turn(st, "where do i live?").text.lower()
+    assert "tire" not in t and "think" not in t
+    st = DialogState("c124-job")
+    a.turn(st, "i work as a nurse")
+    a.turn(st, "i just spilled coffee all over my laptop")
+    assert "nurse" not in a.turn(st, "what do i do?").text.lower()

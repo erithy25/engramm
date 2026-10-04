@@ -716,6 +716,13 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
         rel += ["#name"]                        # the name of your dog / brother
     if "#job" in rel and value and set(value.lower().split()) & _NOT_A_JOB:
         rel = [w for w in rel if w not in ("#job", "#work")]   # "i'm drowning in emails at work": emails are no job
+    if "#job" in rel and re.search(r"\b(?:am|are|is|was|were)\s+(?!becoming\b|training\b|working\b|studying\b|employed\b)\w+ing\s+(?:a|an)\b", " ".join(lw)) and \
+            not re.search(r"\b(?:job|profession|career|works? as|working as|employed|trained|qualified)\b", " ".join(lw)):
+        rel = [w for w in rel if w not in ("#job", "#work")]   # "we're expecting a baby": something on the way, not a job
+    if "#home" in rel and re.search(r"\bflat (?:tire|tyre|tires|tyres|battery|feet|rate|fee|white|screen|shoes|surface|line)\b|"
+                                    r"\b(?:the|a|another) (?:flat|apartment) (?:upstairs|downstairs|above|below|next door|opposite|across)\b", " ".join(lw)) and \
+            not re.search(r"\b(?:live|lives|living|lived|moved?|moving|based|reside|home)\b|\b(?:my|our) (?:flat|apartment)\b", " ".join(lw)):
+        return extra                            # "i got a flat tire", "it's coming from the flat upstairs": no home
     if "#home" in rel and value and (re.search(r"\bstay(?:ing|ed)? up\b|\bhome (?:in|on|next|this|tomorrow|tonight|today|after)\b", s) or
                                      re.fullmatch(r"\d{1,2}(?:[:.]\d\d)?(?: ?[ap]\.?m\.?)?|midnight|noon|late|one|two|three|four|five|six|seven|eight|nine|ten|a few|a couple|tomorrow|today|soon", value.lower())):
         return extra                            # "i'll try to stay up until 10", "i'm flying home in two days": no home
