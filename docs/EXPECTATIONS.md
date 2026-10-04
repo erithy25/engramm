@@ -3966,6 +3966,36 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: NQ 22/9; Suite 819 bestanden. Gesprächsproben 111–120 (mit 117b–120b), Generisch, Held-out, Follow und
   Stimmung stehen bei 0; Wiederholungen 5 von 700. Test 120 hält 14 Gespräche fest.
+- **Probe 121: zwölfte ungesehene Gesprächsprobe** (4. Oktober 2026): 8 englische und 6 deutsche Gespräche, einmal
+  vor jeder Anpassung gemessen; jede Antwort gelesen, ohne KI-Richter. Umformulierungsprobe 121b nach den Anpassungen
+  geschrieben und einmal gemessen.
+  Themen: Auffahrunfall, Katze kommt nicht heim, schnarchender Partner, vergessene Handy-PIN, Burnout, Nasenbluten,
+  verlorenes Gepäck, Handy ins Wasser gefallen.
+
+  | Stand | EN schwach (gelesen) | DE schwach (gelesen) |
+  |---|---|---|
+  | erster Lauf | 32 von 46 | 20 von 30 |
+  | nach b121 | 0 von 46 | 0 von 30 |
+  | Umformulierung 121b, erster Lauf nach b121 | 7 von 44 | 12 von 31 |
+  | Umformulierung 121b, nach Korrektur | 0 von 44 | 0 von 31 |
+
+  Im Deutschen fehlten diesmal vor allem Einstiege („ich hatte einen kleinen Unfall“, „unser Kater“): Dann kippte
+  sogar die Stimmung („allen geht's gut“ → „Was ist denn Schönes passiert?“). Ein zu breites Muster („drauf“ in
+  „ich sprech ihn drauf an“) löste den Unfall-Einstieg aus; das wurde vor dem Commit gefunden.
+
+  Gefundene Fehler (allgemein behoben):
+  - „should i put it in rice?“ (nach „i have a nosebleed that won't stop“) wurde aus dem Gedächtnis beantwortet:
+    „nosebleed that will not stop — you told me …“. Ratfragen der Form „should/do i …“ werden nur noch aus dem
+    Gedächtnis beantwortet, wenn die tatsächlich getippten Wörter zum gespeicherten Satz passen; das aufgelöste
+    „it“ zählt dabei nicht.
+  - Die Tippfehlerkorrektur veränderte weitere Alltagswörter (snores, nosebleed, burnout, earplugs, passcode);
+    sie sind jetzt geschützt.
+
+  Routine gegen b120 (d7b98c5): DEV-Satz unverändert, alle 80 Batterieausgaben identisch.
+
+  Messung: NQ 22/9; Suite 820 bestanden. Gesprächsproben 111–121 (mit 117b–121b), Generisch, Held-out, Follow und
+  Stimmung stehen bei 0 (in 120/120b bleibt der bekannte Fehlalarm „nice to meet you“); Wiederholungen 5 von 700.
+  Test 121 hält 14 Gespräche fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
