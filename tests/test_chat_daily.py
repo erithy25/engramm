@@ -4149,3 +4149,43 @@ def test_battery118_mould_sunburn_hangover_jetlag_job_money_toddler_car(chat):
     st = DialogState("c118-bed")
     a.turn(st, "i'll stay up until 10")
     assert "10" not in a.turn(st, "where do i live?").text
+
+
+def test_battery119_bike_power_heating_bullying_food_ticket_passport_gym(chat):
+    """Stolen bike, power cut, broken heating, bullying, food poisoning, parking ticket, lost passport, cancelling a gym."""
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"Tell me more\?|I see\.|I don't know|I'll remember|wear you down|\bon she\b|\{|Erzähl ruhig mehr|Erzähl gern mehr|"
+                      r"nicht ganz verstanden|nicht nachschlagen|wie findest du das", _re.I)
+    convs = [
+        ("en", [("someone stole my bike last night", "locked"), ("it was locked outside my building", "cable locks"),
+                ("should i report it to the police?", "frame number")]),
+        ("en", [("the power just went out", "whole building"), ("it's just our building", "fuse box"),
+                ("how long does it usually last?", "few hours"), ("what should i do?", "freezer")]),
+        ("en", [("our heating has been broken for a week", "How cold"), ("the landlord isn't responding", "in writing"),
+                ("what are my rights?", "reduce the rent"), ("ok, i'll send him an email", "factual")]),
+        ("en", [("my son is being bullied at school", ""), ("he's 12", "vulnerable age"), ("he cries every morning", "on him"),
+                ("how do i help him?", "class teacher")]),
+        ("en", [("i think i have food poisoning", "What did you eat"), ("i've been throwing up all morning", "small sips"),
+                ("when should i see a doctor?", "39")]),
+        ("en", [("i got a speeding ticket", ""), ("the sign was hidden behind a tree", "contest"), ("can i appeal it?", "deadline"),
+                ("i'll take pictures tomorrow", "driver's point of view")]),
+        ("en", [("i can't find my passport", "When do you need"), ("my flight is in five days", "tight"),
+                ("what do i do now?", "emergency or temporary passport"), ("ok, i'll call the passport office tomorrow", "Good plan")]),
+        ("en", [("i want to cancel my gym membership", "contract"), ("they say i have to cancel in person", "tactic"),
+                ("is that even legal?", "text form")]),
+        ("de", [("mir wurde gestern das fahrrad geklaut", "abgeschlossen"), ("soll ich das bei der polizei anzeigen?", "Rahmennummer")]),
+        ("de", [("bei uns ist gerade der strom ausgefallen", "Straße"), ("nur in unserem haus", "Sicherungskasten"),
+                ("wie lange dauert so was?", "Stunden")]),
+        ("de", [("unsere heizung ist seit einer woche kaputt", "Wie kalt"), ("welche rechte habe ich?", "mindern")]),
+        ("de", [("meine tochter wird in der schule gemobbt", "Wie geht es ihr"), ("sie weint jeden morgen", "ihr zu schaffen"),
+                ("wie kann ich ihr helfen?", "Klassenlehrkraft")]),
+        ("de", [("ich glaube, ich hab eine lebensmittelvergiftung", "gegessen"), ("wann sollte ich zum arzt?", "116 117")]),
+        ("de", [("ich hab einen strafzettel bekommen", ""), ("das schild war total unklar", "Einspruch"), ("kann ich einspruch einlegen?", "Frist")]),
+    ]
+    for i, (lang, turns) in enumerate(convs):
+        st = DialogState(f"c119-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        for msg, want in turns:
+            t = a.turn(st, msg).text
+            assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)

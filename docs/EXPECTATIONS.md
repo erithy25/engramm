@@ -3907,6 +3907,33 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: NQ 22/9; Suite 817 bestanden. Gesprächsproben 111–118 (mit 117b und 118b), Generisch, Held-out, Follow
   und Stimmung stehen bei 0; Wiederholungen 5 von 700 wie zuvor. Test 118 hält 14 Gespräche fest.
+- **Probe 119: zehnte ungesehene Gesprächsprobe** (4. Oktober 2026): 8 englische und 6 deutsche Gespräche, einmal
+  vor jeder Anpassung gemessen; jede Antwort gelesen, ohne KI-Richter. Die Umformulierungsprobe 119b wurde nach den
+  Anpassungen geschrieben und einmal gemessen.
+  Themen: Fahrrad gestohlen, Stromausfall, Heizung kaputt und Vermieter reagiert nicht, Kind wird gemobbt,
+  Lebensmittelvergiftung, Strafzettel, Pass vor dem Flug verloren, Fitnessstudio kündigen. Rechtliche Hinweise
+  (Mietminderung, Einspruchsfrist, Textform bei Kündigungen) sind ausdrücklich als „in Deutschland zum Beispiel“
+  formuliert, mit Verweis auf Mieterverein, Verbraucherzentrale bzw. Behörde.
+
+  | Stand | EN schwach (gelesen) | DE schwach (gelesen) |
+  |---|---|---|
+  | erster Lauf | 34 von 48 | 21 von 31 |
+  | nach b119 | 0 von 48 | 0 von 31 |
+  | Umformulierung 119b, erster Lauf nach b119 | 4 von 47 | 2 von 34 |
+  | Umformulierung 119b, nach Korrektur | 0 von 47 | 0 von 34 |
+
+  Verlauf der Umformulierungsproben: 117b 14/10, 118b 9/8, 119b 4/2. Die Themen-Abläufe decken
+  Paraphrasen also zunehmend ab, weil Unterfälle (nur das eigene Haus, Blitzer statt Parken, Bruder statt Freund)
+  jetzt von Anfang an mitgedacht werden.
+
+  Routine gegen b118 (e65cd80): DEV-Satz unverändert. Im ersten Lauf verdrängten die Einstiege „Fahrrad geklaut“
+  (b80, b81) und „Heizung kaputt“ bestehende Abläufe; die Heizung traf dabei einen offenen Mail-Entwurf („write an
+  email to my landlord“ → „the heating is broken since monday“, b101b/b102b) und einen Schreibauftrag im Test.
+  Behoben: Beide Einstiege antworten nur spät; solange ein Mail-Entwurf offen ist oder die Nachricht selbst ein
+  Schreibauftrag ist, schweigt Batterie 119. Danach alle 80 Batterieausgaben identisch.
+
+  Messung: NQ 22/9; Suite 818 bestanden. Gesprächsproben 111–119 (mit 117b–119b), Generisch, Held-out, Follow und
+  Stimmung stehen bei 0; Wiederholungen 5 von 700. Test 119 hält 14 Gespräche fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

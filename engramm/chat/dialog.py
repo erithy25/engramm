@@ -1011,7 +1011,7 @@ class Assistant:
         if u.kind not in ("safety", "remember", "ask_name", "calc", "intent") and gibberish(msg, known):
             return Reply(msg, "unknown", self._pick(st, "de:gib", dd["gibberish"]), via="gibberish")
         if u.kind != "safety":
-            life = self._german_mem67(st, msg, s) or self._german_ctx118(st, msg, s) or self._german_ctx117(st, msg, s) or self._german_ctx116(st, msg, s) or self._german_ctx115(st, msg, s) or self._german_ctx114(st, msg, s) or self._german_ctx113(st, msg, s) or self._german_ctx112(st, msg, s) or self._german_ctx111(st, msg, s) or self._german_ctx104(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
+            life = self._german_mem67(st, msg, s) or self._german_ctx119(st, msg, s) or self._german_ctx118(st, msg, s) or self._german_ctx117(st, msg, s) or self._german_ctx116(st, msg, s) or self._german_ctx115(st, msg, s) or self._german_ctx114(st, msg, s) or self._german_ctx113(st, msg, s) or self._german_ctx112(st, msg, s) or self._german_ctx111(st, msg, s) or self._german_ctx104(st, msg, s) or self._german_ctx102(st, msg, s) or self._german_ctx100(st, msg, s) or self._german_ctx86(st, msg, s) or self._german_ctx74(st, msg, s) or self._german_ctx73(st, msg, s) or self._german_ctx70(st, msg, s) or self._german_ctx68(st, msg, s) or self._german_ctx65(st, msg, s) or self._german_ctx57(st, msg, s) or \
                 self._german_ctx61(st, msg, s) or \
                 self._german_ctx63(st, msg, s) or \
                 self._german_ctx(st, msg, s) or \
@@ -1021,7 +1021,7 @@ class Assistant:
                 self._german_ctx114_late(st, msg, s) or \
                 self._german_ctx115_late(st, msg, s) or \
                 self._german_ctx116_late(st, msg, s) or \
-                self._german_ctx117_late(st, msg, s)
+                self._german_ctx117_late(st, msg, s) or                 self._german_ctx119_late(st, msg, s)
             if life is not None:
                 return life
         if u.kind == "fallback" or u.kind == "feeling":
@@ -1533,6 +1533,123 @@ class Assistant:
                 st.uses["trip_de"] = [pen, kw.get("X", sl.get("o", "").capitalize()), st.turn]
         return Reply(msg, "empathy", self._pick(st, f"de:moments:{k2}", mb[k2], **kw), via="german")
 
+    def _german_ctx119(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 119 in German: Fahrrad geklaut, Stromausfall, Heizung kaputt, Kind wird gemobbt, Lebensmittelvergiftung,
+        Strafzettel."""
+        b = (self.bank.daily.get("b119") or {}).get("de")
+        if not b:
+            return None
+        q = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:%-]", " ", s)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"de:b119:{key}", b[key], **kw), via="german")   # noqa: E731
+        if re.match(r"(?:kannst du |könntest du |hilf mir |bitte )*(?:mir )?(?:schreib|formulier|verfass)\w*\b.*\b(?:mail|e-mail|brief|nachricht)\b", q):
+            return None                                   # „schreib eine Mail an meinen Vermieter, dass die Heizung kaputt ist“: ein Schreibauftrag
+        c = st.uses.get("c119")
+        topic = c[0] if c and st.turn - c[1] <= 5 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c119"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        tipps = bool(re.fullmatch(r"(?:hast du )?(?:ein paar |irgendwelche )?(?:tipps|ideen|ratschläge)(?: für mich)?|was soll ich (?:jetzt )?(?:tun|machen)", q))
+        frage = "?" in msg
+        if re.search(r"\b(?:fahrrad|rad|e-bike) (?:wurde |ist )?(?:geklaut|gestohlen)\b|\bmir (?:wurde|ist) (?:gestern |heute |letzte nacht )?(?:das|mein) (?:fahrrad|rad|e-bike) (?:geklaut|gestohlen)\b|\b(?:hat|haben) (?:mir )?(?:mein|das) (?:fahrrad|rad) (?:geklaut|gestohlen)\b", q) and not frage:
+            keep("bike")
+            return None                                   # die bestehende Antwort mit Polizei und Versicherung kommt zuerst
+        if re.search(r"\bstrom (?:ist )?(?:gerade |eben )?(?:ausgefallen|weg)\b|\bstromausfall\b", q) and not frage:
+            keep("power")
+            return say("power_start")
+        if re.search(r"\bheizung (?:ist |geht )?(?:seit [\w ]{2,20} )?(?:kaputt|ausgefallen|nicht mehr|defekt|aus)\b|\bheizung geht nicht\b", q) and not frage:
+            keep("heat")
+            return None                                   # ein angefangener Mail-Entwurf kommt zuerst; siehe _german_ctx119_late
+        mb = re.search(r"\bmein(?:e)? (?P<w>tochter|sohn|kind) wird (?:in der schule )?gemobbt\b", q)
+        if mb and not frage:
+            er = mb.group("w") == "sohn"
+            keep("bully", subject="er" if er else "sie", pron="ihm" if er else "ihr")
+            return say("bully_start", pron="ihm" if er else "ihr")
+        if re.search(r"\blebensmittelvergiftung\b|\bwas falsches gegessen\b", q) and not frage:
+            keep("food")
+            return say("food_start")
+        if re.search(r"\b(?:einen |ein )?(?:strafzettel|knöllchen|bußgeld|bussgeld)\b.*\bbekommen\b|\b(?:hab|habe) (?:einen |ein )?(?:strafzettel|knöllchen)\b", q) and not frage:
+            keep("ticket")
+            return None                                   # die bestehende Antwort „Wie viel war es denn?“ kommt zuerst
+        if topic == "bike":
+            if re.search(r"\b(?:abgeschlossen|angeschlossen|schloss)\b", q) and not frage:
+                keep("bike")
+                return say("bike_locked")
+            if re.search(r"\b(?:teuer|neu|e-bike|viel wert)\b", q) and not frage:
+                keep("bike")
+                return say("bike_expensive")
+            if re.fullmatch(r"(?:und |also )?soll ich (?:das|es) (?:bei der polizei )?anzeigen|soll ich zur polizei(?: gehen)?|lohnt sich eine anzeige", q) or tipps:
+                keep("bike")
+                return say("bike_police")
+            if re.search(r"\b(?:mach ich|zeig ich an|geh ich hin|ruf ich an)\b", q):
+                keep("bike")
+                return say("bike_ok")
+        if topic == "power":
+            if re.search(r"\b(?:ganze|ganzen) (?:straße|viertel|haus|block|gegend)\b|\bnachbarn auch\b", q) and not frage:
+                keep("power")
+                return say("power_street")
+            if re.search(r"\bnur (?:bei uns|in unserem haus|in unserer wohnung|bei mir|in meiner wohnung)\b|\bnachbarn haben (?:noch )?strom\b", q) and not frage:
+                keep("power")
+                return say("power_building")
+            if re.search(r"\b(?:handy|akku|laptop)\b.*\b(?:prozent|%|leer|fast)\b", q) and not frage:
+                keep("power")
+                return say("power_phone")
+            if re.fullmatch(r"(?:und |also )?wie lange dauert (?:das|so was|sowas|so ein stromausfall)(?: meistens| normalerweise)?", q):
+                keep("power")
+                return say("power_howlong")
+            if re.fullmatch(r"(?:und |also )?was (?:soll|kann) ich (?:jetzt )?(?:machen|tun)", q) or tipps:
+                keep("power")
+                return say("power_what")
+        if topic == "heat":
+            if re.search(r"\b(?:eiskalt|so kalt|saukalt|grad)\b", q) and not frage:
+                keep("heat")
+                return say("heat_cold")
+            if re.search(r"\b(?:vermieter|vermieterin|hausverwaltung)\b.*\b(?:reagiert|antwortet|meldet sich|ruft) (?:nicht|einfach nicht|nie)\b", q) and not frage:
+                keep("heat")
+                return say("heat_landlord")
+            if re.fullmatch(r"(?:und |also )?welche rechte (?:habe|hab) ich|was kann ich (?:da )?tun|kann ich die miete mindern|muss ich (?:trotzdem )?(?:die volle )?miete zahlen", q) or tipps:
+                keep("heat")
+                return say("heat_rights")
+            if re.search(r"\b(?:schreib|schreibe) (?:ihm|ihr|der hausverwaltung) (?:eine )?(?:mail|e-mail|brief)\b", q):
+                keep("heat")
+                return say("heat_email")
+        if topic == "bully":
+            pr = {"subject": info.get("subject", "sie"), "pron": info.get("pron", "ihr")}
+            if re.fullmatch(r"(?:sie|er) ist (?:erst |schon )?(?:\d{1,2}|sechs|sieben|acht|neun|zehn|elf|zwölf|dreizehn|vierzehn)(?: jahre alt)?", q):
+                keep("bully")
+                return say("bully_age", **pr)
+            if re.search(r"\b(?:weint|will nicht (?:mehr )?(?:in die schule|hin)|bauchweh|bauchschmerzen|kann nicht schlafen|hat angst)\b", q) and not frage:
+                keep("bully")
+                return say("bully_cries", **pr)
+            if re.fullmatch(r"(?:und |aber )?wie kann ich (?:ihr|ihm) helfen|was kann ich tun", q) or tipps:
+                keep("bully")
+                return say("bully_help", **pr)
+        if topic == "food":
+            if re.search(r"\b(?:übergeben|erbrechen|kotzen|durchfall|nichts bei mir behalten)\b", q) and not frage:
+                keep("food")
+                return say("food_vomit")
+            if re.search(r"\b(?:gegessen|hatte)\b", q) and not frage:
+                keep("food")
+                return say("food_ate")
+            if re.fullmatch(r"(?:und |aber )?(?:wann sollte ich (?:zum arzt|zur ärztin)(?: gehen)?|muss ich zum arzt|soll ich zum arzt(?: gehen)?)", q) or tipps:
+                keep("food")
+                return say("food_doctor")
+            if re.search(r"\b(?:trink|trinke) (?:viel )?(?:wasser|tee)\b|\bausruhen\b", q) and not frage:
+                keep("food")
+                return say("food_ok")
+        if topic == "ticket":
+            if re.search(r"\b(?:schild|schilder|markierung)\b.*\b(?:unklar|verwirrend|versteckt|nicht zu sehen|zugewachsen|falsch)\b", q) and not frage:
+                keep("ticket")
+                return say("ticket_sign")
+            if re.fullmatch(r"(?:und |also )?(?:kann ich (?:da )?einspruch (?:einlegen|erheben)|lohnt sich ein einspruch|wie lege ich einspruch ein)", q) or tipps:
+                keep("ticket")
+                return say("ticket_appeal")
+            if re.search(r"\b(?:fotos|foto|bilder)\b", q) and not frage:
+                keep("ticket")
+                return say("ticket_photos")
+        return None
+
     def _german_ctx118(self, st: DialogState, msg: str, s: str) -> Reply | None:
         """Battery 118 in German: Schimmel im Bad, Sonnenbrand, Kater, Absage nach der letzten Runde, ein Freund schuldet
         Geld, das Auto springt nicht an."""
@@ -1986,6 +2103,14 @@ class Assistant:
         c = st.uses.get("c117")
         if b and c and c[1] == st.turn and c[0] in ("lock", "wash", "bday", "tooth"):
             return Reply(msg, "smalltalk", self._pick(st, f"de:b117:{c[0]}_start", b[f"{c[0]}_start"]), via="german")
+        return None
+
+    def _german_ctx119_late(self, st: DialogState, msg: str, s: str) -> Reply | None:
+        """Battery 119 in German, after every other flow: a start (Strafzettel, Fahrrad, Heizung) nothing else answered."""
+        b = (self.bank.daily.get("b119") or {}).get("de")
+        c = st.uses.get("c119")
+        if b and c and c[1] == st.turn and c[0] in ("ticket", "bike", "heat"):
+            return Reply(msg, "smalltalk", self._pick(st, f"de:b119:{c[0]}_start", b[f"{c[0]}_start"]), via="german")
         return None
 
     def _german_ctx116_late(self, st: DialogState, msg: str, s: str) -> Reply | None:
@@ -7481,7 +7606,7 @@ class Assistant:
                                                      r"ok(?:ay)?|k+|hm+|lol|haha|yes|no|yeah|what|huh)", norm.strip(" ?!.")):
             # the third identical greeting or "ok" in a row: say so, like a person would (a third joke request is fine)
             return Reply(msg, "smalltalk", self._pick(st, "daily:same_again", d["same_again"]), via="smalltalk")
-        evr = self._sounds(st, msg, norm) or self._daily_ctx32(st, msg, norm) or self._daily_ctx31(st, msg, norm) or self._daily_ctx30(st, msg, norm) or self._daily_ctx29(st, msg, norm) or self._daily_ctx28(st, msg, norm) or self._daily_ctx27(st, msg, norm) or self._daily_ctx26(st, msg, norm) or self._daily_ctx25(st, msg, norm) or self._daily_ctx24(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
+        evr = self._sounds(st, msg, norm) or self._daily_ctx33(st, msg, norm) or self._daily_ctx32(st, msg, norm) or self._daily_ctx31(st, msg, norm) or self._daily_ctx30(st, msg, norm) or self._daily_ctx29(st, msg, norm) or self._daily_ctx28(st, msg, norm) or self._daily_ctx27(st, msg, norm) or self._daily_ctx26(st, msg, norm) or self._daily_ctx25(st, msg, norm) or self._daily_ctx24(st, msg, norm) or self._daily_ctx23(st, msg, norm) or self._daily_ctx22(st, msg, norm) or self._daily_ctx21(st, msg, norm) or self._daily_ctx20(st, msg, norm) or self._daily_ctx19(st, msg, norm) or self._daily_ctx18(st, msg, norm) or self._event_q(st, msg, norm) or \
             self._officeholder(st, msg, norm)
         if evr is not None:
             return evr
@@ -7593,7 +7718,7 @@ class Assistant:
                         return Reply(msg, "answer", self._pick(st, "daily:person_likes_answer", d["person_likes_answer"],
                                                                x=name, y=_cuisine_case(lm.group(1))), via="facts")
         return self._daily_ctx25_late(st, msg, norm) or self._daily_ctx28_late(st, msg, norm) or \
-            self._daily_ctx29(st, msg, norm, late=True) or self._daily_ctx30(st, msg, norm, late=True) or self._daily_ctx31(st, msg, norm, late=True) or self._daily_ctx32(st, msg, norm, late=True)   # batteries 111/114–118: only where every other flow stayed silent
+            self._daily_ctx29(st, msg, norm, late=True) or self._daily_ctx30(st, msg, norm, late=True) or self._daily_ctx31(st, msg, norm, late=True) or self._daily_ctx32(st, msg, norm, late=True) or self._daily_ctx33(st, msg, norm, late=True)   # batteries 111/114–119: only where every other flow stayed silent
 
     def _daily_ctx2(self, st: DialogState, msg: str, norm: str) -> Reply | None:
         """Battery 43: "same lol" after "how are you?", "that's sad" about ENGRAMM itself, why someone moved,
@@ -8444,6 +8569,167 @@ class Assistant:
             st.uses["fun_fact_seen"] = list(seen | {pick})
             return shown, pick, found.source, False
         return shown, found.sentences[0], found.source, True
+
+    def _daily_ctx33(self, st: DialogState, msg: str, norm: str, late: bool = False) -> Reply | None:
+        """Battery 119: a stolen bike, a power cut, broken heating and a silent landlord, a child bullied at school, food
+        poisoning, a parking ticket, a lost passport before a flight, and cancelling a gym membership."""
+        b = self.bank.daily.get("b119")
+        if not b:
+            return None
+        n = re.sub(r"\s+", " ", re.sub(r"[^\w\s',:-]", " ", norm)).strip(" .!?")
+        say = lambda key, **kw: Reply(msg, "smalltalk", self._pick(st, f"daily:b119:{key}", b[key], **kw), via="everyday")  # noqa: E731
+        pend = st.pending or {}
+        if pend.get("slot") in ("draft_detail", "draft_purpose") and st.turn - pend.get("turn", -99) <= 1:
+            return None                                   # "write an email to my landlord" → "the heating is broken": the email's content
+        if re.match(r"(?:can you |could you |please |pls )*(?:help me )?(?:write|draft|compose)\b.*\b(?:email|e-mail|mail|letter|message|text|note)\b", n):
+            return None                                   # "write an email to my landlord that the heating is broken": a writing request
+        c = st.uses.get("c119")
+        topic = c[0] if c and st.turn - c[1] <= 5 else None
+        info = c[2] if topic else {}
+
+        def keep(tp: str, **kw) -> None:
+            st.uses["c119"] = [tp, st.turn, dict(info if tp == topic else {}, **kw)]
+
+        tips = bool(re.fullmatch(r"(?:any |some |got any |do you have any )?(?:tips|advice|ideas)(?: for (?:me|that|this))?|what (?:should|can|do) (?:i|we) do(?: now)?", n))
+        q = "?" in msg
+        if late:                                          # a start no existing flow answered
+            if c and c[1] == st.turn and c[0] in ("ticket", "bully", "bike", "heat"):
+                from engramm.chat import moments
+                if moments.match(re.sub(r"[^\w\s'-]", " ", norm), "en"):
+                    return None
+                return say(f"{c[0]}_start", subject=c[2].get("subject", "she"))
+            return None
+        # -- topic starts --------------------------------------------------------------------------------------
+        if re.search(r"\b(?:someone|somebody|they|thieves) (?:stole|nicked|took) my (?:bike|bicycle|e-bike)\b|\bmy (?:bike|bicycle|e-bike) (?:was|got|has been) stolen\b", n) and not q:
+            keep("bike")
+            return None                                   # the existing "have you reported it?" reply comes first
+        if re.search(r"\b(?:the )?power (?:just )?(?:went out|is out|cut out|has gone|is down)\b|\bpower (?:cut|outage|failure)\b|\bblackout\b", n) and not q:
+            keep("power")
+            return say("power_start")
+        if re.search(r"\b(?:our|my|the) heating (?:has been |is |'s )?(?:broken|not working|out|down|off|dead)\b|\bno heating\b|\bheating (?:broke|died|stopped working)\b", n) and not q:
+            keep("heat")
+            return None                                   # a pending email draft ("write an email to my landlord") comes first
+        mb = re.search(r"\bmy (?P<w>daughter|son|kid|child|girl|boy) (?:is being|is getting|gets|got|was|has been) bullied\b", n)
+        if mb and not q:
+            keep("bully", subject="he" if mb.group("w") in ("son", "boy") else "she" if mb.group("w") in ("daughter", "girl") else "they")
+            return None                                   # the existing "is this the first time" reply comes first
+        if re.search(r"\b(?:i think i (?:have|got)|i (?:have|got)|might have|probably have) food poisoning\b", n) and not q:
+            keep("food")
+            return say("food_start")
+        mt = re.search(r"\bi (?:got|have|just got|received) a (?P<w>parking|speeding) (?:ticket|fine)\b", n)
+        if mt and not q:
+            keep("ticket", speed=mt.group("w") == "speeding")
+            return None                                   # the existing "how much was it?" reply comes first
+        if re.search(r"\bi (?:can'?t|cannot) find my passport\b|\bi (?:lost|'ve lost|have lost) my passport\b|\bmy passport is (?:gone|missing|lost)\b", n) and not q:
+            keep("passport")
+            return say("passport_start")
+        if re.search(r"\b(?:want|need|would like|'d like|trying) to cancel my (?:gym|fitness|studio) (?:membership|contract|subscription)\b", n) and not q:
+            keep("gym")
+            return say("gym_start")
+        # -- inside a topic ------------------------------------------------------------------------------------
+        if topic == "bike":
+            if re.search(r"\b(?:locked|chained|lock)\b", n) and not q:
+                keep("bike")
+                return say("bike_locked")
+            if re.search(r"\b(?:expensive|new|cost (?:me )?a lot|e-bike|worth)\b", n) and not q:
+                keep("bike")
+                return say("bike_expensive")
+            if re.fullmatch(r"(?:so |and |but )?(?:should|do) i (?:report it|go) to the police|should i report it(?: to the police)?|is it worth reporting", n) or tips:
+                keep("bike")
+                return say("bike_police")
+            if re.search(r"\b(?:i'?ll|i will|going to|gonna) (?:do that|report it|go to the police|call the police)\b", n):
+                keep("bike")
+                return say("bike_ok")
+        if topic == "power":
+            if re.search(r"\b(?:whole|entire) (?:street|block|area|neighbourhood|neighborhood|building)\b|\bneighbou?rs (?:too|as well)\b", n) and not q:
+                keep("power")
+                return say("power_street")
+            if re.search(r"\b(?:just|only) (?:our|my|the) (?:flat|apartment|house|building|place)\b|\bneighbou?rs (?:still )?have (?:power|electricity|light)\b", n) and not q:
+                keep("power")
+                return say("power_building")
+            if re.search(r"\b(?:phone|battery|laptop)\b.*\b(?:percent|%|low|dying|almost dead|almost empty)\b", n) and not q:
+                keep("power")
+                return say("power_phone")
+            if re.fullmatch(r"(?:so |and |ok )?how long (?:will|does|do) (?:it|this|these|power cuts|outages) (?:usually |normally )?(?:last|take)", n):
+                keep("power")
+                return say("power_howlong")
+            if re.fullmatch(r"(?:so |and |ok )?what (?:should|can|do) (?:i|we) do(?: now)?", n) or tips:
+                keep("power")
+                return say("power_what")
+        if topic == "heat":
+            if re.search(r"\b(?:freezing|so cold|really cold|ice cold|degrees)\b", n) and not q:
+                keep("heat")
+                return say("heat_cold")
+            if re.search(r"\b(?:landlord|landlady|property manager|letting agent)\b.*\b(?:isn'?t|not|won'?t|doesn'?t|never) (?:responding|answering|replying|doing anything|picking up|getting back)\b|\bignor(?:es|ing) (?:me|us)\b", n) and not q:
+                keep("heat")
+                return say("heat_landlord")
+            if re.fullmatch(r"(?:so |and |but )?what are my rights|what can i do|can i (?:reduce|withhold|cut) (?:the )?rent|do i (?:still )?have to pay (?:full )?rent", n) or tips:
+                keep("heat")
+                return say("heat_rights")
+            if re.search(r"\b(?:i'?ll|i will|going to|gonna) (?:send|write|email)\b", n):
+                keep("heat")
+                return say("heat_email")
+        if topic == "bully":
+            sj = info.get("subject", "she")
+            if re.fullmatch(r"(?:she|he|they)(?:'s| is|'re| are) (?:only |just )?(?:\d{1,2}|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen)(?: years old)?", n):
+                keep("bully")
+                return say("bully_age", subject=sj)
+            if re.search(r"\b(?:cries|crying|doesn'?t want to go|refuses to go|stomach ache|can'?t sleep|scared)\b", n) and not q:
+                keep("bully")
+                return say("bully_cries", pron={"she": "her", "he": "him"}.get(sj, "them"))
+            if re.fullmatch(r"(?:so |and |but )?how (?:do|can|should) i help (?:her|him|them)|what (?:should|can) i do", n) or tips:
+                keep("bully")
+                return say("bully_help", pron={"she": "her", "he": "him"}.get(sj, "them"), subject=sj)
+        if topic == "food":
+            if re.search(r"\b(?:ate|had|eaten)\b", n) and not q:
+                keep("food")
+                return say("food_ate")
+            if re.search(r"\b(?:throwing up|thrown up|vomit\w*|been sick|diarrh?oea|diarrhea|can'?t keep anything down)\b", n) and not q:
+                keep("food")
+                return say("food_vomit")
+            if re.fullmatch(r"(?:so |and |but )?(?:when should i (?:see|go to|call) (?:a|the) doctor|should i (?:see|go to) (?:a|the) doctor|do i need (?:a|to see a) doctor)", n) or tips:
+                keep("food")
+                return say("food_doctor")
+            if re.search(r"\b(?:keep )?drink(?:ing)? (?:water|fluids|tea)\b|\brest\b", n) and not q:
+                keep("food")
+                return say("food_ok")
+        if topic == "ticket":
+            if re.search(r"\b(?:sign|signs|markings?)\b.*\b(?:unclear|confusing|hidden|missing|not visible|covered|wrong)\b", n) and not q:
+                keep("ticket")
+                return say("ticket_sign")
+            if re.fullmatch(r"(?:it'?s|it was|that'?s) (?:about )?\d+ ?(?:euros?|€|dollars?|pounds?|bucks)", n):
+                keep("ticket")
+                return say("ticket_amount")
+            if re.fullmatch(r"(?:so |and |but )?(?:can i (?:appeal|contest|fight|dispute|challenge) (?:it|this|the ticket)|is it worth (?:appealing|contesting|fighting) (?:it)?|how do i (?:appeal|contest) (?:it)?)", n) or tips:
+                keep("ticket")
+                return say("ticket_appeal")
+            if re.search(r"\b(?:take|took|taking) (?:some )?(?:photos|pictures|pics)\b", n) and not q:
+                keep("ticket")
+                return say("ticket_photos_speed" if info.get("speed") else "ticket_photos")
+        if topic == "passport":
+            if re.search(r"\b(?:call|contact|go to|visit|ring) (?:the )?(?:passport office|embassy|consulate|town hall|citizens'? office|authorities)\b", n) and not q:
+                keep("passport")
+                return say("passport_call")
+            if re.search(r"\b(?:flight|trip|flying|leave|holiday)\b.*\b(?:(?:in|on|next) (?:\w+ )?(?:days?|weeks?|monday|tuesday|wednesday|thursday|friday|saturday|sunday|week)|tomorrow)\b", n) and not q:
+                keep("passport")
+                return say("passport_flight")
+            if re.search(r"\b(?:searched|looked) everywhere\b|\bturned the (?:house|flat|apartment) upside down\b|\bcan'?t find it anywhere\b", n) and not q:
+                keep("passport")
+                return say("passport_searched")
+            if re.fullmatch(r"(?:so |and |ok )?what (?:do|should|can) i do(?: now)?|how do i get a new one(?: in time)?|can i still fly", n) or tips:
+                keep("passport")
+                return say("passport_what")
+        if topic == "gym":
+            if re.search(r"\bhaven'?t (?:been|gone)\b|\bnever go\b|\bdon'?t use it\b", n) and not q:
+                keep("gym")
+                return say("gym_unused")
+            if re.search(r"\b(?:in person|personally|by letter|registered (?:mail|letter)|by fax|at the front desk)\b", n) and not q:
+                keep("gym", person=True)
+                return say("gym_person")
+            if re.fullmatch(r"(?:so |and |but )?(?:is (?:that|this) (?:even )?(?:legal|allowed)|can they do that|can they (?:make|force) me)", n) or tips:
+                keep("gym")
+                return say("gym_legal")
+        return None
 
     def _daily_ctx32(self, st: DialogState, msg: str, norm: str, late: bool = False) -> Reply | None:
         """Battery 118: mould in the bathroom, sunburn, a hangover, jet lag, not getting a job after the final round, a

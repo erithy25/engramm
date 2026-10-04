@@ -18475,6 +18475,217 @@
      "Perfekt! Die Reihenfolge: rot an Plus der leeren Batterie, rot an Plus der vollen, schwarz an Minus der vollen, schwarz an blankes Metall am Motor deines Autos (nicht an die leere Batterie). Das Spenderauto starten, ein paar Minuten warten, dann deins versuchen. 🔋"
     ]
    }
+  },
+  "b119": {
+   "bike_start": [
+    "Oh no, that's so frustrating! Was it locked up?"
+   ],
+   "bike_locked": [
+    "Even locked bikes get stolen — thieves cut cheap cable locks in seconds. That's not your fault."
+   ],
+   "bike_expensive": [
+    "That makes it even more annoying. Do you have the frame number, a receipt or a photo of the bike?"
+   ],
+   "bike_police": [
+    "Yes — report it, even if the chances of getting it back are small:\n\n• Many insurance policies (often household contents insurance, sometimes only with a bike add-on) need a police report.\n• Bring the frame number, receipt, photos and a description; in many places you can report it online.\n• Check online marketplaces and local groups for a few weeks — stolen bikes often turn up there.\n• Next time: a solid D-lock or folding lock, locked to something fixed, and the frame number written down."
+   ],
+   "bike_ok": [
+    "Good — fingers crossed it turns up again. 🚲"
+   ],
+   "power_start": [
+    "Oh no! Is it just your flat, or the whole building or street?"
+   ],
+   "power_street": [
+    "Then it's probably a grid problem, not your fuses — the network operator is usually already on it. Most outages are fixed within a few hours."
+   ],
+   "power_building": [
+    "Then check your fuse box first — if a switch has tripped, flip it back on. If that's not it, tell your landlord or caretaker; for a fault in the building's supply, the grid operator's fault line helps."
+   ],
+   "power_howlong": [
+    "Most power cuts are fixed within one to a few hours. Your grid operator's website or app usually shows the cause and an estimated time."
+   ],
+   "power_phone": [
+    "Then save the battery: low-power mode, lower brightness, and only use it for important things. Mobile data often still works during an outage."
+   ],
+   "power_what": [
+    "A few things:\n\n• Check your grid operator's website or app (or local news) for updates.\n• Keep the fridge and freezer closed — a closed fridge stays cold for about 4 hours, a full freezer for a day or more.\n• Unplug sensitive devices (computer, TV) so a surge can't damage them when the power comes back.\n• Use a torch rather than candles, and save your phone battery.\n• If it lasts a long time or someone depends on medical equipment, contact the emergency services."
+   ],
+   "heat_start": [
+    "Oh no, that's miserable — especially when it's cold out. How cold is it in the flat?"
+   ],
+   "heat_cold": [
+    "That's not okay — a cold flat isn't just uncomfortable, it can also lead to damp and mould. Have you told your landlord?"
+   ],
+   "heat_landlord": [
+    "That's really frustrating. Put it in writing (email or letter) with a clear deadline — that matters for your rights later."
+   ],
+   "heat_rights": [
+    "It depends on the country. In Germany, for example:\n\n• The landlord has to repair the heating — in winter that's urgent.\n• Report the defect in writing and set a short, clear deadline (a few days).\n• While the heating is broken you can usually reduce the rent, in winter by a substantial share. Don't just stop paying: reduce only an appropriate part and explain why in writing.\n• If the landlord still does nothing, you may be able to have it repaired yourself and claim the costs — get advice before you do.\n• A tenants' association (Mieterverein) or a lawyer can tell you exactly what applies to you.\n\nIn the meantime an electric heater helps — keep the receipts."
+   ],
+   "heat_email": [
+    "Good — keep it short and factual: what's broken, since when, and a deadline. Keep a copy. 📧"
+   ],
+   "bully_start": [
+    "I'm so sorry — that's hard for any parent to hear. How is {subject} doing?"
+   ],
+   "bully_age": [
+    "That's such a vulnerable age — friendships and belonging matter so much then."
+   ],
+   "bully_cries": [
+    "That's heartbreaking. It shows how much it's weighing on {pron} — it's good that you're taking it seriously."
+   ],
+   "bully_help": [
+    "What helps:\n\n• Listen calmly, believe {pron}, and say clearly: “This is not your fault, and I'm glad you told me.”\n• Write down what happens: dates, what was said or done, who was involved.\n• Talk to the class teacher soon — and if nothing changes, to the head teacher. Schools are expected to act.\n• Don't confront the other child or their parents yourself; let the school handle it.\n• Strengthen friendships outside school: a club, a hobby, inviting one good friend over.\n• If {subject} withdraws more and more, can't sleep, or talks about hurting themself, get professional help — the paediatrician or a school psychologist."
+   ],
+   "food_start": [
+    "Oh no, that's awful. What did you eat?"
+   ],
+   "food_ate": [
+    "Raw fish, chicken, eggs or food that wasn't kept cold enough are common culprits — symptoms often start within hours."
+   ],
+   "food_vomit": [
+    "That's exhausting. The main thing now is fluids: small sips, often — water, tea, or an oral rehydration solution from the pharmacy."
+   ],
+   "food_doctor": [
+    "Most food poisoning clears up within one to three days. See a doctor if:\n\n• you can't keep any fluids down for many hours,\n• there's blood in your vomit or stool,\n• you have a high fever (around 39 °C or more),\n• you notice signs of dehydration: very little urine, dizziness, a very dry mouth,\n• it lasts longer than about three days,\n• or you're pregnant, elderly or have a weakened immune system.\n\nIf you feel very unwell, call your doctor or the out-of-hours service right away."
+   ],
+   "food_ok": [
+    "Good — small sips, rest, and plain food like toast or rice once you can eat again. Get well soon!"
+   ],
+   "ticket_start": [
+    "Argh, that stings. How much was it?"
+   ],
+   "ticket_sign": [
+    "That's annoying — and an unclear sign can actually be a valid reason to contest it."
+   ],
+   "ticket_amount": [
+    "Not a fortune, but annoying — especially if the sign really was unclear."
+   ],
+   "ticket_appeal": [
+    "Usually, yes. A few tips:\n\n• Check the deadline on the ticket — it's often short (in Germany, for example, two weeks against a formal fine notice).\n• Gather evidence: photos of the sign from where you parked, the street name, the time.\n• Explain briefly and factually why the sign was unclear or hidden.\n• Don't let any deadline pass while you wait.\n\nFor a small amount, weigh the effort — but if the sign really was unclear, you have a fair chance."
+   ],
+   "ticket_photos_speed": [
+    "Good idea — photograph the sign from the driver's point of view, with the tree in the shot, and note the exact spot. 📸"
+   ],
+   "ticket_photos": [
+    "Good idea — take them from where you parked, at about the same time of day, and get the street name in the shot. 📸"
+   ],
+   "passport_start": [
+    "Oh no, that's stressful! When do you need it?"
+   ],
+   "passport_flight": [
+    "Okay, that's tight but often doable. Let's not panic yet."
+   ],
+   "passport_searched": [
+    "Ugh. Check the classic spots once more: travel bags, jacket pockets, the car, document folders — and whether anyone borrowed it for a copy."
+   ],
+   "passport_what": [
+    "What to do:\n\n• Report it lost to your passport office (or the police, depending on the country) — a lost passport has to be blocked.\n• Ask about an emergency or temporary passport: many countries issue one within a day or a few days. Bring an ID card, a photo and your booking.\n• Within the EU (Schengen area), EU citizens can often travel with an ID card.\n• Check the entry rules of your destination — some countries don't accept temporary passports.\n• If you're abroad, your embassy or consulate can help."
+   ],
+   "passport_call": [
+    "Good plan — go first thing and ask exactly what to bring. Fingers crossed it turns up in the meantime! 🛂"
+   ],
+   "gym_start": [
+    "Fair enough! Is it a long contract, or are they making it difficult?"
+   ],
+   "gym_unused": [
+    "Then it's just money down the drain every month — cancelling makes total sense."
+   ],
+   "gym_person": [
+    "That sounds like a classic tactic to make cancelling hard."
+   ],
+   "gym_legal": [
+    "Depends on the country. In Germany, for example, no: contract terms can't require a stricter form than “text form”, so an email or letter is enough — and contracts concluded online need a cancellation button on the website. Send your cancellation by email or registered letter, keep proof, and ask for written confirmation. Elsewhere, check your contract and your local consumer protection agency."
+   ],
+   "de": {
+    "bike_start": [
+     "Oh nein, wie ärgerlich! War es abgeschlossen?"
+    ],
+    "bike_locked": [
+     "Auch abgeschlossene Räder werden geklaut – billige Kabelschlösser sind in Sekunden durch. Das ist nicht deine Schuld."
+    ],
+    "bike_expensive": [
+     "Das macht es noch ärgerlicher. Hast du die Rahmennummer, eine Rechnung oder ein Foto vom Rad?"
+    ],
+    "bike_police": [
+     "Ja – zeig es an, auch wenn die Chance klein ist, es wiederzubekommen:\n\n• Viele Versicherungen (oft die Hausrat, manchmal nur mit Fahrrad-Zusatz) brauchen eine Anzeige.\n• Rahmennummer, Rechnung, Fotos und Beschreibung mitnehmen; in vielen Bundesländern geht die Anzeige online.\n• Ein paar Wochen lang Kleinanzeigen und lokale Gruppen im Blick behalten – geklaute Räder tauchen dort oft auf.\n• Nächstes Mal: ein stabiles Bügel- oder Faltschloss, an etwas Festem anschließen, Rahmennummer notieren."
+    ],
+    "bike_ok": [
+     "Gut – ich drück dir die Daumen, dass es wieder auftaucht. 🚲"
+    ],
+    "power_start": [
+     "Oh nein! Nur bei dir in der Wohnung oder im ganzen Haus bzw. in der Straße?"
+    ],
+    "power_street": [
+     "Dann ist es wahrscheinlich ein Netzproblem und nicht deine Sicherung – der Netzbetreiber ist meist schon dran. Die meisten Ausfälle sind nach ein paar Stunden behoben."
+    ],
+    "power_building": [
+     "Dann schau zuerst in den Sicherungskasten – ist ein Schalter rausgeflogen, wieder umlegen. Wenn es das nicht ist: Vermieter oder Hausmeister Bescheid geben; bei einer Störung der Hauszuleitung hilft die Störungsnummer des Netzbetreibers."
+    ],
+    "power_howlong": [
+     "Die meisten Stromausfälle sind nach einer bis wenigen Stunden behoben. Auf der Website oder in der App des Netzbetreibers stehen meist Ursache und voraussichtliche Dauer."
+    ],
+    "power_phone": [
+     "Dann spar Akku: Stromsparmodus, Helligkeit runter, nur für Wichtiges nutzen. Mobile Daten funktionieren bei einem Stromausfall oft noch."
+    ],
+    "power_what": [
+     "Ein paar Dinge:\n\n• Auf der Website oder App deines Netzbetreibers (oder in den Lokalnachrichten) nach Infos schauen.\n• Kühlschrank und Gefrierschrank zu lassen – ein geschlossener Kühlschrank bleibt etwa 4 Stunden kalt, ein voller Gefrierschrank einen Tag oder länger.\n• Empfindliche Geräte (Computer, Fernseher) ausstecken, damit sie beim Wiedereinschalten keinen Schaden nehmen.\n• Lieber Taschenlampe als Kerzen, und Handyakku sparen.\n• Dauert es lange oder ist jemand auf medizinische Geräte angewiesen: Notruf 112."
+    ],
+    "heat_start": [
+     "Oh nein, das ist richtig mies – gerade wenn es draußen kalt ist. Wie kalt ist es in der Wohnung?"
+    ],
+    "heat_cold": [
+     "Das geht so nicht – eine kalte Wohnung ist nicht nur ungemütlich, sie kann auch Feuchtigkeit und Schimmel begünstigen. Hast du den Vermieter informiert?"
+    ],
+    "heat_landlord": [
+     "Das ist richtig frustrierend. Schreib es schriftlich (Mail oder Brief) mit einer klaren Frist – das ist später für deine Rechte wichtig."
+    ],
+    "heat_rights": [
+     "In Deutschland gilt grob:\n\n• Der Vermieter muss die Heizung reparieren – im Winter ist das dringend.\n• Den Mangel schriftlich melden und eine kurze, klare Frist setzen (ein paar Tage).\n• Solange die Heizung ausfällt, kannst du die Miete in der Regel mindern, im Winter deutlich. Nicht einfach gar nicht zahlen: nur einen angemessenen Teil kürzen und das schriftlich begründen.\n• Tut der Vermieter weiter nichts, kannst du es unter Umständen selbst reparieren lassen und die Kosten verlangen – lass dich vorher beraten.\n• Der Mieterverein oder ein Anwalt sagt dir genau, was in deinem Fall gilt.\n\nBis dahin hilft ein Elektroheizer – Belege aufheben."
+    ],
+    "heat_email": [
+     "Gut – kurz und sachlich: was kaputt ist, seit wann, und bis wann es repariert sein soll. Eine Kopie behalten. 📧"
+    ],
+    "bully_start": [
+     "Das tut mir so leid – das ist für Eltern schwer zu hören. Wie geht es {pron} damit?"
+    ],
+    "bully_age": [
+     "Das ist so ein empfindliches Alter – Freundschaften und Dazugehören sind da unglaublich wichtig."
+    ],
+    "bully_cries": [
+     "Das bricht einem das Herz. Es zeigt, wie sehr es {pron} zu schaffen macht – gut, dass du es ernst nimmst."
+    ],
+    "bully_help": [
+     "Was hilft:\n\n• Ruhig zuhören, {pron} glauben und klar sagen: „Das ist nicht deine Schuld, und gut, dass du es mir erzählt hast.“\n• Aufschreiben, was passiert: Datum, was gesagt oder getan wurde, wer beteiligt war.\n• Bald mit der Klassenlehrkraft sprechen – und wenn sich nichts ändert, mit der Schulleitung. Die Schule muss handeln.\n• Das andere Kind oder dessen Eltern nicht selbst zur Rede stellen; das sollte die Schule übernehmen.\n• Freundschaften außerhalb der Schule stärken: ein Verein, ein Hobby, eine gute Freundin einladen.\n• Zieht sich dein Kind immer mehr zurück, schläft schlecht oder spricht davon, sich etwas anzutun: professionelle Hilfe holen – Kinderarzt oder Schulpsychologie."
+    ],
+    "food_start": [
+     "Oh nein, das ist furchtbar. Was hast du gegessen?"
+    ],
+    "food_ate": [
+     "Roher Fisch, Hähnchen, Eier oder etwas, das nicht kühl genug gelagert war, sind häufige Auslöser – die Beschwerden beginnen oft schon nach Stunden."
+    ],
+    "food_vomit": [
+     "Das ist zermürbend. Jetzt ist vor allem Flüssigkeit wichtig: oft kleine Schlucke – Wasser, Tee oder eine Elektrolytlösung aus der Apotheke."
+    ],
+    "food_doctor": [
+     "Meist ist eine Lebensmittelvergiftung nach ein bis drei Tagen vorbei. Zum Arzt solltest du, wenn:\n\n• du über viele Stunden gar keine Flüssigkeit bei dir behältst,\n• Blut im Erbrochenen oder im Stuhl ist,\n• du hohes Fieber hast (etwa 39 °C oder mehr),\n• du Zeichen von Austrocknung merkst: kaum Urin, Schwindel, sehr trockener Mund,\n• es länger als etwa drei Tage dauert,\n• oder du schwanger, älter oder abwehrgeschwächt bist.\n\nWenn es dir sehr schlecht geht: Hausarzt oder ärztlicher Bereitschaftsdienst 116 117."
+    ],
+    "food_ok": [
+     "Gut – kleine Schlucke, ausruhen, und sobald es geht, Schonkost wie Zwieback oder Reis. Gute Besserung!"
+    ],
+    "ticket_start": [
+     "Ärgerlich! Wie viel war es denn?"
+    ],
+    "ticket_sign": [
+     "Mist – und ein unklares Schild kann tatsächlich ein guter Grund für einen Einspruch sein."
+    ],
+    "ticket_appeal": [
+     "Meistens ja. Ein paar Tipps:\n\n• Auf die Frist achten – gegen einen Bußgeldbescheid hast du zwei Wochen; bei einem Verwarnungsgeld kannst du dich im Anhörungsbogen äußern.\n• Beweise sammeln: Fotos vom Schild aus Sicht deines Parkplatzes, Straßenname, Uhrzeit.\n• Kurz und sachlich begründen, warum das Schild unklar oder verdeckt war.\n• Keine Frist verstreichen lassen, während du wartest.\n\nBei kleinen Beträgen lohnt es sich, den Aufwand abzuwägen – aber wenn das Schild wirklich unklar war, hast du gute Chancen."
+    ],
+    "ticket_photos": [
+     "Gute Idee – am besten von deinem Parkplatz aus, ungefähr zur gleichen Uhrzeit, und mit Straßenname im Bild. 📸"
+    ]
+   }
   }
  }
 }
