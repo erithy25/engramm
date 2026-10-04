@@ -3934,6 +3934,38 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: NQ 22/9; Suite 818 bestanden. Gesprächsproben 111–119 (mit 117b–119b), Generisch, Held-out, Follow und
   Stimmung stehen bei 0; Wiederholungen 5 von 700. Test 119 hält 14 Gespräche fest.
+- **Probe 120: elfte ungesehene Gesprächsprobe** (4. Oktober 2026): 8 englische und 6 deutsche Gespräche, einmal
+  vor jeder Anpassung gemessen; jede Antwort gelesen, ohne KI-Richter. Umformulierungsprobe 120b nach den Anpassungen
+  geschrieben und einmal gemessen.
+  Themen: laute Nachbarparty, Geldbeutel verloren, Weisheitszähne, Fahrstunden, Heuschnupfen, Phishing-Link,
+  Taschendieb im Urlaub, erster Arbeitstag.
+
+  | Stand | EN schwach (gelesen) | DE schwach (gelesen) |
+  |---|---|---|
+  | erster Lauf | 32 von 47 | 20 von 31 |
+  | nach b120 | 0 von 47 | 0 von 31 |
+  | Umformulierung 120b, erster Lauf nach b120 | 22 von 47 | 7 von 35 |
+  | Umformulierung 120b, nach Korrektur | 0 von 47 | 0 von 35 |
+
+  Ein Rückschlag gegenüber 119b (4/2): Diesmal waren die Einstiegsmuster zu eng („people upstairs are so loud“,
+  „having *a* wisdom tooth removed“, „i've got hay fever“, „ich mach gerade den Führerschein“), und die
+  Tippfehlerkorrektur veränderte „dodgy“, sodass „i clicked a dodgy link“ nicht erkannt wurde. Inhalte waren
+  teils zu fest formuliert („phone and cash“, obwohl die Brieftasche weg war; „Passwort“ bei Kartendaten).
+  Daraus folgt für die nächsten Runden: Einstiege breiter fassen und Antworten neutral halten, wo der Unterfall
+  nicht feststeht. Die verbleibende EN-Markierung in 120/120b ist ein Fehlalarm der Probe („nice to meet you“
+  steht als Beispielsatz in der Tipp-Liste).
+
+  Gefundene Fehler (allgemein behoben):
+  - „i'm flying home in two days“ wurde als Wohnort „two“ gemerkt; „going home to munich tomorrow“ als
+    „munich tomorrow“. Zeitangaben nach „home“ sind kein Wohnort mehr, nachgestellte Zeitwörter fallen weg.
+  - „thanks, i'll go to the police station“ bekam zwei Antworten; jedes Vorhaben nach einem Dank gibt jetzt eine.
+  - Häufige Alltagswörter (dodgy, phishing, paypal, hungover, sunburnt, mould, locksmith …) sind vor der
+    Tippfehlerkorrektur geschützt.
+
+  Routine gegen b119 (1ac81a0): DEV-Satz unverändert, alle 80 Batterieausgaben identisch.
+
+  Messung: NQ 22/9; Suite 819 bestanden. Gesprächsproben 111–120 (mit 117b–120b), Generisch, Held-out, Follow und
+  Stimmung stehen bei 0; Wiederholungen 5 von 700. Test 120 hält 14 Gespräche fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
