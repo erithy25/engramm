@@ -965,6 +965,9 @@ class Assistant:
     # -- helpers ------------------------------------------------------------------------------
 
     def _pick(self, st: DialogState, key: str, options: list[str], **fmt) -> str:
+        keys = getattr(self, "_turn_keys", None)
+        if keys is not None and not key.startswith("u:"):
+            keys.append(key)                     # which reply pieces this turn used (engramm/understand reads them)
         n = st.uses.get(key, 0)
         st.uses[key] = n + 1
         # the variants this key gave lately count as recent too: a part of a longer reply (an opening
@@ -5948,12 +5951,33 @@ class Assistant:
 
     # -- the turn -----------------------------------------------------------------------------
 
+    def _understand(self, st: DialogState, message: str, rep: Reply) -> Reply:
+        """Situations in general (engramm/understand): a filler or non-answer becomes a reply composed from what
+        happened, to whom and with what — reaction, one fitting question, advice, a good wish."""
+        comp = getattr(self, "composer", None)
+        if comp is None:
+            from engramm.understand.compose import Composer
+            comp = self.composer = Composer(self.bank, self._pick)
+        if not comp or rep.kind in ("safety",) or not message.strip():
+            return rep
+        lang = "de" if st.lang == "de" else "en"
+        try:
+            f, sit, new = comp.observe(st, message, lang)
+            text = comp.compose(st, message, lang, f, sit, new, rep.text or "", rep.kind, getattr(self, "_turn_keys", None))
+        except Exception:                       # never let understanding break a reply
+            return rep
+        if text and text != rep.text:
+            rep.text, rep.kind, rep.via = text, "smalltalk", "understand"
+            rep.answer = rep.guess = None
+        return rep
+
     def turn(self, st: DialogState, message: str) -> Reply:
         t0 = time.time()
         bot = self.bot
         bot.context = dict(st.ctx)
         msg = " ".join(message.strip().split())
         self._spelled = None
+        self._turn_keys = []
         try:
             rep = self._turn(st, msg)
             if self._spelled and not rep.resolved:
@@ -5971,6 +5995,7 @@ class Assistant:
             st.ctx = dict(ctx)
             bot.context = dict(FRESH_CTX)
         rep.message = message
+        rep = self._understand(st, message, rep)
         rep.seconds = time.time() - t0
         if rep.text and rep.text == st.last_reply and normalise(message) != normalise(st.last_message or ""):
             if rep.kind == "unknown":

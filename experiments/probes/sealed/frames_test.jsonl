@@ -1,0 +1,300 @@
+{"lang": "en", "text": "my phone screen cracked when i dropped it this morning", "kind": "DAMAGE", "who": "me", "obj": "phone", "body": ""}
+{"lang": "en", "text": "the washing machine is leaking all over the bathroom floor", "kind": "DAMAGE", "who": "me", "obj": "washing machine", "body": ""}
+{"lang": "en", "text": "my sister's car got rear-ended at a red light", "kind": "DAMAGE", "who": "relative", "obj": "car", "body": ""}
+{"lang": "en", "text": "the windshield on my dad's truck was cracked by a rock on the highway", "kind": "DAMAGE", "who": "relative", "obj": "windshield", "body": ""}
+{"lang": "en", "text": "ugh my laptop wont turn on anymore", "kind": "DAMAGE", "who": "me", "obj": "laptop", "body": ""}
+{"lang": "en", "text": "the cat knocked over my lamp and now its broken", "kind": "DAMAGE", "who": "me", "obj": "lamp", "body": ""}
+{"lang": "en", "text": "a branch fell on the roof last night and theres a hole in it", "kind": "DAMAGE", "who": "me", "obj": "roof", "body": ""}
+{"lang": "en", "text": "ripped my favourite jeans climbing over a fence", "kind": "DAMAGE", "who": "me", "obj": "jeans", "body": ""}
+{"lang": "en", "text": "i twisted my ankle playing basketball", "kind": "INJURY", "who": "me", "obj": "", "body": "ankle"}
+{"lang": "en", "text": "my son fell off his bike and scraped his knee", "kind": "INJURY", "who": "child", "obj": "bike", "body": "knee"}
+{"lang": "en", "text": "sliced my thumb open with a bread knife", "kind": "INJURY", "who": "me", "obj": "knife", "body": "thumb"}
+{"lang": "en", "text": "got stung by a wasp on my neck, it really hurts", "kind": "INJURY", "who": "me", "obj": "wasp", "body": "neck"}
+{"lang": "en", "text": "my husband burned his hand on the stove", "kind": "INJURY", "who": "partner", "obj": "stove", "body": "hand"}
+{"lang": "en", "text": "the neighbours dog bit my daughter on the leg", "kind": "INJURY", "who": "child", "obj": "dog", "body": "leg"}
+{"lang": "en", "text": "slipped on the ice and hit my head", "kind": "INJURY", "who": "me", "obj": "", "body": "head"}
+{"lang": "en", "text": "my coworker hurt his back lifting heavy boxes", "kind": "INJURY", "who": "colleague", "obj": "box", "body": "back"}
+{"lang": "en", "text": "i've had a fever since yesterday", "kind": "ILLNESS", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my head is pounding and i feel dizzy", "kind": "ILLNESS", "who": "me", "obj": "", "body": "head"}
+{"lang": "en", "text": "my little one has been throwing up all night", "kind": "ILLNESS", "who": "child", "obj": "", "body": ""}
+{"lang": "en", "text": "my wife has a nasty cough that just wont go away", "kind": "ILLNESS", "who": "partner", "obj": "", "body": ""}
+{"lang": "en", "text": "got this itchy rash on my arm, no idea where its from", "kind": "ILLNESS", "who": "me", "obj": "", "body": "arm"}
+{"lang": "en", "text": "feeling really nauseous today, can barely keep anything down", "kind": "ILLNESS", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my grandpa caught the flu and is stuck in bed", "kind": "ILLNESS", "who": "relative", "obj": "", "body": ""}
+{"lang": "en", "text": "my stomach has been hurting for three days", "kind": "ILLNESS", "who": "me", "obj": "", "body": "stomach"}
+{"lang": "en", "text": "i cant find my car keys anywhere", "kind": "LOSS", "who": "me", "obj": "key", "body": ""}
+{"lang": "en", "text": "lost my wallet somewhere on the bus", "kind": "LOSS", "who": "me", "obj": "wallet", "body": ""}
+{"lang": "en", "text": "my daughter left her backpack on the train", "kind": "LOSS", "who": "child", "obj": "backpack", "body": ""}
+{"lang": "en", "text": "has anyone seen my glasses lol, ive looked everywhere", "kind": "LOSS", "who": "me", "obj": "glasses", "body": ""}
+{"lang": "en", "text": "i misplaced my passport and i fly on friday", "kind": "LOSS", "who": "me", "obj": "passport", "body": ""}
+{"lang": "en", "text": "my boyfriend lost the remote again, its somewhere in the couch", "kind": "LOSS", "who": "partner", "obj": "remote", "body": ""}
+{"lang": "en", "text": "i dropped one of my earrings somewhere in the park", "kind": "LOSS", "who": "me", "obj": "earring", "body": ""}
+{"lang": "en", "text": "my mum can't find her hearing aid", "kind": "LOSS", "who": "relative", "obj": "hearing aid", "body": ""}
+{"lang": "en", "text": "someone stole my bike from outside the library", "kind": "THEFT", "who": "me", "obj": "bike", "body": ""}
+{"lang": "en", "text": "my purse got snatched on the subway", "kind": "THEFT", "who": "me", "obj": "purse", "body": ""}
+{"lang": "en", "text": "our house was broken into while we were on holiday", "kind": "THEFT", "who": "me", "obj": "house", "body": ""}
+{"lang": "en", "text": "my brother's laptop was nicked from his car", "kind": "THEFT", "who": "relative", "obj": "laptop", "body": ""}
+{"lang": "en", "text": "some guy pickpocketed my phone at the concert", "kind": "THEFT", "who": "me", "obj": "phone", "body": ""}
+{"lang": "en", "text": "someone took the packages off my porch again", "kind": "THEFT", "who": "me", "obj": "package", "body": ""}
+{"lang": "en", "text": "my friend got mugged on her way home and they took her bag", "kind": "THEFT", "who": "friend", "obj": "bag", "body": ""}
+{"lang": "en", "text": "all the tools in my shed were stolen", "kind": "THEFT", "who": "me", "obj": "tool", "body": ""}
+{"lang": "en", "text": "had a huge fight with my girlfriend last night", "kind": "CONFLICT", "who": "partner", "obj": "", "body": ""}
+{"lang": "en", "text": "my best friend hasnt talked to me in a week", "kind": "CONFLICT", "who": "friend", "obj": "", "body": ""}
+{"lang": "en", "text": "my boss yelled at me in front of everyone", "kind": "CONFLICT", "who": "colleague", "obj": "", "body": ""}
+{"lang": "en", "text": "my parents are mad at me because i came home late", "kind": "CONFLICT", "who": "relative", "obj": "", "body": ""}
+{"lang": "en", "text": "my husband and i broke up after six years", "kind": "CONFLICT", "who": "partner", "obj": "", "body": ""}
+{"lang": "en", "text": "my neighbour keeps shouting at me about where i park", "kind": "CONFLICT", "who": "other", "obj": "", "body": ""}
+{"lang": "en", "text": "my sister blocked me on everything after our argument", "kind": "CONFLICT", "who": "relative", "obj": "", "body": ""}
+{"lang": "en", "text": "my teenage son told me he hates me and wont speak to me", "kind": "CONFLICT", "who": "child", "obj": "", "body": ""}
+{"lang": "en", "text": "i failed my driving test again", "kind": "FAILURE", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "didn't get the job, they went with someone else", "kind": "FAILURE", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "got fired today", "kind": "FAILURE", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my daughter didn't pass her maths exam", "kind": "FAILURE", "who": "child", "obj": "", "body": ""}
+{"lang": "en", "text": "our team lost the final 3-0", "kind": "FAILURE", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my application to the university got rejected", "kind": "FAILURE", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my husband was laid off last week", "kind": "FAILURE", "who": "partner", "obj": "", "body": ""}
+{"lang": "en", "text": "i missed out on the promotion, they gave it to my coworker", "kind": "FAILURE", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my electricity bill is twice as high as last month", "kind": "MONEY", "who": "me", "obj": "bill", "body": ""}
+{"lang": "en", "text": "im drowning in debt and dont know how to pay it back", "kind": "MONEY", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "the mechanic says the repair will cost 1200 euros", "kind": "MONEY", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "i can't afford rent this month", "kind": "MONEY", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "got an 80 dollar parking ticket", "kind": "MONEY", "who": "me", "obj": "ticket", "body": ""}
+{"lang": "en", "text": "my landlord is raising the rent by 200 a month", "kind": "MONEY", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my parents are struggling to pay their mortgage", "kind": "MONEY", "who": "relative", "obj": "", "body": ""}
+{"lang": "en", "text": "unexpected tax bill of 3000, no idea how i'll pay it", "kind": "MONEY", "who": "me", "obj": "bill", "body": ""}
+{"lang": "en", "text": "my flight got cancelled", "kind": "DELAY", "who": "me", "obj": "flight", "body": ""}
+{"lang": "en", "text": "the train is 40 minutes late again", "kind": "DELAY", "who": "me", "obj": "train", "body": ""}
+{"lang": "en", "text": "missed the last bus home", "kind": "DELAY", "who": "me", "obj": "bus", "body": ""}
+{"lang": "en", "text": "my package was supposed to arrive monday and still nothing", "kind": "DELAY", "who": "me", "obj": "package", "body": ""}
+{"lang": "en", "text": "running late for my dentist appointment, stuck in traffic", "kind": "DELAY", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my wife's flight from madrid is delayed by three hours", "kind": "DELAY", "who": "partner", "obj": "flight", "body": ""}
+{"lang": "en", "text": "the doctor rescheduled my surgery for the third time", "kind": "DELAY", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "overslept and missed my morning lecture", "kind": "DELAY", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "i'm so nervous about my job interview tomorrow", "kind": "WORRY", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "scared my biopsy results will be bad", "kind": "WORRY", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my son hasnt come home yet and hes not answering, im worried", "kind": "WORRY", "who": "child", "obj": "", "body": ""}
+{"lang": "en", "text": "i'm anxious about flying next week", "kind": "WORRY", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "kinda freaking out about the presentation on monday", "kind": "WORRY", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "worried about my dog, he hasnt eaten anything all day", "kind": "WORRY", "who": "pet", "obj": "", "body": ""}
+{"lang": "en", "text": "i keep worrying that i'll lose my job", "kind": "WORRY", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my mom is having heart surgery and i'm terrified", "kind": "WORRY", "who": "relative", "obj": "", "body": "heart"}
+{"lang": "en", "text": "i passed my driving test!!", "kind": "SUCCESS", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "got promoted to team lead today", "kind": "SUCCESS", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my daughter won first place in the spelling bee", "kind": "SUCCESS", "who": "child", "obj": "", "body": ""}
+{"lang": "en", "text": "finally finished my first marathon", "kind": "SUCCESS", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "our team won the championship last night", "kind": "SUCCESS", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my thesis got accepted", "kind": "SUCCESS", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my husband finally paid off his student loan", "kind": "SUCCESS", "who": "partner", "obj": "", "body": ""}
+{"lang": "en", "text": "i got an A on my chemistry exam", "kind": "SUCCESS", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "we just got engaged!", "kind": "MILESTONE", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my sister is pregnant", "kind": "MILESTONE", "who": "relative", "obj": "", "body": ""}
+{"lang": "en", "text": "i got a new job at a design studio", "kind": "MILESTONE", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my son graduated from college today", "kind": "MILESTONE", "who": "child", "obj": "", "body": ""}
+{"lang": "en", "text": "my boyfriend and i moved in together", "kind": "MILESTONE", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "our baby girl was born last night", "kind": "MILESTONE", "who": "child", "obj": "", "body": ""}
+{"lang": "en", "text": "my best friend got married on saturday", "kind": "MILESTONE", "who": "friend", "obj": "", "body": ""}
+{"lang": "en", "text": "my colleague just had twins", "kind": "MILESTONE", "who": "colleague", "obj": "", "body": ""}
+{"lang": "en", "text": "just bought a new bike", "kind": "ACQUIRE", "who": "me", "obj": "bike", "body": ""}
+{"lang": "en", "text": "my grandma gave me her old piano", "kind": "ACQUIRE", "who": "me", "obj": "piano", "body": ""}
+{"lang": "en", "text": "finally treated myself to new headphones", "kind": "ACQUIRE", "who": "me", "obj": "headphones", "body": ""}
+{"lang": "en", "text": "my husband surprised me with a necklace", "kind": "ACQUIRE", "who": "me", "obj": "necklace", "body": ""}
+{"lang": "en", "text": "my son got his first car", "kind": "ACQUIRE", "who": "child", "obj": "car", "body": ""}
+{"lang": "en", "text": "the new sofa was delivered today and i love it", "kind": "ACQUIRE", "who": "me", "obj": "sofa", "body": ""}
+{"lang": "en", "text": "picked up a used camera at the flea market", "kind": "ACQUIRE", "who": "me", "obj": "camera", "body": ""}
+{"lang": "en", "text": "my grandfather passed away last night", "kind": "DEATH", "who": "relative", "obj": "", "body": ""}
+{"lang": "en", "text": "we had to put our cat down today", "kind": "DEATH", "who": "pet", "obj": "", "body": ""}
+{"lang": "en", "text": "my childhood friend died suddenly last week", "kind": "DEATH", "who": "friend", "obj": "", "body": ""}
+{"lang": "en", "text": "my hamster died this morning", "kind": "DEATH", "who": "pet", "obj": "", "body": ""}
+{"lang": "en", "text": "my aunt lost her battle with cancer", "kind": "DEATH", "who": "relative", "obj": "", "body": ""}
+{"lang": "en", "text": "a colleague of mine passed away over the weekend", "kind": "DEATH", "who": "colleague", "obj": "", "body": ""}
+{"lang": "en", "text": "our dog was hit by a car and didn't make it", "kind": "DEATH", "who": "pet", "obj": "car", "body": ""}
+{"lang": "en", "text": "i feel so lonely lately", "kind": "FEEL_NEG", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "im just really tired of everything", "kind": "FEEL_NEG", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "so bored rn", "kind": "FEEL_NEG", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "feeling down today for no reason", "kind": "FEEL_NEG", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "i'm so stressed i can't think straight", "kind": "FEEL_NEG", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "everything feels kind of pointless at the moment", "kind": "FEEL_NEG", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "i'm exhausted", "kind": "FEEL_NEG", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "i'm in such a good mood today", "kind": "FEEL_POS", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "feeling really proud of myself", "kind": "FEEL_POS", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "so excited i can't sit still", "kind": "FEEL_POS", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "life is pretty great right now", "kind": "FEEL_POS", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "i feel happy for the first time in ages", "kind": "FEEL_POS", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "honestly feeling grateful today", "kind": "FEEL_POS", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "woke up feeling amazing", "kind": "FEEL_POS", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "going to visit my parents next weekend", "kind": "PLAN", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "tomorrow im painting the fence", "kind": "PLAN", "who": "me", "obj": "fence", "body": ""}
+{"lang": "en", "text": "we're flying to lisbon in two weeks", "kind": "PLAN", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "my daughter is having her birthday party on saturday", "kind": "PLAN", "who": "child", "obj": "", "body": ""}
+{"lang": "en", "text": "thinking about learning guitar this year", "kind": "PLAN", "who": "me", "obj": "guitar", "body": ""}
+{"lang": "en", "text": "i'm going to run a half marathon in may", "kind": "PLAN", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "we're having friends over for dinner on friday", "kind": "PLAN", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "made lasagna for dinner tonight", "kind": "ACTIVITY", "who": "me", "obj": "lasagna", "body": ""}
+{"lang": "en", "text": "went for a long walk by the river", "kind": "ACTIVITY", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "spent the afternoon repotting my plants", "kind": "ACTIVITY", "who": "me", "obj": "plant", "body": ""}
+{"lang": "en", "text": "took the kids to the zoo today", "kind": "ACTIVITY", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "cleaned out the garage", "kind": "ACTIVITY", "who": "me", "obj": "garage", "body": ""}
+{"lang": "en", "text": "baked bread for the first time", "kind": "ACTIVITY", "who": "me", "obj": "bread", "body": ""}
+{"lang": "en", "text": "went swimming this morning", "kind": "ACTIVITY", "who": "me", "obj": "", "body": ""}
+{"lang": "en", "text": "hi there", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "en", "text": "good morning!", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "en", "text": "what's the capital of australia?", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "en", "text": "how many legs does a spider have", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "en", "text": "honestly i think summer is overrated", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "en", "text": "what should i do?", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "en", "text": "can you tell me a joke", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "en", "text": "thanks, that helps", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "en", "text": "how does photosynthesis work?", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "en", "text": "what's your favourite colour?", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "en", "text": "ok", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "en", "text": "who wrote pride and prejudice", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "de", "text": "das küchenfenster ist gestern beim sturm kaputt gegangen", "kind": "DAMAGE", "who": "me", "obj": "window", "body": ""}
+{"lang": "de", "text": "mein handy ist ins klo gefallen und geht nicht mehr an", "kind": "DAMAGE", "who": "me", "obj": "phone", "body": ""}
+{"lang": "de", "text": "die spülmaschine macht komische geräusche und pumpt nicht mehr ab", "kind": "DAMAGE", "who": "me", "obj": "dishwasher", "body": ""}
+{"lang": "de", "text": "bei meinem bruder hat jemand das auto zerkratzt", "kind": "DAMAGE", "who": "relative", "obj": "car", "body": ""}
+{"lang": "de", "text": "der fernseher hat plötzlich nen schwarzen bildschirm", "kind": "DAMAGE", "who": "me", "obj": "television", "body": ""}
+{"lang": "de", "text": "mir ist die brille runtergefallen und ein glas ist gesprungen", "kind": "DAMAGE", "who": "me", "obj": "glasses", "body": ""}
+{"lang": "de", "text": "unser kühlschrank kühlt seit heute morgen nicht mehr", "kind": "DAMAGE", "who": "me", "obj": "fridge", "body": ""}
+{"lang": "de", "text": "meine lieblingsjacke hat nen riss am ärmel", "kind": "DAMAGE", "who": "me", "obj": "jacket", "body": ""}
+{"lang": "de", "text": "bin beim joggen umgeknickt, der knöchel ist total dick", "kind": "INJURY", "who": "me", "obj": "", "body": "ankle"}
+{"lang": "de", "text": "meine tochter ist von der schaukel gefallen und hat sich den arm gebrochen", "kind": "INJURY", "who": "child", "obj": "swing", "body": "arm"}
+{"lang": "de", "text": "hab mir am bügeleisen die finger verbrannt", "kind": "INJURY", "who": "me", "obj": "iron", "body": "finger"}
+{"lang": "de", "text": "mein mann hat sich beim holzhacken mit der axt ins bein geschnitten", "kind": "INJURY", "who": "partner", "obj": "axe", "body": "leg"}
+{"lang": "de", "text": "wurde von einer biene in die lippe gestochen", "kind": "INJURY", "who": "me", "obj": "bee", "body": "lip"}
+{"lang": "de", "text": "meine oma ist im bad ausgerutscht und hat sich die hüfte geprellt", "kind": "INJURY", "who": "relative", "obj": "", "body": "hip"}
+{"lang": "de", "text": "unsere katze hat meinem sohn die hand zerkratzt", "kind": "INJURY", "who": "child", "obj": "cat", "body": "hand"}
+{"lang": "de", "text": "mein kollege hat sich beim fußball das knie verdreht", "kind": "INJURY", "who": "colleague", "obj": "", "body": "knee"}
+{"lang": "de", "text": "ich hab seit zwei tagen fieber", "kind": "ILLNESS", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "mir ist total übel", "kind": "ILLNESS", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "mein sohn hat schon wieder ohrenschmerzen", "kind": "ILLNESS", "who": "child", "obj": "", "body": "ear"}
+{"lang": "de", "text": "meine frau liegt mit grippe flach", "kind": "ILLNESS", "who": "partner", "obj": "", "body": ""}
+{"lang": "de", "text": "hab so halsschmerzen, kann kaum schlucken", "kind": "ILLNESS", "who": "me", "obj": "", "body": "throat"}
+{"lang": "de", "text": "mein opa hat seit tagen durchfall", "kind": "ILLNESS", "who": "relative", "obj": "", "body": ""}
+{"lang": "de", "text": "ich hab ausschlag am ganzen rücken", "kind": "ILLNESS", "who": "me", "obj": "", "body": "back"}
+{"lang": "de", "text": "seit heute früh hab ich migräne", "kind": "ILLNESS", "who": "me", "obj": "", "body": "head"}
+{"lang": "de", "text": "ich finde meinen haustürschlüssel nicht mehr", "kind": "LOSS", "who": "me", "obj": "key", "body": ""}
+{"lang": "de", "text": "hab meinen geldbeutel irgendwo liegen lassen", "kind": "LOSS", "who": "me", "obj": "wallet", "body": ""}
+{"lang": "de", "text": "mein sohn hat seine mütze in der schule verloren", "kind": "LOSS", "who": "child", "obj": "hat", "body": ""}
+{"lang": "de", "text": "wo ist bloß mein ladekabel hin", "kind": "LOSS", "who": "me", "obj": "charger", "body": ""}
+{"lang": "de", "text": "meine frau hat ihren ehering verloren", "kind": "LOSS", "who": "partner", "obj": "ring", "body": ""}
+{"lang": "de", "text": "hab meinen regenschirm im zug vergessen", "kind": "LOSS", "who": "me", "obj": "umbrella", "body": ""}
+{"lang": "de", "text": "kann mein notizbuch nirgends finden", "kind": "LOSS", "who": "me", "obj": "notebook", "body": ""}
+{"lang": "de", "text": "meine mutter hat ihren schal im café liegen lassen", "kind": "LOSS", "who": "relative", "obj": "scarf", "body": ""}
+{"lang": "de", "text": "mir wurde der roller vorm bahnhof geklaut", "kind": "THEFT", "who": "me", "obj": "scooter", "body": ""}
+{"lang": "de", "text": "bei uns wurde eingebrochen", "kind": "THEFT", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "jemand hat mir im gedränge das handy aus der tasche gezogen", "kind": "THEFT", "who": "me", "obj": "phone", "body": ""}
+{"lang": "de", "text": "meinem vater wurde das auto gestohlen", "kind": "THEFT", "who": "relative", "obj": "car", "body": ""}
+{"lang": "de", "text": "im fitnessstudio hat jemand meine kopfhörer mitgehen lassen", "kind": "THEFT", "who": "me", "obj": "headphones", "body": ""}
+{"lang": "de", "text": "meiner kollegin wurde die handtasche geklaut", "kind": "THEFT", "who": "colleague", "obj": "handbag", "body": ""}
+{"lang": "de", "text": "aus dem keller wurden unsere fahrräder gestohlen", "kind": "THEFT", "who": "me", "obj": "bike", "body": ""}
+{"lang": "de", "text": "ein kumpel von mir wurde überfallen und sie haben ihm das portemonnaie abgenommen", "kind": "THEFT", "who": "friend", "obj": "wallet", "body": ""}
+{"lang": "de", "text": "hab mich übelst mit meiner schwester gestritten", "kind": "CONFLICT", "who": "relative", "obj": "", "body": ""}
+{"lang": "de", "text": "mein chef hat mich heute vor allen runtergemacht", "kind": "CONFLICT", "who": "colleague", "obj": "", "body": ""}
+{"lang": "de", "text": "meine beste freundin ignoriert mich seit tagen", "kind": "CONFLICT", "who": "friend", "obj": "", "body": ""}
+{"lang": "de", "text": "mein mann und ich haben uns getrennt", "kind": "CONFLICT", "who": "partner", "obj": "", "body": ""}
+{"lang": "de", "text": "meine eltern sind sauer auf mich", "kind": "CONFLICT", "who": "relative", "obj": "", "body": ""}
+{"lang": "de", "text": "der nachbar hat mich heute im treppenhaus angeschrien", "kind": "CONFLICT", "who": "other", "obj": "", "body": ""}
+{"lang": "de", "text": "meine tochter redet seit dem streit nicht mehr mit mir", "kind": "CONFLICT", "who": "child", "obj": "", "body": ""}
+{"lang": "de", "text": "mein kumpel hat mich vor allen bloßgestellt und jetzt sind wir zerstritten", "kind": "CONFLICT", "who": "friend", "obj": "", "body": ""}
+{"lang": "de", "text": "bin durch die führerscheinprüfung gefallen", "kind": "FAILURE", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "ich hab die stelle nicht bekommen", "kind": "FAILURE", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "mir wurde gekündigt", "kind": "FAILURE", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "mein sohn ist sitzen geblieben", "kind": "FAILURE", "who": "child", "obj": "", "body": ""}
+{"lang": "de", "text": "wir haben das spiel 0:4 verloren", "kind": "FAILURE", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "meine bewerbung wurde abgelehnt", "kind": "FAILURE", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "meine frau hat die probezeit nicht bestanden", "kind": "FAILURE", "who": "partner", "obj": "", "body": ""}
+{"lang": "de", "text": "hab die klausur verhauen", "kind": "FAILURE", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "die nebenkostenabrechnung ist viel höher als gedacht", "kind": "MONEY", "who": "me", "obj": "bill", "body": ""}
+{"lang": "de", "text": "ich kann mir die miete diesen monat nicht leisten", "kind": "MONEY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "die reparatur kostet 900 euro, das hab ich nicht", "kind": "MONEY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "hab nen strafzettel über 60 euro bekommen", "kind": "MONEY", "who": "me", "obj": "ticket", "body": ""}
+{"lang": "de", "text": "ich hab schulden bei meinen eltern und weiß nicht wie ich die zurückzahlen soll", "kind": "MONEY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "unser vermieter erhöht die miete", "kind": "MONEY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "mein bruder steckt in finanziellen schwierigkeiten", "kind": "MONEY", "who": "relative", "obj": "", "body": ""}
+{"lang": "de", "text": "die zahnarztrechnung ist der hammer, 1500 euro", "kind": "MONEY", "who": "me", "obj": "bill", "body": ""}
+{"lang": "de", "text": "mein zug hat schon wieder 30 minuten verspätung", "kind": "DELAY", "who": "me", "obj": "train", "body": ""}
+{"lang": "de", "text": "der flug wurde gestrichen", "kind": "DELAY", "who": "me", "obj": "flight", "body": ""}
+{"lang": "de", "text": "hab den bus verpasst und komm zu spät zur arbeit", "kind": "DELAY", "who": "me", "obj": "bus", "body": ""}
+{"lang": "de", "text": "mein paket hängt seit einer woche im verteilzentrum fest", "kind": "DELAY", "who": "me", "obj": "package", "body": ""}
+{"lang": "de", "text": "der handwerker kommt erst nächsten monat", "kind": "DELAY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "meine schwester steckt im stau und verpasst ihren termin", "kind": "DELAY", "who": "relative", "obj": "", "body": ""}
+{"lang": "de", "text": "die fähre fällt heute wegen sturm aus", "kind": "DELAY", "who": "me", "obj": "ferry", "body": ""}
+{"lang": "de", "text": "hab verschlafen und den arzttermin verpasst", "kind": "DELAY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "ich hab voll angst vor der prüfung morgen", "kind": "WORRY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "bin total nervös wegen dem vorstellungsgespräch", "kind": "WORRY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "ich mach mir sorgen, meine tochter ist immer noch nicht zu hause", "kind": "WORRY", "who": "child", "obj": "", "body": ""}
+{"lang": "de", "text": "ich hab angst dass mein partner mich verlässt", "kind": "WORRY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "mir graut vor dem zahnarzttermin nächste woche", "kind": "WORRY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "mein vater muss operiert werden und ich mach mir riesige sorgen", "kind": "WORRY", "who": "relative", "obj": "", "body": ""}
+{"lang": "de", "text": "ich hab bammel vor dem umzug", "kind": "WORRY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "hab schiss, dass ich die probezeit nicht überstehe", "kind": "WORRY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "hab die prüfung bestanden!!", "kind": "SUCCESS", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "ich wurde befördert", "kind": "SUCCESS", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "mein sohn hat das turnier gewonnen", "kind": "SUCCESS", "who": "child", "obj": "", "body": ""}
+{"lang": "de", "text": "wir sind aufgestiegen!", "kind": "SUCCESS", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "meine frau hat ihren ersten halbmarathon geschafft", "kind": "SUCCESS", "who": "partner", "obj": "", "body": ""}
+{"lang": "de", "text": "hab endlich die fahrprüfung bestanden", "kind": "SUCCESS", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "meine tochter hat ne eins in mathe geschrieben", "kind": "SUCCESS", "who": "child", "obj": "", "body": ""}
+{"lang": "de", "text": "ich hab beim pubquiz gewonnen", "kind": "SUCCESS", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "wir haben uns verlobt!", "kind": "MILESTONE", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "meine schwester ist schwanger", "kind": "MILESTONE", "who": "relative", "obj": "", "body": ""}
+{"lang": "de", "text": "hab endlich einen neuen job", "kind": "MILESTONE", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "mein sohn hat seinen abschluss gemacht", "kind": "MILESTONE", "who": "child", "obj": "", "body": ""}
+{"lang": "de", "text": "mein partner und ich sind zusammengezogen", "kind": "MILESTONE", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "unser sohn ist heute nacht auf die welt gekommen", "kind": "MILESTONE", "who": "child", "obj": "", "body": ""}
+{"lang": "de", "text": "mein bester kumpel hat geheiratet", "kind": "MILESTONE", "who": "friend", "obj": "", "body": ""}
+{"lang": "de", "text": "meine kollegin ist mama geworden", "kind": "MILESTONE", "who": "colleague", "obj": "", "body": ""}
+{"lang": "de", "text": "hab mir endlich neue laufschuhe gegönnt", "kind": "ACQUIRE", "who": "me", "obj": "shoe", "body": ""}
+{"lang": "de", "text": "mein opa hat mir seine alte uhr geschenkt", "kind": "ACQUIRE", "who": "me", "obj": "watch", "body": ""}
+{"lang": "de", "text": "hab mir nen gebrauchten laptop gekauft", "kind": "ACQUIRE", "who": "me", "obj": "laptop", "body": ""}
+{"lang": "de", "text": "meine tochter hat zum geburtstag ein tablet bekommen", "kind": "ACQUIRE", "who": "child", "obj": "tablet", "body": ""}
+{"lang": "de", "text": "das neue bett wurde heute geliefert", "kind": "ACQUIRE", "who": "me", "obj": "bed", "body": ""}
+{"lang": "de", "text": "wir haben uns ein wohnmobil gekauft", "kind": "ACQUIRE", "who": "me", "obj": "camper", "body": ""}
+{"lang": "de", "text": "hab auf dem flohmarkt eine alte schreibmaschine ergattert", "kind": "ACQUIRE", "who": "me", "obj": "typewriter", "body": ""}
+{"lang": "de", "text": "meine oma ist gestorben", "kind": "DEATH", "who": "relative", "obj": "", "body": ""}
+{"lang": "de", "text": "unser hund ist heute eingeschläfert worden", "kind": "DEATH", "who": "pet", "obj": "", "body": ""}
+{"lang": "de", "text": "mein onkel ist letzte nacht verstorben", "kind": "DEATH", "who": "relative", "obj": "", "body": ""}
+{"lang": "de", "text": "ein freund von mir ist bei einem unfall ums leben gekommen", "kind": "DEATH", "who": "friend", "obj": "", "body": ""}
+{"lang": "de", "text": "mein wellensittich ist tot", "kind": "DEATH", "who": "pet", "obj": "", "body": ""}
+{"lang": "de", "text": "eine kollegin ist plötzlich verstorben", "kind": "DEATH", "who": "colleague", "obj": "", "body": ""}
+{"lang": "de", "text": "meine katze ist heute morgen gestorben", "kind": "DEATH", "who": "pet", "obj": "", "body": ""}
+{"lang": "de", "text": "mir ist so langweilig", "kind": "FEEL_NEG", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "ich fühl mich einsam", "kind": "FEEL_NEG", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "bin total kaputt", "kind": "FEEL_NEG", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "irgendwie bin ich heute traurig", "kind": "FEEL_NEG", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "ich bin so gestresst", "kind": "FEEL_NEG", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "hab auf nichts lust", "kind": "FEEL_NEG", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "fühl mich echt ausgelaugt", "kind": "FEEL_NEG", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "ich bin heute richtig gut drauf", "kind": "FEEL_POS", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "bin so glücklich gerade", "kind": "FEEL_POS", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "ich freu mich total", "kind": "FEEL_POS", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "fühl mich super", "kind": "FEEL_POS", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "bin echt stolz auf mich", "kind": "FEEL_POS", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "heute ist einfach ein schöner tag", "kind": "FEEL_POS", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "ich bin so dankbar für alles", "kind": "FEEL_POS", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "morgen fahr ich zu meinen eltern", "kind": "PLAN", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "nächste woche fliegen wir nach rom", "kind": "PLAN", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "am samstag hat mein sohn seinen ersten auftritt", "kind": "PLAN", "who": "child", "obj": "", "body": ""}
+{"lang": "de", "text": "ich will dieses jahr spanisch lernen", "kind": "PLAN", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "wir wollen am wochenende den keller ausmisten", "kind": "PLAN", "who": "me", "obj": "basement", "body": ""}
+{"lang": "de", "text": "übermorgen bau ich das regal auf", "kind": "PLAN", "who": "me", "obj": "shelf", "body": ""}
+{"lang": "de", "text": "heute abend gehen wir ins kino", "kind": "PLAN", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "hab heute kuchen gebacken", "kind": "ACTIVITY", "who": "me", "obj": "cake", "body": ""}
+{"lang": "de", "text": "war gerade schwimmen", "kind": "ACTIVITY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "hab den ganzen tag serien geschaut", "kind": "ACTIVITY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "waren heute im zoo", "kind": "ACTIVITY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "hab den rasen gemäht", "kind": "ACTIVITY", "who": "me", "obj": "lawn", "body": ""}
+{"lang": "de", "text": "hab heute suppe gekocht", "kind": "ACTIVITY", "who": "me", "obj": "soup", "body": ""}
+{"lang": "de", "text": "bin heute 20 km radgefahren", "kind": "ACTIVITY", "who": "me", "obj": "", "body": ""}
+{"lang": "de", "text": "hallo", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "de", "text": "moin", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "de", "text": "wie spät ist es in tokio", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "de", "text": "was ist die hauptstadt von kanada", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "de", "text": "was soll ich tun?", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "de", "text": "erzähl mir einen witz", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "de", "text": "danke dir", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "de", "text": "ich finde winter besser als sommer", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "de", "text": "wie funktioniert ein kühlschrank", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "de", "text": "wer hat faust geschrieben", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "de", "text": "alles klar", "kind": "NONE", "who": "", "obj": "", "body": ""}
+{"lang": "de", "text": "was magst du lieber, hunde oder katzen?", "kind": "NONE", "who": "", "obj": "", "body": ""}

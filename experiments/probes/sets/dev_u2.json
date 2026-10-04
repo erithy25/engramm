@@ -1,0 +1,178 @@
+{
+ "name": "dev_u2",
+ "note": "Entwicklung U2 (sichtbar)",
+ "convs": {
+  "en": [
+   [
+    "hey",
+    "my washing machine is making a horrible noise",
+    "it started yesterday",
+    "is it dangerous?",
+    "what should i do?",
+    "ok i'll call a repair guy",
+    "thanks"
+   ],
+   [
+    "hi",
+    "i cut my thumb while chopping onions",
+    "it's bleeding quite a lot",
+    "what do i do?",
+    "ok it stopped now",
+    "thanks!"
+   ],
+   [
+    "hello",
+    "my daughter has had a cough for a week",
+    "she's 4",
+    "should i take her to the doctor?",
+    "ok, thank you"
+   ],
+   [
+    "hey",
+    "i lost my bank card",
+    "i think i dropped it at the supermarket",
+    "what now?",
+    "i blocked it already",
+    "thanks"
+   ],
+   [
+    "hi",
+    "my neighbour keeps yelling at me about parking",
+    "it's really stressing me out",
+    "should i talk to him?",
+    "ok i'll try that"
+   ],
+   [
+    "hey",
+    "i didn't get into the university i wanted",
+    "i'm so disappointed",
+    "what can i do now?",
+    "thanks, that helps"
+   ],
+   [
+    "hi",
+    "my car insurance went up by 300 euros",
+    "i can't really afford that",
+    "any tips?",
+    "ok i'll compare offers"
+   ],
+   [
+    "hello",
+    "my flight to madrid got cancelled",
+    "i'm stuck at the airport",
+    "what are my options?",
+    "thanks"
+   ],
+   [
+    "hey",
+    "i have my first therapy session tomorrow",
+    "i'm really nervous",
+    "what should i expect?",
+    "thanks, that's reassuring"
+   ],
+   [
+    "hi",
+    "i just got the keys to my first apartment!",
+    "i'm so happy",
+    "thanks!"
+   ],
+   [
+    "hey",
+    "my hamster died this morning",
+    "i had him for three years",
+    "thanks for listening"
+   ],
+   [
+    "hi",
+    "i spilled tomato sauce on my white shirt",
+    "it's my favourite one",
+    "how do i get it out?",
+    "ok i'll try that"
+   ]
+  ],
+  "de": [
+   [
+    "hey",
+    "mein kühlschrank kühlt nicht mehr",
+    "seit gestern abend",
+    "was soll ich machen?",
+    "ok, ich ruf einen techniker",
+    "danke"
+   ],
+   [
+    "hi",
+    "ich hab mir beim kochen in den finger geschnitten",
+    "es blutet ziemlich",
+    "was soll ich tun?",
+    "danke, es hat aufgehört"
+   ],
+   [
+    "hallo",
+    "mein sohn hat seit drei tagen husten",
+    "er ist fünf",
+    "soll ich zum arzt?",
+    "danke"
+   ],
+   [
+    "hey",
+    "ich hab meinen haustürschlüssel verloren",
+    "ich war heute im park und im café",
+    "was mach ich jetzt?",
+    "danke"
+   ],
+   [
+    "hi",
+    "meine kollegin redet nicht mehr mit mir",
+    "ich weiß nicht warum",
+    "soll ich sie ansprechen?",
+    "ok, mach ich"
+   ],
+   [
+    "hey",
+    "ich hab die zusage für die wohnung nicht bekommen",
+    "ich bin echt enttäuscht",
+    "danke"
+   ],
+   [
+    "hi",
+    "meine handyrechnung ist plötzlich doppelt so hoch",
+    "wie kann das sein?",
+    "was kann ich tun?",
+    "danke"
+   ],
+   [
+    "hallo",
+    "mein zug fällt aus",
+    "ich muss aber dringend nach köln",
+    "was kann ich machen?",
+    "danke"
+   ],
+   [
+    "hey",
+    "ich hab morgen meine erste fahrstunde",
+    "ich bin total aufgeregt",
+    "hast du tipps?",
+    "danke!"
+   ],
+   [
+    "hi",
+    "wir haben ein haus gekauft!",
+    "ich freu mich so",
+    "danke!"
+   ],
+   [
+    "hallo",
+    "mein kater ist gestorben",
+    "er war 15",
+    "danke fürs zuhören"
+   ],
+   [
+    "hey",
+    "ich hab rotwein aufs sofa gekippt",
+    "es ist ein helles sofa",
+    "wie krieg ich das raus?",
+    "ok probier ich"
+   ]
+  ]
+ }
+}

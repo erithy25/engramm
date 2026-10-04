@@ -91,7 +91,7 @@ NOUN_EVIDENCE_ANCHORS = {   # event nouns: the closure reaches …
 CATEGORY_ANCHORS = {
     "DEVICE": [("device", "noun.artifact"), ("electronic equipment", "noun.artifact"), ("computer", "noun.artifact"),
                ("machine", "noun.artifact"), ("home appliance", "noun.artifact")],
-    "VEHICLE": [("vehicle", "noun.artifact")],
+    "VEHICLE": [("vehicle", "noun.artifact"), ("conveyance", "noun.artifact"), ("public transport", "noun.artifact")],
     "BODYPART": [("body part", "noun.body")],
     "ANIMAL": [("animal", "noun.Tops")],
     "INSECT": [("insect", "noun.animal"), ("arthropod", "noun.animal")],
@@ -271,8 +271,11 @@ class Classes:
             elif pos == "n" and clo & ids and cat in ("VEHICLE", "DEVICE", "BUILDING", "BODYPART", "CLOTHING", "FURNITURE"):
                 cats.add("P-" + cat)          # a part of one: tire → P-VEHICLE, screen → P-DEVICE
         if pos == "n":
-            if wn.synsets.get(sid, {}).get("lexfile") == "noun.body":
+            lf = wn.synsets.get(sid, {}).get("lexfile")
+            if lf == "noun.body":
                 cats.add("BODYPART")
+            if lf == "noun.artifact":
+                cats.add("ARTIFACT")          # any made thing: an umbrella, a ring, a key
             for nid, e in self.noun_ev_ids.items():
                 if nid in clo:
                     ev.update(e.split())
@@ -448,12 +451,20 @@ def build_de_gloss(lines, en_entries: dict) -> dict:
                 break
         ss, cats, ev = "", set(), set()
         for s in senses[:3]:
-            for el in _gloss_lemmas(s["glosses"][0], p):
+            gl = s["glosses"][0]
+            for el in _gloss_lemmas(gl, p):
                 hit = en_entries.get((el, p))
                 if hit:
                     ss = ss or hit[0]
-                    cats |= set(filter(None, hit[1].split(",")))
-                    ev |= set(filter(None, hit[2].split(",")))
+                    hc = set(filter(None, hit[1].split(",")))
+                    hev = set(filter(None, hit[2].split(",")))
+                    if p == "n" and "BODYPART" in hc:
+                        # "sore throat", "headache": a complaint, not the body part
+                        mods = [m for m in re.findall(r"[a-z]+", gl.lower().split(",")[0]) if m != el]
+                        if any("BODY" in (en_entries.get((m, "a")) or en_entries.get((m, "n")) or ("", "", ""))[2] for m in mods):
+                            hc, hev, ss = {"ILLNESS"}, hev | {"BODY"}, "state"
+                    cats |= hc
+                    ev |= hev
         key = (w.lower(), p)
         if key in out:
             o = out[key]

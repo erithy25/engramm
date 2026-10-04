@@ -24,9 +24,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "data" / "conv"
-FILES = ("smalltalk", "empathy", "safety", "fun", "replies", "writing", "de", "daily")
+FILES = ("smalltalk", "empathy", "safety", "fun", "replies", "writing", "de", "daily", "understand")
 PLACEHOLDERS = {"name", "who", "x", "y", "dish", "rest", "noun", "pron", "subject", "title", "topic", "category", "evidence", "last", "more", "bot",
-                "timeword", "fact", "X", "z", "a", "b", "c", "n", "p", "d", "Y"}
+                "timeword", "fact", "X", "z", "a", "b", "c", "n", "p", "d", "Y",
+                "it", "It", "Who", "Pron", "obj", "Obj", "dein_nom", "dein_acc", "dein_dat", "er", "Er", "ihm", "ihn"}
 
 
 def load_sources(src: Path = SRC) -> dict:
@@ -200,7 +201,7 @@ def build(out: Path | None = None) -> Path:
         raise SystemExit(f"{len(errors)} error(s); nothing written")
     compiled = {"version": 1, "smalltalk": data["smalltalk"], "empathy": data["empathy"],
                 "safety": data["safety"], "fun": data["fun"], "replies": data["replies"], "writing": data["writing"], "de": data["de"],
-                "daily": data["daily"]}
+                "daily": data["daily"], "understand": data["understand"]}
     out = Path(out or BANK_PATH)
     out.write_text(json.dumps(compiled, ensure_ascii=False, indent=1, sort_keys=False) + "\n", encoding="utf-8")
     n_int = len(data["smalltalk"]["intents"])
@@ -232,7 +233,7 @@ def main(argv: list[str] | None = None) -> int:
     from engramm.chat.bank import Bank
     bank = Bank({"smalltalk": data["smalltalk"], "empathy": data["empathy"], "safety": data["safety"],
                  "fun": data["fun"], "replies": data["replies"], "writing": data["writing"], "de": data["de"],
-                 "daily": data["daily"]})
+                 "daily": data["daily"], "understand": data["understand"]})
     msgs = args.messages
     if args.command == "coverage" and not msgs:
         msgs = [ex for it in data["smalltalk"]["intents"] for ex in it.get("examples", [])]

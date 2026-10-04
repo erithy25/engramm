@@ -19799,5 +19799,793 @@
     ]
    }
   }
+ },
+ "understand": {
+  "en": {
+   "react": {
+    "DAMAGE": [
+     "Oh no, that's so annoying!",
+     "Ugh — that's the last thing you need.",
+     "Oh no, sorry to hear that!"
+    ],
+    "DAMAGE_it": [
+     "Oh no — {it}? That's so annoying.",
+     "Ugh, not {it}! That's the last thing you need."
+    ],
+    "INJURY": [
+     "Ouch! That sounds painful.",
+     "Oh no, ouch! 😣",
+     "Ouch — that really hurts."
+    ],
+    "INJURY_other": [
+     "Oh no! Is {pron} okay?",
+     "Oh no — poor {who}! How is {pron} doing?"
+    ],
+    "ILLNESS": [
+     "Oh no, I'm sorry you're feeling unwell.",
+     "That sounds miserable — I'm sorry. 🤒"
+    ],
+    "ILLNESS_other": [
+     "Oh no, poor {who}! I hope {pron} feels better soon.",
+     "Oh no — I'm sorry {who} isn't well."
+    ],
+    "LOSS": [
+     "Oh no, that's so stressful!",
+     "Ugh, losing things is the worst."
+    ],
+    "THEFT": [
+     "Oh no, that's awful — I'm sorry.",
+     "That's horrible. I'm sorry that happened to you."
+    ],
+    "CONFLICT": [
+     "That sounds really hard.",
+     "Oh, that hurts — I'm sorry.",
+     "That must be tough to deal with."
+    ],
+    "FAILURE": [
+     "Oh no, I'm sorry — that's really disappointing.",
+     "That's a blow, I'm sorry. It doesn't say anything about what you're worth, though."
+    ],
+    "MONEY": [
+     "Ugh, money stress is the worst.",
+     "Ouch — that's a lot to deal with."
+    ],
+    "DELAY": [
+     "Oh no, how annoying!",
+     "Ugh, that's so frustrating."
+    ],
+    "WORRY": [
+     "That sounds stressful — it's completely normal to feel that way.",
+     "I get why you're nervous. That's a lot on your mind."
+    ],
+    "SUCCESS": [
+     "Congratulations! 🎉 That's great news.",
+     "Wow, well done! 🎉 You must be really proud.",
+     "That's fantastic — congrats! 🎉"
+    ],
+    "MILESTONE": [
+     "Wow, congratulations! 🎉 That's huge news.",
+     "Oh, that's wonderful — congratulations! 🎉"
+    ],
+    "ACQUIRE": [
+     "Oh nice, congrats! 😊",
+     "Ooh, exciting! Enjoy it!"
+    ],
+    "DEATH": [
+     "I'm so sorry for your loss. 💛",
+     "Oh no, I'm so sorry. That's really hard."
+    ],
+    "FEEL_NEG": [
+     "I'm sorry you're feeling like that.",
+     "That sounds heavy. I'm here if you want to talk."
+    ],
+    "FEEL_POS": [
+     "Love that! 😊",
+     "That's so nice to hear! 😊"
+    ],
+    "PLAN": [
+     "Oh, nice!",
+     "Ooh, that sounds exciting!"
+    ],
+    "ACTIVITY": [
+     "Nice!",
+     "Oh, sounds good!"
+    ]
+   },
+   "ask": {
+    "damage_what": [
+     "What happened?",
+     "How did that happen?"
+    ],
+    "damage_works": [
+     "Does it still work at all?",
+     "Is it still usable?"
+    ],
+    "damage_off": [
+     "Is it switched off?"
+    ],
+    "damage_safe": [
+     "Are you somewhere safe?"
+    ],
+    "damage_source": [
+     "Do you know where it's coming from?"
+    ],
+    "damage_warranty": [
+     "Is it still under warranty?",
+     "How old is it?"
+    ],
+    "injury_bad": [
+     "How bad is it — is it bleeding or swollen?",
+     "How bad does it look?"
+    ],
+    "injury_allergy": [
+     "Are you allergic, as far as you know?"
+    ],
+    "injury_other": [
+     "Is {pron} okay?"
+    ],
+    "injury_move": [
+     "Can you still move it normally?"
+    ],
+    "illness_long": [
+     "How long have you been feeling like this?",
+     "When did it start?"
+    ],
+    "illness_other": [
+     "How is {pron} doing?"
+    ],
+    "loss_last": [
+     "Where did you last have it?",
+     "When did you last see it?"
+    ],
+    "theft_report": [
+     "Have you reported it yet?"
+    ],
+    "conflict_what": [
+     "What happened?",
+     "Do you want to tell me what happened?"
+    ],
+    "conflict_feel": [
+     "How are you holding up?"
+    ],
+    "failure_feel": [
+     "How are you feeling about it?"
+    ],
+    "money_surprise": [
+     "Did it come as a surprise?"
+    ],
+    "delay_long": [
+     "Do you know how long it'll take?",
+     "Do you have a backup plan?"
+    ],
+    "worry_most": [
+     "What worries you most about it?",
+     "What's the part you're most nervous about?"
+    ],
+    "success_celebrate": [
+     "How are you going to celebrate?",
+     "How does it feel?"
+    ],
+    "milestone_feel": [
+     "How are you feeling?",
+     "How does it feel?"
+    ],
+    "acquire_why": [
+     "What made you go for it?",
+     "Are you happy with it?"
+    ],
+    "death_holding": [
+     "How are you holding up?"
+    ],
+    "feel_talk": [
+     "Do you want to talk about what's going on?",
+     "Has something happened, or is it more of a general feeling?"
+    ],
+    "plan_feel": [
+     "Are you looking forward to it?",
+     "How are you feeling about it?"
+    ],
+    "activity_how": [
+     "How was it?",
+     "Did you enjoy it?"
+    ]
+   },
+   "detail": {
+    "worse": [
+     "Oh no, that makes it worse.",
+     "Ugh, that doesn't help.",
+     "Oh, that's not great."
+    ],
+    "worse_body": [
+     "That doesn't sound good. Keep an eye on it — if it gets worse, get it checked."
+    ],
+    "better": [
+     "Oh good, that's a relief!",
+     "Phew — that's good to hear!",
+     "Oh, I'm glad! 😊"
+    ],
+    "done": [
+     "Good — that was the right move.",
+     "Good thinking.",
+     "That's exactly right."
+    ],
+    "feeling_neg": [
+     "That's completely understandable.",
+     "Of course — anyone would feel that way."
+    ],
+    "feeling_pos": [
+     "Aww, that's lovely! 😊",
+     "That's so nice!"
+    ],
+    "info": [
+     "Okay, I see.",
+     "Got it.",
+     "Ah, okay."
+    ],
+    "info_long": [
+     "That's a long time.",
+     "Oof, that's been going on a while."
+    ],
+    "death_time": [
+     "That's a lot of time together — no wonder it hurts so much. 💛",
+     "You shared so much with them. It's okay to miss them."
+    ]
+   },
+   "offer": [
+    "Want a few tips on what usually helps?",
+    "Should I tell you what usually helps in a situation like this?"
+   ],
+   "advice_head": [
+    "Here's what usually helps:",
+    "A few things that usually help:"
+   ],
+   "advice": {
+    "DAMAGE": "• Stop using it for now if it might get worse.\n• Check whether it's still under warranty or covered by insurance.\n• Take a photo of the damage.\n• Ask a repair shop for a quote — often a repair is cheaper than you'd think.",
+    "DAMAGE.STAIN": "• Blot it right away with a clean cloth — don't rub, that spreads it.\n• Rinse from the back with cold water (hot water sets many stains).\n• Then a little washing-up liquid or a stain remover, tested on a hidden spot first.\n• For upholstery, check the care label; for delicate fabrics, a dry cleaner is the safer bet.",
+    "DAMAGE.DEVICE": "• If liquid got in or it smells burnt: switch it off and unplug it right away — don't switch it on to test it.\n• Back up your data as soon as it runs again.\n• Check the warranty, your insurance and the manufacturer's repair service.\n• A repair shop can usually give you a free quote.",
+    "DAMAGE.VEHICLE": "• Get yourself and the vehicle out of traffic first — hazard lights on, warning triangle if you have one.\n• Call your breakdown service or insurance if you can't fix it safely yourself.\n• Take photos if someone else was involved.\n• Get it checked at a garage before driving far.",
+    "DAMAGE.BUILDPART": "• Limit the damage first: catch water, move valuables, switch off power or water to that area if needed.\n• Tell your landlord or property management (use their emergency number if it's urgent).\n• Take photos for the insurance.\n• Don't try risky repairs yourself — a professional is worth it here.",
+    "DAMAGE.CLOTHING": "• Act quickly: blot (don't rub) any stain and rinse it with cold water.\n• Check the care label before using hot water or chemicals.\n• For tears, a tailor or repair café can often fix it cheaply.",
+    "DAMAGE.FURNITURE": "• Blot spills right away (don't rub) and test any cleaner on a hidden spot first.\n• Small scratches and dents can often be fixed with simple repair kits.\n• Check the warranty or your household insurance for bigger damage.",
+    "INJURY": "• Cool it with a cold pack or a cold cloth (not ice directly on the skin) for 10–15 minutes.\n• Rest it and keep it raised if it's swollen.\n• Clean small wounds with clean water and cover them.\n• Get it checked if it's very painful, can't be moved, looks deformed or doesn't improve in a few days. Call emergency services for heavy bleeding, breathing problems or loss of consciousness.",
+    "INJURY.cut": "• Press a clean cloth on it until the bleeding stops.\n• Rinse it with clean water, then cover it with a plaster or dressing.\n• Get it seen if it's deep or gaping, won't stop bleeding after 10 minutes, or if your tetanus shot isn't up to date.",
+    "INJURY.burn": "• Cool it under lukewarm running water for 10–20 minutes — no ice, butter or creams.\n• Take off rings or tight things near it.\n• Cover it loosely with a clean, non-fluffy dressing.\n• Get help for burns bigger than your palm, on the face, hands or joints, or with blisters that look deep.",
+    "INJURY.sting": "• Remove a stinger if there is one (scrape it out sideways).\n• Wash the spot and cool it.\n• An antihistamine or cooling gel from the pharmacy helps with itching and swelling.\n• Call emergency services right away if you have trouble breathing, swelling of the face or throat, or feel dizzy.",
+    "INJURY.sprain": "• Rest it, cool it for 10–15 minutes at a time, and keep it raised.\n• A light compression bandage can help with swelling.\n• Get it checked if you can't put weight on it, it looks deformed, or it's not better after a few days.",
+    "INJURY.head": "• Rest and keep an eye on how you feel.\n• Get medical help right away for vomiting, confusion, worsening headache, drowsiness, unequal pupils or loss of consciousness.",
+    "INJURY.bite": "• Wash the bite thoroughly with soap and water.\n• Cover it with a clean dressing.\n• Animal bites often get infected — see a doctor, especially for deep bites, bites on the hand or face, or if your tetanus shot isn't current.",
+    "ILLNESS": "• Rest, drink plenty of fluids and eat light food.\n• A pharmacist can recommend something for the symptoms.\n• See a doctor if it lasts more than a few days, keeps getting worse, or you have a high fever, trouble breathing or severe pain.",
+    "ILLNESS.child": "• Keep them comfortable and make sure they drink enough.\n• Check their temperature regularly.\n• Call the pediatrician if they're very young, the fever is high or lasts more than two to three days, they drink very little, are unusually drowsy, or you're simply worried — that's what they're there for.",
+    "ILLNESS.pet": "• Keep an eye on whether it's eating, drinking and behaving normally.\n• Remove anything it might have eaten.\n• Call the vet if it happens repeatedly, there's blood, it's lethargic, or it may have eaten something poisonous.",
+    "LOSS": "• Retrace your steps and check the last places you had it — pockets, bags and the car too.\n• Call or ask places you visited; check lost-and-found.\n• If it's a bank card or ID: block or report it right away.\n• For phones: try locating it with the find-my-device feature.",
+    "THEFT": "• Block bank cards and change passwords right away if they're affected.\n• Report it to the police — you'll need the report for insurance.\n• Check whether your household or travel insurance covers it.\n• Write down serial numbers or descriptions while you remember them.",
+    "CONFLICT": "• Give yourself a moment to calm down before you talk.\n• Talk about how it made you feel (\"I felt …\") rather than blaming.\n• Listen to their side too — there may be something you don't know.\n• If they need space, give it — but let them know the door is open.",
+    "FAILURE": "• Let yourself be disappointed — that's normal.\n• Look at what went wrong without being too hard on yourself.\n• Find out about the next chance: a retake, another application, another try.\n• Talk to someone who has been through it — it helps to hear it's common.",
+    "MONEY": "• Check the bill or the costs carefully — mistakes happen.\n• Ask about paying in instalments; most companies agree if you ask early.\n• Write down your monthly income and costs to see where you can save.\n• Free debt or budget counselling can help if it gets too much.",
+    "DELAY": "• Check your options: the next connection, rebooking, or another way to get there.\n• Let people know you'll be late.\n• Keep receipts and tickets — for cancellations and long delays you may be entitled to compensation.",
+    "WORRY": "• Write down what exactly worries you — it often feels smaller on paper.\n• Prepare what you can, and let go of what you can't control.\n• Breathe slowly in for four, out for six — it really calms the body.\n• Talk to someone you trust.",
+    "FEEL_NEG": "• Be kind to yourself today — it's okay to have a bad day.\n• Get some fresh air or move a little, even a short walk.\n• Message or call someone you like.\n• If the feeling stays for weeks, talking to a doctor or counsellor really helps.",
+    "PLAN": "• Prepare the essentials the day before, so you're not rushed.\n• Get enough sleep the night before.\n• Plan a little extra time.\n• And enjoy it — you've got this!"
+   },
+   "is_bad": {
+    "INJURY": [
+     "Most injuries like this heal on their own within days. It's worth getting it checked if it's very painful, can't be moved, keeps swelling, looks infected or doesn't improve."
+    ],
+    "ILLNESS": [
+     "Usually it passes on its own within a few days. See a doctor if it gets worse, lasts long, or you have a high fever, trouble breathing or severe pain."
+    ],
+    "DAMAGE": [
+     "Often it's fixable — it depends on how badly it's damaged. A repair shop can tell you quickly, and quotes are usually free."
+    ],
+    "other": [
+     "It's understandable that it worries you. From what you've told me it doesn't sound like a disaster — but if your gut says something's off, it's worth getting it checked."
+    ]
+   },
+   "should": {
+    "comm": [
+     "I think so — calmly and honestly. Something like: \"Hey, can we talk? I've been thinking about what happened.\" That usually opens the door."
+    ],
+    "doctor": [
+     "If you're unsure, yes — getting it checked is never wrong, especially if it's getting worse."
+    ],
+    "repair": [
+     "It depends on the cost: if a repair costs more than about half the price of a new one, replacing it is often the better deal."
+    ],
+    "generic": [
+     "If it feels right to you, I'd say go for it. What's holding you back?",
+     "I'd weigh it up: what's the worst that could happen if you do — and if you don't?"
+    ]
+   },
+   "why": {
+    "MONEY": [
+     "Hard to say from here — common reasons are a correction or back-payment, a price or tariff change, or an extra service you didn't notice. Ask the company for an itemised breakdown; they have to explain it."
+    ],
+    "DAMAGE": [
+     "Hard to say without seeing it — wear and tear, a loose part or a fault can all cause that. A repair shop can usually tell quickly."
+    ],
+    "ILLNESS": [
+     "It can have many causes, often a harmless infection. If it doesn't get better or you're worried, a doctor can find out."
+    ],
+    "CONFLICT": [
+     "Hard to know without asking — sometimes it has nothing to do with you. The only way to find out is to talk to them."
+    ],
+    "other": [
+     "Hard to say from here. What do you think might be behind it?"
+    ]
+   },
+   "plan_ack": [
+    "That sounds like a good plan.",
+    "Good idea.",
+    "Sounds sensible."
+   ],
+   "thanks": {
+    "DAMAGE": [
+     "You're welcome! I hope it can be fixed. 🤞",
+     "Anytime — good luck with it!"
+    ],
+    "INJURY": [
+     "You're welcome! Get well soon. 🩹",
+     "Anytime — I hope it heals quickly!"
+    ],
+    "INJURY_other": [
+     "You're welcome! I hope {pron} feels better soon. 💛"
+    ],
+    "ILLNESS": [
+     "You're welcome — get well soon! 🤒",
+     "Anytime. Rest up and feel better!"
+    ],
+    "ILLNESS_other": [
+     "You're welcome! I hope {pron} feels better soon. 💛"
+    ],
+    "LOSS": [
+     "You're welcome — fingers crossed it turns up! 🤞"
+    ],
+    "THEFT": [
+     "You're welcome. I hope it gets sorted quickly."
+    ],
+    "CONFLICT": [
+     "You're welcome. I hope you can sort it out. 💛"
+    ],
+    "FAILURE": [
+     "You're welcome — you'll get there. 💪"
+    ],
+    "MONEY": [
+     "You're welcome. I hope it works out!"
+    ],
+    "DELAY": [
+     "You're welcome — I hope the rest goes smoothly!"
+    ],
+    "WORRY": [
+     "You're welcome. You've got this! 💪"
+    ],
+    "SUCCESS": [
+     "You're welcome — enjoy it, you've earned it! 🎉"
+    ],
+    "MILESTONE": [
+     "You're welcome — enjoy every bit of it! 🎉"
+    ],
+    "DEATH": [
+     "Take care of yourself. 💛"
+    ],
+    "PLAN": [
+     "You're welcome — good luck! 🍀"
+    ],
+    "other": [
+     "You're welcome! 😊",
+     "Anytime!"
+    ]
+   },
+   "wish": {
+    "DAMAGE": [
+     "Let me know how it goes!",
+     "Good luck with it!"
+    ],
+    "INJURY": [
+     "Get well soon!",
+     "I hope it heals quickly."
+    ],
+    "ILLNESS": [
+     "Get well soon!"
+    ],
+    "LOSS": [
+     "Fingers crossed it turns up! 🤞"
+    ],
+    "other": [
+     "Let me know how it goes!"
+    ]
+   }
+  },
+  "de": {
+   "react": {
+    "DAMAGE": [
+     "Oh nein, wie ärgerlich!",
+     "Oh je – das fehlt gerade noch.",
+     "Oh nein, das tut mir leid!"
+    ],
+    "DAMAGE_it": [
+     "Oh nein – {dein_nom}? Wie ärgerlich!",
+     "Oh je, ausgerechnet {dein_nom}! Das fehlt gerade noch."
+    ],
+    "INJURY": [
+     "Autsch! Das klingt schmerzhaft.",
+     "Oh nein, autsch! 😣"
+    ],
+    "INJURY_other": [
+     "Oh nein! Geht's {ihm} gut?",
+     "Oh je! Wie geht es {ihm} jetzt?"
+    ],
+    "ILLNESS": [
+     "Oh nein, das tut mir leid, dass es dir nicht gut geht.",
+     "Das klingt richtig unangenehm – gute Besserung schon mal! 🤒"
+    ],
+    "ILLNESS_other": [
+     "Oh je, das tut mir leid! Hoffentlich geht's {ihm} bald besser.",
+     "Oh nein – gute Besserung an {ihn}!"
+    ],
+    "LOSS": [
+     "Oh nein, wie stressig!",
+     "Oh je, so was ist echt das Schlimmste."
+    ],
+    "THEFT": [
+     "Oh nein, wie gemein – das tut mir leid.",
+     "Das ist ja furchtbar. Tut mir leid, dass dir das passiert ist."
+    ],
+    "CONFLICT": [
+     "Das klingt richtig schwer.",
+     "Oh, das tut weh – das tut mir leid.",
+     "Das ist bestimmt nicht leicht für dich."
+    ],
+    "FAILURE": [
+     "Oh nein, das tut mir leid – richtig enttäuschend.",
+     "Das ist bitter, tut mir leid. Über deinen Wert sagt das aber nichts."
+    ],
+    "MONEY": [
+     "Oh je, Geldsorgen sind echt das Schlimmste.",
+     "Autsch – das ist ganz schön viel."
+    ],
+    "DELAY": [
+     "Oh nein, wie nervig!",
+     "Ach Mensch, wie ärgerlich."
+    ],
+    "WORRY": [
+     "Das klingt stressig – völlig normal, dass dich das beschäftigt.",
+     "Ich verstehe gut, dass du nervös bist."
+    ],
+    "SUCCESS": [
+     "Herzlichen Glückwunsch! 🎉 Das sind tolle Neuigkeiten.",
+     "Wow, super gemacht! 🎉 Du kannst richtig stolz sein."
+    ],
+    "MILESTONE": [
+     "Wow, herzlichen Glückwunsch! 🎉 Das ist ja riesig.",
+     "Wie schön – herzlichen Glückwunsch! 🎉"
+    ],
+    "ACQUIRE": [
+     "Oh, wie schön – viel Spaß damit! 😊",
+     "Cool, Glückwunsch! 😊"
+    ],
+    "DEATH": [
+     "Das tut mir so leid. Mein herzliches Beileid. 💛",
+     "Oh nein, das tut mir sehr leid."
+    ],
+    "FEEL_NEG": [
+     "Das tut mir leid, dass es dir so geht.",
+     "Das klingt schwer. Ich bin da, wenn du reden magst."
+    ],
+    "FEEL_POS": [
+     "Wie schön! 😊",
+     "Das freut mich zu hören! 😊"
+    ],
+    "PLAN": [
+     "Oh, schön!",
+     "Klingt spannend!"
+    ],
+    "ACTIVITY": [
+     "Schön!",
+     "Klingt gut!"
+    ]
+   },
+   "ask": {
+    "damage_what": [
+     "Was ist passiert?",
+     "Wie ist das passiert?"
+    ],
+    "damage_works": [
+     "Funktioniert es noch irgendwie?",
+     "Kannst du es noch benutzen?"
+    ],
+    "damage_off": [
+     "Ist es schon ausgeschaltet?"
+    ],
+    "damage_safe": [
+     "Stehst du sicher?"
+    ],
+    "damage_source": [
+     "Weißt du, woher es kommt?"
+    ],
+    "damage_warranty": [
+     "Ist noch Garantie drauf?",
+     "Wie alt ist es denn?"
+    ],
+    "injury_bad": [
+     "Wie schlimm ist es – blutet es oder ist es geschwollen?",
+     "Wie sieht es aus?"
+    ],
+    "injury_allergy": [
+     "Bist du allergisch, soweit du weißt?"
+    ],
+    "injury_other": [
+     "Geht's {ihm} gut?"
+    ],
+    "injury_move": [
+     "Kannst du es noch normal bewegen?"
+    ],
+    "illness_long": [
+     "Seit wann geht es dir so?",
+     "Wann hat es angefangen?"
+    ],
+    "illness_other": [
+     "Wie geht es {ihm} jetzt?"
+    ],
+    "loss_last": [
+     "Wo hattest du es zuletzt?",
+     "Wann hast du es zuletzt gesehen?"
+    ],
+    "theft_report": [
+     "Hast du es schon angezeigt?"
+    ],
+    "conflict_what": [
+     "Was ist passiert?",
+     "Magst du erzählen, was passiert ist?"
+    ],
+    "conflict_feel": [
+     "Wie geht es dir damit?"
+    ],
+    "failure_feel": [
+     "Wie geht es dir damit?"
+    ],
+    "money_surprise": [
+     "Kam das überraschend?"
+    ],
+    "delay_long": [
+     "Weißt du, wie lange es dauert?",
+     "Hast du einen Plan B?"
+    ],
+    "worry_most": [
+     "Was macht dir am meisten Sorgen?",
+     "Wovor bist du am nervösesten?"
+    ],
+    "success_celebrate": [
+     "Wie feierst du das?",
+     "Wie fühlt es sich an?"
+    ],
+    "milestone_feel": [
+     "Wie fühlst du dich?",
+     "Wie fühlt es sich an?"
+    ],
+    "acquire_why": [
+     "Was hat dich überzeugt?",
+     "Bist du zufrieden damit?"
+    ],
+    "death_holding": [
+     "Wie geht es dir damit?"
+    ],
+    "feel_talk": [
+     "Magst du erzählen, was los ist?",
+     "Ist etwas passiert, oder ist es eher so ein allgemeines Gefühl?"
+    ],
+    "plan_feel": [
+     "Freust du dich drauf?",
+     "Wie fühlst du dich damit?"
+    ],
+    "activity_how": [
+     "Wie war's?",
+     "Hat es Spaß gemacht?"
+    ]
+   },
+   "detail": {
+    "worse": [
+     "Oh nein, das macht es nicht besser.",
+     "Oh je, das auch noch.",
+     "Hm, das ist nicht so toll."
+    ],
+    "worse_body": [
+     "Das klingt nicht so gut. Behalte es im Auge – wenn es schlimmer wird, lass es anschauen."
+    ],
+    "better": [
+     "Oh gut, da bin ich erleichtert!",
+     "Puh – das ist schön zu hören!",
+     "Wie gut! 😊"
+    ],
+    "done": [
+     "Gut – genau richtig.",
+     "Gute Idee.",
+     "Das war genau das Richtige."
+    ],
+    "feeling_neg": [
+     "Das ist total verständlich.",
+     "Klar – das ginge jedem so."
+    ],
+    "feeling_pos": [
+     "Wie schön! 😊",
+     "Das ist ja süß!"
+    ],
+    "info": [
+     "Okay, verstehe.",
+     "Alles klar.",
+     "Ah, okay."
+    ],
+    "info_long": [
+     "Das ist eine lange Zeit.",
+     "Oh, das geht ja schon eine Weile so."
+    ],
+    "death_time": [
+     "Das ist so viel gemeinsame Zeit – kein Wunder, dass es so weh tut. 💛",
+     "Ihr hattet so viel zusammen. Es ist okay, zu trauern."
+    ]
+   },
+   "offer": [
+    "Soll ich dir ein paar Tipps geben, was meistens hilft?",
+    "Magst du ein paar Tipps, was in so einer Lage meistens hilft?"
+   ],
+   "advice_head": [
+    "Das hilft meistens:",
+    "Ein paar Dinge, die meistens helfen:"
+   ],
+   "advice": {
+    "DAMAGE": "• Erst mal nicht weiter benutzen, wenn es dadurch schlimmer werden könnte.\n• Prüfen, ob noch Garantie besteht oder eine Versicherung greift.\n• Ein Foto vom Schaden machen.\n• Einen Kostenvoranschlag holen – eine Reparatur ist oft günstiger als gedacht.",
+    "DAMAGE.STAIN": "• Sofort mit einem sauberen Tuch abtupfen – nicht reiben, sonst verteilt es sich.\n• Mit kaltem Wasser von hinten ausspülen (heißes Wasser fixiert viele Flecken).\n• Dann etwas Spülmittel oder Fleckenentferner, vorher an einer versteckten Stelle testen.\n• Bei Polstern aufs Pflegeetikett schauen; bei empfindlichen Stoffen ist die Reinigung die sicherere Wahl.",
+    "DAMAGE.DEVICE": "• Ist Flüssigkeit reingekommen oder riecht es verbrannt: sofort ausschalten und Stecker ziehen – nicht zum Testen einschalten.\n• Sobald es wieder läuft, deine Daten sichern.\n• Garantie, Versicherung und Hersteller-Service prüfen.\n• Eine Werkstatt macht meist kostenlos einen Kostenvoranschlag.",
+    "DAMAGE.VEHICLE": "• Erst dich und das Fahrzeug aus dem Verkehr bringen – Warnblinker an, Warndreieck aufstellen.\n• Pannendienst oder Versicherung anrufen, wenn du es nicht sicher selbst lösen kannst.\n• Fotos machen, falls jemand anderes beteiligt war.\n• Vor längeren Fahrten in der Werkstatt prüfen lassen.",
+    "DAMAGE.BUILDPART": "• Erst den Schaden begrenzen: Wasser auffangen, Wertsachen wegräumen, wenn nötig Strom oder Wasser für den Bereich abstellen.\n• Vermieter oder Hausverwaltung Bescheid geben (bei Dringendem die Notfallnummer).\n• Fotos für die Versicherung machen.\n• Riskante Reparaturen lieber Fachleuten überlassen.",
+    "DAMAGE.CLOTHING": "• Schnell handeln: Flecken tupfen (nicht reiben) und mit kaltem Wasser ausspülen.\n• Vor heißem Wasser oder Mitteln aufs Pflegeetikett schauen.\n• Risse kann eine Schneiderei oder ein Repair-Café oft günstig flicken.",
+    "DAMAGE.FURNITURE": "• Verschüttetes sofort abtupfen (nicht reiben) und Reiniger erst an einer versteckten Stelle testen.\n• Kleine Kratzer und Dellen lassen sich oft mit einfachen Reparatursets beheben.\n• Bei größeren Schäden Garantie oder Hausratversicherung prüfen.",
+    "INJURY": "• Kühlen – Kühlpack oder kaltes Tuch (Eis nicht direkt auf die Haut), jeweils 10–15 Minuten.\n• Schonen und bei Schwellung hochlagern.\n• Kleine Wunden mit sauberem Wasser reinigen und abdecken.\n• Anschauen lassen, wenn es sehr weh tut, sich nicht bewegen lässt, verformt aussieht oder nach ein paar Tagen nicht besser wird. Bei starker Blutung, Atemnot oder Bewusstlosigkeit: 112.",
+    "INJURY.cut": "• Ein sauberes Tuch draufdrücken, bis es aufhört zu bluten.\n• Mit sauberem Wasser ausspülen und mit Pflaster oder Verband abdecken.\n• Zum Arzt, wenn die Wunde tief ist oder klafft, nach 10 Minuten noch blutet oder der Tetanusschutz nicht aktuell ist.",
+    "INJURY.burn": "• 10–20 Minuten unter lauwarmes fließendes Wasser halten – kein Eis, keine Butter, keine Cremes.\n• Ringe oder Enges in der Nähe abnehmen.\n• Locker mit einem sauberen, nicht fusselnden Verband abdecken.\n• Hilfe holen bei Verbrennungen größer als die Handfläche, im Gesicht, an Händen oder Gelenken oder bei tiefen Blasen.",
+    "INJURY.sting": "• Einen Stachel entfernen, falls er noch steckt (seitlich herausschieben).\n• Die Stelle waschen und kühlen.\n• Ein Antihistaminikum oder kühlendes Gel aus der Apotheke hilft gegen Jucken und Schwellung.\n• Sofort 112 bei Atemnot, Schwellung von Gesicht oder Hals oder Schwindel.",
+    "INJURY.sprain": "• Schonen, jeweils 10–15 Minuten kühlen und hochlagern.\n• Ein leichter Druckverband hilft gegen die Schwellung.\n• Anschauen lassen, wenn du nicht auftreten kannst, es verformt aussieht oder nach ein paar Tagen nicht besser ist.",
+    "INJURY.head": "• Ausruhen und darauf achten, wie es dir geht.\n• Sofort ärztliche Hilfe bei Erbrechen, Verwirrtheit, stärker werdenden Kopfschmerzen, Benommenheit, ungleichen Pupillen oder Bewusstlosigkeit.",
+    "INJURY.bite": "• Die Bisswunde gründlich mit Wasser und Seife auswaschen.\n• Sauber abdecken.\n• Tierbisse entzünden sich oft – zum Arzt, besonders bei tiefen Bissen, an Hand oder Gesicht oder ohne aktuellen Tetanusschutz.",
+    "ILLNESS": "• Ausruhen, viel trinken und leicht essen.\n• In der Apotheke bekommst du Rat zu den Beschwerden.\n• Zum Arzt, wenn es länger als ein paar Tage dauert, schlimmer wird oder du hohes Fieber, Atemnot oder starke Schmerzen hast. Außerhalb der Sprechzeiten in Deutschland: 116 117.",
+    "ILLNESS.child": "• Für Ruhe sorgen und darauf achten, dass es genug trinkt.\n• Regelmäßig Fieber messen.\n• Beim Kinderarzt anrufen, wenn das Kind sehr klein ist, das Fieber hoch ist oder länger als zwei, drei Tage dauert, es kaum trinkt, ungewöhnlich schläfrig ist – oder wenn du einfach unsicher bist. Nachts und am Wochenende: 116 117.",
+    "ILLNESS.pet": "• Beobachten, ob es frisst, trinkt und sich normal verhält.\n• Wegräumen, was es gefressen haben könnte.\n• Zum Tierarzt, wenn es öfter passiert, Blut dabei ist, es schlapp wirkt oder etwas Giftiges gefressen haben könnte.",
+    "LOSS": "• Den Weg gedanklich zurückgehen und die letzten Orte prüfen – auch Jackentaschen, Taschen und Auto.\n• Bei Orten anrufen, an denen du warst; Fundbüro fragen.\n• Bei Bankkarte oder Ausweis: sofort sperren bzw. melden (Sperr-Notruf 116 116).\n• Beim Handy: mit der Geräte-Ortung suchen.",
+    "THEFT": "• Bankkarten sofort sperren (116 116) und betroffene Passwörter ändern.\n• Bei der Polizei anzeigen – die Anzeige brauchst du für die Versicherung.\n• Prüfen, ob Hausrat- oder Reiseversicherung zahlt.\n• Seriennummern oder Beschreibungen aufschreiben, solange du dich erinnerst.",
+    "CONFLICT": "• Erst einmal durchatmen, bevor ihr redet.\n• Von deinem Gefühl sprechen („Ich war verletzt, als …“) statt Vorwürfe zu machen.\n• Auch die andere Seite anhören – vielleicht gibt es etwas, das du nicht weißt.\n• Braucht die Person Abstand, ihn geben – aber zeigen, dass die Tür offen ist.",
+    "FAILURE": "• Enttäuscht sein ist erlaubt – das ist normal.\n• Anschauen, was schiefging, ohne zu hart mit dir zu sein.\n• Nach der nächsten Chance schauen: Wiederholung, neue Bewerbung, neuer Versuch.\n• Mit jemandem reden, der das auch erlebt hat – das hilft.",
+    "MONEY": "• Rechnung oder Kosten genau prüfen – Fehler kommen vor.\n• Nach Ratenzahlung fragen; die meisten stimmen zu, wenn man früh fragt.\n• Einnahmen und Ausgaben aufschreiben, um Sparpotenzial zu finden.\n• Kostenlose Schuldner- oder Budgetberatung hilft, wenn es zu viel wird.",
+    "DELAY": "• Optionen prüfen: nächste Verbindung, umbuchen oder ein anderer Weg.\n• Bescheid geben, dass es später wird.\n• Belege und Tickets aufheben – bei Ausfall oder großer Verspätung gibt es oft eine Entschädigung.",
+    "WORRY": "• Aufschreiben, was dir genau Sorgen macht – auf Papier wirkt es oft kleiner.\n• Vorbereiten, was du beeinflussen kannst, und loslassen, was nicht.\n• Langsam atmen: vier Sekunden ein, sechs aus – das beruhigt wirklich.\n• Mit jemandem reden, dem du vertraust.",
+    "FEEL_NEG": "• Sei heute nachsichtig mit dir – schlechte Tage sind okay.\n• Kurz an die frische Luft oder ein bisschen bewegen.\n• Jemandem schreiben oder jemanden anrufen, den du magst.\n• Hält das Gefühl wochenlang an, hilft ein Gespräch mit Hausarzt oder Beratungsstelle wirklich.",
+    "PLAN": "• Das Wichtigste am Vortag vorbereiten, damit es nicht hektisch wird.\n• Am Abend vorher genug schlafen.\n• Etwas Puffer einplanen.\n• Und genieß es – du schaffst das!"
+   },
+   "is_bad": {
+    "INJURY": [
+     "Die meisten solchen Verletzungen heilen in ein paar Tagen von selbst. Anschauen lassen solltest du es, wenn es sehr weh tut, sich nicht bewegen lässt, weiter anschwillt, entzündet aussieht oder nicht besser wird."
+    ],
+    "ILLNESS": [
+     "Meistens geht das in ein paar Tagen von selbst vorbei. Zum Arzt, wenn es schlimmer wird, lange dauert oder du hohes Fieber, Atemnot oder starke Schmerzen hast."
+    ],
+    "DAMAGE": [
+     "Oft lässt sich das reparieren – kommt darauf an, wie stark der Schaden ist. Eine Werkstatt sagt dir das schnell, Kostenvoranschläge sind meist kostenlos."
+    ],
+    "other": [
+     "Verständlich, dass dich das beschäftigt. Nach dem, was du erzählst, klingt es nicht nach einer Katastrophe – wenn dein Bauchgefühl aber Alarm schlägt, lass es lieber prüfen."
+    ]
+   },
+   "should": {
+    "comm": [
+     "Ich glaube schon – ruhig und ehrlich. Etwa so: „Hey, können wir reden? Ich hab viel über das nachgedacht, was passiert ist.“ Das öffnet meistens die Tür."
+    ],
+    "doctor": [
+     "Wenn du unsicher bist: ja – anschauen lassen ist nie falsch, besonders wenn es schlimmer wird."
+    ],
+    "repair": [
+     "Kommt auf die Kosten an: Kostet die Reparatur mehr als etwa die Hälfte eines neuen Geräts, lohnt sich oft eher ein neues."
+    ],
+    "generic": [
+     "Wenn es sich für dich richtig anfühlt, würde ich es machen. Was hält dich zurück?",
+     "Ich würde abwägen: Was ist das Schlimmste, das passieren kann, wenn du es machst – und wenn nicht?"
+    ]
+   },
+   "why": {
+    "MONEY": [
+     "Schwer zu sagen von hier – oft steckt eine Nachberechnung, eine Preis- oder Tarifänderung oder eine Zusatzleistung dahinter, die man übersehen hat. Lass dir vom Anbieter eine genaue Aufstellung geben – er muss es dir erklären."
+    ],
+    "DAMAGE": [
+     "Schwer zu sagen, ohne es zu sehen – Verschleiß, ein lockeres Teil oder ein Defekt können die Ursache sein. Eine Werkstatt sieht das meist schnell."
+    ],
+    "ILLNESS": [
+     "Das kann viele Ursachen haben, oft ist es ein harmloser Infekt. Wird es nicht besser oder machst du dir Sorgen, kann ein Arzt das abklären."
+    ],
+    "CONFLICT": [
+     "Schwer zu sagen, ohne nachzufragen – manchmal hat es gar nichts mit dir zu tun. Herausfinden kannst du es nur im Gespräch."
+    ],
+    "other": [
+     "Schwer zu sagen von hier. Was glaubst du, woran es liegen könnte?"
+    ]
+   },
+   "plan_ack": [
+    "Klingt nach einem guten Plan.",
+    "Gute Idee.",
+    "Klingt vernünftig."
+   ],
+   "thanks": {
+    "DAMAGE": [
+     "Gern! Hoffentlich lässt es sich reparieren. 🤞",
+     "Gern – viel Glück damit!"
+    ],
+    "INJURY": [
+     "Gern! Gute Besserung. 🩹",
+     "Gern – hoffentlich heilt es schnell!"
+    ],
+    "INJURY_other": [
+     "Gern! Gute Besserung an {ihn}. 💛"
+    ],
+    "ILLNESS": [
+     "Gern – gute Besserung! 🤒",
+     "Gern. Ruh dich gut aus!"
+    ],
+    "ILLNESS_other": [
+     "Gern! Gute Besserung an {ihn}. 💛"
+    ],
+    "LOSS": [
+     "Gern – ich drück die Daumen, dass es wieder auftaucht! 🤞"
+    ],
+    "THEFT": [
+     "Gern. Hoffentlich klärt sich alles schnell."
+    ],
+    "CONFLICT": [
+     "Gern. Ich hoffe, ihr kriegt das hin. 💛"
+    ],
+    "FAILURE": [
+     "Gern – du schaffst das. 💪"
+    ],
+    "MONEY": [
+     "Gern. Hoffentlich klappt alles!"
+    ],
+    "DELAY": [
+     "Gern – hoffentlich läuft der Rest glatt!"
+    ],
+    "WORRY": [
+     "Gern. Du schaffst das! 💪"
+    ],
+    "SUCCESS": [
+     "Gern – genieß es, du hast es dir verdient! 🎉"
+    ],
+    "MILESTONE": [
+     "Gern – genießt jeden Moment! 🎉"
+    ],
+    "DEATH": [
+     "Pass gut auf dich auf. 💛"
+    ],
+    "PLAN": [
+     "Gern – viel Erfolg! 🍀"
+    ],
+    "other": [
+     "Gern! 😊",
+     "Sehr gern!"
+    ]
+   },
+   "wish": {
+    "DAMAGE": [
+     "Sag gern Bescheid, wie es ausgegangen ist!",
+     "Viel Glück damit!"
+    ],
+    "INJURY": [
+     "Gute Besserung!",
+     "Hoffentlich heilt es schnell."
+    ],
+    "ILLNESS": [
+     "Gute Besserung!"
+    ],
+    "LOSS": [
+     "Ich drück die Daumen, dass es wieder auftaucht! 🤞"
+    ],
+    "other": [
+     "Erzähl gern, wie es ausgegangen ist!"
+    ]
+   }
+  }
  }
 }

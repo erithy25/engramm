@@ -1,0 +1,90 @@
+{"lang":"en","text":"my laptop won't turn on anymore","kind":"DAMAGE","who":"me","obj":"laptop","body":""}
+{"lang":"en","text":"ugh the dishwasher is leaking all over the kitchen floor","kind":"DAMAGE","who":"","obj":"dishwasher","body":""}
+{"lang":"en","text":"i sat on my glasses and bent them","kind":"DAMAGE","who":"me","obj":"glasses","body":""}
+{"lang":"en","text":"someone keyed my car last night","kind":"DAMAGE","who":"me","obj":"car","body":""}
+{"lang":"en","text":"the zipper on my jacket broke","kind":"DAMAGE","who":"me","obj":"jacket","body":""}
+{"lang":"en","text":"our heater stopped working and it's freezing","kind":"DAMAGE","who":"me","obj":"heater","body":""}
+{"lang":"en","text":"i slammed my finger in the car door","kind":"INJURY","who":"me","obj":"","body":"finger"}
+{"lang":"en","text":"my daughter got bitten by a dog","kind":"INJURY","who":"child","obj":"","body":""}
+{"lang":"en","text":"i sprained my wrist playing volleyball","kind":"INJURY","who":"me","obj":"","body":"wrist"}
+{"lang":"en","text":"burned my hand on the oven tray","kind":"INJURY","who":"me","obj":"","body":"hand"}
+{"lang":"en","text":"my husband slipped on the ice and hurt his back","kind":"INJURY","who":"partner","obj":"","body":"back"}
+{"lang":"en","text":"i've had a sore throat for three days","kind":"ILLNESS","who":"me","obj":"","body":"throat"}
+{"lang":"en","text":"my son has a high fever","kind":"ILLNESS","who":"child","obj":"","body":""}
+{"lang":"en","text":"i feel dizzy and nauseous","kind":"ILLNESS","who":"me","obj":"","body":""}
+{"lang":"en","text":"my dog keeps throwing up","kind":"ILLNESS","who":"pet","obj":"","body":""}
+{"lang":"en","text":"i can't find my passport anywhere","kind":"LOSS","who":"me","obj":"passport","body":""}
+{"lang":"en","text":"i left my umbrella on the train","kind":"LOSS","who":"me","obj":"umbrella","body":""}
+{"lang":"en","text":"my mom lost her wedding ring","kind":"LOSS","who":"relative","obj":"ring","body":""}
+{"lang":"en","text":"my bike was stolen from outside the gym","kind":"THEFT","who":"me","obj":"bike","body":""}
+{"lang":"en","text":"someone broke into our house","kind":"THEFT","who":"me","obj":"house","body":""}
+{"lang":"en","text":"i got pickpocketed on the bus","kind":"THEFT","who":"me","obj":"","body":""}
+{"lang":"en","text":"me and my brother had a huge fight","kind":"CONFLICT","who":"relative","obj":"","body":""}
+{"lang":"en","text":"my boss yelled at me in front of everyone","kind":"CONFLICT","who":"colleague","obj":"","body":""}
+{"lang":"en","text":"my boyfriend broke up with me","kind":"CONFLICT","who":"partner","obj":"","body":""}
+{"lang":"en","text":"i didn't get the job","kind":"FAILURE","who":"me","obj":"","body":""}
+{"lang":"en","text":"i failed my math exam","kind":"FAILURE","who":"me","obj":"","body":""}
+{"lang":"en","text":"our team lost the final","kind":"FAILURE","who":"me","obj":"","body":""}
+{"lang":"en","text":"i got a parking fine of 80 euros","kind":"MONEY","who":"me","obj":"","body":""}
+{"lang":"en","text":"my rent is going up again and i can't afford it","kind":"MONEY","who":"me","obj":"","body":""}
+{"lang":"en","text":"my train is delayed by an hour","kind":"DELAY","who":"me","obj":"train","body":""}
+{"lang":"en","text":"i missed my bus this morning","kind":"DELAY","who":"me","obj":"bus","body":""}
+{"lang":"en","text":"i'm so nervous about my presentation","kind":"WORRY","who":"me","obj":"","body":""}
+{"lang":"en","text":"i'm scared of flying next week","kind":"WORRY","who":"me","obj":"","body":""}
+{"lang":"en","text":"i won the office raffle!","kind":"SUCCESS","who":"me","obj":"","body":""}
+{"lang":"en","text":"i finally passed my driving test","kind":"SUCCESS","who":"me","obj":"","body":""}
+{"lang":"en","text":"my sister just got married","kind":"MILESTONE","who":"relative","obj":"","body":""}
+{"lang":"en","text":"i got a new job!","kind":"MILESTONE","who":"me","obj":"","body":""}
+{"lang":"en","text":"i graduated today","kind":"MILESTONE","who":"me","obj":"","body":""}
+{"lang":"en","text":"i bought myself a new bike","kind":"ACQUIRE","who":"me","obj":"bike","body":""}
+{"lang":"en","text":"my parents gave me a watch for my birthday","kind":"ACQUIRE","who":"me","obj":"watch","body":""}
+{"lang":"en","text":"my cat died this morning","kind":"DEATH","who":"pet","obj":"","body":""}
+{"lang":"en","text":"my uncle passed away","kind":"DEATH","who":"relative","obj":"","body":""}
+{"lang":"en","text":"i feel so lonely lately","kind":"FEEL_NEG","who":"me","obj":"","body":""}
+{"lang":"en","text":"i'm exhausted","kind":"FEEL_NEG","who":"me","obj":"","body":""}
+{"lang":"en","text":"i'm in such a good mood today","kind":"FEEL_POS","who":"me","obj":"","body":""}
+{"lang":"en","text":"i have a dentist appointment tomorrow","kind":"PLAN","who":"me","obj":"","body":""}
+{"lang":"en","text":"we're going to rome next month","kind":"PLAN","who":"me","obj":"","body":""}
+{"lang":"en","text":"i baked bread today","kind":"ACTIVITY","who":"me","obj":"","body":""}
+{"lang":"en","text":"we watched a movie last night","kind":"ACTIVITY","who":"me","obj":"","body":""}
+{"lang":"en","text":"hi how are you","kind":"NONE","who":"","obj":"","body":""}
+{"lang":"en","text":"what's the capital of peru?","kind":"NONE","who":"","obj":"","body":""}
+{"lang":"en","text":"what do you think about cats?","kind":"NONE","who":"","obj":"","body":""}
+{"lang":"de","text":"mein handy geht nicht mehr an","kind":"DAMAGE","who":"me","obj":"phone","body":""}
+{"lang":"de","text":"die spülmaschine läuft aus","kind":"DAMAGE","who":"","obj":"dishwasher","body":""}
+{"lang":"de","text":"ich hab mich auf meine brille gesetzt","kind":"DAMAGE","who":"me","obj":"glasses","body":""}
+{"lang":"de","text":"jemand hat mein auto zerkratzt","kind":"DAMAGE","who":"me","obj":"car","body":""}
+{"lang":"de","text":"unsere heizung ist kaputt","kind":"DAMAGE","who":"me","obj":"heater","body":""}
+{"lang":"de","text":"ich hab mir den finger in der tür eingeklemmt","kind":"INJURY","who":"me","obj":"","body":"finger"}
+{"lang":"de","text":"meine tochter wurde von einem hund gebissen","kind":"INJURY","who":"child","obj":"","body":""}
+{"lang":"de","text":"ich hab mir beim volleyball das handgelenk verstaucht","kind":"INJURY","who":"me","obj":"","body":"wrist"}
+{"lang":"de","text":"ich hab mir die hand am ofen verbrannt","kind":"INJURY","who":"me","obj":"","body":"hand"}
+{"lang":"de","text":"ich hab seit drei tagen halsschmerzen","kind":"ILLNESS","who":"me","obj":"","body":""}
+{"lang":"de","text":"mein sohn hat hohes fieber","kind":"ILLNESS","who":"child","obj":"","body":""}
+{"lang":"de","text":"mir ist schwindelig und übel","kind":"ILLNESS","who":"me","obj":"","body":""}
+{"lang":"de","text":"ich finde meinen reisepass nicht","kind":"LOSS","who":"me","obj":"passport","body":""}
+{"lang":"de","text":"ich hab meinen regenschirm im zug vergessen","kind":"LOSS","who":"me","obj":"umbrella","body":""}
+{"lang":"de","text":"mein fahrrad wurde vor dem fitnessstudio geklaut","kind":"THEFT","who":"me","obj":"bike","body":""}
+{"lang":"de","text":"bei uns wurde eingebrochen","kind":"THEFT","who":"me","obj":"","body":""}
+{"lang":"de","text":"ich hab mich mit meinem bruder gestritten","kind":"CONFLICT","who":"relative","obj":"","body":""}
+{"lang":"de","text":"mein freund hat schluss gemacht","kind":"CONFLICT","who":"partner","obj":"","body":""}
+{"lang":"de","text":"ich hab die stelle nicht bekommen","kind":"FAILURE","who":"me","obj":"","body":""}
+{"lang":"de","text":"ich bin durch die matheprüfung gefallen","kind":"FAILURE","who":"me","obj":"","body":""}
+{"lang":"de","text":"ich hab einen strafzettel über 80 euro bekommen","kind":"MONEY","who":"me","obj":"","body":""}
+{"lang":"de","text":"meine miete steigt schon wieder und ich kann sie mir kaum leisten","kind":"MONEY","who":"me","obj":"","body":""}
+{"lang":"de","text":"mein zug hat eine stunde verspätung","kind":"DELAY","who":"me","obj":"train","body":""}
+{"lang":"de","text":"ich hab heute morgen den bus verpasst","kind":"DELAY","who":"me","obj":"bus","body":""}
+{"lang":"de","text":"ich bin total nervös wegen meiner präsentation","kind":"WORRY","who":"me","obj":"","body":""}
+{"lang":"de","text":"ich hab bei der tombola gewonnen!","kind":"SUCCESS","who":"me","obj":"","body":""}
+{"lang":"de","text":"ich hab endlich den führerschein bestanden","kind":"SUCCESS","who":"me","obj":"","body":""}
+{"lang":"de","text":"meine schwester hat geheiratet","kind":"MILESTONE","who":"relative","obj":"","body":""}
+{"lang":"de","text":"ich hab einen neuen job!","kind":"MILESTONE","who":"me","obj":"","body":""}
+{"lang":"de","text":"ich hab mir ein neues fahrrad gekauft","kind":"ACQUIRE","who":"me","obj":"bike","body":""}
+{"lang":"de","text":"meine katze ist heute morgen gestorben","kind":"DEATH","who":"pet","obj":"","body":""}
+{"lang":"de","text":"ich fühle mich in letzter zeit so einsam","kind":"FEEL_NEG","who":"me","obj":"","body":""}
+{"lang":"de","text":"ich hab heute so gute laune","kind":"FEEL_POS","who":"me","obj":"","body":""}
+{"lang":"de","text":"ich hab morgen einen zahnarzttermin","kind":"PLAN","who":"me","obj":"","body":""}
+{"lang":"de","text":"wir fahren nächsten monat nach rom","kind":"PLAN","who":"me","obj":"","body":""}
+{"lang":"de","text":"ich hab heute brot gebacken","kind":"ACTIVITY","who":"me","obj":"","body":""}
+{"lang":"de","text":"hallo wie geht's","kind":"NONE","who":"","obj":"","body":""}
+{"lang":"de","text":"was ist die hauptstadt von peru?","kind":"NONE","who":"","obj":"","body":""}

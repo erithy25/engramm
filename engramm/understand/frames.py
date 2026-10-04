@@ -26,7 +26,8 @@ _STOP_EN = set("""a an the this that these those my your his her its our their m
 some any no not never very really so too just also only even still yet again already of in on at to for from with by
 about into onto over under out up down off and or but if because when while as than then there here what which who whom
 whose where why how is am are was were be been being do does did have has had will would shall should can could may
-might must ok okay oh hey hi hello yeah yes well um uh lol haha omg pls please like got get gets getting""".split())
+might must ok okay oh hey hi hello yeah yes well um uh lol haha omg pls please like got get gets getting
+one two three four five six seven eight nine ten twenty hundred half few several""".split())
 _STOP_DE = set("""der die das den dem des ein eine einen einem einer eines mein meine meinen meinem meiner meines dein
 deine deinen deinem deiner sein seine seinen seinem seiner ihr ihre ihren ihrem ihrer unser unsere unseren ich du er sie
 es wir ihr mich mir dich dir uns euch ihn ihm ihnen man nicht nie kein keine keinen sehr so zu auch nur noch schon
@@ -34,7 +35,8 @@ wieder gerade eben mal halt doch ja nein und oder aber wenn weil als dass ob dan
 wann welche welcher welches ist bin bist sind war waren sein habe hab hast hat haben hatte hatten wird werde werden
 würde kann kannst können konnte soll sollte sollen muss musst müssen darf will willst wollen von vom zum zur im am an
 auf aus bei mit nach seit über unter vor durch für gegen ohne um bis ok okay hey hi hallo na also echt total voll
-ganz einfach jetzt heute gestern morgen""".split())
+ganz einfach jetzt heute gestern morgen eins zwei drei vier fünf sechs sieben acht neun zehn zwanzig hundert halb
+paar""".split())
 
 _PERSON_EN = {
     "child": "son daughter kid kids child children baby toddler boy girl little one",
@@ -71,11 +73,13 @@ _BROKEN_EN = re.compile(r"\b(?:does not|doesn't|do not|won't|will not|wont|isn't
                         r"(?:work|start|turn on|switch on|charge|load|open|close|connect|boot|flush|drain|lock|print)\b|"
                         r"\bstopped working\b|\bkeeps? (?:crashing|freezing|breaking|dying|leaking|beeping)\b|"
                         r"\b(?:is|was|went|got) (?:dead|flat|stuck|frozen|broken|busted|cracked|smashed|soaked|wet)\b|"
-                        r"\bacting up\b|\bplaying up\b|\bmaking (?:a|weird|strange) noises?\b|\bout of order\b")
+                        r"\bacting up\b|\bplaying up\b|\bmaking (?:a |an |this |weird |strange |loud |horrible |funny |)(?:\w+ )?(?:noises?|"
+                        r"sounds?)\b|\bout of order\b|\b(?:does not|doesn't|won't|will not) \w+ any ?more\b|\bstopped \w+ing\b|"
+                        r"\bisn't \w+ing (?:properly|right|anymore)\b")
 _BROKEN_DE = re.compile(r"\b(?:geht|funktioniert|läuft|springt|startet|lädt|öffnet|schließt) (?:\w+ )?(?:nicht|nicht mehr|"
                         r"gar nicht)\b|\bkaputt\w*\b|\bspinnt\b|\bstreikt\b|\bhängt sich auf\b|\b(?:ist|sind) "
                         r"(?:platt|leer|nass|gesprungen|gerissen|verstopft|undicht|defekt)\b|\bmacht (?:komische )?"
-                        r"geräusche\b")
+                        r"geräusche\b|\b\w+t nicht mehr\b|\bmacht (?:komische|laute|seltsame) geräusche\b")
 _DAMAGE_ADJ = {"broken", "cracked", "damaged", "smashed", "shattered", "dented", "scratched", "ruined", "busted", "torn",
                "ripped", "wrecked", "faulty", "flat", "dead", "stuck", "frozen", "soaked", "burst", "leaking", "blocked",
                "clogged", "kaputt", "gesprungen", "gerissen", "verstopft", "defekt", "undicht", "platt", "nass"}
@@ -135,7 +139,7 @@ _KIND_VALENCE = {"DAMAGE": -1, "INJURY": -1, "ILLNESS": -1, "LOSS": -1, "THEFT":
                  "ACQUIRE": 1, "FEEL_POS": 1, "PLAN": 0, "ACTIVITY": 0, "": 0}
 _CONCRETE = {"DEVICE", "VEHICLE", "P-VEHICLE", "P-DEVICE", "BUILDPART", "P-BUILDING", "BUILDING", "FURNITURE",
              "P-FURNITURE", "CLOTHING", "P-CLOTHING", "CONTAINER", "TOOL", "DOCUMENT", "KEYTHING", "JEWELRY", "MONEY",
-             "FOOD", "DRINK", "PLANT"}
+             "FOOD", "DRINK", "PLANT", "ARTIFACT"}
 
 
 _LIGHT_EN = set("""do does did done doing make makes made making have has had having go goes went gone going come comes
@@ -323,8 +327,14 @@ def parse(text: str, lang: str = "en") -> Frame:
                     if pick is not None:
                         score = 3 if prev in _POSS else 2 if prev in _DETS else 1
                         if best_obj is None or score > best_obj[0]:
-                            best_obj = (score, pick.lemma, words[head] if pick is hn else pick.lemma,
-                                        prev if (prev in _POSS or prev in _DETS) else "", pick.cats)
+                            if pick is hn:            # "washing machine", "car insurance": the noun compound, not just its head
+                                k0 = head
+                                while k0 - 1 >= i and tags[k0 - 1][0] == "N":
+                                    k0 -= 1
+                                wordx = " ".join(words[k0:head + 1])
+                            else:
+                                wordx = pick.lemma
+                            best_obj = (score, pick.lemma, wordx, prev if (prev in _POSS or prev in _DETS) else "", pick.cats)
                     ev |= set(hn.ev)
                     body_ev = body_ev or ("BODY" in hn.ev and "ILLNESS" in hn.cats)
             i = j + 1
@@ -378,80 +388,142 @@ def parse(text: str, lang: str = "en") -> Frame:
     return f
 
 
+FACT = re.compile(r"(?:i|we) (?:work|live|study|stay|grew up|teach) (?:at|for|as|in|on)\b|(?:ich|wir) (?:arbeite|arbeiten|"
+                  r"wohne|wohnen|studiere|lebe) (?:als|bei|in|an|im)\b|(?:i|ich) (?:love|like|hate|liebe|mag|hasse|"
+                  r"esse kein\w*|am a|am an|bin ein\w*)\b|(?:my|mein\w*) (?:name|favou?rite|lieblings\w*) ")
+
+_R = {k: re.compile(v) for k, v in {
+    "birth": r"\b(?:pregnant|expecting (?:a baby|twins|our first|a child)|having a baby|schwanger|(?:bekommen|kriegen) "
+             r"(?:ein|unser erstes|noch ein) (?:baby|kind)|nachwuchs)\b",
+    "death": r"\b(?:died|passed away|passed on|has passed|dead|death|funeral|put (?:down|to sleep)|gestorben|verstorben|tot|"
+             r"beerdigung|eingeschläfert|von uns gegangen)\b",
+    "theft": r"\b(?:stole|stolen|steal\w*|robbed|robbery|burgl\w*|break-in|broke into|broken into|pickpocket\w*|mugged|"
+             r"theft|thief|thieves|gestohlen|geklaut|klaut\w*|beklaut|eingebrochen|einbruch|ausgeraubt|dieb\w*|überfallen)\b",
+    "conflict": r"\b(?:yell\w* at|shout\w* at|scream\w* at|insult\w*|was rude|so rude|criticiz\w*|criticis\w*|blamed me|"
+                r"(?:fight|row|argument|arguing|argued) with|(?:had|having) (?:a|another|this) (?:huge |big )?(?:fight|row|argument)|"
+                r"angeschrien|angebrüllt|beleidigt|angemeckert|gestritten|streit (?:mit|gehabt)|zoff)\b",
+    "injury": r"\b(?:bitten|bit me|bit (?:him|her)|gebissen|stung|gestochen|scratched me|gekratzt|burn(?:ed|t) my|"
+              r"verbrannt|verbrüht|cut my(?:self)?|geschnitten|sprain\w*|verstaucht|umgeknickt|twisted my|broke my "
+              r"(?:arm|leg|wrist|ankle|finger|toe|nose|foot|hand)|\w+ gebrochen|eingeklemmt|got hurt|verletzt)\b",
+    "lossfind": r"\b(?:can not find|cannot find|could not find|can't find|lost|misplaced|left (?:my|it|them|our) \w*(?: \w+)? "
+                r"(?:on|in|at)|forgot (?:my|it) \w* (?:on|in|at)|finde \w+(?: \w+)? nicht|nicht (?:mehr )?finden|verloren|"
+                r"verlegt|liegen (?:ge)?lassen|vergessen (?:im|in der|am|beim|bei)|(?:im|in der|am|beim|bei) \w+ (?:vergessen|"
+                r"liegen (?:ge)?lassen|liegenlassen)|ist weg|sind weg)\b",
+    "exam": r"(?:exam|test|interview|audition|driving test|license|licence|course|prüfung|klausur|examen|führerschein|"
+            r"vorstellungsgespräch|probezeit)",
+    "pass": r"\b(?:passed|pass|aced|nailed|got through|made it|bestanden|geschafft)\b",
+    "fail": r"\b(?:failed|fail|flunked|bombed|messed up|durchgefallen|vergeigt|verhauen|nicht bestanden|durch (?:die |den |das )?"
+            r"\w+ gefallen)\b",
+    "reject": r"\b(?:rejected|turned down|didn't get|did not get|wasn't accepted|was not accepted|got a rejection|absage|"
+              r"abgelehnt|nicht bekommen|nicht genommen|nicht angenommen)\b",
+    "fired": r"\b(?:fired|laid off|let go|sacked|lost my job|gekündigt|entlassen|rausgeworfen|rausgeschmissen)\b",
+    "sportloss": r"\b(?:lost (?:the|our|my|a) (?:game|match|final|race|tournament|semi-?final)|(?:spiel|finale|match|turnier) "
+                 r"verloren|verloren (?:im|das) (?:spiel|finale))\b",
+    "delay": r"\b(?:late|delayed|delay|cancell?ed|stuck (?:at|in|on) (?:the )?(?:airport|station|traffic|motorway|highway|"
+             r"train|platform|border)|missed (?:my|the|our) (?:bus|train|flight|plane|connection|appointment|ferry|"
+             r"tram|ride)|stuck in traffic|traffic jam|verspätung|verspätet|ausgefallen|fällt aus|verpasst|stau|zu spät)\b",
+    "money": r"\b(?:bill|bills|fine|fined|costs?|price|rent|debt|debts|afford|expensive|owe|overdraft|fees?|overdrawn|broke|"
+             r"strafzettel|rechnung|miete|kosten|schulden|teuer|leisten|nachzahl\w*|gebühr\w*|mahnung|pleite|knapp bei kasse|"
+             r"\w*rechnung|\w*nachzahlung|insurance|premium|went up|gone up|increase[ds]?|raised|erhöht|gestiegen|"
+             r"doppelt so hoch|teurer|abzocke|ripped off)\b",
+    "milestone": r"\b(?:engaged|got married|getting married|wedding|moved in together|graduat\w*|new job|got the job|got hired|"
+                 r"start(?:ing|ed)? (?:a|my) new job|verlobt|geheiratet|hochzeit|zusammengezogen|abschluss|neuen job|neue "
+                 r"(?:stelle|arbeit)|die stelle bekommen|den job bekommen|eingestellt|(?:bought|buying|bought our|got) "
+                 r"(?:a|our|my|our first|my first) (?:house|home|flat|apartment)|first (?:apartment|flat|house|home|place)|"
+                 r"keys to (?:my|our)|moved into|moving into|retir\w+|haus gekauft|wohnung gekauft|eigene wohnung|"
+                 r"erste wohnung|eingezogen|rente|in rente)\b",
+    "success": r"\b(?:won|win|winning|promoted|promotion|made it|got in|got accepted|was accepted|record|gewonnen|geschafft|"
+               r"befördert|angenommen|bestanden|erster platz)\b",
+    "acquire": r"\b(?:bought|got (?:a|an|my|me a|myself a) (?:new|brand)|gave me|received|got a new|got myself|geschenkt|"
+               r"gekauft|neues|neuen|neue)\b",
+    "feelpos": r"\b(?:good mood|great mood|so happy|really happy|so excited|feel(?:ing)? great|gute laune|richtig gut drauf|"
+               r"super drauf|so glücklich|freu mich so)\b",
+    "worry": r"\b(?:nervous|anxious|worried|worry|scared|afraid|terrified|dread\w*|panick\w*|nervös|ängstlich|angst|sorgen|"
+             r"besorgt|bammel|panik|schiss)\b",
+    "feelneg": r"\b(?:sad|lonely|bored|tired|exhausted|stressed|overwhelmed|depressed|down|upset|miserable|burnt out|"
+               r"traurig|einsam|langweilig|gelangweilt|müde|erschöpft|gestresst|überfordert|niedergeschlagen|deprimiert|"
+               r"kaputt|fertig|ausgelaugt|down)\b",
+    "sick": r"\b(?:sick|ill|unwell|fever|cough\w*|flu|cold|headache|migraine|nause\w*|vomit\w*|throw\w* up|threw up|rash|"
+            r"sore|pain|ache\w*|hurts?|dizzy|infection|diarrh\w*|allerg\w*|krank|fieber|husten|grippe|erkältet|erkältung|"
+            r"\w*schmerz\w*|übel|kotz\w*|erbrech\w*|ausschlag|schwindel\w*|migräne|entzünd\w*|durchfall)\b",
+}.items()}
+_DAMAGEABLE = _CONCRETE - {"FOOD", "DRINK", "PLANT", "MONEY"}
+
+
 def _decide(f: Frame, s: str) -> str:
     ev, cats = f.evidence, f.obj_cats
-    thing = bool(cats & _CONCRETE)
-    exam = re.search(r"\b(?:exam|test|exams|tests|driving test|interview|audition|class|course|prüfung|klausur|"
-                     r"test|führerscheinprüfung|vorstellungsgespräch|probezeit)\b", s)
-    if exam and re.search(r"\b(?:passed|pass|aced|nailed|got through|bestanden|geschafft)\b", s) and not f.negated:
-        return "PLAN" if f.future else "SUCCESS"
-    if exam and re.search(r"\b(?:failed|fail|flunked|bombed|messed up|durchgefallen|vergeigt|verhauen|nicht bestanden|"
-                          r"durch (?:die |den |das )?\w+ gefallen)\b", s):
-        return "FAILURE"
-    if "RELEND" in ev:
+    thing = bool(cats & _DAMAGEABLE)
+    R = _R
+    if f.question and not (ev or thing or f.body or f.cause) and not R["lossfind"].search(s):
+        return ""
+    if FACT.match(s):
+        return ""                                 # a fact about the user, not something that happened
+    if R["birth"].search(s):
+        return "PLAN" if f.future and not re.search(r"\bpregnant|schwanger", s) else "MILESTONE"
+    if R["death"].search(s):
+        return "DAMAGE" if thing and not f.who in ("pet", "relative", "friend", "partner", "child") else "DEATH"
+    if R["theft"].search(s):
+        return "THEFT"
+    if R["injury"].search(s) and (f.who or f.body):
+        return "INJURY"
+    if "RELEND" in ev or R["conflict"].search(s) or ("CONFLICT" in ev and f.who not in ("me", "")):
         return "CONFLICT"
+    if R["exam"].search(s) and R["fail"].search(s):
+        return "FAILURE"
+    if R["exam"].search(s) and R["pass"].search(s) and not f.negated:
+        return "PLAN" if f.future else "SUCCESS"
+    if R["fired"].search(s) or R["reject"].search(s) or R["sportloss"].search(s):
+        return "FAILURE"
+    if R["lossfind"].search(s) and (thing or f.obj or re.search(r"\b(?:it|them|keys?|wallet|phone|es|sie|schlüssel)\b|"
+                                                                 r"\b(?:my|her|his|our|their|mein\w*|ihr\w*|sein\w*|unser\w*) \w+", s)) \
+            and not ("LOSE" in ev and cats & {"SPORT", "EVENT"}):
+        return "LOSS"
+    if R["delay"].search(s) and not ev & {"HARM", "BROKEN", "FLUID", "FIRE"}:
+        return "DELAY"
     if "FALL" in ev and not f.question:
         return "INJURY"
-    neg_emo = re.search(r"\b(?:sad|lonely|bored|tired|exhausted|stressed|overwhelmed|depressed|down|anxious|nervous|"
-                        r"worried|scared|afraid|upset|angry|frustrated|traurig|einsam|gelangweilt|müde|erschöpft|"
-                        r"gestresst|überfordert|deprimiert|ängstlich|nervös|besorgt|wütend|sauer|genervt)\b", s)
-    pos_emo = re.search(r"\b(?:happy|excited|proud|thrilled|relieved|glad|great|amazing|awesome|glücklich|aufgeregt|"
-                        r"stolz|erleichtert|froh|super|toll|mega)\b", s)
-    if f.question and not (ev or thing or f.body or f.cause):
-        return ""
-    if "BIRTH" in ev or re.search(r"\b(?:pregnant|expecting (?:a baby|twins|our first|a child)|having a baby|"
-                                  r"schwanger|(?:bekommen|kriegen) (?:ein|unser erstes) (?:baby|kind)|nachwuchs)\b", s):
-        return "MILESTONE"
-    if "DEATH" in ev and not (cats & {"SPORT", "EVENT"}) and not ("LOSE" in ev and thing):
-        if re.search(r"\b(?:died|passed away|passed|dead|death|funeral|lost my (?:mom|mum|dad|grand\w+|"
-                     r"father|mother|brother|sister|friend|wife|husband|dog|cat)|gestorben|verstorben|tot|"
-                     r"beerdigung|verloren)\b", s) and not thing:
-            return "DEATH"
-    if "THEFT" in ev:
-        return "THEFT"
-    if "LOSE" in ev and (thing or "can not find" in s or "cannot find" in s or "finde" in s):
-        return "LOSS"
-    if (ev & {"HARM", "IMPACT", "FIRE", "FLUID", "BROKEN"}) and thing and not f.body:
+    if (ev & {"HARM", "IMPACT", "FIRE", "FLUID", "BROKEN"}) and thing and not f.body and \
+            not ("COOK" in ev and not ev & {"HARM", "BROKEN", "FLUID"}):
         return "DAMAGE"
     if "BROKEN" in ev:
         return "DAMAGE"
-    if (ev & {"HARM", "IMPACT", "BODY"}) and (f.body or f.cause):
+    if (ev & {"HARM", "IMPACT", "BODY"}) and (f.body or f.cause) and not R["sick"].search(s) or \
+            (f.body and f.cause):
         return "INJURY"
-    if "BODYX" in ev and f.who and not thing:
-        return "ILLNESS"
+    sick = R["sick"].search(s) or ("BODYX" in ev and not R["worry"].search(s) and not R["feelneg"].search(s) and
+                                   not R["feelpos"].search(s))
+    if sick and f.who and not thing:
+        return "INJURY" if f.body and ev & {"HARM", "IMPACT"} else "ILLNESS"
     if "HARM" in ev and f.who and f.who != "me" and not thing:
         return "INJURY"
-    if "REL" in ev:
-        if re.search(r"\b(?:divorce\w*|dumped|broke up|break up|split up|cheat\w*|scheidung|getrennt|schluss gemacht|"
-                     r"betrogen)\b", s):
-            return "CONFLICT"
-        return "MILESTONE"
-    if "CONFLICT" in ev and (f.who not in ("me", "") or re.search(
-            r"\b(?:with|at|against) (?:my|him|her|them|someone|somebody|a)\b|\b(?:mit|auf) (?:meine\w*|ihm|ihr|ihnen|jemand)\b", s)):
-        return "CONFLICT"
-    if "FAIL" in ev or ("WIN" in ev and f.negated):
-        return "FAILURE"
-    if "WIN" in ev:
-        return "SUCCESS"
-    if "JOB" in ev:
-        if re.search(r"\b(?:fired|laid off|let go|sacked|lost my job|gekündigt|entlassen|rausgeworfen)\b", s):
-            return "FAILURE"
-        return "MILESTONE" if not f.future else "PLAN"
-    if "MONEY" in ev and not ("BUY" in ev and not neg_emo):
+    if R["money"].search(s) and ("MONEY" in ev or R["money"].search(s)) and not R["acquire"].search(s) or \
+            (R["money"].search(s) and re.search(r"\b(?:can'?t|can not|cannot|kann (?:\w+ )*nicht|kaum|too|zu)\b", s)):
         return "MONEY"
-    if "DELAY" in ev:
-        return "DELAY"
-    if neg_emo and not f.future:
-        return "WORRY" if re.search(r"\b(?:nervous|anxious|worried|scared|afraid|nervös|ängstlich|besorgt|angst)\b", s) \
-            else "FEEL_NEG"
-    if f.future and (ev or thing or cats & {"EVENT"}):
+    if R["milestone"].search(s):
+        return "PLAN" if f.future else "MILESTONE"
+    if (R["success"].search(s) or "WIN" in ev) and not f.negated and "FAIL" not in ev:
+        return "SUCCESS"
+    if "FAIL" in ev:
+        return "FAILURE"
+    if "JOB" in ev and f.negated:
+        return "FAILURE"
+    if R["worry"].search(s):
+        return "WORRY"
+    if R["feelneg"].search(s) and not f.future:
+        return "FEEL_NEG"
+    if f.body and f.who == "me" and not f.question:
+        return "INJURY"
+    if f.future and not f.question and (ev or thing or f.obj or len([w for w in f.words if len(w) > 3]) >= 2):
         return "PLAN"
-    if "BUY" in ev and (thing or "new" in s or "neu" in s):
+    if R["acquire"].search(s) and (thing or f.obj or "BUY" in ev):
         return "ACQUIRE"
-    if pos_emo:
+    if "BUY" in ev and thing:
+        return "ACQUIRE"
+    if R["feelpos"].search(s) or re.search(r"\b(?:happy|excited|proud|thrilled|relieved|glücklich|aufgeregt|stolz|"
+                                           r"erleichtert)\b", s):
         return "FEEL_POS"
-    if "LOSE" in ev:
-        return "LOSS" if thing else ""
-    if ev & {"COOK", "TRAVEL", "LEARN", "CELEB", "SLEEP", "EAT", "MOVE"}:
-        return "PLAN" if f.future else "ACTIVITY"
+    if ev & {"COOK", "TRAVEL", "LEARN", "CELEB", "SLEEP", "EAT", "MOVE"} or re.search(
+            r"\b(?:watched|went|visited|played|cooked|baked|read|made|tried|geschaut|war|waren|gespielt|gekocht|gebacken|"
+            r"gelesen|gemacht|besucht)\b", s):
+        return "PLAN" if f.future else ("ACTIVITY" if not f.question else "")
     return ""

@@ -186,6 +186,7 @@ class Bank:
                                             "poems": []})
         self.de = data.get("de")                 # German v0 (engramm/chat/german.py)
         self.daily = data.get("daily") or {}     # everyday conversation (engramm/chat/everyday.py)
+        self.understand = data.get("understand") or {}   # moves for situations (engramm/understand/compose.py)
         self._grams = [(it.id, ex, _grams(ex)) for it in self.intents for ex in it.examples]
 
     # -- matching ----------------------------------------------------------------------------
