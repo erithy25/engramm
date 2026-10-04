@@ -4050,6 +4050,43 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
 
   Messung: NQ 22/9; Suite 822 bestanden. Gesprächsproben 111–123 (mit 117b–123b), Generisch, Held-out, Follow und
   Stimmung stehen bei 0 (in 120/120b bleibt der bekannte Fehlalarm); Wiederholungen 5 von 700. Test 123 hält 14 Gespräche fest.
+- **Probe 124: fünfzehnte ungesehene Gesprächsprobe** (4. Oktober 2026): 8 englische und 8 deutsche Gespräche, einmal
+  vor jeder Anpassung gemessen; jede Antwort gelesen, ohne KI-Richter. Umformulierungsprobe 124b nach den Anpassungen
+  geschrieben und einmal gemessen. Drei erfreuliche Anlässe (Verlobung, Baby, erster Marathon).
+  Themen: Verlobung, Baby unterwegs, Wespen-/Bienenstich, Reifenpanne, Wasser von der Decke, Getränk über dem Laptop,
+  erster Marathon, beste Freundin/bester Freund meldet sich nicht mehr.
+
+  | Stand | EN schwach (gelesen) | DE schwach (gelesen) |
+  |---|---|---|
+  | erster Lauf | 33 von 48 | 28 von 41 |
+  | nach b124 | 0 von 48 | 0 von 41 |
+  | Umformulierung 124b, erster Lauf nach b124 | 19 von 49 | 12 von 42 |
+  | Umformulierung 124b, nach Korrektur | 0 von 49 | 0 von 42 |
+
+  Gefundene Fehler (allgemein behoben):
+  - Gedächtnis: „we're expecting a baby“ wurde als **Beruf** „baby“ gemerkt („I'll remember that you work as a baby“).
+    Eine Verlaufsform vor dem Artikel („are expecting a …“) ist jetzt kein Berufssatz mehr; „i'm working as a nurse“
+    und „i'm becoming a nurse“ bleiben unverändert.
+  - Gedächtnis: „i got a flat tire“ und „it's coming from the flat upstairs“ wurden als **Wohnort** („tire“, „think“)
+    gemerkt. „flat“ als Eigenschaftswort (flat tire/battery …) oder „die Wohnung oben/nebenan“ ist kein Wohnort mehr;
+    „my flat is in Leeds“ bleibt einer.
+  - „what do i do?“ mitten in einem Problem (Laptop nass) beantwortete ENGRAMM mit dem gemerkten Beruf („You work as …“).
+    Bei offenem Thema oder gerade geschildertem Ärger ist die Frage jetzt eine Bitte um Rat; „what do i do for a
+    living?“ und „what do i do again?“ fragen weiter nach dem Beruf.
+  - Neutral, wo der Unterfall offen ist: „Wespenstiche“ nur bei Wespen, bei einer Biene der Stachel-Hinweis; „auf dem Weg
+    zur Arbeit“ und „sag bei der Arbeit Bescheid“ nur, wenn die Arbeit erwähnt wurde; „was soll ich ihm schreiben?“
+    bekommt einen Formulierungsvorschlag statt „Ja, ich glaube schon“; „Nachbarn oben sind nicht da“ führt zum
+    Vermieter statt zu „versuch die Leute oben zu erreichen“.
+
+  Routine gegen b123 (b7b8bb8): DEV-Satz unverändert; 79 von 80 Batterieausgaben identisch. Einzige Abweichung
+  (Batterie 82, „i'm pregnant“): statt „Oh, how exciting! Congratulations! Tell me more.“ jetzt „Oh wow, congratulations! 🎉
+  That's huge news. How are you feeling?“, gelesen und übernommen, weil das Baby-Thema danach weitergeführt wird. Die
+  Suite fing ab, dass „mein fahrrad hat einen platten“ die Auto-Reifenpanne auslöste (Batterie 115); Fahrräder und
+  Roller sind jetzt ausgenommen.
+
+  Messung: NQ 22/9; Suite 823 bestanden. Gesprächsproben 111–124 (mit 117b–124b), Generisch, Held-out, Follow und
+  Stimmung stehen bei 0 (in 120/120b bleibt der bekannte Fehlalarm); Wiederholungen 5 von 700. Test 124 hält 16 Gespräche
+  und drei Gedächtnisprüfungen fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.

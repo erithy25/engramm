@@ -1565,7 +1565,8 @@ class Assistant:
         if re.search(r"\b(?:wespe|biene|hornisse)\b.*\bgestochen\b|\b(?:wespen|bienen|hornissen)stich\b|\bgestochen\b.*\b(?:wespe|biene|hornisse)\b", q) and not frage:
             keep("wasp", bee=bool(re.search(r"\bbiene|\bbienen", q)))
             return say("wasp_start")
-        if re.search(r"\b(?:einen |nen )?platten\b|\breifenpanne\b|\breifen\b.*\b(?:platt|geplatzt|kaputt)\b|\bplatter reifen\b", q) and not frage:
+        if re.search(r"\b(?:einen |nen )?platten\b|\breifenpanne\b|\breifen\b.*\b(?:platt|geplatzt|kaputt)\b|\bplatter reifen\b", q) and not frage and \
+                not re.search(r"\b(?:fahrrad|rad|bike|e-?bike|roller|fahrradreifen)\b", q):
             work = bool(re.search(r"\b(?:zur|zu der|von der|auf der) arbeit\b|\barbeitsweg\b|\bins büro\b|\bzum job\b", q))
             keep("tire", work=work)
             return say("tire_start_work" if work else "tire_start")
@@ -9228,7 +9229,8 @@ class Assistant:
         if re.search(r"\b(?:a |the )?(?:wasp|bee|hornet) (?:just )?stung me\b|\b(?:got|been|was) stung by (?:a |the )?(?:wasp|bee|hornet)\b|\b(?:wasp|bee|hornet) sting\b", n) and not q:
             keep("wasp", bee=bool(re.search(r"\bbees?\b", n)))
             return say("wasp_start")
-        if re.search(r"\b(?:i (?:just )?(?:got|have|had)|there'?s) a (?:flat|punctured?) (?:tire|tyre)\b|\bmy (?:tire|tyre) (?:just )?(?:is flat|went flat|burst|blew(?: out)?|exploded)\b|\bi got a puncture\b", n) and not q:
+        if re.search(r"\b(?:i (?:just )?(?:got|have|had)|there'?s) a (?:flat|punctured?) (?:tire|tyre)\b|\bmy (?:tire|tyre) (?:just )?(?:is flat|went flat|burst|blew(?: out)?|exploded)\b|\bi got a puncture\b", n) and not q and \
+                not re.search(r"\b(?:bike|bicycle|cycle|scooter|e-?bike)\b", n):
             work = bool(re.search(r"\b(?:to|for|from) work\b|\bcommute\b|\bjob\b|\bthe office\b", n))
             keep("tire", work=work)
             return say("tire_start_work" if work else "tire_start")
