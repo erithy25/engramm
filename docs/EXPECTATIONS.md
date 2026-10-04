@@ -3996,6 +3996,31 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   Messung: NQ 22/9; Suite 820 bestanden. Gesprächsproben 111–121 (mit 117b–121b), Generisch, Held-out, Follow und
   Stimmung stehen bei 0 (in 120/120b bleibt der bekannte Fehlalarm „nice to meet you“); Wiederholungen 5 von 700.
   Test 121 hält 14 Gespräche fest.
+- **Probe 122: dreizehnte ungesehene Gesprächsprobe** (4. Oktober 2026): 8 englische und 6 deutsche Gespräche, einmal
+  vor jeder Anpassung gemessen; jede Antwort gelesen, ohne KI-Richter. Umformulierungsprobe 122b nach den Anpassungen
+  geschrieben und einmal gemessen.
+  Themen: Zeckenbiss, Migräne, bellender Nachbarshund, Kaution nicht zurück, kaputte Brille, Auto verkaufen, Kind lügt,
+  Geschworenendienst.
+
+  | Stand | EN schwach (gelesen) | DE schwach (gelesen) |
+  |---|---|---|
+  | erster Lauf | 34 von 47 | 26 von 31 |
+  | nach b122 | 0 von 47 | 0 von 31 |
+  | Umformulierung 122b, erster Lauf nach b122 | 5 von 45 | 5 von 31 |
+  | Umformulierung 122b, nach Korrektur | 0 von 45 | 0 von 31 |
+
+  Gefundene Fehler (allgemein behoben, alle im Gedächtnis):
+  - „i got called for jury duty“ wurde als **Name** „Jury Duty“ gemerkt; jedes folgende Gespräch begann mit „Hallo jury
+    duty!“. „called for/in/up …“ ist jetzt nie ein Name.
+  - „the flat was spotless“ wurde als Wohnort „spotless“ gemerkt; beschreibende Wörter sind im impliziten Pfad kein
+    Wohnort mehr.
+  - „small things like homework“ wurde als Vorliebe gemerkt; „things/stuff like …“ und „such as …“ sind Beispiele.
+  - „good idea, thanks“ ist ein Dank (vorher „That sounds great!“).
+
+  Routine gegen b121 (3f84e4b): DEV-Satz unverändert, alle 80 Batterieausgaben identisch.
+
+  Messung: NQ 22/9; Suite 821 bestanden. Gesprächsproben 111–122 (mit 117b–122b), Generisch, Held-out, Follow und
+  Stimmung stehen bei 0 (in 120/120b bleibt der bekannte Fehlalarm); Wiederholungen 5 von 700. Test 122 hält 14 Gespräche fest.
 - **RAM und Antwortzeit, Lite-Paket** (2. Oktober 2026, Container mit 4 Kernen und 15 GB, nicht die 4-GB-VM;
   `scratchpad/perf.py`): 120 gemischte Alltagsnachrichten aus den Batterien 21–33, ein Prozess, offline.
   Laden 5,0 s; Antwortzeit p50 0,001 s, **p95 0,093 s**, Maximum 1,41 s; **Spitzen-RSS 555 MB**.
