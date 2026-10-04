@@ -248,7 +248,7 @@ def parse(text: str, lang: str = "en", use_model: bool = True, extra: dict | Non
     f.question = bool(f.ask) or raw.endswith("?")
     f.urgent = bool(_URGENT.search(s))
     f.future = bool((_FUTURE_EN if lang == "en" else _FUTURE_DE).search(s))
-    f.negated = bool(re.search(r"\b(?:not|never|no longer|nicht|nie|kein\w*)\b", s))
+    f.negated = bool(re.search(r"\b(?:not|never|no longer|nobody|no one|nicht|nie|kein\w*|niemand)\b", s))
     stop = _STOP_EN if lang == "en" else _STOP_DE
     persons = {w: k for k, ws in (_PERSON_EN if lang == "en" else _PERSON_DE).items() for w in ws.split()}
     prons = _PRON_EN if lang == "en" else _PRON_DE

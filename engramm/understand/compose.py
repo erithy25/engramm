@@ -84,7 +84,8 @@ _RX_GENERIC = {"en": re.compile("|".join(f"(?:{g})" for g in _GENERIC_EN)),
                "de": re.compile("|".join(f"(?:{g})" for g in _GENERIC_DE))}
 
 _THANKS = re.compile(r"^(?:ok(?:ay)?[, ]+|great[, ]+|cool[, ]+|perfect[, ]+|super[, ]+|alright[, ]+)?(?:thanks|thank you|thx|ty|"
-                     r"cheers|ta|danke|vielen dank|dankeschön|danke dir|merci)\b", re.I)
+                     r"cheers|ta|danke|vielen dank|dankeschön|danke dir|merci)\b|^(?:you'?re right|good point|true|stimmt|"
+                     r"du hast recht|ok(?:ay)?|alles klar)[,!. ]+(?:thanks|thank you|thx|danke)[!. ]*$", re.I)
 _PLAN = re.compile(r"^(?:(?:ok(?:ay)?|alright|yeah|yes|right|good idea|great|sure|then|ja|gut|okay|na gut|dann|also)[,!. ]+)*"
                    r"(?:i'?ll|i will|i'?m going to|im going to|i'?m gonna|gonna|i think i'?ll|let me|i'?ll try|"
                    r"ich (?:werde|ruf\w*|mach\w*|geh\w*|probier\w*|versuch\w*|schreib\w*|frag\w*|kühl\w*|bring\w*|kauf\w*|"
@@ -161,6 +162,7 @@ class Composer:
     def __init__(self, bank, pick):
         self.moves = getattr(bank, "understand", {}) or {}
         self.pick = pick                     # Assistant._pick: deterministic, never the same variant twice in a row
+        self.learner = None                  # engramm/learn: the user's corrections and which moves land
 
     def __bool__(self) -> bool:
         return bool(self.moves) and bool(lexicon("en"))
@@ -175,7 +177,7 @@ class Composer:
 
     def observe(self, st, msg: str, lang: str) -> tuple[Frame, dict | None, bool]:
         """Parse the message; a new situation replaces the active one. Returns (frame, situation, is_new)."""
-        f = parse(msg, lang)
+        f = parse(msg, lang, extra=self.learner.extra if self.learner is not None else None)
         sit = self.active(st)
         new = False
         if f.kind and f.rule_kind and not (f.question and not (f.obj or f.body or f.who not in ("", "me"))):
@@ -187,7 +189,8 @@ class Composer:
                 sit = {"kind": f.kind, "lang": lang, "obj": f.obj, "obj_word": f.obj_word, "obj_det": f.obj_det,
                        "obj_cats": sorted(f.obj_cats), "who": f.who, "who_word": f.who_word, "pron": f.pron,
                        "body": f.body, "cause": f.cause, "turn": st.turn, "start": st.turn, "asked": [], "advised": False,
-                       "offered": False, "sub": self._sub(msg), "valence": f.valence, "fluid": "FLUID" in f.evidence}
+                       "offered": False, "sub": self._sub(msg), "valence": f.valence, "fluid": "FLUID" in f.evidence,
+                       "text": msg[:300]}
                 new = True
         if sit is not None:
             sit["turn"] = st.turn
@@ -239,7 +242,8 @@ class Composer:
             who = f"your {sit['who_word']}" if sit.get("who_word") else "them"
             pron = sit.get("pron") or "they"
             return {"it": it, "It": it[:1].upper() + it[1:], "who": who, "Who": who[:1].upper() + who[1:],
-                    "pron": pron, "Pron": pron[:1].upper() + pron[1:]}
+                    "pron": pron, "Pron": pron[:1].upper() + pron[1:],
+                    "pron_feels": f"{pron} feel" if pron in ("they", "you", "i") else f"{pron} feels"}
         obj = sit.get("obj_word") or sit.get("obj") or ""
         e = lexicon("de").get(obj, "n") if obj else None
         g = e.gender if e and e.gender else ""
@@ -253,7 +257,11 @@ class Composer:
         else:
             nom, acc, dat = (f"{p} {Obj}" for p in poss)
         er = sit.get("pron") or "es"
-        return {"obj": Obj, "Obj": Obj, "dein_nom": nom, "dein_acc": acc, "dein_dat": dat, "er": er,
+        ww = sit.get("who_word") or ""
+        we = lexicon("de").get(ww, "n") if ww else None
+        wposs = {"m": "deinen", "f": "deine", "n": "dein"}.get(we.gender if we and we.gender else "")
+        an_who = f" an {wposs} {ww[:1].upper() + ww[1:]}" if wposs and ww else ""
+        return {"an_who": an_who, "obj": Obj, "Obj": Obj, "dein_nom": nom, "dein_acc": acc, "dein_dat": dat, "er": er,
                 "Er": er[:1].upper() + er[1:], "ihm": {"er": "ihm", "sie": "ihr"}.get(er, "ihm"),
                 "ihn": {"er": "ihn", "sie": "sie"}.get(er, "es"),
                 "who": sit.get("who_word") or ""}
@@ -324,9 +332,26 @@ class Composer:
             lead = "The most important thing first: " if lang == "en" else "Das Wichtigste zuerst: "
             return lead + (first[:1].lower() + first[1:] if lang == "en" else first)
         sit["advised"] = True
+        if lang == "en" and k in ("INJURY", "ILLNESS"):
+            from engramm.know.howto import SUB_NAMES, howto, render
+            a = howto().find(sit.get("text", ""), SUB_NAMES.get(sit.get("sub") or "", []))
+            if a is not None and a.kind == "HEALTH":
+                text = f"{text}\n\n{render(a)}"
         head = self._say(st, lang, "advice_head", "", sit) if False else \
             self.pick(st, f"u:{lang}:advice_head", list((self.moves.get(lang) or {}).get("advice_head") or [""]))
         return f"{head}\n\n{text}"
+
+    @staticmethod
+    def _lookup(msg: str, lang: str, f: Frame, current: str) -> str | None:
+        """No situation, a filler reply, and a how/what-helps question about something the encyclopedia knows:
+        "how do you treat hives?" — its advice with the source."""
+        if lang != "en" or not (f.question and f.ask in ("how", "what_do", "can", "other")):
+            return None
+        if not re.search(r"\b(?:treat|help|helps|cure|get rid|relieve|soothe|do (?:about|against|for)|prevent|heal)\b", msg, re.I):
+            return None
+        from engramm.know.howto import howto, render
+        a = howto().find(msg)
+        return render(a) if a is not None else None
 
     def compose(self, st, msg: str, lang: str, f: Frame, sit: dict | None, new: bool, current: str,
                 current_kind: str, keys=None) -> str | None:
@@ -346,7 +371,7 @@ class Composer:
                       if lang == "en" else "Das klingt nach einem Notfall – bitte ruf sofort den Notruf 112.")
             return urgent + ("\n\n" + current if current and not is_generic else "")
         if sit is None:
-            return None
+            return self._lookup(msg, lang, f, current) if is_generic else None
         low = msg.strip().lower()
         # a new situation: react, then one question (or advice if they already asked for it)
         if new:
@@ -357,6 +382,10 @@ class Composer:
             if f.question and f.ask in ("what_do", "how", "can", "other", "yesno", "should", "is_bad"):
                 adv = self._advice(st, lang, sit)
                 return f"{react}\n\n{adv}" if adv else None
+            if self.learner is not None and self.learner.move(st, sit["kind"]) == "advise":
+                adv = self._advice(st, lang, sit)       # this user would rather have advice straight away
+                if adv and react:
+                    return f"{react}\n\n{adv}"
             q = self._question(st, lang, sit)
             return f"{react} {q}".strip() if react else None
         asks_known = re.search(r"\b(?:what happened|what's going on|was ist (?:denn )?(?:schönes |los|passiert)|"
@@ -369,6 +398,13 @@ class Composer:
             return None
         if not self._related(st, msg, f, sit):
             return None                         # a new topic: the situation rests; the general layers answer
+        # a situation the conversation has moved away from (nothing said about it last turn) only fills true gaps:
+        # a thanks, an idea list or an answer from another layer belongs to what was talked about since
+        fresh = st.turn - max(sit.get("spoke", -99), sit.get("start", -99)) <= 1
+        if not fresh and (not generic(current, lang) or _THANKS.match(low)):
+            return None
+        if re.match(r"(?:how (?:old|much|many|long|far|tall|big|often)|wie (?:alt|viel|viele|lange|weit|groß|oft))\b", low):
+            return None                         # "how old is max?": a fact question, not a call for advice
         k = sit["kind"]
         # inside a situation
         thanks_only = _THANKS.match(low) and "?" not in low and len(low.split()) <= 7
@@ -431,6 +467,8 @@ class Composer:
             d = "info_long"
         else:
             d = "info"
+        if current_kind == "empathy" and d in ("info", "info_long", "feeling_neg") and not generic(current, lang):
+            return None                         # "he cheated on me": the sympathy already there fits better
         if k == "DEATH" and d in ("info", "info_long"):
             d = "death_time"
         if k == "LOSS" and re.search(r"\b(?:at|in|on|im|in der|am|beim|bei) (?:the |a |my |dem |der |einem |einer )?\w+", low):

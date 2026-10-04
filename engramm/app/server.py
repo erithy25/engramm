@@ -162,6 +162,12 @@ class ChatService:
             kb = idx / "kb.sqlite" if (idx / "kb.sqlite").exists() else None
             assistant = Assistant(bot, kb_path=kb)
             assistant.reading_as_of = reading_as_of(idx)
+            try:                                     # local learning (engramm/learn): next to the chat memory
+                from engramm.learn import Learner
+                mem_file = getattr(memory, "path", None)
+                assistant.learner = Learner(Path(mem_file).parent / "learn.json" if mem_file else None)
+            except Exception:
+                traceback.print_exc()
             try:                                     # Atlas: network channels, all off until switched on
                 from engramm.web.atlas import Atlas
                 from engramm.web.egress import Egress

@@ -33,6 +33,7 @@ class Lexicon:
         self.entries: dict[str, dict[str, Entry]] = {}
         self.forms: dict[str, list[tuple[str, str]]] = {}
         self._cache: dict[str, tuple] = {}
+        self.user: dict[str, Entry] = {}       # words this user taught (engramm/learn), first in every lookup
         lex = DATA / f"lex_{lang}.tsv.gz"
         if lex.exists():
             with gzip.open(lex, "rt", encoding="utf-8") as f:
@@ -65,6 +66,11 @@ class Lexicon:
     def lookup(self, word: str) -> list[Entry]:
         """All readings of a surface word, most likely first (exact lemma, irregular form, suffix rules)."""
         w = word.lower()
+        if w in self.user:
+            return [self.user[w]] + [e for e in self.lookup_base(w) if e.pos != self.user[w].pos]
+        return self.lookup_base(w)
+
+    def lookup_base(self, w: str) -> list[Entry]:
         hit = self._cache.get(w)
         if hit is None:
             hit = self._cache[w] = tuple(_readings(self, w))

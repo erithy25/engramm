@@ -4,6 +4,7 @@ import pytest
 from engramm.understand import frames as fr
 from engramm.understand.classify import KINDS, classifier
 from engramm.understand.lex import lexicon
+from tests.test_chat_flows import corpus  # noqa: F401  (fixture)
 
 
 @pytest.mark.parametrize("text,lang,kind,obj,who", [
@@ -57,3 +58,27 @@ def test_user_correction_shifts_prediction():
     f = fr.parse(text, "en", use_model=False)
     extra = {"w:en:gone": {"THEFT": 50.0}}
     assert clf.predict(f, text, f.kind, extra) == "THEFT"
+
+
+def test_howto_index_finds_by_name_and_alias():
+    from engramm.know.howto import howto, render
+    h = howto()
+    assert h
+    a = h.find("how do you treat hives?")
+    assert a is not None and a.kind == "HEALTH"
+    out = render(a)
+    assert "Wikipedia" in out and "doctor" in out          # the safety tier: source and the doctor line, always
+    assert h.find("what's the weather like?") is None
+
+
+def test_injury_advice_carries_the_source(corpus, tmp_path):     # noqa: F811
+    import datetime as dt
+    from engramm.chat.dialog import Assistant, DialogState
+    from engramm.chat.textmem import LoggedTextMemory
+    from tests.test_chat_flows import _bot
+    a = Assistant(_bot(corpus, LoggedTextMemory(tmp_path / "m.log")), clock=lambda: dt.datetime(2026, 10, 1, 18, 30))
+    st = DialogState("u1")
+    a.turn(st, "hi")
+    a.turn(st, "i sprained my ankle")
+    r = a.turn(st, "what should i do?")
+    assert "Sprained ankle" in r.text and "doctor" in r.text

@@ -923,6 +923,10 @@ _PROPER_BREED_WORDS = {"persian", "siamese", "labrador", "german", "french", "br
                        "havanese", "boston", "irish", "welsh", "corgi", "beagle", "weimaraner", "akita", "shiba"}
 
 
+_EPISODE_KINDS = ("DAMAGE", "INJURY", "ILLNESS", "LOSS", "THEFT", "CONFLICT", "FAILURE", "MONEY", "DEATH", "MILESTONE",
+                  "SUCCESS")
+
+
 class Assistant:
     def __init__(self, bot, bank: Bank | None = None, clock=None, kb_path=None, nlp_dir=None):
         self.bot = bot
@@ -5961,15 +5965,39 @@ class Assistant:
         if not comp or rep.kind in ("safety",) or not message.strip():
             return rep
         lang = "de" if st.lang == "de" else "en"
+        comp.learner = self._learner()
         try:
             f, sit, new = comp.observe(st, message, lang)
             text = comp.compose(st, message, lang, f, sit, new, rep.text or "", rep.kind, getattr(self, "_turn_keys", None))
+            if new and sit is not None and sit["kind"] in _EPISODE_KINDS:
+                comp.learner.remember(self, sit["kind"], sit.get("obj_word") or "", message, lang)
         except Exception:                       # never let understanding break a reply
             return rep
         if text and text != rep.text:
+            sit = comp.active(st)
+            if sit is not None:
+                sit["spoke"] = st.turn             # the situation is what was talked about this turn
             rep.text, rep.kind, rep.via = text, "smalltalk", "understand"
             rep.answer = rep.guess = None
         return rep
+
+    def _learner(self):
+        lr = getattr(self, "learner", None)
+        if lr is None:
+            from engramm.learn import Learner
+            lr = self.learner = Learner(None)        # in memory; the app gives it a file (learn.json)
+        return lr
+
+    def _learn_pre(self, st: DialogState, msg: str) -> Reply | None:
+        """Corrections, taught words, style wishes, "forget that" after a lesson (engramm/learn)."""
+        if getattr(self, "composer", None) is None:
+            from engramm.understand.compose import Composer
+            self.composer = Composer(self.bank, self._pick)
+        try:
+            text = self._learner().pre(self, st, msg, "de" if st.lang == "de" else "en")
+        except Exception:
+            return None
+        return Reply(msg, "smalltalk", text, via="learn") if text else None
 
     def turn(self, st: DialogState, message: str) -> Reply:
         t0 = time.time()
@@ -5979,7 +6007,7 @@ class Assistant:
         self._spelled = None
         self._turn_keys = []
         try:
-            rep = self._turn(st, msg)
+            rep = self._learn_pre(st, msg) or self._turn(st, msg)
             if self._spelled and not rep.resolved:
                 rep.resolved = self._spelled          # shown as "I read this as …"
         finally:
@@ -5995,7 +6023,12 @@ class Assistant:
             st.ctx = dict(ctx)
             bot.context = dict(FRESH_CTX)
         rep.message = message
-        rep = self._understand(st, message, rep)
+        if rep.via != "learn":
+            rep = self._understand(st, message, rep)
+        try:
+            rep.text = self._learner().post(st, message, rep.text or "", rep.via) if rep.text else rep.text
+        except Exception:
+            pass
         rep.seconds = time.time() - t0
         if rep.text and rep.text == st.last_reply and normalise(message) != normalise(st.last_message or ""):
             if rep.kind == "unknown":

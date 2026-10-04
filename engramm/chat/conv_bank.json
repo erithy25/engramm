@@ -19826,8 +19826,8 @@
      "That sounds miserable — I'm sorry. 🤒"
     ],
     "ILLNESS_other": [
-     "Oh no, poor {who}! I hope {pron} feels better soon.",
-     "Oh no — I'm sorry {who} isn't well."
+     "Oh no, poor {who}! I hope {pron_feels} better soon.",
+     "Oh no — I'm sorry to hear that. I hope it passes quickly."
     ],
     "LOSS": [
      "Oh no, that's so stressful!",
@@ -20128,14 +20128,14 @@
      "Anytime — I hope it heals quickly!"
     ],
     "INJURY_other": [
-     "You're welcome! I hope {pron} feels better soon. 💛"
+     "You're welcome! I hope {pron_feels} better soon. 💛"
     ],
     "ILLNESS": [
      "You're welcome — get well soon! 🤒",
      "Anytime. Rest up and feel better!"
     ],
     "ILLNESS_other": [
-     "You're welcome! I hope {pron} feels better soon. 💛"
+     "You're welcome! I hope {pron_feels} better soon. 💛"
     ],
     "LOSS": [
      "You're welcome — fingers crossed it turns up! 🤞"
@@ -20220,7 +20220,7 @@
     ],
     "ILLNESS_other": [
      "Oh je, das tut mir leid! Hoffentlich geht's {ihm} bald besser.",
-     "Oh nein – gute Besserung an {ihn}!"
+     "Oh nein – gute Besserung{an_who}!"
     ],
     "LOSS": [
      "Oh nein, wie stressig!",
@@ -20520,14 +20520,14 @@
      "Gern – hoffentlich heilt es schnell!"
     ],
     "INJURY_other": [
-     "Gern! Gute Besserung an {ihn}. 💛"
+     "Gern! Gute Besserung{an_who}. 💛"
     ],
     "ILLNESS": [
      "Gern – gute Besserung! 🤒",
      "Gern. Ruh dich gut aus!"
     ],
     "ILLNESS_other": [
-     "Gern! Gute Besserung an {ihn}. 💛"
+     "Gern! Gute Besserung{an_who}. 💛"
     ],
     "LOSS": [
      "Gern – ich drück die Daumen, dass es wieder auftaucht! 🤞"
