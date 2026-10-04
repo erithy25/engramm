@@ -250,7 +250,9 @@ ungesehen EN 37→0/49 und 34→0/48, DE 26→0/35 und 21→0/31; erster Anlauf 
 macOS-Intel-Runner ab; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.41](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.41)
 (Lauf 37180085620, Probe 120: Nachbarparty, Geldbeutel, Weisheitszähne, Fahrstunden, Heuschnupfen, Phishing,
 Taschendieb, erster Arbeitstag; ungesehen EN 32→0/47, DE 20→0/31, Umformulierung 22/47 und 7/35 → 0;
-45 Dateien, 6 Installer, SHA256SUMS geprüft).
+45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.42](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.42)
+(Lauf 37190790076, Probe 121: Auffahrunfall, Katze, Schnarchen, Handy-PIN, Burnout, Nasenbluten, Gepäck, Handy im
+Wasser; ungesehen EN 32→0/46, DE 20→0/30, Umformulierung 7/44 und 12/31 → 0; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
