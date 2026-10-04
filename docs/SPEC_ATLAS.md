@@ -243,7 +243,11 @@ ungesehen EN 24→0 von 45, DE 20→0 von 34; 45 Dateien, 6 Installer, SHA256SUM
 Rücksendung, Babysitten; ungesehen EN 31→0 von 46, DE 22→0 von 34; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.39](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.39)
 (Lauf 37139997916, Probe 117: ausgesperrt, Haarschnitt, vergessener Geburtstag, Zahnschmerzen, Waschmaschine, Rauchstopp,
 Abschlussarbeit, Mitbewohner; ungesehen EN 32→0 von 48, DE 25→0 von 36, Umformulierung 14/47 und 10/35 → 0;
-45 Dateien, 6 Installer, SHA256SUMS geprüft).
+45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.40](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.40)
+(Lauf 37170368190, Proben 118 und 119: Schimmel, Sonnenbrand, Kater, Jetlag, Job-Absage, geschuldetes Geld, Kleinkind,
+Autobatterie; Fahrrad, Stromausfall, Heizung, Mobbing, Lebensmittelvergiftung, Strafzettel, Pass, Fitnessstudio;
+ungesehen EN 37→0/49 und 34→0/48, DE 26→0/35 und 21→0/31; erster Anlauf 37157014235 brach nur auf dem
+macOS-Intel-Runner ab; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
