@@ -688,6 +688,9 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
     if "#name" in rel and re.search(r"\b(?:got|get|gets|getting|was|were|been|being|be) called (?:for|in|up|out|back|off|away|to|into|on|over|about)\b|"
                                     r"\bcalled (?:for|in|up|out|back|off) (?:jury|duty|work|a meeting|an interview|service)\b", " ".join(lw)):
         return extra                            # "i got called for jury duty": a summons, not a name
+    if "#name" in rel and re.search(r"\b(?:a|an|the|this|that|one|another|some|phone|video|weird|strange|missed|scam|spam|work|late|quick|short|long)\s+(?:\w+\s+)?calls?\b",
+                                    " ".join(lw)) and not re.search(r"\bcalls? me\b|\bcalled\b|\bmy name\b|\bnamed\b", " ".join(lw)):
+        return extra                            # "i got a weird call from someone": a phone call, not a name
     # "My employer's name is X", "a company called X": the name of that thing, not your name
     if "#name" in rel and set(rel) & (CATEGORIES - {"#name"}) and subject == USER and \
             not re.search(r"\b(?:i am|call me|calls me|my name)\b", " ".join(lw)):

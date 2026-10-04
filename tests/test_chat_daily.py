@@ -4302,3 +4302,39 @@ def test_battery122_tick_migraine_dog_deposit_glasses_car_lying_jury(chat):
     st = DialogState("c122-name")
     a.turn(st, "i got called for jury duty")
     assert "jury" not in a.turn(st, "what's my name?").text.lower()
+
+
+def test_battery123_scam_fall_hives_bill_parking_flatmate_promotion_license(chat):
+    """Scam call, a child's fall, hives, a big energy bill, parking spot, flatmate leaving, promotion, driving licence."""
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"Tell me more\?|I see\.|I don't know|I'll remember|nice to meet you, |Hi weird|\{|Erzähl ruhig mehr|"
+                      r"Erzähl gern mehr|nicht ganz verstanden|nicht nachschlagen|wie findest du das|sounds hard", _re.I)
+    convs = [
+        ("en", [("i just got a weird call from someone saying they're from my bank", "suspicious"), ("they asked for my card pin", "red flag"),
+                ("was that a scam?", "Almost certainly")]),
+        ("en", [("someone called me pretending to be from microsoft", "suspicious"), ("they wanted remote access to my laptop", "tech-support"),
+                ("i gave them my password", "Disconnect"), ("what should i do now?", "two-factor")]),
+        ("en", [("my son fell off his bike", "Is he okay"), ("he scraped his knee pretty badly", "heal"), ("how do i clean it?", "tetanus")]),
+        ("en", [("i suddenly have itchy red bumps all over my arms", "triggered"), ("i tried a new shampoo yesterday", "culprit"),
+                ("what should i do?", "antihistamine")]),
+        ("en", [("my gas bill is way higher than expected", "big hit"), ("how can i afford that?", "instalment")]),
+        ("en", [("someone keeps parking in my spot", "private space"), ("what can i do?", "landlord")]),
+        ("en", [("my flatmate is moving out next month", "big change"), ("how do i find a new flatmate?", "flat-share")]),
+        ("en", [("i got promoted today!", ""), ("i've worked so hard for this", "earned it"), ("how should i celebrate?", "Dinner")]),
+        ("en", [("i got my driver's license today", "Congratulations"), ("i was so nervous", "still passed")]),
+        ("de", [("ich hatte gerade einen komischen anruf, angeblich von der polizei", "verdächtig"), ("ist das betrug?", "110")]),
+        ("de", [("mein sohn ist vom fahrrad gefallen", "mit ihm"), ("wie mach ich das sauber?", "Tetanus")]),
+        ("de", [("ich hab plötzlich juckende rote quaddeln an den armen", "ausgelöst"), ("was soll ich tun?", "Antihistaminikum")]),
+        ("de", [("ich hab eine hohe nebenkostennachzahlung bekommen", "Batzen"), ("wie soll ich das bezahlen?", "Ratenzahlung")]),
+        ("de", [("ich bin heute befördert worden!", ""), ("ich hab so hart dafür gearbeitet", "verdient"), ("wie soll ich das feiern?", "Essen")]),
+    ]
+    for i, (lang, turns) in enumerate(convs):
+        st = DialogState(f"c123-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        for msg, want in turns:
+            t = a.turn(st, msg).text
+            assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)
+    st = DialogState("c123-name")
+    a.turn(st, "i got a weird call from someone today")
+    assert "weird" not in a.turn(st, "what's my name?").text.lower()

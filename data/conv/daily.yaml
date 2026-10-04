@@ -5551,3 +5551,127 @@ b122:
       - "Das ist eigentlich beruhigend – kleine Schwindeleien, um Hausaufgaben oder Pflichten zu umgehen, sind in dem Alter sehr normal."
     lie_react:
       - "Was meistens hilft:\n\n• Ruhig bleiben – heftige Reaktionen bringen Kindern bei, besser zu verstecken, nicht weniger zu lügen.\n• Keine Fallen stellen („Hast du deine Hausaufgaben gemacht?“, wenn du es schon weißt) – einfach sagen, was du weißt.\n• Die Wahrheit lohnend machen: „Danke, dass du es mir sagst – das war mutig.“ Konsequenzen für das Verhalten, nicht fürs Zugeben.\n• Nach dem Warum fragen: oft ist es Angst vor Ärger oder davor, dich zu enttäuschen.\n• Selbst Vorbild sein, auch bei kleinen Notlügen.\n\nWird es häufiger oder ernster, können Schule oder eine Familienberatung helfen."
+# battery 123: a scam phone call, a child who fell off a bike, hives after a new product, a big energy bill, someone
+# parking in my spot, a flatmate moving out, a promotion, passing the driving test
+b123:
+  scam_start:
+    - "Hm, that sounds suspicious. What did they want from you?"
+  scam_remote:
+    - "That's the classic tech-support scam — Microsoft and other companies never call you out of the blue to fix your computer. Don't let them in."
+  scam_pin:
+    - "That's a big red flag. A real bank never asks for your PIN, password or TAN over the phone — never."
+  scam_safe:
+    - "Good — that was exactly right. You didn't lose anything."
+  scam_gave:
+    - "Then act quickly: call your bank on the number on your card or their official website and have your card or online banking blocked."
+  scam_gave_tech:
+    - "Okay — act now, calmly. Disconnect the laptop from the internet, and change that password from a different device."
+  scam_was:
+    - "Almost certainly, yes. Classic signs: unexpected call, pressure or urgency, and a request for PINs, passwords or codes. Banks and the police never ask for those.\n\nWhat to do:\n\n• Don't call back any number they gave you.\n• Call your bank on the number on your card or their official website and tell them what happened.\n• If you shared any details, have your card or online banking blocked right away.\n• Report it to the police — it helps protect others."
+  scam_after:
+    - "Right away:\n\n• Call your bank on the number on your card or their official website and have the card or online banking blocked.\n• Check your account for transactions you don't recognise.\n• Change any passwords you gave out.\n• Report it to the police — keep notes of the call (time, number, what was said)."
+  scam_after_tech:
+    - "Right away:\n\n• Disconnect the computer from the internet; if they installed remote-access software, uninstall it.\n• From another device, change the password you gave them — and everywhere else you use it — and turn on two-factor authentication.\n• Run a full virus scan, or have the computer checked.\n• If you entered bank details or paid anything, call your bank and have things blocked.\n• Report it to the police."
+  scam_change:
+    - "Good — change it everywhere you use the same password, and turn on two-factor authentication. You're handling this well. 💪"
+  scam_report:
+    - "Good — that's the right move. Use the number on your card or the official website, not one from the call. Well done for not falling for it. 💪"
+  fall_start:
+    - "Oh no! Is {subject} okay?"
+  fall_scrape:
+    - "Ouch, grazes really sting. The good news: they usually heal well."
+  fall_bleed:
+    - "A bit of bleeding is normal with a graze — it even helps rinse out dirt. Press a clean cloth on it for a few minutes."
+  fall_clean:
+    - "Like this:\n\n• Rinse it with clean lukewarm water to wash out dirt and grit.\n• Gently remove any remaining dirt; press a clean cloth on it if it's still bleeding.\n• Use a wound spray or antiseptic suitable for children.\n• Cover it with a plaster or sterile dressing.\n\nSee a doctor if the wound is deep or gaping, dirt won't come out, it gets red, warm or swollen later — or if you're not sure the tetanus vaccination is up to date."
+  fall_ok:
+    - "That's the best sign! Kids are tough. 😊"
+  hives_start:
+    - "Oh no, that sounds really itchy. Do you have any idea what triggered it?"
+  hives_think:
+    - "Sounds like it — hives are an allergic skin reaction. Usually harmless, but annoying."
+  hives_cause:
+    - "That's a likely culprit — new shampoos, soaps or detergents are common triggers. Stop using it and rinse your skin with plain water."
+  hives_what:
+    - "What helps:\n\n• Stop using whatever might have triggered it.\n• Rinse the skin with lukewarm water; cool compresses ease the itching.\n• An antihistamine from the pharmacy (for example cetirizine or loratadine) usually helps quickly.\n• Try not to scratch.\n\nCall emergency services right away if your lips, tongue or throat swell, or you have trouble breathing or feel faint. See a doctor if it doesn't improve within a few days or keeps coming back."
+  hives_stop:
+    - "Good idea — it should settle within a day or two. If it spreads or doesn't go away, see a doctor. 🧴"
+  bill_start:
+    - "Ouch, that's a big hit. Did it come as a surprise?"
+  bill_shock:
+    - "That's a shock — completely understandable you're worried."
+  bill_how:
+    - "A few options:\n\n• Ask your supplier for an instalment plan — most agree, especially if you ask early.\n• Check the bill: was the meter reading real or estimated? Are the dates and prices right?\n• Raise your monthly payment a bit so it doesn't happen again — and check whether a cheaper tariff is available.\n• If you really can't pay, free debt counselling services can help you negotiate.\n• Don't ignore the reminders — talking to the supplier early keeps the most options open."
+  bill_plan:
+    - "Good plan — call or write early and suggest an amount you can manage each month. Most suppliers agree. 💡"
+  park_start:
+    - "That's so annoying. Is it your own private space?"
+  park_private:
+    - "Then they really have no right to be there."
+  park_street:
+    - "That's really unfair — you pay for the space and still have to hunt for parking."
+  park_what:
+    - "Step by step:\n\n• Leave a friendly but clear note on the windscreen.\n• Ask your landlord or property management to put up a clear sign and to address it.\n• Take photos with date and time each time it happens.\n• Towing from private land is often possible, but the rules differ by country — check with your landlord or the local authority first, so you don't end up paying."
+  park_note:
+    - "Good start — friendly but clear: “This is a private space, please don't park here.” Often that's enough. 🚗"
+  flat_start:
+    - "Oh, that's a big change. How do you feel about it?"
+  flat_afford:
+    - "Then finding someone new soon is the priority. Check your lease first: if you're the main tenant, you might need the landlord's okay for a new flatmate."
+  flat_find:
+    - "A few tips:\n\n• Post on flat-share websites and local social media groups — with good photos of the room and the shared spaces.\n• Be clear about rent, bills, move-in date and what living with you is like.\n• Meet several people, ideally in person, and trust your gut.\n• Agree in writing on rent, deposit and notice period.\n• Check with your landlord if their permission is needed."
+  flat_ad:
+    - "Good luck — bright photos and an honest description attract the right people. 🏠"
+  promo_hard:
+    - "Then you've really earned it. Enjoy the moment — that's something to be proud of. 🎉"
+  promo_celebrate:
+    - "Some ideas:\n\n• Dinner with the people who supported you along the way.\n• Treat yourself to something you've wanted for a while.\n• Bring cake or coffee for your team — a nice start in the new role.\n• Take an evening completely off, just for you.\n\nAnd write down what got you here — it's a nice reminder on harder days."
+  drive_start:
+    - "Congratulations! 🎉 That's a big moment — how did the test go?"
+  drive_nervous:
+    - "And you still passed — that's even more impressive. Nerves mean you cared. Enjoy your new freedom, and drive safely! 🚗"
+  de:
+    scam_start:
+      - "Hm, das klingt verdächtig. Was wollten die von dir?"
+    scam_pin:
+      - "Das ist ein klares Warnsignal. Die echte Polizei oder Bank fragt nie am Telefon nach Wertsachen, Bargeld, PIN oder TAN."
+    scam_was:
+      - "Ziemlich sicher, ja. Typische Zeichen: unerwarteter Anruf, Druck oder Eile, Fragen nach Wertsachen, Geld, PINs oder Codes. Echte Polizei und Banken machen das nie.\n\nWas du tun kannst:\n\n• Keine Nummer zurückrufen, die sie dir genannt haben.\n• Selbst die 110 wählen und den Anruf melden – nicht über die Rückruftaste.\n• Hast du Daten herausgegeben: sofort die Bank anrufen und sperren lassen (116 116).\n• Ältere Angehörige warnen – solche Anrufe treffen oft Senioren."
+    scam_report:
+      - "Gut – genau richtig. Selbst wählen, nicht zurückrufen. Gut, dass du nicht darauf reingefallen bist. 💪"
+    fall_start:
+      - "Oh nein! Ist alles okay mit {subject}?"
+    fall_scrape:
+      - "Autsch, aufgeschürfte Knie brennen richtig. Die gute Nachricht: Das heilt meist gut."
+    fall_clean:
+      - "So geht's:\n\n• Mit sauberem, lauwarmem Wasser ausspülen, damit Schmutz und Steinchen rausgehen.\n• Restlichen Schmutz vorsichtig entfernen; blutet es noch, ein sauberes Tuch draufdrücken.\n• Ein kindgerechtes Wundspray oder Desinfektionsmittel benutzen.\n• Mit Pflaster oder sterilem Verband abdecken.\n\nZum Arzt, wenn die Wunde tief ist oder klafft, Schmutz nicht rausgeht, sie später rot, warm oder geschwollen wird – oder wenn du nicht sicher bist, ob die Tetanus-Impfung aktuell ist."
+    fall_ok:
+      - "Das ist das beste Zeichen! Kinder sind zäh. 😊"
+    hives_start:
+      - "Oh je, das klingt richtig juckend. Hast du eine Idee, was es ausgelöst hat?"
+    hives_cause:
+      - "Das ist ein wahrscheinlicher Auslöser – neue Shampoos, Seifen oder Waschmittel lösen das oft aus. Nicht mehr benutzen und die Haut mit klarem Wasser abspülen."
+    hives_what:
+      - "Was hilft:\n\n• Das mögliche Auslöser-Produkt weglassen.\n• Haut mit lauwarmem Wasser abspülen; kühle Umschläge lindern das Jucken.\n• Ein Antihistaminikum aus der Apotheke (zum Beispiel Cetirizin oder Loratadin) hilft meist schnell.\n• Möglichst nicht kratzen.\n\nSofort 112, wenn Lippen, Zunge oder Hals anschwellen oder du schlecht Luft bekommst oder dir schwindlig wird. Zum Arzt, wenn es nach ein paar Tagen nicht besser wird oder immer wiederkommt."
+    hives_stop:
+      - "Gute Idee – dann sollte es in ein, zwei Tagen abklingen. Breitet es sich aus oder geht nicht weg: zum Arzt. 🧴"
+    bill_start:
+      - "Autsch, das ist ein ordentlicher Batzen. Kam das überraschend?"
+    bill_shock:
+      - "Das ist ein Schock – total verständlich, dass dich das beschäftigt."
+    bill_how:
+      - "Ein paar Möglichkeiten:\n\n• Beim Versorger nach Ratenzahlung fragen – die meisten stimmen zu, vor allem wenn man früh fragt.\n• Die Abrechnung prüfen: Echter Zählerstand oder geschätzt? Stimmen Zeitraum und Preise?\n• Den monatlichen Abschlag etwas erhöhen, damit es nicht wieder passiert – und einen günstigeren Tarif prüfen.\n• Wenn es wirklich nicht geht: Kostenlose Schuldnerberatung (Caritas, Diakonie, Verbraucherzentrale) hilft beim Verhandeln.\n• Mahnungen nicht ignorieren – früh reden hält die meisten Optionen offen."
+    bill_plan:
+      - "Guter Plan – früh anrufen oder schreiben und eine monatliche Rate vorschlagen, die du schaffst. Die meisten Versorger stimmen zu. 💡"
+    park_start:
+      - "Wie ärgerlich. Ist das dein eigener, privater Stellplatz?"
+    park_private:
+      - "Dann hat dort wirklich niemand etwas verloren."
+    park_what:
+      - "Schritt für Schritt:\n\n• Einen freundlichen, aber klaren Zettel hinter die Scheibe.\n• Vermieter oder Hausverwaltung bitten, ein deutliches Schild anzubringen und das Thema anzugehen.\n• Jedes Mal Fotos mit Datum und Uhrzeit machen.\n• Abschleppen lassen geht auf Privatgrund oft, ist aber an Regeln gebunden – vorher mit Vermieter oder Ordnungsamt klären, damit du nicht auf den Kosten sitzen bleibst."
+    park_note:
+      - "Guter Anfang – freundlich, aber klar: „Das ist ein privater Stellplatz, bitte hier nicht parken.“ Oft reicht das schon. 🚗"
+    promo_hard:
+      - "Dann hast du es dir richtig verdient. Genieß den Moment – darauf kannst du stolz sein. 🎉"
+    promo_celebrate:
+      - "Ein paar Ideen:\n\n• Ein Essen mit den Menschen, die dich auf dem Weg unterstützt haben.\n• Gönn dir etwas, das du dir schon lange wünschst.\n• Kuchen oder Kaffee fürs Team mitbringen – ein schöner Start in die neue Rolle.\n• Einen Abend ganz frei nehmen, nur für dich.\n\nUnd schreib dir auf, was dich hierher gebracht hat – das ist an schwierigeren Tagen eine schöne Erinnerung."
