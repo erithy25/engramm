@@ -682,6 +682,12 @@ def personal_facts(sentence: str, source: str, initial_is_name=None, typer=None,
     if "#fav" in rel and re.search(r"\b(?:it'?s|it is|its|that'?s|that is|was|feels|felt|looks|looked|sounds|seems|seemed) like\b|\blike (?:\d|a few|maybe|about|around)\b",
                                    " ".join(lw)) and not re.search(r"\b(?:love|loves|favou?rite|enjoy|enjoys|i like|i really like|prefer)\b", " ".join(lw)):
         rel = [w for w in rel if w != "#fav"]   # "it's like 35 degrees": a filler "like", no favourite
+    if "#fav" in rel and re.search(r"\b(?:things|stuff|something|anything|everything|bits) like\b|\bsuch as\b", " ".join(lw)) and \
+            not re.search(r"\b(?:i (?:really )?like|i love|favou?rite|enjoy)\b", " ".join(lw)):
+        rel = [w for w in rel if w != "#fav"]   # "small things like homework": an example, no favourite
+    if "#name" in rel and re.search(r"\b(?:got|get|gets|getting|was|were|been|being|be) called (?:for|in|up|out|back|off|away|to|into|on|over|about)\b|"
+                                    r"\bcalled (?:for|in|up|out|back|off) (?:jury|duty|work|a meeting|an interview|service)\b", " ".join(lw)):
+        return extra                            # "i got called for jury duty": a summons, not a name
     # "My employer's name is X", "a company called X": the name of that thing, not your name
     if "#name" in rel and set(rel) & (CATEGORIES - {"#name"}) and subject == USER and \
             not re.search(r"\b(?:i am|call me|calls me|my name)\b", " ".join(lw)):
@@ -837,8 +843,15 @@ def facts_from_text(text: str, source: str, initial_is_name=None, splitter=None,
         if len(words(norm)) <= 8 and not re.search(r"\b(?:his|her|their|its|your|he|she|they)\b", low) and \
                 not _NAMED_SUBJECT.match(norm.strip()) and \
                 (set(concepts(low)) & _IMPLICIT_CONCEPTS or _NAME_INTRO.match(norm.strip())):
-            out += personal_facts(s, source, initial_is_name, typer, implicit=True)
+            imp = personal_facts(s, source, initial_is_name, typer, implicit=True)
+            # "the flat was spotless": a description of the place, not where you live
+            out += [f for f in imp if not ("#home" in f.relation and _DESCRIBING.fullmatch(f.object.lower()))]
     return out
+
+
+_DESCRIBING = re.compile(r"(?:so |really |very |totally |completely |super |quite )?(?:[a-z]+(?:less|ful|ous|ive|ish|y)|clean|dirty|tidy|messy|new|old|big|"
+                         r"small|tiny|huge|nice|perfect|fine|ok|okay|empty|cold|warm|hot|dark|bright|quiet|loud|noisy|cheap|expensive|"
+                         r"spotless|broken|damp|gone|done|ready|great|awful|terrible|lovely|amazing)")
 
 
 # ---------------------------------------------------------------------------

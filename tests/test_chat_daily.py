@@ -4266,3 +4266,39 @@ def test_battery121_crash_cat_snoring_pin_burnout_nosebleed_luggage_wetphone(cha
     a.turn(st, "i have a nosebleed that won't stop")
     a.turn(st, "hi")
     assert "you told me" not in a.turn(st, "should i put it in rice?").text
+
+
+def test_battery122_tick_migraine_dog_deposit_glasses_car_lying_jury(chat):
+    """Tick bite, migraine, barking dog, deposit, broken glasses, selling a car, a child who lies, jury duty."""
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"Tell me more\?|I see\.|I don't know|I'll remember|you live in|you like|Nice to meet you|\{|Erzähl ruhig mehr|"
+                      r"Erzähl gern mehr|nicht ganz verstanden|nicht nachschlagen|wie findest du das", _re.I)
+    convs = [
+        ("en", [("a tick bit my daughter", "no panic"), ("the head stayed in", "harmless"), ("how do i get it out?", "tweezers"),
+                ("should i see a doctor?", "red ring")]),
+        ("en", [("i have a terrible migraine", "lie down"), ("light makes it worse", "dark, quiet room"), ("what helps?", "triptans")]),
+        ("en", [("my neighbour's dog barks all day", "barking"), ("i work from home", "escape"), ("how do i bring it up with them?", "friendly")]),
+        ("en", [("my old landlord won't give back my deposit", "move out"), ("the flat was spotless", "handover"), ("what can i do?", "six months")]),
+        ("en", [("i sat on my glasses and broke them", "see okay"), ("what should i do?", "optician")]),
+        ("en", [("i want to sell my car", "kind of car"), ("how do i figure out the price?", "listings"),
+                ("should i sell it privately or to a dealer?", "Privately")]),
+        ("en", [("my son keeps lying to me", "How old is your son"), ("it's about small things like homework", "reassuring"),
+                ("how should i react?", "Stay calm")]),
+        ("en", [("i got called for jury duty", "civic duty"), ("what happens?", "summons")]),
+        ("de", [("ich hab eine zecke am bein", "keine Panik"), ("wie krieg ich die raus?", "Zeckenzange"), ("muss ich zum arzt?", "Borreliose")]),
+        ("de", [("ich hab eine heftige migräne", "hinlegen"), ("jedes geräusch tut weh", "dunkler"), ("was hilft?", "Triptane")]),
+        ("de", [("der hund vom nachbarn bellt den ganzen tag", "Bellen"), ("wie spreche ich das an?", "Zettel")]),
+        ("de", [("mein alter vermieter gibt die kaution nicht zurück", "ausgezogen"), ("was kann ich tun?", "sechs Monate")]),
+        ("de", [("ich hab mich auf meine brille gesetzt", "einigermaßen"), ("ohne seh ich kaum was", "Auto fahren"), ("was soll ich machen?", "Optiker")]),
+        ("de", [("mein sohn lügt mich ständig an", "Wie alt ist er"), ("wie soll ich reagieren?", "Ruhig bleiben")]),
+    ]
+    for i, (lang, turns) in enumerate(convs):
+        st = DialogState(f"c122-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        for msg, want in turns:
+            t = a.turn(st, msg).text
+            assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)
+    st = DialogState("c122-name")
+    a.turn(st, "i got called for jury duty")
+    assert "jury" not in a.turn(st, "what's my name?").text.lower()

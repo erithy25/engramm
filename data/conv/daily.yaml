@@ -5417,3 +5417,137 @@ b121:
       - "So gehst du vor:\n\n• Noch vor Verlassen des Flughafens am Gepäckschalter der Airline eine Verlustmeldung machen (Property Irregularity Report) und die Vorgangsnummer aufheben.\n• Den Koffer online mit dieser Nummer verfolgen.\n• Nur das Nötigste kaufen (Kulturbeutel, Wechselkleidung) und alle Belege aufheben – angemessene Kosten erstattet die Airline in der Regel.\n• Die schriftliche Forderung zügig einreichen; bei verspätetem Gepäck ist die Frist kurz (meist 21 Tage nach Erhalt des Koffers).\n• Taucht er nach etwa drei Wochen nicht auf, gilt er als verloren und du kannst den Inhalt geltend machen."
     bag_report:
       - "Gut – die Vorgangsnummer und alle Belege aufheben. Ich hoffe, dein Koffer kommt bald nach! 🧳"
+# battery 122: a tick bite, a migraine, a neighbour's dog barking, a deposit not returned, broken glasses, selling a
+# car, a child who lies, jury duty
+b122:
+  tick_start:
+    - "Okay, no panic — the important thing is to get it out soon. Is it still attached?"
+  tick_stuck:
+    - "Then remove it now — the sooner it's out, the lower the risk of infection."
+  tick_remove:
+    - "How to remove it:\n\n• Use tick tweezers, a tick card or fine-pointed tweezers.\n• Grip it as close to the skin as possible and pull it out slowly and steadily — don't squeeze its body.\n• No oil, glue, nail polish or burning it.\n• Disinfect the spot afterwards and wash your hands.\n• Note the date (or take a photo of the spot)."
+  tick_head:
+    - "That happens a lot and is usually harmless — the infection risk comes from the body, not the head. Disinfect the spot; the rest usually comes out on its own within a few days."
+  tick_doctor:
+    - "Usually not right away. If a tiny bit of the head stays in, that's normally harmless — disinfect it and it comes out on its own. See a doctor if over the next weeks a red ring spreads around the bite, or you get fever, aches or flu-like symptoms — that can be Lyme disease, which is treated with antibiotics. In tick-borne encephalitis areas, a vaccination is worth considering."
+  mig_start:
+    - "Oh no, migraines are brutal. Are you somewhere you can lie down?"
+  mig_light:
+    - "That's typical for migraines — light and noise really amplify the pain. A dark, quiet room is your friend right now."
+  mig_often:
+    - "That's a lot. With migraines that often, it's worth seeing a doctor about prevention — there are good options."
+  mig_help:
+    - "What usually helps during an attack:\n\n• Take pain medication early (ibuprofen, aspirin or paracetamol); if those don't work, a doctor can prescribe triptans.\n• Lie down in a dark, quiet room.\n• A cold cloth on the forehead or neck.\n• Drink some water.\n\nLonger term: a headache diary helps find triggers (sleep, stress, certain foods, skipped meals). Get help right away if a headache is sudden and the worst you've ever had, or comes with weakness, speech problems, confusion, fever or a stiff neck."
+  mig_rest:
+    - "Good idea — rest well, and I hope it passes quickly. 🌙"
+  dog_start:
+    - "Ugh, constant barking is exhausting. Has it been going on for a long time?"
+  dog_long:
+    - "Weeks of that is really wearing. Often the owners don't even know, because the dog barks when they're out."
+  dog_wfh:
+    - "Then it's even worse — you can't escape it. Often the owners don't even know, because the dog barks when they're out."
+  dog_crazy:
+    - "Totally understandable — constant noise wears anyone down."
+  dog_how:
+    - "A few tips:\n\n• Assume they don't know: dogs often bark when the owner is away.\n• Talk to them in a friendly way, or leave a kind note: “Hi, I work from home and your dog barks a lot during the day — maybe it's lonely?”\n• Note the times for a week or two in case it doesn't change.\n• If talking doesn't help: your landlord or property management, and as a last resort the local authority.\n• Offer a solution: a dog walker, daycare or training — that keeps it friendly."
+  dog_note:
+    - "Good idea — friendly, short, and maybe mention the times it happens. Most people react well when they realise. 🐕"
+  deposit_start:
+    - "That's frustrating — it's your money. How long ago did you move out?"
+  deposit_when:
+    - "Okay. Landlords may take some time to check for damage and settle the bills — but not forever."
+  deposit_clean:
+    - "Good — and if you have the handover report or photos from moving out, that's your best evidence."
+  deposit_what:
+    - "It depends on the country. In Germany, for example:\n\n• The landlord may take a reasonable time to check — often up to around six months — and can hold back a portion for an outstanding utility bill.\n• After that, the deposit must be paid back, with interest.\n• Send a written request with a clear deadline (two weeks is common), mentioning the handover report.\n• If nothing happens, a tenants' association (Mieterverein) or a lawyer can help, and in the end you can apply for a payment order or go to court.\n\nKeep copies of everything."
+  deposit_letter:
+    - "Good — short and factual: when you moved out, that the flat was handed over in good condition, the amount, and a deadline. Keep a copy. 📬"
+  glasses_start:
+    - "Oh no! That's so annoying. Can you still see okay without them?"
+  glasses_see:
+    - "Then let's get you sorted quickly. Please don't drive like that."
+  glasses_spare:
+    - "Then an optician is the fastest fix."
+  glasses_what:
+    - "Here's what usually works:\n\n• Go to an optician today — small repairs (screw, nose pad, hinge) are often done on the spot, and new glasses often take just a day or a few days.\n• If you know your prescription (or the optician has it), they can sometimes make simple lenses very quickly.\n• Ask about trial contact lenses as a stopgap.\n• Ready-made reading glasses help only for close-up and only if you're long-sighted.\n• Don't drive until you can see properly again."
+  sell_start:
+    - "Okay! What kind of car is it, and roughly how old?"
+  sell_car:
+    - "Good to know — age, mileage and condition decide most of the price."
+  sell_price:
+    - "To find a realistic price:\n\n• Look at listings of the same model, year, mileage and equipment on big car marketplaces — compare what's actually on offer near you.\n• Use an online valuation tool for a second opinion.\n• Factor in condition: service history, recent inspection, new tyres or brakes raise the price; damage lowers it.\n• Set your asking price a little above your minimum to leave room for negotiation."
+  sell_where:
+    - "Trade-off:\n\n• Privately: usually more money, but more effort — photos, viewings, test drives, haggling. Use a written contract, get paid before handing over the car and papers, and cancel the insurance and registration afterwards.\n• To a dealer or car-buying service: quick and easy, no hassle, but usually a noticeably lower price.\n\nIf you have time and the car's in good shape, private usually pays off. If you need it gone fast, a dealer is fine."
+  lie_start:
+    - "That's hard as a parent — you want to be able to trust your child. How old is {who}?"
+  lie_age:
+    - "That's a very common age for this — kids are testing what happens, and often they lie to avoid trouble."
+  lie_small:
+    - "That's actually reassuring — small lies to dodge chores or homework are very normal at that age."
+  lie_react:
+    - "What tends to work:\n\n• Stay calm — a big reaction teaches kids to hide better, not to lie less.\n• Don't set traps (“Did you do your homework?” when you know they didn't) — just say what you know.\n• Make the truth worth it: “Thanks for telling me — that took courage.” Keep consequences for the behaviour, not for confessing.\n• Ask why: often it's fear of trouble or disappointing you.\n• Be a role model, even with small white lies.\n\nIf it gets more frequent or serious, the school or a family counsellor can help."
+  jury_start:
+    - "Oh, interesting! That's a real civic duty. Have you done it before?"
+  jury_first:
+    - "Then it's normal to feel unsure — most people go in not knowing what to expect."
+  jury_what:
+    - "It varies by country, but roughly:\n\n• You report to the court on the date in your summons — bring the letter and ID.\n• Not everyone is picked: there's a selection process, and you may just wait and go home.\n• If you're chosen, you listen to the evidence, follow the judge's instructions and decide with the other jurors. You can't discuss the case with anyone outside.\n• Your employer has to let you go; expenses or lost earnings are usually partly covered.\n• If the date is a real problem, you can usually ask to postpone.\n\nTrials can last from a day to several weeks."
+  jury_interest:
+    - "It really can be — a rare look at how justice works from the inside. Good luck! ⚖️"
+  de:
+    tick_start:
+      - "Okay, keine Panik – wichtig ist, sie bald zu entfernen. Steckt sie noch?"
+    tick_stuck:
+      - "Dann jetzt raus damit – je früher sie weg ist, desto geringer das Risiko einer Infektion."
+    tick_remove:
+      - "So geht's:\n\n• Mit einer Zeckenzange, Zeckenkarte oder spitzen Pinzette.\n• Möglichst nah an der Haut greifen und langsam und gleichmäßig herausziehen – den Körper nicht quetschen.\n• Kein Öl, Kleber, Nagellack oder Feuer.\n• Danach die Stelle desinfizieren und Hände waschen.\n• Datum notieren (oder die Stelle fotografieren)."
+    tick_head:
+      - "Das passiert oft und ist meist harmlos – das Infektionsrisiko geht vom Körper aus, nicht vom Kopf. Die Stelle desinfizieren; der Rest wächst meist innerhalb weniger Tage von selbst heraus."
+    tick_doctor:
+      - "Meist nicht sofort. Bleibt ein kleiner Rest vom Kopf stecken, ist das in der Regel harmlos – desinfizieren, er wächst von selbst heraus. Zum Arzt, wenn sich in den nächsten Wochen ein roter Ring um den Stich ausbreitet oder du Fieber, Gliederschmerzen oder grippeähnliche Beschwerden bekommst – das kann Borreliose sein, die mit Antibiotika behandelt wird. In FSME-Risikogebieten lohnt sich eine Impfung."
+    mig_start:
+      - "Oh nein, Migräne ist brutal. Kannst du dich irgendwo hinlegen?"
+    mig_light:
+      - "Das ist typisch für Migräne – Licht und Lärm verstärken den Schmerz richtig. Ein dunkler, ruhiger Raum ist jetzt dein Freund."
+    mig_often:
+      - "Das ist viel. Bei so häufiger Migräne lohnt sich ein Arztbesuch zur Vorbeugung – da gibt es gute Möglichkeiten."
+    mig_help:
+      - "Was im Anfall meist hilft:\n\n• Schmerzmittel früh nehmen (Ibuprofen, ASS oder Paracetamol); wenn das nicht reicht, kann ein Arzt Triptane verschreiben.\n• In einen dunklen, ruhigen Raum legen.\n• Ein kalter Lappen auf Stirn oder Nacken.\n• Etwas trinken.\n\nLangfristig hilft ein Kopfschmerztagebuch, Auslöser zu finden (Schlaf, Stress, bestimmte Lebensmittel, ausgelassene Mahlzeiten). Sofort Hilfe holen, wenn der Kopfschmerz plötzlich und stärker als je zuvor ist oder mit Lähmungen, Sprachstörungen, Verwirrtheit, Fieber oder Nackensteife kommt."
+    mig_rest:
+      - "Gute Idee – ruh dich gut aus, ich hoffe, es geht schnell vorbei. 🌙"
+    dog_start:
+      - "Puh, ständiges Bellen zermürbt einen. Geht das schon lange so?"
+    dog_wfh:
+      - "Dann ist es noch schlimmer – du kommst nicht davon weg. Oft wissen die Besitzer es gar nicht, weil der Hund bellt, wenn sie weg sind."
+    dog_crazy:
+      - "Total verständlich – Dauerlärm zermürbt jeden."
+    dog_how:
+      - "Ein paar Tipps:\n\n• Erst mal annehmen, dass sie es nicht wissen: Hunde bellen oft, wenn die Besitzer weg sind.\n• Freundlich ansprechen oder einen netten Zettel schreiben: „Hallo, ich arbeite im Homeoffice, und euer Hund bellt tagsüber viel – vielleicht ist er einsam?“\n• Ein, zwei Wochen lang die Zeiten notieren, falls sich nichts ändert.\n• Hilft Reden nicht: Vermieter oder Hausverwaltung, als letzter Schritt das Ordnungsamt.\n• Eine Lösung anbieten: Gassi-Service, Hundetagesstätte oder Training – das bleibt freundlich."
+    dog_note:
+      - "Gute Idee – freundlich, kurz, und vielleicht die Zeiten erwähnen. Die meisten reagieren gut, wenn sie es merken. 🐕"
+    deposit_start:
+      - "Das ist ärgerlich – es ist schließlich dein Geld. Wann bist du ausgezogen?"
+    deposit_when:
+      - "Okay. Der Vermieter darf sich etwas Zeit nehmen, um Schäden zu prüfen und abzurechnen – aber nicht ewig."
+    deposit_clean:
+      - "Gut – und wenn du ein Übergabeprotokoll oder Fotos vom Auszug hast, ist das dein bester Beweis."
+    deposit_what:
+      - "In Deutschland gilt grob:\n\n• Der Vermieter darf sich eine angemessene Prüfzeit nehmen – oft bis etwa sechs Monate – und einen Teil für eine ausstehende Nebenkostenabrechnung einbehalten.\n• Danach muss er die Kaution samt Zinsen zurückzahlen.\n• Schreib ihn schriftlich an, mit klarer Frist (zwei Wochen sind üblich) und Hinweis auf das Übergabeprotokoll.\n• Passiert nichts: Mieterverein oder Anwalt, am Ende Mahnbescheid oder Klage.\n\nVon allem Kopien aufheben."
+    deposit_letter:
+      - "Gut – kurz und sachlich: wann du ausgezogen bist, dass die Wohnung ordentlich übergeben wurde, der Betrag und eine Frist. Eine Kopie behalten. 📬"
+    glasses_start:
+      - "Oh nein! Wie ärgerlich. Siehst du ohne sie noch einigermaßen?"
+    glasses_see:
+      - "Dann lass uns das schnell lösen. Bitte so nicht Auto fahren."
+    glasses_spare:
+      - "Dann ist der Optiker der schnellste Weg."
+    glasses_what:
+      - "Was meistens klappt:\n\n• Heute noch zum Optiker – kleine Reparaturen (Schraube, Nasenpad, Scharnier) gehen oft sofort, eine neue Brille dauert oft nur einen bis wenige Tage.\n• Kennt der Optiker deine Werte (oder hast du den Pass), gehen einfache Gläser manchmal sehr schnell.\n• Nach Probe-Kontaktlinsen als Übergang fragen.\n• Fertige Lesebrillen helfen nur für die Nähe und nur bei Weitsichtigkeit.\n• Bis du wieder gut siehst, nicht Auto fahren."
+    lie_start:
+      - "Das ist als Mutter oder Vater schwer – man will seinem Kind vertrauen können. Wie alt ist {subject}?"
+    lie_age:
+      - "Das ist ein ganz typisches Alter dafür – Kinder testen aus, und oft lügen sie, um Ärger zu vermeiden."
+    lie_small:
+      - "Das ist eigentlich beruhigend – kleine Schwindeleien, um Hausaufgaben oder Pflichten zu umgehen, sind in dem Alter sehr normal."
+    lie_react:
+      - "Was meistens hilft:\n\n• Ruhig bleiben – heftige Reaktionen bringen Kindern bei, besser zu verstecken, nicht weniger zu lügen.\n• Keine Fallen stellen („Hast du deine Hausaufgaben gemacht?“, wenn du es schon weißt) – einfach sagen, was du weißt.\n• Die Wahrheit lohnend machen: „Danke, dass du es mir sagst – das war mutig.“ Konsequenzen für das Verhalten, nicht fürs Zugeben.\n• Nach dem Warum fragen: oft ist es Angst vor Ärger oder davor, dich zu enttäuschen.\n• Selbst Vorbild sein, auch bei kleinen Notlügen.\n\nWird es häufiger oder ernster, können Schule oder eine Familienberatung helfen."
