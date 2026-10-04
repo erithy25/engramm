@@ -5273,3 +5273,147 @@ b120:
       - "Sofort:\n\n• Die Bank anrufen – mit der Nummer von der offiziellen Website oder deiner Karte, nicht aus der Nachricht – und bei Bedarf Online-Banking oder Karte sperren lassen (auch über 116 116).\n• Das Passwort auf der echten Website ändern, und überall, wo du dasselbe nutzt.\n• Zwei-Faktor-Anmeldung einschalten, falls noch nicht aktiv.\n• Das Konto auf unbekannte Buchungen prüfen.\n• Die Nachricht an die Phishing-Adresse deiner Bank weiterleiten und dann löschen.\n• Ist Geld weg: zusätzlich Anzeige bei der Polizei."
     phish_bank:
       - "Gut – genau richtig. Nimm die Nummer von deiner Karte oder der offiziellen Website. Du machst das gut. 💪"
+# battery 121: a minor rear-end collision, a cat that hasn't come home, a snoring partner, a forgotten phone PIN,
+# burnout, a nosebleed, lost luggage, a phone dropped in water
+b121:
+  crash_start:
+    - "Oh no, what a shock! Is everyone okay?"
+  crash_ok:
+    - "That's the most important thing. Cars can be fixed."
+  crash_damage:
+    - "Annoying, but fixable. When someone drives into the back of you, their insurance usually pays for the repair."
+  crash_neck:
+    - "Please get that checked — neck pain after a collision (whiplash) often only shows up hours later. A doctor's note also matters for the insurance."
+  crash_what:
+    - "The usual steps:\n\n• Make sure everyone is safe; hazard lights on, warning triangle if you're still on the road.\n• Exchange names, addresses, insurance details and licence plates.\n• Take photos of both cars, the damage and the scene; note any witnesses.\n• Call the police if someone is hurt, the other driver won't cooperate or it's unclear who's at fault — for minor damage it's often optional, but rules vary by country.\n• Report it to your insurance soon (often within a week).\n• If your neck or back starts to hurt, see a doctor."
+  crash_insurance:
+    - "Good — have the other driver's details and your photos ready. And keep an eye on your neck over the next day or two. 🚗"
+  crash_doctor:
+    - "Good — tell them it was a car accident, and keep the doctor's report for the insurance. Get well soon!"
+  cat_start:
+    - "Oh no, that's worrying. Has your cat ever stayed away this long before?"
+  cat_never:
+    - "That's understandable why you're worried. Many cats turn up again after a day or two, though — often they got shut in somewhere."
+  cat_worried:
+    - "Of course — your cat is part of the family. Let's think about what you can do."
+  cat_what:
+    - "What helps most:\n\n• Search nearby first — cats often hide or get shut in sheds, garages and cellars. Ask neighbours to check theirs.\n• Go out at dusk or at night when it's quiet, call her name and shake her treat box.\n• If she's microchipped, report her missing to the pet registry and make sure your contact details are up to date.\n• Call local vets and animal shelters, and post in local neighbourhood groups online.\n• Put up posters with a clear photo and your phone number.\n\nMost cats come back on their own within a few days."
+  cat_posters:
+    - "Good idea — a clear photo and your phone number in big letters. I hope your cat is back home soon! 🐈"
+  cat_neighbours:
+    - "Good idea — and ask them to check their sheds, garages and cellars too; cats get shut in surprisingly often. Fingers crossed! 🐈"
+  snore_start:
+    - "Oh no, that can really drive you crazy at night. How are you sleeping?"
+  snore_tired:
+    - "That's rough — weeks of broken sleep really wear you down."
+  snore_earplugs:
+    - "Then it's time to tackle the snoring itself, not just your ears."
+  snore_ideas:
+    - "A few things that often help:\n\n• Sleeping on the side instead of the back (a pillow behind the back helps).\n• No alcohol and no heavy meals close to bedtime.\n• Nasal strips or a saline spray if the nose is blocked.\n• For you: white noise or a fan can mask the sound better than earplugs.\n• Loud snoring with gasping or pauses in breathing can be sleep apnoea — that's worth a doctor's visit.\n• And sleeping in separate rooms now and then is nothing to be ashamed of — good sleep matters."
+  snore_talk:
+    - "Good — kindly, not in the middle of the night. Most people don't even know how loud they are. Maybe record a short clip to show {pron}. 😄"
+  pin_start:
+    - "Oh no, that's stressful. Is the phone already locked, or do you still have attempts left?"
+  pin_locked:
+    - "Then don't keep guessing — every wrong try can make the lockout longer, and on some phones too many tries erase everything."
+  pin_photos:
+    - "I understand — that's the scary part. Do you know whether your photos are backed up to iCloud or Google Photos? Then they're safe even if the phone has to be reset."
+  pin_back:
+    - "Honestly: without the PIN there's usually no way in without resetting the phone — that's the point of the security.\n\n• iPhone: reset it via Find My (iCloud) or recovery mode on a computer, then restore your iCloud backup.\n• Android: reset it via Google's Find My Device, then sign in with your Google account to restore your backup.\n• Your photos survive only if they were backed up (iCloud, Google Photos, a computer).\n• A manufacturer's store can help with the reset, but can't bypass the PIN either."
+  burn_start:
+    - "I'm really sorry — that's a heavy place to be. What's it like for you at the moment?"
+  burn_tired:
+    - "That kind of exhaustion that sleep doesn't fix is a typical sign. Your body is telling you something."
+  burn_focus:
+    - "That's very common with burnout — the mind just runs empty. It's not that you're not trying hard enough."
+  burn_what:
+    - "What helps:\n\n• See your doctor — they can rule out physical causes, sign you off for a while and refer you to therapy.\n• Talk to someone you trust; you don't have to carry this alone.\n• Reduce the load where you can: say no, hand things over, and talk to your manager if possible.\n• Protect the basics: sleep, regular meals, a bit of daylight and movement every day.\n• Plan small things that give you energy, not just tasks.\n\nIf you ever feel hopeless or think about hurting yourself, contact a crisis line or emergency services right away."
+  burn_doctor:
+    - "That's a really good step — and a brave one. Be honest with them about how long this has been going on. Take care of yourself. 💙"
+  nose_start:
+    - "Okay, let's stop it: sit up, lean slightly forward, and pinch the soft part of your nose firmly. How long has it been bleeding?"
+  nose_time:
+    - "Keep pinching the soft part of your nose for 10–15 minutes without letting go, leaning forward. A cold cloth on the neck or nose helps. If it's still bleeding after 20 minutes, it's very heavy, or it came after a blow to the head, get medical help."
+  nose_head:
+    - "No — lean forward, not back. Tilting the head back makes you swallow the blood, which can make you feel sick. Lean forward and pinch the soft part of your nose for 10–15 minutes."
+  bag_start:
+    - "Oh no, that's so frustrating — especially right after a flight. Are you still at the airport?"
+  bag_where:
+    - "Then report it before you leave the airport if you can — the airline's baggage desk is usually right by the belts."
+  bag_clothes:
+    - "Ugh, that's the worst. The good news: most delayed bags turn up within a few days."
+  bag_meds:
+    - "That makes it urgent. Don't wait for the bag: go to a pharmacy or a local doctor today — the packaging, a prescription or a photo of it helps — and keep the receipts for your claim."
+  bag_what:
+    - "Here's what to do:\n\n• File a report at the airline's baggage desk before leaving the airport (a Property Irregularity Report) and keep the reference number.\n• Track the bag online with that number.\n• Buy only what you really need (toiletries, a change of clothes) and keep every receipt — airlines usually reimburse reasonable costs.\n• Submit your written claim quickly; for delayed bags the deadline is short (often 21 days after you get the bag back).\n• If the bag doesn't turn up after about three weeks, it counts as lost and you can claim for its contents."
+  bag_report:
+    - "Good — keep the reference number and every receipt. I hope your bag catches up with you soon! 🧳"
+  wet_start:
+    - "Oh no! Turn it off right away if it's still on — and don't charge it."
+  wet_out:
+    - "Good, the faster the better. Now: turn it off, take the case off, wipe it dry and shake out any water."
+  wet_rice:
+    - "Rice is a myth, actually — it doesn't pull water out, and dust can get into the ports. Better: switch it off, let it air-dry with the ports facing down, ideally near a fan, for at least 24–48 hours. Don't charge it before then."
+  wet_dry:
+    - "Good plan — be patient, at least a day or two before you try charging it. If it doesn't come back, a repair shop can often still save it. 🤞"
+  de:
+    crash_start:
+      - "Oh nein, was für ein Schreck! Ist allen gut gegangen?"
+    crash_ok:
+      - "Das ist das Wichtigste. Autos kann man reparieren."
+    crash_damage:
+      - "Ärgerlich, aber reparabel. Wer hinten auffährt, dessen Versicherung zahlt in der Regel den Schaden."
+    crash_neck:
+      - "Lass das bitte anschauen – Nackenschmerzen nach einem Unfall (Schleudertrauma) zeigen sich oft erst Stunden später. Ein ärztlicher Befund ist auch für die Versicherung wichtig."
+    crash_what:
+      - "Die üblichen Schritte:\n\n• Erst Sicherheit: Warnblinker an, Warndreieck aufstellen, wenn ihr noch auf der Straße steht.\n• Namen, Adressen, Versicherung und Kennzeichen austauschen.\n• Fotos von beiden Autos, dem Schaden und der Unfallstelle machen; Zeugen notieren.\n• Polizei rufen, wenn jemand verletzt ist, der andere sich querstellt oder die Schuld unklar ist – bei kleinem Blechschaden ist sie nicht zwingend.\n• Den Schaden bald der Versicherung melden (meist innerhalb einer Woche).\n• Wenn Nacken oder Rücken anfangen wehzutun: zum Arzt."
+    crash_insurance:
+      - "Gut – halt die Daten des anderen und deine Fotos bereit. Und achte die nächsten ein, zwei Tage auf deinen Nacken. 🚗"
+    cat_start:
+      - "Oh nein, das ist beunruhigend. War die Katze schon mal so lange weg?"
+    cat_never:
+      - "Verständlich, dass du dir Sorgen machst. Viele Katzen tauchen aber nach ein, zwei Tagen wieder auf – oft waren sie irgendwo eingesperrt."
+    cat_worried:
+      - "Natürlich – sie gehört ja zur Familie. Lass uns überlegen, was du tun kannst."
+    cat_what:
+      - "Was am meisten hilft:\n\n• Zuerst in der Nähe suchen – Katzen verstecken sich oft oder werden in Schuppen, Garagen und Kellern eingesperrt. Frag die Nachbarn, ob sie nachschauen.\n• In der Dämmerung oder nachts, wenn es ruhig ist, rausgehen, rufen und mit der Leckerli-Dose rascheln.\n• Ist sie gechippt: bei TASSO oder FINDEFIX als vermisst melden und die Kontaktdaten prüfen.\n• Tierärzte und Tierheime in der Umgebung anrufen und in lokalen Gruppen posten.\n• Zettel mit gutem Foto und Telefonnummer aufhängen.\n\nDie meisten Katzen kommen innerhalb weniger Tage von selbst zurück."
+    cat_posters:
+      - "Gute Idee – ein deutliches Foto und die Telefonnummer groß drauf. Ich hoffe, dein Tier ist bald wieder da! 🐈"
+    cat_neighbours:
+      - "Gute Idee – und bitte sie, auch in Schuppen, Garagen und Kellern nachzuschauen; Katzen werden erstaunlich oft eingesperrt. Daumen sind gedrückt! 🐈"
+    snore_start:
+      - "Oh je, das kann einen nachts wahnsinnig machen. Wie schläfst du gerade?"
+    snore_tired:
+      - "Das ist hart – wochenlang schlechter Schlaf zermürbt einen richtig."
+    snore_earplugs:
+      - "Dann wird es Zeit, das Schnarchen selbst anzugehen, nicht nur deine Ohren."
+    snore_ideas:
+      - "Ein paar Dinge, die oft helfen:\n\n• Auf der Seite statt auf dem Rücken schlafen (ein Kissen im Rücken hilft).\n• Kein Alkohol und kein schweres Essen kurz vor dem Schlafen.\n• Nasenpflaster oder Salzspray, wenn die Nase verstopft ist.\n• Für dich: weißes Rauschen oder ein Ventilator überdeckt das Geräusch oft besser als Ohrstöpsel.\n• Lautes Schnarchen mit Aussetzern oder Nach-Luft-Schnappen kann eine Schlafapnoe sein – das gehört zum Arzt.\n• Und ab und zu getrennt schlafen ist keine Schande – guter Schlaf ist wichtig."
+    snore_talk:
+      - "Gut – freundlich und nicht mitten in der Nacht. Die meisten wissen gar nicht, wie laut sie sind. Vielleicht nimmst du kurz eine Aufnahme auf und zeigst sie {pron}. 😄"
+    burn_start:
+      - "Das tut mir wirklich leid – das ist ein schwerer Zustand. Wie geht es dir gerade damit?"
+    burn_tired:
+      - "Diese Erschöpfung, die auch Schlaf nicht mehr wegmacht, ist ein typisches Zeichen. Dein Körper sagt dir etwas."
+    burn_focus:
+      - "Das ist bei Burnout sehr häufig – der Kopf läuft einfach leer. Das liegt nicht daran, dass du dich nicht genug anstrengst."
+    burn_what:
+      - "Was hilft:\n\n• Zum Hausarzt gehen – er kann körperliche Ursachen ausschließen, dich krankschreiben und an eine Psychotherapie überweisen.\n• Mit jemandem reden, dem du vertraust – du musst das nicht allein tragen.\n• Last reduzieren, wo es geht: Nein sagen, abgeben, wenn möglich mit der Führungskraft sprechen.\n• Das Grundlegende schützen: Schlaf, regelmäßiges Essen, jeden Tag etwas Tageslicht und Bewegung.\n• Kleine Dinge einplanen, die dir Energie geben – nicht nur Aufgaben.\n\nWenn du dich hoffnungslos fühlst oder daran denkst, dir etwas anzutun: Die Telefonseelsorge ist rund um die Uhr da (0800 111 0 111), im Notfall 112."
+    burn_doctor:
+      - "Das ist ein richtig guter Schritt – und ein mutiger. Sag ehrlich, wie lange es dir schon so geht. Pass auf dich auf. 💙"
+    nose_start:
+      - "Okay, so stoppst du es: aufrecht hinsetzen, leicht nach vorne beugen und den weichen Teil der Nase fest zusammendrücken. Seit wann blutet es?"
+    nose_time:
+      - "Drück den weichen Teil der Nase 10–15 Minuten durchgehend zusammen und bleib nach vorne gebeugt. Ein kalter Lappen im Nacken oder auf der Nase hilft. Blutet es nach 20 Minuten noch, ist es sehr stark oder kam es nach einem Schlag auf den Kopf: ärztliche Hilfe holen."
+    nose_head:
+      - "Nein – nach vorne, nicht nach hinten. Wenn du den Kopf in den Nacken legst, schluckst du das Blut, und dir kann übel werden. Nach vorne beugen und den weichen Teil der Nase 10–15 Minuten zusammendrücken."
+    bag_start:
+      - "Oh nein, wie ärgerlich – gerade direkt nach dem Flug. Bist du noch am Flughafen?"
+    bag_clothes:
+      - "Oh je, das ist das Schlimmste. Die gute Nachricht: Die meisten verspäteten Koffer tauchen innerhalb weniger Tage auf."
+    bag_meds:
+      - "Dann ist es dringend. Warte nicht auf den Koffer: Geh heute noch in eine Apotheke oder zu einem Arzt vor Ort – Verpackung, Rezept oder ein Foto davon helfen – und heb die Belege für deine Forderung auf."
+    bag_what:
+      - "So gehst du vor:\n\n• Noch vor Verlassen des Flughafens am Gepäckschalter der Airline eine Verlustmeldung machen (Property Irregularity Report) und die Vorgangsnummer aufheben.\n• Den Koffer online mit dieser Nummer verfolgen.\n• Nur das Nötigste kaufen (Kulturbeutel, Wechselkleidung) und alle Belege aufheben – angemessene Kosten erstattet die Airline in der Regel.\n• Die schriftliche Forderung zügig einreichen; bei verspätetem Gepäck ist die Frist kurz (meist 21 Tage nach Erhalt des Koffers).\n• Taucht er nach etwa drei Wochen nicht auf, gilt er als verloren und du kannst den Inhalt geltend machen."
+    bag_report:
+      - "Gut – die Vorgangsnummer und alle Belege aufheben. Ich hoffe, dein Koffer kommt bald nach! 🧳"

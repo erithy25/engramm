@@ -4228,3 +4228,41 @@ def test_battery120_party_wallet_wisdom_driving_hayfever_phishing_pickpocket_fir
     st = DialogState("c120-home")
     a.turn(st, "i'm flying home in two days")
     assert "two" not in a.turn(st, "where do i live?").text.lower()
+
+
+def test_battery121_crash_cat_snoring_pin_burnout_nosebleed_luggage_wetphone(chat):
+    """Rear-end collision, missing cat, snoring, forgotten PIN, burnout, nosebleed, lost luggage, phone in water."""
+    import re as _re
+    a, _ = chat
+    bad = _re.compile(r"Tell me more\?|I see\.|I don't know|I'll remember|you told me|\{|Erzähl ruhig mehr|Erzähl gern mehr|"
+                      r"nicht ganz verstanden|nicht nachschlagen|wie findest du das|Schönes passiert", _re.I)
+    convs = [
+        ("en", [("someone rear-ended me at a red light", "Is everyone okay"), ("nobody got hurt", "most important"),
+                ("my neck feels stiff", "whiplash"), ("what do i need to do now?", "photos"), ("ok, i'll call my insurance", "photos")]),
+        ("en", [("my kitten is missing", "your cat"), ("what should i do?", "microchipped"), ("i'll ask the neighbours", "sheds")]),
+        ("en", [("my husband snores like a chainsaw", "sleeping"), ("earplugs don't help", "snoring itself"), ("any ideas?", "sleep apnoea"),
+                ("i'll speak to him tomorrow", "show him")]),
+        ("en", [("i forgot the pin for my phone", "attempts"), ("all my photos are on it", "backed up"), ("can i get back in?", "Find My")]),
+        ("en", [("i think i'm burned out", "heavy place"), ("i can't concentrate at work anymore", "runs empty"), ("what should i do?", "doctor")]),
+        ("en", [("i have a nosebleed that won't stop", "lean slightly forward"), ("should i tilt my head back?", "No — lean forward")]),
+        ("en", [("the airline lost my luggage", "airport"), ("my medication is in there", "urgent"), ("what can i do?", "Property Irregularity"),
+                ("ok, i'll file a report at the desk", "reference number")]),
+        ("en", [("i dropped my phone in the toilet", "don't charge"), ("should i put it in rice?", "myth")]),
+        ("de", [("mir ist jemand an der ampel hinten drauf gefahren", "Schreck"), ("allen geht's gut", "Wichtigste"),
+                ("was muss ich jetzt machen?", "Fotos"), ("ok, ich ruf die versicherung an", "Fotos")]),
+        ("de", [("unser kater ist seit zwei tagen verschwunden", "beunruhigend"), ("wie finde ich ihn?", "TASSO"), ("ich frag die nachbarn", "Schuppen")]),
+        ("de", [("mein mann schnarcht total laut", "wahnsinnig"), ("was kann ich tun?", "Schlafapnoe"), ("ok, ich sprech ihn drauf an", "Aufnahme")]),
+        ("de", [("ich fühl mich total ausgebrannt", "schwerer Zustand"), ("was kann ich tun?", "0800 111 0 111"), ("ich geh zur hausärztin", "mutiger")]),
+        ("de", [("ich hab nasenbluten und es hört nicht auf", "nach vorne"), ("soll ich den kopf in den nacken legen?", "Nein")]),
+        ("de", [("die airline hat meinen koffer verloren", "Flughafen"), ("meine medikamente sind drin", "dringend"), ("was kann ich tun?", "21 Tage")]),
+    ]
+    for i, (lang, turns) in enumerate(convs):
+        st = DialogState(f"c121-{i}")
+        a.turn(st, "hi" if lang == "en" else "hallo")
+        for msg, want in turns:
+            t = a.turn(st, msg).text
+            assert not bad.search(t) and (not want or _re.search(want, t)), (msg, t)
+    st = DialogState("c121-rice")
+    a.turn(st, "i have a nosebleed that won't stop")
+    a.turn(st, "hi")
+    assert "you told me" not in a.turn(st, "should i put it in rice?").text
