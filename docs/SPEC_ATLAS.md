@@ -252,7 +252,9 @@ macOS-Intel-Runner ab; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-be
 Taschendieb, erster Arbeitstag; ungesehen EN 32→0/47, DE 20→0/31, Umformulierung 22/47 und 7/35 → 0;
 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.42](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.42)
 (Lauf 37190790076, Probe 121: Auffahrunfall, Katze, Schnarchen, Handy-PIN, Burnout, Nasenbluten, Gepäck, Handy im
-Wasser; ungesehen EN 32→0/46, DE 20→0/30, Umformulierung 7/44 und 12/31 → 0; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
+Wasser; ungesehen EN 32→0/46, DE 20→0/30, Umformulierung 7/44 und 12/31 → 0; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.43](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.43)
+(Lauf 37202392060, Probe 122: Zecke, Migräne, bellender Hund, Kaution, Brille, Auto verkaufen, Kind lügt, Geschworenendienst;
+ungesehen EN 34→0/47, DE 26→0/31, Umformulierung 5/45 und 5/31 → 0; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
