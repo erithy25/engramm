@@ -5988,16 +5988,35 @@ class Assistant:
             lr = self.learner = Learner(None)        # in memory; the app gives it a file (learn.json)
         return lr
 
+    @staticmethod
+    def _looks_german(msg: str) -> bool:
+        return bool(re.search(r"\b(?:ich|ist|und|nicht|mein\w*|wie|wann|welche\w*|heute|bin|hab\w*|der|die|das)\b",
+                              msg.lower())) and not re.search(r"\b(?:the|is|my|and|what|when)\b", msg.lower())
+
     def _learn_pre(self, st: DialogState, msg: str) -> Reply | None:
         """Corrections, taught words, style wishes, "forget that" after a lesson (engramm/learn)."""
         if getattr(self, "composer", None) is None:
             from engramm.understand.compose import Composer
             self.composer = Composer(self.bank, self._pick)
+        lang = "de" if st.lang == "de" else ("de" if self._looks_german(msg) else "en")
         try:
-            text = self._learner().pre(self, st, msg, "de" if st.lang == "de" else "en")
+            from engramm.understand import infer
+            clash = infer.observe(st, msg, lang)          # notes for simple inference (engramm/understand/infer.py)
+            if clash:
+                return Reply(msg, "smalltalk", clash, via="infer")
         except Exception:
-            return None
-        return Reply(msg, "smalltalk", text, via="learn") if text else None
+            pass
+        try:
+            text = self._learner().pre(self, st, msg, lang)
+        except Exception:
+            text = None
+        if text:
+            return Reply(msg, "smalltalk", text, via="learn")
+        try:
+            text = infer.answer(st, msg, lang, self.clock() if callable(self.clock) else None)
+        except Exception:
+            text = None
+        return Reply(msg, "answer", text, via="infer") if text else None
 
     def turn(self, st: DialogState, message: str) -> Reply:
         t0 = time.time()
@@ -6023,7 +6042,7 @@ class Assistant:
             st.ctx = dict(ctx)
             bot.context = dict(FRESH_CTX)
         rep.message = message
-        if rep.via != "learn":
+        if rep.via not in ("learn", "infer"):
             rep = self._understand(st, message, rep)
         try:
             rep.text = self._learner().post(st, message, rep.text or "", rep.via) if rep.text else rep.text

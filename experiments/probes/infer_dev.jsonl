@@ -1,0 +1,36 @@
+{"lang":"en","turns":["my train leaves at 7:30","it takes me 20 minutes to walk to the station","what time should i leave home?"],"expect_any":["7:10","7\\.10","ten past seven","by 7:0\\d","7:05"],"expect_none":["7:50"],"note":"time arithmetic"}
+{"lang":"en","turns":["the concert starts at 8pm","it's about two and a half hours long","when will it be over?"],"expect_any":["10:30","10\\.30","half past ten","22:30"],"expect_none":[],"note":"time arithmetic"}
+{"lang":"en","turns":["i have a meeting at 2:15","the drive is 40 minutes","and i need 10 minutes to park","when do i have to leave?"],"expect_any":["1:25","13:25","25 past 1"],"expect_none":[],"note":"time arithmetic"}
+{"lang":"en","turns":["i'm vegetarian","what should i make for dinner tonight?"],"expect_any":["."],"expect_none":["chicken","beef","pork","bacon","ham\\b","steak","salmon","tuna","fish","shrimp","turkey","sausage","mince"],"note":"preference constraint"}
+{"lang":"en","turns":["i'm allergic to peanuts","any snack ideas?"],"expect_any":["."],"expect_none":["peanut","nuts?\\b","satay"],"note":"preference constraint"}
+{"lang":"en","turns":["i'm vegan","can you suggest something for breakfast?"],"expect_any":["."],"expect_none":["egg","milk","cheese","yogh?urt","honey","butter","bacon","ham\\b"],"note":"preference constraint"}
+{"lang":"en","turns":["my brother's name is jonas","he turns 30 next week","what's my brother called again?"],"expect_any":["jonas"],"expect_none":[],"note":"person name"}
+{"lang":"en","turns":["my best friend is called mira","she just got a new job","who got a new job?"],"expect_any":["mira"],"expect_none":[],"note":"person name"}
+{"lang":"en","turns":["i bought 4 packs of water","each pack has 6 bottles","how many bottles do i have?"],"expect_any":["\\b24\\b","twenty-four","twenty four"],"expect_none":[],"note":"quantity arithmetic"}
+{"lang":"en","turns":["i run 5 km every day","how far do i run in a week?"],"expect_any":["\\b35\\b","thirty-five"],"expect_none":[],"note":"quantity arithmetic"}
+{"lang":"en","turns":["a ticket costs 12 euros","we are 5 people","how much will the tickets cost in total?"],"expect_any":["\\b60\\b","sixty"],"expect_none":[],"note":"quantity arithmetic"}
+{"lang":"en","turns":["i have 3 cats","by the way, i just adopted 2 more cats","how many cats do i have now?"],"expect_any":["\\b5\\b","five"],"expect_none":[],"note":"quantity arithmetic"}
+{"lang":"en","turns":["i'm 34 years old","i love hiking","i'm 29 by the way"],"expect_any":["34","earlier","before","which"],"expect_none":[],"note":"consistency"}
+{"lang":"en","turns":["i don't have any pets","my dog is sick today"],"expect_any":["no pets","didn't you say","thought you","earlier","pets\\?"],"expect_none":[],"note":"consistency"}
+{"lang":"en","turns":["today is monday","my party is on friday","how many days until my party?"],"expect_any":["\\b4\\b","four"],"expect_none":[],"note":"days until"}
+{"lang":"en","turns":["my exam is in 10 days","3 days have passed since i told you that... just kidding, but if 3 days pass, how many are left?"],"expect_any":["\\b7\\b","seven"],"expect_none":[],"note":"days until"}
+{"lang":"en","turns":["today is the 3rd","my rent is due on the 15th","how many days do i have until the rent is due?"],"expect_any":["\\b12\\b","twelve"],"expect_none":[],"note":"days until"}
+{"lang":"en","turns":["i'm choosing between two flats","the first one costs 900 a month and is 10 minutes from work","the second one costs 750 but it's 45 minutes away","which one is cheaper?"],"expect_any":["second","750"],"expect_none":["first one is cheaper"],"note":"choose by criterion"}
+{"lang":"en","turns":["i'm choosing between two flats","the first one costs 900 a month and is 10 minutes from work","the second one costs 750 but it's 45 minutes away","which one is closer to work?"],"expect_any":["first","10 minutes"],"expect_none":[],"note":"choose by criterion"}
+{"lang":"en","turns":["laptop a has 8 hours battery and costs 700","laptop b has 12 hours battery and costs 850","i care most about battery life","which one should i get?"],"expect_any":["laptop b","\\bb\\b","12 hours","second"],"expect_none":["laptop a\\b.*(?:better|get)"],"note":"choose by criterion"}
+{"lang":"en","turns":["i live in leipzig","can you recommend something to do this weekend near me?"],"expect_any":["leipzig"],"expect_none":[],"note":"location"}
+{"lang":"en","turns":["i moved to porto last year","what's the time difference between me and new york?"],"expect_any":["5 hours","five hours"],"expect_none":[],"note":"location"}
+{"lang":"en","turns":["my daughter is 6","i was 28 when she was born","how old am i?"],"expect_any":["\\b34\\b","thirty-four"],"expect_none":[],"note":"quantity arithmetic"}
+{"lang":"en","turns":["the recipe is for 4 people and needs 200 g of flour","i'm cooking for 6","how much flour do i need?"],"expect_any":["\\b300\\b"],"expect_none":[],"note":"quantity arithmetic"}
+{"lang":"de","turns":["mein zug fährt um 8:10","ich brauch 25 minuten zum bahnhof","wann muss ich los?"],"expect_any":["7:45","7\\.45","viertel vor acht"],"expect_none":[],"note":"time arithmetic"}
+{"lang":"de","turns":["der film fängt um 20:15 an","er dauert zwei stunden","wann ist er zu ende?"],"expect_any":["22:15","22\\.15","viertel nach zehn"],"expect_none":[],"note":"time arithmetic"}
+{"lang":"de","turns":["ich bin vegetarierin","was soll ich heute kochen?"],"expect_any":["."],"expect_none":["hähnchen","huhn","rind","schwein","speck","schinken","lachs","thunfisch","fisch","wurst","hack","steak"],"note":"preference constraint"}
+{"lang":"de","turns":["ich hab eine laktoseintoleranz","was kann ich zum frühstück essen?"],"expect_any":["."],"expect_none":["milch(?!frei)","käse","joghurt(?!.*laktosefrei)","quark","sahne"],"note":"preference constraint"}
+{"lang":"de","turns":["meine schwester heißt lea","sie hat morgen geburtstag","wie heißt meine schwester nochmal?"],"expect_any":["lea"],"expect_none":[],"note":"person name"}
+{"lang":"de","turns":["ich kaufe 3 kisten mit je 20 flaschen","wie viele flaschen sind das?"],"expect_any":["\\b60\\b","sechzig"],"expect_none":[],"note":"quantity arithmetic"}
+{"lang":"de","turns":["ich spare jeden monat 150 euro","wie viel hab ich nach einem jahr?"],"expect_any":["1800","1\\.800"],"expect_none":[],"note":"quantity arithmetic"}
+{"lang":"de","turns":["heute ist dienstag","mein termin ist am samstag","wie viele tage sind es noch bis zu meinem termin?"],"expect_any":["\\b4\\b","vier"],"expect_none":[],"note":"days until"}
+{"lang":"de","turns":["ich wohne in freiburg","was kann ich am wochenende hier unternehmen?"],"expect_any":["freiburg"],"expect_none":[],"note":"location"}
+{"lang":"de","turns":["ich hab keine kinder","mein sohn ist heute krank"],"expect_any":["keine kinder","vorhin","hattest du nicht","dachte"],"expect_none":[],"note":"consistency"}
+{"lang":"de","turns":["wohnung a kostet 800 euro und hat einen balkon","wohnung b kostet 650 euro ohne balkon","welche ist günstiger?"],"expect_any":["wohnung b","\\bb\\b","650"],"expect_none":[],"note":"choose by criterion"}
+{"lang":"de","turns":["ich bin 41","ich bin übrigens 38"],"expect_any":["41","vorhin","stimmt","welche"],"expect_none":[],"note":"consistency"}
