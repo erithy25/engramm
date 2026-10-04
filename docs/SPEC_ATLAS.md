@@ -247,7 +247,10 @@ Abschlussarbeit, Mitbewohner; ungesehen EN 32→0 von 48, DE 25→0 von 36, Umfo
 (Lauf 37170368190, Proben 118 und 119: Schimmel, Sonnenbrand, Kater, Jetlag, Job-Absage, geschuldetes Geld, Kleinkind,
 Autobatterie; Fahrrad, Stromausfall, Heizung, Mobbing, Lebensmittelvergiftung, Strafzettel, Pass, Fitnessstudio;
 ungesehen EN 37→0/49 und 34→0/48, DE 26→0/35 und 21→0/31; erster Anlauf 37157014235 brach nur auf dem
-macOS-Intel-Runner ab; 45 Dateien, 6 Installer, SHA256SUMS geprüft).
+macOS-Intel-Runner ab; 45 Dateien, 6 Installer, SHA256SUMS geprüft). [v3.1.0-beta.41](https://github.com/erithy25/engramm/releases/tag/v3.1.0-beta.41)
+(Lauf 37180085620, Probe 120: Nachbarparty, Geldbeutel, Weisheitszähne, Fahrstunden, Heuschnupfen, Phishing,
+Taschendieb, erster Arbeitstag; ungesehen EN 32→0/47, DE 20→0/31, Umformulierung 22/47 und 7/35 → 0;
+45 Dateien, 6 Installer, SHA256SUMS geprüft).
 
 ## Bedrohungsmodell und ehrliche Restrisiken
 
