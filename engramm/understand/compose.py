@@ -39,11 +39,12 @@ _GENERIC_DE = [
     r"Was würdest du einer guten Freundin in derselben Lage raten\?[^\n]*", r"Zerleg es: Was ist der allernächste kleine Schritt\? Fang dort an\.",
     r"Wie schön! Erzähl ruhig mehr\.", r"Haha, wie schön!", r"Ah, okay\. Und wie geht's dir damit\?",
 ]
-_WEAK_KEYS = re.compile(r"^(?:daily:moment:(?:negative|positive|neutral)|daily:exp_(?:follow|more|agree)_\w+|learned\.|"
+_WEAK_KEYS = re.compile(r"^(?:daily:moment:(?:negative|positive|neutral)|daily:exp_(?:follow|more|agree)_\w+|"
+                        r"learned\.(?:about_you|plain)$|"
                         r"daily:talk_(?:plain|tough|nohave)|chitchat|answer\.unknown|unknown_about_you|daily:advice_none|"
                         r"daily:howto_none|intent:thanks|short:thanks|daily:again_lead|"
                         r"de:b\d+:stmt_\w+|de:g\d+:stmt_\w+|de:moment:|de:life:follow_\w+|de:knowledge|de:fallback|"
-                        r"de:life:enjoy|de:life:thanks$|de:life:thanks_praise|de:unknown)")
+                        r"de:life:thanks$|de:life:thanks_praise|de:unknown)")
 
 
 _ADVICE_FITS = {"work_people": {"CONFLICT"}, "people": {"CONFLICT"}, "heartbreak": {"CONFLICT"}, "grief": {"DEATH"},
@@ -177,7 +178,7 @@ class Composer:
         f = parse(msg, lang)
         sit = self.active(st)
         new = False
-        if f.kind and not (f.question and not (f.obj or f.body or f.who not in ("", "me"))):
+        if f.kind and f.rule_kind and not (f.question and not (f.obj or f.body or f.who not in ("", "me"))):
             same = sit and (sit["kind"] == f.kind or (f.obj and f.obj == sit.get("obj"))) and not f.question
             weak_new = sit and (f.kind in _WEAK_KINDS or _PLAN.match(msg.strip()) or len(f.words) <= 3 or
                                 (st.turn - sit.get("turn", -99) <= 2 and not (f.obj and f.obj != sit.get("obj")) and
@@ -334,7 +335,8 @@ class Composer:
             return None
         # general layers only give way inside a problem (or a death, a milestone): there a filler, a memory note or a
         # tip for something else is worse than a reply about what happened. Elsewhere only a true filler is replaced.
-        heavy = sit is not None and (sit.get("valence", 0) < 0 or sit["kind"] in ("DEATH", "MILESTONE", "SUCCESS"))
+        heavy = sit is not None and sit["kind"] in ("DAMAGE", "INJURY", "ILLNESS", "LOSS", "THEFT", "CONFLICT", "FAILURE",
+                                                     "MONEY", "DELAY", "DEATH", "MILESTONE", "SUCCESS")
         is_generic = generic(current, lang, memo=heavy) or (heavy and weak_keys(keys, sit["kind"]) and
                                                 not (sit["kind"] in ("MILESTONE", "SUCCESS") and
                                                      any(k.startswith(("intent:thanks", "short:thanks", "de:life:thanks"))
@@ -359,6 +361,9 @@ class Composer:
             return f"{react} {q}".strip() if react else None
         asks_known = re.search(r"\b(?:what happened|what's going on|was ist (?:denn )?(?:schönes |los|passiert)|"
                                r"was ist passiert|magst du erzählen, was los ist)", current, re.I)
+        if heavy and _PLAN.match(low_msg := msg.strip().lower()) and re.search(
+                r"\b(?:viel spaß|genieß|enjoy|have fun|sounds exciting|that sounds exciting|klingt spannend)", current, re.I):
+            is_generic = True                   # "ok, I'll call a repairman" — "Have fun!" misses the problem
         if not (is_generic or (asks_known and heavy and not re.search(
                 r"\b(?:sorry|entschuldig\w*|tut mir leid|verzeih\w*)\b", msg, re.I))):
             return None
@@ -366,9 +371,10 @@ class Composer:
             return None                         # a new topic: the situation rests; the general layers answer
         k = sit["kind"]
         # inside a situation
-        if _THANKS.match(low) and k in ("SUCCESS", "MILESTONE", "ACQUIRE", "FEEL_POS", "ACTIVITY", "PLAN"):
+        thanks_only = _THANKS.match(low) and "?" not in low and len(low.split()) <= 7
+        if thanks_only and k in ("SUCCESS", "MILESTONE", "ACQUIRE", "FEEL_POS", "ACTIVITY", "PLAN"):
             return None                         # thanks after good news: the general layers say it well
-        if _THANKS.match(low):
+        if thanks_only:
             if sit.get("who") not in ("me", "") and k in ("INJURY", "ILLNESS"):
                 return self._say(st, lang, "thanks", f"{k}_other", sit) or self._say(st, lang, "thanks", "other", sit)
             return self._say(st, lang, "thanks", k, sit) or self._say(st, lang, "thanks", "other", sit)

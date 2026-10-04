@@ -291,7 +291,7 @@ class Classes:
         return self._memo[key]
 
 
-_SKIP_SECOND = ("noun.group", "noun.communication", "noun.cognition", "noun.act")
+_SKIP_SECOND = ("noun.group", "noun.communication", "noun.cognition", "noun.act", "noun.event")
 _CONCRETE_SS = ("artifact", "animal", "body", "food", "plant", "substance", "object")
 
 

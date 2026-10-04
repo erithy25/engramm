@@ -212,6 +212,7 @@ class Frame:
     urgent: bool = False
     negated: bool = False
     ask: str = ""                 # what a question asks, "" for statements
+    rule_kind: str = ""           # the rules' decision (the classifier may overrule it)
     question: bool = False
     words: tuple = ()
 
@@ -234,7 +235,7 @@ def _ask(text: str, lang: str) -> str:
     return ""
 
 
-def parse(text: str, lang: str = "en") -> Frame:
+def parse(text: str, lang: str = "en", use_model: bool = True, extra: dict | None = None) -> Frame:
     """The situation frame of one message. Empty kind when nothing happened (a greeting, a bare question)."""
     from engramm.chat.facts import expand_contractions
     lx = lexicon(lang)
@@ -378,7 +379,12 @@ def parse(text: str, lang: str = "en") -> Frame:
     if body_ev:
         ev.add("BODYX")
     f.evidence = frozenset(ev)
-    f.kind = _decide(f, s)
+    f.kind = f.rule_kind = _decide(f, s)
+    if use_model:
+        from engramm.understand.classify import classifier
+        clf = classifier()
+        if clf:
+            f.kind = clf.predict(f, s, f.rule_kind, extra)   # the learned classifier has the last word
     f.valence = _KIND_VALENCE.get(f.kind, 0)
     if f.kind in ("PLAN", "ACTIVITY", "") and ev & {"EMO"}:
         from engramm.chat.smart import experience
@@ -403,8 +409,9 @@ _R = {k: re.compile(v) for k, v in {
                 r"(?:fight|row|argument|arguing|argued) with|(?:had|having) (?:a|another|this) (?:huge |big )?(?:fight|row|argument)|"
                 r"angeschrien|angebrüllt|beleidigt|angemeckert|gestritten|streit (?:mit|gehabt)|zoff)\b",
     "injury": r"\b(?:bitten|bit me|bit (?:him|her)|gebissen|stung|gestochen|scratched me|gekratzt|burn(?:ed|t) my|"
-              r"verbrannt|verbrüht|cut my(?:self)?|geschnitten|sprain\w*|verstaucht|umgeknickt|twisted my|broke my "
-              r"(?:arm|leg|wrist|ankle|finger|toe|nose|foot|hand)|\w+ gebrochen|eingeklemmt|got hurt|verletzt)\b",
+              r"verbrannt|verbrüht|cut (?:my|his|her|their)(?:self)?|geschnitten|sprain\w*|verstaucht|umgeknickt|"
+              r"twisted (?:my|his|her)|broke (?:my|his|her|their) (?:arm|leg|wrist|ankle|finger|toe|nose|foot|hand|rib|"
+              r"collarbone)|\w+ gebrochen|eingeklemmt|got hurt|verletzt|concussion|gehirnerschütterung)\b",
     "lossfind": r"\b(?:can not find|cannot find|could not find|can't find|lost|misplaced|left (?:my|it|them|our) \w*(?: \w+)? "
                 r"(?:on|in|at)|forgot (?:my|it) \w* (?:on|in|at)|finde \w+(?: \w+)? nicht|nicht (?:mehr )?finden|verloren|"
                 r"verlegt|liegen (?:ge)?lassen|vergessen (?:im|in der|am|beim|bei)|(?:im|in der|am|beim|bei) \w+ (?:vergessen|"
@@ -447,6 +454,81 @@ _R = {k: re.compile(v) for k, v in {
             r"sore|pain|ache\w*|hurts?|dizzy|infection|diarrh\w*|allerg\w*|krank|fieber|husten|grippe|erkältet|erkältung|"
             r"\w*schmerz\w*|übel|kotz\w*|erbrech\w*|ausschlag|schwindel\w*|migräne|entzünd\w*|durchfall)\b",
 }.items()}
+# broader everyday wording per family (general vocabulary of each kind of situation, English and German)
+_EXTRA = {
+    "feelpos": r"\b(?:life is good|feel(?:ing)? (?:amazing|awesome|fantastic|wonderful|relaxed|content|motivated|loved|light|"
+               r"free|blessed|grateful|great|good|happy|cheerful|calm|peaceful|alive|energi[sz]ed|confident)|best mood|"
+               r"buzzing|good vibes|grateful|thankful|cheerful|content|chill day|loving (?:it|life)|on cloud nine|"
+               r"over the moon|in a great place|so relaxed|glücklich|zufrieden|entspannt|dankbar|motiviert|beschwingt|"
+               r"gut gelaunt|bester laune|happy|richtig gut|super gut|total gut|fühl mich (?:gut|super|toll|wohl|"
+               r"großartig|frei|leicht|geliebt|stark)|läuft bei mir|herrlicher tag|wunderschöner tag)\b",
+    "feelneg": r"\b(?:alone|lonely|empty|numb|homesick|grumpy|restless|unhappy|hopeless|worthless|meh|blah|gray day|grey day|"
+               r"a bit much|too much|so done|done with everything|feel like crying|no energy|wiped out|drained|"
+               r"burned out|burnt out|nothing feels|can't be bothered|in a funk|feeling low|feeling down|feel lost|"
+               r"miss (?:having|my|them|him|her|home)|allein|leer|antriebslos|lustlos|schlecht drauf|mies drauf|"
+               r"mies gelaunt|heimweh|frustriert|unruhig|unglücklich|hoffnungslos|keine energie|zum heulen|"
+               r"möchte weinen|alles zu viel|keinen bock|null bock|ausgebrannt|vermisse)\b",
+    "sick": r"\b(?:pounding|stuffy nose|runny nose|chills|aching|aches|hurts every|short of breath|pneumonia|covid|corona|"
+            r"tested positive|caught (?:the|a|something)|bug going around|stomach bug|food poisoning|throat|temperature|"
+            r"pink eye|itchy|swollen glands|cramps|period pain|bronchitis|sinus\w*|tonsil\w*|stomach ache|stomachache|"
+            r"toothache|earache|backache|asthma|cold sore|hay ?fever|schnupfen|verschnupft|schüttelfrost|atemnot|"
+            r"lungenentzündung|magen-darm|magendarm|lebensmittelvergiftung|halsweh|bauchweh|zahnweh|ohrenweh|"
+            r"positiv getestet|angesteckt|kränkel\w*|erkältet|matschig|tut (?:mir )?(?:\w+ )?weh|brummschädel)\b",
+    "milestone": r"\b(?:had (?:her|his|their|a|the) baby|became a (?:dad|mom|mum|father|mother|grandma|grandpa|grandparent)|"
+                 r"becoming a (?:dad|mom|mum|father|mother|grandma|grandpa)|started school|first day (?:of|at) school|"
+                 r"proposed|popped the question|she said yes|he said yes|first steps|maternity leave|paternity leave|"
+                 r"adopted a (?:baby|child|son|daughter)|turned (?:18|21|30|40|50|60|70|80)|last day of school|"
+                 r"finished (?:school|uni|university|my degree|my studies)|first job|moving in together|"
+                 r"baby (?:is )?(?:born|here|arrived)|ist geboren|kam zur welt|baby bekommen|opa geworden|oma geworden|"
+                 r"vater geworden|mutter geworden|papa geworden|mama geworden|eingeschult|einschulung|heiratsantrag|"
+                 r"ja gesagt|erste schritte|elternzeit|mutterschutz|18 geworden|volljährig|abi (?:geschafft|bestanden)|"
+                 r"abitur|ziehen zusammen|zusammenziehen|ersten job)\b",
+    "acquire": r"\b(?:got (?:the|a|an|my|our|me|myself|some|new) \w+|finally got|treated myself|picked up a|knitted me|"
+               r"made me a|brought me|surprised me with|got for (?:my )?(?:birthday|christmas)|for my birthday|"
+               r"for christmas|adopted a (?:kitten|puppy|cat|dog|rabbit)|ordered a|arrived today|came today|tickets for|"
+               r"won a (?:voucher|prize|trip|ticket)|bekommen|gekriegt|geschenkt bekommen|zum geburtstag|zu weihnachten|"
+               r"gegönnt|ergattert|besorgt|bestellt und|ist angekommen|kam heute|adoptiert|abgeholt)\b",
+    "success": r"\b(?:got an a|got a 1|top marks|full marks|\d+ ?(?:percent|%) on|got into|accepted at|got accepted|approved|"
+               r"scholarship|praised|compliment\w*|bestseller|funded|funding round|hit my (?:\w+ )?goal|reached my goal|"
+               r"finish line|personal best|pb|ran (?:my first |a )?(?:5k|10k|half|marathon)|without stopping|"
+               r"bumped my salary|pay rise|raise|bonus|nailed (?:it|the)|aced|smashed it|crushed it|lost \d+ ?(?:kg|kilos?|"
+               r"pounds?|lbs)|first place|1st place|gold medal|award|stipendium|zusage|angenommen worden|bewilligt|"
+               r"genehmigt|gelobt|lob bekommen|bestnote|eine eins|note 1|1,0|gehaltserhöhung|beförder\w*|ziel erreicht|"
+               r"durchgezogen|bestzeit|erster platz|gewonnen|abgenommen|geschafft)\b",
+    "conflict": r"\b(?:bit my head off|ignor\w+ (?:me|my)|aren't talking|not talking|won't talk to me|slammed the door|"
+                r"shouting match|screaming match|rude to me|humiliat\w*|took credit|confronted|called me \w+|hung up on me|"
+                r"hung up|told everyone my secret|betray\w*|backstab\w*|reported me|aggressive|disrespect\w*|mocked me|"
+                r"excluded me|without me|left me out|snapped at me|lashed out|falling out|fell out|beef with|not speaking|"
+                r"angeschnauzt|angeblafft|ignoriert mich|ignorieren mich|reden nicht mehr|redet nicht mehr|tür geknallt|"
+                r"angeschrien|bloßgestellt|lächerlich gemacht|verpetzt|angezeigt|verraten|ausgeschlossen|ohne mich|"
+                r"aufgelegt|unverschämt|frech zu mir|respektlos|zickt|zoff|krach (?:mit|gehabt)|aneinandergeraten|"
+                r"beleidigt|gemobbt|mobbing|lästern|lästert|nervt (?:mich|total|so|voll|echt|gerade)|nerven mich|"
+                r"geht mir (?:\w+ )?auf die nerven|getting on my nerves|gets on my nerves|annoy(?:s|ing) me|so annoying|"
+                r"drives me (?:crazy|nuts|mad))\b",
+    "delay": r"\b(?:pushed back|postponed|rescheduled|overslept|didn't show up|never came|never showed|no-show|took forever|"
+             r"had already left|already gone|roadworks|diverted|missed (?:my|the|our|a) \w+|waited (?:all day|for hours|\d+ hours?)|"
+             r"moved (?:again|for the third time)|stuck in|running late|hold-up|queue|verschoben|verlegt|verschlafen|"
+             r"nicht gekommen|kam nicht|kommt nicht|ewig gedauert|schon weg|abgefahren|baustelle|umleitung|"
+             r"warte(?:n|t)? seit|stunden gewartet|im stau|steck\w* fest|feststecken)\b",
+    "money": r"\b(?:ticket|speeding|maxed out|credit card|loan|loans|charged|charging|refund|owes me|owe me|borrow\w*|lend\w*|"
+             r"thousands|hundreds|upfront|quoted|late fee|penalty|tax|taxes|bank account|overcharg\w*|"
+             r"won't cover|not covered|out of pocket|savings|broke till|knöllchen|blitzer|geblitzt|kredit|kreditkarte|"
+             r"darlehen|abgebucht|zweimal abgebucht|rückerstattung|schuldet mir|leihen|geliehen|tausende|vorkasse|"
+             r"steuern|steuernachzahlung|mahngebühr|zahlt nicht|übernimmt nicht|selbst zahlen|dispo|konto (?:leer|im minus))\b",
+    "theft": r"\b(?:snatched|swiped|nicked|took my|taken from|scam\w*|tricked|fake (?:caller|landlord|shop|seller)|hacked|"
+             r"phish\w*|fraud|used my (?:credit )?card|identity|vanished with|never sent|took (?:the|our|my) money|"
+             r"geklaut|gestohlen|entwendet|abgezogen|betrogen|abgezockt|gehackt|phishing|ausgetrickst|weggenommen|"
+             r"aus der hand gerissen|enkeltrick|fake-shop|fakeshop|nicht geliefert)\b",
+    "worry": r"\b(?:bad feeling|keep worrying|can't stop thinking|freaking out|stressing about|losing sleep over|"
+             r"what if|on edge|uneasy|jittery|butterflies|mulmig|ungutes gefühl|kopfzerbrechen|grübel\w*|"
+             r"mach mir sorgen|macht mir sorgen|nervt mich total|zittern)\b",
+    "lossfind": r"\b(?:gone missing|went missing|is missing|are missing|disappeared|nowhere to be found|forgot (?:my|it|them|"
+                r"the) \w+|left (?:it|them|my \w+) (?:behind|at home)|dropped (?:my|it)|vermisst|verschwunden|weg|"
+                r"nirgends|liegen lassen|vergessen|verbummelt|verschlampt)\b",
+}
+for _k, _v in _EXTRA.items():
+    _R[_k] = re.compile(_R[_k].pattern + "|" + _v)
+
 _DAMAGEABLE = _CONCRETE - {"FOOD", "DRINK", "PLANT", "MONEY"}
 
 
@@ -456,6 +538,8 @@ def _decide(f: Frame, s: str) -> str:
     R = _R
     if f.question and not (ev or thing or f.body or f.cause) and not R["lossfind"].search(s):
         return ""
+    if re.search(r"\b(?:hungry|starving|thirsty|peckish|hungrig|hunger|durst|kohldampf)\b", s) and not R["sick"].search(s):
+        return ""                                 # a need, not an illness
     if FACT.match(s):
         return ""                                 # a fact about the user, not something that happened
     if R["birth"].search(s):
@@ -487,13 +571,14 @@ def _decide(f: Frame, s: str) -> str:
         return "DAMAGE"
     if "BROKEN" in ev:
         return "DAMAGE"
-    if (ev & {"HARM", "IMPACT", "BODY"}) and (f.body or f.cause) and not R["sick"].search(s) or \
+    event = R["injury"].search(s) or "IMPACT" in ev or "FALL" in ev or f.cause
+    if (ev & {"HARM", "IMPACT", "BODY"}) and (f.body or f.cause) and event and not R["sick"].search(s) or \
             (f.body and f.cause):
         return "INJURY"
     sick = R["sick"].search(s) or ("BODYX" in ev and not R["worry"].search(s) and not R["feelneg"].search(s) and
                                    not R["feelpos"].search(s))
     if sick and f.who and not thing:
-        return "INJURY" if f.body and ev & {"HARM", "IMPACT"} else "ILLNESS"
+        return "INJURY" if f.body and event and not R["sick"].search(s) else "ILLNESS"
     if "HARM" in ev and f.who and f.who != "me" and not thing:
         return "INJURY"
     if R["money"].search(s) and ("MONEY" in ev or R["money"].search(s)) and not R["acquire"].search(s) or \
