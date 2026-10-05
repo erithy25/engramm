@@ -5614,6 +5614,14 @@ class Assistant:
         two = self._german_two_facts(st, msg, s)
         if two is not None:
             return two
+        if self.kgqa is not None and re.search(r"\b(?:größten|bevölkerungsreichsten) (?:städte|orte)\b", s):
+            try:
+                rk = self.kgqa._ranking(re.sub(r"[?!.\s]+$", "", s))
+            except Exception:
+                rk = None
+            if rk is not None:                       # "was sind die größten städte in spanien?"
+                return Reply(msg, "answer", rk.text, answer=rk.values[0], source={"kind": "kb", "source": "dbpedia",
+                                                                                   "key": rk.entity.title}, via="kb")
         sup = self._german_superlative(st, msg, s)
         if sup is not None:
             return sup

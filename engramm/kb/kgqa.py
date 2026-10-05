@@ -132,7 +132,8 @@ RULES = [
     _r([rf"what(?:'s| is) the currency (?:of|in|used in) {E}", rf"what currency (?:does|do) {E} use",
         rf"what money (?:does|do) {E} use", rf"what is {E}'s currency"],
        "currency", ("Country", "State", "Place"), "The currency of {E} is the {v}."),
-    _r([rf"what(?:'s| is) the population of {E}", rf"how many people live in {E}",
+    _r([rf"what(?:'s| is) the population of {E}", rf"(?:the )?population of {E}", rf"{E}(?:'s)? population",
+        rf"how many people live in {E}",
         rf"how many (?:inhabitants|residents|people) (?:does|do) {E} have", rf"how (?:big|large) is the population of {E}",
         rf"what is {E}'s population"],
        "populationTotal", PLACE, "{E} has a population of {v} " + SNAPSHOT + ".", render="population",
@@ -432,7 +433,69 @@ class KGQA:
                 out = self._render(rule, ent, facts)
                 if out is not None:
                     return out
-        return self._made_by(q)
+        return self._ranking(q) or self._made_by(q)
+
+    _RANK_EN = re.compile(r"(?:what|which) (?:are|r) (?:the )?(?P<n>\d+|three|five|ten)?\s*(?:largest|biggest|most populous) "
+                          r"(?:cities|towns) (?:in|of) (?P<e>.+)|(?:the |list (?:the )?|name (?:the )?)?(?P<n2>\d+|three|five|ten)?\s*"
+                          r"(?:largest|biggest|most populous) (?:cities|towns) (?:in|of) (?P<e2>.+)", re.I)
+    _RANK_DE = re.compile(r"(?:was|welche) sind (?:die )?(?P<n>\d+|drei|fünf|zehn)?\s*(?:größten|bevölkerungsreichsten) "
+                          r"(?:städte|orte) (?:in|von) (?P<e>.+)|(?:die )?(?P<n2>\d+|drei|fünf|zehn)?\s*(?:größten|"
+                          r"bevölkerungsreichsten) (?:städte|orte) (?:in|von) (?P<e2>.+)", re.I)
+    _COUNT = {"three": 3, "five": 5, "ten": 10, "drei": 3, "fünf": 5, "zehn": 10}
+
+    def _ranking(self, q: str) -> KBAnswer | None:
+        """"What are the largest cities in Spain?" — the most populous cities of a country, by the fact bank's
+        population figures (a snapshot)."""
+        de = False
+        m = self._RANK_EN.fullmatch(q)
+        if not m:
+            m = self._RANK_DE.fullmatch(q)
+            de = m is not None
+        if not m:
+            return None
+        phrase = (m.group("e") or m.group("e2") or "").strip(" ,\"'“”")
+        k = m.group("n") or m.group("n2") or "5"
+        k = int(k) if k.isdigit() else self._COUNT.get(k.lower(), 5)
+        k = max(2, min(k, 10))
+        if de:
+            from engramm.chat.german_bridge import _GERMAN_OF
+            back = {v.lower(): key for key, v in _GERMAN_OF.items()}
+            phrase = back.get(phrase.lower(), phrase)
+        cands = [e for e, _ in self.kb.link(phrase, limit=8) if e.type in ("Country", "State", "AdministrativeRegion")]
+        if not cands:
+            return None
+        country = max(cands, key=lambda e: e.popularity)
+        rows = self.kb.db.execute(
+            "SELECT e.id, e.title, MAX(CAST(p.value AS REAL)) FROM fact c JOIN entity e ON e.id = c.entity "
+            "JOIN fact p ON p.entity = e.id AND p.prop = 'populationTotal' "
+            "WHERE c.prop = 'country' AND c.value_entity = ? AND e.type IN ('City', 'Capital', 'Town', 'Settlement', "
+            "'PopulatedPlace') AND e.title NOT LIKE 'Province of%' AND e.title NOT LIKE '%Region%' "
+            "AND e.title NOT LIKE '%Community%' AND e.title NOT LIKE '%County%' AND e.title NOT LIKE 'Metropolitan%' "
+            "AND CAST(p.value AS REAL) BETWEEN 1000 AND 4.0e7 "
+            "AND NOT EXISTS (SELECT 1 FROM fact a WHERE a.entity = e.id AND a.prop = 'areaTotal' "
+            "               AND CAST(a.value AS REAL) > 3.0e9) "
+            "AND NOT EXISTS (SELECT 1 FROM fact r WHERE r.entity = e.id AND r.prop IN ('largestCity', 'prefecture', "
+            "               'countySeat')) "
+            "AND (EXISTS (SELECT 1 FROM fact g WHERE g.entity = e.id AND g.prop IN ('elevation', 'mayor', 'leaderName')) "
+            "     OR (EXISTS (SELECT 1 FROM fact g WHERE g.entity = e.id AND g.prop = 'headOfGovernment') "
+            "         AND NOT EXISTS (SELECT 1 FROM fact g WHERE g.entity = e.id AND g.prop = 'capital'))) "
+            "GROUP BY e.id ORDER BY 3 DESC LIMIT ?", (country.id, k)).fetchall()
+        if len(rows) < 2:
+            return None
+        names = [re.sub(r"\s*\([^)]*\)$", "", t).split(",")[0] for _, t, _ in rows]
+        if de:
+            from engramm.chat.german_bridge import _GERMAN_OF
+            def de_num(v: float) -> str:
+                return (f"{v / 1e6:.1f}".replace(".", ",") + " Mio.") if v >= 1e6 else f"{v:,.0f}".replace(",", ".")
+            lines = [f"{i + 1}. {_GERMAN_OF.get(nm, nm)} – rund {de_num(v)} Einwohner"
+                     for i, (nm, (_, _, v)) in enumerate(zip(names, rows))]
+            cname = _GERMAN_OF.get(country.title, country.title)
+            text = f"Die größten Städte in {cname} (nach Einwohnern, Stand meiner Daten):\n\n" + "\n".join(lines)
+        else:
+            lines = [f"{i + 1}. {nm} — about {v / 1e6:.1f} million people" if v >= 1e6 else
+                     f"{i + 1}. {nm} — about {v:,.0f} people" for i, (nm, (_, _, v)) in enumerate(zip(names, rows))]
+            text = f"The largest cities in {country.title} by population {SNAPSHOT}:\n\n" + "\n".join(lines)
+        return KBAnswer(country, "populationTotal", names, text, text, True)
 
     def _made_by(self, q: str) -> KBAnswer | None:
         """"Who wrote Faust?" when "Faust" has no entry of its own: the one writer whose notable

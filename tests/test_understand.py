@@ -82,3 +82,17 @@ def test_injury_advice_carries_the_source(corpus, tmp_path):     # noqa: F811
     a.turn(st, "i sprained my ankle")
     r = a.turn(st, "what should i do?")
     assert "Sprained ankle" in r.text and "doctor" in r.text
+
+
+def test_city_ranking_from_the_fact_bank():
+    from pathlib import Path
+    kb = Path("/dev/shm/engramm/pack-b3/kb.sqlite")
+    if not kb.exists():
+        pytest.skip("needs the knowledge pack")
+    from engramm.kb.kgqa import KGQA
+    from engramm.kb.store import FactBank
+    q = KGQA(FactBank(kb))
+    a = q.answer("what are the largest cities in germany")
+    assert a is not None and a.values[:3] == ["Berlin", "Hamburg", "Munich"]
+    d = q.answer("was sind die größten städte in spanien")
+    assert d is not None and "Madrid" in d.text and "Einwohner" in d.text

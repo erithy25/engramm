@@ -1,6 +1,6 @@
 # Datenregister – was ENGRAMM Chat v3 nutzt, ausliefert und meidet
 
-Stand: 2026-10-04 (Atlas-Daten ergänzt). Jede Datei eines Wissenspakets gehört genau einer Zeile dieser Tabelle an.
+Stand: 2026-10-05 (Verstehen v3.2 ergänzt: Situations-Lexikon, Anleitungs-Index, Rahmen-Klassifikator). Jede Datei eines Wissenspakets gehört genau einer Zeile dieser Tabelle an.
 Ihre Lizenz steht zusätzlich in `manifest.json` → `licenses`.
 
 ## Ausgeliefert (im Wissenspaket oder im Programm)
@@ -20,6 +20,12 @@ Ihre Lizenz steht zusätzlich in `manifest.json` → `licenses`.
 | Regal: Volltext ganz Wikipedias (6,37 Mio. Artikel, 7 425 Fächer) | Wikipedia-CirrusSearch-Dump 2026-09-27 | CC BY-SA 4.0 | eigenes Release `shelf-20260927` (Fächer); im Paket nur der Regal-Index `shelf_index__*`, `shelf.json`, `shelf_source.json` | Namensnennung (Artikel-Link je Antwort); Weitergabe unter gleicher Lizenz |
 | Wegweiser (Entität → offizielle Website, Belegadressen) | DBpedia 2022.12 (homepage), Wikidata P856 | CC BY-SA 3.0 / CC0 | `wayfinder.sqlite` | wie Artikelanfänge |
 | Rechtschreib-Wortliste | eigene Zählung auf dem Lesetext | Projektlizenz | `spell.json` | – |
+| Situations-Lexikon EN (Wortklassen, Oberbegriffe, Teil-Ganzes, Ereignis-Belege) | Open English WordNet 2024; FrameNet 1.7 (lexikalische Einheiten → Ereignisart) | OEWN: CC BY 4.0; FrameNet: CC BY 3.0 | im Programm: `engramm/understand/data/lex_en.tsv.gz`, `forms_en.tsv.gz` | Namensnennung (Princeton/OEWN-Projekt, ICSI Berkeley); Liste der Quellen in dieser Zeile und in `experiments/lex_build.py` |
+| Situations-Lexikon DE (über den Interlingualen Index, Genus, Flexion, Glossen) | OdeNet (Hochschule Darmstadt); deutsches Wiktionary über kaikki.org | CC BY-SA 4.0 (OdeNet), CC BY-SA 3.0/4.0 (Wiktionary) | im Programm: `engramm/understand/data/lex_de.tsv.gz`, `forms_de.tsv.gz` | Namensnennung; die Datei wird unter CC BY-SA 4.0 weitergegeben |
+| Rahmen-Klassifikator (Gewichte) | trainiert auf eigenen, von getrennten Agenten geschriebenen Beispielsätzen (`experiments/probes/frames_train*.jsonl`) und den Lexikon-Merkmalen | Projektlizenz; die Merkmale stammen aus den Lexika (siehe oben) | im Programm: `engramm/understand/data/frame_model.json.gz` | – |
+| Anleitungs-Index (praktische Sätze aus Gesundheits- und Insektenartikeln, 2 060 Artikel) | Wikipedia über das Regal `shelf-20260927` (`experiments/howto_build.py`) | CC BY-SA 4.0 | im Programm: `engramm/know/data/howto.json.gz` | Artikeltitel als Quelle in jeder Antwort; Gesundheitsrat immer mit Arzt-Hinweis; Weitergabe unter gleicher Lizenz |
+| Vorschlags-Kataloge (Gerichte, Backwaren, Geschenke, Filme, Ausflüge, Textbausteine für Anlässe), Situations-Gesprächszüge | selbst geschrieben (`engramm/understand/suggest.py`, `data/conv/understand.yaml`) | Projektlizenz (Apache 2.0) | im Programm | – |
+| Lernstand des Nutzers | entsteht auf dem Rechner des Nutzers (`learn.json` neben dem Chat-Gedächtnis) | gehört dem Nutzer | nicht ausgeliefert, nie übertragen | exakt vergessbar („vergiss das“, Zurücksetzen in der App) |
 | Nachrichten-Feeds | die Verlage der gewählten Feeds | jeweiliges Recht des Verlags | nicht ausgeliefert: nur auf dem Rechner des Nutzers geladen, wenn er den Kanal einschaltet (`engramm/web/feeds.json` enthält nur die Feed-Adressen) | Anzeige mit Quelle und Link; kein Weiterverteilen |
 
 ## Nur zum Messen, nicht ausgeliefert
@@ -28,6 +34,7 @@ Ihre Lizenz steht zusätzlich in `manifest.json` → `licenses`.
 |---|---|---|
 | UD English EWT `dev`/`test` | CC BY-SA 4.0 | Messung Phase 2 |
 | MASSIVE `dev`/`test` | CC BY 4.0 | Messung Phase 2 |
+| Gesprächsproben, versiegelte Sätze, Schlussfolgerungs- und Rahmen-Sätze (`experiments/probes/`) | Projektlizenz (von getrennten Agenten geschrieben) | Messung „Verstehen“ v3.2 (PREREG_UNDERSTAND_V0) |
 | SQuAD, Natural Questions (frühere Runden) | CC BY-SA 4.0 / CC BY-SA 3.0 | QA-Messungen E14–E27 |
 | ChatBench-Prompts | von Schreibern unter CC BY 4.0 eingereicht (Briefing) | Phase 1/8 |
 
