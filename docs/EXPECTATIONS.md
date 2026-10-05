@@ -4293,3 +4293,6 @@ ist auf 0. Auf frei geschriebenen Gesprächen bleibt der Anteil schwacher Antwor
 blinde Messungen); Rat aus Wikibooks greift nur, wenn das Gespräch ein Thema dieser wenigen Bücher trifft (1/72).
 Damit sind alle Bausteine des Plans umgesetzt oder mit Begründung entschieden; die Ergebnis-Schwellen für schwache
 Antworten, Rat und Schlüsse sind mit dieser Architektur nicht erreicht.
+
+Release v3.2.0-beta.3: der erste Release-Lauf (37365987340) wurde in der Runner-Warteschlange abgebrochen, bevor ein
+Schritt lief (kein Code-Fehler); ein Neustart war aus dieser Umgebung nicht erlaubt (HTTP 403), daher neu angefordert.
