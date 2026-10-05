@@ -1,0 +1,13 @@
+{
+ "treebank": "UD German GSD",
+ "split": "dev",
+ "upos_accuracy": 0.9457532051282052,
+ "uas": 0.8202724358974359,
+ "las": 0.778125,
+ "model_bytes": {
+  "parse_de.json": 126253113,
+  "xpos_de.json": 11257236,
+  "pos_de.json": 11806848
+ },
+ "seconds": 3521
+}
