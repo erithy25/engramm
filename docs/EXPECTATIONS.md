@@ -4233,3 +4233,23 @@ Quelle, Leistung. Die Schwelle ≤ 25 % schwach ist mit dieser Architektur nicht
 themenspezifischer Handarbeit hat bisher nur die Entwicklungssätze verbessert. Ein weiterer Schritt verlangt eine
 Grundsatzentscheidung (z. B. ein kleines lokales Sprachmodell, was die Vorgabe „ohne neuronales Netz“ aufhebt), nicht
 noch eine Regel-Runde.
+
+### U8 — zweite Nachmessung (5. Oktober 2026, Stand `f4176a7`, `sealed/u8_1…u8_3.json`, ein Lauf)
+
+Änderungen vor der Messung: Füllfloskeln in einem laufenden Problemgespräch werden zum nächsten Tipp des Bereichs
+(`anchor`), kontextuelle Nachfragen („could that be it?“, „muss ich zum Arzt?“) gehen an die Rat-Schicht.
+
+| Kriterium | Ergebnis | Schwelle | Bewertung |
+|---|---|---|---|
+| schwache Antworten | **78,1 %** (257/329; EN 136/165 = 82,4 %, DE 121/164 = 73,8 %) | ≤ 25 % | **verfehlt** |
+| konkreter Rat auf eine Bitte | **8 von 95** (EN 1/48, DE 7/47) | ≥ 60 % | **verfehlt** |
+| unsicherer Rat ohne Quelle/Warnhinweis | 1 (DE) | 0 | **verfehlt** |
+
+Klassen: Missverständnis 150, unbeantwortete Bitte 103, Füllfloskel 50, Wiederholung 10, falsches Gedächtnis 8,
+sachlich falsch/unsicher 3, falsche Sprache 1, Widerspruch 0.
+
+**Einordnung.** Die Füllfloskeln sanken (76 → 50), die Missverständnisse stiegen (122 → 150): Die Floskel wurde oft
+durch einen Tipp ersetzt, der nicht zur Lage passte. Insgesamt schlechter als U7. Folge: `anchor` ist wieder
+ausgehängt (Code bleibt, nicht im Antwortweg); die Nachfrage-Erkennung bleibt, weil sie den Rat im Deutschen von 1/31 auf
+7/47 hob. Damit bestätigen fünf blinde Messungen (u0, final, u7, u8) dasselbe Band von 65–78 % schwachen Antworten.
+Keine weitere Regel-Runde ist geplant; der nächste Schritt braucht eine Grundsatzentscheidung (siehe U7).
