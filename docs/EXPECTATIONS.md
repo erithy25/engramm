@@ -4124,6 +4124,15 @@ Der Leser der Gesprächsproben ist ein getrennter KI-Agent (siehe Einschränkung
 | U1 | Ereignisart auf `sealed/frames_test.jsonl` (300 Zeilen) | 67 % | ≥ 85 % | **verfehlt** |
 | U1 | Rollen (Person, Gegenstand, Körperteil) | 71,2 % | ≥ 75 % | **verfehlt** |
 | U5 | Schlussfolgerungen auf `sealed/infer_test.jsonl` (40 Fälle) | **8/40 = 20 %** (EN 4/24, DE 4/16) | ≥ 80 %, 0 erfundene Fakten | **verfehlt** |
+| U2 | schwache Antworten auf u0_1…u0_6, EN und DE (ein Lauf, Stand `fe43e8f`) | **72,2 %** (EN 247/323 = 76,5 %, DE 212/313 = 67,7 %) | ≤ 35 %, keine Sprache über 45 % | **verfehlt** |
+| U3 | Problemfälle mit Bitte um Rat: konkreter Rat (gleicher Lauf) | **5 von 160** (EN 1/81, DE 4/79) | ≥ 60 % | **verfehlt** |
+| U3 | Gesundheits-, Rechts- oder Geldrat ohne Quelle oder Warnhinweis | **1** (EN) | 0 | **verfehlt** |
+| U4 | schwache Antworten auf u0_1…u0_6 (gleicher Lauf) | 72,2 % | ≤ 20 % (keine Sprache über 30 %) | **verfehlt** |
+| U4 | Korrektur-Test (`experiments/probes/learn_eval.py`: Modell nur auf frames_train, 797 Korrekturen auf frames_train2 nacheinander) | **1,4 %** kehren zurück (nur über die Gewichte, ohne gemerkte Sätze: 32,4 %) | ≤ 5 % | erfüllt |
+| U4 | „vergiss das“ stellt den Lernstand bitgleich her | **79/79** | 100 % | erfüllt |
+| – | Rückfall-Schutz: NQ-open Dev | 22/9 (unverändert) | unverändert | erfüllt |
+| – | ChatBench-Dev | 0 von 128 Antworten verändert | unverändert | erfüllt |
+| – | Lite-Paket, 120 Alltagsnachrichten: Spitzen-RSS / p95 | 701 MB / 0,185 s (p50 0,023 s) | ≤ 1,5 GB / ≤ 1,5 s | erfüllt |
 
 **U1 danach (nicht versiegelt):** gelernter Klassifikator (gemitteltes Perzeptron auf Regeln, Lexikon-Belegen und
 Wörtern, 4000 Trainingszeilen EN/DE, von getrennten Agenten geschrieben): Kreuzvalidierung 71–72 %, Dev-Satz 93–96 %
@@ -4149,3 +4158,12 @@ Folgerung: Die Schlussfolgerungsschicht deckt nur einen engen Ausschnitt ab. Nä
 Bedingungen, Datumsrechnung, Stunden-und-Minuten-Dauern, Merkmale von Personen und Tieren („was macht meine Schwester?“),
 „wer ist NAME?“ aus dem Gespräch, und das Gedächtnis darf gespeicherte Sätze nicht als Antwort auf fremde Fragen
 zurückgeben. `infer_test` wird in U6 einmal erneut gemessen.
+
+**U2–U4 im Detail (ein gemeinsamer Lauf).** Gegenüber dem Ausgangswert (EN 78 %, DE 82 %) sank der Anteil schwacher
+Antworten auf DE 67,7 % (−14 Punkte) und EN 76,5 % (−1,5 Punkte). Klassen (Mehrfachnennung): Missverständnis 235,
+unbeantwortete/ausgewichene Bitte 183, Füllfloskel 127, falsches Gedächtnis 23, Widerspruch zum Gesagten 10,
+Wiederholung 9, unsicherer Rat 1, falsche Sprache 0. Konkreter Rat kam in 5 von 160 Bitten. Die Entwicklungssätze
+(eigene und getrennt geschriebene Gespräche) hatten ein viel besseres Bild gezeigt; die versiegelte Messung zeigt, dass
+die Situationserkennung und die Ratschicht auf ungesehenen Gesprächen nur selten greifen. Die Fehlerverteilung wird –
+wie bei U5 – von einem blinden Leser nur als Klassen gemeldet; daraus abgeleitete Arbeit wird in U6 auf den frischen
+Sätzen final_1…final_3 gemessen.
