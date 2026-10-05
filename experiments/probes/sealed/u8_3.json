@@ -1,0 +1,153 @@
+{
+ "name": "u8_3",
+ "note": "versiegelt – nie zur Entwicklung lesen",
+ "convs": {
+  "en": [
+   [
+    "we're taking the ferry to the island next weekend",
+    "it's like 3 hours and the last time i was on a boat i threw up the whole time 🤢",
+    "what actually helps against seasickness",
+    "do those wristbands work or is that a myth?",
+    "where's the best place to sit on the boat?",
+    "and should i eat before or not",
+    "ok, ginger biscuits it is 😅"
+   ],
+   [
+    "my 15 year old only talks to me in grunts lately",
+    "'how was school' -> 'fine'. 'hungry?' -> 'mm'",
+    "he used to tell me everything",
+    "is this just normal teenager stuff?",
+    "how do i get him to open up a bit without being annoying",
+    "the car thing is actually true, he talks more when i drive him to football",
+    "ok i'll stop asking 20 questions at dinner lol"
+   ],
+   [
+    "got a letter from my landlord today",
+    "rent is going up by 90 euros from january",
+    "that's like 11 percent",
+    "is he even allowed to do that?",
+    "i'm in germany btw, munich",
+    "how do i check if it's legit?",
+    "ok i'll look up the mietspiegel thing and maybe talk to a tenants association. thanks"
+   ],
+   [
+    "found my grandma's old cast iron pan in the basement",
+    "it's completely rusty though 😕",
+    "can i still save it?",
+    "steel wool and then what",
+    "what does seasoning mean exactly",
+    "which oil should i use? i only have olive oil",
+    "ok gonna buy some sunflower oil then. so excited to cook with her pan"
+   ],
+   [
+    "i'm trying to learn to juggle",
+    "watched a tutorial yesterday, i can do 2 balls but 3 is impossible",
+    "the balls just fly everywhere, my cat is terrified lol",
+    "any tips?",
+    "so throw both before catching? that's the part i don't get",
+    "how long does it take normal people to learn it?",
+    "lol ok. also random but who invented juggling? like is it ancient?"
+   ],
+   [
+    "our smart speaker keeps waking up on its own",
+    "like it lights up and says 'sorry, i didn't catch that' when nobody said anything",
+    "mostly when the tv is on",
+    "yesterday it was in the middle of the night 😳 creepy",
+    "how do i make it less sensitive?",
+    "and can i see what it recorded?",
+    "ok i'll just mute it at night. thanks"
+   ],
+   [
+    "i got my first ever paycheck today!!! 💸",
+    "i started at the bakery 4 weeks ago, it's my first real job",
+    "1,240 euros after tax",
+    "i want to be smart with it but also kinda want new sneakers lol",
+    "how should i split it up?",
+    "is the sneakers thing okay then?",
+    "nice. i'll put 200 aside and get the sneakers 😁"
+   ],
+   [
+    "my neighbour just gave us a piano for free!!",
+    "she's moving into a smaller flat and couldn't take it",
+    "it's an old upright, dark wood, really pretty",
+    "my daughter is 8 and has wanted to learn forever 🎹",
+    "how do we even get it upstairs, we're on the 2nd floor",
+    "and it's probably out of tune right? how much does tuning cost",
+    "she said we can come over for tea and she'll show my daughter a few songs 🥰"
+   ]
+  ],
+  "de": [
+   [
+    "ich will dieses jahr zum ersten mal ne kürbissuppe machen",
+    "mit hokkaido",
+    "muss ich den schälen?",
+    "echt nicht? geil, das spart zeit",
+    "was kommt da noch rein außer kürbis?",
+    "kokosmilch oder sahne?",
+    "ok mit ingwer klingt gut, mach ich am sonntag"
+   ],
+   [
+    "meine smartwatch zählt total komische schritte",
+    "gestern stand da 14.000 obwohl ich eigentlich nur im büro saß",
+    "ah ne warte, ich war abends noch beim tanzen 😂 aber trotzdem viel zu viel",
+    "und mit dem handy synchronisiert sie seit zwei tagen auch nicht mehr",
+    "was kann ich da machen?",
+    "neu koppeln, wie geht das?",
+    "klappt wieder, danke!"
+   ],
+   [
+    "mein freund und ich können uns nicht einigen wo wir hinziehen",
+    "er will raus aufs land, mit garten und so",
+    "ich will in der stadt bleiben, ich lieb das, alles zu fuß",
+    "wir wollen in zwei jahren vielleicht kinder",
+    "wie trifft man so ne entscheidung zu zweit?",
+    "die idee mit der liste ist gut. was wäre so ein kompromiss?",
+    "speckgürtel mit s-bahn, hmm, darüber könnten wir echt mal reden"
+   ],
+   [
+    "mein zahnarzt meint ich knirsche nachts mit den zähnen",
+    "hab davon gar nix gemerkt",
+    "aber morgens tut mir oft der kiefer weh, jetzt wo er's sagt",
+    "woher kommt sowas?",
+    "er will mir ne schiene machen, muss ich die selber zahlen?",
+    "kann ich auch selber was dagegen tun?"
+   ],
+   [
+    "ich will salsa tanzen lernen",
+    "hab so ein video gesehen und war direkt verliebt 💃",
+    "aber ich hab keinen tanzpartner",
+    "kann man da auch alleine hingehen?",
+    "ich bin 38 und total steif lol, ist das zu spät?",
+    "und was zieh ich an? turnschuhe?",
+    "ok ich meld mich für den schnupperkurs am donnerstag an"
+   ],
+   [
+    "mein kumpel hat gefragt ob wir uns zusammen ein auto kaufen",
+    "wir wohnen im selben haus und brauchen beide eigentlich nur ab und zu eins",
+    "klingt erstmal gut oder?",
+    "aber was ist wenn einer nen unfall baut?",
+    "wie regelt man das mit versicherung und so",
+    "sollten wir das schriftlich machen?",
+    "danke, ich schick ihm das mal"
+   ],
+   [
+    "unser hund hat heute die begleithundeprüfung bestanden!!! 🐶🎉",
+    "ein jahr training, jeden samstag auf dem hundeplatz",
+    "und er hat beim gehorsamsteil fast null fehler gemacht",
+    "am anfang ist er nur rumgerannt und hat andere hunde angebellt 😂",
+    "was macht man eigentlich danach, gibt's noch weitere prüfungen?",
+    "agility klingt lustig, ist das was für nen beagle?",
+    "heute gibt's erstmal ein extra großes leckerli für ihn"
+   ],
+   [
+    "wir haben uns ein tandem gekauft!!",
+    "gebraucht, 300 euro, total spontan",
+    "heute die erste tour gemacht, 25 km am fluss entlang",
+    "am anfang sind wir fast umgekippt 😂 die abstimmung ist schwieriger als gedacht",
+    "wer sitzt eigentlich normalerweise vorne?",
+    "und das mit dem gemeinsamen anfahren, hast du da tipps?",
+    "nächstes wochenende wollen wir 40 km. schaffen wir das?"
+   ]
+  ]
+ }
+}

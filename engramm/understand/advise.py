@@ -201,7 +201,7 @@ def request(low: str) -> str | None:
 
 _WEAK = re.compile(r"^(?:i don'?t know|you haven'?t told|i'?m not sure how to answer|das weiß ich|das kann ich auf deutsch|"
                    r"da muss ich passen|das habe ich nicht|das verstehe ich|sorry, who|nice! which one|who do you mean|"
-                   r"wen meinst du|got it\.?$|okay, i see\.?$|ah, okay\.?|mm-hm|alles klar\.?$|okay, verstehe|let me pick|"
+                   r"wen meinst du|which one do you mean|das habe ich nicht ganz verstanden|got it\.?$|okay, i see\.?$|ah, okay\.?|mm-hm|alles klar\.?$|okay, verstehe|let me pick|"
                    r"tough call|ich würfel|lass mich wählen|oh, interesting|interessant|opinions aren'?t|"
                    r"noted, thanks|got it — i'?ll remember|got it, you|i can help with|right\? 😄|"
                    r"oh nice, congrats|that's not among|that'?s outside|i don't have practical tips|ich würde abwägen|"
@@ -234,9 +234,25 @@ def off_topic(reply: str, convo: str) -> bool:
     return not re.search(rx, convo.lower())
 
 
+_FOLLOW_JUDGE = re.compile(r"^(?:and |so |but |ok |und |also |aber |hm+,? )?(?:could (?:that|it|this) be|(?:it'?s|that'?s) probably|"
+                           r"is (?:it|that) (?:bad|serious|dangerous|a problem|normal)|"
+                           r"do i (?:need|have) to (?:see|go to)|should i see a|muss ich (?:zum|zur|zu)|ist das (?:überhaupt )?"
+                           r"(?:schlimm|gefährlich|normal)|liegt'?s (?:wohl )?(?:daran|am)|"
+                           r"könnte (?:es|das) (?:daran|das) (?:liegen|sein))", re.I)
+_FOLLOW_DO = re.compile(r"^(?:and |so |but |ok |und |also |aber )?(?:(?:what|how) (?:can|could|should) (?:i|we)|can (?:i|we|my \w+) "
+                        r"(?:do|get|fix|recover|restore|undo)|kann ich (?:die|das|den|es|sie)? ?(?:irgendwie )?\w+|was kann ich|"
+                        r"wie (?:find|krieg|bekomm|mach)\w* (?:ich|man)|and if (?:it'?s not|they don'?t|that doesn'?t)|"
+                        r"und wenn (?:das|es|die) nicht)", re.I)
+
+
 def advise(st, msg: str, lang: str, reply: str, kind: str) -> str | None:
     low = msg.lower().strip()
     req = request(low)
+    if req is None and _said(st).strip() and domain(_said(st) + " " + low):
+        if _FOLLOW_JUDGE.search(low):
+            req = "judge"
+        elif _FOLLOW_DO.search(low):
+            req = "do"
     if req is None:
         return None
     convo = _said(st) + " " + low
@@ -253,7 +269,9 @@ def advise(st, msg: str, lang: str, reply: str, kind: str) -> str | None:
     if not (weak(reply, kind) or generic or off_topic(reply or "", convo) or
             re.match(r"(?:let me pick|tough call)", (reply or "").lower())):
         return None
-    if req in ("do", "judge", "howlong") and not de:
+    if req == "judge" and re.search(r"\b(?:could (?:that|it|this) be|probably|liegt'?s|könnte (?:es|das))\b", low):
+        return _judge(low, "", de)
+    if req in ("do", "howlong") and not de:
         art = _article(st, low)
         if art:
             return art
@@ -406,6 +424,10 @@ def _choice(low: str, dom: str, de: bool) -> str:
 
 
 def _judge(low: str, dom: str, de: bool) -> str:
+    if re.search(r"\b(?:could (?:that|it|this) be|probably|liegt'?s|könnte (?:es|das))\b", low):
+        return ("Gut möglich – das ist ein häufiger Grund. Probier das zuerst aus und schau, ob sich etwas ändert; wenn nicht, "
+                "liegt es an etwas anderem." if de else
+                "Could well be — that's a common cause. Try that first and see if anything changes; if not, it's something else.")
     if re.search(r"\b(?:worth (?:it|repairing|fixing)|lohnt (?:sich|es sich)|reparatur lohnt)\b", low) and \
             not re.search(r"\b(?:repair\w*|fix\w*|broken|kaputt|reparier\w*|defekt)\b", low + " " + dom):
         return ("Rechne es einmal durch: die Gesamtkosten über die ganze Laufzeit gegen die günstigste Alternative. Wenn du das "
@@ -566,4 +588,44 @@ def language_fix(st, msg: str, lang: str, reply: str) -> str | None:
         if _BAD.search(low):
             return "Oh je, das klingt nicht schön."
         return "Ah, okay – erzähl ruhig weiter."
+    return None
+
+
+_FILLER = re.compile(r"^(?:ah, okay\.?|okay, i see\.?|i see\.?|got it\.?|alles klar\.?|okay, verstehe\.?|verstehe\.?|mhm\.?|"
+                     r"oh\? go on\.?|oh, interesting|interessant)(?:\s|$)", re.I)
+
+
+def anchor(st, msg: str, lang: str, reply: str) -> str | None:
+    """A filler ("Ah, okay.", "Interessant – und wie findest du das?") on a detail of an ongoing problem becomes one
+    concrete next tip for that problem; on good news it becomes a question about it. Otherwise it stays."""
+    r = (reply or "").strip()
+    m = _FILLER.match(r)
+    if not m or re.search(r"\?\s*$", msg) or request(msg.lower().strip()) == "close":
+        return None
+    rest = r[m.end():].strip(" –—-.")
+    if rest and not re.match(r"(?:tell me more|how are you (?:feeling|holding up)|how does it feel|how'?s that going|"
+                             r"wie geht es dir damit|erzähl\w*|magst du|und wie findest du das|was beschäftigt dich|"
+                             r"anything i can help|is there something|und dann)", rest, re.I):
+        return None                                   # a filler with a fitting question is not a filler
+    de = lang == "de"
+    low = msg.lower()
+    said = (st.uses.get("u_notes") or {}).get("_said", [])
+    convo = " ".join(said[-6:]) + " " + low
+    sit = st.uses.get("u_sit") if isinstance(st.uses.get("u_sit"), dict) else None
+    recent = set(getattr(st, "recent", []) or [])
+    good = bool(_GOOD.search(convo)) or bool(sit and sit.get("kind") in _POSITIVE)
+    bad = bool(_BAD.search(convo)) or bool(sit and sit.get("kind") in _NEGATIVE)
+    if bad and not (good and _GOOD.search(low)):
+        dom = domain(convo)
+        if dom in _ADVICE and dom not in ("celebration",):
+            for step in _ADVICE[dom][1 if de else 0]:
+                out = ("Okay, das hilft schon mal. Als Nächstes würde ich: " if de else
+                       "Okay, that helps. Next I'd try this: ") + step[0].lower() + step[1:]
+                if out not in recent:
+                    return out
+        return None
+    if good and _GOOD.search(low) and not _BAD.search(low):
+        opts = (["Wie schön! Was war das Beste daran?", "Das klingt richtig gut – wie hast du dich dabei gefühlt?"] if de else
+                ["That's lovely! What was the best part?", "That sounds really good — how did it feel?"])
+        return next((o for o in opts if o not in recent), None)
     return None

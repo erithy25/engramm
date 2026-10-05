@@ -50,3 +50,11 @@ def test_react_on_store_ack():
     r = advise.react(st, "my cat has started peeing outside the litter box", "en", "Noted, thanks for telling me about your cat.")
     assert r and "How long" in r
     assert advise.react(st, "my name is tom", "en", "Noted, thanks for telling me about your name.") is None
+
+
+def test_anchor_turns_filler_into_a_next_step():
+    st = _st(["my printer keeps jamming and it's so annoying"])
+    r = advise.anchor(st, "it's an old one", "en", "Ah, okay.")
+    assert r and r.startswith("Okay, that helps. Next I'd try this:")
+    assert advise.anchor(st, "it's an old one", "en", "Ah, okay. How old is it exactly?") is None
+    assert advise.anchor(st, "thanks, i'll try that", "en", "Ah, okay.") is None

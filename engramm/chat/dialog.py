@@ -6085,6 +6085,7 @@ class Assistant:
                 alt = advise.react(st, message, lang_, rep.text or "") or \
                     advise.advise(st, message, lang_, "" if echo else (rep.text or ""), "unknown" if echo else rep.kind) or \
                     advise.valence_fix(st, message, lang_, rep.text or "") or \
+                    advise.anchor(st, message, lang_, rep.text or "") or \
                     (advise.language_fix(st, message, lang_, rep.text or "") if rep.kind not in ("answer", "explain")
                      and not rep.source else None)
             except Exception:
