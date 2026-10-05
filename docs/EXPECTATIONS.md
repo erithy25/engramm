@@ -4167,3 +4167,40 @@ Wiederholung 9, unsicherer Rat 1, falsche Sprache 0. Konkreter Rat kam in 5 von 
 die Situationserkennung und die Ratschicht auf ungesehenen Gesprächen nur selten greifen. Die Fehlerverteilung wird –
 wie bei U5 – von einem blinden Leser nur als Klassen gemeldet; daraus abgeleitete Arbeit wird in U6 auf den frischen
 Sätzen final_1…final_3 gemessen.
+
+### U6 — Endmessung (5. Oktober 2026, Stand `8af3d3a`, Lite-Paket, je Satz ein Lauf)
+
+| Kriterium | Ergebnis | Schwelle / Erwartung | Bewertung |
+|---|---|---|---|
+| schwache Antworten auf den frischen Sätzen final_1…final_3 | **64,8 %** (201/310; EN 113/159 = 71,1 %, DE 88/151 = 58,3 %) | Erwartung ≤ 25 % | **verfehlt** |
+| Problemfälle mit Bitte um Rat: konkreter Rat (gleicher Lauf) | **1 von 81** (EN 1/43, DE 0/38) | ≥ 60 % (U3) | **verfehlt** |
+| Gesundheits-, Rechts- oder Geldrat ohne Quelle oder Warnhinweis | **1** (DE) | 0 (U3) | **verfehlt** |
+| Ereignisart auf `sealed/frames_test.jsonl` (erneute blinde Messung) | **91,7 %** (EN 90,7 %, DE 92,7 %) | ≥ 85 % (U1) | erfüllt (im zweiten Lauf; der erste U1-Lauf ergab 67 %) |
+| Rollen auf `sealed/frames_test.jsonl` | **71,2 %** (285/400) | ≥ 75 % (U1) | **verfehlt** |
+| Schlussfolgerungen auf `sealed/infer_test.jsonl` (erneute blinde Messung) | **16/40 = 40 %** automatisch (EN 8/24, DE 8/16); blinder Leser: 18/40 richtig, **1 erfundene Angabe** (EN) | ≥ 80 %, 0 erfundene Fakten (U5) | **verfehlt** |
+| Korrektur-Test (`learn_eval.py`, 836 Korrekturen) | **2,4 %** kehren zurück (nur über Gewichte: 41,6 %) | ≤ 5 % (U4) | erfüllt |
+| „vergiss das“ bitgleich | **83/83** | 100 % (U4) | erfüllt |
+| NQ-open Dev | 22/9, 0 von 22 Antworten verändert | unverändert | erfüllt |
+| Testsuite | 883 bestanden, 7 übersprungen | grün | erfüllt |
+| Lite-Paket, 333 Alltagsnachrichten (dev_u6a–c): Laden / p50 / p95 / Max / Spitzen-RSS | 5,9 s / 0,083 s / **0,167 s** / 1,53 s / **727 MB**; Paketgröße 679 MB entpackt | p95 ≤ 1,5 s, RAM ≤ 1,5 GB, Paket ≤ 4,5 GB | erfüllt |
+
+Klassen der schwachen Antworten (Mehrfachnennung, blinder Leser): Missverständnis 113, unbeantwortete/ausgewichene
+Bitte 86, Füllfloskel 40, falsches Gedächtnis 9, Wiederholung 6, sachlich falsch/unsicher 3, Widerspruch zum Gesagten 3,
+falsche Sprache 0.
+
+**Einordnung.** Auf frischen, fremd geschriebenen Gesprächen ist jede zweite bis dritte Antwort schwach; gegenüber dem
+Ausgangswert (EN 78 %, DE 82 % auf u0 – andere Sätze, gleiche Vorgaben und gleicher Leser-Maßstab) ist das eine Verbesserung um 7 (EN) bzw. 24 (DE) Punkte, aber weit von der
+Erwartung (≤ 25 %) entfernt. Der Hauptbefund des Plans bestätigt sich: Regeln, Wortlisten und ein lineares Modell
+erkennen die Situation inzwischen zuverlässig (Ereignisart 92 %), aber **aus der erkannten Situation wird selten eine
+passende Antwort** – vor allem Rat auf eine konkrete Bitte kommt fast nie (1/81). Die Entwicklungssätze zeigten durchweg
+bessere Werte als die versiegelten; jede Runde hat gezeigt, wie stark Proben-Tuning auf ungesehenen Gesprächen verpufft.
+
+**Abbau der Handler (U6).** Kein handgeschriebener Handler wurde entfernt. Begründung: Bedingung im Plan war „das
+allgemeine System deckt gleich gut oder besser ab“. Die Messung zeigt das Gegenteil – die 125 Batterien hängen an den
+Handlern, und das allgemeine System liefert auf ungesehenen Gesprächen in 1 von 81 Fällen Rat. Ein Abbau hätte die
+Qualität messbar gesenkt. Die Handler bleiben vorn, das allgemeine System bleibt Rückfall.
+
+**Offene nächste Schritte (aus den Klassen, nicht aus den Inhalten):** (1) Rat-Abdeckung: die Ratschicht greift nur bei
+einem Bereich aus festen Wortlisten; nötig wäre ein aus Texten gewonnener Rat-Index je Situation × Gegenstand (Wikibooks,
+Behördenseiten) statt nur Gesundheitsartikeln. (2) Missverständnisse: Bezug über mehrere Züge (Pronomen, Ellipse) ist
+die größte Klasse. (3) Bewertung durch Menschen (ChatBench) statt eines KI-Lesers.

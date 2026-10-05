@@ -1,6 +1,6 @@
 [package]
 name = "engramm-app"
-version = "3.1.0"
+version = "3.2.0"
 description = "ENGRAMM desktop app"
 edition = "2021"
 rust-version = "1.77"

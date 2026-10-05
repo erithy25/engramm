@@ -37,12 +37,15 @@ verletzen oder übergehen; Schritt 6 ersetzt nur Füllantworten oder schwache An
 | Vorschläge | `engramm/understand/suggest.py` | Gerichte, Backwaren, Bestellen mit Allergie, Geschenke im Budget nach Interessen, Filme nach Vorlieben, Ausflüge am Wohnort, Urlaub, persönliche Kurztexte nach Anlass mit Namen |
 | Lernen | `engramm/learn/state.py`, `bandit.py`, `__init__.py` | Protokoll kleiner Schritte mit SHA-256, alles daraus abgeleitet; „vergiss das“ entfernt den letzten Schritt bitgleich; Korrekturen, Wörter, Stil, Episoden, Thompson-Bandit (erst ab 4 Signalen) |
 | App | `engramm/app/server.py` (`/api/learning`, `/api/learning/reset`), `ui/src/components/Dialogs.tsx` | Lernstand ansehen und zurücksetzen |
+| Rat-Schicht | `engramm/understand/advise.py` | Bereich aus dem ganzen Gespräch × Art der Bitte (Wahl, Urteil, Formulierung, Meinung, Tun, Dauer, Abschluss); ersetzt nur schwache Antworten oder fachfremde Tipp-Listen; Stimmungs- und Sprach-Korrektur |
 | Ranglisten | `engramm/kb/kgqa.py` `_ranking` | größte Städte eines Landes aus der Faktenbank (Stand der Daten), EN/DE |
 
 ## Grenzen (ehrlich)
 
 - Alles Verstehen beruht auf Wortlisten, Mustern und einem linearen Modell. Was die Muster nicht abdecken, wird nicht
-  verstanden; die versiegelten Messungen zeigen das deutlich (U1 67 %, U5 20 % im ersten Lauf).
+  verstanden; die versiegelten Messungen zeigen das deutlich (U1 67 %, U5 20 % im ersten Lauf; Endmessung U6:
+  65 % schwache Antworten auf frischen Gesprächen, Rat in 1 von 81 Bitten, Ereignisart 92 %, Schlüsse 40 %).
+- Kein handgeschriebener Handler wurde abgebaut: das allgemeine System deckt sie nachweislich nicht gleich gut ab.
 - Rat aus Wikipedia gibt es nur auf Englisch; deutscher Rat kommt aus den handgeschriebenen Zügen.
 - Weltwissen für Schlüsse (Zeitzonen jenseits der IANA-Städtenamen, Währungen, welche Speise welche Zutat enthält)
   ist nur so weit vorhanden, wie die Kataloge und die Faktenbank reichen.
