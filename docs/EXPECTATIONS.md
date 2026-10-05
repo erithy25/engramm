@@ -4112,3 +4112,40 @@ Prüfung ist `docs/PREREG_SEARCH_V0.md`. Container-Werte, nicht kanonisch.
   455 MB neu angerechneten Speicher). Maßgeblich ist der Spitzen-RSS (inklusive gemappter Paketseiten), der unter
   1,1 GB bleibt. Das Maximum von ≈ 6 s beim Standard-Paket ist die erste Textsuche mit kalten Index-Dateien. Eine Messung
   auf echter 4-GB-Hardware mit Festplatte steht weiterhin aus.
+
+## ENGRAMM „Verstehen“ v3.2 (PREREG_UNDERSTAND_V0, registriert 4. Oktober 2026)
+
+Messungen auf versiegelten, fremd geschriebenen Sätzen; je Phase ein Lauf. Ergebnisse werden auch bei Verfehlen berichtet.
+Der Leser der Gesprächsproben ist ein getrennter KI-Agent (siehe Einschränkungen in der Vorregistrierung).
+
+| Phase | Kriterium | Ergebnis | Schwelle | Bewertung |
+|---|---|---|---|---|
+| U0 | schwache Antworten auf u0_1…u0_6, Stand 22010e1 | EN 78 %, DE 82 % | festhalten | Ausgangswert |
+| U1 | Ereignisart auf `sealed/frames_test.jsonl` (300 Zeilen) | 67 % | ≥ 85 % | **verfehlt** |
+| U1 | Rollen (Person, Gegenstand, Körperteil) | 71,2 % | ≥ 75 % | **verfehlt** |
+| U5 | Schlussfolgerungen auf `sealed/infer_test.jsonl` (40 Fälle) | **8/40 = 20 %** (EN 4/24, DE 4/16) | ≥ 80 %, 0 erfundene Fakten | **verfehlt** |
+
+**U1 danach (nicht versiegelt):** gelernter Klassifikator (gemitteltes Perzeptron auf Regeln, Lexikon-Belegen und
+Wörtern, 4000 Trainingszeilen EN/DE, von getrennten Agenten geschrieben): Kreuzvalidierung 71–72 %, Dev-Satz 93–96 %
+(der Dev-Satz wurde in der Entwicklung benutzt und ist deshalb optimistisch). Die versiegelte Zahl bleibt 67 %; die
+erneute Messung erfolgt laut Vorregistrierung in der nächsten Phase.
+
+**U5 im Detail.** Vor dem versiegelten Lauf standen die Entwicklungssätze bei 97–100 %. Ein zusätzlicher, getrennt
+geschriebener Satz (`infer_hold`, 40 Fälle) kam im ersten, ungetunten Lauf auf **65 %** – schon ein Hinweis auf
+Überanpassung. Der versiegelte Satz ergab 20 %. Ein blinder Leser (Agent, meldet nur Klassen) ordnete die 32 Fehler zu:
+
+| Fehlerklasse | Anzahl (EN/DE) |
+|---|---|
+| keine Schlussfolgerung versucht (Füllantwort, unpassender Rat, „weiß ich nicht“) | 25 (14/11) |
+| falsch geschlossen | 1 (0/1) |
+| richtiger Wert, falsches Format | 0 |
+| Störung durch Gedächtnis aus anderen Gesprächen | 6 (6/0) |
+| verbotener Inhalt, falsche Sprache, Testfehler | 0 |
+
+Strukturell verlangen 16 der 40 Fälle einen **Vorschlag oder kurzen Text**, der eine frühere Angabe beachtet (Ernährung,
+Budget, Ort, Person); 6 enthalten absolute Kalenderdaten, 9 brauchen Weltwissen (Geografie, Währung, welche Speisen
+eine Zutat enthalten). Die Entwicklungssätze waren dagegen überwiegend Rechenaufgaben – sie haben das Falsche gemessen.
+Folgerung: Die Schlussfolgerungsschicht deckt nur einen engen Ausschnitt ab. Nächste Schritte (U6): Vorschläge unter
+Bedingungen, Datumsrechnung, Stunden-und-Minuten-Dauern, Merkmale von Personen und Tieren („was macht meine Schwester?“),
+„wer ist NAME?“ aus dem Gespräch, und das Gedächtnis darf gespeicherte Sätze nicht als Antwort auf fremde Fragen
+zurückgeben. `infer_test` wird in U6 einmal erneut gemessen.

@@ -27,6 +27,8 @@ def main(argv=None) -> None:
     ap.add_argument("set", type=Path)
     ap.add_argument("--pack", type=Path, default=Path("/dev/shm/engramm/pack-b3"))
     ap.add_argument("--show", action="store_true", help="print failing cases (development sets only)")
+    ap.add_argument("--dump", type=Path, help="write every case's full transcript here (for the blind reader of a sealed "
+                                              "set; outside the repo, never read in development)")
     a = ap.parse_args(argv)
     sealed = "/sealed/" in str(a.set.resolve())
     if sealed:
@@ -44,10 +46,15 @@ def main(argv=None) -> None:
             sys.exit(svc.error)
         ok, total, by_note, by_lang = 0, 0, Counter(), Counter()
         fails = Counter()
+        dump = open(a.dump, "w", encoding="utf-8") if a.dump else None
         for i, r in enumerate(rows):
             reply = ""
+            replies = []
             for t in r["turns"]:
                 reply = svc.chat(f"inf{i}", t)["text"]
+                replies.append(reply)
+            if dump:
+                dump.write(json.dumps({"i": i, "turns": r["turns"], "replies": replies}, ensure_ascii=False) + "\n")
             good = any(re.search(p, reply, re.I) for p in r.get("expect_any") or []) and \
                 not any(re.search(p, reply, re.I) for p in r.get("expect_none") or [])
             total += 1
@@ -58,6 +65,8 @@ def main(argv=None) -> None:
                 fails[r.get("note", "")] += 1
                 if a.show:
                     print(f"--- FAIL [{r['lang']}] {r.get('note')}\n  " + "\n  ".join(r["turns"]) + f"\n  => {reply[:300]!r}")
+        if dump:
+            dump.close()
         print(f"passed {ok}/{total} = {ok / max(1, total):.1%}")
         for lang in ("en", "de"):
             n = by_lang[(lang, True)] + by_lang[(lang, False)]
