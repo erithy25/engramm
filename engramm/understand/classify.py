@@ -68,6 +68,7 @@ def features(f, text: str, rule_kind: str) -> list[str]:
 
 class FrameClassifier:
     margin = 3.0
+    override = 5.0
 
     def __init__(self, model: AveragedPerceptron | None = None):
         self.p = model
@@ -94,6 +95,8 @@ class FrameClassifier:
             return ""
         if not rule_kind and scores.get(best, 0.0) - scores.get("NONE", 0.0) < self.margin:
             return ""                   # the rules saw no situation and the model is not sure: none
+        if rule_kind and best != rule_kind and scores.get(best, 0.0) - scores.get(rule_kind, 0.0) < self.override:
+            return rule_kind            # the rules saw a situation: the model needs a clear lead to overrule them
         return best
 
 

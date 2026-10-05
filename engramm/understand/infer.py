@@ -25,7 +25,8 @@ _NUM_DE = {"ein": 1, "eine": 1, "einen": 1, "einer": 1, "zwei": 2, "drei": 3, "v
            "fünfzehn": 15, "sechzehn": 16, "siebzehn": 17, "achtzehn": 18, "neunzehn": 19, "zwanzig": 20,
            "dreißig": 30, "vierzig": 40, "fünfzig": 50, "sechzig": 60, "siebzig": 70, "achtzig": 80, "neunzig": 90,
            "hundert": 100, "anderthalb": 1.5, "eineinhalb": 1.5, "zweieinhalb": 2.5, "dreieinhalb": 3.5,
-           "eine halbe": 0.5, "einer halben": 0.5, "ein dutzend": 12}
+           "eine halbe": 0.5, "einer halben": 0.5, "ein dutzend": 12, "ein halbes": 0.5, "einen halben": 0.5,
+           "halbes": 0.5, "halben": 0.5, "ner": 1, "'ner": 1, "nem": 1, "'ne": 1}
 _NUMW = "|".join(sorted((re.escape(k) for k in list(_NUM_EN) + list(_NUM_DE)), key=len, reverse=True))
 NUM = rf"(?:\d+(?:[.,]\d+)?|{_NUMW})"
 _DAYS_EN = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
@@ -61,6 +62,8 @@ def _fmt_num(x: float) -> str:
 
 def _stem(w: str) -> str:
     w = w.lower().strip(".,!?")
+    if w.endswith("ves") and len(w) > 4:
+        return w[:-3] + "f"
     for suf in ("ies", "es", "s", "en", "n", "e"):
         if len(w) > 4 and w.endswith(suf):
             return w[: -len(suf)] + ("y" if suf == "ies" else "")
@@ -85,21 +88,31 @@ _TRAVEL = re.compile(r"\b(?:drive|driving|walk|walking|ride|commute|journey|trip
 _LENGTH = re.compile(r"\b(?:long|lasts?|runs?|takes|goes on for|dauert|geht|lang|länge|is|ist)\b", re.I)
 _EVENTY = re.compile(r"\b(?:film|movie|concert|show|workshop|meeting|game|match|lecture|class|course|seminar|play|"
                      r"konzert|vorstellung|sitzung|spiel|vorlesung|kurs|besprechung|it|es|er|sie|das)\b", re.I)
-_REL = (r"best friend|boyfriend|girlfriend|neighbou?r|coworker|co-worker|colleague|boss|manager|friend|brother|sister|"
+_REL = (r"sister-in-law|brother-in-law|mother-in-law|father-in-law|best friend|boyfriend|girlfriend|neighbou?r|coworker|co-worker|colleague|boss|manager|friend|brother|sister|"
         r"mom|mum|mother|dad|father|aunt|uncle|cousin|grandma|grandmother|grandpa|grandfather|granny|wife|husband|partner|"
-        r"son|daughter|roommate|flatmate|teacher|doctor|landlord|landlady|nephew|niece|"
+        r"son|daughter|roommate|flatmate|teacher|doctor|landlord|landlady|nephew|niece|therapist|dentist|trainer|coach|"
+        r"babysitter|mechanic|hairdresser|barber|vet|tutor|mentor|godmother|godfather|stepmom|stepdad|fiancée?|"
+        r"sister-in-law|brother-in-law|mother-in-law|father-in-law|stepson|stepdaughter|godchild|godson|goddaughter|"
+        r"schwägerin|schwager|schwiegermutter|schwiegervater|patenkind|patensohn|patentochter|stiefsohn|stieftochter|"
         r"beste freundin|bester freund|freundin|freund|nachbarin|nachbar|kollegin|kollege|chefin|chef|bruder|schwester|"
         r"mama|mutter|papa|vater|tante|onkel|cousine|cousin|oma|opa|frau|mann|sohn|tochter|mitbewohnerin|mitbewohner|"
-        r"lehrerin|lehrer|ärztin|arzt|vermieterin|vermieter|neffe|nichte")
+        r"lehrerin|lehrer|ärztin|arzt|vermieterin|vermieter|neffe|nichte|therapeutin|therapeut|zahnärztin|zahnarzt|trainerin|"
+        r"trainer|friseurin|friseur|tierärztin|tierarzt|patentante|patenonkel|verlobte[rn]?")
 _NOT_NAME = {"a", "an", "the", "very", "so", "really", "my", "your", "not", "ein", "eine", "sehr", "nicht", "mein", "is",
              "was", "has", "had", "and", "just", "got", "back", "home", "here", "there", "sick", "ill", "fine", "okay",
              "ok", "krank", "da", "hier", "hat", "ist", "war", "und", "wants", "lent", "helped", "gave", "called", "said",
              "says", "will", "can", "also", "auch", "heißt", "named", "came", "bought", "who", "she", "he", "sie", "er", "her",
-             "his", "their", "them", "him", "ihr", "ihm", "sein", "seine", "ihre"}
+             "his", "their", "them", "him", "ihr", "ihm", "sein", "seine", "ihre", "from", "in", "at", "on", "with", "that",
+             "aus", "von", "mit", "im", "am", "really", "always", "still", "never", "actually", "recently", "finally",
+             "totally", "probably", "wirklich", "immer", "noch", "nie", "endlich", "gerade", "schon", "who's", "whos",
+             "keeps", "loves", "hates", "lives", "works", "thinks", "wohnt", "arbeitet", "liebt", "meint", "today", "heute",
+             "dass", "ob", "weil", "wenn", "denn", "sondern", "als", "that's", "if", "because", "when", "so"}
 _TITLE = r"(?:mrs?\.?|ms\.?|dr\.?|herr|frau|prof\.?)\s+"
 _NONE = re.compile(r"\b(?:i|we) (?:don'?t|do not|didn'?t) (?:have|own|got) (?:any |a |an )?(pets?|kids|children|car|cars|"
                    r"siblings|brothers?|sisters?|dogs?|cats?)\b|\b(?:i|we) have no (pets?|kids|children|car|siblings)\b|"
-                   r"\bi'?m an only child\b|\bich bin einzelkind\b|"
+                   r"\bi'?m an only child\b|\bich bin einzelkind\b|\bi(?:'ve| have) never (?:had|owned) (?:a |an |any )?"
+                   r"(pets?|kids|children|car|cars|dogs?|cats?)\b|\bich hatte (?:noch )?nie (?:ein |einen |eine )?(haustiere?|auto|"
+                   r"kinder|hund|katze)\b|"
                    r"\b(?:ich|wir) (?:hab\w*|besitz\w*) (?:keine|kein|keinen) (haustiere?|kinder|kind|auto|geschwister|hund|katze)\b",
                    re.I)
 _GROUPS = {"pet": r"dog|cat|hamster|rabbit|bird|parrot|guinea pig|puppy|kitten|pet|hund|katze|kater|hase|kaninchen|"
@@ -117,11 +130,13 @@ _AGE = [re.compile(r"^(?:and |also |btw |by the way |übrigens |oh,? )?(?:i'?m|i
         re.compile(r"\bas an? (\d{1,3})[- ]year[- ]old\b|\bmit (?:meinen |meinem )?(\d{1,3}) jahren\b|"
                    r"\bi'?m (\d{1,3}) (?:years old|now)\b|\bi just turned (\d{1,3})\b|\bich bin (?:gerade |jetzt )?(\d{1,3}) "
                    r"(?:jahre alt|geworden)\b|\bat my age of (\d{1,3})\b|\bat (\d{2}) years old\b|"
-                   r"\b(?:und|and|but|aber) (?:ich bin|i'?m|i am) (\d{1,3})\b(?!\s*(?:minutes?|min|km|%|euro|kg|cm))", re.I)]
+                   r"\b(?:und|and|but|aber) (?:ich bin|i'?m|i am) (\d{1,3})\b(?!\s*(?:minutes?|min|km|%|euro|kg|cm))|"
+                   r"\bals (\d{1,3})[- ]?jährige[rn]?\b|\b(\d{2})[- ]jährige[rn]?\b", re.I)]
 _TODAY_DAY = re.compile(rf"\b(?:today is|today's|it'?s|heute ist|heut ist)\s+(?:a |ein )?({_DAYW})\b|\b({_DAYW}) today\b", re.I)
 _TODAY_DOM = re.compile(r"\b(?:today is|today's|it'?s|heute ist|heut ist)\s+(?:the |der )?(\d{1,2})(?:st|nd|rd|th|\.)"
                         r"|\b(?:the )?(\d{1,2})(?:st|nd|rd|th) today\b|\bheute ist der (\d{1,2})\b", re.I)
-_EVENT = re.compile(rf"\b(?:(?:my|the|our|mein\w*|der|die|das|unser\w*)\s+)?([a-zäöüß]+)\s+(?:is|are|ist|sind|findet|falls|fällt)\s+"
+_EVENT = re.compile(rf"\b(?:(?:my|the|our|mein\w*|der|die|das|unser\w*)\s+)?([a-zäöüß]+)\s+(?:is|are|ist|sind|findet|falls|fällt|"
+                    rf"starts|begins|beginnt|fängt an|kommt|ends|endet)\s+"
                     rf"(?:due |fällig |statt |set |planned |geplant )?(?:on|am|at|for)?\s*(?:the |dem )?({_DAYW}|\d{{1,2}}"
                     r"(?:st|nd|rd|th|\.))", re.I)
 _IN_DAYS = re.compile(rf"\b(?:(?:my|the|our|mein\w*|der|die|das|unser\w*)\s+)?([a-zäöüß]+)\s+(?:is|starts|begins|ist|beginnt|"
@@ -130,8 +145,10 @@ _IN_DAYS = re.compile(rf"\b(?:(?:my|the|our|mein\w*|der|die|das|unser\w*)\s+)?([
 _PASSED = re.compile(rf"\b(?:it'?s been|been|es sind|sind schon|schon)\s+({NUM})\s+(?:days?|tage)\b|\b({NUM})\s+(?:days?|tage)\s+(?:have |has |sind |ist )?(?:passed|gone by|went by|later|go by|pass|"
                      r"vergangen|vorbei|rum|später)\b|\b(?:after|nach)\s+(" + NUM + r")\s+(?:days|tagen)\b", re.I)
 _LIVE = re.compile(r"\b(?:live|living|moved|relocated|based|staying|wohne|wohnen|lebe|leben|wohn)\b(?:\s+[\wäöüß]+){0,4}?\s+"
-                   r"(?:in|to|nach)\s+([A-Za-zÄÖÜäöüß][\wäöüß-]+(?:\s+[A-Z][\w-]+)?)|\bnach\s+([A-ZÄÖÜ][\wäöüß-]+)\s+gezogen\b",
-                   re.I)
+                   r"(?:in|to|nach)\s+([A-Za-zÄÖÜäöüß][\wäöüß-]+(?:\s+[A-Z][\w-]+)?)|\bnach\s+([A-ZÄÖÜ][\wäöüß-]+)\s+gezogen\b|"
+                   r"^(?:so |well |btw,? )?(?:i'?m|we'?re|i am|we are)\s+(?:now\s+|currently\s+)?in\s+([a-z][\w-]+)"
+                   r"(?=\s*(?:btw|by the way|now|these days|at the moment|nowadays|for work)?\s*[.!]*$)|"
+                   r"\b(?:ich bin|wir sind)\s+in\s+([a-zäöüß][\wäöüß-]+)\s+(?:zuhause|zu hause|daheim|zuhaus)\b", re.I)
 _NOT_CITY = {"a", "an", "the", "my", "our", "einer", "einem", "einen", "der", "die", "das", "town", "the city", "city",
              "here", "hier", "there", "with", "together", "new", "an", "ein", "eine", "mit", "zusammen", "apartment",
              "flat", "wohnung", "house", "haus"}
@@ -152,6 +169,43 @@ def _time_hm(mm) -> tuple[int, int, str] | None:
     if ap == "am" and h == 12:
         h = 0
     return h, mi, "ap" if ap in ("am", "pm") else ("24" if h > 12 or ap == "uhr" else "")
+
+
+_COMPOUND = re.compile(rf"\b({NUM}(?: and a half)?)\s*(?:hours?|hrs?|h|stunden?|std\.?)\s*(?:and\s+|und\s+|,\s*)?({NUM})"
+                       rf"(?:\s*(?:minutes?|mins?|minuten?|min)\b|(?=\s*(?:[.,!?;]|$|\s+(?:wann|when|so|dann|then))))|"
+                       r"\b(\d{1,2})\s*h\s*(\d{2})\b", re.I)
+
+
+def durations(low: str) -> list[float]:
+    """Every duration in a text, in minutes: "an hour and twenty minutes", "2h15", "1 Stunde 10 Minuten", "90 min"."""
+    out, taken = [], []
+    for mm in _COMPOUND.finditer(low):
+        if mm.group(3):
+            out.append(int(mm.group(3)) * 60 + int(mm.group(4)))
+        else:
+            h, m = num(mm.group(1)), num(mm.group(2))
+            if h is None or m is None:
+                continue
+            out.append(h * 60 + m)
+        taken.append(mm.span())
+    for mm in _DUR.finditer(low):
+        if any(a <= mm.start() < b for a, b in taken):
+            continue
+        v = _mins(mm.group(1), mm.group(2))
+        if v is not None:
+            if re.match(r"\s+and a half\b", low[mm.end():]):
+                v += 30 if mm.group(2).lower().startswith("h") else 0.5
+            out.append(v)
+    if re.search(r"\ba half hour\b|\bhalf an hour\b|\beine halbe stunde\b", low) and not out:
+        out.append(30)
+    return out
+
+
+def _fmt_dur(mins: float, de: bool) -> str:
+    h, m = divmod(int(round(mins)), 60)
+    if de:
+        return " ".join(x for x in (f"{h} Stunde{'n' if h != 1 else ''}" if h else "", f"{m} Minuten" if m else "") if x)
+    return " ".join(x for x in (f"{h} hour{'s' if h != 1 else ''}" if h else "", f"{m} minutes" if m else "") if x)
 
 
 def _mins(qty: str, unit: str) -> float | None:
@@ -180,7 +234,169 @@ def observe(st, msg: str, lang: str) -> str | None:
     _note_priority(n, low)
     _note_quantities(n, low)
     _note_ages(n, low)
+    _note_dates(n, low)
+    _note_rates(n, low)
+    _note_prices(n, low)
+    _note_facts(n, msg, low)
     return clash
+
+
+_MONTHS = ("january february march april may june july august september october november december "
+           "januar februar märz april mai juni juli august september oktober november dezember").split()
+_MON = "|".join(_MONTHS)
+
+
+def _note_dates(n: dict, low: str) -> None:
+    for mm in re.finditer(rf"\b(?:({_MON})\s+(\d{{1,2}})(?:st|nd|rd|th)?|(\d{{1,2}})(?:st|nd|rd|th|\.)?\s+(?:of\s+)?({_MON}))\b", low):
+        d = int(mm.group(2) or mm.group(3))
+        if re.search(r"\b(?:today|heute)\b", low):
+            n["today_dom"] = d
+        else:
+            n["dom_last"] = d
+    m = re.search(rf"\b(?:ships|delivery|arrives?|takes|braucht|dauert|lieferung|lieferzeit|versand)\b[^.?!]{{0,20}}?(?:in |about |etwa |ca\.? )?"
+                  rf"({NUM})\s+(?:days?|tage)\b", low)
+    if m and num(m.group(1)) is not None:
+        n["before"] = num(m.group(1))
+    if re.search(r"\b(?:today is|heute ist|it'?s)\b", low) and not re.search(r"\bon the\b|\bam \d", low):
+        pass
+    else:
+        for mm in re.finditer(r"\b(?:on |am |the |den |dem |by )?(?:(" + _DAYW + r")\s+(?:the |den )?)?(\d{1,2})(?:st|nd|rd|th|\.)(?!\d)", low):
+            n["dom_last"] = int(mm.group(2))
+            if mm.group(1):
+                n["dom_wd"] = (_DAYS_EN + _DAYS_DE).index(mm.group(1).lower()) % 7
+    m = re.search(rf"\b(?:for|für|stay(?:ing)? for|bleibe?\w*)\s+({NUM})\s+(nights?|days?|nächte|tage|wochen?|weeks?|übernachtungen)\b|"
+                  rf"\b({NUM})\s+(nights?|nächte|übernachtungen)\b", low)
+    if m:
+        v = num(m.group(1) or m.group(3))
+        unit = (m.group(2) or m.group(4) or "").lower()
+        if v is not None:
+            n["stay"] = v * (7 if unit.startswith(("week", "woche")) else 1)
+    m = re.search(rf"\b({NUM})\s+(?:days?|tage)\s+(?:before|earlier|ahead|in advance|vorher|davor|früher)\b", low)
+    if m and num(m.group(1)) is not None:
+        n["before"] = num(m.group(1))
+    m = re.search(rf"\bin\s+({NUM})\s+(?:days|tagen)\b", low)
+    if m and num(m.group(1)) is not None and not re.search(r"\b(?:how many|wie viele)\b", low):
+        n["in_days"] = num(m.group(1))
+
+
+_SPEED = re.compile(rf"\b({NUM})\s*(km/h|kmh|km an hour|km per hour|km pro stunde|km in der stunde|kilometers? an hour|mph|"
+                    r"miles an hour|miles per hour|pages an hour|pages per hour|pages a day|seiten pro stunde|seiten die stunde|"
+                    r"seiten in der stunde)\b|\b(?:mit|at|at about|so mit|about)\s+({NUM})\s*(?:km/h|kmh|stundenkilometern)\b", re.I)
+
+
+def _note_rates(n: dict, low: str) -> None:
+    m = _SPEED.search(low)
+    if m:
+        v = num(m.group(1) or m.group(3))
+        unit = (m.group(2) or "km/h").lower()
+        if v is not None:
+            n["speed"] = [v, "pages" if "page" in unit or "seite" in unit else ("miles" if "mile" in unit or unit == "mph"
+                                                                                else "km")]
+        return
+    m = re.search(rf"\b({NUM})\s*(km|kilomet\w+|miles?|pages|seiten)\b", low)
+    if m and num(m.group(1)) is not None and not re.search(r"\b(?:every|each(?! way)|a day|per|pro|jeden|jede)\b", low):
+        n["distance"] = [num(m.group(1)), m.group(2)]
+
+
+_PER_UNIT = re.compile(rf"\b([a-zäöüß]+)\s+(?:is|are|costs?|kostet|kosten)\s+(?:about |etwa |like )?(?:{_CUR}\s*)?(\d+(?:[.,]\d+)?)\s*"
+                       rf"(?:{_CUR}\s*)?(?:a|per|pro|das|je|the|/)\s*(litre|liter|l|kilo|kg|pound|lb|piece|stück|bottle|flasche|"
+                       r"metre|meter|m)\b", re.I)
+_ITEM_PRICE = re.compile(rf"\b(?:the |die |der |das |a |an |ein\w* |one )?([a-zäöüß]{{3,}})\s+(?:is |are |costs? |kostet |kosten |for |für )?"
+                         rf"(?:{_CUR}\s*)?(\d+(?:[.,]\d+)?)\s*(?:{_CUR})?(?![\d.,]|\s*(?:km|min|minutes|hours|stunden|people|"
+                         r"leute|personen|of us|pages|seiten|kg|kilo|g\b|liter|litre|m²|tage|days))", re.I)
+
+
+def _note_prices(n: dict, low: str) -> None:
+    for mm in _PER_UNIT.finditer(low):
+        n.setdefault("unit_prices", {})[_unit(mm.group(3))] = [float(mm.group(2).replace(",", ".")), mm.group(1)]
+    m = re.search(rf"(\d+(?:[.,]\d+)?)\s*(?:{_CUR}\s*)?(?:pro|per|je|für|for|/)\s*100\s*(?:g|gr|gramm|grams?)\b", low)
+    if m:
+        n.setdefault("unit_prices", {})["100g"] = [float(m.group(1).replace(",", ".")), ""]
+    for mm in re.finditer(rf"\b({NUM})\s*(?:g|gr|gramm|grams?)\b", low):
+        v = num(mm.group(1))
+        if v is not None and v != 100:
+            n.setdefault("unit_qty", {})["100g"] = v / 100
+    for mm in re.finditer(rf"(?<!plus )(?<!and )\ban? ([a-z]+) of ([a-z]+) (?:is|costs?|for) (?:{_CUR}\s*)?(\d+(?:[.,]\d+)?)", low):
+        price = float(mm.group(3).replace(",", "."))
+        n.setdefault("item_prices", {})[_stem(mm.group(1))[:4]] = price
+        n.setdefault("item_prices", {})[_stem(mm.group(2))[:4]] = price
+    m = re.search(rf"(\d+(?:[.,]\d+)?)\s*(?:{_CUR}\s*)?(?:trinkgeld|tip)\b|\b(?:tip|trinkgeld)\s+(?:of\s+|von\s+)?(?:{_CUR}\s*)?(\d+(?:[.,]\d+)?)", low)
+    if m and n.get("bill"):
+        n["bill"] += float((m.group(1) or m.group(2)).replace(",", "."))
+    if re.search(rf"\b(?:costs?|kostet|kosten|is|are|ist|sind)\b.*\d|{_CUR}", low) and not _PER_UNIT.search(low):
+        for seg in _segments(low):
+            mm = _ITEM_PRICE.search(seg)
+            if mm and mm.group(1) not in _LABEL_STOP and mm.group(1) not in ("costs", "cost", "kostet", "kosten", "bill",
+                                                                                  "rechnung", "dinner", "total") \
+                    and re.search(rf"(?:costs?|kostet|kosten|{_CUR}|^\W*(?:the |die |der |das )?[a-zäöüß]+\s+\d|\d+[.,]\d{{2}}|"
+                                  rf"\beach\b|\bje\b|das stück|apiece)", seg):
+                n.setdefault("item_prices", {})[_stem(mm.group(1))[:4]] = float(mm.group(2).replace(",", "."))
+    for mm in re.finditer(rf"\b({NUM})\s*(litres?|liters?|l|kilos?|kg|pounds?|lbs?|bottles?|flaschen?)\b", low):
+        v = num(mm.group(1))
+        if v is not None:
+            n.setdefault("unit_qty", {})[_unit(mm.group(2))] = v
+    m = re.search(rf"\b(?:ich nehm\w*|i'?m buying|i buy|i'?ll take|i need|ich brauche|ich kaufe)\s+({NUM})\s*(kilo|kg|liter|litre|pfund)\b",
+                  low)
+    if m and num(m.group(1)) is not None:
+        n.setdefault("unit_qty", {})[_unit(m.group(2))] = num(m.group(1))
+    for mm in re.finditer(rf"\b({NUM})\s+([a-zäöüß]{{3,}})", low):
+        v, it = num(mm.group(1)), _stem(mm.group(2))[:4]
+        if v is not None and it in (n.get("item_prices") or {}) and not re.search(r"(?:costs?|kostet|kosten)", low):
+            n.setdefault("item_qty", {})[it] = v
+    for mm in re.finditer(rf"\b(?:plus|and|und|außerdem)\s+(?:a |an |ein\w* )?(?:[a-zäöüß]+\s+){{0,3}}?(?:for|für)\s+(?:{_CUR}\s*)?"
+                          rf"(\d+(?:[.,]\d+)?)", low):
+        n.setdefault("extras", []).append(float(mm.group(1).replace(",", ".")))
+    m = re.search(rf"\b(?:dinner|lunch|the bill|bill|check|tab|meal|rechnung|essen|abendessen)\b.*?\b(?:came to|was|were|is|totals?|"
+                  rf"total(?:led)?|war|betrug|kostete|macht)\s+(?:{_CUR}\s*)?(\d+(?:[.,]\d+)?)", low)
+    if m:
+        n["bill"] = float(m.group(1).replace(",", "."))
+
+
+def _unit(u: str) -> str:
+    u = u.lower()
+    return {"l": "litre", "liter": "litre", "litres": "litre", "liters": "litre", "kg": "kilo", "kilos": "kilo",
+            "pfund": "pound", "lb": "pound", "lbs": "pound", "pounds": "pound", "flasche": "bottle", "flaschen": "bottle",
+            "bottles": "bottle", "stück": "piece", "m": "metre", "meter": "metre"}.get(u, u.rstrip("s"))
+
+
+_HABIT = re.compile(r"^(?:and |also |btw |und |ach ja,? )?(?:i (?:always |usually |normally |only )?(?:take|drink|eat|put|use|"
+                    r"like|love|hate|prefer)|ich (?:trink|ess|nehm|tu|mag|liebe|hasse)\w*)\b(.+)$", re.I)
+
+
+def _note_facts(n: dict, msg: str, low: str) -> None:
+    m = re.search(rf"\b(?:my|our|mein\w*|unser\w*)\s+([a-zäöüß]+)(?:'s|\s+is|\s+ist)\s+(?:a|an|ein|eine|einer)\s+"
+                  r"([a-zäöüß][a-zäöüß -]{1,30}?)(?=[,.;!]|$|\s+(?:and|und|but|aber|who|der|die|das|his|her|sein|ihr)\b)", low)
+    if m and m.group(2) not in ("bit", "lot", "little", "bisschen"):
+        n.setdefault("attr", {}).setdefault(m.group(1), {})["is"] = m.group(2).strip()
+    m = re.search(rf"\b(?:my|mein\w*)\s+({_REL})\s+(?:works as|is working as|arbeitet als|ist)\s+(?:a |an |ein |eine )?"
+                  r"([a-zäöüß-]+)(?:\s+von beruf)?\b", low)
+    if m and (re.search(r"works as|arbeitet als|von beruf", low) or m.group(2).endswith(("er", "ist", "in", "or", "ant", "eur"))):
+        n.setdefault("attr", {}).setdefault(m.group(1), {})["job"] = m.group(2)
+    m = re.match(r"^(?:(?:dr|mr|mrs|ms|frau|herr|prof)\.?\s+)?([a-zäöüß][\wäöüß'-]+)\s+(?:is|ist)\s+(?:my|mein\w*)\s+(" + _REL + r")\b", low)
+    if m:
+        full = re.match(r"^((?:(?:dr|mr|mrs|ms|frau|herr|prof)\.?\s+)?[a-zäöüß][\wäöüß'-]+)", low).group(1)
+        key = m.group(1)
+        n.setdefault("people", {})[key] = m.group(2)
+        n.setdefault("display", {})[key] = " ".join(w[:1].upper() + w[1:] for w in full.split())
+        n["last_person"] = key
+    m = re.search(r"\bas an? ([a-z]+(?:\s+[a-z]+)?)\s*,?\s+(?:my|i)\b|\bi work as an? ([a-z]+(?:\s+[a-z]+)?)\b|\bi'?m an? "
+                  r"([a-z]+) by (?:trade|profession)\b|\bich arbeite als ([a-zäöüß]+)\b|\bich bin ([a-zäöüß]+) von beruf\b|"
+                  r"\bmy job as an? ([a-z]+)\b", low)
+    if m:
+        n["my_job"] = next(x for x in m.groups() if x)
+    m = re.search(r"\b(?:my|our|mein\w*|unser\w*)\s+([a-zäöüß]+)\s+([a-zäöüß]+)\s+(?:is|was|has|had|just|stole|ate|keeps|"
+                  r"hat|ist|war)\b", low)
+    if m:
+        from engramm.understand.lex import lexicon
+        es = lexicon("de" if re.search(r"\b(?:mein\w*|unser\w*)\b", low) else "en").lookup(m.group(1))
+        if es and es[0].pos == "n" and (es[0].ss == "animal" or set(es[0].cats) & {"PET", "ANIMAL"}) and \
+                m.group(1) not in ("dog", "cat", "pet", "hund", "katze", "puppy", "kitten", "bird", "vogel"):
+            n["breed"] = m.group(1)
+            n.setdefault("people", {})[m.group(2)] = "dog" if not re.search(r"\b(?:mein\w*|unser\w*)\b", low) else "hund"
+    m = _HABIT.match(low)
+    if m and not _asks(low):
+        n.setdefault("habits", []).append(msg.strip())
+        n["habits"] = n["habits"][-12:]
 
 
 def _age_in(low: str) -> int | None:
@@ -206,6 +422,29 @@ _DIET = [("veg", r"\bi'?m (?:a )?(?:vegetarian|vegan)\b|\bi(?:'ve| have) been (?
 
 def _contradiction(n: dict, low: str, lang: str) -> str | None:
     clash = None
+    m = re.search(r"\b(?:allergic to|allergy to|allergisch (?:gegen|auf)|allergie gegen)\s+(cats?|dogs?|horses?|rabbits?|hamsters?|"
+                  r"katzen|hunde|pferde|kaninchen|tierhaare)\b", low)
+    if m:
+        n["animal_allergy"] = m.group(1)
+    elif n.get("animal_allergy") and re.search(r"\b(?:adopt\w*|get(?:ting)? an?|buy(?:ing)? an?|holen|adoptieren|anschaffen|kaufen)\b", low):
+        a = n["animal_allergy"]
+        grp = {"cat": r"cats?|kittens?|katzen?|kätzchen|kater", "dog": r"dogs?|pupp(?:y|ies)|hunde?|welpen?",
+               "katz": r"katzen?|kätzchen|kater|cats?|kittens?", "hund": r"hunde?|welpen?|dogs?|pupp(?:y|ies)"}
+        rx = grp.get(a[:3] if a[:3] in grp else a[:4], re.escape(a))
+        if re.search(rf"\b(?:{rx})\b", low):
+            clash = (f"Wait — didn't you say earlier that you're allergic to {a}? Are you sure about that?" if lang == "en" else
+                     f"Moment – vorhin hast du gesagt, du bist allergisch gegen {a}. Bist du sicher?")
+            n.pop("animal_allergy", None)
+    m = re.search(r"\b(?:she|he)(?:'s| is| will be| turns?)\s+(?:turning\s+|going to be\s+)?(\d{1,2})\b|\b(?:sie|er) wird\s+(\d{1,2})\b", low)
+    ages = n.get("ages") or {}
+    if m and n.get("age_last") in ages and n["age_last"] != "me":
+        v = int(m.group(1) or m.group(2))
+        old = ages[n["age_last"]]
+        if abs(v - old) > 1:
+            who = n["age_last"]
+            clash = (f"Wait — earlier you said your {who} is {_fmt_num(old)}. Is that right, or did I mix something up?" if lang == "en"
+                     else f"Moment – vorhin hast du gesagt, dein{'e' if who.endswith(('in', 'tochter', 'schwester')) else ''} "
+                          f"{who.capitalize()} ist {_fmt_num(old)}. Stimmt das?")
     for key, said, rx, words in _DIET:
         if re.search(said, low):
             n.setdefault("diet", [])
@@ -246,6 +485,8 @@ def _note_none(n: dict, low: str) -> None:
                 n["none"].append(g)
 
 
+_EVENING = re.compile(r"\b(?:tonight|this evening|evening|movie|film|concert|dinner|show|theatre|theater|abends|heute abend|"
+                      r"konzert|kino)\b", re.I)
 _SPOKEN = re.compile(r"\b(quarter past|half past|quarter to|viertel nach|viertel vor|halb)\s+(\d{1,2}|" + _NUMW + r")\b"
                      r"\s*(am|pm|uhr)?", re.I)
 
@@ -268,7 +509,7 @@ def _note_times(n: dict, low: str) -> None:
         ap = (mm.group(3) or "").lower()
         if ap == "pm" and hh < 12:
             hh += 12
-        n["time"] = [hh, mi, "ap" if ap in ("am", "pm") else ""]
+        n["time"] = [hh, mi, "ap" if ap in ("am", "pm") else ("pm?" if _EVENING.search(low) else "")]
         n.pop("travel", None)
         n.pop("length", None)
     for mm in _TIME.finditer(low):
@@ -280,25 +521,40 @@ def _note_times(n: dict, low: str) -> None:
         if t is None:
             continue
         n["time"] = list(t)
+        if not t[2] and 1 <= t[0] <= 11 and _EVENING.search(low):
+            n["time"][2] = "pm?"
         n.pop("travel", None)
         n.pop("length", None)
-    for mm in _DUR.finditer(low):
-        mins = _mins(mm.group(1), mm.group(2))
-        if mins is None:
-            continue
-        travel = bool(_TRAVEL.search(low))
-        if travel:
-            n["travel"] = n.get("travel", 0) + mins
-        elif _LENGTH.search(low) or _EVENTY.search(low):
-            n["length"] = n.get("length", 0) + mins
+    if re.search(r"\b(?:km/h|kmh|km an hour|km per hour|kilometers an hour|mph|pages an hour|pages per hour|seiten pro stunde|"
+                 r"km pro stunde|stundenkilometer)\b", low):
+        return                                  # a speed, not a duration
+    ds = durations(low)
+    if not ds:
+        return
+    if re.search(r"\b(?:for|ride for|walk for|drive for|run for|noch|will|möchte|want to|plan(?:ning)? to)\b", low) and \
+            "time" not in n and not _TRAVEL.search(low):
+        n["span"] = sum(ds)                     # "planning to ride for 2 and a half hours"
+    if _TRAVEL.search(low) or re.search(r"\b(?:by bus|by train|by car|on foot|zu fuß|mit dem bus|mit der bahn|ride|fahrt|weg|"
+                                        r"hike|wanderung|walk|trip|reise)\b", low):
+        n["travel"] = n.get("travel", 0) + sum(ds)
+    elif _LENGTH.search(low) or _EVENTY.search(low) or re.search(r"\b(?:oven|ofen|bake|backen|cook|kochen|pause|break|"
+                                                                  r"part|teil|then|dann)\b", low):
+        n["length"] = n.get("length", 0) + sum(ds)
+    else:
+        n["span"] = sum(ds)
 
 
 def _note_place(n: dict, msg: str, low: str) -> None:
     best = None
     for mm in _LIVE.finditer(msg):
-        city = mm.group(1) or mm.group(2)
+        city = mm.group(1) or mm.group(2) or mm.group(3) or mm.group(4)
         if not city:
             continue
+        if (mm.group(3) or mm.group(4)) and not city[:1].isupper():
+            from engramm.understand.lex import lexicon
+            if any(e.pos in ("v", "a") or e.ss in ("state", "feeling", "act", "cognition", "attribute") for e in
+                   lexicon("en").lookup(city.lower())):
+                continue                       # "i'm in trouble", "i'm in love": not a place
         city = city.split()[0] if city.split()[0].lower() not in _NOT_CITY else ""
         if city and city.lower() not in _NOT_CITY and not re.match(r"(?:with|mit|zu|bei)$", city.lower()):
             best = city
@@ -307,7 +563,15 @@ def _note_place(n: dict, msg: str, low: str) -> None:
 
 
 def _note_people(n: dict, msg: str, low: str) -> None:
-    pats = [rf"\b(?:my|our|mein\w*|unser\w*)\s+({_REL})(?:'s name is| is called| is named| heißt|,? (?:her|his|their) name(?:'s| is)|"
+    m = re.search(rf"\b(?:my|our|mein\w*|unser\w*)\s+({_REL})\b.*?\b(?:her|his|their|ihr|sein)\s+name(?:'s| is| ist)?\s+"
+                  r"([a-zäöüß][\wäöüß'-]+)|\b(?:my|our)\s+(" + _REL + r")\b.*?\b(?:she|he)(?:'s| is) called\s+([a-z][\w'-]+)", low)
+    if m:
+        rel, name = (m.group(1), m.group(2)) if m.group(1) else (m.group(3), m.group(4))
+        n.setdefault("people", {})[name] = rel
+        n.setdefault("display", {})[name] = name[:1].upper() + name[1:]
+        n["last_person"] = name
+        return
+    pats = [rf"\b(?:my|our|mein\w*|unser\w*)\s+({_REL})(?:'?s name is| is called| is named| heißt|,? (?:her|his|their) name(?:'s| is)|"
             rf",? (?:she|he)'s called|, called|, named| is|,| ist|:)?\s+(?:{_TITLE})?"
             r"([A-Za-zÄÖÜäöüß][\wäöüßćčšž'-]+)(.*)$",
             rf"\b([A-Z][\wäöüßćčšž'-]+)\s+(?:is|ist)\s+(?:my|mein\w*)\s+({_REL})\b(.*)$"]
@@ -318,10 +582,12 @@ def _note_people(n: dict, msg: str, low: str) -> None:
         rel, name, rest = (m.group(1), m.group(2), m.group(3)) if k == 0 else (m.group(2), m.group(1), m.group(3))
         if name.lower() in _NOT_NAME or re.fullmatch(r"\d+", name):
             continue
-        named = re.search(r"(?:name(?:'s| is)|called|named|heißt)\s+(?:" + _TITLE + r")?" + re.escape(name), msg, re.I)
+        named = re.search(r"(?:name(?:'s| is)|called|named|heißt)\s+(?:" + _TITLE + r")?" + re.escape(name), msg, re.I) or \
+            re.search(_TITLE + re.escape(name), msg, re.I)
         if not named and not name[:1].isupper():
             from engramm.understand.lex import lexicon
-            if lexicon("de" if re.search(r"[äöüß]|\b(?:mein|meine|unser)\b", low) else "en").lookup(name.lower()):
+            lx = lexicon("de" if re.search(r"[äöüß]|\b(?:mein|meine|unser)\b", low) else "en")
+            if any(e.pos in ("v", "a") for e in lx.lookup(name.lower())):
                 continue                       # "my sister, visiting …": a word, not a name
         key = name.lower()
         tm = re.search(rf"({_TITLE}){re.escape(name)}", msg, re.I)
@@ -353,7 +619,7 @@ def _note_days(n: dict, low: str) -> None:
             ["dom", int(re.sub(r"\D", "", when))]
         n["last_event"] = name
     for mm in _IN_DAYS.finditer(low):
-        name, v = (mm.group(1), num(mm.group(2))) if mm.group(1) else (mm.group(6), num(mm.group(4)))
+        name, v = (mm.group(1), num(mm.group(2))) if mm.group(1) else (mm.group(5), num(mm.group(4)))
         if v is not None and name:
             n.setdefault("events", {})[name] = ["in", v]
             n["last_event"] = name
@@ -590,7 +856,7 @@ def _note_quantities(n: dict, low: str) -> None:
 
 def _note_ages(n: dict, low: str) -> None:
     ages = n.setdefault("ages", {})
-    m = re.search(rf"\b(?:my|mein\w*)\s+({_REL})\s+(?:is|ist)\s+(\d{{1,3}})\b(?!\s*(?:minutes?|cm|kg|km|%|euro|years? (?:older|"
+    m = re.search(rf"\b(?:my|mein\w*)\s+({_REL})(?:\s+is|\s+ist|'s)\s+(\d{{1,3}})\b(?!\s*(?:minutes?|cm|kg|km|%|euro|years? (?:older|"
                   rf"younger)|jahre (?:älter|jünger)))", low)
     if m:
         ages[m.group(1)] = int(m.group(2))
@@ -618,13 +884,16 @@ def _note_ages(n: dict, low: str) -> None:
 def fallback(st, msg: str, lang: str) -> str | None:
     """After the other layers found nothing: a person's name the user mentioned in passing ("my boss, her name's
     Margit") — the memory answers first when it knows."""
-    return _ans_name(st.uses.get("u_notes") or {}, msg.lower().strip(), lang == "de", None)
+    n, low, de = st.uses.get("u_notes") or {}, msg.lower().strip(), lang == "de"
+    return _ans_name(n, low, de, None) or _ans_myjob(n, low, de, None)
 
 
 def _fmt_time(h: int, m: int, style: str, lang: str) -> str:
     h %= 24
     if lang == "de":
         return f"{h}:{m:02d} Uhr"
+    if style == "pm?" and h < 12:
+        return f"{h}:{m:02d} pm ({h + 12}:{m:02d})"
     if style == "ap":
         return f"{(h % 12) or 12}:{m:02d} {'pm' if h >= 12 else 'am'}"
     return f"{h}:{m:02d}"
@@ -641,7 +910,9 @@ def answer(st, msg: str, lang: str, now: datetime | None = None) -> str | None:
     if not _asks(low):
         return None
     de = lang == "de"
-    for f in (_ans_time, _ans_days, _ans_choose, _ans_count, _ans_rate, _ans_total, _ans_recipe, _ans_agediff, _ans_age,
+    for f in (_ans_time, _ans_weekday, _ans_date, _ans_days, _ans_choose, _ans_speed, _ans_cost, _ans_split, _ans_count,
+              _ans_rate, _ans_total, _ans_recipe, _ans_agediff, _ans_age, _ans_breed, _ans_attr, _ans_whois,
+              _ans_name_known, _ans_habit,
               _ans_who, _ans_place):
         out = f(n, low, de, now)
         if out:
@@ -653,7 +924,7 @@ def _ans_time(n, low, de, now):
     if "time" not in n:
         return None
     h, mi, style = n["time"]
-    if n.get("travel") and re.search(r"\b(?:when|what time|by when)\b.*\b(?:leave|go|set off|head out|start|get going|"
+    if n.get("travel") and re.search(r"\b(?:when|what time|by when|what'?s the latest|latest)\b.*\b(?:leave|go|set off|head out|start|get going|"
                                      r"depart|be out)\b|\bwann\b.*\b(?:los|losfahren|losgehen|aufbrechen|aus dem haus|"
                                      r"fahren|gehen|starten|weg)\b|\bum wie ?viel uhr\b.*\b(?:los|fahren|gehen)\b", low):
         t = h * 60 + mi - n["travel"]
@@ -662,12 +933,212 @@ def _ans_time(n, low, de, now):
         if de:
             return f"Um {at} da zu sein, musst du spätestens um {by} los – ein paar Minuten früher geben dir Puffer."
         return f"To make it for {at}, you'd need to leave by {by} at the latest — a few minutes earlier gives you a buffer."
-    if n.get("length") and re.search(r"\b(?:over|end|ends|finish|finishes|finished|done|out|wrap up|wraps up|let out|"
-                                     r"zu ende|vorbei|aus|fertig|endet|ende|rum)\b", low):
+    if n.get("travel") and re.search(r"\b(?:get in|arrive|arriving|be there|be at|get there|get to|reach|land|be home|"
+                                     r"wann bin ich (?:da|dort|am ziel|zuhause|bei)|ankommen|ankomme|komme ich an|am ziel)\b", low):
+        t = h * 60 + mi + n["travel"]
+        ah, am = divmod(int(t) % 1440, 60)
+        a = _fmt_time(ah, am, style, "de" if de else "en")
+        return f"Dann bist du gegen {a} da." if de else f"You should get there at about {a}."
+    if (n.get("length") or n.get("travel")) and re.search(r"\b(?:over|end|ends|finish|finishes|finished|done|out|wrap up|wraps up|"
+                                                          r"let out|take it out|zu ende|vorbei|aus|fertig|endet|ende|rum|"
+                                                          r"herausnehmen|rausnehmen|raus)\b", low):
+        if not n.get("length"):
+            n["length"] = n["travel"]
         t = h * 60 + mi + n["length"]
         eh, em = divmod(int(t) % 1440, 60)
         e = _fmt_time(eh, em, style, "de" if de else "en")
         return f"Dann ist es gegen {e} zu Ende." if de else f"It should be over at about {e}."
+    return None
+
+
+def _ordinal(d: int, de: bool) -> str:
+    if de:
+        return f"{d}."
+    suf = "th" if 10 <= d % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(d % 10, "th")
+    return f"{d}{suf}"
+
+
+def _ans_weekday(n, low, de, now):
+    if not re.search(r"\bwhich day of the week\b|\bwhat day (?:of the week )?(?:will|is|would) (?:that|it)\b|\bwhat weekday\b|"
+                     r"\bwelcher wochentag\b|\ban welchem (?:wochen)?tag\b|\bwhich day will (?:that|it) be\b|\bwelcher tag\b", low):
+        return None
+    if n.get("in_days") is None:
+        return None
+    today = n.get("today_wd", (now or datetime.now()).weekday())
+    wd = int(today + n["in_days"]) % 7
+    return f"Das wäre ein {_DAYS_DE[wd].capitalize()}." if de else f"That would be a {_DAYS_EN[wd].capitalize()}."
+
+
+def _ans_date(n, low, de, now):
+    if not re.search(r"\b(?:which|what) date\b|\bwhat'?s the date\b|\bwelche\w* datum\b|\blatest date\b|\blast day\b|\bspätestens\b|"
+                     r"\bsind wir zurück\b|\bbin ich zurück\b|\bam wievielten\b|\bwhen do i (?:fly|come|go|get) "
+                     r"back\b|\bwhich day do i (?:fly|come|go) back\b|\bby when\b|\bbis wann\b|\bwann (?:fliege|komme|fahre) ich "
+                     r"zurück\b|\bwhen (?:do|should|must) i (?:order|book|send)\b", low):
+        return None
+    base = n.get("dom_last")
+    if base is None:
+        return None
+    if n.get("stay") is not None and re.search(r"\bback\b|\bzurück\b|\breturn\b|\bleave\b", low + " back" if
+                                                not n.get("before") else low):
+        d = int(base + n["stay"])
+    elif n.get("before") is not None:
+        d = int(base - n["before"])
+    elif n.get("stay") is not None:
+        d = int(base + n["stay"])
+    else:
+        return None
+    if not 1 <= d <= 31:
+        return None
+    wd = ""
+    if n.get("dom_wd") is not None:
+        w = (n["dom_wd"] + (d - base)) % 7
+        wd = (_DAYS_DE if de else _DAYS_EN)[w].capitalize()
+    if de:
+        return f"Am {wd + ', dem ' if wd else ''}{_ordinal(d, True)}"
+    return f"On {wd + ' ' if wd else ''}the {_ordinal(d, False)}."
+
+
+def _ans_speed(n, low, de, now):
+    sp = n.get("speed")
+    if not sp:
+        return None
+    v, unit = sp
+    if re.search(r"\bhow far\b|\bwie weit\b|\bhow many (?:km|kilomet\w+|miles|pages)\b|\bwie viele (?:km|kilometer|seiten)\b|"
+                 r"\bwhat distance\b|\bwhich distance\b", low):
+        asked = durations(low)
+        span = sum(asked) if asked else (n.get("span") or n.get("travel") or n.get("length"))
+        if not span:
+            return None
+        d = _fmt_num(v * span / 60)
+        u = {"km": "km", "miles": "miles", "pages": "Seiten" if de else "pages"}[unit]
+        return f"Etwa {d} {u}." if de else f"About {d} {u}."
+    if n.get("distance") and re.search(r"\bhow long\b|\bhow many hours\b|\bwie lange\b|\bwie viele stunden\b|\bhow much time\b", low):
+        dist = n["distance"][0]
+        mins = dist / v * 60
+        return (f"Etwa {_fmt_dur(mins, True)}." if de else
+                f"About {_fmt_dur(mins, False)}" + (f" ({_fmt_num(mins / 60)} hours)." if mins % 60 else "."))
+    return None
+
+
+def _ans_cost(n, low, de, now):
+    if not re.search(r"\btotal\b|\binsgesamt\b|\bzusammen\b|\bhow much (?:will|would|does|is|do)\b|\bwhat (?:will|would|does) "
+                     r"(?:it|that|a full tank|this)\b.*\bcost\b|\bwas (?:kostet|zahlen|zahle|macht)\b|\bwie viel (?:kostet|zahl\w*|macht)\b|"
+                     r"\bwhat do (?:i|we) pay\b|\bowe\b|\bschulde\b|\bwas zahl\w* ich\b", low):
+        return None
+    total, parts = 0.0, 0
+    for unit, (price, item) in (n.get("unit_prices") or {}).items():
+        q = (n.get("unit_qty") or {}).get(unit)
+        if q is not None:
+            total += price * q
+            parts += 1
+    ip, iq = n.get("item_prices") or {}, n.get("item_qty") or {}
+    for it, q in iq.items():
+        if it in ip:
+            total += ip[it] * q
+            parts += 1
+    if not parts:
+        return None
+    total += sum(n.get("extras") or [])
+    t = f"{total:.2f}".rstrip("0").rstrip(".")
+    return f"Das macht {t} insgesamt." if de else f"That comes to {t} in total."
+
+
+def _ans_split(n, low, de, now):
+    if not n.get("bill") or not n.get("group") or not re.search(r"\beach\b|\bper person\b|\bper head\b|\bjede[rs]?\b|\bpro (?:person|kopf)\b|"
+                                                                r"\bapiece\b", low):
+        return None
+    each = n["bill"] / n["group"]
+    t = f"{each:.2f}".rstrip("0").rstrip(".")
+    return f"{t} pro Person." if de else f"{t} each."
+
+
+def _ans_attr(n, low, de, now):
+    attr = n.get("attr") or {}
+    m = re.search(r"\bwhat breed is (?:my|our) (\w+)|\bwhat kind of (\w+) (?:is|do) (?:my|our|i|we)\b|\bwhich breed\b.*\b(?:my|our) (\w+)|"
+                  r"\bwelche rasse (?:hat|ist) (?:mein\w*|unser\w*) (\w+)|\bwas für (?:ein\w*|eine) (\w+)", low)
+    if m:
+        who = next((x for x in m.groups() if x), "")
+        a = attr.get(who) or next((v for k, v in attr.items() if k.startswith(who[:3])), None)
+        if a and a.get("is"):
+            return f"Ein{'e' if who in ('katze', 'hündin') else ''} {a['is'].title()}." if de else f"A {a['is']}."
+    m = re.search(rf"\bwhat does (?:my|our) ({_REL}) do\b|\bwhat(?:'s| is) (?:my|our) ({_REL})'?s? (?:job|profession|work)\b|"
+                  rf"\bwas macht (?:mein\w*|unser\w*) ({_REL})(?: beruflich)?\b|\bwas ist (?:mein\w*) ({_REL}) von beruf\b", low)
+    if m:
+        who = next(x for x in m.groups() if x)
+        a = attr.get(who) or {}
+        job = a.get("job") or a.get("is")
+        if job:
+            return (f"{'Deine' if re.search(r'(?:in|schwester|mutter|mama|tante|oma)$', who) else 'Dein'} "
+                    f"{who.capitalize()} ist {job.capitalize()}." if de else f"Your {who} works as a {job}.")
+    return None
+
+
+def _ans_myjob(n, low, de, now):
+    if not n.get("my_job") or not re.search(r"\bmy job\b|\bwhat do i do for (?:a living|work)\b|\bwhat(?:'s| is) my (?:job|profession)\b|"
+                                            r"\bmein\w* beruf\b|\bwas arbeite ich\b|\bals was arbeite ich\b", low):
+        return None
+    j = n["my_job"]
+    return f"Du arbeitest als {j[:1].upper() + j[1:]}." if de else f"You work as a{'n' if j[0] in 'aeiou' else ''} {j}."
+
+
+def _ans_breed(n, low, de, now):
+    if not n.get("breed") or not re.search(r"\bwhat breed\b|\bwhich breed\b|\bwhat kind of (?:dog|cat)\b|\bwelche rasse\b|"
+                                           r"\bwas für ein\w* (?:hund|katze)\b", low):
+        return None
+    b = n["breed"]
+    return f"Ein {b[:1].upper() + b[1:]}." if de else f"A {b}."
+
+
+def _ans_whois(n, low, de, now):
+    m = re.search(r"\b(?:who(?:'s| is| was)|wer (?:ist|war))\s+((?:(?:dr|mr|mrs|ms|frau|herr|prof)\.?\s+)?[a-zäöüß][\wäöüß'-]+)"
+                  r"(?:\s+(?:again|nochmal|noch mal|nochmals))?\s*\??$", low)
+    if not m:
+        return None
+    full = m.group(1)
+    key = full.split()[-1]
+    rel = (n.get("people") or {}).get(key)
+    if not rel:
+        return None
+    disp = (n.get("display") or {}).get(key) or " ".join(w[:1].upper() + w[1:] for w in full.split())
+    if de:
+        poss = "deine" if re.search(r"(?:in|schwester|mutter|mama|tante|oma|cousine|frau)$", rel) else "dein"
+        return f"{disp} ist {poss} {rel.capitalize()}."
+    return f"{disp} is your {rel}."
+
+
+def _ans_name_known(n, low, de, now):
+    """The name question in the conversation itself, only for a person introduced with a name here."""
+    return _ans_name(n, low, de, now) if n.get("display") else None
+
+
+_SWAP_EN = {"i": "you", "i'm": "you're", "im": "you're", "my": "your", "me": "you", "mine": "yours", "myself": "yourself",
+            "i've": "you've", "i'll": "you'll", "am": "are"}
+
+
+def _ans_habit(n, low, de, now):
+    hs = n.get("habits") or []
+    if not hs:
+        return None
+    m = re.search(r"\bhow many (\w+) do i\b|\bwhat do i (?:put|take|have|add|drink|eat|use) (?:in|on|with) (?:my )?(\w+)|"
+                  r"\bwas (?:tu|mach|nehm|trink|ess)\w* ich (?:in|auf|zu) (?:mein\w* )?(\w+)|\bwie viele (\w+) (?:nehm|trink|ess)\w* ich\b|"
+                  r"\bhow do i (?:take|have|drink|like) my (\w+)", low)
+    if not m and re.search(r"\bhow do i (?:like|take|have) (?:it|mine)\b|\bwie (?:trinke|mag|nehme) ich (?:ihn|es|sie)\b", low):
+        h = hs[-1]
+        said = re.split(r",\s*(?:bad habit|i know|haha|lol)\b", h.strip(), flags=re.I)[0].rstrip(" .!")
+        if de:
+            return f"Du hast gesagt: „{said}“."
+        out = " ".join(_SWAP_EN.get(w.lower(), w) for w in said.split())
+        return out[:1].upper() + out[1:] + "."
+    if not m:
+        return None
+    key = _stem(next(x for x in m.groups() if x))[:4]
+    for h in reversed(hs):
+        if key in _stem(h.lower()) or any(_stem(w)[:4] == key for w in re.findall(r"[a-zäöüß]+", h.lower())):
+            said = re.split(r",\s*(?:bad habit|i know|haha|lol)\b", h.strip(), flags=re.I)[0].rstrip(" .!")
+            if de:
+                return f"Du hast gesagt: „{said}“."
+            out = " ".join(_SWAP_EN.get(w.lower(), w) for w in said.split())
+            return out[:1].upper() + out[1:] + "."
     return None
 
 
@@ -679,6 +1150,9 @@ def _ans_days(n, low, de, now):
         return None
     ev = n.get("events") or {}
     name = next((k for k in ev if re.search(rf"\b{re.escape(k)}", low)), n.get("last_event"))
+    if (not name or name not in ev) and n.get("dom_last") and n.get("today_dom") is not None and n["dom_last"] != n["today_dom"]:
+        ev = {"_": ["dom", n["dom_last"]]}
+        name = "_"
     if not name or name not in ev:
         return None
     kind, val = ev[name]
@@ -878,7 +1352,7 @@ def _ans_age(n, low, de, now):
 
 
 def _ans_name(n, low, de, now):
-    m = re.search(rf"\bwhat(?:'s| is| was)\s+(?:my|the)\s+({_REL})(?:'s)?\s+(?:name|called)\b|\bwhat(?:'s| is) my ({_REL}) called\b|"
+    m = re.search(rf"\bwhat(?:'?s| is| was)\s+(?:my|the)\s+({_REL})(?:'?s)?\s+(?:name|called)\b|\bwhat(?:'s| is) my ({_REL}) called\b|"
                   rf"\bwie heißt\s+(?:mein\w*|unser\w*)\s+({_REL})\b|\bwie hieß\s+(?:mein\w*)\s+({_REL})\b", low)
     if not m:
         return None
@@ -886,6 +1360,7 @@ def _ans_name(n, low, de, now):
     for key, r in (n.get("people") or {}).items():
         if r == rel:
             disp = (n.get("display") or {}).get(key) or key[:1].upper() + key[1:]
+            n["_ans"] = disp
             return (f"{'Deine' if re.search(r'(?:in|schwester|mutter|mama|tante|oma|frau)$', rel) else 'Dein'} "
                     f"{rel[:1].upper() + rel[1:]} heißt {disp}.") if de else f"Your {rel} is called {disp}."
     return None

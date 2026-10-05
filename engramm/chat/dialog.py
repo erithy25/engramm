@@ -6016,7 +6016,10 @@ class Assistant:
             text = infer.answer(st, msg, lang, self.clock() if callable(self.clock) else None)
         except Exception:
             text = None
-        return Reply(msg, "answer", text, via="infer") if text else None
+        if text:
+            ans = (st.uses.get("u_notes") or {}).pop("_ans", None)
+            return Reply(msg, "answer", text, answer=ans, via="infer")
+        return None
 
     def turn(self, st: DialogState, message: str) -> Reply:
         t0 = time.time()
@@ -6042,7 +6045,15 @@ class Assistant:
             st.ctx = dict(ctx)
             bot.context = dict(FRESH_CTX)
         rep.message = message
-        if rep.via not in ("learn", "infer"):
+        if rep.via not in ("learn", "infer") and rep.kind != "safety":
+            try:
+                from engramm.understand.suggest import check
+                alt = check(st, message, "de" if st.lang == "de" else "en", rep.text or "", rep.kind)
+            except Exception:
+                alt = None
+            if alt:                                       # the reply broke or ignored a condition the user stated
+                rep = Reply(message, "smalltalk", alt, via="suggest")
+        if rep.via not in ("learn", "infer", "suggest"):
             if rep.kind in ("unknown", "nothing") or (rep.text and re.match(
                     r"(?:I don't know|You haven't told me|Das weiß ich|Das kann ich auf Deutsch|Weiß ich nicht)", rep.text)):
                 try:
@@ -7145,7 +7156,8 @@ class Assistant:
             rep.text = "I don't know for sure."
         if rep.kind == "answer" and rep.via in ("facts", "memory") and rep.source and rep.source.get("kind") == "user" and \
                 (re.match(r"(?i)(?:and |so )?how (?:much|many|long|often|soon)\b.*\b(?:should|can|could|do|would|will|until|till|before)\b.*\b(?:i|we)\b", q) or
-                 re.match(r"(?i)(?:and |so |but |ok )?(?:should|shall|must|do) (?:i|we) (?!have\b|own\b|live\b|work\b)\w+", text.strip())) and \
+                 re.match(r"(?i)(?:and |so |but |ok )?(?:should|shall|must|do) (?:i|we) (?!have\b|own\b|live\b|work\b)\w+", text.strip()) or
+                 re.search(r"(?i)\b(?:what|where|which|how) (?:should|shall|could|can) (?:i|we)\b|\b(?:recommend|suggest)\b", text)) and \
                 not re.search(r"(?i)\bmy\b", text):
             stop_ = {"how", "much", "many", "long", "often", "soon", "should", "can", "could", "do", "would", "will", "until", "till", "before", "i", "we",
                      "a", "an", "the", "each", "every", "per", "to", "be", "able", "is", "it", "and", "so", "have", "shall", "must", "but",

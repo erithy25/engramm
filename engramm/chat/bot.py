@@ -579,6 +579,11 @@ class ChatBot:
         qa = analyse(q) if "'" not in q and "’" not in q else analyse(expand_contractions(q))
         mentions, rel = question_parts(q, self.is_name_initial_fact)
         about_user = any(m.startswith(USER) for m in mentions)
+        if about_user and re.search(r"\b(?:should i|shall i|could i|can i|would you|do you recommend|recommend|suggest|"
+                                    r"what to|where to|how to|is it worth|soll ich|sollte ich|kann ich|könnte ich|empfiehlst)\b",
+                                    q, re.I) and not re.search(r"\b(?:did i|have i|had i|remind me|again|told you|my|"
+                                                              r"hab ich|habe ich|nochmal|mein\w*)\b", q, re.I):
+            about_user = False              # "what should I see when I go back?" asks for advice, not for a stored sentence
         if about_user:
             found = self._personal_answer(qa, mentions, rel)
             if found is not None:
