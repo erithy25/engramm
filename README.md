@@ -23,14 +23,14 @@ hyperdimensional vectors and counted linear models (averaged perceptrons).
 
 | | |
 |---|---|
-| Version | **3.2.0** (prerelease), newest build [**v3.2.0-beta.1**](https://github.com/erithy25/engramm/releases/tag/v3.2.0-beta.1) — all builds: [Releases](https://github.com/erithy25/engramm/releases) |
+| Version | **3.2.0** (prerelease), newest build [**v3.2.0-beta.2**](https://github.com/erithy25/engramm/releases/tag/v3.2.0-beta.2) — all builds: [Releases](https://github.com/erithy25/engramm/releases) |
 | Download | installers for macOS (Apple Silicon and Intel), Windows and Linux, see [Download and install](#download-and-install); the knowledge pack is downloaded on first start after you agree, or used from a folder |
 | Knowledge packs | **lite ≈ 1.25 GB** (lead sections of 400 000 Wikipedia articles, 150 000-entity fact bank, shelf index) · **standard 2.73 GB** (1.5 million article leads, 1 million-entity fact bank, full shelf index, wayfinder) — the plan's ceiling is 5 GB |
 | Memory and speed | lite: **555 MB peak**, p95 answer time 0.09 s, ready in ≈ 5 s · standard: **≈ 1.05 GB peak**, p95 0.17 s, ready in ≈ 9 s (container measurements; also under a hard 1.5 GiB memory limit without hitting it — real 4 GB hardware with a hard disk is still to be measured; `docs/EXPECTATIONS.md`) |
 | Languages | English; German for small talk, feelings, memory, advice, recommendations, everyday situations and common fact questions |
 | Internet (optional) | **off by default**; three channels you switch on one by one — full Wikipedia articles from a static "shelf" (6.37 million articles in 7 425 buckets; whole buckets plus decoys, no server of ours), news feeds fetched on a schedule, and single web pages over Tor. **The text of your question never leaves the computer**: ENGRAMM searches locally and fetches whole buckets, feeds or pages — the shelf host sees bucket numbers only; a page fetched by the messenger tells its site (anonymously, over Tor) which page was read. Every fetch is listed in the app's network log. Design and honest residual risks: `docs/SPEC_ATLAS.md` |
 | Understanding (v3.2) | situations recognised from word lists (Open English WordNet, OdeNet, FrameNet, Wiktionary) and an averaged perceptron, simple inferences from the conversation (times, dates, amounts, people, place, constraints), suggestions that respect what you said (diet, allergy, budget, likes), advice from the whole conversation, and **local learning**: corrections, taught words and style stay on your computer, logged step by step and undone bit-identically with "forget that" (`docs/SPEC_UNDERSTAND.md`) |
-| Measured on fresh, sealed conversations (v3.2, one run, blind AI reader) | event type recognised **92 %**; weak answers **65 %** (EN 71 %, DE 58 %; expected ≤ 25 % — **missed**); concrete advice on a request 1 of 81 — **missed**; inferences 40 % (target 80 % — **missed**); a repeated correction comes back in 2.4 % (target ≤ 5 % — met); details in `docs/EXPECTATIONS.md` |
+| Measured on fresh, sealed conversations (v3.2, one run, blind AI reader) | event type recognised **92 %**; weak answers **65 %** (EN 71 %, DE 58 %; expected ≤ 25 % — **missed**); concrete advice on a request 1 of 81 — **missed**; a re-measurement on three further fresh sets after more work gave 74 % weak; inferences 40 % (target 80 % — **missed**); a repeated correction comes back in 2.4 % (target ≤ 5 % — met); details in `docs/EXPECTATIONS.md` |
 | Everyday conversation | read-tested on unseen conversations (probes 111–124, EN and DE, every answer read by a person, no AI judge): weak answers on the first run, 0 after fixing each category — the honest number is the first run, which is still high for new topics (`docs/EXPECTATIONS.md`) |
 
 **Honest limits.** It is *not* as good as ChatGPT at open conversation, explanation or writing — the plan's
@@ -42,7 +42,7 @@ and date; when ENGRAMM is not sure of a short answer, it quotes the sentence ins
 
 ### Download and install
 
-Pick the installer for your system from the [newest release](https://github.com/erithy25/engramm/releases/tag/v3.2.0-beta.1)
+Pick the installer for your system from the [newest release](https://github.com/erithy25/engramm/releases/tag/v3.2.0-beta.2)
 (the builds are prereleases, so GitHub's "latest" link does not show them):
 
 | System | File |
@@ -55,9 +55,9 @@ Pick the installer for your system from the [newest release](https://github.com/
 
 ```bash
 # macOS (Apple Silicon; Intel: x64 instead of aarch64)
-V=v3.2.0-beta.1; curl -LO https://github.com/erithy25/engramm/releases/download/$V/ENGRAMM_3.2.0_aarch64.dmg
+V=v3.2.0-beta.2; curl -LO https://github.com/erithy25/engramm/releases/download/$V/ENGRAMM_3.2.0_aarch64.dmg
 # Linux (Debian/Ubuntu)
-V=v3.2.0-beta.1; curl -LO https://github.com/erithy25/engramm/releases/download/$V/ENGRAMM_3.2.0_amd64.deb && sudo apt install ./ENGRAMM_3.2.0_amd64.deb
+V=v3.2.0-beta.2; curl -LO https://github.com/erithy25/engramm/releases/download/$V/ENGRAMM_3.2.0_amd64.deb && sudo apt install ./ENGRAMM_3.2.0_amd64.deb
 ```
 
 - On first start the app asks before downloading the lite (≈ 1.25 GB) or standard (≈ 2.7 GB) pack. Offline

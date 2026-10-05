@@ -4204,3 +4204,32 @@ Qualität messbar gesenkt. Die Handler bleiben vorn, das allgemeine System bleib
 einem Bereich aus festen Wortlisten; nötig wäre ein aus Texten gewonnener Rat-Index je Situation × Gegenstand (Wikibooks,
 Behördenseiten) statt nur Gesundheitsartikeln. (2) Missverständnisse: Bezug über mehrere Züge (Pronomen, Ellipse) ist
 die größte Klasse. (3) Bewertung durch Menschen (ChatBench) statt eines KI-Lesers.
+
+### U7 — Nachmessung auf frischen versiegelten Sätzen (5. Oktober 2026, Stand `84eaeaf`, ein Lauf)
+
+Nach U6 wurden der Anleitungs-Index auf Haushalt, Geräte, Fahrzeuge, Tiere, Pflanzen und Essen ausgeweitet (6 893
+Artikel, Rat nur mit einem Satz, der ein Wort mit dem Gespräch teilt) und Ja/Nein-Fragen („should i …?“) begründet
+beantwortet. Gemessen auf `sealed/u7_1…u7_3.json` (nach U6 vom getrennten Agenten geschrieben, Schwellen vorher in
+der Vorregistrierung eingetragen), gleicher Leser-Maßstab.
+
+| Kriterium | Ergebnis | Schwelle | Bewertung |
+|---|---|---|---|
+| schwache Antworten | **74,2 %** (236/318; EN 123/160 = 76,9 %, DE 113/158 = 71,5 %) | ≤ 25 % | **verfehlt** |
+| konkreter Rat auf eine Bitte | **5 von 75** (EN 4/44, DE 1/31) | ≥ 60 % | **verfehlt** |
+| unsicherer Rat ohne Quelle/Warnhinweis | 1 (EN) | 0 | **verfehlt** |
+
+Klassen (Mehrfachnennung): Missverständnis 122, unbeantwortete Bitte 85, Füllfloskel 76, Wiederholung 9, falsches
+Gedächtnis 7, Widerspruch 5, sachlich falsch/unsicher 3, falsche Sprache 0.
+
+**Einordnung.** Der Wert liegt sogar über dem von final_1…3 (64,8 %); die Streuung zwischen fremd geschriebenen Sätzen
+ist also mindestens ±5 Punkte, und die U7-Änderungen haben keinen messbaren Gewinn gebracht. Der Rat stieg von 1/81 auf
+5/75 – absolut weiterhin vernachlässigbar. Wikipedia enthält für Alltagsprobleme kaum praktische Sätze; die Prüfung auf
+Dev-Beispielen fand für 1 von 10 typischen Problemen einen passenden Satz.
+
+**Schluss aus U0–U7.** Über vier blinde Messungen auf je rund 300 Antworten liegt dieses System – Regeln, Wortlisten,
+gelerntes lineares Modell, Kataloge, Wikipedia-Sätze – auf frei geschriebenen Alltagsgesprächen bei 60–75 % schwachen
+Antworten. Was gut gelingt, ist messbar: Situation erkennen (92 %), lokales Lernen mit bitgleichem Vergessen, Fakten mit
+Quelle, Leistung. Die Schwelle ≤ 25 % schwach ist mit dieser Architektur nicht erreichbar; jede weitere Runde
+themenspezifischer Handarbeit hat bisher nur die Entwicklungssätze verbessert. Ein weiterer Schritt verlangt eine
+Grundsatzentscheidung (z. B. ein kleines lokales Sprachmodell, was die Vorgabe „ohne neuronales Netz“ aufhebt), nicht
+noch eine Regel-Runde.
