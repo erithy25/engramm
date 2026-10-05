@@ -204,6 +204,8 @@ class Frame:
     obj_word: str = ""            # as written ("laptop", "handy")
     obj_det: str = ""             # the user's determiner before it ("my", "meinen")
     obj_cats: frozenset = field(default_factory=frozenset)
+    who_raw: str | None = None    # the person/thing roles as read, before the defaults below (the classifier's view)
+    obj_cats_raw: frozenset | None = None
     body: str = ""
     cause: str = ""
     pred: str = ""
@@ -233,6 +235,32 @@ def _ask(text: str, lang: str) -> str:
         return "yesno" if re.match(r"(?:is|are|was|do|does|did|can|could|will|would|ist|sind|war|hast|hat|kann|kannst|"
                                    r"wird|würde|gibt)\b", s) else "other"
     return ""
+
+
+_PERSONAL = {"DAMAGE", "LOSS", "THEFT", "DELAY", "MONEY", "FAILURE", "ILLNESS", "INJURY", "WORRY", "SUCCESS",
+             "MILESTONE", "ACQUIRE", "FEEL_POS", "FEEL_NEG", "CONFLICT", "DEATH"}
+_BODILY = {"ILLNESS", "INJURY", "DEATH", "SUCCESS", "MILESTONE"}
+
+
+def _settle_roles(f: Frame, words, tags, persons: dict, prons: dict, lang: str) -> None:
+    """The roles as a listener fills them once the kind is known: whom it concerns (a person named without "my" —
+    "Opa ist gestürzt" — for what happens to a body; otherwise the speaker, whose thing it is) and the whole a part
+    belongs to, when the whole is said too ("the bumper of my car" → the car)."""
+    f.who_raw, f.obj_cats_raw = f.who, f.obj_cats
+    if not f.who and f.kind in _PERSONAL:
+        named = next((w for w in words if w in persons), None)
+        if named and f.kind in _BODILY:
+            f.who, f.who_word = persons[named], named
+            f.pron = prons.get(named, "they" if lang == "en" else "")
+        elif not named or f.kind not in _BODILY:
+            f.who = "me"
+    parts = {"P-VEHICLE": "VEHICLE", "P-DEVICE": "DEVICE"}
+    for pc, whole_c in parts.items():
+        if pc in f.obj_cats and whole_c not in f.obj_cats:
+            whole = next((e for _, e, _ in tags if e is not None and e.pos == "n" and whole_c in e.cats), None)
+            if whole is not None:                  # only a whole that is said: "starter" alone may be sourdough
+                f.obj, f.obj_word, f.obj_cats = whole.lemma, whole.lemma, frozenset(whole.cats)
+            break
 
 
 def parse(text: str, lang: str = "en", use_model: bool = True, extra: dict | None = None) -> Frame:
@@ -385,6 +413,7 @@ def parse(text: str, lang: str = "en", use_model: bool = True, extra: dict | Non
         clf = classifier()
         if clf:
             f.kind = clf.predict(f, s, f.rule_kind, extra)   # the learned classifier has the last word
+    _settle_roles(f, words, tags, persons, prons, lang)
     f.valence = _KIND_VALENCE.get(f.kind, 0)
     if f.kind in ("PLAN", "ACTIVITY", "") and ev & {"EMO"}:
         from engramm.chat.smart import experience

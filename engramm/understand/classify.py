@@ -23,6 +23,9 @@ KINDS = ["DAMAGE", "INJURY", "ILLNESS", "LOSS", "THEFT", "CONFLICT", "FAILURE", 
 
 def features(f, text: str, rule_kind: str) -> list[str]:
     from engramm.understand.frames import _R, _DAMAGEABLE
+    import dataclasses
+    if f.who_raw is not None:                     # the classifier sees the roles as read, before the defaults
+        f = dataclasses.replace(f, who=f.who_raw, obj_cats=f.obj_cats_raw if f.obj_cats_raw is not None else f.obj_cats)
     s = text.lower()
     lang = f.lang
     feats = ["bias", f"rule={rule_kind or 'NONE'}"]
