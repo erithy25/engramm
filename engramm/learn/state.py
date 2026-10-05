@@ -10,6 +10,7 @@ Nothing leaves the computer: the file sits next to the chat memory (``learn.json
 from __future__ import annotations
 
 import hashlib
+import re
 import json
 import os
 from pathlib import Path
@@ -42,6 +43,9 @@ def exemplar(extra: dict | None, text: str) -> str | None:
         if j > best:
             best, kind = j, k
     return kind if best >= 0.8 else None
+
+
+PACK_FORMAT = "engramm-learning-pack"
 
 
 def _dump(d: dict) -> str:
@@ -179,6 +183,47 @@ class LearnState:
         self._fold()
         self.save()
         return True
+
+    # -- learning packs (V5: shared only when exported on purpose and checked by a person) --------------------------
+    def export_pack(self) -> dict:
+        """What can be shared: taught words and the weight changes of corrections. Never the sentences, the style,
+        the episodes or the reward counts — those are about the person."""
+        words = sorted(({"word": o["word"], "lang": o["lang"], "cats": o["cats"], "ss": o.get("ss", "")}
+                        for o in self.ops if o["op"] == "word"), key=lambda w: (w["lang"], w["word"]))
+        corr = [{"good": o["good"], "bad": o["bad"], "delta": o["delta"]} for o in self.ops if o["op"] == "correct"]
+        body = {"format": PACK_FORMAT, "version": 1, "words": words, "corrections": corr}
+        return {**body, "sha256": hashlib.sha256(_dump(body).encode()).hexdigest()}
+
+    def import_pack(self, pack: dict) -> dict:
+        """Add a checked pack as ordinary steps (so "reset" removes it again). Refuses a changed or foreign file."""
+        body = {k: pack.get(k) for k in ("format", "version", "words", "corrections")}
+        if body["format"] != PACK_FORMAT or body["version"] != 1 or \
+                pack.get("sha256") != hashlib.sha256(_dump(body).encode()).hexdigest():
+            raise ValueError("not an ENGRAMM learning pack, or changed after export")
+        tag = pack["sha256"][:12]
+        have = {(o["lang"], o["word"]) for o in self.ops if o["op"] == "word"}
+        done = {o.get("pack") for o in self.ops}
+        if tag in done:
+            return {"words": 0, "corrections": 0, "already": True}
+        n_w = n_c = 0
+        for w in body["words"] or []:
+            if (w["lang"], w["word"]) in have or not re.fullmatch(r"[a-zäöüß][a-zäöüß-]{1,30}", w["word"]):
+                continue
+            self.ops.append({"op": "word", "word": w["word"], "lang": w["lang"], "cats": sorted(w["cats"]),
+                             "ss": w.get("ss", ""), "pack": tag, "n": self.seq + 1})
+            self.seq += 1
+            n_w += 1
+        for c in body["corrections"] or []:
+            delta = {f: {k: max(-MAX_STEP, min(MAX_STEP, float(v))) for k, v in d.items()}
+                     for f, d in c["delta"].items() if f.startswith(_LEARNABLE)}
+            if delta:
+                self.ops.append({"op": "correct", "good": c["good"], "bad": c["bad"], "delta": delta, "pack": tag,
+                                 "n": self.seq + 1})
+                self.seq += 1
+                n_c += 1
+        self._fold()
+        self.save()
+        return {"words": n_w, "corrections": n_c, "already": False}
 
     def reset(self) -> None:
         self.ops, self.seq = [], 0

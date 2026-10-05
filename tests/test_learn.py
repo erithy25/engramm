@@ -4,6 +4,7 @@ the bandit — on the small test corpus (no pack needed)."""
 from __future__ import annotations
 
 import datetime as dt
+import json
 
 import pytest
 
@@ -124,3 +125,23 @@ def test_reset_forgets_everything(chat):
     assert r.via == "learn"
     assert a.learner.state.ops == [] and not (tmp / "learn.json").exists()
     assert "DEVICE" not in fr.parse("my vape fell in the water", "en").obj_cats
+
+
+def test_learning_pack_export_import(tmp_path):
+    from engramm.learn.state import LearnState
+    a = LearnState(tmp_path / "a.json")
+    a.teach_word("zorbel", "en", ["ANIMAL"], "animal")
+    a.episode("2026-10-05", "LOSS", "keys", "i lost my keys", "en")
+    a.set_style("length", "short")
+    pack = a.export_pack()
+    assert [w["word"] for w in pack["words"]] == ["zorbel"]
+    assert "keys" not in json.dumps(pack) and "short" not in json.dumps(pack)       # nothing personal leaves
+    b = LearnState(tmp_path / "b.json")
+    assert b.import_pack(pack) == {"words": 1, "corrections": 0, "already": False}
+    assert "en:zorbel" in b.words
+    assert b.import_pack(pack)["already"]
+    bad = {**pack, "words": [{"word": "evil", "lang": "en", "cats": ["PERSON"], "ss": ""}]}
+    with pytest.raises(ValueError):
+        b.import_pack(bad)                                   # changed after export
+    b.reset()
+    assert "en:zorbel" not in LearnState(tmp_path / "b.json").words
