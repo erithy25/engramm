@@ -52,6 +52,7 @@ Transkripte liegen außerhalb des Repos und gehen nur an den Leser.
 | U4 | „vergiss das“ stellt den Lernstand bitgleich her | 100 % |
 | U5 | Schlussfolgerungs-Satz (`sealed/infer_test.jsonl`, 40 Fälle, fremd geschrieben) | ≥ 80 % richtig, 0 erfundene Fakten |
 | U6 | Endmessung auf final_1…final_3 (einmal) | wird berichtet; Erwartung: ≤ 25 % schwach |
+| U7 (Nachtrag 5. Oktober 2026, vor der Messung) | schwache Antworten auf den frischen Sätzen `sealed/u7_1…u7_3.json` (vom selben getrennten Agenten nach denselben Vorgaben, nach U6 geschrieben), ein Lauf, gleicher Leser-Maßstab | ≤ 25 % schwach; Rat ≥ 60 %; 0 unsicherer Rat |
 
 Immer zusätzlich (Rückfall-Schutz): alle 80 Batterieausgaben gleich oder gelesen besser, DEV-Satz unverändert,
 NQ-open Dev 22/9 unverändert, volle Testsuite grün, Paket ≤ 4,5 GB, RAM ≤ 1,5 GB, p95 ≤ 1,5 s.
