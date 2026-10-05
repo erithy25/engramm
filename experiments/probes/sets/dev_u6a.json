@@ -1,0 +1,151 @@
+{
+ "name": "dev_u6a",
+ "note": "Entwicklungssatz U6",
+ "convs": {
+  "en": [
+   [
+    "hey",
+    "my printer refuses to connect to the wifi again",
+    "i need to print a form for my kid's school trip, it's due tomorrow morning",
+    "i already restarted it twice. what else can i try?",
+    "wait no, it's not even showing up on my laptop, only on my phone",
+    "ok the usb cable worked lol. thanks!"
+   ],
+   [
+    "so i'm trying to make sourdough",
+    "my starter isn't bubbling at all",
+    "it's been 5 days, i feed it every morning",
+    "is it dead?",
+    "my kitchen is pretty cold tbh, like 17 degrees",
+    "ok i'll put it near the oven light. what flour should i use for feeding?"
+   ],
+   [
+    "guess what 😁",
+    "one of my paintings got picked for a local art exhibition!!",
+    "it's the one with the harbour at night",
+    "i've only been painting for like two years",
+    "now i have to write a short artist statement and i have no idea how",
+    "should it be serious or more personal?",
+    "thank youuu, i'll write a draft tonight"
+   ],
+   [
+    "ugh my fridge is making this humming noise",
+    "it's loud enough that i hear it from the bedroom at night",
+    "it's about 8 years old",
+    "is that normal or is it about to die?",
+    "and if i call someone, is it even worth repairing?",
+    "fair. ok gonna pull it away from the wall first and check the back"
+   ],
+   [
+    "random office question",
+    "a guy on my team microwaves fish every single day for lunch",
+    "the whole floor smells for hours",
+    "should i say something to him or go to the office manager?",
+    "he's actually really nice, that's what makes it awkward",
+    "how would i even start that conversation",
+    "lol ok that sounds less weird than i thought"
+   ],
+   [
+    "my grandpa turns 90 next month!",
+    "we want to throw him a surprise party",
+    "about 30 people, mostly family",
+    "but he hates being the centre of attention haha",
+    "maybe something smaller then? what do you think",
+    "no wait, i meant my grandpa on my mum's side, the other one would love a big party lol",
+    "ok so smaller, his favourite restaurant, close family. sounds good"
+   ],
+   [
+    "omg i just did something so embarrassing",
+    "i sent a message complaining about my boss to the team group chat",
+    "instead of to my friend",
+    "she's in the chat 😭",
+    "should i delete it? she might have seen it already",
+    "what do i even say if she brings it up",
+    "ok. deep breath. thanks for talking me down"
+   ],
+   [
+    "we're going camping this weekend",
+    "my kids want to see shooting stars",
+    "is there a meteor shower around now?",
+    "and where's the best place to look, like which direction?",
+    "cool. also why does the moon look so huge when it's near the horizon?",
+    "huh so it's basically a trick of the brain",
+    "ok changing topic, any easy campfire food for kids?"
+   ]
+  ],
+  "de": [
+   [
+    "mein waschbecken im bad ist verstopft",
+    "das wasser läuft nur noch super langsam ab",
+    "riecht auch komisch",
+    "hab schon heißes wasser reingekippt, bringt nix",
+    "was kann ich noch machen?",
+    "so ne saugglocke hab ich nicht",
+    "ok, natron und essig probier ich, danke!"
+   ],
+   [
+    "ich soll für die kollegin ein sammelgeschenk organisieren",
+    "sie hat nächste woche geburtstag",
+    "hab ne rundmail geschickt, aber erst 3 leute haben was gegeben",
+    "das nervt voll",
+    "soll ich nochmal nachhaken oder ist das peinlich?",
+    "und was kauf ich wenn am ende nur 30 euro zusammenkommen",
+    "gute idee, dann wirds halt ein gutschein vom lieblingscafé"
+   ],
+   [
+    "ich hab meine note für die bachelorarbeit bekommen!!",
+    "1,3 😭😭",
+    "ich hab echt mit ner 2 gerechnet",
+    "meine betreuerin hat sogar geschrieben, dass sie die gut fand",
+    "heute abend wird gefeiert",
+    "was meinst du, soll ich jetzt direkt den master machen oder erstmal arbeiten?",
+    "stimmt, muss ich ja nicht heute entscheiden. erstmal party 🎉"
+   ],
+   [
+    "mein hund zieht total an der leine",
+    "er ist ein labrador, 1 jahr alt",
+    "beim gassi gehen tut mir danach echt die schulter weh",
+    "wie krieg ich ihm das ab?",
+    "und wie lange dauert sowas?",
+    "nee, ich mein nicht die schulter, ich mein das training lol",
+    "ok, stehen bleiben wenn er zieht. probier ich morgen früh"
+   ],
+   [
+    "mein handyvertrag läuft nächsten monat aus",
+    "die wollen mir ne verlängerung mit neuem handy andrehen",
+    "für 45 euro im monat",
+    "mein handy ist eigentlich noch gut",
+    "lohnt sich das?",
+    "und wie kündige ich den am besten?",
+    "alles klar, kündigen und sim only nehmen. danke dir"
+   ],
+   [
+    "stress mit der schwiegermutter",
+    "sie will dass wir an weihnachten alle zu ihr kommen",
+    "aber meine eltern haben uns auch schon eingeladen",
+    "mein freund traut sich nicht, ihr was zu sagen",
+    "soll ich das dann machen?",
+    "die ist eh schon nicht so begeistert von mir 😅",
+    "ok, er muss mit ihr reden, nicht ich. sag ich ihm heute"
+   ],
+   [
+    "haha stell dir vor",
+    "ich hab beim kuchenwettbewerb auf unserem dorffest gewonnen!",
+    "mit meinem apfel-zimt-streuselkuchen",
+    "von 20 kuchen!",
+    "das rezept ist von meiner oma",
+    "soll ich ihr das erzählen? sie ist manchmal komisch wenn man ihr rezept benutzt",
+    "stimmt, die freut sich bestimmt. ruf sie gleich an"
+   ],
+   [
+    "ich mach grad meal prep für die woche",
+    "hab viel zu viel reis gekocht",
+    "wie lange hält der im kühlschrank?",
+    "und kann man den einfrieren?",
+    "ich hab gehört aufgewärmter reis ist gefährlich, stimmt das?",
+    "aha, also schnell abkühlen und gut durchheizen",
+    "danke! jetzt noch ne idee was ich mit dem rest mach?"
+   ]
+  ]
+ }
+}

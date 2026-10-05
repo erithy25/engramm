@@ -6073,6 +6073,24 @@ class Assistant:
                     rep = Reply(message, "answer", fb, via="infer")
             if rep.via != "infer":
                 rep = self._understand(st, message, rep)
+        if rep.via not in ("learn", "infer", "suggest") and rep.kind != "safety":
+            try:
+                from engramm.understand import advise
+                lang_ = "de" if st.lang == "de" else "en"
+                echo = rep.via in ("facts", "memory") and rep.kind == "answer" and \
+                    advise.request(message.lower().strip()) in ("say", "do", "judge", "choice", "opinion") and \
+                    len(rep.text or "") < 120 and bool(re.match(
+                        r"(?:you(?:'re| are| need| have| had| want| said| were)|du (?:bist|musst|hast|willst|warst))\b",
+                        rep.text or "", re.I))
+                alt = advise.react(st, message, lang_, rep.text or "") or \
+                    advise.advise(st, message, lang_, "" if echo else (rep.text or ""), "unknown" if echo else rep.kind) or \
+                    advise.valence_fix(st, message, lang_, rep.text or "") or \
+                    (advise.language_fix(st, message, lang_, rep.text or "") if rep.kind not in ("answer", "explain")
+                     and not rep.source else None)
+            except Exception:
+                alt = None
+            if alt:                                       # help for the problem the conversation is about
+                rep = Reply(message, "smalltalk", alt, via="advise")
         try:
             rep.text = self._learner().post(st, message, rep.text or "", rep.via) if rep.text else rep.text
         except Exception:
@@ -7162,6 +7180,22 @@ class Assistant:
             # "how far is the moon?" → "8": a measure without its unit is no answer
             rep.kind, rep.guess, rep.answer = "unknown", rep.answer, None
             rep.text = "I don't know for sure."
+        if rep.kind == "answer" and rep.via in ("facts", "memory") and rep.source and rep.source.get("kind") == "user" and \
+                rep.evidence and not re.search(
+                    r"(?i)\b(?:name|called|old|age|born|birthday|live|living|from|job|work|do for|do i do|favou?rite|like|love|"
+                    r"hate|allerg\w*|married|wife|husband|partner|kids?|children|pets?|dog|cat|car|study|school|speak|"
+                    r"remember|told you|did i (?:say|tell|mention)|again)\b", text):
+            stop0 = {"what", "when", "where", "which", "who", "how", "why", "the", "and", "for", "you", "your", "my", "should",
+                     "could", "would", "can", "will", "does", "did", "are", "was", "were", "have", "has", "had", "this", "that",
+                     "with", "about", "any", "some", "just", "really", "also", "then", "there", "they", "them", "it's", "its"}
+            qw0 = {w[:4] for w in re.findall(r"[a-z']+", text.lower()) if len(w) > 2 and w not in stop0}
+            ev0 = {w[:4] for w in re.findall(r"[a-z']+", rep.evidence.lower()) if len(w) > 2 and w not in stop0}
+            if qw0 and not (qw0 & ev0):
+                # a stored sentence that shares no word with the question does not answer it ("what flour should i use?"
+                # is not "You need to print a form …") — the other layers answer instead
+                rep.kind, rep.answer, rep.guess, rep.source = "unknown", None, None, None
+                rep.text = "I don't know, sorry — that depends on your situation."
+                return rep
         if rep.kind == "answer" and rep.via in ("facts", "memory") and rep.source and rep.source.get("kind") == "user" and \
                 (re.match(r"(?i)(?:and |so )?how (?:much|many|long|often|soon)\b.*\b(?:should|can|could|do|would|will|until|till|before)\b.*\b(?:i|we)\b", q) or
                  re.match(r"(?i)(?:and |so |but |ok )?(?:should|shall|must|do) (?:i|we) (?!have\b|own\b|live\b|work\b)\w+", text.strip()) or

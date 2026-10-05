@@ -439,7 +439,7 @@ _R = {k: re.compile(v) for k, v in {
                  r"(?:a|our|my|our first|my first) (?:house|home|flat|apartment)|first (?:apartment|flat|house|home|place)|"
                  r"keys to (?:my|our)|moved into|moving into|retir\w+|haus gekauft|wohnung gekauft|eigene wohnung|"
                  r"erste wohnung|eingezogen|rente|in rente)\b",
-    "success": r"\b(?:won|win|winning|promoted|promotion|made it|got in|got accepted|was accepted|record|gewonnen|geschafft|"
+    "success": r"\b(?:got (?:picked|selected|chosen|accepted|shortlisted)|(?:was|were|been) (?:picked|selected|chosen|accepted)|wurden? (?:ausgewählt|angenommen|genommen)|won|win|winning|promoted|promotion|made it|got in|got accepted|was accepted|record|gewonnen|geschafft|"
                r"befördert|angenommen|bestanden|erster platz)\b",
     "acquire": r"\b(?:bought|got (?:a|an|my|me a|myself a) (?:new|brand)|gave me|received|got a new|got myself|geschenkt|"
                r"gekauft|neues|neuen|neue)\b",

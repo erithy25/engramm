@@ -246,7 +246,7 @@ def _bullets(xs) -> str:
 # -- the request -----------------------------------------------------------------------------------------------------
 _REQ = re.compile(r"\b(?:suggest|recommend|recommendation|ideas?|\w*idee\w*|recipe|rezept|what (?:should|could|can|shall) (?:i|we)|"
                   r"what dish|which dish|(?:should|could) i (?:get|order|make|cook|bake|pack|bring|take)|was (?:koch|back|bestell|"
-                  r"mach|schenk|nehm)\w* ich|welche\w* \w+ (?:soll|sollte) ich|ich brauch\w* (?:ne|eine|einen) (?:idee|vorschlag)|"
+                  r"mach|schenk|nehm|kauf)\w* ich|what (?:do|should) i buy|welche\w* \w+ (?:soll|sollte) ich|ich brauch\w* (?:ne|eine|einen) (?:idee|vorschlag)|"
                   r"what to (?:cook|make|eat|order|get|do|bake)|where (?:should|could|can) (?:i|we)|help me (?:pick|choose|write)|"
                   r"write|draft|meal plan|any tips|vorschlag|vorschläge|idee|ideen|empfiehl|empfehlung|was (?:soll|sollte|könnte|kann) "
                   r"(?:ich|man|wir)|wo (?:soll|sollte|könnte|kann) (?:ich|man|wir)|schreib\w*|formulier\w*|was könnten wir)\b", re.I)
@@ -277,6 +277,8 @@ def suggest(st, msg: str, lang: str) -> str | None:
     if re.search(r"\b(?:movie|film|films|movies)\b", low):
         return _films(c, de, seed)
     if re.search(r"\b(?:gift|present|get (?:him|her|them|my \w+)|buy (?:him|her|them)|geschenk\w*|schenken)\b", low) or \
+            (re.search(r"\b(?:kauf\w*|buy|get)\b", low) and re.search(r"\b(?:gift|present|geschenk\w*|sammelgeschenk|schenken|"
+                                                                          r"birthday|geburtstag)\b", _said(st))) or \
             (re.search(r"\b(?:idee|ideen|ideas?)\b", low) and re.search(r"\b(?:geburtstag|birthday|schenken|present|gift)\b", _said(st))):
         return _gifts(st, c, de, seed)
     if re.search(r"\b(?:bake|backen|backe|kuchen|cake|dessert|nachtisch|nachspeise)\b", low):

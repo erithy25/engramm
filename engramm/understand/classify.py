@@ -104,6 +104,8 @@ class FrameClassifier:
             return ""                   # the rules saw no situation and the model is not sure: none
         if rule_kind and best != rule_kind and scores.get(best, 0.0) - scores.get(rule_kind, 0.0) < self.override:
             return rule_kind            # the rules saw a situation: the model needs a clear lead to overrule them
+        if rule_kind in ("ACTIVITY", "PLAN") and best in ("SUCCESS", "MILESTONE", "ACQUIRE", "FEEL_POS", "FEEL_NEG", "WORRY"):
+            return rule_kind            # a neutral happening is not turned into a mood by word statistics
         return best
 
 
