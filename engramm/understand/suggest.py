@@ -8,7 +8,7 @@ someone who must avoid it.
 """
 from __future__ import annotations
 
-import re
+from engramm.understand import _re as re
 import zlib
 
 # -- catalogues ----------------------------------------------------------------------------------------------------
@@ -118,7 +118,7 @@ def check(st, msg: str, lang: str, reply: str, kind: str) -> str | None:
     """After the other layers answered a request for a suggestion or a short text: a reply that breaks or ignores a
     stated condition is replaced; a good one stays."""
     low = msg.lower().strip()
-    if not _REQ.search(low):
+    if not _is_request(low):
         return None
     alt = suggest(st, msg, lang)
     if not alt:
@@ -252,9 +252,21 @@ _REQ = re.compile(r"\b(?:suggest|recommend|recommendation|ideas?|\w*idee\w*|reci
                   r"(?:ich|man|wir)|wo (?:soll|sollte|könnte|kann) (?:ich|man|wir)|schreib\w*|formulier\w*|was könnten wir)\b", re.I)
 
 
+def _is_request(low: str) -> bool:
+    if not _REQ.search(low):
+        return False
+    if re.fullmatch(r"(?:super|gute|tolle|coole|schöne|klasse|nice|good|great|cool|lovely|brilliant|perfect)\s+"
+                    r"(?:idee|idea)[!. ]*(?:danke|thanks)?[!. ]*", low):
+        return False                         # "super idee": agreeing, not asking
+    if re.search(r"\b(?:\w*idee\w*|ideas?|recipe|rezept)\b", low) and not re.search(
+            r"\b(?:suggest|recommend|write|schreib\w*|what|which|where|was|welche\w*|wo)\b", low):
+        return "?" in low or bool(re.search(r"\b(?:any|got|need|give me|for|brauch\w*|hast du|habt ihr|für|ne|eine)\b", low))
+    return True
+
+
 def suggest(st, msg: str, lang: str) -> str | None:
     low = msg.lower().strip()
-    if not _REQ.search(low):
+    if not _is_request(low):
         return None
     de = lang == "de"
     c = constraints(st)

@@ -6,7 +6,7 @@ after something was learned, "do you remember what happened?") and ``Learner.pos
 """
 from __future__ import annotations
 
-import re
+from engramm.understand import _re as re
 from datetime import datetime
 from pathlib import Path
 

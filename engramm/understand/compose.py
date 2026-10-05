@@ -8,7 +8,7 @@ the situation. Everything it says comes from data/conv/understand.yaml, keyed by
 """
 from __future__ import annotations
 
-import re
+from engramm.understand import _re as re
 
 from engramm.understand.frames import FACT, Frame, parse
 from engramm.understand.lex import lexicon

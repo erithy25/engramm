@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import gzip
 import json
-import re
+from engramm.understand import _re as re
 from pathlib import Path
 
 from engramm.nlp.perceptron import AveragedPerceptron

@@ -16,7 +16,7 @@ The frame classifier is rule-scored here; engramm/learn/ adjusts its weights fro
 """
 from __future__ import annotations
 
-import re
+from engramm.understand import _re as re
 from dataclasses import dataclass, field
 
 from engramm.understand.lex import Entry, lexicon

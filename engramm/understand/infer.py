@@ -12,7 +12,7 @@ age, "no pets" and then "my dog") is pointed out and asked about instead of sile
 """
 from __future__ import annotations
 
-import re
+from engramm.understand import _re as re
 from datetime import datetime
 
 _NUM_EN = {"a": 1, "an": 1, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8,
