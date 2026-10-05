@@ -271,6 +271,10 @@ def advise(st, msg: str, lang: str, reply: str, kind: str) -> str | None:
         return None
     if req == "judge" and re.search(r"\b(?:could (?:that|it|this) be|probably|liegt'?s|könnte (?:es|das))\b", low):
         return _judge(low, "", de)
+    if req in ("do", "howlong"):
+        book = _wikibook(st, low, lang)
+        if book:
+            return book
     if req in ("do", "howlong") and not de:
         art = _article(st, low)
         if art:
@@ -329,6 +333,21 @@ _STOP = {"what", "should", "could", "would", "with", "that", "this", "have", "th
          "when", "from", "into", "about", "just", "really", "keep", "keeps", "still", "even", "some", "much", "very",
          "like", "your", "mine", "also", "been", "does", "doing", "make", "help", "else", "best", "know", "think",
          "want", "need", "thing", "things", "time", "today", "week", "yesterday", "now", "again", "always", "never"}
+
+
+def _wikibook(st, low: str, lang: str) -> str | None:
+    """Steps from a Wikibooks page named in the conversation (most recent mention first)."""
+    try:
+        from engramm.know import wikibooks
+    except Exception:
+        return None
+    said = (st.uses.get("u_notes") or {}).get("_said", [])
+    recent = [low] + list(reversed(said[-5:]))
+    for i in range(len(recent)):
+        it = wikibooks.find(" ".join(recent[: i + 1]), lang)
+        if it:
+            return wikibooks.render(it)
+    return None
 
 
 def _should(low: str, de: bool) -> str:

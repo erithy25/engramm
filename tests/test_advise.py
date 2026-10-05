@@ -58,3 +58,14 @@ def test_anchor_turns_filler_into_a_next_step():
     assert r and r.startswith("Okay, that helps. Next I'd try this:")
     assert advise.anchor(st, "it's an old one", "en", "Ah, okay. How old is it exactly?") is None
     assert advise.anchor(st, "thanks, i'll try that", "en", "Ah, okay.") is None
+
+
+def test_wikibooks_steps_with_source():
+    from engramm.know import wikibooks
+    it = wikibooks.find("my bike has a flat", "en")
+    assert it and "flat" in it["title"].lower()
+    assert wikibooks.find("my boss has a flat", "en") is None or "Bicycles" not in wikibooks.find("my boss has a flat", "en")["title"]
+    de = wikibooks.find("ich hab mich am herd verbrannt", "de")
+    assert de and "Verbrennung" in de["title"]
+    r = wikibooks.render(de)
+    assert r.startswith("Aus Wikibooks") and "112" in r and "•" in r
