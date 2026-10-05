@@ -94,7 +94,8 @@ _REL = (r"best friend|boyfriend|girlfriend|neighbou?r|coworker|co-worker|colleag
 _NOT_NAME = {"a", "an", "the", "very", "so", "really", "my", "your", "not", "ein", "eine", "sehr", "nicht", "mein", "is",
              "was", "has", "had", "and", "just", "got", "back", "home", "here", "there", "sick", "ill", "fine", "okay",
              "ok", "krank", "da", "hier", "hat", "ist", "war", "und", "wants", "lent", "helped", "gave", "called", "said",
-             "says", "will", "can", "also", "auch", "heißt", "named", "came", "bought", "who", "she", "he", "sie", "er"}
+             "says", "will", "can", "also", "auch", "heißt", "named", "came", "bought", "who", "she", "he", "sie", "er", "her",
+             "his", "their", "them", "him", "ihr", "ihm", "sein", "seine", "ihre"}
 _TITLE = r"(?:mrs?\.?|ms\.?|dr\.?|herr|frau|prof\.?)\s+"
 _NONE = re.compile(r"\b(?:i|we) (?:don'?t|do not|didn'?t) (?:have|own|got) (?:any |a |an )?(pets?|kids|children|car|cars|"
                    r"siblings|brothers?|sisters?|dogs?|cats?)\b|\b(?:i|we) have no (pets?|kids|children|car|siblings)\b|"
@@ -115,7 +116,8 @@ _AGE = [re.compile(r"^(?:and |also |btw |by the way |übrigens |oh,? )?(?:i'?m|i
                    r"times|mal|kilo|kg|cm|people|personen))", re.I),
         re.compile(r"\bas an? (\d{1,3})[- ]year[- ]old\b|\bmit (?:meinen |meinem )?(\d{1,3}) jahren\b|"
                    r"\bi'?m (\d{1,3}) (?:years old|now)\b|\bi just turned (\d{1,3})\b|\bich bin (?:gerade |jetzt )?(\d{1,3}) "
-                   r"(?:jahre alt|geworden)\b|\bat my age of (\d{1,3})\b|\bat (\d{2}) years old\b", re.I)]
+                   r"(?:jahre alt|geworden)\b|\bat my age of (\d{1,3})\b|\bat (\d{2}) years old\b|"
+                   r"\b(?:und|and|but|aber) (?:ich bin|i'?m|i am) (\d{1,3})\b(?!\s*(?:minutes?|min|km|%|euro|kg|cm))", re.I)]
 _TODAY_DAY = re.compile(rf"\b(?:today is|today's|it'?s|heute ist|heut ist)\s+(?:a |ein )?({_DAYW})\b|\b({_DAYW}) today\b", re.I)
 _TODAY_DOM = re.compile(r"\b(?:today is|today's|it'?s|heute ist|heut ist)\s+(?:the |der )?(\d{1,2})(?:st|nd|rd|th|\.)"
                         r"|\b(?:the )?(\d{1,2})(?:st|nd|rd|th) today\b|\bheute ist der (\d{1,2})\b", re.I)
@@ -125,7 +127,7 @@ _EVENT = re.compile(rf"\b(?:(?:my|the|our|mein\w*|der|die|das|unser\w*)\s+)?([a-
 _IN_DAYS = re.compile(rf"\b(?:(?:my|the|our|mein\w*|der|die|das|unser\w*)\s+)?([a-zäöüß]+)\s+(?:is|starts|begins|ist|beginnt|"
                       rf"fängt|kommt|comes)\s+(?:\w+\s+)?in\s+({NUM})\s+(days|tagen)\b|\bin\s+({NUM})\s+(?:days|tagen)\s+"
                       r"(?:is|ist|i have|hab ich|habe ich)\s+(?:my |the |mein\w* |die |der |das )?([a-zäöüß]+)", re.I)
-_PASSED = re.compile(rf"\b({NUM})\s+(?:days?|tage)\s+(?:have |has |sind |ist )?(?:passed|gone by|went by|later|go by|pass|"
+_PASSED = re.compile(rf"\b(?:it'?s been|been|es sind|sind schon|schon)\s+({NUM})\s+(?:days?|tage)\b|\b({NUM})\s+(?:days?|tage)\s+(?:have |has |sind |ist )?(?:passed|gone by|went by|later|go by|pass|"
                      r"vergangen|vorbei|rum|später)\b|\b(?:after|nach)\s+(" + NUM + r")\s+(?:days|tagen)\b", re.I)
 _LIVE = re.compile(r"\b(?:live|living|moved|relocated|based|staying|wohne|wohnen|lebe|leben|wohn)\b(?:\s+[\wäöüß]+){0,4}?\s+"
                    r"(?:in|to|nach)\s+([A-Za-zÄÖÜäöüß][\wäöüß-]+(?:\s+[A-Z][\w-]+)?)|\bnach\s+([A-ZÄÖÜ][\wäöüß-]+)\s+gezogen\b",
@@ -174,7 +176,7 @@ def observe(st, msg: str, lang: str) -> str | None:
     _note_place(n, msg, low)
     _note_people(n, msg, low)
     _note_days(n, low)
-    _note_options(n, low)
+    _note_options(n, low, msg)
     _note_priority(n, low)
     _note_quantities(n, low)
     _note_ages(n, low)
@@ -191,8 +193,31 @@ def _age_in(low: str) -> int | None:
     return None
 
 
+_DIET = [("veg", r"\bi'?m (?:a )?(?:vegetarian|vegan)\b|\bi(?:'ve| have) been (?:vegetarian|vegan)\b|\bi don'?t eat meat\b|"
+                r"\bich bin vegetarier\w*|\bich bin veganer\w*|\bich esse kein fleisch\b|\bich lebe vegan\b|\bich bin vegan\b",
+         r"\b(?:steak|chicken|beef|pork|bacon|ham|sausages?|lamb|veal|ribs|brisket|fleisch|schnitzel|hähnchen|rindfleisch|"
+         r"schweinefleisch|wurst|speck|steaks|bratwurst|hackfleisch)\b",
+         ("you're vegetarian", "du isst kein Fleisch")),
+        ("alc", r"\bi don'?t drink(?: alcohol)?\b|\bi(?:'m| am) sober\b|\bi quit (?:drinking|alcohol)\b|\bno alcohol for me\b|"
+                r"\bich trinke (?:\w+ )*?(?:keinen|kein) alkohol\b|\bich trinke nicht\b|\bkeinen alkohol mehr\b",
+         r"\b(?:wine|beer|vodka|whisk(?:e)?y|gin|rum|cocktails?|champagne|prosecco|wein|bier|schnaps|sekt|rotwein|weißwein)\b",
+         ("you don't drink alcohol", "du trinkst keinen Alkohol"))]
+
+
 def _contradiction(n: dict, low: str, lang: str) -> str | None:
     clash = None
+    for key, said, rx, words in _DIET:
+        if re.search(said, low):
+            n.setdefault("diet", [])
+            if key not in n["diet"]:
+                n["diet"].append(key)
+        elif key in n.get("diet", []) and re.search(rx, low) and re.search(
+                r"\b(?:i'?m|i am|i'll|i will|i want|i'd like|i'm going to|my|for myself|tonight|which|what|should i|ich|mein\w*|"
+                r"soll ich|welche\w*|heute)\b", low) and not re.search(r"\b(?:without|instead of|ohne|statt|anstelle|no)\b", low):
+            clash = (f"Wait — didn't you say earlier that {words[0]}? Did I get that wrong, or is it for someone else?"
+                     if lang == "en" else f"Moment – vorhin hast du gesagt, {words[1]}. Hab ich das falsch verstanden, "
+                     f"oder ist es für jemand anderen?")
+            n["diet"] = [x for x in n["diet"] if x != key]
     age = _age_in(low)
     if age is not None and not re.search(r"\b(?:my|mein\w*|he|she|er|sie|his|her)\b.{0,20}\b(?:is|ist) " + str(age), low):
         old = n.get("age")
@@ -221,7 +246,31 @@ def _note_none(n: dict, low: str) -> None:
                 n["none"].append(g)
 
 
+_SPOKEN = re.compile(r"\b(quarter past|half past|quarter to|viertel nach|viertel vor|halb)\s+(\d{1,2}|" + _NUMW + r")\b"
+                     r"\s*(am|pm|uhr)?", re.I)
+
+
 def _note_times(n: dict, low: str) -> None:
+    for mm in _SPOKEN.finditer(low):
+        h = num(mm.group(2))
+        if h is None or not 0 < h <= 24:
+            continue
+        h = int(h)
+        kind = mm.group(1).lower()
+        if kind in ("quarter past", "viertel nach"):
+            hh, mi = h, 15
+        elif kind == "half past":
+            hh, mi = h, 30
+        elif kind == "halb":
+            hh, mi = h - 1, 30
+        else:
+            hh, mi = h - 1, 45
+        ap = (mm.group(3) or "").lower()
+        if ap == "pm" and hh < 12:
+            hh += 12
+        n["time"] = [hh, mi, "ap" if ap in ("am", "pm") else ""]
+        n.pop("travel", None)
+        n.pop("length", None)
     for mm in _TIME.finditer(low):
         if mm.group(6) and not re.search(r"\b(?:leaves?|leaving|starts?|starting|begins?|departs?|meeting|appointment|"
                                          r"flight|train|bus|kicks? off|opens?|be at|be there|need to be|have to be|"
@@ -258,7 +307,8 @@ def _note_place(n: dict, msg: str, low: str) -> None:
 
 
 def _note_people(n: dict, msg: str, low: str) -> None:
-    pats = [rf"\b(?:my|our|mein\w*|unser\w*)\s+({_REL})(?:'s name is| is called| is named| heißt| is|,| ist|:)?\s+(?:{_TITLE})?"
+    pats = [rf"\b(?:my|our|mein\w*|unser\w*)\s+({_REL})(?:'s name is| is called| is named| heißt|,? (?:her|his|their) name(?:'s| is)|"
+            rf",? (?:she|he)'s called|, called|, named| is|,| ist|:)?\s+(?:{_TITLE})?"
             r"([A-Za-zÄÖÜäöüß][\wäöüßćčšž'-]+)(.*)$",
             rf"\b([A-Z][\wäöüßćčšž'-]+)\s+(?:is|ist)\s+(?:my|mein\w*)\s+({_REL})\b(.*)$"]
     for k, p in enumerate(pats):
@@ -268,7 +318,14 @@ def _note_people(n: dict, msg: str, low: str) -> None:
         rel, name, rest = (m.group(1), m.group(2), m.group(3)) if k == 0 else (m.group(2), m.group(1), m.group(3))
         if name.lower() in _NOT_NAME or re.fullmatch(r"\d+", name):
             continue
+        named = re.search(r"(?:name(?:'s| is)|called|named|heißt)\s+(?:" + _TITLE + r")?" + re.escape(name), msg, re.I)
+        if not named and not name[:1].isupper():
+            from engramm.understand.lex import lexicon
+            if lexicon("de" if re.search(r"[äöüß]|\b(?:mein|meine|unser)\b", low) else "en").lookup(name.lower()):
+                continue                       # "my sister, visiting …": a word, not a name
         key = name.lower()
+        tm = re.search(rf"({_TITLE}){re.escape(name)}", msg, re.I)
+        n.setdefault("display", {})[key] = (tm.group(1) if tm else "") + name[:1].upper() + name[1:]
         n.setdefault("people", {})[key] = rel.lower()
         n["last_person"] = key
         rest = rest.strip(" ,.!")
@@ -304,7 +361,7 @@ def _note_days(n: dict, low: str) -> None:
             return
     if n.get("events"):
         for mm in _PASSED.finditer(low):
-            v = num(mm.group(1) or mm.group(2))
+            v = num(next((x for x in mm.groups() if x), None))
             if v is not None and not re.search(r"\bhow many\b|\bwie viele\b|\bif\b|\bwenn\b", low):
                 n["passed"] = n.get("passed", 0) + v
 
@@ -316,6 +373,7 @@ _ATTR = [("price", re.compile(rf"(?:{_CUR}\s*(\d+(?:[.,]\d+)?)|(\d+(?:[.,]\d+)?)
                                r"(\d+(?:[.,]\d+)?)\b(?!\s*(?:minutes?|mins?|min|minuten|hours?|h\b|stunden|m²|m2|qm|km|gb|kg|"
                                r"years?|jahre|%|square|quadrat)))(?:\s*(?:a|per|im|pro)\s*month|\s*im monat)?", re.I)),
          ("dist", re.compile(r"(\d+)\s*(?:minutes?|mins?|minuten|min)\b(?!\s*(?:long|lang))", re.I)),
+         ("price", re.compile(r"(\d+(?:[.,]\d+)?)\s*(?:a|per|/|im|pro)\s*(?:month|monat|mo)\b|(\d+(?:[.,]\d+)?)\s*monatlich", re.I)),
          ("batt", re.compile(r"(\d+)\s*(?:hours?|h|stunden|std)\b\s*(?:of\s+)?(?:battery|akku)|(?:battery|akku)\w*\s+(?:life\s+)?"
                              r"(?:of|von|is|ist|hält|lasts)?\s*(\d+)\s*(?:hours?|h|stunden)", re.I)),
          ("size", re.compile(r"(\d+)\s*(?:m²|m2|qm|square met(?:er|re)s?|sq ?m|quadratmeter)", re.I)),
@@ -327,10 +385,11 @@ _LABEL_STOP = {"it", "it's", "its", "is", "costs", "cost", "has", "hat", "kostet
                "options", "choice", "between", "zwischen", "either", "oder", "or", "then", "dann", "while"}
 
 
-def _note_options(n: dict, low: str) -> None:
+def _note_options(n: dict, low: str, msg: str = "") -> None:
     m = re.search(rf"\b(?:only have|i have|i've got|i got|budget(?: is| of)?|max(?:imum)?|at most|up to|nur|höchstens|maximal|"
-                  rf"bis zu|budget von|hab nur|habe nur)\s+(?:{_CUR}\s*)?(\d+(?:[.,]\d+)?)\s*(?:{_CUR})?", low)
-    if m and re.search(_CUR + r"|budget|spend|ausgeben", low):
+                  rf"bis zu|budget von|hab nur|habe nur|my max|mein max\w*|maximum)\s+(?:is |of |ist |liegt bei |wäre )?(?:{_CUR}\s*)?"
+                  rf"(\d+(?:[.,]\d+)?)\s*(?:{_CUR})?", low)
+    if m and re.search(_CUR + r"|budget|spend|ausgeben|afford|leisten|max", low):
         n["budget"] = float(m.group(1).replace(",", "."))
         low = low[:m.start()] + low[m.end():]
     found = []
@@ -339,6 +398,8 @@ def _note_options(n: dict, low: str) -> None:
         attrs = {}
         for key, rx in _ATTR:
             mm = rx.search(seg)
+            if mm and key in attrs:
+                continue
             if mm:
                 val = next((x for x in mm.groups() if x), None)
                 if val:
@@ -347,6 +408,9 @@ def _note_options(n: dict, low: str) -> None:
                         attrs.pop("price")
         if "dist" in attrs and "price" in attrs and re.search(rf"{_fmt_num(attrs['price'])}\s*(?:min|minutes?)", seg):
             attrs.pop("price")
+        hrs = re.search(r"(\d+)\s*(?:hours?|h|stunden|std)\b", seg)
+        if hrs and "batt" not in attrs and any("batt" in o for o in n.get("options", []) + [a for _, a in found]):
+            attrs["batt"] = float(hrs.group(1))
         if not attrs:
             continue
         first = min((mm.start() for _, rx in _ATTR for mm in [rx.search(seg)] if mm), default=len(seg))
@@ -354,9 +418,14 @@ def _note_options(n: dict, low: str) -> None:
                       r"comes with|offers|bietet|about|etwa|only|nur|just)(?:\s+(?:only|nur|just|about|etwa|a|an|ein|eine))?$",
                       "", seg[:first].strip(" :,.")).strip(" :,.")
         head = re.sub(r"^(?:and|und|then|dann|so|also|auch|while|but|aber)\s+", "", head)
+        head = head.split(":")[-1].strip()
+        pm = re.search(r"\b(?:ich|i|we|wir)\s+(?:\w+\s+)?((?:mit|by|per|zu|on)\s+.+)$", head)
+        if pm:
+            head = pm.group(1)
         head = re.sub(r"^(?:zur auswahl:?|options?:|either|entweder|choice:?|i'?m choosing between|between|zwischen)\s*", "",
                       head).strip()
         head = re.sub(r"^(?:the|die|der|das|den|ein|eine|einen|a|an|zum|zur|to the|it's|es sind|es ist)\s+", "", head).strip()
+        head = re.sub(r"^(?:the|die|der|das|den|ein|eine|einen|a|an)\s+", "", head).strip()
         label = head if head and head not in _LABEL_STOP and len(head) <= 30 and \
             not re.match(r"^(?:i|we|ich|wir|you|du|need|needs|want|it|es|that|this|my|mein\w*|takes?|braucht?|brauche)\b", head) \
             else last_label
@@ -368,12 +437,14 @@ def _note_options(n: dict, low: str) -> None:
         return
     opts = n.setdefault("options", [])
     for label, attrs in found:
+        i = low.find(label)
+        disp = msg[i:i + len(label)] if msg and i >= 0 and len(msg) == len(low) else label
         for o in opts:
             if o["label"] == label:
                 o.update(attrs)
                 break
         else:
-            opts.append({"label": label, **attrs})
+            opts.append({"label": label, "disp": disp, **attrs})
 
 
 def _note_priority(n: dict, low: str) -> None:
@@ -383,7 +454,8 @@ def _note_priority(n: dict, low: str) -> None:
                     ("rating", r"rating|reviews|stars|bewertung|sterne")):
         if re.search(rf"\b(?:care (?:most )?about|most important|matters most|matters to me|priority|am wichtigsten|"
                      rf"wichtig ist mir|mir geht es um|i want|i need|i prefer|ich will|ich brauche|lieber)\b.*\b(?:{rx})|"
-                     rf"\b(?:{rx})\w*\s+(?:am wichtigsten|is (?:the )?most important|matters most|zählt am meisten)|"
+                     rf"\b(?:{rx})\w*(?:\s+\w+){{0,2}}\s+(?:am wichtigsten|is (?:the )?most important|matters (?:the )?most|zählt am meisten|"
+                     rf"is key|ist mir wichtig)|"
                      rf"\b(?:{rx})\w*\b.*\b(?:is|ist|matters)\s+(?:most important|am wichtigsten|mir wichtig|"
                      rf"(?:the )?most|key|entscheidend)", low):
             n["priority"] = key
@@ -398,7 +470,21 @@ def _note_quantities(n: dict, low: str) -> None:
         q[_stem(m.group(2))] = {"v": num(m.group(1)), "derived": False}
         n["last_item"] = _stem(m.group(2))
     created = bool(m)
-    for seg in [low]:
+    mo = re.search(rf"\b({NUM})\s+(packs?|boxes|box|bags?|cartons?|crates?|cases?|packets?|trays?|rolls?|sacks?|kisten?|kartons?|"
+                   rf"packungen?|tüten?|päckchen|schachteln?|sixpacks?|six-packs?)\s+(?:of\s+|mit\s+)?((?:[a-zäöüß-]+\s+){{0,2}}?"
+                   rf"[a-zäöüß-]+)?(?=\s+(?:for|für|from|at|in|bei|von|zum|zur)\b|[,.;!]|\s*$|\s+(?:with|mit|à|je)\b)", low)
+    me = re.search(rf"\b({NUM})\s+(?:in each|each|apiece|per (?:pack|box|bag|carton|crate|case)|in jede[mr]?\b|pro "
+                   rf"(?:packung|kiste|karton|tüte|schachtel))|\beach (?:one )?(?:has|contains|holds|with) ({NUM})|\bmit je ({NUM})"
+                   rf"(?:\s+([a-zäöüß]+))?|\bje ({NUM})\b", low)
+    if mo and me and num(mo.group(1)) is not None:
+        inner = num(next(x for x in (me.group(1), me.group(2), me.group(3), me.group(5)) if x))
+        item = me.group(4) or (mo.group(3) or mo.group(2))
+        item = _stem(item.split()[-1])
+        if inner is not None:
+            q[item] = {"v": num(mo.group(1)) * inner, "derived": True}
+            n["last_item"] = item
+            created = True
+    for seg in ([] if created else [low]):
         m = re.search(rf"\b({NUM})\s+([a-zäöüß]+)\s+(?:of|mit je|with|à|a)\s+({NUM})?\s*([a-zäöüß]+)?(?:[, ]+({NUM})\s+(?:in each|each|"
                       rf"per \w+|je \w+|in jede\w*|pro \w+))?", seg)
         if m and num(m.group(1)) is not None and m.group(2) not in ("minutes", "hours", "minuten", "stunden", "days", "tage",
@@ -461,12 +547,20 @@ def _note_quantities(n: dict, low: str) -> None:
     m = re.search(rf"\b(?:a|one|each|per|ein|eine|pro|jede[rs]?)\s+([a-zäöüß]+)\s+(?:costs?|kostet|is|ist)\s+(?:{_CUR}\s*)?"
                   rf"(\d+(?:[.,]\d+)?)|\b([a-zäöüß]+)\s+(?:are|cost|kosten|sind)\s+(?:{_CUR}\s*)?(\d+(?:[.,]\d+)?)\s*(?:{_CUR}\s*)?"
                   rf"(?:each|apiece|a piece|je|pro stück|pro person|per person|das stück)", low)
+    if not m:
+        m = re.search(rf"(?:{_CUR}\s*)?(\d+(?:[.,]\d+)?)\s*(?:{_CUR}\s*)?(?:per person|per head|a head|each|pro person|pro kopf|"
+                      rf"p\.?p\.?|pro nase|pro ticket|per ticket)\b", low)
+        if m:
+            n["unit_price"] = float(m.group(1).replace(",", "."))
+            cur = re.search(_CUR, low)
+            n["cur"] = cur.group(0) if cur else ""
+            m = None
     if m:
         n["unit_price"] = float((m.group(2) or m.group(4)).replace(",", "."))
         cur = re.search(_CUR, low)
         n["cur"] = cur.group(0) if cur else ""
-    m = re.search(rf"\bwe(?:'re| are)\s+({NUM})(?:\s+people|\s+of us)?\b|\bthere(?:'s| are| will be)\s+({NUM})\s+of us\b|"
-                  rf"\b({NUM})\s+of us\b|\bwir sind\s+({NUM})\b|\bfor\s+({NUM})\s+(?:people|persons|of us|friends|guests)\b|"
+    m = re.search(rf"\b(?:a )?group of\s+({NUM})\b|\bwe(?:'re| are)\s+(?!a\b|an\b)({NUM})(?:\s+people|\s+of us)?\b|\bthere(?:'s| are| will be)\s+({NUM})\s+of us\b|"
+                  rf"\b({NUM})\s+of us\b|\bwir sind\s+({NUM})\b|\b(?:a )?group of\s+({NUM})\b|\beine gruppe von\s+({NUM})\b|\bfor\s+({NUM})\s+(?:people|persons|of us|friends|guests)\b|"
                   rf"\bfür\s+({NUM})\s+(?:leute|personen|gäste)\b", low)
     if m:
         v = num(next(x for x in m.groups() if x))
@@ -483,8 +577,13 @@ def _note_quantities(n: dict, low: str) -> None:
     m = re.search(rf"\b(?:cook(?:ing)?|bak(?:e|ing)|mak(?:e|ing)|want to make|need|koche|backe|mache|brauche)\s+(?:it\s+|es\s+)?"
                   rf"(?:for\s+|für\s+)?({NUM})\s+(?:servings|people|portions|persons|guests|portionen|personen|leute|gäste)\b|"
                   rf"\b(?:cooking|baking|kochen|backen|koche|backe)\s+(?:for|für)\s+({NUM})\b", low)
-    if m and n.get("recipe"):
+    if re.search(r"\b(?:recipe|rezept)\b", low):
+        pass
+    elif m and n.get("recipe"):
         n["cook_for"] = num(m.group(1) or m.group(2))
+    elif n.get("recipe") and n.get("group") and (re.search(r"\b(?:zu (?:zweit|dritt|viert|fünft|sechst|siebt|acht))\b", low) or
+                                                  re.search(rf"\b(?:we(?:'re| are)|wir sind|group of|gruppe von|of us)\b", low)):
+        n["cook_for"] = n["group"]              # "wir sind aber zu sechst" said now
     n.setdefault("_said", []).append(low)
     n["_said"] = n["_said"][-8:]
 
@@ -516,6 +615,12 @@ def _note_ages(n: dict, low: str) -> None:
 
 
 # -- answering ---------------------------------------------------------------------------------------------------
+def fallback(st, msg: str, lang: str) -> str | None:
+    """After the other layers found nothing: a person's name the user mentioned in passing ("my boss, her name's
+    Margit") — the memory answers first when it knows."""
+    return _ans_name(st.uses.get("u_notes") or {}, msg.lower().strip(), lang == "de", None)
+
+
 def _fmt_time(h: int, m: int, style: str, lang: str) -> str:
     h %= 24
     if lang == "de":
@@ -536,8 +641,8 @@ def answer(st, msg: str, lang: str, now: datetime | None = None) -> str | None:
     if not _asks(low):
         return None
     de = lang == "de"
-    for f in (_ans_time, _ans_days, _ans_choose, _ans_count, _ans_rate, _ans_total, _ans_recipe, _ans_age, _ans_who,
-              _ans_place):
+    for f in (_ans_time, _ans_days, _ans_choose, _ans_count, _ans_rate, _ans_total, _ans_recipe, _ans_agediff, _ans_age,
+              _ans_who, _ans_place):
         out = f(n, low, de, now)
         if out:
             return out
@@ -599,8 +704,8 @@ def _ans_days(n, low, de, now):
 _CRIT = [("price-", r"cheaper|cheapest|less expensive|least expensive|costs? less|lower price|günstiger|günstigste\w*|billiger|"
                     r"billigste\w*|preiswerter|am günstigsten|weniger"),
          ("price+", r"more expensive|most expensive|pricier|teurer|teuerste\w*"),
-         ("dist-", r"closer|closest|nearer|nearest|shorter commute|shortest|quickest|fastest to get|näher|nächste\w*|am nächsten|"
-                   r"kürzer\w*|schneller"),
+         ("dist-", r"closer|closest|nearer|nearest|shorter commute|shortest|quickest|fastest|näher|nächste\w*|am nächsten|"
+                   r"kürzer\w*|schneller|schnellste\w*|am schnellsten"),
          ("batt+", r"battery|akku|lasts? longer|longest|längste\w*|länger"),
          ("size+", r"bigger|biggest|larger|largest|more space|most space|roomier|größer|größte\w*|mehr platz|geräumiger"),
          ("size-", r"smaller|smallest|kleiner|kleinste\w*"),
@@ -624,7 +729,7 @@ def _ans_choose(n, low, de, now):
             ok = [o for o in opts if "price" in o and o["price"] <= n["budget"]]
             if len(ok) == 1:
                 o = ok[0]
-                lab = o["label"]
+                lab = o.get("disp") or o["label"]
                 if de:
                     return (f"{lab[:1].upper() + lab[1:]} – mit {_fmt_num(o['price'])} passt das als Einziges in dein "
                             f"Budget von {_fmt_num(n['budget'])}.")
@@ -636,6 +741,10 @@ def _ans_choose(n, low, de, now):
     if not crit:
         return None
     key, sign = crit[:-1], crit[-1]
+    if n.get("budget") is not None and key != "price" and pool is opts:
+        ok = [o for o in opts if "price" in o and o["price"] <= n["budget"]]
+        if ok:
+            pool = ok                         # "the biggest one I can afford"
     have = [o for o in pool if key in o]
     if len(have) < 2:
         return None
@@ -644,11 +753,11 @@ def _ans_choose(n, low, de, now):
         return None
     unit = {"price": "", "dist": " min", "batt": " h", "size": " m²", "km": " km", "rating": "★"}[key]
     vs = ", ".join(_fmt_num(o[key]) + unit for o in have if o is not best)
-    lab = best["label"]
+    lab = best.get("disp") or best["label"]
     if de:
         return f"{lab[:1].upper() + lab[1:]} – {_fmt_num(best[key])}{unit} gegenüber {vs}."
-    art = "" if re.match(r"(?:option|flat|laptop|gym|plan|offer|apartment|phone|car|job|room|hotel)\s", lab) or \
-        re.match(r"[a-z]+ [a-z0-9]$", lab) else "The "
+    art = "" if re.match(r"(?:option|flat|laptop|gym|plan|offer|apartment|phone|car|job|room|hotel)\s", lab, re.I) or \
+        re.match(r"[a-z]+ [a-z0-9]$", lab, re.I) or lab[:1].isupper() else "The "
     lab = lab if art else lab[:1].upper() + lab[1:]
     return f"{art}{lab} — {_fmt_num(best[key])}{unit} vs. {vs}."
 
@@ -726,6 +835,28 @@ def _ans_recipe(n, low, de, now):
     return f"For {_fmt_num(n['cook_for'])} you need {need} {unit}{' of ' + item if item else ''}."
 
 
+def _ans_agediff(n, low, de, now):
+    m = re.search(rf"\bhow much (older|younger) (?:is|are) (he|she|they|(?:my|your) (?:{_REL}))\s+than (?:me|i|i am)\b|"
+                  rf"\bwie viel (älter|jünger) (?:ist|sind) (er|sie|mein\w* (?:{_REL}))\s+als ich\b|"
+                  rf"\bhow many years (older|younger) (?:is|are) (he|she|(?:my) (?:{_REL}))\b", low)
+    if not m:
+        return None
+    ages = n.get("ages") or {}
+    who = next(x for x in (m.group(2), m.group(4), m.group(6)) if x)
+    rel = re.search(rf"\b({_REL})\b", who)
+    key = rel.group(1) if rel else n.get("age_last")
+    me = ages.get("me") or n.get("age")
+    if key not in ages or not me:
+        return None
+    d = ages[key] - me
+    word = (m.group(1) or m.group(3) or m.group(5)).lower()
+    if word in ("younger", "jünger"):
+        d = -d
+    if d < 0:
+        return None
+    return f"{_fmt_num(d)} Jahre." if de else f"{_fmt_num(d)} years."
+
+
 def _ans_age(n, low, de, now):
     m = re.search(rf"\bhow old (?:am i|is (?:he|she|my (?:{_REL}))|are (?:they))\b|\bwie alt (?:bin ich|ist (?:er|sie|mein\w* "
                   rf"(?:{_REL})))\b", low)
@@ -746,6 +877,20 @@ def _ans_age(n, low, de, now):
     return f"{a}." if not de else f"{a} Jahre."
 
 
+def _ans_name(n, low, de, now):
+    m = re.search(rf"\bwhat(?:'s| is| was)\s+(?:my|the)\s+({_REL})(?:'s)?\s+(?:name|called)\b|\bwhat(?:'s| is) my ({_REL}) called\b|"
+                  rf"\bwie heißt\s+(?:mein\w*|unser\w*)\s+({_REL})\b|\bwie hieß\s+(?:mein\w*)\s+({_REL})\b", low)
+    if not m:
+        return None
+    rel = next(x for x in m.groups() if x)
+    for key, r in (n.get("people") or {}).items():
+        if r == rel:
+            disp = (n.get("display") or {}).get(key) or key[:1].upper() + key[1:]
+            return (f"{'Deine' if re.search(r'(?:in|schwester|mutter|mama|tante|oma|frau)$', rel) else 'Dein'} "
+                    f"{rel[:1].upper() + rel[1:]} heißt {disp}.") if de else f"Your {rel} is called {disp}."
+    return None
+
+
 def _ans_who(n, low, de, now):
     m = re.match(r"(?:so |and |und |ok |okay )?(?:who|wer)(?:'s| is| was| hat| ist| war)?\s+(.+?)\??$", low)
     if not m or not n.get("did"):
@@ -757,7 +902,7 @@ def _ans_who(n, low, de, now):
     if not scored or scored[0][0] == 0 or (len(scored) > 1 and scored[1][0] == scored[0][0] and scored[1][2] != scored[0][2]):
         return None
     person = scored[0][2]
-    name = " ".join(w[:1].upper() + w[1:] for w in person.split())
+    name = (n.get("display") or {}).get(person) or " ".join(w[:1].upper() + w[1:] for w in person.split())
     rel = (n.get("people") or {}).get(person, "")
     if de:
         return f"{name}{' – dein' + ('e' if re.search(r'(?:in|schwester|mutter|mama|tante|oma|cousine|frau|nichte)$', rel) else '') + ' ' + rel[:1].upper() + rel[1:] if rel else ''}."

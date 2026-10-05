@@ -6043,7 +6043,17 @@ class Assistant:
             bot.context = dict(FRESH_CTX)
         rep.message = message
         if rep.via not in ("learn", "infer"):
-            rep = self._understand(st, message, rep)
+            if rep.kind in ("unknown", "nothing") or (rep.text and re.match(
+                    r"(?:I don't know|You haven't told me|Das weiß ich|Das kann ich auf Deutsch|Weiß ich nicht)", rep.text)):
+                try:
+                    from engramm.understand import infer
+                    fb = infer.fallback(st, message, "de" if st.lang == "de" else "en")
+                except Exception:
+                    fb = None
+                if fb:
+                    rep = Reply(message, "answer", fb, via="infer")
+            if rep.via != "infer":
+                rep = self._understand(st, message, rep)
         try:
             rep.text = self._learner().post(st, message, rep.text or "", rep.via) if rep.text else rep.text
         except Exception:

@@ -202,7 +202,7 @@ class Composer:
         return f, sit, new
 
     @staticmethod
-    def _related(st, msg: str, f: Frame, sit: dict) -> bool:
+    def _related(st, msg: str, f: Frame, sit: dict, fresh: bool = True) -> bool:
         """Does this message still belong to the situation? (A topic change frees the general layers.)"""
         low = msg.lower()
         if re.search(r"\b(?:anyway|anyways|by the way|btw|on another note|different topic|übrigens|egal|apropos|"
@@ -223,6 +223,8 @@ class Composer:
                 return True
         if f.kind and f.kind == sit["kind"]:
             return True
+        if not fresh:
+            return False                        # a situation the talk has left needs an explicit link back
         content = [w for w in f.words if len(w) > 3 and lexicon(sit.get("lang", "en")).lookup(w)]
         return len(content) <= 2 or st.turn - sit.get("turn", -99) <= 1 and len(f.words) <= 6
 
@@ -396,11 +398,16 @@ class Composer:
         if not (is_generic or (asks_known and heavy and not re.search(
                 r"\b(?:sorry|entschuldig\w*|tut mir leid|verzeih\w*)\b", msg, re.I))):
             return None
-        if not self._related(st, msg, f, sit):
-            return None                         # a new topic: the situation rests; the general layers answer
+        if sit.get("lang", lang) != lang:
+            return None                         # a German situation does not answer an English message
         # a situation the conversation has moved away from (nothing said about it last turn) only fills true gaps:
         # a thanks, an idea list or an answer from another layer belongs to what was talked about since
         fresh = st.turn - max(sit.get("spoke", -99), sit.get("start", -99)) <= 1
+        if not self._related(st, msg, f, sit, fresh):
+            return None                         # a new topic: the situation rests; the general layers answer
+        if sit["kind"] in ("FEEL_NEG", "WORRY", "FEEL_POS", "PLAN", "ACTIVITY") and \
+                sum(1 for x in current.split("\n") if x.startswith("• ")) >= 2:
+            return None                         # "I'm bored — any ideas?": the idea list is the answer
         if not fresh and (not generic(current, lang) or _THANKS.match(low)):
             return None
         if re.match(r"(?:how (?:old|much|many|long|far|tall|big|often)|wie (?:alt|viel|viele|lange|weit|groß|oft))\b", low):
@@ -467,8 +474,8 @@ class Composer:
             d = "info_long"
         else:
             d = "info"
-        if current_kind == "empathy" and d in ("info", "info_long", "feeling_neg") and not generic(current, lang):
-            return None                         # "he cheated on me": the sympathy already there fits better
+        if d in ("info", "info_long", "feeling_neg") and not generic(current, lang):
+            return None                         # a detail: a real reply from another layer stays (sympathy, a remark)                         # "he cheated on me": the sympathy already there fits better
         if k == "DEATH" and d in ("info", "info_long"):
             d = "death_time"
         if k == "LOSS" and re.search(r"\b(?:at|in|on|im|in der|am|beim|bei) (?:the |a |my |dem |der |einem |einer )?\w+", low):
