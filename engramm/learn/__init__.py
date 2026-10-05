@@ -167,7 +167,7 @@ class Learner:
         if not es:
             return None
         st.uses.pop("u_ask_word", None)
-        self.state.teach_word(word, lang, sorted(es[0].cats), es[0].ss)
+        self.state.teach_word(word, lang, sorted(es[0].cats), es[0].ss, es[0].gender if lang == "de" else "")
         st.uses["u_learned"] = st.turn
         if lang == "de":
             noun = " ".join(x[:1].upper() + x[1:] if x == head else x for x in what.split())

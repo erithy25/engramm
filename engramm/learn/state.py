@@ -104,7 +104,7 @@ class LearnState:
                     for k, v in d.items():
                         slot[k] = round(slot.get(k, 0.0) + v, 6)
             elif t == "word":
-                self.words[op["lang"] + ":" + op["word"]] = {"cats": op["cats"], "ss": op.get("ss", "")}
+                self.words[op["lang"] + ":" + op["word"]] = {"cats": op["cats"], "ss": op.get("ss", ""), "g": op.get("g", "")}
             elif t == "style":
                 if op["value"]:
                     self.style[op["key"]] = op["value"]
@@ -125,7 +125,8 @@ class LearnState:
             for key, w in self.words.items():
                 l, word = key.split(":", 1)
                 if l == lang:
-                    lx.user[word] = Entry(word, "n", w.get("ss") or "artifact", frozenset(w["cats"]), frozenset())
+                    lx.user[word] = Entry(word, "n", w.get("ss") or "artifact", frozenset(w["cats"]), frozenset(),
+                                          w.get("g", ""))
 
     def _add(self, op: dict) -> dict:
         self.seq += 1
@@ -156,8 +157,11 @@ class LearnState:
             op["text"] = text[:300]         # the sentence itself: the same message is never read wrong again
         return self._add(op)
 
-    def teach_word(self, word: str, lang: str, cats: list[str], ss: str = "") -> dict:
-        return self._add({"op": "word", "word": word.lower(), "lang": lang, "cats": sorted(cats), "ss": ss})
+    def teach_word(self, word: str, lang: str, cats: list[str], ss: str = "", gender: str = "") -> dict:
+        op = {"op": "word", "word": word.lower(), "lang": lang, "cats": sorted(cats), "ss": ss}
+        if gender:
+            op["g"] = gender                  # German: the gender of the noun it was explained with
+        return self._add(op)
 
     def set_style(self, key: str, value: str) -> dict:
         return self._add({"op": "style", "key": key, "value": value})
