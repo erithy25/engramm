@@ -6073,6 +6073,8 @@ class Assistant:
                     rep = Reply(message, "answer", fb, via="infer")
             if rep.via != "infer":
                 rep = self._understand(st, message, rep)
+            self._foresee(st)
+            rep = self._foresight_followup(st, message, rep)
         if rep.via not in ("learn", "infer", "suggest") and rep.kind != "safety":
             try:
                 from engramm.understand import advise
@@ -6827,6 +6829,42 @@ class Assistant:
     # -- content ------------------------------------------------------------------------------
 
     # -- writing ------------------------------------------------------------------------------
+
+    def _foresee(self, st: DialogState) -> None:
+        """A fresh mishap situation is noted for a follow-up question on a later day (events.FORESIGHT_ASK)."""
+        try:
+            from engramm.chat.events import FORESIGHT_ASK
+            sit = st.uses.get("u_sit")
+            if isinstance(sit, dict) and sit.get("start") == st.turn and sit.get("kind") in FORESIGHT_ASK and \
+                    sit.get("who") in ("", "me", None):
+                obj = sit.get("obj_word") or sit.get("obj") or ""
+                self.events.foresee(sit["kind"], obj if len(obj) < 30 else "", sit.get("lang", "en"), self._today())
+        except Exception:
+            pass
+
+    def _foresight_followup(self, st: DialogState, message: str, rep: Reply) -> Reply:
+        """On a greeting, the next step after an earlier mishap (once, in the conversation's language)."""
+        try:
+            if not re.match(r"^(?:hi|hey|hello|hallo|moin|servus|na|guten (?:morgen|tag|abend)|good (?:morning|evening)|"
+                            r"morning|huhu|yo)\b[\s!.,?]*(?:\w+)?[\s!.,?]*$", message.strip().lower()):
+                return rep
+            if rep.text and re.search(r"\?\s*$", rep.text) and ("By the way" in rep.text or "Übrigens" in rep.text):
+                return rep
+            from engramm.chat.events import foresight_question
+            lang = "de" if st.lang == "de" else "en"
+            due = self.events.due_foresight(self._today(), lang, set(self.bot.user_texts()))
+            if due is None:
+                return rep
+            q = foresight_question(due)
+            if not q:
+                return rep
+            self.events.mark_asked(due)
+            text = (rep.text or "").rstrip()
+            text = re.sub(r"\s*(?:Worüber möchtest du reden\?|What would you like to talk about\?|What's on your mind\?)$", "",
+                          text)
+            return Reply(message, rep.kind, (text + " " + q).strip(), via=rep.via)
+        except Exception:
+            return rep
 
     def _today(self):
         return self.clock().date() if self.clock else dt.date.today()
@@ -14867,6 +14905,11 @@ class Assistant:
             due = self.events.due(self._today(), set(self.bot.user_texts()))
             if due is not None:
                 self.events.mark_asked(due)
+                if due.source == "foresight":
+                    from engramm.chat.events import foresight_question
+                    q = foresight_question(due)
+                    if q:
+                        return q
                 return self._reply(st, "event_followup", x=due.what)
         if wants is None or wants == "ask_mood":
             return ""
