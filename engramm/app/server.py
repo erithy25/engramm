@@ -184,6 +184,25 @@ class ChatService:
             self.error = f"{type(e).__name__}: {e}"
             traceback.print_exc()
 
+    def learning(self) -> dict:
+        """What ENGRAMM learned on this computer (engramm/learn): counts and the taught words, never anything sent."""
+        lr = getattr(self.assistant, "learner", None) if self.assistant is not None else None
+        if lr is None:
+            return {"available": False}
+        stt = lr.state
+        kinds = [o["op"] for o in stt.ops]
+        return {"available": True, "corrections": kinds.count("correct"), "words": sorted(w.split(":", 1)[1] for w in stt.words),
+                "style": dict(stt.style), "episodes": len(stt.episodes), "signals": kinds.count("reward"),
+                "file": str(stt.path) if stt.path else None}
+
+    def reset_learning(self) -> dict:
+        lr = getattr(self.assistant, "learner", None) if self.assistant is not None else None
+        if lr is None:
+            raise RuntimeError("Learning is not available.")
+        with self.lock:
+            lr.state.reset()
+        return self.learning()
+
     def health(self) -> dict:
         return {"ready": self.assistant is not None, "error": self.error, "mode": self.mode,
                 "sentences": None if self.bot is None else int(self.bot.c.index.n)}
@@ -304,6 +323,8 @@ def make_handler(service: ChatService, desktop: bool = False):
                 return self._json(200, service.memory_items())
             if path == "/api/network":
                 return self._json(200, service.network())
+            if path == "/api/learning":
+                return self._json(200, service.learning())
             name = "index.html" if path in ("/", "/index.html") else path.lstrip("/")
             f = (WEB / name).resolve()
             if WEB.resolve() not in f.parents or not f.is_file():
@@ -330,6 +351,8 @@ def make_handler(service: ChatService, desktop: bool = False):
                     return self._json(200, service.forget(str(data.get("source", ""))))
                 if path == "/api/network":
                     return self._json(200, service.set_network(data))
+                if path == "/api/learning/reset":
+                    return self._json(200, service.reset_learning())
                 if path == "/api/network/refresh":
                     return self._json(200, service.refresh_feeds())
                 if path == "/api/open" and desktop:

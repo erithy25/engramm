@@ -141,3 +141,13 @@ export interface ChannelChange {
   tor?: boolean;
   feeds?: string[];
 }
+
+/** What ENGRAMM learned locally (engramm/learn): counts, taught words and style wishes. */
+export interface Learning {
+  available: boolean;
+  corrections?: number;
+  words?: string[];
+  style?: Record<string, string>;
+  episodes?: number;
+  signals?: number;
+}

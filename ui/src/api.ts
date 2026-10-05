@@ -1,4 +1,4 @@
-import type { ChannelChange, Health, MemoryItem, NetworkStatus, Reply } from "./types";
+import type { ChannelChange, Health, MemoryItem, NetworkStatus, Reply, Learning } from "./types";
 
 export class ApiError extends Error {
   readonly status: number;
@@ -36,6 +36,9 @@ export const api = {
   chat: (conversation: string, message: string) => call<Reply>("/api/chat", { conversation, message }),
   memory: async () => (await call<{ items: MemoryItem[] }>("/api/memory")).items,
   forget: (source: string) => call<{ forgot: string }>("/api/memory/forget", { source }),
+  /** What ENGRAMM learned on this computer (corrections, taught words, style) and the reset. */
+  learning: () => call<Learning>("/api/learning"),
+  resetLearning: () => call<Learning>("/api/learning/reset", {}),
   /** The network channels (all off until switched on), their state and the network log. */
   network: () => call<NetworkStatus>("/api/network"),
   setNetwork: (change: ChannelChange) => call<NetworkStatus>("/api/network", change),

@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { api } from "../api";
 import type { Texts } from "../i18n";
-import type { MemoryItem } from "../types";
+import type { MemoryItem, Learning } from "../types";
 
 export function Modal(props: { id: string; open: boolean; onClose: () => void; title: string; closeLabel: string;
                                children: ReactNode; wide?: boolean }) {
@@ -37,13 +37,35 @@ export function MemoryDialog({ open, onClose, t }: { open: boolean; onClose: () 
   const [items, setItems] = useState<MemoryItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [learning, setLearning] = useState<Learning | null>(null);
 
   useEffect(() => {
     if (!open) return;
     setItems(null);
     setError(null);
     api.memory().then(setItems, (e: unknown) => setError(e instanceof Error ? e.message : String(e)));
+    api.learning().then(setLearning, () => setLearning(null));
   }, [open]);
+
+  const resetLearning = async () => {
+    setBusy("__learning");
+    try {
+      setLearning(await api.resetLearning());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const learnedSomething =
+    learning !== null &&
+    learning.available &&
+    ((learning.corrections ?? 0) > 0 ||
+      (learning.words ?? []).length > 0 ||
+      Object.keys(learning.style ?? {}).length > 0 ||
+      (learning.episodes ?? 0) > 0 ||
+      (learning.signals ?? 0) > 0);
 
   const forget = async (source: string) => {
     setBusy(source);
@@ -72,6 +94,27 @@ export function MemoryDialog({ open, onClose, t }: { open: boolean; onClose: () 
           </li>
         ))}
       </ul>
+      {learning !== null && learning.available && (
+        <section className="learning" id="learningBox">
+          <h3>{t.learnedTitle}</h3>
+          {learnedSomething ? (
+            <>
+              <p className="muted">
+                {t.learnedSummary
+                  .replace("{c}", String(learning.corrections ?? 0))
+                  .replace("{w}", String((learning.words ?? []).length))
+                  .replace("{e}", String(learning.episodes ?? 0))}
+                {(learning.words ?? []).length > 0 && ` (${(learning.words ?? []).join(", ")})`}
+              </p>
+              <button className="forget" type="button" disabled={busy === "__learning"} onClick={resetLearning}>
+                {t.learnedReset}
+              </button>
+            </>
+          ) : (
+            <p className="muted">{t.learnedNone}</p>
+          )}
+        </section>
+      )}
     </Modal>
   );
 }

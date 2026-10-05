@@ -65,6 +65,10 @@ export interface Texts {
   safety: string;
   memoryChip: string;
   noMemory: string;
+  learnedTitle: string;
+  learnedSummary: string;
+  learnedNone: string;
+  learnedReset: string;
   forget: string;
   connectionLost: string;
   wikipedia: string;
@@ -163,6 +167,10 @@ const en: Texts = {
   safety: "help",
   memoryChip: "memory",
   noMemory: "Nothing yet. Tell ENGRAMM something, e.g. “My name is Alex.”",
+  learnedTitle: "Learned on this computer",
+  learnedSummary: "{c} corrections, {w} new words, {e} moments remembered — all only on this computer.",
+  learnedNone: "Nothing learned yet. Correct ENGRAMM (“no, I lost it”) or teach it a word (“a vape is a device”).",
+  learnedReset: "Reset what was learned",
   forget: "Forget",
   connectionLost: "No connection to ENGRAMM.",
   wikipedia: "Wikipedia · ",
@@ -286,6 +294,10 @@ const de: Texts = {
   safety: "Hilfe",
   memoryChip: "Gedächtnis",
   noMemory: "Noch nichts. Erzähl ENGRAMM etwas, z. B. „My name is Alex.“",
+  learnedTitle: "Auf diesem Rechner gelernt",
+  learnedSummary: "{c} Korrekturen, {w} neue Wörter, {e} gemerkte Momente – alles nur auf diesem Rechner.",
+  learnedNone: "Noch nichts gelernt. Korrigiere ENGRAMM („nein, ich hab es verloren“) oder bring ihm ein Wort bei („ein Vape ist ein Gerät“).",
+  learnedReset: "Gelerntes zurücksetzen",
   forget: "Vergessen",
   connectionLost: "Keine Verbindung zu ENGRAMM.",
   toldMe: "von dir erzählt",
