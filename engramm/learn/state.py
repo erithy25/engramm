@@ -15,11 +15,33 @@ import os
 from pathlib import Path
 
 VERSION = 1
-LEARN_RATE = 1.0          # how far beyond the wrong kind one correction moves the right one (in score units)
+LEARN_RATE = 2.0          # how far beyond the wrong kind one correction moves the right one (in score units)
 MAX_STEP = 25.0           # cap per feature and step: one correction can never dominate everything
 MAX_OPS = 5000            # oldest rewards are dropped first beyond this (corrections and words are kept)
 # features of a message a correction may move: its words, lemmas, word pairs, classes — never the bias or the rule
-_LEARNABLE = ("w:", "l:", "b:", "wc=", "cat=", "ev=")
+_LEARNABLE = ("w:", "l:", "b:")           # the message's own words: general features are shared by many messages
+
+
+def _tokens(text: str) -> set[str]:
+    import re
+    return set(re.findall(r"[a-zäöüß0-9']+", text.lower()))
+
+
+def exemplar(extra: dict | None, text: str) -> str | None:
+    """The kind of a corrected sentence this message is (nearly) identical to, or None."""
+    ex = (extra or {}).get("__ex__")
+    if not ex:
+        return None
+    toks = _tokens(text)
+    if not toks:
+        return None
+    best, kind = 0.0, None
+    for words, k in ex:
+        w = set(words)
+        j = len(toks & w) / len(toks | w)
+        if j > best:
+            best, kind = j, k
+    return kind if best >= 0.8 else None
 
 
 def _dump(d: dict) -> str:
@@ -31,7 +53,7 @@ class LearnState:
         self.path = Path(path) if path else None
         self.ops: list[dict] = []
         self.seq = 0                       # increasing step number (kept in the log entries)
-        self.extra: dict[str, dict[str, float]] = {}
+        self.extra: dict = {}
         self.words: dict[str, dict] = {}
         self.style: dict[str, str] = {}
         self.episodes: list[dict] = []
@@ -71,6 +93,8 @@ class LearnState:
         for op in self.ops:
             t = op["op"]
             if t == "correct":
+                if op.get("text"):
+                    self.extra.setdefault("__ex__", []).append([sorted(_tokens(op["text"])), op["good"]])
                 for f, d in op["delta"].items():
                     slot = self.extra.setdefault(f, {})
                     for k, v in d.items():
@@ -111,7 +135,7 @@ class LearnState:
         return op
 
     # -- learning steps -----------------------------------------------------------------------------------------
-    def correct(self, feats: list[str], scores: dict[str, float], good: str, bad: str) -> dict | None:
+    def correct(self, feats: list[str], scores: dict[str, float], good: str, bad: str, text: str = "") -> dict | None:
         """Move the message's own features so that ``good`` beats ``bad`` (and every other kind) by LEARN_RATE."""
         use = sorted({f for f in feats if f.startswith(_LEARNABLE)})
         if not use or good == bad:
@@ -123,7 +147,10 @@ class LearnState:
         if bad and bad != "NONE":
             for f in use:
                 delta[f][bad] = round(-step / 2, 6)
-        return self._add({"op": "correct", "good": good, "bad": bad, "delta": delta})
+        op = {"op": "correct", "good": good, "bad": bad, "delta": delta}
+        if text:
+            op["text"] = text[:300]         # the sentence itself: the same message is never read wrong again
+        return self._add(op)
 
     def teach_word(self, word: str, lang: str, cats: list[str], ss: str = "") -> dict:
         return self._add({"op": "word", "word": word.lower(), "lang": lang, "cats": sorted(cats), "ss": ss})

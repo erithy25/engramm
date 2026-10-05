@@ -84,9 +84,16 @@ class FrameClassifier:
         return self.p is not None
 
     def predict(self, f, text: str, rule_kind: str, extra: dict | None = None) -> str:
+        if extra and extra.get("__ex__"):
+            from engramm.learn.state import exemplar
+            k = exemplar(extra, text)
+            if k is not None:
+                return "" if k == "NONE" else k   # the user corrected (nearly) this very message
         feats = features(f, text, rule_kind)
         scores = self.p.scores(feats)
         for k, d in (extra or {}).items():                 # the user's own corrections (engramm/learn)
+            if k == "__ex__":
+                continue
             for c, v in d.items():
                 if k in feats:
                     scores[c] = scores.get(c, 0.0) + v

@@ -166,10 +166,10 @@ class Learner:
         feats = features(f0, sit["text"], f0.kind)
         scores = clf.p.scores(feats)
         for k, d in self.extra.items():
-            if k in feats:
+            if k in feats and k != "__ex__":
                 for c, v in d.items():
                     scores[c] = scores.get(c, 0.0) + v
-        op = self.state.correct(feats, scores, good, sit["kind"])
+        op = self.state.correct(feats, scores, good, sit["kind"], text=sit["text"])
         if op is None:
             return None
         st.uses["u_learned"] = st.turn
