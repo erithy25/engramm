@@ -5455,7 +5455,7 @@
       "Das tut mir leid. Ist {topic} öfter so, oder war das das erste Mal?"
      ],
      "thing": [
-      "Oh nein – klingt, als wäre {topic} heftig gewesen. Was ist passiert?",
+      "Oh nein – {topic} macht dir zu schaffen? Was ist passiert?",
       "Das klingt zermürbend. Was war denn so schwierig daran?",
       "Oh je. Magst du darüber reden, oder hilft dir eher Ablenkung?"
      ],
