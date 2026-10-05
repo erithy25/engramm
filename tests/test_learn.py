@@ -145,3 +145,20 @@ def test_learning_pack_export_import(tmp_path):
         b.import_pack(bad)                                   # changed after export
     b.reset()
     assert "en:zorbel" not in LearnState(tmp_path / "b.json").words
+
+
+def test_unknown_word_is_asked_once_and_learned(tmp_path):
+    from types import SimpleNamespace
+    lr = Learner(tmp_path / "learn.json")
+    st = SimpleNamespace(uses={}, turn=1)
+    q = lr.ask_word(st, "my roomba is acting up again", "en")
+    assert q and "roomba" in q
+    assert lr.ask_word(st, "my roomba is acting up again", "en") is None          # once per conversation
+    st.turn = 2
+    r = lr.pre(None, st, "it's a robot vacuum", "en")
+    assert r and "a roomba is a robot vacuum" in r and "en:roomba" in lr.state.words
+    st.turn = 3
+    assert "forgotten" in lr.pre(None, st, "forget that", "en") and "en:roomba" not in lr.state.words
+    st2 = SimpleNamespace(uses={}, turn=1)
+    assert lr.ask_word(st2, "my laptop is broken", "en") is None                  # a known thing: no question
+    assert lr._teach(st2, "das ist eine heißluftfritteuse", "de") is None         # a pronoun is not a new word

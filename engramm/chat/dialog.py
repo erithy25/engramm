@@ -6093,6 +6093,15 @@ class Assistant:
                 alt = None
             if alt:                                       # help for the problem the conversation is about
                 rep = Reply(message, "smalltalk", alt, via="advise")
+            elif rep.via not in ("facts", "memory", "kb", "tools") and rep.kind not in ("answer", "explain", "learned"):
+                try:
+                    q = self._learner().ask_word(st, message, lang_, weak=advise.weak(rep.text or "", rep.kind) or bool(
+                        re.match(r"(?:Ah, okay|Okay, I see|I see\.|Got it\.|Alles klar\.|Okay, verstehe|Interessant|"
+                                 r"Oh\? Go on|Mhm)", rep.text or "")))
+                except Exception:
+                    q = None
+                if q:                                     # a word it does not know: ask once, learn the answer
+                    rep = Reply(message, "smalltalk", q, via="learn")
         try:
             rep.text = self._learner().post(st, message, rep.text or "", rep.via) if rep.text else rep.text
         except Exception:

@@ -45,6 +45,11 @@ _EMOJI = re.compile("[\U0001F300-\U0001FAFF☀-➿\U0001F000-\U0001F2FF]️?")
 _GENERIC_CATS = {"ARTIFACT", "EVENT", "COMM", "PLACE"}
 
 
+_FUNCTION_WORDS = {"before", "after", "other", "same", "rest", "first", "last", "next", "whole", "only", "end", "start",
+                   "following", "previous", "latter", "former", "anderen", "andere", "gleiche", "ganze", "erste", "letzte",
+                   "nächste", "rest", "ende", "anfang"}
+
+
 class Learner:
     def __init__(self, path: Path | None = None):
         self.state = LearnState(path)
@@ -84,7 +89,7 @@ class Learner:
             self.state.set_style("emoji", "")
             st.uses["u_learned"] = st.turn
             return "Gut zu wissen!" if de else "Good to know!"
-        taught = self._teach(st, low, lang)
+        taught = self._teach(st, low, lang) or self._answer_word(st, low, lang)
         if taught:
             return taught
         if _RECALL.search(low):
@@ -97,6 +102,8 @@ class Learner:
         if not m:
             return None
         word, what = m.group(1).lower(), m.group(2).lower().strip()
+        if word in ("das", "es", "dies", "it", "that", "this", "there", "he", "she", "er", "sie", "der", "die"):
+            return None                                  # "das ist eine Fritteuse": a pronoun is not a new word
         lx = lexicon(lang)
         if any(e.pos == "n" for e in lx.lookup_base(word)) or word in lx.user:
             return None                                  # a word it knows: a statement, not a lesson
@@ -109,6 +116,64 @@ class Learner:
         if lang == "de":
             return f"Danke, jetzt weiß ich es: {word[:1].upper() + word[1:]} ist {m.group(0).split(' ist ', 1)[1].rstrip('.!')}."
         return f"Thanks — now I know: a {word} is {what if what.startswith(('a ', 'an ')) else ('an ' if what[0] in 'aeiou' else 'a ') + what}."
+
+    # -- a word it does not know: asked once, learned from the answer ------------------------------------------------
+    def ask_word(self, st, msg: str, lang: str, weak: bool = False) -> str | None:
+        """After a weak reply to a message about "my <unknown word>", ask once what it is (V5: new words)."""
+        from engramm.understand.lex import lexicon
+        low = msg.strip().lower()
+        poss = r"(?:my|our|the|this|mein\w*|unser\w*|der|die|das|den|dem)" 
+        lx = lexicon(lang)
+        from engramm.understand.frames import parse
+        f = parse(msg, lang)
+        if f.obj or f.body or f.question:
+            return None                                    # a known thing (or a question): no need to ask
+        if not weak and f.kind not in ("DAMAGE", "LOSS", "THEFT", "FAILURE", "DELAY", "ILLNESS", "INJURY"):
+            return None                                    # only where the unknown thing is what went wrong
+        from engramm.understand.frames import _STOP_DE, _STOP_EN
+        stop = _STOP_EN if lang == "en" else _STOP_DE
+        asked = st.uses.setdefault("u_words_asked", [])
+        for m in re.finditer(rf"\b{poss} ([a-zäöüß][a-zäöüß-]{{3,24}})\b", low):
+            w = m.group(1)
+            if w in asked or lx.lookup(w) or w in lx.user or w in _FUNCTION_WORDS or w in stop or \
+                    not re.search(rf"\b{re.escape(w)}\b", msg.lower()):
+                continue
+            if re.search(rf"\b{re.escape(w)}\b", msg) is None and re.search(rf"\b{re.escape(w.capitalize())}\b", msg) and lang == "en":
+                continue                                   # "my Tom": a name, not a thing
+            asked.append(w)
+            st.uses["u_ask_word"] = (w, st.turn)
+            return (f"Kurze Frage: Was ist {w} genau? Dann verstehe ich es beim nächsten Mal." if lang == "de" else
+                    f"Quick question — what's a {w}? Then I'll understand it next time.")
+        return None
+
+    def _answer_word(self, st, low: str, lang: str) -> str | None:
+        from engramm.understand.lex import lexicon
+        ask = st.uses.get("u_ask_word")
+        if not (isinstance(ask, (list, tuple)) and ask[1] == st.turn - 1):
+            return None
+        word = ask[0]
+        rx = (r"^(?:it'?s |it is |that'?s |its |basically |like )?(?:an? |my |like an? )?(?:kind of |type of |sort of )?"
+              r"(?:an? )?([a-z][a-z -]{2,40}?)[.!]?$" if lang == "en" else
+              r"^(?:das ist |es ist |ist |so |also )?(?:(ein|eine|einen|so ein|so eine|eine art) )?"
+              r"([a-zäöüß][a-zäöüß -]{2,40}?)[.!]?$")
+        m = re.match(rx, low)
+        if not m:
+            return None
+        what = m.group(m.lastindex).strip()
+        art = (m.group(1) or "ein") if lang == "de" and m.lastindex == 2 else ""
+        lx = lexicon(lang)
+        head = what.split()[-1]
+        es = [e for e in lx.lookup(head) if e.pos == "n"]
+        if not es:
+            return None
+        st.uses.pop("u_ask_word", None)
+        self.state.teach_word(word, lang, sorted(es[0].cats), es[0].ss)
+        st.uses["u_learned"] = st.turn
+        if lang == "de":
+            noun = " ".join(x[:1].upper() + x[1:] if x == head else x for x in what.split())
+            return f"Danke, jetzt weiß ich es: {word[:1].upper() + word[1:]} ist {art.replace('einen', 'ein')} {noun}. Was ist damit?"
+        art = "" if what.startswith(("a ", "an ")) else ("an " if what[0] in "aeiou" else "a ")
+        return f"Thanks — now I know: a {word} is {art}{what}. So what's going on with it?"
 
     def _recall(self, asst, lang: str) -> str:
         eps = [e for e in self.state.episodes if e.get("lang", lang) == lang][-3:]
