@@ -38,6 +38,9 @@ verletzen oder übergehen; Schritt 6 ersetzt nur Füllantworten oder schwache An
 | Lernen | `engramm/learn/state.py`, `bandit.py`, `__init__.py` | Protokoll kleiner Schritte mit SHA-256, alles daraus abgeleitet; „vergiss das“ entfernt den letzten Schritt bitgleich; Korrekturen, Wörter, Stil, Episoden, Thompson-Bandit (erst ab 4 Signalen) |
 | App | `engramm/app/server.py` (`/api/learning`, `/api/learning/reset`), `ui/src/components/Dialogs.tsx` | Lernstand ansehen und zurücksetzen |
 | Rat-Schicht | `engramm/understand/advise.py` | Bereich aus dem ganzen Gespräch × Art der Bitte (Wahl, Urteil, Formulierung, Meinung, Tun, Dauer, Abschluss); ersetzt nur schwache Antworten oder fachfremde Tipp-Listen; Stimmungs- und Sprach-Korrektur |
+| Wikibooks-Schritte | `engramm/know/wikibooks.py`, Bau `experiments/wikibooks_build.py` | 218 Seiten EN/DE (Erste Hilfe, Fahrrad, Auto, Knoten, Hausapotheke, Survival), Suche über Seitennamen, Quelle und Arzt-/Notruf-Hinweis immer dabei |
+| Vorausdenken | `engramm/chat/events.py` `foresee`/`due_foresight` | nach einem Missgeschick die übliche nächste Frage bei der nächsten Begrüßung (Folgetag bis 14 Tage) |
+| Neue Wörter, Lernpakete | `engramm/learn/__init__.py` `ask_word`, `engramm/learn/state.py` `export_pack`/`import_pack`, `python -m engramm.learn` | eine Rückfrage zu unbekannten Gegenständen, Antwort wird gelernt; Wörter/Korrekturen als geprüftes Paket teilen |
 | Ranglisten | `engramm/kb/kgqa.py` `_ranking` | größte Städte eines Landes aus der Faktenbank (Stand der Daten), EN/DE |
 
 ## Grenzen (ehrlich)

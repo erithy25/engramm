@@ -4253,3 +4253,43 @@ durch einen Tipp ersetzt, der nicht zur Lage passte. Insgesamt schlechter als U7
 ausgehängt (Code bleibt, nicht im Antwortweg); die Nachfrage-Erkennung bleibt, weil sie den Rat im Deutschen von 1/31 auf
 7/47 hob. Damit bestätigen fünf blinde Messungen (u0, final, u7, u8) dasselbe Band von 65–78 % schwachen Antworten.
 Keine weitere Regel-Runde ist geplant; der nächste Schritt braucht eine Grundsatzentscheidung (siehe U7).
+
+### U9 — offene Plan-Bausteine und dritte Nachmessung (5. Oktober 2026, Stand `7f0708e`, ein Lauf je Satz)
+
+Gebaut seit U8 (jeweils mit Tests, Suite 890 bestanden, NQ-Dev 400 Fragen: 0 Antworten verändert, Entwicklungsgespräche
+nur dort verändert, wo beabsichtigt):
+
+| Plan-Baustein | Ergebnis |
+|---|---|
+| Vorausdenken (V4) | `EventBook.foresee`: nach Wasserschaden, Diebstahl, Verlust, Verletzung, Krankheit, Streit fragt ENGRAMM bei der nächsten Begrüßung (ab dem Folgetag, höchstens 14 Tage, gleiche Sprache) nach dem üblichen nächsten Schritt |
+| Ende-zu-Ende-Test in der App | `tests/test_learning_app_ui.py` (Playwright): Wort beibringen, Lernstand im Dialog, „forget that“, Stilwunsch, Zurücksetzen bis auf die Datei |
+| Rat aus Wikibooks (V3) | 218 Seiten EN/DE (Erste Hilfe, Fahrrad, Auto, Knoten, Hausapotheke, Survival), Quelle immer dabei; erstmals Quellen-Rat auf Deutsch |
+| Behördenseiten (CDC, Ready.gov) | nicht möglich: beide Seiten sperren Rechenzentrums-Adressen (HTTP 403, Akamai) |
+| VerbNet | nicht aufgenommen: Lizenz in den verteilten Dateien nicht angegeben (Regel: Lizenz vor Aufnahme prüfen) |
+| Deutscher Parser (UD German GSD) | trainiert: UPOS 94,6 %, UAS 82,0 %, LAS 77,8 % (GSD-dev); als Rollenquelle geprüft: Gegenstand 22,1 % gegen 35,5 % der Regeln, als Rückfall +1,6 Punkte für 126 MB – nicht übernommen |
+| Rollen | Rollen wie ein Zuhörer sie füllt (betroffene Person, Ganzes statt Teil); auf den unabhängig beschrifteten Sätzen 54,5 % → 66,9 % und 41,6 % → 60,9 % |
+| Neue Wörter (V5) | unbekannter Gegenstand → eine Rückfrage, die Antwort wird gelernt (mit deutschem Genus); Codebuch-Nachbarn geprüft und verworfen (unbekannte Wörter haben keinen eigenen Token-Vektor) |
+| Lernpakete (V5) | `python -m engramm.learn export/show/import`: nur Wörter und Korrektur-Gewichte, nie Sätze/Stil/Episoden; SHA-256, veränderte Pakete werden abgelehnt |
+| Paket-Bau in CI | vorhanden (`release.yml` baut aus den Rohquellen); die Pakete haben sich seit Lauf 36953606047 nicht geändert und werden wiederverwendet |
+
+Messung auf frischen versiegelten Sätzen `sealed/u9_1…u9_3.json` und erneute blinde Läufe:
+
+| Kriterium | Ergebnis | Schwelle | Bewertung |
+|---|---|---|---|
+| schwache Antworten (u9) | **71,9 %** (241/335; EN 130/167 = 77,8 %, DE 111/168 = 66,1 %) | ≤ 25 % | **verfehlt** |
+| konkreter Rat auf eine Bitte | **1 von 72** | ≥ 60 % | **verfehlt** |
+| unsicherer Rat ohne Quelle/Warnhinweis | **0** | 0 | erfüllt |
+| Ereignisart (`frames_test`) | 91,7 % | ≥ 85 % | erfüllt |
+| Rollen (`frames_test`) | **82,8 %** (331/400; vorher 71,2 %) | ≥ 75 % | **erfüllt** |
+| Schlüsse (`infer_test`) | 16/40 = 40 % automatisch; blinder Leser 18/40 richtig, 1 erfundene Angabe | ≥ 80 %, 0 erfunden | **verfehlt** |
+| Korrektur-Rückkehr / Vergessen | 2,4 % / 83 von 83 | ≤ 5 % / 100 % | erfüllt |
+| Lite-Paket: Laden / p95 / Spitzen-RSS | 7,4 s / 0,193 s / 745 MB | p95 ≤ 1,5 s, RAM ≤ 1,5 GB | erfüllt |
+
+Klassen der schwachen Antworten (u9): Missverständnis 147, unbeantwortete Bitte 81, Füllfloskel 51, falsches
+Gedächtnis 16, Wiederholung 5, Widerspruch 5, sachlich falsch/unsicher 1, falsche Sprache 0.
+
+**Einordnung.** Die neuen Bausteine wirken dort, wo sie messbar sind: Rollen erfüllen jetzt die Schwelle, unsicherer Rat
+ist auf 0. Auf frei geschriebenen Gesprächen bleibt der Anteil schwacher Antworten im bekannten Band (65–78 % über sechs
+blinde Messungen); Rat aus Wikibooks greift nur, wenn das Gespräch ein Thema dieser wenigen Bücher trifft (1/72).
+Damit sind alle Bausteine des Plans umgesetzt oder mit Begründung entschieden; die Ergebnis-Schwellen für schwache
+Antworten, Rat und Schlüsse sind mit dieser Architektur nicht erreicht.
