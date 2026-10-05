@@ -36,13 +36,20 @@ ADVICE = re.compile(
     r"cold compress|elevat(?:e|ing) the|over-the-counter|pain relievers?|painkillers?|usually resolves?|resolves? on its own|"
     r"heals? within|go away (?:on their own|within)|repair(?:ed|s)? (?:by|with)|replac(?:e|ing) the|stain removal|"
     r"blot(?:ting)?|soak(?:ing)? (?:it|the|in)|emergency (?:services|room|department)|call (?:a|an|the) (?:doctor|ambulance|"
-    r"plumber|electrician|vet)|warning signs?)\b", re.I)
+    r"plumber|electrician|vet)|warning signs?|can be (?:cleaned|removed|unclogged|descaled|sharpened|reset|recharged|"
+    r"controlled|eliminated|deterred|trapped|kept away)|(?:is|are) (?:best )?(?:cleaned|stored|kept|removed|controlled) "
+    r"(?:with|by|in|using)|should (?:be|not be) (?:stored|kept|cleaned|replaced|checked|watered|fed|given)|"
+    r"to (?:remove|clean|unclog|descale|repel|deter|get rid of|keep (?:them|it) away)|control (?:methods|measures)|"
+    r"(?:water|feed|prune|repot)(?:ed|ing)? (?:regularly|once|when|every|sparingly)|vinegar|baking soda|bicarbonate|"
+    r"dish soap|traps? (?:can|are)|sticky traps?|deterrents?)\b", re.I)
 
 
 def _kind(title: str):
     """Which situations an article can advise on, from its title (None: not an everyday article). Only common-noun
     titles of at most three words ("Bee sting", "Sprained ankle", "Sunburn"); names and works are left out."""
     from engramm.understand.lex import lexicon
+    if "(" in title and not re.search(r"\((?:disease|medicine|medical|condition|plant|food|animal|insect)\)$", title):
+        return None                                    # "Battery (tort)", "Fiber (mathematics)": not everyday things
     t = re.sub(r"\s*\([^)]*\)$", "", title)
     words = t.split()
     if not words or len(words) > 3 or any(w[:1].isupper() for w in words[1:]) or re.search(r"[0-9:,&]", t):
@@ -63,6 +70,14 @@ def _kind(title: str):
         return "HEALTH"
     if cats & {"INSECT"}:
         return "ANIMAL"
+    if cats & {"PET", "ANIMAL"} and head.ss == "animal":
+        return "ANIMAL"
+    if cats & {"PLANT"}:
+        return "PLANT"
+    if cats & {"FOOD"} or "COOK" in head.ev:
+        return "FOOD"
+    if cats & {"DEVICE", "VEHICLE", "P-DEVICE", "P-VEHICLE"} or (head.ss == "artifact" and cats & {"ARTIFACT"}):
+        return "HOME"
     return None
 
 
@@ -70,7 +85,8 @@ NOISE = re.compile(r"\[citation|\[\d|%|\b(?:19|20)\d\d\b|\bstud(?:y|ies)\b|\btri
                    r"\bevidence\b|\bpatients? with\b.*\bsurg|\bFigure\b|\bstage [IV1-4]|\bmice\b|\brats\b|\bp ?<", re.I)
 PLAIN = re.compile(r"\b(?:avoid|apply|rest|ice|cold|rinse|wash|clean|seek|see a|doctor|over-the-counter|pain relievers?|"
                    r"painkillers?|ibuprofen|paracetamol|acetaminophen|antihistamines?|usually|most cases|on its own|within|"
-                   r"first aid|elevat|compress|bandage|fluids|water|should|recommended|prevent|cream|moistur|sunscreen)\b", re.I)
+                   r"first aid|elevat|compress|bandage|fluids|water|should|recommended|prevent|cream|moistur|sunscreen|vinegar|soap|"
+                   r"trap|clean|remove|regularly|replace|check)\b", re.I)
 ALIAS = re.compile(r"(?:also|commonly|more commonly|often|sometimes) (?:known|called|referred to) as ((?:the )?[a-z][a-z' -]{2,40}?)"
                    r"(?=[,.;)]| or | is | are )", re.I)
 
@@ -104,7 +120,11 @@ def main(argv=None) -> None:
     ap.add_argument("--parts", type=int, default=0, help="only the first N parts (for a trial)")
     ap.add_argument("--jobs", type=int, default=4)
     ap.add_argument("--json", type=Path, help="also write the compact form the app reads (engramm/know/data/howto.json.gz)")
+    ap.add_argument("--export-only", action="store_true", help="only write --json from an existing --out database")
     a = ap.parse_args(argv)
+    if a.export_only:
+        export(sqlite3.connect(a.out), a.json)
+        return
     a.work.mkdir(parents=True, exist_ok=True)
     base = f"https://github.com/{a.repo}/releases/download/{a.release}/"
     listing = subprocess.run(["gh", "api", f"repos/{a.repo}/releases/tags/{a.release}", "--jq", ".assets[].name"],
@@ -157,11 +177,16 @@ def main(argv=None) -> None:
 
 
 def export(db, path: Path) -> None:
+    """The compact form; the kind is derived again from the title, so a stricter _kind applies without a new scan."""
     from engramm.know.howto import save
     names = {}
     for n, i in db.execute("SELECT name, id FROM names"):
         names.setdefault(i, []).append(n)
-    items = [(t, k, names.get(i, []), x.split("\n")) for i, t, k, x in db.execute("SELECT id, title, kind, text FROM howto")]
+    items = []
+    for i, t, k, x in db.execute("SELECT id, title, kind, text FROM howto"):
+        k2 = _kind(t)
+        if k2:
+            items.append((t, k2, names.get(i, []), x.split("\n")))
     save(items, path)
     print(f"wrote {path}: {len(items)} articles, {path.stat().st_size / 1e6:.2f} MB")
 

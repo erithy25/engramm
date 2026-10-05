@@ -249,8 +249,18 @@ def advise(st, msg: str, lang: str, reply: str, kind: str) -> str | None:
         if weak(r, kind) or probe or _STORE_ACK.search(r):
             return _close(low, de)
         return None
-    if not (weak(reply, kind) or off_topic(reply or "", convo) or re.match(r"(?:let me pick|tough call)", (reply or "").lower())):
+    generic = bool(_GENERIC.match((reply or "").strip()))
+    if not (weak(reply, kind) or generic or off_topic(reply or "", convo) or
+            re.match(r"(?:let me pick|tough call)", (reply or "").lower())):
         return None
+    if req in ("do", "judge", "howlong") and not de:
+        art = _article(st, low)
+        if art:
+            return art
+    if req == "do" and _YESNO.search(low) and not re.search(r"\b(?:or|oder)\b", low):
+        return _should(low, de)
+    if generic and not weak(reply, kind):
+        return None                                   # a generic list stays when nothing more specific is known
     dom = domain(convo)
     if req == "choice":
         return _choice(low, dom, de)
@@ -263,6 +273,73 @@ def advise(st, msg: str, lang: str, reply: str, kind: str) -> str | None:
     if req == "howlong":
         return _howlong(dom, convo, de)
     return _steps(dom, de, convo)
+
+
+_GENERIC = re.compile(r"(?:here'?s what (?:i'?d try|usually helps)|a few things that usually help|das würde ich versuchen|"
+                      r"das hilft meistens|ein paar dinge, die meistens helfen)", re.I)
+_YESNO = re.compile(r"^(?:(?:and|so|but|ok|okay|hm+|und|also|aber|ok)\s+)?(?:should i|shall i|do you think i should|"
+                    r"soll(?:te)? ich|meinst du,? ich sollte?)\s+\w+", re.I)
+
+
+def _article(st, low: str) -> str | None:
+    """Advice from the encyclopedia for the thing the conversation is about (most recent mention first)."""
+    try:
+        from engramm.know.howto import howto, render
+    except Exception:
+        return None
+    ht = howto()
+    if not ht:
+        return None
+    said = (st.uses.get("u_notes") or {}).get("_said", [])
+    recent = [low] + list(reversed(said[-5:]))
+    ctx = " ".join(recent)
+    for text in recent:
+        a = ht.find(text)
+        if not a:
+            continue
+        title = {w[:5] for w in re.findall(r"[a-z]{3,}", a.title.lower())}
+        want = {w[:5] for w in re.findall(r"[a-z]{4,}", ctx) if w not in _STOP} - title
+        good = [x for x in a.sentences if want & {w[:5] for w in re.findall(r"[a-z]{4,}", x.lower())}]
+        if not good:                                  # the article names the thing but says nothing about this problem
+            return None
+        from engramm.know.howto import Advice
+        return render(Advice(a.title, a.kind, good), "en", 2)
+    return None
+
+
+_STOP = {"what", "should", "could", "would", "with", "that", "this", "have", "there", "their", "they", "them", "then",
+         "when", "from", "into", "about", "just", "really", "keep", "keeps", "still", "even", "some", "much", "very",
+         "like", "your", "mine", "also", "been", "does", "doing", "make", "help", "else", "best", "know", "think",
+         "want", "need", "thing", "things", "time", "today", "week", "yesterday", "now", "again", "always", "never"}
+
+
+def _should(low: str, de: bool) -> str:
+    """A yes/no "should i …?" gets an answer with its reason, not a list."""
+    m = re.search(r"(?:should i|shall i|i should|soll(?:te)? ich|ich sollte?)\s+(?:just |really |maybe |einfach |wirklich |"
+                  r"vielleicht )?(.{2,60}?)\s*[?.!]*$", re.split(r"[?!.]", low)[0].strip())
+    act = (m.group(1) if m else "").strip()
+    act = re.sub(r"\b(?:my)\b", "your", act) if not de else re.sub(r"\bmein(e[nmrs]?)?\b", r"dein\1", act)
+    if re.search(_HARD, act):
+        return (f"Ich würde damit noch warten – „{act}“ lässt sich schwer rückgängig machen. Schlaf eine Nacht drüber; "
+                "wenn es sich morgen immer noch richtig anfühlt, mach es." if de else
+                f"I'd hold off for now — “{act}” is hard to undo. Sleep on it; if it still feels right tomorrow, go ahead.")
+    if re.search(_DIRECT, act) or re.search(r"\b(?:admit|apologi[sz]e|confess|zugeben|entschuldig\w*|beichten)\b", act):
+        return ("Ja, ich glaube schon – ehrlich und früh ist fast immer besser, als wenn es später herauskommt. Halt es ruhig "
+                "und kurz, unter vier Augen." if de else
+                "Yes, I think so — being honest early almost always goes better than it coming out later. Keep it calm, "
+                "short and in private.")
+    if re.search(r"\b(?:buy|get|order|book|kauf\w*|bestell\w*|buch\w*|hol\w*)\b", act):
+        return ("Wenn es ins Budget passt und du es wirklich nutzen wirst: ja. Sonst warte eine Woche – willst du es dann "
+                "immer noch, ist es eine gute Entscheidung." if de else
+                "If it fits your budget and you'll really use it, yes. Otherwise wait a week — if you still want it then, "
+                "it's a good call.")
+    if re.search(r"\b(?:wait|warten|abwarten|ignore|ignorieren|leave it|lassen)\b", act):
+        return ("Ein bisschen abwarten ist oft klug – setz dir aber eine Grenze (zum Beispiel ein paar Tage) und handle, "
+                "wenn sich bis dahin nichts tut." if de else
+                "Waiting a little is often wise — but give yourself a limit (say a few days) and act if nothing has changed by then.")
+    return ("Ich würde sagen: ja, probier es – wenn es nicht passt, kannst du immer noch umsteuern." if de else
+            f"I'd say yes, give it a try{(' — ' + act) if act and len(act) < 40 else ''}; if it doesn't work out, you can "
+            "still change course.")
 
 
 def _howlong(dom: str, convo: str, de: bool) -> str:
