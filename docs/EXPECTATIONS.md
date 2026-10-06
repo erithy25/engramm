@@ -4296,3 +4296,12 @@ Antworten, Rat und Schlüsse sind mit dieser Architektur nicht erreicht.
 
 Release v3.2.0-beta.3: der erste Release-Lauf (37365987340) wurde in der Runner-Warteschlange abgebrochen, bevor ein
 Schritt lief (kein Code-Fehler); ein Neustart war aus dieser Umgebung nicht erlaubt (HTTP 403), daher neu angefordert.
+
+### U9 — Nachtrag: Ende-zu-Ende-Test „Problemgespräch → Rückfrage → Rat mit Quelle“ (6. Oktober 2026, Release v3.2.0-beta.4)
+
+`tests/test_advice_app_ui.py` spielt in der echten App (Playwright) einen platten Fahrradreifen und eine Verbrennung am
+Herd durch. Der Test fand drei Fehler, die behoben sind: Freude auf eine Verletzung („Schön! Hat es Spaß gemacht?“),
+„was soll ich tun?“ als Bitte um eine Formulierung, und eine Wikibooks-Seite („Head-to-toe“), die jedes Gespräch mit
+„head“ traf. Eine Klassifikator-Sperre gegen das erste Problem wurde verworfen, weil sie die Art-Erkennung auf den
+beschrifteten Sätzen um etwa einen Punkt senkte. Rückfall-Schutz: Suite 889 bestanden, NQ-Dev 400 Fragen 0 Antworten
+verändert (`experiments/probes/nq_regress.py`), Entwicklungsgespräche wortgleich.
