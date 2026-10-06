@@ -41,6 +41,7 @@ verletzen oder übergehen; Schritt 6 ersetzt nur Füllantworten oder schwache An
 | Wikibooks-Schritte | `engramm/know/wikibooks.py`, Bau `experiments/wikibooks_build.py` | 218 Seiten EN/DE (Erste Hilfe, Fahrrad, Auto, Knoten, Hausapotheke, Survival), Suche über Seitennamen, Quelle und Arzt-/Notruf-Hinweis immer dabei |
 | Vorausdenken | `engramm/chat/events.py` `foresee`/`due_foresight` | nach einem Missgeschick die übliche nächste Frage bei der nächsten Begrüßung (Folgetag bis 14 Tage) |
 | Neue Wörter, Lernpakete | `engramm/learn/__init__.py` `ask_word`, `engramm/learn/state.py` `export_pack`/`import_pack`, `python -m engramm.learn` | eine Rückfrage zu unbekannten Gegenständen, Antwort wird gelernt; Wörter/Korrekturen als geprüftes Paket teilen |
+| Ideen-Schicht | `engramm/understand/ideate.py` | App-, Produkt- und Geschäftsideen aus dem Gesprächsthema (Zielgruppe × Anbieter × Mechanismus: Marktplatz, Peer-Tausch, tägliche Übung, Tool für Organisationen, Wissensaustausch; Dienstleistungs-Varianten), je mit Funktionen, Geldmodell und Startplan; erfundene, aussprechbare Namen; „the second one“ vertieft, „more“ liefert andere; Plan zu „reich werden“ |
 | Ranglisten | `engramm/kb/kgqa.py` `_ranking` | größte Städte eines Landes aus der Faktenbank (Stand der Daten), EN/DE |
 
 ## Grenzen (ehrlich)

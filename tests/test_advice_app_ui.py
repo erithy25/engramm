@@ -49,6 +49,13 @@ const { chromium } = require('playwright');
   await page.waitForTimeout(300);
   await say('ich hab mich am herd verbrannt', [/\?|leid|autsch|oh/i], ['Erzähl ruhig mehr']);
   await say('was soll ich tun?', ['Wikibooks', 'Verbrennung', '112']);
+  await page.click('#newChat');
+  await page.waitForTimeout(300);
+  await say('I want to be rich', [/\w/]);
+  await say('Can you help me build one?', ['three levers', 'Invest'], ['simplest possible cause']);
+  await say('Ok, I got a problem, with my Tutoring in School. What app can we build. It should be new, and make name and co.',
+            ['three ideas', 'tutors', 'Money:', '1, 2 or 3'], ["I don't know", 'Face perception']);
+  await say('the second one', ['Plan:', 'Week 1']);
   out.push({ msg: 'no page errors', ok: errors.length === 0, text: errors.join(' | ') });
   await browser.close();
   console.log(JSON.stringify(out));

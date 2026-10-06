@@ -23,7 +23,7 @@ hyperdimensional vectors and counted linear models (averaged perceptrons).
 
 | | |
 |---|---|
-| Version | **3.2.0** (prerelease), newest build [**v3.2.0-beta.4**](https://github.com/erithy25/engramm/releases/tag/v3.2.0-beta.4) — all builds: [Releases](https://github.com/erithy25/engramm/releases) |
+| Version | **3.2.0** (prerelease), newest build [**v3.2.0-beta.5**](https://github.com/erithy25/engramm/releases/tag/v3.2.0-beta.5) — all builds: [Releases](https://github.com/erithy25/engramm/releases) |
 | Download | installers for macOS (Apple Silicon and Intel), Windows and Linux, see [Download and install](#download-and-install); the knowledge pack is downloaded on first start after you agree, or used from a folder |
 | Knowledge packs | **lite ≈ 1.25 GB** (lead sections of 400 000 Wikipedia articles, 150 000-entity fact bank, shelf index) · **standard 2.73 GB** (1.5 million article leads, 1 million-entity fact bank, full shelf index, wayfinder) — the plan's ceiling is 5 GB |
 | Memory and speed | lite: **555 MB peak**, p95 answer time 0.09 s, ready in ≈ 5 s · standard: **≈ 1.05 GB peak**, p95 0.17 s, ready in ≈ 9 s (container measurements; also under a hard 1.5 GiB memory limit without hitting it — real 4 GB hardware with a hard disk is still to be measured; `docs/EXPECTATIONS.md`) |
@@ -42,7 +42,7 @@ and date; when ENGRAMM is not sure of a short answer, it quotes the sentence ins
 
 ### Download and install
 
-Pick the installer for your system from the [newest release](https://github.com/erithy25/engramm/releases/tag/v3.2.0-beta.4)
+Pick the installer for your system from the [newest release](https://github.com/erithy25/engramm/releases/tag/v3.2.0-beta.5)
 (the builds are prereleases, so GitHub's "latest" link does not show them):
 
 | System | File |
@@ -55,9 +55,9 @@ Pick the installer for your system from the [newest release](https://github.com/
 
 ```bash
 # macOS (Apple Silicon; Intel: x64 instead of aarch64)
-V=v3.2.0-beta.4; curl -LO https://github.com/erithy25/engramm/releases/download/$V/ENGRAMM_3.2.0_aarch64.dmg
+V=v3.2.0-beta.5; curl -LO https://github.com/erithy25/engramm/releases/download/$V/ENGRAMM_3.2.0_aarch64.dmg
 # Linux (Debian/Ubuntu)
-V=v3.2.0-beta.4; curl -LO https://github.com/erithy25/engramm/releases/download/$V/ENGRAMM_3.2.0_amd64.deb && sudo apt install ./ENGRAMM_3.2.0_amd64.deb
+V=v3.2.0-beta.5; curl -LO https://github.com/erithy25/engramm/releases/download/$V/ENGRAMM_3.2.0_amd64.deb && sudo apt install ./ENGRAMM_3.2.0_amd64.deb
 ```
 
 - On first start the app asks before downloading the lite (≈ 1.25 GB) or standard (≈ 2.7 GB) pack. Offline

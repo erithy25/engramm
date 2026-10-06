@@ -6075,7 +6075,15 @@ class Assistant:
                 rep = self._understand(st, message, rep)
             self._foresee(st)
             rep = self._foresight_followup(st, message, rep)
-        if rep.via not in ("learn", "infer", "suggest") and rep.kind != "safety":
+        if rep.kind != "safety" and rep.via != "learn":
+            try:                                          # ideas, names, a plan: composed, never "I don't know"
+                from engramm.understand import ideate
+                idea = ideate.respond(st, message, "de" if st.lang == "de" else "en")
+            except Exception:
+                idea = None
+            if idea:
+                rep = Reply(message, "smalltalk", idea, via="ideate")
+        if rep.via not in ("learn", "infer", "suggest", "ideate") and rep.kind != "safety":
             try:
                 from engramm.understand import advise
                 lang_ = "de" if st.lang == "de" else "en"
