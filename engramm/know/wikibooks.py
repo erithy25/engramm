@@ -21,8 +21,8 @@ def items() -> list[dict]:
     return _ITEMS
 
 
-def _stems(text: str) -> set[str]:
-    return {w[:5] for w in re.findall(r"[a-zäöüß]{4,}", text.lower())}
+def _stems(text: str, short: int = 4) -> set[str]:
+    return {w[:5] for w in re.findall(rf"[a-zäöüß]{{{short},}}", text.lower())}
 
 
 def find(text: str, lang: str) -> dict | None:
@@ -36,8 +36,8 @@ def find(text: str, lang: str) -> dict | None:
         if it["book_words"] and not any(re.search(rf"\b{w}\w*", low) for w in it["book_words"]):
             continue
         for n in it["names"]:
-            ws = _stems(n)
-            if ws and ws <= have and len(n) > best_len:
+            ws = _stems(n, 3) - {"and", "the", "der", "die", "das", "und", "von", "mit"}
+            if ws and ws <= _stems(low, 3) and len(n) > best_len:
                 best, best_len = it, len(n)
     return best
 

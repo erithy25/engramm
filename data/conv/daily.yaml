@@ -4475,7 +4475,7 @@ b115:
   bike_never:
     - "No problem — a flat is one of the easiest repairs to learn."
   bike_hard:
-    - "Not really — it takes about 20 minutes the first time. You need tyre levers, a patch kit (or a new inner tube) and a pump:\n\n• Take the wheel off and lever the tyre off on one side.\n• Pull out the tube, pump it up a bit and find the hole (listen, or dip it in water).\n• Roughen the spot, glue, wait a minute, press the patch on.\n• Check the tyre for the thorn or glass that caused it!\n• Put everything back and pump up.\n\nThere are great step-by-step videos if you want to watch it once."
+    - "It's easier than it looks — about 20 minutes the first time. You need tyre levers, a patch kit (or a new inner tube) and a pump:\n\n• Take the wheel off and lever the tyre off on one side.\n• Pull out the tube, pump it up a bit and find the hole (listen, or dip it in water).\n• Roughen the spot, glue, wait a minute, press the patch on.\n• Check the tyre for the thorn or glass that caused it!\n• Put everything back and pump up.\n\nThere are great step-by-step videos if you want to watch it once."
   bike_go:
     - "You've got this! And once you've done it once, you'll never need a bike shop for a flat again. 🚲"
   jazz_albums:
@@ -4520,7 +4520,7 @@ b115:
     bike_never:
       - "Kein Problem – ein Platten ist eine der einfachsten Reparaturen überhaupt."
     bike_hard:
-      - "Eigentlich nicht – beim ersten Mal dauert es etwa 20 Minuten. Du brauchst Reifenheber, Flickzeug (oder einen neuen Schlauch) und eine Pumpe:\n\n• Rad ausbauen und den Mantel auf einer Seite abhebeln.\n• Schlauch rausnehmen, etwas aufpumpen und das Loch suchen (hören oder ins Wasser halten).\n• Stelle anrauen, Kleber drauf, kurz warten, Flicken andrücken.\n• Den Mantel nach dem Dorn oder der Scherbe absuchen!\n• Alles wieder einbauen und aufpumpen."
+      - "Leichter als gedacht – beim ersten Mal dauert es etwa 20 Minuten. Du brauchst Reifenheber, Flickzeug (oder einen neuen Schlauch) und eine Pumpe:\n\n• Rad ausbauen und den Mantel auf einer Seite abhebeln.\n• Schlauch rausnehmen, etwas aufpumpen und das Loch suchen (hören oder ins Wasser halten).\n• Stelle anrauen, Kleber drauf, kurz warten, Flicken andrücken.\n• Den Mantel nach dem Dorn oder der Scherbe absuchen!\n• Alles wieder einbauen und aufpumpen."
     bike_go:
       - "Du schaffst das! Und wenn du es einmal gemacht hast, brauchst du für einen Platten nie wieder die Werkstatt. 🚲"
 b116:

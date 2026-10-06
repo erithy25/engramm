@@ -178,7 +178,7 @@ def request(low: str) -> str | None:
         return "judge"
     if re.search(r"\b(?:what (?:do|should|could|would) i (?:even )?(?:say|write|text|tell)|how (?:do|would|should|can) i (?:even )?"
                  r"(?:start|say|tell|bring (?:it|this) up|ask|approach|word|apologi[sz]e)|how to (?:start|say|tell|ask)|"
-                 r"what to say|was (?:soll|sag|schreib)\w* ich|wie (?:sag|sprech|fang|frag|formulier)\w* ich|wie bring ich)\b", low):
+                 r"what to say|was (?:sag|schreib)\w* ich|was soll ich (?:ihr |ihm |denen |dem |der )?(?:sagen|schreiben|antworten)|wie (?:sag|sprech|fang|frag|formulier)\w* ich|wie bring ich)\b", low):
         return "say"
     if re.search(r"\bhow long (?:does|will|would|did) (?:that|it|this|something like that|sowas) (?:take|last)\b|"
                  r"\bwie lange (?:dauert|braucht|geht) (?:das|sowas|es|so was)\b", low):
@@ -265,6 +265,11 @@ def advise(st, msg: str, lang: str, reply: str, kind: str) -> str | None:
         if weak(r, kind) or probe or _STORE_ACK.search(r):
             return _close(low, de)
         return None
+    if req == "do" and "•" not in (reply or "") and not _shares_content(reply or "", convo) and \
+            not re.match(r"^(?:(?:and|so|but|ok|und|also|aber) )?(?:should|shall|do i|is it|can i|soll|sollte|muss|ist|kann ich)\b", low):
+        book = _wikibook(st, low, lang)               # steps with their source beat a stock reply from another topic
+        if book:
+            return book
     generic = bool(_GENERIC.match((reply or "").strip()))
     if not (weak(reply, kind) or generic or off_topic(reply or "", convo) or
             re.match(r"(?:let me pick|tough call)", (reply or "").lower())):
@@ -333,6 +338,15 @@ _STOP = {"what", "should", "could", "would", "with", "that", "this", "have", "th
          "when", "from", "into", "about", "just", "really", "keep", "keeps", "still", "even", "some", "much", "very",
          "like", "your", "mine", "also", "been", "does", "doing", "make", "help", "else", "best", "know", "think",
          "want", "need", "thing", "things", "time", "today", "week", "yesterday", "now", "again", "always", "never"}
+
+
+def _shares_content(reply: str, convo: str) -> bool:
+    """Does the reply mention anything of the conversation (a 5-letter stem of a content word)?"""
+    stop = {"that", "this", "with", "your", "what", "have", "about", "there", "would", "could", "should", "dass", "nicht",
+            "einen", "eine", "machen", "really", "think", "something", "etwas", "einfach", "immer"}
+    rw = {w[:5] for w in re.findall(r"[a-zäöüß]{5,}", reply.lower()) if w not in stop}
+    cw = {w[:5] for w in re.findall(r"[a-zäöüß]{5,}", convo.lower()) if w not in stop}
+    return bool(rw & cw)
 
 
 def _wikibook(st, low: str, lang: str) -> str | None:
@@ -559,7 +573,9 @@ _BAD = re.compile(r"\b(?:broken|kaputt|leak\w*|verstopft|langsam|slow|komisch|we
                   r"angst|anxious|nervous|nervös|sad|traurig|annoy\w*|ärger\w*|streit|fight|argument|refuses|weigert|"
                   r"verschimmelt|mould|mold|kalt|cold|loud|laut|noise|lärm|smell|gestank|peinlich|embarrass\w*|awkward|"
                   r"pleite|teuer|expensive|bill|rechnung|nicht so begeistert|hates?|hasst|meldet sich nicht|ghost\w*|"
-                  r"ignor\w*|left me|verlassen|vermiss\w*|miss (?:him|her|them))\b", re.I)
+                  r"ignor\w*|left me|verlassen|vermiss\w*|miss (?:him|her|them)|verbrannt|verbrüht|burn(?:ed|t)|scald\w*|"
+                  r"geschnitten|cut (?:myself|my)|verletzt|injur\w*|gestürzt|hingefallen|fell (?:off|down)|blutet|bleeding|"
+                  r"gestochen|stung|gebissen|bitten|verstaucht|sprain\w*)\b", re.I)
 _GOOD = re.compile(r"\b(?:won|gewonnen|passed|bestanden|got (?:the job|picked|selected|accepted|in(?:to)?|engaged)|promoted|befördert|"
                    r"engaged|verlobt|pregnant|schwanger|finally|endlich|yay|juhu|hooray|excited|happy|glücklich|"
                    r"proud|stolz|best|great news|gute nachrichten|celebrat\w*|feier\w*|freue? mich|freut mich|freu dich)\b|"
