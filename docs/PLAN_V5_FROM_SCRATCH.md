@@ -71,3 +71,11 @@ Die drei stärksten Hebel kombiniert, von null, ohne fremde Modelle:
 - **Erwartung:** ENGRAMM-R ist eine echte Eigenentwicklung mit messbarem Fortschritt, aber kein Weg zu GPT-4-Niveau. Wer
   dieses Niveau offline und ohne Server will, kommt nur über vortrainierte offene Gewichte dorthin
   (`docs/PLAN_V4_HYBRID.md`). Auch die laufen beim Nutzer ohne Rechenzentrum.
+
+## 6. Zielleiter (festgelegt vom Auftraggeber, 6. Oktober 2026)
+
+1. **Stufe 1 – GPT-2-Niveau** (Ziel jetzt): eigenes Modell, von null, Messgröße Bits pro Byte auf dem Test-Satz;
+   Vergleichswert GPT-2 small = 1,04 (gemessen, `results/lm/test_eval_20260926T183702Z.json`).
+2. **Stufe 2 – GPT-3-Niveau** (nächstes Ziel, sobald Stufe 1 erreicht und gemessen ist).
+
+Laufendes Experiment für Stufe 1: Zähl-Residual-Training (`experiments/v5_prior.py`, `experiments/v5_residual.py`).
