@@ -4305,3 +4305,13 @@ Herd durch. Der Test fand drei Fehler, die behoben sind: Freude auf eine Verletz
 „head“ traf. Eine Klassifikator-Sperre gegen das erste Problem wurde verworfen, weil sie die Art-Erkennung auf den
 beschrifteten Sätzen um etwa einen Punkt senkte. Rückfall-Schutz: Suite 889 bestanden, NQ-Dev 400 Fragen 0 Antworten
 verändert (`experiments/probes/nq_regress.py`), Entwicklungsgespräche wortgleich.
+
+### Nachtrag: Ideen-Schicht und Aufsätze (6. Oktober 2026, Releases v3.2.0-beta.5 und beta.6)
+
+Aus Nutzer-Rückmeldungen (Screenshots): „What app can we build … name and co.“ bekam „I don't know“ plus einen
+falschen Wikipedia-Treffer; „Please write me an essay about napoleon“ wurde als Fakt über den Nutzer gespeichert
+und mit einer Floskel beantwortet. Neu: `engramm/understand/ideate.py` (drei Konzepte mit Funktionen, Geldmodell und
+Startplan, erfundene Namen, Vertiefen, „more“) und `_essay` (gegliederter Aufsatz aus dem Artikel mit Quelle).
+Beide Fälle sind als Browser-Test festgehalten. Rückfall-Schutz je Schritt: Suite grün (zuletzt 898), NQ-Dev 400
+Fragen 0 Antworten verändert, Entwicklungsgespräche wortgleich. Grenze: kombinierte bzw. zitierte Inhalte, kein frei
+formulierter Text; im Lite-Paket nur Artikelanfänge, daher etwa einseitige Aufsätze.

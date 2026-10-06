@@ -42,6 +42,7 @@ verletzen oder übergehen; Schritt 6 ersetzt nur Füllantworten oder schwache An
 | Vorausdenken | `engramm/chat/events.py` `foresee`/`due_foresight` | nach einem Missgeschick die übliche nächste Frage bei der nächsten Begrüßung (Folgetag bis 14 Tage) |
 | Neue Wörter, Lernpakete | `engramm/learn/__init__.py` `ask_word`, `engramm/learn/state.py` `export_pack`/`import_pack`, `python -m engramm.learn` | eine Rückfrage zu unbekannten Gegenständen, Antwort wird gelernt; Wörter/Korrekturen als geprüftes Paket teilen |
 | Ideen-Schicht | `engramm/understand/ideate.py` | App-, Produkt- und Geschäftsideen aus dem Gesprächsthema (Zielgruppe × Anbieter × Mechanismus: Marktplatz, Peer-Tausch, tägliche Übung, Tool für Organisationen, Wissensaustausch; Dienstleistungs-Varianten), je mit Funktionen, Geldmodell und Startplan; erfundene, aussprechbare Namen; „the second one“ vertieft, „more“ liefert andere; Plan zu „reich werden“ |
+| Aufsätze | `engramm/chat/dialog.py` `_essay` (nutzt `AboutFinder` aus `engramm/chat/about.py`) | „write me an essay/article/report about X“, „schreib mir einen Aufsatz über X“: Titel, Einleitung, Hauptteil in Absätzen, Schluss aus der Kerndefinition, Quelle; „longer/mehr“ setzt fort; wird nie als Nutzer-Fakt gespeichert; deutsche Bitte → englischer Text mit Hinweis |
 | Ranglisten | `engramm/kb/kgqa.py` `_ranking` | größte Städte eines Landes aus der Faktenbank (Stand der Daten), EN/DE |
 
 ## Grenzen (ehrlich)

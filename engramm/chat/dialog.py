@@ -6037,7 +6037,7 @@ class Assistant:
         self._spelled = None
         self._turn_keys = []
         try:
-            rep = self._learn_pre(st, msg) or self._turn(st, msg)
+            rep = self._essay(st, msg) or self._learn_pre(st, msg) or self._turn(st, msg)
             if self._spelled and not rep.resolved:
                 rep.resolved = self._spelled          # shown as "I read this as …"
         finally:
@@ -6846,6 +6846,95 @@ class Assistant:
     # -- content ------------------------------------------------------------------------------
 
     # -- writing ------------------------------------------------------------------------------
+
+    _ESSAY_EN = re.compile(r"^(?=.*\b(?:write|compose|draft|create|make|give|produce|prepare|need|want|like|please|pls)\b)"
+                           r"(?:(?:hey|hi|ok|okay|so),? )?(?:(?:can|could|would|will) you |please |pls |i need you to |i need |"
+                           r"help me |i want |i'?d like )*(?:(?:write|compose|draft|create|make|give me|produce|prepare)(?: me| for me| us)? )?"
+                           r"(?:an?|the|some|one|my)? ?(?:short |long |brief |detailed |little |\d+[- ]word |"
+                           r"\d+[- ]page |school |college )*(?:essay|article|report|paper|composition|text|piece|"
+                           r"presentation|overview|summary|writeup|write-up|term paper)s?(?: of \d+ words)? "
+                           r"(?:about|on|regarding|covering|for|of)\s+(?P<t>.+?)\s*(?:please|pls|for me|for school)?[.!?]*$",
+                           re.I)
+    _ESSAY_DE = re.compile(r"^(?:(?:hey|hallo|ok|also),? )?(?:(?:kannst|könntest) du (?:mir )?|bitte |bräuchte |ich brauche )*"
+                           r"(?:schreib|schreibe|verfass|verfasse|erstell|erstelle|mach|mache)?(?:\s*mir)?\s*(?:bitte )?"
+                           r"(?:einen?|ein|eine)? ?(?:kurzen? |langen? |ausführlichen? )?(?:aufsatz|essay|text|bericht|referat|"
+                           r"artikel|zusammenfassung|überblick|hausarbeit)(?: von \d+ wörtern)? (?:über|zu|zum|zur|von)\s+"
+                           r"(?P<t>.+?)(?:\s+schreiben|\s+verfassen)?\s*(?:bitte)?[.!?]*$", re.I)
+
+    def _essay(self, st: DialogState, msg: str) -> Reply | None:
+        """'Write me an essay about Napoleon': a structured text from the encyclopedia — title, introduction, body in
+        paragraphs, conclusion and source. Never stored as something the user said about themselves."""
+        prev = st.uses.get("u_essay")
+        if isinstance(prev, dict) and st.turn - prev.get("turn", -99) <= 3 and re.fullmatch(
+                r"(?:(?:please |bitte |ok |okay )?(?:make it |mach ihn |mach es )?(?:longer|länger|more|mehr|"
+                r"tell me more|continue|go on|keep going|weiter|weiterschreiben|schreib weiter|noch mehr)"
+                r"(?: please| bitte)?[.!]*)", msg.strip().lower()):
+            if prev["next"] >= prev["end"]:
+                return Reply(msg, "smalltalk", "Mehr steht in meinem Artikel dazu nicht." if st.lang == "de" else
+                             "That's everything my article has on it.", via="writing")
+            more = self.about.more(About(prev["title"], prev["doc"], [], prev["next"], prev["end"], {}), n=6)
+            if more is None:
+                return None
+            body = [more.sentences[i:i + 3] for i in range(0, len(more.sentences), 3)]
+            prev.update(next=more.next_sentence, turn=st.turn)
+            return Reply(msg, "explain", "\n\n".join(" ".join(p) for p in body) +
+                         (f"\n\nQuelle: Wikipedia, „{prev['title']}“." if st.lang == "de" else
+                          f"\n\nSource: Wikipedia, “{prev['title']}”."), via="writing")
+        m = self._ESSAY_EN.match(msg.strip()) or self._ESSAY_DE.match(msg.strip())
+        if not m:
+            return None
+        de = m.re is self._ESSAY_DE
+        topic = re.sub(r"^(?:the|a|an|der|die|das|den|dem)\s+", "", m.group("t").strip(), flags=re.I).strip(" .,!?\"'“”")
+        if not topic or len(topic) > 80:
+            return None
+        cands = [topic]
+        if de:
+            try:
+                from engramm.chat.german_bridge import term_variants
+                cands = list(dict.fromkeys(term_variants(topic[:1].upper() + topic[1:]) + term_variants(topic) + [topic]))
+            except Exception:
+                pass
+        found = None
+        for c in cands:
+            found = self.about.find(c, n=6, max_chars=1400)
+            if found is not None:
+                break
+        if found is None:
+            text = (f"Über „{topic}“ habe ich keinen Artikel, aus dem ich einen Aufsatz schreiben könnte. Nenn mir ein "
+                    "anderes Thema oder einen genaueren Begriff." if de else
+                    f"I don't have an article about “{topic}” to write an essay from. Try another topic or a more exact "
+                    "name.")
+            return Reply(msg, "smalltalk", text, via="writing")
+        sents = list(found.sentences)
+        cur = found
+        while len(sents) < 18:
+            nxt = self.about.more(cur, n=6)
+            if nxt is None:
+                break
+            sents += nxt.sentences
+            cur = nxt
+        sents = [x for x in dict.fromkeys(sents) if len(x) > 25][:18]
+        title = found.title
+        intro, body = sents[:2], sents[2:]
+        paras = [body[i:i + 3] for i in range(0, len(body), 3)] if body else []
+        if de:
+            head = (f"Mein Wissen liegt nur auf Englisch vor, deshalb ist der Aufsatz auf Englisch – Gliederung und "
+                    f"Quelle stehen dabei.\n\n")
+        else:
+            head = ""
+        parts = [head + f"**{title}**", "", " ".join(intro)]
+        for p in paras:
+            parts += ["", " ".join(p)]
+        dm = re.search(r"\b(was|is|were|are|war|ist)\s+(an?|the|one|ein|eine|der|die|das)\s+(.+)$", sents[0])
+        concl = f"{title} {dm.group(1)} {dm.group(2)} {dm.group(3)}" if dm else sents[0]
+        concl = re.sub(r"\s*\([^)]*\)", "", concl)
+        if len(sents) >= 6:                              # a short article gets no conclusion that repeats it
+            parts += ["", "In conclusion, " + (concl if concl.startswith(title) else concl[:1].lower() + concl[1:])]
+        parts += ["", (f"Quelle: Wikipedia, „{title}“. Sag „länger“ oder „mehr“, dann schreibe ich weiter." if de else
+                       f"Source: Wikipedia, “{title}”. Say “longer” or “tell me more” and I'll continue.")]
+        st.uses["u_essay"] = {"title": title, "doc": cur.doc, "next": cur.next_sentence, "end": cur.end_sentence,
+                              "turn": st.turn}
+        return Reply(msg, "explain", "\n".join(parts), source=found.source, via="writing")
 
     def _foresee(self, st: DialogState) -> None:
         """A fresh mishap situation is noted for a follow-up question on a later day (events.FORESIGHT_ASK)."""
