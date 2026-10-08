@@ -108,11 +108,26 @@ def main() -> None:
     ap.add_argument("--jobs", type=int, default=4)
     ap.add_argument("--transformers", action="store_true", help="also the fp32 weights of models/params/*/final.pt")
     ap.add_argument("--skip-reference", action="store_true", help="do not compress the training text")
+    ap.add_argument("--only-transformers", action="store_true",
+                    help="only the fp32 weights of models/params/*/final.pt (after Messart C)")
     ap.add_argument("--smoke", action="store_true", help="code test on another model: no digest check, scratch output")
     args = ap.parse_args()
     git_state, t0 = git_revision(), time.time()
     work = WORK / "serial"
     work.mkdir(parents=True, exist_ok=True)
+    if args.only_transformers:
+        tf = {}
+        for g, arrays in transformer_groups().items():
+            tf[g] = work / f"{g.replace(':', '_')}.bin"
+            serialise(tf[g], arrays)
+        res = run(tf, args.jobs)
+        best = {g: min(r["xz"]["bytes"], r["zstd"]["bytes"]) for g, r in res.items()}
+        out = {"compressors": versions(), "commands": COMPRESSORS, "transformers": res,
+               "summary": {g: {"raw_bytes": res[g]["raw_bytes"], "best_bytes": b, "bits": 8 * b} for g, b in best.items()}}
+        print(json.dumps(out["summary"], indent=1), flush=True)
+        print(write_record("b_transformers", out, t0, git_state, WORK / "smoke" if args.smoke else RESULTS),
+              flush=True)
+        return
     model = HDCLanguageModel.load(args.model)
     digest = model.base_digest()
     if digest != ENGRAMM_LM["base_digest"] and not args.smoke:
