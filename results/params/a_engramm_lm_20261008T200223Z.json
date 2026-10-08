@@ -1,0 +1,928 @@
+{
+ "schema": "engramm-params/1",
+ "name": "a_engramm_lm",
+ "study": "docs/PREREG_PARAMS.md v1.0",
+ "timestamp_utc": "20261008T200223Z",
+ "git": {
+  "commit": "b8612d931d95d0d5045bdbbba54df6feef38715b",
+  "dirty": false,
+  "untracked": 4,
+  "changed_during_run": false
+ },
+ "environment": {
+  "canonical": false,
+  "python": "3.13.16",
+  "numpy": "2.4.1",
+  "platform": "Linux-6.18.44-fc-v80-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "cpu_count": 4,
+  "pythonhashseed": null
+ },
+ "runtime": {
+  "wall_seconds": 24.93098521232605,
+  "peak_rss_mb": 5466.21484375,
+  "note": "container timing/memory: never official (docs/PROTOCOL.md rule 2)"
+ },
+ "subject": {
+  "scale": "main",
+  "seed": 42,
+  "tau_index": 1,
+  "beta_index": 1,
+  "base_digest": "b45c20659e5591ff5298d631da4f5c9d566421d6db69f80eaa16a94737779b54",
+  "test_bpb_e12": 1.51357693,
+  "model_dir": "/home/user/engramm/models/lm/main/model",
+  "base_digest_checked": "b45c20659e5591ff5298d631da4f5c9d566421d6db69f80eaa16a94737779b54"
+ },
+ "learned": {
+  "kn5": {
+   "orders": {
+    "1": {
+     "ngrams": 32736,
+     "contexts": 1,
+     "pruned": false,
+     "arrays": {
+      "ctx": {
+       "dtype": "uint64",
+       "shape": [
+        1
+       ],
+       "values": 1,
+       "bits_per_value": 64,
+       "ram_bytes": 8,
+       "disk_bytes": 136
+      },
+      "ptr": {
+       "dtype": "int64",
+       "shape": [
+        2
+       ],
+       "values": 2,
+       "bits_per_value": 64,
+       "ram_bytes": 16,
+       "disk_bytes": 144
+      },
+      "total": {
+       "dtype": "uint64",
+       "shape": [
+        1
+       ],
+       "values": 1,
+       "bits_per_value": 64,
+       "ram_bytes": 8,
+       "disk_bytes": 136
+      },
+      "n1": {
+       "dtype": "uint32",
+       "shape": [
+        1
+       ],
+       "values": 1,
+       "bits_per_value": 32,
+       "ram_bytes": 4,
+       "disk_bytes": 132
+      },
+      "n2": {
+       "dtype": "uint32",
+       "shape": [
+        1
+       ],
+       "values": 1,
+       "bits_per_value": 32,
+       "ram_bytes": 4,
+       "disk_bytes": 132
+      },
+      "n3": {
+       "dtype": "uint32",
+       "shape": [
+        1
+       ],
+       "values": 1,
+       "bits_per_value": 32,
+       "ram_bytes": 4,
+       "disk_bytes": 132
+      },
+      "w": {
+       "dtype": "uint16",
+       "shape": [
+        32736
+       ],
+       "values": 32736,
+       "bits_per_value": 16,
+       "ram_bytes": 65472,
+       "disk_bytes": 65600
+      },
+      "a": {
+       "dtype": "uint32",
+       "shape": [
+        32736
+       ],
+       "values": 32736,
+       "bits_per_value": 32,
+       "ram_bytes": 130944,
+       "disk_bytes": 131072
+      },
+      "coc": {
+       "dtype": "int64",
+       "shape": [
+        4
+       ],
+       "values": 4,
+       "bits_per_value": 64,
+       "ram_bytes": 32,
+       "disk_bytes": 160
+      },
+      "pruned": {
+       "dtype": "bool",
+       "shape": [
+        1
+       ],
+       "values": 1,
+       "bits_per_value": 8,
+       "ram_bytes": 1,
+       "disk_bytes": 129
+      }
+     },
+     "values": 65484,
+     "values_counts": 32745,
+     "values_keys_pointers": 32739,
+     "disk_bytes": 197773,
+     "ram_bytes": 196493
+    },
+    "2": {
+     "ngrams": 19373642,
+     "contexts": 32736,
+     "pruned": false,
+     "arrays": {
+      "ctx": {
+       "dtype": "uint64",
+       "shape": [
+        32736
+       ],
+       "values": 32736,
+       "bits_per_value": 64,
+       "ram_bytes": 261888,
+       "disk_bytes": 262016
+      },
+      "ptr": {
+       "dtype": "int64",
+       "shape": [
+        32737
+       ],
+       "values": 32737,
+       "bits_per_value": 64,
+       "ram_bytes": 261896,
+       "disk_bytes": 262024
+      },
+      "total": {
+       "dtype": "uint64",
+       "shape": [
+        32736
+       ],
+       "values": 32736,
+       "bits_per_value": 64,
+       "ram_bytes": 261888,
+       "disk_bytes": 262016
+      },
+      "n1": {
+       "dtype": "uint32",
+       "shape": [
+        32736
+       ],
+       "values": 32736,
+       "bits_per_value": 32,
+       "ram_bytes": 130944,
+       "disk_bytes": 131072
+      },
+      "n2": {
+       "dtype": "uint32",
+       "shape": [
+        32736
+       ],
+       "values": 32736,
+       "bits_per_value": 32,
+       "ram_bytes": 130944,
+       "disk_bytes": 131072
+      },
+      "n3": {
+       "dtype": "uint32",
+       "shape": [
+        32736
+       ],
+       "values": 32736,
+       "bits_per_value": 32,
+       "ram_bytes": 130944,
+       "disk_bytes": 131072
+      },
+      "w": {
+       "dtype": "uint16",
+       "shape": [
+        19373642
+       ],
+       "values": 19373642,
+       "bits_per_value": 16,
+       "ram_bytes": 38747284,
+       "disk_bytes": 38747412
+      },
+      "a": {
+       "dtype": "uint32",
+       "shape": [
+        19373642
+       ],
+       "values": 19373642,
+       "bits_per_value": 32,
+       "ram_bytes": 77494568,
+       "disk_bytes": 77494696
+      },
+      "coc": {
+       "dtype": "int64",
+       "shape": [
+        4
+       ],
+       "values": 4,
+       "bits_per_value": 64,
+       "ram_bytes": 32,
+       "disk_bytes": 160
+      },
+      "pruned": {
+       "dtype": "bool",
+       "shape": [
+        1
+       ],
+       "values": 1,
+       "bits_per_value": 8,
+       "ram_bytes": 1,
+       "disk_bytes": 129
+      }
+     },
+     "values": 38943706,
+     "values_counts": 19504591,
+     "values_keys_pointers": 19439115,
+     "disk_bytes": 117421669,
+     "ram_bytes": 117420389
+    },
+    "3": {
+     "ngrams": 19124757,
+     "contexts": 3681777,
+     "pruned": true,
+     "arrays": {
+      "ctx": {
+       "dtype": "uint64",
+       "shape": [
+        3681777
+       ],
+       "values": 3681777,
+       "bits_per_value": 64,
+       "ram_bytes": 29454216,
+       "disk_bytes": 29454344
+      },
+      "ptr": {
+       "dtype": "int64",
+       "shape": [
+        3681778
+       ],
+       "values": 3681778,
+       "bits_per_value": 64,
+       "ram_bytes": 29454224,
+       "disk_bytes": 29454352
+      },
+      "total": {
+       "dtype": "uint64",
+       "shape": [
+        3681777
+       ],
+       "values": 3681777,
+       "bits_per_value": 64,
+       "ram_bytes": 29454216,
+       "disk_bytes": 29454344
+      },
+      "n1": {
+       "dtype": "uint32",
+       "shape": [
+        3681777
+       ],
+       "values": 3681777,
+       "bits_per_value": 32,
+       "ram_bytes": 14727108,
+       "disk_bytes": 14727236
+      },
+      "n2": {
+       "dtype": "uint32",
+       "shape": [
+        3681777
+       ],
+       "values": 3681777,
+       "bits_per_value": 32,
+       "ram_bytes": 14727108,
+       "disk_bytes": 14727236
+      },
+      "n3": {
+       "dtype": "uint32",
+       "shape": [
+        3681777
+       ],
+       "values": 3681777,
+       "bits_per_value": 32,
+       "ram_bytes": 14727108,
+       "disk_bytes": 14727236
+      },
+      "w": {
+       "dtype": "uint16",
+       "shape": [
+        19124757
+       ],
+       "values": 19124757,
+       "bits_per_value": 16,
+       "ram_bytes": 38249514,
+       "disk_bytes": 38249642
+      },
+      "a": {
+       "dtype": "uint32",
+       "shape": [
+        19124757
+       ],
+       "values": 19124757,
+       "bits_per_value": 32,
+       "ram_bytes": 76499028,
+       "disk_bytes": 76499156
+      },
+      "coc": {
+       "dtype": "int64",
+       "shape": [
+        4
+       ],
+       "values": 4,
+       "bits_per_value": 64,
+       "ram_bytes": 32,
+       "disk_bytes": 160
+      },
+      "pruned": {
+       "dtype": "bool",
+       "shape": [
+        1
+       ],
+       "values": 1,
+       "bits_per_value": 8,
+       "ram_bytes": 1,
+       "disk_bytes": 129
+      }
+     },
+     "values": 60340182,
+     "values_counts": 33851870,
+     "values_keys_pointers": 26488312,
+     "disk_bytes": 247293835,
+     "ram_bytes": 247292555
+    },
+    "4": {
+     "ngrams": 17507987,
+     "contexts": 8047187,
+     "pruned": true,
+     "arrays": {
+      "ctx": {
+       "dtype": "uint64",
+       "shape": [
+        8047187
+       ],
+       "values": 8047187,
+       "bits_per_value": 64,
+       "ram_bytes": 64377496,
+       "disk_bytes": 64377624
+      },
+      "ptr": {
+       "dtype": "int64",
+       "shape": [
+        8047188
+       ],
+       "values": 8047188,
+       "bits_per_value": 64,
+       "ram_bytes": 64377504,
+       "disk_bytes": 64377632
+      },
+      "total": {
+       "dtype": "uint64",
+       "shape": [
+        8047187
+       ],
+       "values": 8047187,
+       "bits_per_value": 64,
+       "ram_bytes": 64377496,
+       "disk_bytes": 64377624
+      },
+      "n1": {
+       "dtype": "uint32",
+       "shape": [
+        8047187
+       ],
+       "values": 8047187,
+       "bits_per_value": 32,
+       "ram_bytes": 32188748,
+       "disk_bytes": 32188876
+      },
+      "n2": {
+       "dtype": "uint32",
+       "shape": [
+        8047187
+       ],
+       "values": 8047187,
+       "bits_per_value": 32,
+       "ram_bytes": 32188748,
+       "disk_bytes": 32188876
+      },
+      "n3": {
+       "dtype": "uint32",
+       "shape": [
+        8047187
+       ],
+       "values": 8047187,
+       "bits_per_value": 32,
+       "ram_bytes": 32188748,
+       "disk_bytes": 32188876
+      },
+      "w": {
+       "dtype": "uint16",
+       "shape": [
+        17507987
+       ],
+       "values": 17507987,
+       "bits_per_value": 16,
+       "ram_bytes": 35015974,
+       "disk_bytes": 35016102
+      },
+      "a": {
+       "dtype": "uint32",
+       "shape": [
+        17507987
+       ],
+       "values": 17507987,
+       "bits_per_value": 32,
+       "ram_bytes": 70031948,
+       "disk_bytes": 70032076
+      },
+      "coc": {
+       "dtype": "int64",
+       "shape": [
+        4
+       ],
+       "values": 4,
+       "bits_per_value": 64,
+       "ram_bytes": 32,
+       "disk_bytes": 160
+      },
+      "pruned": {
+       "dtype": "bool",
+       "shape": [
+        1
+       ],
+       "values": 1,
+       "bits_per_value": 8,
+       "ram_bytes": 1,
+       "disk_bytes": 129
+      }
+     },
+     "values": 83299102,
+     "values_counts": 49696740,
+     "values_keys_pointers": 33602362,
+     "disk_bytes": 394747975,
+     "ram_bytes": 394746695
+    },
+    "5": {
+     "ngrams": 18261566,
+     "contexts": 13474419,
+     "pruned": true,
+     "arrays": {
+      "ctx": {
+       "dtype": "uint64",
+       "shape": [
+        13474419
+       ],
+       "values": 13474419,
+       "bits_per_value": 64,
+       "ram_bytes": 107795352,
+       "disk_bytes": 107795480
+      },
+      "ptr": {
+       "dtype": "int64",
+       "shape": [
+        13474420
+       ],
+       "values": 13474420,
+       "bits_per_value": 64,
+       "ram_bytes": 107795360,
+       "disk_bytes": 107795488
+      },
+      "total": {
+       "dtype": "uint64",
+       "shape": [
+        13474419
+       ],
+       "values": 13474419,
+       "bits_per_value": 64,
+       "ram_bytes": 107795352,
+       "disk_bytes": 107795480
+      },
+      "n1": {
+       "dtype": "uint32",
+       "shape": [
+        13474419
+       ],
+       "values": 13474419,
+       "bits_per_value": 32,
+       "ram_bytes": 53897676,
+       "disk_bytes": 53897804
+      },
+      "n2": {
+       "dtype": "uint32",
+       "shape": [
+        13474419
+       ],
+       "values": 13474419,
+       "bits_per_value": 32,
+       "ram_bytes": 53897676,
+       "disk_bytes": 53897804
+      },
+      "n3": {
+       "dtype": "uint32",
+       "shape": [
+        13474419
+       ],
+       "values": 13474419,
+       "bits_per_value": 32,
+       "ram_bytes": 53897676,
+       "disk_bytes": 53897804
+      },
+      "w": {
+       "dtype": "uint16",
+       "shape": [
+        18261566
+       ],
+       "values": 18261566,
+       "bits_per_value": 16,
+       "ram_bytes": 36523132,
+       "disk_bytes": 36523260
+      },
+      "a": {
+       "dtype": "uint32",
+       "shape": [
+        18261566
+       ],
+       "values": 18261566,
+       "bits_per_value": 32,
+       "ram_bytes": 73046264,
+       "disk_bytes": 73046392
+      },
+      "coc": {
+       "dtype": "int64",
+       "shape": [
+        4
+       ],
+       "values": 4,
+       "bits_per_value": 64,
+       "ram_bytes": 32,
+       "disk_bytes": 160
+      },
+      "pruned": {
+       "dtype": "bool",
+       "shape": [
+        1
+       ],
+       "values": 1,
+       "bits_per_value": 8,
+       "ram_bytes": 1,
+       "disk_bytes": 129
+      }
+     },
+     "values": 117369652,
+     "values_counts": 72159247,
+     "values_keys_pointers": 45210405,
+     "disk_bytes": 594649801,
+     "ram_bytes": 594648521
+    }
+   },
+   "meta": {
+    "dtype": "int64",
+    "shape": [
+     2
+    ],
+    "values": 2,
+    "bits_per_value": 64,
+    "ram_bytes": 16,
+    "disk_bytes": 144
+   },
+   "values": 300018128,
+   "values_counts": 175245193,
+   "values_keys_pointers": 124772933,
+   "disk_bytes": 1354311197,
+   "ram_bytes": 1354304669,
+   "arpa_equivalent": {
+    "orders": {
+     "1": {
+      "probabilities": 32736,
+      "backoff_weights": 32736,
+      "values": 65472
+     },
+     "2": {
+      "probabilities": 19373642,
+      "backoff_weights": 3681777,
+      "values": 23055419
+     },
+     "3": {
+      "probabilities": 19124757,
+      "backoff_weights": 8047187,
+      "values": 27171944
+     },
+     "4": {
+      "probabilities": 17507987,
+      "backoff_weights": 13474419,
+      "values": 30982406
+     },
+     "5": {
+      "probabilities": 18261566,
+      "backoff_weights": 0,
+      "values": 18261566
+     }
+    },
+    "values": 99536807,
+    "bits_per_value": 32,
+    "bytes_fp32": 398147228,
+    "note": "equivalent count in ARPA/KenLM convention; the model stores counts, not these values"
+   }
+  },
+  "codebook": {
+   "arrays": {
+    "eng": {
+     "dtype": "uint64",
+     "shape": [
+      32768,
+      32
+     ],
+     "values": 67108864,
+     "bits_per_value": 1,
+     "ram_bytes": 8388608
+    },
+    "wide": {
+     "dtype": "uint64",
+     "shape": [
+      32768,
+      32
+     ],
+     "values": 67108864,
+     "bits_per_value": 1,
+     "ram_bytes": 8388608
+    },
+    "idf": {
+     "dtype": "int32",
+     "shape": [
+      32768
+     ],
+     "values": 32768,
+     "bits_per_value": 32,
+     "ram_bytes": 131072
+    },
+    "classes": {
+     "dtype": "int16",
+     "shape": [
+      32768
+     ],
+     "values": 32768,
+     "bits_per_value": 16,
+     "ram_bytes": 65536
+    },
+    "counts": {
+     "dtype": "int64",
+     "shape": [
+      32768
+     ],
+     "values": 32768,
+     "bits_per_value": 64,
+     "ram_bytes": 262144
+    },
+    "ctx_tokens": {
+     "dtype": "int64",
+     "shape": [
+      8192
+     ],
+     "values": 8192,
+     "bits_per_value": 64,
+     "ram_bytes": 65536
+    },
+    "seed": {
+     "dtype": "int64",
+     "shape": [
+      1
+     ],
+     "values": 1,
+     "bits_per_value": 64,
+     "ram_bytes": 8
+    }
+   },
+   "vocab": 32768,
+   "bits_per_vector": 2048,
+   "hdc_word_vector_bits": 134217728,
+   "tokens_with_random_vectors": 65,
+   "random_vector_bits": 266240,
+   "note_random": "tokens seen < 5 times get seeded random vectors (stored, not learned)",
+   "values": 134324225,
+   "disk_bytes": 17303232,
+   "ram_bytes": 17301512
+  },
+  "mixture": {
+   "arrays": {
+    "weights": {
+     "dtype": "float64",
+     "shape": [
+      64,
+      5
+     ],
+     "values": 320,
+     "bits_per_value": 64,
+     "ram_bytes": 2560
+    },
+    "knn_edges": {
+     "dtype": "int64",
+     "shape": [
+      3
+     ],
+     "values": 3,
+     "bits_per_value": 64,
+     "ram_bytes": 24
+    },
+    "tau_beta": {
+     "dtype": "float64",
+     "shape": [
+      2
+     ],
+     "values": 2,
+     "bits_per_value": 64,
+     "ram_bytes": 16
+    }
+   },
+   "components": [
+    "kn",
+    "inf",
+    "cache",
+    "knn",
+    "topic"
+   ],
+   "buckets": 64,
+   "weights_on_2^-24_grid": true,
+   "values": 325,
+   "disk_bytes": 7056,
+   "ram_bytes": 2600
+  },
+  "topic_vector": {
+   "values": 0,
+   "note": "computed per history from codebook.wide/idf; nothing stored"
+  },
+  "document_cache": {
+   "values": 0,
+   "note": "per-document token counts at run time; nothing stored"
+  },
+  "perceptron": {
+   "values": 0,
+   "note": "ENGRAMM-LM has no perceptron"
+  }
+ },
+ "corpus_bound_indices": {
+  "suffix_array": {
+   "dtype": "int32",
+   "shape": [
+    284741161
+   ],
+   "values": 284741161,
+   "bits_per_value": 32,
+   "ram_bytes": 1138964644,
+   "disk_bytes": 1138964772
+  },
+  "knn_position_index": {
+   "dtype": "int32",
+   "shape": [
+    284741160
+   ],
+   "values": 284741160,
+   "bits_per_value": 32,
+   "ram_bytes": 1138964640,
+   "disk_bytes": 1138964768
+  },
+  "segment_signatures": {
+   "dtype": "uint64",
+   "shape": [
+    2224541,
+    4
+   ],
+   "values": 569482496,
+   "bits_per_value": 1,
+   "ram_bytes": 71185312,
+   "disk_bytes": 71185440
+  }
+ },
+ "raw_text": {
+  "train_tokens": {
+   "dtype": "uint16",
+   "shape": [
+    284741161
+   ],
+   "values": 284741161,
+   "bits_per_value": 16,
+   "ram_bytes": 569482322,
+   "disk_bytes": 569482322
+  },
+  "doc_starts": {
+   "dtype": "int64",
+   "shape": [
+    383085
+   ],
+   "values": 383085,
+   "bits_per_value": 64,
+   "ram_bytes": 3064680,
+   "disk_bytes": 3064808
+  },
+  "doc_bytes": {
+   "dtype": "int64",
+   "shape": [
+    383085
+   ],
+   "values": 383085,
+   "bits_per_value": 64,
+   "ram_bytes": 3064680,
+   "disk_bytes": 3064808
+  },
+  "doc_keys": {
+   "values": 766170,
+   "disk_bytes": 29677832,
+   "note": "(source, key) strings per document"
+  }
+ },
+ "derived_at_load": {
+  "kn_discounts": {
+   "dtype": "float64",
+   "shape": [
+    6,
+    3
+   ],
+   "values": 18,
+   "bits_per_value": 64,
+   "ram_bytes": 144
+  },
+  "kn_g1": {
+   "dtype": "float64",
+   "shape": [
+    6
+   ],
+   "values": 6,
+   "bits_per_value": 64,
+   "ram_bytes": 48
+  },
+  "kn_p_uni": {
+   "dtype": "float64",
+   "shape": [
+    32768
+   ],
+   "values": 32768,
+   "bits_per_value": 64,
+   "ram_bytes": 262144
+  },
+  "knn_kernel_table": {
+   "dtype": "float64",
+   "shape": [
+    38913
+   ],
+   "values": 38913,
+   "bits_per_value": 64,
+   "ram_bytes": 311304
+  },
+  "topic_table": {
+   "dtype": "float64",
+   "shape": [
+    2049
+   ],
+   "values": 2049,
+   "bits_per_value": 64,
+   "ram_bytes": 16392
+  }
+ },
+ "runtime_state": {
+  "topic_vector_bits": 2048,
+  "knn_signature_bits": 256,
+  "document_cache": "one count per distinct token of the current document",
+  "user_layer": "empty in the base model; grows with learn_text"
+ },
+ "summary": {
+  "A_learned": {
+   "values": 434342678,
+   "disk_bytes": 1371621485,
+   "ram_bytes": 1371608781
+  },
+  "A_learned_plus_knn_index": {
+   "values": 1288566334,
+   "disk_bytes": 2581771693,
+   "ram_bytes": 2581758733
+  },
+  "storage_equivalent_fp16": 685810742.5,
+  "storage_equivalent_fp32": 342905371.25,
+  "storage_equivalent_fp16_plus_knn_index": 1290885846.5,
+  "storage_equivalent_fp32_plus_knn_index": 645442923.25,
+  "not_parameters": {
+   "suffix_array_and_raw_text_disk_bytes": 1744254542
+  },
+  "wording": "stored values, not parameters (docs/PREREG_PARAMS.md §1)"
+ }
+}

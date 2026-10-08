@@ -1,0 +1,547 @@
+{
+ "schema": "engramm-params/1",
+ "name": "a_chat_v32_lite",
+ "study": "docs/PREREG_PARAMS.md v1.0",
+ "timestamp_utc": "20261008T193958Z",
+ "git": {
+  "commit": "1782eb265202a0e8f085fb790c7874898c96d9d7",
+  "dirty": false,
+  "untracked": 1,
+  "changed_during_run": false
+ },
+ "environment": {
+  "canonical": false,
+  "python": "3.13.16",
+  "numpy": "2.4.1",
+  "platform": "Linux-6.18.44-fc-v80-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "cpu_count": 4,
+  "pythonhashseed": null
+ },
+ "runtime": {
+  "wall_seconds": 8.462769985198975,
+  "peak_rss_mb": 217.17578125,
+  "note": "container timing/memory: never official (docs/PROTOCOL.md rule 2)"
+ },
+ "subject": {
+  "release": "v3.2.0-beta.6",
+  "pack": "lite",
+  "version": "3.1.0-beta.1",
+  "bytes": 1248102226,
+  "files": 36,
+  "manifest_sha256": "90687f5b5c1d3229b1bd1ee132f3940c8d5cbc5c833b1f5bbcddc47ab4a1fac3"
+ },
+ "fact_bank": {
+  "tables": {
+   "alias": {
+    "rows": 972862,
+    "columns": [
+     "name",
+     "entity",
+     "kind"
+    ],
+    "cells": 2918586
+   },
+   "entity": {
+    "rows": 150000,
+    "columns": [
+     "id",
+     "title",
+     "type",
+     "popularity"
+    ],
+    "cells": 600000
+   },
+   "fact": {
+    "rows": 1392548,
+    "columns": [
+     "entity",
+     "prop",
+     "value",
+     "dtype",
+     "value_entity",
+     "src"
+    ],
+    "cells": 8355288
+   },
+   "meta": {
+    "rows": 11,
+    "columns": [
+     "key",
+     "value"
+    ],
+    "cells": 22
+   }
+  },
+  "indexes": [
+   "alias_name",
+   "entity_title",
+   "fact_entity",
+   "sqlite_autoindex_meta_1"
+  ],
+  "values": 11873896,
+  "values_learned": 150000,
+  "note_learned": "only entity.popularity is counted; facts are verbatim",
+  "disk_bytes": 160239616,
+  "ram_bytes_rss_delta_container": 25079808
+ },
+ "index": {
+  "groups": {
+   "sentence_index": {
+    "starts": {
+     "dtype": "int64",
+     "shape": [
+      2044931
+     ],
+     "values": 2044931,
+     "bits_per_value": 64,
+     "ram_bytes": 16359448,
+     "disk_bytes": 16359576
+    },
+    "lens": {
+     "dtype": "int32",
+     "shape": [
+      2044931
+     ],
+     "values": 2044931,
+     "bits_per_value": 32,
+     "ram_bytes": 8179724,
+     "disk_bytes": 8179852
+    },
+    "ptr": {
+     "dtype": "int64",
+     "shape": [
+      23259
+     ],
+     "values": 23259,
+     "bits_per_value": 64,
+     "ram_bytes": 186072,
+     "disk_bytes": 186200
+    },
+    "post": {
+     "dtype": "int32",
+     "shape": [
+      45033255
+     ],
+     "values": 45033255,
+     "bits_per_value": 32,
+     "ram_bytes": 180133020,
+     "disk_bytes": 180133148
+    },
+    "sent_terms": {
+     "dtype": "int32",
+     "shape": [
+      2044931
+     ],
+     "values": 2044931,
+     "bits_per_value": 32,
+     "ram_bytes": 8179724,
+     "disk_bytes": 8179852
+    },
+    "term_of": {
+     "dtype": "int32",
+     "shape": [
+      32768
+     ],
+     "values": 32768,
+     "bits_per_value": 32,
+     "ram_bytes": 131072,
+     "disk_bytes": 131200
+    },
+    "doc_ptr": {
+     "dtype": "int64",
+     "shape": [
+      23259
+     ],
+     "values": 23259,
+     "bits_per_value": 64,
+     "ram_bytes": 186072,
+     "disk_bytes": 186200
+    },
+    "doc_post": {
+     "dtype": "int32",
+     "shape": [
+      33084170
+     ],
+     "values": 33084170,
+     "bits_per_value": 32,
+     "ram_bytes": 132336680,
+     "disk_bytes": 132336808
+    },
+    "sent_doc": {
+     "dtype": "int32",
+     "shape": [
+      2044931
+     ],
+     "values": 2044931,
+     "bits_per_value": 32,
+     "ram_bytes": 8179724,
+     "disk_bytes": 8179852
+    },
+    "terms": {
+     "values": 23258,
+     "disk_bytes": 166225,
+     "note": "strings"
+    }
+   },
+   "shelf_index": {
+    "bucket": {
+     "dtype": "uint16",
+     "shape": [
+      6369076
+     ],
+     "values": 6369076,
+     "bits_per_value": 16,
+     "ram_bytes": 12738152,
+     "disk_bytes": 12738280
+    },
+    "idf": {
+     "dtype": "float16",
+     "shape": [
+      4736006
+     ],
+     "values": 4736006,
+     "bits_per_value": 16,
+     "ram_bytes": 9472012,
+     "disk_bytes": 9472140
+    },
+    "name_doc": {
+     "dtype": "uint32",
+     "shape": [
+      7217686
+     ],
+     "values": 7217686,
+     "bits_per_value": 32,
+     "ram_bytes": 28870744,
+     "disk_bytes": 28870872
+    },
+    "name_hash": {
+     "dtype": "uint64",
+     "shape": [
+      7217686
+     ],
+     "values": 7217686,
+     "bits_per_value": 64,
+     "ram_bytes": 57741488,
+     "disk_bytes": 57741616
+    },
+    "post": {
+     "dtype": "uint32",
+     "shape": [
+      56969251
+     ],
+     "values": 56969251,
+     "bits_per_value": 32,
+     "ram_bytes": 227877004,
+     "disk_bytes": 227877132
+    },
+    "ptr": {
+     "dtype": "uint32",
+     "shape": [
+      4736007
+     ],
+     "values": 4736007,
+     "bits_per_value": 32,
+     "ram_bytes": 18944028,
+     "disk_bytes": 18944156
+    },
+    "term_hash": {
+     "dtype": "uint32",
+     "shape": [
+      4736006
+     ],
+     "values": 4736006,
+     "bits_per_value": 32,
+     "ram_bytes": 18944024,
+     "disk_bytes": 18944152
+    },
+    "title_off": {
+     "dtype": "uint32",
+     "shape": [
+      6369077
+     ],
+     "values": 6369077,
+     "bits_per_value": 32,
+     "ram_bytes": 25476308,
+     "disk_bytes": 25476436
+    }
+   }
+  },
+  "values": 184750488,
+  "values_learned": 4736006,
+  "note_learned": "only the shelf idf (float16) is counted; the sentence-index idf is derived at load",
+  "disk_bytes": 754103697,
+  "ram_bytes": 753935296,
+  "ram_note": "memory-mapped: file-backed address space, resident only when touched"
+ },
+ "perceptrons": {
+  "models": {
+   "spanperc_ens7": {
+    "weights": 660886,
+    "feature_keys": 660886,
+    "values": 660886,
+    "disk_bytes": 20441531,
+    "ram_bytes": 10574176,
+    "ram_note": "CompactWeights: uint64 key hash + float64 weight",
+    "bits_per_value_ram": 64,
+    "disk_format": "JSON text, 6 decimals"
+   },
+   "spanperc_nq": {
+    "weights": 354046,
+    "feature_keys": 354046,
+    "values": 354046,
+    "disk_bytes": 10791018,
+    "ram_bytes": 5664736,
+    "ram_note": "CompactWeights: uint64 key hash + float64 weight",
+    "bits_per_value_ram": 64,
+    "disk_format": "JSON text, 6 decimals"
+   },
+   "confperc14": {
+    "weights": 296,
+    "bins": 7,
+    "values": 303,
+    "disk_bytes": 9556
+   },
+   "intent": {
+    "classes": 60,
+    "features": 26683,
+    "weights": 159373,
+    "values": 159373,
+    "disk_bytes": 4250304,
+    "ram_bytes_rss_delta_container": 19447808
+   },
+   "frame_model": {
+    "classes": 19,
+    "features": 21985,
+    "weights": 74092,
+    "values": 74092,
+    "disk_bytes": 269800,
+    "ram_bytes_rss_delta_container": 13336576
+   },
+   "atlas_calib": {
+    "weights": 285,
+    "values": 286,
+    "disk_bytes": 9501
+   }
+  },
+  "values": 1248986,
+  "disk_bytes": 35771710
+ },
+ "lexica_and_statistics": {
+  "items": {
+   "spell": {
+    "words": 139643,
+    "values": 279286,
+    "note": "per word a count and a capital-letter percentage (counted)",
+    "disk_bytes": 2257179,
+    "ram_bytes_rss_delta_container": 48893952
+   },
+   "capstats": {
+    "values": 7561,
+    "disk_bytes": 174244
+   },
+   "letters": {
+    "trigram_logp": 11196,
+    "unseen_bigram_logp": 736,
+    "words": 30000,
+    "values": 11933,
+    "disk_bytes": 447606
+   },
+   "lex_en": {
+    "entries": 59993,
+    "values": 206621,
+    "note": "extracted from WordNet/FrameNet/OdeNet/Wiktionary, not trained",
+    "disk_bytes": 289057
+   },
+   "lex_de": {
+    "entries": 99250,
+    "values": 493262,
+    "note": "extracted from WordNet/FrameNet/OdeNet/Wiktionary, not trained",
+    "disk_bytes": 655200
+   },
+   "forms_en": {
+    "entries": 4412,
+    "values": 8824,
+    "note": "extracted from WordNet/FrameNet/OdeNet/Wiktionary, not trained",
+    "disk_bytes": 22201
+   },
+   "forms_de": {
+    "entries": 103009,
+    "values": 206018,
+    "note": "extracted from WordNet/FrameNet/OdeNet/Wiktionary, not trained",
+    "disk_bytes": 455112
+   },
+   "tokenizer": {
+    "vocab": 32768,
+    "merges": 32511,
+    "values": 32511,
+    "note": "byte-level BPE learned by pair counting",
+    "disk_bytes": 2312955
+   },
+   "codebook": {
+    "arrays": {
+     "seed": {
+      "dtype": "int64",
+      "shape": [
+       1
+      ],
+      "values": 1,
+      "bits_per_value": 64,
+      "ram_bytes": 8
+     },
+     "ctx_tokens": {
+      "dtype": "int64",
+      "shape": [
+       8192
+      ],
+      "values": 8192,
+      "bits_per_value": 64,
+      "ram_bytes": 65536
+     },
+     "counts": {
+      "dtype": "int64",
+      "shape": [
+       32768
+      ],
+      "values": 32768,
+      "bits_per_value": 64,
+      "ram_bytes": 262144
+     },
+     "eng": {
+      "dtype": "uint64",
+      "shape": [
+       32768,
+       32
+      ],
+      "values": 67108864,
+      "bits_per_value": 1,
+      "ram_bytes": 8388608
+     },
+     "wide": {
+      "dtype": "uint64",
+      "shape": [
+       32768,
+       32
+      ],
+      "values": 67108864,
+      "bits_per_value": 1,
+      "ram_bytes": 8388608
+     },
+     "idf": {
+      "dtype": "int32",
+      "shape": [
+       32768
+      ],
+      "values": 32768,
+      "bits_per_value": 32,
+      "ram_bytes": 131072
+     },
+     "classes": {
+      "dtype": "int16",
+      "shape": [
+       32768
+      ],
+      "values": 32768,
+      "bits_per_value": 16,
+      "ram_bytes": 65536
+     }
+    },
+    "values": 134324225,
+    "used_by_chat": [
+     "eng",
+     "wide",
+     "classes"
+    ],
+    "disk_bytes": 17303232,
+    "ram_bytes": 17301512
+   },
+   "lexicon_en_de": {
+    "ram_bytes_rss_delta_container": null
+   }
+  },
+  "values": 135570241,
+  "disk_bytes": 23916786
+ },
+ "raw_text": {
+  "items": {
+   "corpus_tokens": {
+    "dtype": "uint16",
+    "shape": [
+     60734583
+    ],
+    "values": 60734583,
+    "bits_per_value": 16,
+    "ram_bytes": 121469166,
+    "disk_bytes": 121469166
+   },
+   "corpus_starts": {
+    "dtype": "int64",
+    "shape": [
+     400000
+    ],
+    "values": 400000,
+    "bits_per_value": 64,
+    "ram_bytes": 3200000,
+    "disk_bytes": 3200128
+   },
+   "corpus.keys.jsonl": {
+    "disk_bytes": 15120189
+   },
+   "shelf_index/titles.bin": {
+    "disk_bytes": 130043457
+   },
+   "wayfinder.sqlite": {
+    "disk_bytes": 5869568
+   },
+   "shelf.json": {
+    "disk_bytes": 515725
+   },
+   "shelf_source.json": {
+    "disk_bytes": 218
+   },
+   "info.json": {
+    "disk_bytes": 204
+   },
+   "shelf_index/info.json": {
+    "disk_bytes": 239
+   },
+   "howto": {
+    "disk_bytes": 1363713
+   },
+   "wikibooks": {
+    "disk_bytes": 44207
+   },
+   "conv_bank": {
+    "disk_bytes": 900806
+   },
+   "verbs": {
+    "disk_bytes": 6951
+   }
+  },
+  "disk_bytes": 278534571,
+  "note": "verbatim text and its bookkeeping: not counted as learned values"
+ },
+ "summary": {
+  "fact_bank": {
+   "values": 11873896,
+   "disk_bytes": 160239616
+  },
+  "index": {
+   "values": 184750488,
+   "disk_bytes": 754103697
+  },
+  "perceptrons": {
+   "values": 1248986,
+   "disk_bytes": 35771710
+  },
+  "lexica_and_statistics": {
+   "values": 135570241,
+   "disk_bytes": 23916786
+  },
+  "raw_text": {
+   "values": null,
+   "disk_bytes": 278534571
+  },
+  "wording": "stored values, not parameters (docs/PREREG_PARAMS.md §1)"
+ }
+}
