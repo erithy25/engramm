@@ -107,6 +107,7 @@ def main() -> None:
     ap.add_argument("--tag", required=True, help="output name, e.g. logres_3h or plain_run2_3h")
     ap.add_argument("--results", default="run3")
     ap.add_argument("--threads", type=int, default=4)
+    ap.add_argument("--max-docs", type=int, default=0, help="smoke test on the first documents only")
     args = ap.parse_args()
     R.set_results(args.results)
     torch.set_num_threads(args.threads)
@@ -124,6 +125,10 @@ def main() -> None:
         starts = np.load(R.TOK / f"{split}.starts.npy")
         nbytes = np.load(R.TOK / f"{split}.bytes.npy").astype(np.float64) + 1.0
         keep = R.keep_docs(split, len(starts))
+        if args.max_docs:
+            starts, nbytes, keep = starts[:args.max_docs], nbytes[:args.max_docs], keep[:args.max_docs]
+            cut = int(starts[-1]) + int(np.argmax(tokens[starts[-1]:] == 0)) + 1
+            tokens, cols, feats = tokens[:cut], cols[:cut - 1], feats[:cut - 1]
         data[split] = (tokens, cols, feats, counter, starts, nbytes, keep)
 
     # 1. fit (a, b) on FIT_WINDOWS windows of filtered val-A (fixed seed)
@@ -194,8 +199,9 @@ def main() -> None:
         perdoc[f"{split}_keep"] = e["keep"]
         res[split] = out
     R.RESULTS.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(R.RESULTS / f"eval_{args.tag}_pipe_perdoc.npz", **perdoc)
-    (R.RESULTS / f"eval_{args.tag}_pipe.json").write_text(json.dumps(res, indent=1) + "\n")
+    tag = args.tag + ("_smoke" if args.max_docs else "")
+    np.savez_compressed(R.RESULTS / f"eval_{tag}_pipe_perdoc.npz", **perdoc)
+    (R.RESULTS / f"eval_{tag}_pipe.json").write_text(json.dumps(res, indent=1) + "\n")
     print(json.dumps(res, indent=1), flush=True)
 
 
