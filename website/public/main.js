@@ -110,7 +110,6 @@
   const photoImg = $("[data-pane-img]");
   const scenes = $$("[data-pane-scene]");
   const photoClip = $("[data-pane-clip]");
-  const skyBox = $("[data-sky]");
   const shade = $(".pane__shade");
   const layers = $$(".pane:not(.pane--photo)").map((el) => ({ el, i: parseFloat(el.style.getPropertyValue("--i")) || 0 }));
   const photoDim = $("[data-pane-dim]");
@@ -132,292 +131,8 @@
   const demoBg = $(".demo__bg");
 
   /* ---------------- Cached layout: measured on resize, never per frame ---------------- */
-  const skyVars = { top: 0.1, h: 0.58, right: 0.13 };
   const box = { vw: 0, vh: 0, winH: 0, stageTop: 0, stageH: 0, wordsTop: 0, wordsH: 0, floatTop: 0, floatH: 0, rows: [], themed: [] };
   const docTop = (el) => el.getBoundingClientRect().top + window.scrollY;
-
-  /* ---------------- Skywriting: a prop plane writes the E in smoke ---------------- */
-  const sky = (() => {
-    const root = $("[data-sky]");
-    if (!root) return null;
-    const trail = $("[data-sky-trail]", root);
-    const aged = $("[data-sky-aged]", root);
-    const live = $("[data-sky-live]", root);
-    const pathE = $("[data-sky-e]", root);
-    const pathIn = $("[data-sky-in]", root);
-    const pathOut = $("[data-sky-out]", root);
-    if (!trail || !aged || !live || !pathE || !pathIn || !pathOut || typeof window.Path2D !== "function") return null;
-    const tctx = trail.getContext("2d");
-    const actx = aged.getContext("2d");
-    const lctx = live.getContext("2d");
-    if (!tctx || !actx || !lctx) return null;
-
-    const VB = { x: 300, y: 220, w: 900, h: 620 };
-    const STEP = 2;
-    const SPEED = 0.5;
-    const EMIT_LAG = 34;
-    const TEX_COUNT = 6;
-
-    const rng = (seed) => {
-      let s = seed | 0;
-      return () => {
-        s = (s + 0x6d2b79f5) | 0;
-        let t = Math.imul(s ^ (s >>> 15), 1 | s);
-        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-      };
-    };
-
-    const sample = (path) => {
-      const len = path.getTotalLength();
-      const n = Math.max(2, Math.ceil(len / STEP) + 1);
-      const xs = new Float32Array(n);
-      const ys = new Float32Array(n);
-      for (let i = 0; i < n; i += 1) {
-        const pt = path.getPointAtLength(Math.min(len, i * STEP));
-        xs[i] = pt.x;
-        ys[i] = pt.y;
-      }
-      return { len, n, xs, ys };
-    };
-    const at = (S, s) => {
-      const f = clamp(s, 0, S.len) / STEP;
-      const i = Math.min(S.n - 2, Math.floor(f));
-      const u = Math.min(1, f - i);
-      return { x: S.xs[i] + (S.xs[i + 1] - S.xs[i]) * u, y: S.ys[i] + (S.ys[i + 1] - S.ys[i]) * u };
-    };
-    const heading = (S, s) => {
-      const a = at(S, s - 5);
-      const b = at(S, s + 5);
-      return Math.atan2(b.y - a.y, b.x - a.x);
-    };
-
-    const E = sample(pathE);
-    const IN = sample(pathIn);
-    const OUT = sample(pathOut);
-
-    /* soft, irregular smoke puffs, generated once */
-    const textures = [];
-    for (let v = 0; v < TEX_COUNT; v += 1) {
-      const c = document.createElement("canvas");
-      c.width = 128;
-      c.height = 128;
-      const g = c.getContext("2d");
-      const r = rng(101 + v * 17);
-      for (let k = 0; k < 7; k += 1) {
-        const cx = 64 + (r() - 0.5) * 40;
-        const cy = 64 + (r() - 0.5) * 40;
-        const rad = 20 + r() * 22;
-        const grd = g.createRadialGradient(cx, cy, 0, cx, cy, rad);
-        grd.addColorStop(0, "rgba(255,255,255,0.5)");
-        grd.addColorStop(0.45, "rgba(255,255,255,0.26)");
-        grd.addColorStop(1, "rgba(255,255,255,0)");
-        g.fillStyle = grd;
-        g.fillRect(0, 0, 128, 128);
-      }
-      textures.push(c);
-    }
-
-    /* every puff along the E, deterministic so redraws match exactly */
-    const puffs = [];
-    const r = rng(7);
-    const normalAt = (s) => {
-      const a = heading(E, s);
-      return { nx: -Math.sin(a), ny: Math.cos(a) };
-    };
-    for (let s = 0; s <= E.len; s += 2.6) {
-      const p = at(E, s);
-      const n = normalAt(s);
-      const j = Math.sin(s * 0.045 + 1.3) * 2.6 + Math.sin(s * 0.13) * 1.2 + (r() - 0.5) * 2.4;
-      const big = r() > 0.9 ? 12 * r() : 0;
-      puffs.push({ s, x: p.x + n.nx * j, y: p.y + n.ny * j, d: 20 + r() * 10 + big, a: 0.2 + r() * 0.16, v: (r() * TEX_COUNT) | 0, rot: r() * Math.PI * 2, haze: false });
-    }
-    for (let s = 0; s <= E.len; s += 8) {
-      const p = at(E, s);
-      const n = normalAt(s);
-      const j = (r() - 0.5) * 12;
-      puffs.push({ s: s + 0.1, x: p.x + n.nx * j, y: p.y + n.ny * j, d: 54 + r() * 30, a: 0.05 + r() * 0.05, v: (r() * TEX_COUNT) | 0, rot: r() * Math.PI * 2, haze: true });
-    }
-    puffs.sort((a, b) => a.s - b.s);
-
-    const plane = {
-      body: new Path2D("M 18 0 C 16 -2.6 8 -3.4 0 -3.2 L -14 -1.6 L -18.5 -1.1 L -18.5 1.1 L -14 1.6 L 0 3.2 C 8 3.4 16 2.6 18 0 Z"),
-      wings: new Path2D("M 6.5 -3 L 4.2 -24 C 2 -25.4 -1.6 -25.4 -3.4 -24 L -4.2 -3 Z M 6.5 3 L 4.2 24 C 2 25.4 -1.6 25.4 -3.4 24 L -4.2 3 Z"),
-      tail: new Path2D("M -12.5 -1.4 L -14.6 -9 C -15.8 -9.8 -17.4 -9.8 -18.2 -9 L -17.8 -1.2 Z M -12.5 1.4 L -14.6 9 C -15.8 9.8 -17.4 9.8 -18.2 9 L -17.8 1.2 Z"),
-    };
-
-    let scale = 1;
-    let drawn = 0;
-    let frontier = 0;
-    let agedDone = false;
-    let state = reduceMotion ? "done" : "wait";
-    let delay = 900;
-    let t = 0;
-    let ang = null;
-    let bank = 0;
-
-    const base = (ctx) => ctx.setTransform(scale, 0, 0, scale, -VB.x * scale, -VB.y * scale);
-    const drawPuff = (ctx, p, k, alphaK, dx, dy) => {
-      const d = p.d * k;
-      const c = Math.cos(p.rot) * scale;
-      const s = Math.sin(p.rot) * scale;
-      ctx.globalAlpha = p.a * alphaK;
-      ctx.globalCompositeOperation = p.haze ? "destination-over" : "source-over";
-      ctx.setTransform(c, s, -s, c, (p.x + dx - VB.x) * scale, (p.y + dy - VB.y) * scale);
-      ctx.drawImage(textures[p.v], -d / 2, -d / 2, d, d);
-    };
-    const drawTrailTo = (f) => {
-      while (drawn < puffs.length && puffs[drawn].s <= f) {
-        drawPuff(tctx, puffs[drawn], 1, 1, 0, 0);
-        drawn += 1;
-      }
-      tctx.globalAlpha = 1;
-      tctx.globalCompositeOperation = "source-over";
-    };
-    const renderAged = () => {
-      actx.setTransform(1, 0, 0, 1, 0, 0);
-      actx.clearRect(0, 0, aged.width, aged.height);
-      for (const p of puffs) drawPuff(actx, p, 1.45, 0.6, -3 - Math.sin(p.rot * 3) * 2, -1.5 + Math.cos(p.rot * 2));
-      actx.globalAlpha = 1;
-      actx.globalCompositeOperation = "source-over";
-    };
-    const clearLive = () => {
-      lctx.setTransform(1, 0, 0, 1, 0, 0);
-      lctx.clearRect(0, 0, live.width, live.height);
-    };
-
-    /* the canvases are sized for the full-bleed hero, so they stay sharp when the card shrinks */
-    const resize = () => {
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      const frac = parseFloat(getComputedStyle(root).getPropertyValue("--sky-h")) || 0.58;
-      const heroH = (sticky ? sticky.clientHeight : window.innerHeight) || window.innerHeight;
-      const hPx = Math.max(64, Math.round(Math.min(2200, heroH * frac * dpr)));
-      const wPx = Math.round((hPx * VB.w) / VB.h);
-      if (trail.width === wPx && trail.height === hPx) return;
-      for (const c of state === "done" ? [trail, aged] : [trail, aged, live]) {
-        c.width = wPx;
-        c.height = hPx;
-      }
-      scale = hPx / VB.h;
-      drawn = 0;
-      tctx.setTransform(1, 0, 0, 1, 0, 0);
-      tctx.clearRect(0, 0, wPx, hPx);
-      drawTrailTo(frontier);
-      if (agedDone) renderAged();
-    };
-    resize();
-
-    if (reduceMotion) {
-      frontier = E.len;
-      drawTrailTo(frontier);
-      renderAged();
-      agedDone = true;
-      root.classList.add("is-aged");
-    }
-
-    const drawLive = (pose, freshFrom, freshTo) => {
-      clearLive();
-      if (freshTo - freshFrom > 1) {
-        base(lctx);
-        lctx.globalAlpha = 1;
-        lctx.beginPath();
-        const a = at(E, freshFrom);
-        lctx.moveTo(a.x, a.y);
-        for (let s = freshFrom + 3; s < freshTo; s += 3) {
-          const p = at(E, s);
-          lctx.lineTo(p.x, p.y);
-        }
-        const b = at(E, freshTo);
-        lctx.lineTo(b.x, b.y);
-        const grd = lctx.createLinearGradient(a.x, a.y, b.x, b.y);
-        grd.addColorStop(0, "rgba(255,255,255,0)");
-        grd.addColorStop(1, "rgba(255,255,255,0.9)");
-        lctx.lineCap = "round";
-        lctx.lineJoin = "round";
-        lctx.strokeStyle = grd;
-        lctx.lineWidth = 4.5;
-        lctx.stroke();
-      }
-      if (pose) {
-        base(lctx);
-        lctx.translate(pose.x, pose.y);
-        lctx.rotate(ang);
-        lctx.scale(0.86, 0.86 * (1 - bank));
-        lctx.globalAlpha = 1;
-        lctx.fillStyle = "rgba(8,10,16,0.94)";
-        lctx.fill(plane.body);
-        lctx.fill(plane.wings);
-        lctx.fill(plane.tail);
-        lctx.globalAlpha = 0.25 + Math.random() * 0.4;
-        lctx.fillRect(18.4, -7.5, 1.3, 15);
-        lctx.globalAlpha = 1;
-      }
-    };
-
-    const update = (dt) => {
-      if (state === "done") return;
-      if (state === "wait") {
-        if (!hero || !hero.classList.contains("is-in")) return;
-        delay -= dt;
-        if (delay > 0) return;
-        state = "fly";
-      }
-      t += dt;
-      const d = t * SPEED;
-      let pose = null;
-      let target = ang;
-      let v = -1;
-      if (d < IN.len) {
-        pose = at(IN, d);
-        target = heading(IN, d);
-      } else if (d < IN.len + E.len) {
-        v = d - IN.len;
-        pose = at(E, v);
-        target = heading(E, v);
-      } else if (d < IN.len + E.len + OUT.len) {
-        v = d - IN.len;
-        const o = d - IN.len - E.len;
-        pose = at(OUT, o);
-        target = heading(OUT, o);
-      } else {
-        v = Infinity;
-      }
-
-      if (pose) {
-        if (ang === null) ang = target;
-        let diff = target - ang;
-        while (diff > Math.PI) diff -= Math.PI * 2;
-        while (diff < -Math.PI) diff += Math.PI * 2;
-        ang += diff * (1 - Math.exp(-dt / 60));
-        const turn = dt > 0 ? Math.abs(diff) / dt : 0;
-        bank += (Math.min(0.34, turn * 9) - bank) * (1 - Math.exp(-dt / 140));
-      }
-
-      if (v > 0) {
-        const f = clamp(v - EMIT_LAG, 0, E.len);
-        if (f > frontier) {
-          frontier = f;
-          drawTrailTo(frontier);
-        }
-      }
-      const freshTo = v > 0 ? Math.min(v, E.len) : 0;
-      const freshFrom = Math.max(0, frontier - 6);
-      drawLive(pose, freshFrom, freshTo);
-
-      if (!agedDone && frontier >= E.len) {
-        agedDone = true;
-        renderAged();
-        root.classList.add("is-aged");
-      }
-      if (!pose && agedDone) {
-        clearLive();
-        live.width = 0;
-        live.height = 0;
-        state = "done";
-      }
-    };
-    return { update, resize };
-  })();
 
   /* ---------------- Stage: the photo shrinks into the layered stack ---------------- */
   let activeChapter = -2;
@@ -575,13 +290,7 @@
     const cw = wide ? vh * aspect : vw;
     const ch = wide ? vh : vw / aspect;
     const kEnd = Math.max(cw, ch * 16 / 9) / Math.max(vw, vh * 16 / 9);
-    const skyH = skyVars.h * vh;
-    const skyTop = skyVars.top * vh;
-    const skyLeft = (1 - skyVars.right) * vw - skyH * 0.7419;
     if (t1 >= 0.999) {
-      const f = W / cw;
-      const mapX = (x) => ((x - vw / 2) * kEnd + vw / 2 - (vw - cw) / 2) * f;
-      const mapY = (y) => ((y - vh / 2) * kEnd + vh / 2 - (vh - ch) / 2) * f;
       setStyle(photo, "width", `${W.toFixed(1)}px`);
       setStyle(photo, "height", `${H.toFixed(1)}px`);
       setStyle(photo, "transform", "translate(-50%, -50%)");
@@ -592,9 +301,6 @@
       setStyle(photoClip, "borderRadius", "10px");
       for (const s of scenes) setStyle(s, "transform", "translate(-50%, -50%)");
       setStyle(shade, "transform", "translate(-50%, -50%)");
-      setStyle(skyBox, "left", `${mapX(skyLeft).toFixed(2)}px`);
-      setStyle(skyBox, "top", `${mapY(skyTop).toFixed(2)}px`);
-      setStyle(skyBox, "height", `${(skyH * kEnd * f).toFixed(2)}px`);
     } else {
       const scale = lerp(1, W / cw, t1);
       const clipW = lerp(vw, cw, t1);
@@ -610,9 +316,6 @@
       const sceneScale = lerp(1, kEnd, t1);
       for (const s of scenes) setStyle(s, "transform", `translate(-50%, -50%) scale(${sceneScale.toFixed(4)})`);
       setStyle(shade, "transform", `translate(-50%, -50%) scale(${(clipW / vw).toFixed(4)}, ${(clipH / vh).toFixed(4)})`);
-      setStyle(skyBox, "left", `${skyLeft.toFixed(2)}px`);
-      setStyle(skyBox, "top", `${skyTop.toFixed(2)}px`);
-      setStyle(skyBox, "height", `${skyH.toFixed(2)}px`);
     }
     setStyle(photoDim, "opacity", (t1 * 0.42).toFixed(3));
     if (photoImg) {
@@ -1104,12 +807,6 @@
     box.vw = sticky ? sticky.clientWidth : document.documentElement.clientWidth;
     box.vh = sticky ? sticky.clientHeight : window.innerHeight;
     box.winH = window.innerHeight;
-    if (skyBox) {
-      const cs = getComputedStyle(skyBox);
-      skyVars.top = parseFloat(cs.getPropertyValue("--sky-top")) || 0.1;
-      skyVars.h = parseFloat(cs.getPropertyValue("--sky-h")) || 0.58;
-      skyVars.right = parseFloat(cs.getPropertyValue("--sky-right")) || 0.13;
-    }
     if (stage) { box.stageTop = docTop(stage); box.stageH = stage.offsetHeight; }
     if (wordsHost) { box.wordsTop = docTop(wordsHost); box.wordsH = wordsHost.offsetHeight; }
     if (floatSection) { box.floatTop = docTop(floatSection); box.floatH = floatSection.offsetHeight; }
@@ -1130,7 +827,6 @@
     requestAnimationFrame(() => {
       measureQueued = false;
       measure();
-      if (sky) sky.resize();
     });
   };
   measure();
@@ -1148,7 +844,6 @@
     const sy = window.scrollY;
     pointer.sx = lerp(pointer.sx, reduceMotion ? 0 : pointer.x, 0.06);
     pointer.sy = lerp(pointer.sy, reduceMotion ? 0 : pointer.y, 0.06);
-    if (sky) sky.update(dt);
     updateGrab(dt);
     renderStage(sy);
     renderStatement(sy);

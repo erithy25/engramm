@@ -154,21 +154,6 @@ html.is-grabbing, html.is-grabbing * { cursor: grabbing !important; -webkit-user
 .stack-hint__touch { display: none; }
 @media (hover: none) { .stack-hint__mouse { display: none; } .stack-hint__touch { display: inline; } }
 
-/* Skywriting */
-.sky {
-  --sky-top: 0.1; --sky-h: 0.58; --sky-right: 0.13;
-  position: absolute; top: calc(var(--sky-top) * 100cqh); height: calc(var(--sky-h) * 100cqh);
-  left: calc((1 - var(--sky-right)) * 100cqw - var(--sky-h) * 100cqh * 0.7419);
-  width: auto; aspect-ratio: 900 / 620; pointer-events: none; transition: transform 40s linear;
-}
-.sky.is-aged { transform: translate3d(-1.2%, -0.5%, 0); }
-.sky__layer { position: absolute; inset: 0; width: 100%; height: 100%; }
-.sky__trail { transition: opacity 18s var(--ease-io); }
-.sky__aged { opacity: 0; transition: opacity 12s var(--ease-io); }
-.sky.is-aged .sky__trail { opacity: 0.6; }
-.sky.is-aged .sky__aged { opacity: 1; }
-.sky__geo { position: absolute; left: 0; top: 0; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
-
 .wire { opacity: 0; transition: opacity 0.6s var(--ease); }
 .wire.is-on { opacity: 1; }
 .wire path, .wire rect.draw { fill: none; stroke: rgba(255, 255, 255, 0.7); stroke-width: 1; vector-effect: non-scaling-stroke; }
@@ -398,7 +383,6 @@ html.is-grabbing, html.is-grabbing * { cursor: grabbing !important; -webkit-user
   .nav__links { display: none; }
   .rail { display: none; }
   .hero { grid-template-columns: 1fr; padding-bottom: 84px; }
-  .sky { --sky-top: 0.12; --sky-h: 0.42; --sky-right: 0.1; }
   .demo__window { grid-template-columns: 1fr; height: auto; }
   .demo__chat { height: 470px; }
   .demo__inspect { border-left: 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr; }
@@ -414,7 +398,6 @@ html.is-grabbing, html.is-grabbing * { cursor: grabbing !important; -webkit-user
   .btn--lg { height: 48px; }
   .hero { padding: 0 18px 76px; gap: 22px; }
   .hero__title { font-size: clamp(44px, 13vw, 60px); }
-  .sky { --sky-top: 0.12; --sky-h: 0.34; --sky-right: 0.09; }
   .hero__scroll { display: none; }
   .chapter__title { font-size: 24px; }
   .chapter__text { font-size: 14px; }
@@ -433,7 +416,6 @@ html.is-grabbing, html.is-grabbing * { cursor: grabbing !important; -webkit-user
 
 @media (prefers-reduced-motion: reduce) {
   .hero__scroll i, .access__aura i, .dot, .stack-hint svg { animation: none !important; }
-  .sky, .sky__trail, .sky__aged { transition: none; }
   .is-in .ltr, .chapter.is-on .ltr { animation: none; }
   .hero__title .ltr, .float__title .ltr { opacity: 1; }
   .msg, .thinking i, .demo__caret, .inspect__source > * { animation: none; }
