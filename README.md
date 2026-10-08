@@ -562,6 +562,7 @@ engramm/bench/           ChatBench and SearchBench tooling
 runtime/                 desktop app: Rust core (runtime/core, egress, Tor), Tauri app (runtime/app), sidecar
 ui/                      the React/Vite/TypeScript chat interface
 site/                    the project website
+website/                 the product landing page (static, Vercel): website/README.md
 release/                 release requests (request.json starts a release build)
 scripts/                 pack building and signing
 desktop/                 the older Electron shell; reference only

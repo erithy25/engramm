@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ENGRAMM: Intelligence that answers to you</title>
+  <meta name="description" content="ENGRAMM is a private AI assistant that shows the source behind every answer, keeps its memory on your machine and forgets the moment you ask.">
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ENGRAMM: Intelligence that answers to you">
+  <meta property="og:description" content="A private AI assistant that shows its sources, keeps its memory on your machine and forgets on command.">
+  <meta property="og:image" content="/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="/img/hero.webp" fetchpriority="high">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="nav" data-nav data-theme="clear">
+    <a class="brand" href="#top" aria-label="ENGRAMM home">
+      <svg class="mark" viewBox="300 220 460 620" aria-hidden="true"><path d="M 704 332 C 632 252 408 246 396 372 C 388 446 444 484 530 486 C 604 488 648 470 640 448 C 632 426 568 424 530 454 C 500 478 474 500 434 516 C 354 548 324 612 332 680 C 346 800 598 818 728 708"/></svg>
+      <span class="brand__word">engramm</span>
+    </a>
+    <nav class="nav__links" aria-label="Main">
+      <a href="#story">Product</a>
+      <a href="#demo">In use</a>
+      <a href="#mission">Mission</a>
+      <a href="https://github.com/erithy25/engramm" rel="noopener">Research</a>
+    </nav>
+    <div class="nav__actions">
+      <a class="btn btn--line" href="https://github.com/erithy25/engramm" rel="noopener">GitHub</a>
+      <a class="btn btn--solid" href="#access">Early access</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Hero and story: the photo shrinks into a layered stack -->
+    <section class="stage" id="top" data-stage aria-label="ENGRAMM">
+      <span id="story" class="anchor" aria-hidden="true"></span>
+      <div class="stage__sticky" data-sticky>
+        <div class="stack-wrap" aria-hidden="true">
+          <div class="stack" data-stack>
+            <div class="pane pane--ghost" style="--i:-1"></div>
+
+            <div class="pane pane--photo" style="--i:0" data-pane-photo>
+              <div class="pane__clip" data-pane-clip>
+                <div class="pane__scene" data-pane-scene>
+                  <img class="pane__img" data-pane-img src="/img/hero.webp" alt="" width="2560" height="1440" fetchpriority="high">
+                </div>
+                <div class="pane__shade"></div>
+                <div class="pane__scene" data-pane-scene>
+                  <div class="sky" data-sky aria-hidden="true">
+                    <canvas class="sky__layer sky__trail" data-sky-trail></canvas>
+                    <canvas class="sky__layer sky__aged" data-sky-aged></canvas>
+                    <canvas class="sky__layer" data-sky-live></canvas>
+                    <svg class="sky__geo" width="1" height="1" viewBox="300 220 900 620" focusable="false">
+                      <path data-sky-e d="M 704 332 C 632 252 408 246 396 372 C 388 446 444 484 530 486 C 604 488 648 470 640 448 C 632 426 568 424 530 454 C 500 478 474 500 434 516 C 354 548 324 612 332 680 C 346 800 598 818 728 708"/>
+                      <path data-sky-in d="M 1130 560 C 960 520 790 440 704 332"/>
+                      <path data-sky-out d="M 728 708 C 820 630 960 540 1160 470"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="pane__dim" data-pane-dim></div>
+              </div>
+            </div>
+
+            <div class="pane pane--wire" style="--i:1">
+              <svg viewBox="0 0 520 322" preserveAspectRatio="none">
+                <defs>
+                  <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="0.9" fill="rgba(255,255,255,0.28)"/></pattern>
+                </defs>
+                <rect width="520" height="322" fill="url(#dots)"/>
+                <g class="wire" data-view="0">
+                  <path class="draw" pathLength="1" d="M34 58 C 160 58, 210 161, 330 161"/>
+                  <path class="draw" pathLength="1" d="M34 120 C 170 120, 220 161, 330 161"/>
+                  <path class="draw" pathLength="1" d="M34 204 C 170 204, 220 161, 330 161"/>
+                  <path class="draw" pathLength="1" d="M34 266 C 160 266, 210 161, 330 161"/>
+                  <path class="draw draw--hot" pathLength="1" d="M330 161 L 486 161"/>
+                  <circle cx="34" cy="58" r="3"/><circle cx="34" cy="120" r="3"/><circle cx="34" cy="204" r="3"/><circle cx="34" cy="266" r="3"/>
+                  <rect class="node" x="324" y="155" width="12" height="12"/>
+                  <circle class="hot" cx="486" cy="161" r="5"/>
+                </g>
+                <g class="wire" data-view="1">
+                  <path class="draw" pathLength="1" d="M48 76 H 472"/>
+                  <path class="draw" pathLength="1" d="M48 134 H 472"/>
+                  <path class="draw draw--gone" pathLength="1" d="M48 192 H 472"/>
+                  <path class="draw" pathLength="1" d="M48 250 H 472"/>
+                  <circle cx="48" cy="76" r="3"/><circle cx="260" cy="76" r="3"/><circle cx="472" cy="76" r="3"/>
+                  <circle cx="48" cy="134" r="3"/><circle cx="260" cy="134" r="3"/><circle cx="472" cy="134" r="3"/>
+                  <circle class="hot" cx="260" cy="192" r="5"/>
+                  <circle cx="48" cy="250" r="3"/><circle cx="260" cy="250" r="3"/><circle cx="472" cy="250" r="3"/>
+                </g>
+                <g class="wire" data-view="2">
+                  <rect class="draw" pathLength="1" x="70" y="52" width="380" height="218" rx="14"/>
+                  <path class="draw" pathLength="1" d="M4 96 H 62"/>
+                  <path class="draw" pathLength="1" d="M4 226 H 62"/>
+                  <path class="draw" pathLength="1" d="M516 140 H 458"/>
+                  <path class="x" d="M58 90 l 10 12 M68 90 l -10 12"/>
+                  <path class="x" d="M58 220 l 10 12 M68 220 l -10 12"/>
+                  <path class="x" d="M452 134 l 10 12 M462 134 l -10 12"/>
+                  <circle class="hot" cx="260" cy="161" r="5"/>
+                  <circle cx="200" cy="120" r="3"/><circle cx="320" cy="122" r="3"/><circle cx="214" cy="206" r="3"/><circle cx="306" cy="200" r="3"/>
+                </g>
+              </svg>
+            </div>
+
+            <div class="pane pane--ui" style="--i:2">
+              <div class="ui">
+                <div class="ui__view" data-view="0">
+                  <p class="ui__you">Who invented the telephone?</p>
+                  <p class="ui__answer">Alexander Graham Bell</p>
+                  <blockquote class="quote">“…is credited with patenting the first practical telephone.”</blockquote>
+                  <div class="ui__chips"><span class="chip">Wikipedia: Alexander Graham Bell</span><span class="chip chip--sure">Sure</span></div>
+                </div>
+                <div class="ui__view" data-view="1">
+                  <p class="ui__title">Memory</p>
+                  <ul class="ui__list">
+                    <li>You like to be called Alex</li>
+                    <li>You're vegetarian</li>
+                    <li class="is-gone"><span>Your sister is called Lena</span><em>Forgotten</em></li>
+                  </ul>
+                </div>
+                <div class="ui__view" data-view="2">
+                  <p class="ui__title">Network</p>
+                  <ul class="ui__list">
+                    <li><span>Cloud</span><i class="toggle"></i></li>
+                    <li><span>Account</span><i class="toggle"></i></li>
+                    <li><span>Telemetry</span><i class="toggle"></i></li>
+                  </ul>
+                  <p class="ui__status"><span class="dot"></span>Running on this device</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="pane pane--ghost" style="--i:3"></div>
+          </div>
+        </div>
+
+        <div class="hero" data-hero>
+          <h1 class="hero__title" data-letters>Intelligence that<br>answers to you.</h1>
+          <div class="hero__side">
+            <p class="hero__lead">A private AI assistant that shows its sources, remembers what you allow and forgets on command.</p>
+            <div class="hero__actions">
+              <a class="btn btn--white" href="#access">Get early access</a>
+              <a class="btn btn--glass" href="#demo">See it in use</a>
+            </div>
+          </div>
+          <div class="hero__scroll" aria-hidden="true"><i></i>Scroll</div>
+        </div>
+
+        <div class="chapters" data-chapters>
+          <article class="chapter" data-chapter="0">
+            <h2 class="chapter__title" data-letters>Trust isn't a feature. It's the architecture.</h2>
+            <p class="chapter__text">ENGRAMM is an AI assistant built from the ground up to be checked, not believed.</p>
+          </article>
+          <article class="chapter" data-chapter="1">
+            <h2 class="chapter__title" data-letters>Every answer, accounted for.</h2>
+            <p class="chapter__text">ENGRAMM shows you the exact sentence behind each answer. When it doesn't know, it says so.</p>
+            <a class="btn btn--quiet" href="#demo" data-demo-link="ask">See it answer<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg></a>
+          </article>
+          <article class="chapter" data-chapter="2">
+            <h2 class="chapter__title" data-letters>Remembers what matters. Forgets on command.</h2>
+            <p class="chapter__text">Your memory lives on your machine, as a list you can read. Delete an entry and it is gone, provably.</p>
+            <a class="btn btn--quiet" href="#demo" data-demo-link="forget">See it forget<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg></a>
+          </article>
+          <article class="chapter" data-chapter="3">
+            <h2 class="chapter__title" data-letters>Your machine. Your intelligence.</h2>
+            <p class="chapter__text">No cloud, no account, no data centre. ENGRAMM runs entirely on the computer in front of you.</p>
+            <a class="btn btn--quiet" href="#access">Get early access<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg></a>
+          </article>
+        </div>
+
+        <nav class="rail" data-rail aria-label="Story chapters">
+          <button type="button" data-goto="0"><span>01</span>Trust</button>
+          <button type="button" data-goto="1"><span>02</span>Sources</button>
+          <button type="button" data-goto="2"><span>03</span>Memory</button>
+          <button type="button" data-goto="3"><span>04</span>On-device</button>
+        </nav>
+      </div>
+    </section>
+
+    <!-- Mission -->
+    <section class="statement" id="mission" aria-labelledby="mission-label" data-nav-theme="dark">
+      <p class="eyebrow" id="mission-label"><svg class="mark" viewBox="300 220 460 620" aria-hidden="true"><path d="M 704 332 C 632 252 408 246 396 372 C 388 446 444 484 530 486 C 604 488 648 470 640 448 C 632 426 568 424 530 454 C 500 478 474 500 434 516 C 354 548 324 612 332 680 C 346 800 598 818 728 708"/></svg>Mission</p>
+      <p class="statement__text" data-words>The most valuable intelligence is the kind you can hold to account. So we built an assistant that shows its sources, keeps its memory on your machine, and forgets the moment you ask.</p>
+      <div class="statement__glow" aria-hidden="true"></div>
+    </section>
+
+    <!-- Principles marquee -->
+    <section class="marquee" aria-label="Principles" data-nav-theme="dark">
+      <div class="marquee__row" data-marquee="1">
+        <div class="marquee__track">
+          <span>Shows its sources</span><i></i><span>Forgets on command</span><i></i><span>Runs on your machine</span><i></i><span>Says “I don't know”</span><i></i>
+        </div>
+      </div>
+      <div class="marquee__row marquee__row--outline" data-marquee="-1" aria-hidden="true">
+        <div class="marquee__track">
+          <span>No cloud</span><i></i><span>No account</span><i></i><span>No telemetry</span><i></i><span>No guessing</span><i></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dark canvas -->
+    <div class="canvas" data-nav-theme="dark">
+      <section class="float" data-float aria-labelledby="float-title">
+        <div class="tile" style="--x:9%;--y:17%;--w:190px;--r:1.25;--z:0.95;background-image:url(/img/catalogue.webp);background-size:240%;background-position:32% 42%"></div>
+        <div class="tile" style="--x:26%;--y:8%;--w:96px;--r:1;--z:0.35;background-image:url(/img/hero.webp);background-size:520%;background-position:12% 58%"></div>
+        <div class="tile" style="--x:42%;--y:16%;--w:78px;--r:1.25;--z:0.55;background-image:url(/img/glass.webp);background-size:600%;background-position:78% 50%"></div>
+        <div class="tile" style="--x:67%;--y:10%;--w:150px;--r:0.75;--z:0.8;background-image:url(/img/sand.webp);background-size:300%;background-position:72% 64%"></div>
+        <div class="tile" style="--x:88%;--y:24%;--w:92px;--r:1.3;--z:0.4;background-image:url(/img/catalogue.webp);background-size:380%;background-position:50% 30%"></div>
+        <div class="tile" style="--x:6%;--y:60%;--w:130px;--r:0.75;--z:0.6;background-image:url(/img/hero.webp);background-size:340%;background-position:62% 52%"></div>
+        <div class="tile" style="--x:20%;--y:80%;--w:210px;--r:0.8;--z:1;background-image:url(/img/sand.webp);background-size:180%;background-position:30% 12%"></div>
+        <div class="tile" style="--x:39%;--y:88%;--w:84px;--r:1;--z:0.3;background-image:url(/img/glass.webp);background-size:520%;background-position:22% 50%"></div>
+        <div class="tile" style="--x:62%;--y:80%;--w:180px;--r:0.66;--z:0.85;background-image:url(/img/hero.webp);background-size:200%;background-position:50% 70%"></div>
+        <div class="tile" style="--x:82%;--y:62%;--w:120px;--r:1.25;--z:0.65;background-image:url(/img/catalogue.webp);background-size:200%;background-position:70% 80%"></div>
+        <div class="tile" style="--x:94%;--y:86%;--w:70px;--r:1;--z:0.25;background-image:url(/img/sand.webp);background-size:420%;background-position:85% 40%"></div>
+        <div class="float__center">
+          <h2 class="float__title" id="float-title" data-letters-view>Private by nature.<br>Precise by design.</h2>
+          <a class="btn btn--white" href="#access">Get early access</a>
+        </div>
+      </section>
+
+      <!-- Demonstration -->
+      <section class="demo" id="demo" aria-labelledby="demo-title" data-demo>
+        <header class="demo__head">
+          <h2 id="demo-title">See it in use.</h2>
+          <p>Four moments that define ENGRAMM. Choose one, or let it play.</p>
+        </header>
+
+        <div class="demo__tabs" role="tablist" aria-label="Demonstrations">
+          <button class="demo__tab" role="tab" aria-selected="true" data-tab="ask"><span class="demo__bar"><i></i></span><span class="demo__tab-label">Ask</span><span class="demo__tab-text">Answers with the source attached.</span></button>
+          <button class="demo__tab" role="tab" aria-selected="false" data-tab="remember"><span class="demo__bar"><i></i></span><span class="demo__tab-label">Remember</span><span class="demo__tab-text">Learns what you tell it, instantly.</span></button>
+          <button class="demo__tab" role="tab" aria-selected="false" data-tab="forget"><span class="demo__bar"><i></i></span><span class="demo__tab-label">Forget</span><span class="demo__tab-text">Deletes on command. Not hidden, gone.</span></button>
+          <button class="demo__tab" role="tab" aria-selected="false" data-tab="admit"><span class="demo__bar"><i></i></span><span class="demo__tab-label">Admit</span><span class="demo__tab-text">Says “I don't know” instead of guessing.</span></button>
+        </div>
+
+        <div class="demo__media" data-demo-media>
+          <img class="demo__bg" src="/img/hero.webp" alt="" width="2560" height="1440" loading="lazy" decoding="async">
+          <div class="demo__window" role="tabpanel" aria-label="ENGRAMM conversation" data-tilt>
+            <div class="demo__glare" aria-hidden="true"></div>
+            <div class="demo__chat">
+              <div class="demo__bar-top">
+                <span class="demo__app"><svg class="mark" viewBox="300 220 460 620" aria-hidden="true"><path d="M 704 332 C 632 252 408 246 396 372 C 388 446 444 484 530 486 C 604 488 648 470 640 448 C 632 426 568 424 530 454 C 500 478 474 500 434 516 C 354 548 324 612 332 680 C 346 800 598 818 728 708"/></svg>engramm</span>
+                <span class="demo__status"><span class="dot"></span>On this device</span>
+              </div>
+              <ol class="demo__log" data-log aria-live="polite"></ol>
+              <div class="demo__input" aria-hidden="true">
+                <span class="demo__typed" data-typed></span><span class="demo__caret"></span>
+                <span class="demo__placeholder">Ask anything, or tell it something</span>
+                <span class="demo__send"><svg viewBox="0 0 20 20"><path d="M10 15V5M5 10l5-5 5 5"/></svg></span>
+              </div>
+            </div>
+            <aside class="demo__inspect" aria-label="What ENGRAMM used">
+              <div class="inspect">
+                <p class="inspect__title">Source</p>
+                <div class="inspect__source" data-source><p class="inspect__empty">Nothing looked up yet.</p></div>
+              </div>
+              <div class="inspect">
+                <p class="inspect__title">Memory <span data-mem-count>2</span></p>
+                <ul class="inspect__memory" data-memory></ul>
+              </div>
+              <div class="inspect inspect--foot">
+                <p class="inspect__net"><span class="dot dot--off"></span>No network connections</p>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Early access -->
+    <section class="access" id="access" aria-labelledby="access-title" data-nav-theme="dark">
+      <div class="access__aura" aria-hidden="true"><i></i><i></i></div>
+      <div class="access__inner">
+        <p class="eyebrow"><svg class="mark" viewBox="300 220 460 620" aria-hidden="true"><path d="M 704 332 C 632 252 408 246 396 372 C 388 446 444 484 530 486 C 604 488 648 470 640 448 C 632 426 568 424 530 454 C 500 478 474 500 434 516 C 354 548 324 612 332 680 C 346 800 598 818 728 708"/></svg>Early access</p>
+        <h2 class="access__title" id="access-title">Be early.</h2>
+        <p class="access__text">ENGRAMM 3.2 is now in beta for macOS, Windows and Linux.</p>
+        <div class="access__actions">
+          <a class="btn btn--white btn--lg" href="#platforms" data-primary-download>Choose your platform</a>
+          <button class="btn btn--line-dark btn--lg" type="button" aria-expanded="false" aria-controls="platforms" data-platforms-toggle>All platforms</button>
+        </div>
+        <div class="platforms" id="platforms" data-platforms hidden>
+          <ul>
+            <li><a data-os="mac-arm" href="https://github.com/erithy25/engramm/releases/download/v3.2.0-beta.6/ENGRAMM_3.2.0_aarch64.dmg"><b>macOS</b><span>Apple Silicon</span><em>.dmg</em></a></li>
+            <li><a data-os="mac-intel" href="https://github.com/erithy25/engramm/releases/download/v3.2.0-beta.6/ENGRAMM_3.2.0_x64.dmg"><b>macOS</b><span>Intel</span><em>.dmg</em></a></li>
+            <li><a data-os="windows" href="https://github.com/erithy25/engramm/releases/download/v3.2.0-beta.6/ENGRAMM_3.2.0_x64-setup.exe"><b>Windows</b><span>10 and 11</span><em>.exe</em></a></li>
+            <li><a data-os="linux" href="https://github.com/erithy25/engramm/releases/download/v3.2.0-beta.6/ENGRAMM_3.2.0_amd64.deb"><b>Linux</b><span>Debian, Ubuntu</span><em>.deb</em></a></li>
+            <li><a data-os="linux-rpm" href="https://github.com/erithy25/engramm/releases/download/v3.2.0-beta.6/ENGRAMM-3.2.0-1.x86_64.rpm"><b>Linux</b><span>Fedora, openSUSE</span><em>.rpm</em></a></li>
+          </ul>
+          <p class="platforms__note">Beta builds aren't signed yet. On macOS, open the app once, then choose “Open Anyway” in System Settings, Privacy &amp; Security. On Windows, choose “More info”, then “Run anyway”. Checksums: <a href="https://github.com/erithy25/engramm/releases/download/v3.2.0-beta.6/SHA256SUMS.txt" rel="noopener">SHA256SUMS.txt</a></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" data-nav-theme="dark">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a class="brand" href="#top" aria-label="ENGRAMM home">
+          <svg class="mark" viewBox="300 220 460 620" aria-hidden="true"><path d="M 704 332 C 632 252 408 246 396 372 C 388 446 444 484 530 486 C 604 488 648 470 640 448 C 632 426 568 424 530 454 C 500 478 474 500 434 516 C 354 548 324 612 332 680 C 346 800 598 818 728 708"/></svg>
+          <span class="brand__word">engramm</span>
+        </a>
+        <p>Intelligence that answers to you.</p>
+      </div>
+      <nav class="footer__cols" aria-label="Footer">
+        <div>
+          <p class="footer__head">Product</p>
+          <a href="#story">Overview</a>
+          <a href="#demo">In use</a>
+          <a href="#access">Early access</a>
+        </div>
+        <div>
+          <p class="footer__head">Company</p>
+          <a href="#mission">Mission</a>
+          <a href="https://github.com/erithy25/engramm" rel="noopener">Research</a>
+          <a href="https://github.com/erithy25/engramm/releases" rel="noopener">Releases</a>
+        </div>
+        <div>
+          <p class="footer__head">Legal</p>
+          <a href="https://github.com/erithy25/engramm/blob/main/LICENSE" rel="noopener">Licence</a>
+          <a href="https://github.com/erithy25/engramm/blob/main/docs/DATA_LICENSES.md" rel="noopener">Data licences</a>
+        </div>
+      </nav>
+    </div>
+    <p class="footer__word" aria-hidden="true">engramm</p>
+    <div class="footer__base">
+      <span>© 2026 ENGRAMM</span>
+      <span>Built to be checked, not believed.</span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
+  <script src="/main.js" defer></script>
+</body>
+</html>
