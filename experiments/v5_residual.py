@@ -249,7 +249,14 @@ def weights():
     return np.array(json.loads((DATA / "prior_weights.json").read_text())["w"])
 
 
+def set_results(sub: str) -> None:
+    """Write measurements to results/v5/<sub> (run 3 keeps run 2's files intact)."""
+    global RESULTS
+    RESULTS = REPO / "results" / "v5" / sub if sub else REPO / "results" / "v5"
+
+
 def train(args):
+    set_results(args.results)
     torch.set_num_threads(args.threads)
     torch.manual_seed(42)
     rng = np.random.default_rng(42)
@@ -259,7 +266,7 @@ def train(args):
     model = GPT(gate_bias_for(args.arm))
     n_params = sum(p.numel() for p in model.parameters())
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, betas=(0.9, 0.95), weight_decay=0.1)
-    out = out_dir(args.arm)
+    out = out_dir(args.ckpt_dir or args.arm)
     budget = args.hours * 3600
     t0, step, seen, paused = time.time(), 0, 0, 0.0
     marks = tuple(float(x) for x in args.checkpoints.split(",")) if args.checkpoints else CHECKPOINT_HOURS
@@ -415,6 +422,7 @@ def run_eval(model, ck: dict, threads: int, max_docs: int = 0) -> dict:
 
 
 def evaluate(args):
+    set_results(args.results)
     ck = torch.load(args.ckpt, map_location="cpu")
     model = GPT(gate_bias_for(ck["arm"]))
     sd = ck["model"]
@@ -435,6 +443,8 @@ def main():
     t.add_argument("--eval-at-checkpoints", type=int, default=1)
     t.add_argument("--eval-docs", type=int, default=0, help="0 = all documents")
     t.add_argument("--checkpoints", default="", help="comma-separated training hours (default 1,2,3,6,12)")
+    t.add_argument("--results", default="", help="subdirectory of results/v5 (default: results/v5 itself)")
+    t.add_argument("--ckpt-dir", default="", help="checkpoint directory name under /dev/shm/engramm/v5")
     t.add_argument("--hours", type=float, default=3)
     t.add_argument("--threads", type=int, default=2)
     t.add_argument("--batch", type=int, default=16)
@@ -443,6 +453,7 @@ def main():
     e.add_argument("--ckpt", type=Path, required=True)
     e.add_argument("--threads", type=int, default=4)
     e.add_argument("--max-docs", type=int, default=0, help="smoke test on the first documents only")
+    e.add_argument("--results", default="")
     args = ap.parse_args()
     {"weights": cmd_weights, "train": train, "eval": evaluate}[args.cmd](args)
 
