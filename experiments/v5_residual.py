@@ -277,7 +277,8 @@ def train(args):
         if pending and elapsed >= pending[0] * 3600:
             h = pending.pop(0)
             ck = {"model": model.state_dict(), "step": step, "tokens_seen": seen, "hours": h,
-                  "params": n_params, "arm": args.arm, "beta": args.beta, "train_seconds": elapsed}
+                  "params": n_params, "arm": args.arm, "beta": args.beta, "train_seconds": elapsed,
+                  "bf16": bool(args.bf16)}
             torch.save(ck, out / f"ckpt_{h:g}h.pt")
             print(f"checkpoint {h:g} h: step {step}, {seen} tokens", flush=True)
             if args.eval_at_checkpoints:
@@ -299,13 +300,17 @@ def train(args):
         batch = torch.from_numpy(np.stack([tokens[s:s + CTX + 1] for s in starts]).astype(np.int64))
         tgt = batch[:, 1:]
         if args.arm == "plain":
-            logits, _ = model(batch[:, :-1])
+            with torch.autocast("cpu", dtype=torch.bfloat16, enabled=args.bf16):
+                logits, _ = model(batch[:, :-1])
+            logits = logits.float()                      # softmax and loss always in fp32
             loss = F.cross_entropy(logits.reshape(-1, V), tgt.reshape(-1))
             net_loss = loss
         else:
             pp = torch.from_numpy(np.stack([pp_all[s:s + CTX] for s in starts]))
             fb = torch.from_numpy(np.stack([feats[s:s + CTX] for s in starts]).astype(np.int64))
-            logits, gl = model(batch[:, :-1], fb, extra=args.arm == "residual2")
+            with torch.autocast("cpu", dtype=torch.bfloat16, enabled=args.bf16):
+                logits, gl = model(batch[:, :-1], fb, extra=args.arm == "residual2")
+            logits, gl = logits.float(), gl.float()
             lp, lp_net = mixture_logp(logits, gl, tgt, pp)
             loss = -lp.mean()
             if args.arm == "residual2":
@@ -444,6 +449,7 @@ def main():
     t.add_argument("--eval-docs", type=int, default=0, help="0 = all documents")
     t.add_argument("--checkpoints", default="", help="comma-separated training hours (default 1,2,3,6,12)")
     t.add_argument("--results", default="", help="subdirectory of results/v5 (default: results/v5 itself)")
+    t.add_argument("--bf16", type=int, default=0, help="bf16 autocast for the matrix products (AMX); loss in fp32")
     t.add_argument("--ckpt-dir", default="", help="checkpoint directory name under /dev/shm/engramm/v5")
     t.add_argument("--hours", type=float, default=3)
     t.add_argument("--threads", type=int, default=2)

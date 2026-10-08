@@ -96,7 +96,8 @@ def train(args) -> None:
         if pending and elapsed >= pending[0] * 3600:
             h = pending.pop(0)
             ck = {"model": model.state_dict(), "step": step, "tokens_seen": seen, "hours": h, "params": n_params,
-                  "arm": ARM, "beta": None, "train_seconds": elapsed, "counter_seconds": q_seconds}
+                  "arm": ARM, "beta": None, "train_seconds": elapsed, "counter_seconds": q_seconds,
+                  "bf16": bool(args.bf16)}
             torch.save(ck, out / f"ckpt_{h:g}h.pt")
             print(f"checkpoint {h:g} h: step {step}, {seen} tokens", flush=True)
             if args.eval_at_checkpoints:
@@ -122,7 +123,9 @@ def train(args) -> None:
         q_seconds += time.time() - tq
         tt = time.time()
         logq = torch.from_numpy(qbuf).clamp_min_(LOGQ_FLOOR).log_()
-        z, gl = model(batch[:, :-1], fb)
+        with torch.autocast("cpu", dtype=torch.bfloat16, enabled=args.bf16):
+            z, gl = model(batch[:, :-1], fb)
+        z, gl = z.float(), gl.float()                   # residual, softmax and loss always in fp32
         logits = logres_logits(z, gl, logq)
         loss = F.cross_entropy(logits.reshape(-1, R.V), tgt.reshape(-1))
         opt.zero_grad(set_to_none=True)
@@ -271,6 +274,7 @@ def main() -> None:
     t.add_argument("--checkpoints", default="")
     t.add_argument("--results", default="run3")
     t.add_argument("--ckpt-dir", default="")
+    t.add_argument("--bf16", type=int, default=0, help="bf16 autocast for the matrix products (AMX); loss in fp32")
     e = sub.add_parser("eval")
     e.add_argument("--ckpt", required=True)
     e.add_argument("--threads", type=int, default=4)
