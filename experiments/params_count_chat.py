@@ -69,7 +69,7 @@ def rss_delta(snippet: str) -> int | None:
     """RSS increase (bytes) of running ``snippet`` in a fresh interpreter (container only)."""
     code = ("import os,sys\nsys.path.insert(0, %r)\n"
             "def rss():\n    return int([l for l in open('/proc/self/status') if l.startswith('VmRSS')][0].split()[1])*1024\n"
-            "a=rss()\n%s\nprint(rss()-a)\n") % (str(REPO), snippet)
+            "_rss0=rss()\n%s\nprint(rss()-_rss0)\n") % (str(REPO), snippet)
     r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=REPO)
     return int(r.stdout.strip().splitlines()[-1]) if r.returncode == 0 else None
 
