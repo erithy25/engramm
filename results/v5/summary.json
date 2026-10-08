@@ -1,0 +1,127 @@
+{
+ "checkpoints": {
+  "1h": {
+   "tokens_seen": {
+    "plain": 3280896,
+    "residual2": 3289088
+   },
+   "train_seconds": {
+    "plain": 3603.078022003174,
+    "residual2": 3600.720330953598
+   },
+   "test": {
+    "plain net alone": {
+     "bpb": 2.0310492996729717,
+     "ci95": [
+      2.0044825735836738,
+      2.0601908794290194
+     ],
+     "docs": 1092,
+     "bytes": 3629462
+    },
+    "counter alone": {
+     "bpb": 1.674072976786703,
+     "ci95": [
+      1.654792275693503,
+      1.6956707641284599
+     ],
+     "docs": 1092,
+     "bytes": 3629462
+    },
+    "plain + counter, post hoc (global λ)": {
+     "bpb": 1.6639030476302588,
+     "ci95": [
+      1.6447244996290449,
+      1.685485845226945
+     ],
+     "docs": 1092,
+     "bytes": 3629462
+    },
+    "plain + counter, post hoc (λ per bucket)": {
+     "bpb": 1.663297019482506,
+     "ci95": [
+      1.6441099819104688,
+      1.6848876608704886
+     ],
+     "docs": 1092,
+     "bytes": 3629462
+    },
+    "residual2 net alone": {
+     "bpb": 2.0454476457500856,
+     "ci95": [
+      2.018942294969341,
+      2.0744425418828945
+     ],
+     "docs": 1092,
+     "bytes": 3629462
+    },
+    "residual2 + counter, post hoc (λ per bucket)": {
+     "bpb": 1.660573917061025,
+     "ci95": [
+      1.6413660461908615,
+      1.6820865536482505
+     ],
+     "docs": 1092,
+     "bytes": 3629462
+    },
+    "residual2 (gated_mix)": {
+     "bpb": 1.6553177851087013,
+     "ci95": [
+      1.6361079903991906,
+      1.676961596642949
+     ],
+     "docs": 1092,
+     "bytes": 3629462
+    }
+   },
+   "primary": {
+    "system": "residual2 (gated_mix)",
+    "baseline": "plain + counter, post hoc (λ per bucket)",
+    "delta_bpb": -0.007979234373804767,
+    "ratio": {
+     "ratio": 0.995202760372716,
+     "ci95": [
+      0.9949282752638204,
+      0.9955219994584236
+     ]
+    },
+    "win": false
+   },
+   "method_effect": {
+    "delta_bpb": -0.002723102421481105,
+    "ratio": {
+     "ratio": 0.9983628285329771,
+     "ci95": [
+      0.9982477082297915,
+      0.9984843645809542
+     ]
+    }
+   },
+   "gain_over_counter": {
+    "plain": -0.010775957304197004,
+    "residual2": -0.01875519167800177
+   }
+  }
+ },
+ "reference_test_bpb": {
+  "gpt2_small": 1.038792450096114,
+  "engramm_counting_main": 1.5135769331107698,
+  "engramm_counting_pilot": 1.6637822875569943,
+  "transformer_6h_cpu": 1.6376495826221305
+ },
+ "win_margin": 0.03,
+ "final": {
+  "hours": 1.0,
+  "system": "residual2 (gated_mix)",
+  "baseline": "plain + counter, post hoc (λ per bucket)",
+  "delta_bpb": -0.007979234373804767,
+  "ratio": {
+   "ratio": 0.995202760372716,
+   "ci95": [
+    0.9949282752638204,
+    0.9955219994584236
+   ]
+  },
+  "win": false
+ }
+}
