@@ -59,6 +59,7 @@ def main() -> None:
     c = stream_cache(e, rs, re_, 1 << 15)
     np.savez(out / "region_cache.npz", p=c[1:])
     print("cache done", flush=True)
+    (out / "prior.done").write_text(f"{len(e)}\n")      # completion marker, written last
 
 
 if __name__ == "__main__":

@@ -13,12 +13,26 @@ weighted by the posterior share the counting model does *not* explain, so capaci
 goes to the hard tokens. The gate sees the hidden state and the history-only match
 length of the infinity-gram (no look at the target).
 
-Arms (same model, data region, threads, wall clock):
-    plain     ordinary cross-entropy (baseline)
-    residual  the mixture loss above
+Arms (same model, data region, threads, training time):
+    plain      ordinary cross-entropy (baseline)
+    residual   the mixture loss above (run 1; stalled at the counting model's level:
+               while p_net ≪ p_count the mixture gives the network almost no gradient)
+    residual2  mixture loss + β · cross-entropy of the network alone (β = 0.5), so the
+               network must learn on its own while the mixture term steers it to the
+               tokens the counter misses; gate starts at g = 0.5 and also sees the
+               highest KN order found and log2 of the infinity-gram context count
+               (all history-only features, never the target)
 
-    .venv_b1/bin/python -u experiments/v5_residual.py train --arm plain --hours 3 --threads 2
-    .venv_b1/bin/python -u experiments/v5_residual.py eval --arm plain --split test --threads 4
+At every checkpoint (1, 2, 3 h of training time, evaluation time excluded) the process
+evaluates itself on val-A (fits the post-hoc mixture weight) and test, and writes
+``results/v5/eval_<arm>_<h>h.json`` into the repository, so a container restart that
+wipes /dev/shm loses no finished measurement.
+
+    .venv_b1/bin/python -u experiments/v5_residual.py weights
+    .venv_b1/bin/python -u experiments/v5_residual.py train --arm residual2 --hours 3 --threads 2
+    .venv_b1/bin/python -u experiments/v5_residual.py eval --ckpt /dev/shm/engramm/v5/ckpt_plain/ckpt_3h.pt
+
+The whole run (prior, weights, smoke test, both arms in parallel): ``sh experiments/v5_run.sh``.
 
 Data: /dev/shm/engramm/v5 from ``python -m experiments.v5_prior`` (tokens the
 counting model never saw). Prior weights: EM on val-A, saved by ``weights``.
@@ -42,9 +56,11 @@ REPO = Path(__file__).resolve().parents[1]
 TOK = REPO / "data" / "cache" / "lm" / "tokens"
 EVAL_DIR = REPO / "models" / "lm" / "pilot" / "eval"
 DATA = Path("/dev/shm/engramm/v5")
+RESULTS = REPO / "results" / "v5"
 V, CTX, D, LAYERS, HEADS = 32768, 256, 384, 6, 6
-K_BUCKETS = 8
+K_BUCKETS, F_BUCKETS, C_BUCKETS = 8, 8, 16
 CHECKPOINT_HOURS = (1, 2, 3, 6, 12)
+GATED_ARMS = ("residual", "residual2")
 EPS = 1e-12
 
 
@@ -55,16 +71,27 @@ def k_bucket(k: np.ndarray) -> np.ndarray:
     return np.searchsorted(edges, k, side="right")
 
 
+def gate_features(k: np.ndarray, found: np.ndarray, cnt: np.ndarray) -> np.ndarray:
+    """History-only gate inputs per target: (∞-gram match-length bucket, highest KN
+    order found, log2(1 + ∞-gram context count) capped at 15), int8, shape (n, 3)."""
+    f = np.empty((len(k), 3), dtype=np.int8)
+    f[:, 0] = k_bucket(k)
+    f[:, 1] = np.clip(np.asarray(found, dtype=np.int64), 0, F_BUCKETS - 1)
+    f[:, 2] = np.clip(np.floor(np.log2(1.0 + np.asarray(cnt, dtype=np.float64))), 0, C_BUCKETS - 1)
+    return f
+
+
 def prior_columns(kn, inf, cache):
     p_kn = kn["p"].astype(np.float64)
     cnt, cntw = inf["cnt"], inf["cnt_w"]
     p_inf = np.where(cnt > 0, cntw / np.maximum(cnt, 1), p_kn)
     c = cache["p"]
     p_cache = np.where(c >= 0, c, p_kn)
-    return np.stack([p_kn, p_inf, p_cache], axis=1), inf["k"]
+    return np.stack([p_kn, p_inf, p_cache], axis=1), gate_features(inf["k"], kn["found"], cnt)
 
 
 def load_prior(where: str):
+    """tokens, prior columns (kn, inf, cache) and gate features; row i belongs to target i + 1."""
     if where == "region":
         d = DATA
         cols, k = prior_columns(np.load(d / "region_kn.npz"), np.load(d / "region_inf.npz"),
@@ -79,6 +106,19 @@ def load_prior(where: str):
     return tokens, cols, k
 
 
+def keep_docs(split: str, n_docs: int) -> np.ndarray:
+    """Near-duplicate filter of the LM study (results/lm/dedup.json): False = excluded."""
+    d = json.loads((REPO / "results" / "lm" / "dedup.json").read_text())["splits"][split]
+    keep = np.ones(n_docs, dtype=bool)
+    keep[d["excluded"]] = False
+    return keep
+
+
+def target_docs(starts: np.ndarray, n_tokens: int) -> np.ndarray:
+    """Document of every target position 1..n−1 (its closing EOS included)."""
+    return np.searchsorted(starts, np.arange(1, n_tokens), side="right") - 1
+
+
 def fit_weights(cols: np.ndarray, iters: int = 200) -> np.ndarray:
     w = np.full(cols.shape[1], 1.0 / cols.shape[1])
     for _ in range(iters):
@@ -89,7 +129,7 @@ def fit_weights(cols: np.ndarray, iters: int = 200) -> np.ndarray:
 
 
 def prior_prob(cols, w):
-    return np.maximum(cols @ w, EPS).astype(np.float32)
+    return np.maximum(cols @ w, EPS).astype(np.float32)          # float32 halves the region array
 
 
 class Block(nn.Module):
@@ -112,7 +152,7 @@ class Block(nn.Module):
 class GPT(nn.Module):
     """Same Transformer as experiments/lm_transformer.py plus a gate head."""
 
-    def __init__(self):
+    def __init__(self, gate_bias: float = 0.0):
         super().__init__()
         self.emb = nn.Embedding(V, D)
         self.pos = nn.Embedding(CTX, D)
@@ -121,9 +161,13 @@ class GPT(nn.Module):
         self.gate = nn.Linear(D, 1)
         self.gate_k = nn.Embedding(K_BUCKETS, 1)
         self.apply(self._init)
+        # created after the init pass, so every other parameter draws exactly as in run 1
+        self.gate_f = nn.Embedding(F_BUCKETS, 1)
+        self.gate_c = nn.Embedding(C_BUCKETS, 1)
         nn.init.zeros_(self.gate.weight)
-        nn.init.zeros_(self.gate_k.weight)
-        nn.init.constant_(self.gate.bias, 0.5)
+        for e in (self.gate_k, self.gate_f, self.gate_c):
+            nn.init.zeros_(e.weight)
+        nn.init.constant_(self.gate.bias, gate_bias)
 
     @staticmethod
     def _init(m):
@@ -132,15 +176,19 @@ class GPT(nn.Module):
         if isinstance(m, nn.Linear) and m.bias is not None:
             nn.init.zeros_(m.bias)
 
-    def forward(self, idx, kb=None):
+    def forward(self, idx, feats=None, extra: bool = True):
+        """``feats``: (B, T, 3) gate features of each target; ``extra`` = False uses only the
+        match-length bucket (the run-1 gate)."""
         x = self.emb(idx) + self.pos(torch.arange(idx.shape[1]))
         for b in self.blocks:
             x = b(x)
         h = self.ln(x)
         logits = h @ self.emb.weight.T
         gate_logit = None
-        if kb is not None:
-            gate_logit = self.gate(h).squeeze(-1) + self.gate_k(kb).squeeze(-1)
+        if feats is not None:
+            gate_logit = self.gate(h).squeeze(-1) + self.gate_k(feats[..., 0]).squeeze(-1)
+            if extra:
+                gate_logit = gate_logit + self.gate_f(feats[..., 1]).squeeze(-1) + self.gate_c(feats[..., 2]).squeeze(-1)
         return logits, gate_logit
 
 
@@ -150,6 +198,37 @@ def mixture_logp(logits, gate_logit, tgt, pp):
     return torch.logaddexp(F.logsigmoid(gate_logit) + torch.log(pp), F.logsigmoid(-gate_logit) + lp_net), lp_net
 
 
+def bucket_ids(feats: np.ndarray) -> np.ndarray:
+    """One id per target from the three gate features (8 · 8 · 16 = 1024 buckets)."""
+    f = feats.astype(np.int64)
+    return (f[:, 0] * F_BUCKETS + f[:, 1]) * C_BUCKETS + f[:, 2]
+
+
+def fit_lambda(pp: np.ndarray, p_net: np.ndarray, iters: int = 100) -> float:
+    """EM weight of the counter in λ·pp + (1−λ)·p_net."""
+    lam = 0.5
+    for _ in range(iters):
+        a_ = lam * pp
+        lam = float(np.mean(a_ / np.maximum(a_ + (1 - lam) * p_net, EPS)))
+    return lam
+
+
+def fit_bucket_lambda(pp, p_net, ids, lam0: float, alpha: float = 50.0, iters: int = 100) -> np.ndarray:
+    """Per-bucket EM weights, shrunk toward the global λ with α pseudo-observations, so
+    the post-hoc baseline gets the same context-dependent trust the gate has."""
+    n_b = np.bincount(ids, minlength=K_BUCKETS * F_BUCKETS * C_BUCKETS).astype(np.float64)
+    lam = np.full(len(n_b), lam0)
+    for _ in range(iters):
+        a_ = lam[ids] * pp
+        r = a_ / np.maximum(a_ + (1 - lam[ids]) * p_net, EPS)
+        lam = (np.bincount(ids, weights=r, minlength=len(n_b)) + alpha * lam0) / (n_b + alpha)
+    return lam
+
+
+def gate_bias_for(arm: str) -> float:
+    return 0.5 if arm == "residual" else 0.0
+
+
 def out_dir(arm: str) -> Path:
     d = DATA / f"ckpt_{arm}"
     d.mkdir(parents=True, exist_ok=True)
@@ -157,9 +236,12 @@ def out_dir(arm: str) -> Path:
 
 
 def cmd_weights(args):
-    _, cols, _ = load_prior("val_a")
-    w = fit_weights(cols)
-    (DATA / "prior_weights.json").write_text(json.dumps({"w": w.tolist(), "cols": ["kn", "inf", "cache"]}))
+    tokens, cols, _ = load_prior("val_a")
+    starts = np.load(TOK / "val_a.starts.npy")
+    kept = keep_docs("val_a", len(starts))[target_docs(starts, len(tokens))]
+    w = fit_weights(cols[kept])
+    (DATA / "prior_weights.json").write_text(json.dumps({"w": w.tolist(), "cols": ["kn", "inf", "cache"],
+                                                         "fitted_on": "val_a, near-duplicate-filtered"}))
     print("prior weights (kn, inf, cache):", np.round(w, 4).tolist(), flush=True)
 
 
@@ -171,28 +253,37 @@ def train(args):
     torch.set_num_threads(args.threads)
     torch.manual_seed(42)
     rng = np.random.default_rng(42)
-    tokens, cols, k = load_prior("region")
+    tokens, cols, feats = load_prior("region")
     pp_all = prior_prob(cols, weights())                # pp_all[i] = prior of tokens[i + 1]
-    kb_all = k_bucket(k).astype(np.int64)
     del cols
-    model = GPT()
+    model = GPT(gate_bias_for(args.arm))
     n_params = sum(p.numel() for p in model.parameters())
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, betas=(0.9, 0.95), weight_decay=0.1)
     out = out_dir(args.arm)
     budget = args.hours * 3600
-    t0, step, seen = time.time(), 0, 0
-    pending = [h for h in CHECKPOINT_HOURS if h <= args.hours]
+    t0, step, seen, paused = time.time(), 0, 0, 0.0
+    marks = tuple(float(x) for x in args.checkpoints.split(",")) if args.checkpoints else CHECKPOINT_HOURS
+    pending = sorted({h for h in marks if h <= args.hours} | {args.hours})
     log = open(out / "train_log.jsonl", "a")
     while True:
-        elapsed = time.time() - t0
+        elapsed = time.time() - t0 - paused             # training time only
         if pending and elapsed >= pending[0] * 3600:
             h = pending.pop(0)
-            torch.save({"model": model.state_dict(), "step": step, "tokens_seen": seen, "hours": h,
-                        "params": n_params, "arm": args.arm}, out / f"ckpt_{h}h.pt")
+            ck = {"model": model.state_dict(), "step": step, "tokens_seen": seen, "hours": h,
+                  "params": n_params, "arm": args.arm, "beta": args.beta, "train_seconds": elapsed}
+            torch.save(ck, out / f"ckpt_{h}h.pt")
             print(f"checkpoint {h} h: step {step}, {seen} tokens", flush=True)
+            if args.eval_at_checkpoints:
+                te = time.time()
+                model.eval()
+                run_eval(model, ck, args.threads, args.eval_docs)
+                model.train()
+                paused += time.time() - te
+            continue
         if elapsed >= budget:
             torch.save({"model": model.state_dict(), "step": step, "tokens_seen": seen, "hours": args.hours,
-                        "params": n_params, "arm": args.arm}, out / "ckpt_final.pt")
+                        "params": n_params, "arm": args.arm, "beta": args.beta, "train_seconds": elapsed},
+                       out / "ckpt_final.pt")
             break
         lr = args.lr * min(1.0, (step + 1) / 500) * (0.1 + 0.9 * 0.5 * (1 + math.cos(math.pi * min(1.0, elapsed / budget))))
         for g in opt.param_groups:
@@ -206,10 +297,12 @@ def train(args):
             net_loss = loss
         else:
             pp = torch.from_numpy(np.stack([pp_all[s:s + CTX] for s in starts]))
-            kb = torch.from_numpy(np.stack([kb_all[s:s + CTX] for s in starts]))
-            logits, gl = model(batch[:, :-1], kb)
+            fb = torch.from_numpy(np.stack([feats[s:s + CTX] for s in starts]).astype(np.int64))
+            logits, gl = model(batch[:, :-1], fb, extra=args.arm == "residual2")
             lp, lp_net = mixture_logp(logits, gl, tgt, pp)
             loss = -lp.mean()
+            if args.arm == "residual2":
+                loss = loss - args.beta * lp_net.mean()
             net_loss = -lp_net.mean().detach()
         opt.zero_grad(set_to_none=True)
         loss.backward()
@@ -226,8 +319,9 @@ def train(args):
 
 
 @torch.no_grad()
-def token_logprobs(model, tokens, starts, kb_all):
-    """Per target position (global index i ≥ 1): network log p and gate logit."""
+def token_logprobs(model, tokens, starts, feat_all, extra):
+    """Per target position (global index i ≥ 1): network log p and gate logit.
+    ``feat_all[i]`` holds the gate features of target i + 1."""
     ends = np.append(starts[1:] - 1, len(tokens) - 1)
     lp_out = np.zeros(len(tokens), dtype=np.float64)
     gl_out = np.zeros(len(tokens), dtype=np.float64)
@@ -238,8 +332,8 @@ def token_logprobs(model, tokens, starts, kb_all):
         done, a = 0, 0
         while done < n - 1:
             window = torch.from_numpy(seq[a:a + CTX + 1])[None]
-            kb = torch.from_numpy(kb_all[base + a:base + a + window.shape[1] - 1])[None]
-            logits, gl = model(window[:, :-1], kb)
+            fb = torch.from_numpy(feat_all[base + a:base + a + window.shape[1] - 1].astype(np.int64))[None]
+            logits, gl = model(window[:, :-1], fb, extra=extra)
             logp = F.log_softmax(logits, dim=-1)[0]
             tgt = window[0, 1:]
             lp = logp[torch.arange(len(tgt)), tgt].numpy()
@@ -252,55 +346,83 @@ def token_logprobs(model, tokens, starts, kb_all):
     return lp_out, gl_out
 
 
-def evaluate(args):
-    torch.set_num_threads(args.threads)
-    ck = torch.load(args.ckpt, map_location="cpu")
-    model = GPT()
-    model.load_state_dict(ck["model"])
-    model.eval()
-    res = {"ckpt": str(args.ckpt), "arm": ck["arm"], "hours": ck["hours"], "tokens_seen": ck["tokens_seen"],
-           "params": ck["params"]}
+def run_eval(model, ck: dict, threads: int, max_docs: int = 0) -> dict:
+    """Evaluate a model on val-A and test; write results/v5/eval_<arm>_<h>h.json."""
+    torch.set_num_threads(threads)
+    arm = ck["arm"]
+    gated = arm in GATED_ARMS
+    res = {"arm": arm, "hours": ck["hours"], "step": ck["step"], "tokens_seen": ck["tokens_seen"],
+           "params": ck["params"], "beta": ck.get("beta"), "train_seconds": ck.get("train_seconds"),
+           "threads": threads, "max_docs": max_docs, "torch": torch.__version__}
     w = weights()
+    res["prior_weights"] = w.tolist()
     per = {}
-    for split in ("val_a", args.split):
-        tokens, cols, k = load_prior(split)
+    for split in ("val_a", "test"):
+        tokens, cols, feats = load_prior(split)
         starts = np.load(TOK / f"{split}.starts.npy")
         nbytes = np.load(TOK / f"{split}.bytes.npy")
-        if args.max_docs:
-            starts, nbytes = starts[:args.max_docs], nbytes[:args.max_docs]
+        if max_docs:
+            starts, nbytes = starts[:max_docs], nbytes[:max_docs]
             tokens = tokens[:int(starts[-1]) + int(np.argmax(tokens[starts[-1]:] == 0)) + 1]
-            cols, k = cols[:len(tokens) - 1], k[:len(tokens) - 1]
-        kb_all = k_bucket(np.append(k, 0)).astype(np.int64)  # kb_all[i] belongs to target i + 1
+            cols, feats = cols[:len(tokens) - 1], feats[:len(tokens) - 1]
+        feat_all = np.concatenate([feats, np.zeros((1, 3), dtype=np.int8)])  # feat_all[i] → target i + 1
         t0 = time.time()
-        lp, gl = token_logprobs(model, tokens, starts, kb_all)
-        pp = np.zeros(len(tokens))
-        pp[1:] = prior_prob(cols, w)
-        per[split] = (lp, gl, pp, float((nbytes + 1).sum()), time.time() - t0)
-    lp, gl, pp, _, _ = per["val_a"]
-    m = slice(1, None)
-    # post-hoc mixture weight for the plain arm (EM on val-A): a strong, fair baseline
-    lam = 0.5
-    for _ in range(100):
-        a_ = lam * pp[m]
-        b_ = (1 - lam) * np.exp(lp[m])
-        lam = float(np.mean(a_ / np.maximum(a_ + b_, EPS)))
+        lp, gl = token_logprobs(model, tokens, starts, feat_all, extra=arm == "residual2")
+        docs = target_docs(starts, len(tokens))
+        keep = keep_docs(split, len(np.load(TOK / f"{split}.starts.npy")))[:len(starts)]
+        per[split] = {"p_net": np.exp(lp[1:]), "g": 1 / (1 + np.exp(-gl[1:])), "pp": prior_prob(cols, w).astype(np.float64),
+                      "ids": bucket_ids(feats), "docs": docs, "keep": keep, "nbytes": nbytes.astype(np.float64) + 1.0,
+                      "secs": time.time() - t0}
+    # post-hoc mixtures fitted on near-duplicate-filtered val-A only: network and counter
+    # mixed after training. Global λ, and λ per gate-feature bucket (the fair system-level
+    # baseline for the gate).
+    v = per["val_a"]
+    kept = v["keep"][v["docs"]]
+    lam = fit_lambda(v["pp"][kept], v["p_net"][kept])
+    lam_b = fit_bucket_lambda(v["pp"][kept], v["p_net"][kept], v["ids"][kept], lam)
     res["posthoc_lambda"] = lam
-    for split in ("val_a", args.split):
-        lp, gl, pp, nb, secs = per[split]
-        p_net = np.exp(lp[m])
-        g = 1 / (1 + np.exp(-gl[m]))
-        bits = lambda p: float(-np.log2(np.maximum(p, EPS)).sum() / nb)
-        res[split] = {
-            "bpb_net_alone": bits(p_net),
-            "bpb_prior_alone": bits(pp[m]),
-            "bpb_posthoc_mix": bits(lam * pp[m] + (1 - lam) * p_net),
-            "bpb_gated_mix": bits(g * pp[m] + (1 - g) * p_net) if ck["arm"] == "residual" else None,
-            "mean_gate": float(g.mean()) if ck["arm"] == "residual" else None,
-            "eval_seconds": secs,
+    perdoc = {}
+    for split in ("val_a", "test"):
+        e = per[split]
+        lb = lam_b[e["ids"]]
+        variants = {
+            "net_alone": e["p_net"],
+            "prior_alone": e["pp"],
+            "posthoc_mix": lam * e["pp"] + (1 - lam) * e["p_net"],
+            "posthoc_bucket_mix": lb * e["pp"] + (1 - lb) * e["p_net"],
         }
-    dest = DATA / f"eval_{ck['arm']}_{ck['hours']}h_{args.split}.json"
-    dest.write_text(json.dumps(res, indent=1))
+        if gated:
+            variants["gated_mix"] = e["g"] * e["pp"] + (1 - e["g"]) * e["p_net"]
+        n_docs = len(e["nbytes"])
+        out = {"docs": n_docs, "docs_kept": int(e["keep"].sum()), "eval_seconds": e["secs"],
+               "mean_gate": float(e["g"].mean()) if gated else None}
+        for name, p in variants.items():
+            b = np.bincount(e["docs"], weights=-np.log2(np.maximum(p, EPS)), minlength=n_docs)
+            perdoc[f"{split}_{name}"] = b
+            out[f"bpb_{name}"] = float(b[e["keep"]].sum() / e["nbytes"][e["keep"]].sum())       # primary: filtered
+            out[f"bpb_{name}_unfiltered"] = float(b.sum() / e["nbytes"].sum())
+        perdoc[f"{split}_doc_bytes"] = e["nbytes"]
+        perdoc[f"{split}_keep"] = e["keep"]
+        res[split] = out
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    h = ck["hours"]
+    tag = f"{h:g}h" if not max_docs else f"{h:g}h_smoke"
+    np.savez_compressed(RESULTS / f"eval_{arm}_{tag}_perdoc.npz", **perdoc)
+    dest = RESULTS / f"eval_{arm}_{tag}.json"
+    dest.write_text(json.dumps(res, indent=1) + "\n")
     print(json.dumps(res, indent=1), flush=True)
+    return res
+
+
+def evaluate(args):
+    ck = torch.load(args.ckpt, map_location="cpu")
+    model = GPT(gate_bias_for(ck["arm"]))
+    sd = ck["model"]
+    for k in ("gate_f.weight", "gate_c.weight"):          # run-1 checkpoints have no extra gate inputs
+        sd.setdefault(k, torch.zeros_like(model.state_dict()[k]))
+    model.load_state_dict(sd)
+    model.eval()
+    run_eval(model, ck, args.threads, args.max_docs)
 
 
 def main():
@@ -308,14 +430,17 @@ def main():
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("weights")
     t = sub.add_parser("train")
-    t.add_argument("--arm", choices=("plain", "residual"), required=True)
+    t.add_argument("--arm", choices=("plain", "residual", "residual2"), required=True)
+    t.add_argument("--beta", type=float, default=0.5, help="weight of the network-alone loss (residual2)")
+    t.add_argument("--eval-at-checkpoints", type=int, default=1)
+    t.add_argument("--eval-docs", type=int, default=0, help="0 = all documents")
+    t.add_argument("--checkpoints", default="", help="comma-separated training hours (default 1,2,3,6,12)")
     t.add_argument("--hours", type=float, default=3)
     t.add_argument("--threads", type=int, default=2)
     t.add_argument("--batch", type=int, default=16)
     t.add_argument("--lr", type=float, default=1e-3)
     e = sub.add_parser("eval")
     e.add_argument("--ckpt", type=Path, required=True)
-    e.add_argument("--split", default="test")
     e.add_argument("--threads", type=int, default=4)
     e.add_argument("--max-docs", type=int, default=0, help="smoke test on the first documents only")
     args = ap.parse_args()

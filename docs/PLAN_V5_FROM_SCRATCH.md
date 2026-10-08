@@ -79,3 +79,44 @@ Die drei stärksten Hebel kombiniert, von null, ohne fremde Modelle:
 2. **Stufe 2 – GPT-3-Niveau** (nächstes Ziel, sobald Stufe 1 erreicht und gemessen ist).
 
 Laufendes Experiment für Stufe 1: Zähl-Residual-Training (`experiments/v5_prior.py`, `experiments/v5_residual.py`).
+
+## 7. Zähl-Residual-Training: Läufe und Entscheidungsregel
+
+**Idee.** Ein Zählmodell (KN5 + ∞-gram + Cache, ohne Gradienten in Minuten gebaut) nimmt den vorhersehbaren Teil der
+Sprache ab. Das Netz soll seine Rechenzeit nur in den Rest stecken; ein gelernter Schalter g mischt
+p = g·p_Zähler + (1 − g)·p_Netz. Daten: 40 Mio. Train-Token, die das Pilot-Zählmodell nie gesehen hat
+(`experiments/v5_prior.py`), Netz wie im LM-Vergleich (6 Schichten, d = 384, 23 Mio. Parameter), beide Arme
+parallel mit je 2 Threads und gleicher Trainingszeit.
+
+**Lauf 1 (6./7. Oktober, nach 2 von 6 h durch einen Container-Neustart verloren).** Geglättete Trainingsverluste in
+nats/Token (je 5 Logpunkte):
+
+| Schritt | klassisch | Residual v1 (Mischung) | Residual v1, Netz allein |
+|---|---|---|---|
+| 500 | 6,98 | 5,30 | 10,29 |
+| 1000 | 6,47 | 5,29 | 11,24 |
+| 1500 | 6,01 | 5,14 | 11,41 |
+| 2000 | 5,99 | 5,31 | 11,26 |
+
+Befund: v1 blieb auf dem Niveau des Zählers allein stehen, sein Netz wurde schlechter. Ursache: Solange p_Netz ≪
+p_Zähler, gibt der Mischungsverlust dem Netz fast keinen Gradienten.
+
+**Lauf 2 (`residual2`, `sh experiments/v5_run.sh 3`).** Verlust = Mischungsverlust + 0,5 · Kreuzentropie des Netzes
+allein; Schalter startet bei g = 0,5 und sieht zusätzlich die gefundene KN-Ordnung und log₂ der ∞-gram-Kontextzahl
+(nur Vorgeschichte). Vor dem Start hat eine unabhängige Code-Prüfung mit Gegenprüfung zwei echte Mängel gefunden, beide
+behoben:
+- **Fairness.** Die klassische Vergleichslinie bekommt dieselbe situationsabhängige Mischung nachträglich: λ je Bucket
+  der drei Schalter-Merkmale (1.024 Buckets, EM auf val-A).
+- **Messgröße.** Primär zählt jetzt Bits pro Byte mit dem Near-Duplicate-Filter der LM-Studie; Mischgewichte werden nur
+  auf gefilterten val-A-Dokumenten geschätzt; Ergebnisse je Dokument für den gepaarten Bootstrap.
+
+Jede Zwischenmessung (1, 2, 3 h) schreibt der Trainingsprozess sofort nach `results/v5/`. Auswertung:
+`python -m experiments.v5_report`.
+
+**Entscheidungsregel (vor Lauf 2 festgelegt).** Nach 3 h, Test-Satz, gefiltert:
+- **Gewinn:** `residual2` (gelernte Mischung) ist mindestens 0,03 bpb besser als „klassisch + Zähler nachträglich, λ je
+  Bucket“, und das 95-%-Intervall des Verhältnisses liegt unter 1. Dann wird das Verfahren ausgebaut.
+- **Kein Gewinn:** Nächste Variante: Distillation aus der vollen Zählverteilung (Top-k aus `KNModel.distribution`)
+  statt aus nur einer Wahrscheinlichkeit.
+- **Zusätzlich berichtet:** der Effekt des Trainingsverfahrens allein, also beide Netze mit demselben nachträglichen
+  Mischer.
