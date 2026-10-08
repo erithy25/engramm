@@ -159,7 +159,8 @@ def _q_windows(ev, doc_of, doc_start, win, T, out, tokens_c, sa, w_kn, w_inf, w_
     q_tgt = np.zeros((B, T))
     for b in numba.prange(B):
         counts = np.zeros(V, dtype=np.int32)
-        distinct = np.empty(T + 4096, dtype=np.int64)
+        distinct = np.empty(V, dtype=np.int64)     # ≤ V distinct tokens; never reallocated
+                                                    # (growing an array inside prange lost windows)
         nd = 0
         first = win[b] + 1
         d_cur = doc_of[first]
@@ -170,10 +171,6 @@ def _q_windows(ev, doc_of, doc_start, win, T, out, tokens_c, sa, w_kn, w_inf, w_
         for j in range(hist_start, first):
             t = ev[j]
             if counts[t] == 0:
-                if nd >= len(distinct):
-                    nd2 = np.empty(len(distinct) * 2, dtype=np.int64)
-                    nd2[:nd] = distinct[:nd]
-                    distinct = nd2
                 distinct[nd] = t
                 nd += 1
             counts[t] += 1
@@ -212,10 +209,6 @@ def _q_windows(ev, doc_of, doc_start, win, T, out, tokens_c, sa, w_kn, w_inf, w_
             q_tgt[b, t_] = dist[ev[i]]
             tt = ev[i]
             if counts[tt] == 0:
-                if nd >= len(distinct):
-                    nd2 = np.empty(len(distinct) * 2, dtype=np.int64)
-                    nd2[:nd] = distinct[:nd]
-                    distinct = nd2
                 distinct[nd] = tt
                 nd += 1
             counts[tt] += 1
@@ -244,8 +237,8 @@ class Counter:
               tokens_c: np.ndarray, sa: np.ndarray, d2_slot: np.ndarray, d2: np.ndarray) -> Counter:
         ev = np.ascontiguousarray(ev, dtype=np.uint16)
         starts = np.asarray(doc_starts, dtype=np.int64)
-        doc_of = np.searchsorted(starts, np.arange(len(ev)), side="right") - 1
-        doc_of = np.maximum(doc_of, 0).astype(np.int64)    # position 0 (opening EOS) is never a target
+        doc_of = np.searchsorted(starts, np.arange(len(ev), dtype=np.int64), side="right") - 1
+        doc_of = np.maximum(doc_of, 0).astype(np.int32)    # position 0 (opening EOS) is never a target
         return cls(ev, doc_of, starts, run_lengths(ev), run_lengths_long(ev, MAX_MATCH),
                    np.asarray(weights, dtype=np.float64), kn._args(), tokens_c, sa, d2_slot, d2)
 
@@ -253,7 +246,8 @@ class Counter:
         """The same counting model over another token stream (shares the big tables)."""
         ev = np.ascontiguousarray(ev, dtype=np.uint16)
         starts = np.asarray(doc_starts, dtype=np.int64)
-        doc_of = np.maximum(np.searchsorted(starts, np.arange(len(ev)), side="right") - 1, 0).astype(np.int64)
+        doc_of = np.maximum(np.searchsorted(starts, np.arange(len(ev), dtype=np.int64), side="right") - 1,
+                            0).astype(np.int32)
         return Counter(ev, doc_of, starts, run_lengths(ev), run_lengths_long(ev, MAX_MATCH), self.weights,
                        self.kn_args, self.tokens_c, self.sa, self.d2_slot, self.d2)
 
@@ -328,6 +322,10 @@ def check(n_win: int = 24, T: int = 256, threads: int = 2) -> int:
     pp = w[0] * p_kn + w[1] * p_inf + w[2] * p_c                       # pp[i - 1] belongs to target i
     rng = np.random.default_rng(0)
     win = rng.integers(0, len(c.ev) - T - 1, size=n_win)
+    # plus windows deep inside the longest document (> 4 k tokens of cache history)
+    lens = np.diff(np.append(c.doc_start, len(c.ev)))
+    d = int(np.argmax(lens))
+    win[-4:] = c.doc_start[d] + np.linspace(lens[d] // 2, lens[d] - T - 2, 4).astype(np.int64)
     out = np.empty((n_win, T, len(c.kn_args[1])), dtype=np.float32)
     c.q(win[:2], T, out[:2])                                           # compile
     t0 = time.time()

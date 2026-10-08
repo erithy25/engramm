@@ -74,9 +74,7 @@ def train(args) -> None:
     numba.set_num_threads(args.threads)
     torch.manual_seed(42)
     rng = np.random.default_rng(42)
-    tokens, cols, feats = R.load_prior("region")
-    pp_all = R.prior_prob(cols, R.weights())               # pp_all[i] = prior of tokens[i + 1]
-    del cols
+    tokens, pp_all, feats = R.load_region()                # pp_all[i] = prior of tokens[i + 1]
     counter = load_counter("region")
     if not np.array_equal(counter.ev, tokens):
         raise SystemExit("counter stream and region tokens differ")
@@ -123,7 +121,7 @@ def train(args) -> None:
         q_seconds += time.time() - tq
         tt = time.time()
         logq = torch.from_numpy(qbuf).clamp_min_(LOGQ_FLOOR).log_()
-        with torch.autocast("cpu", dtype=torch.bfloat16, enabled=args.bf16):
+        with torch.autocast("cpu", dtype=torch.bfloat16, enabled=bool(args.bf16)):
             z, gl = model(batch[:, :-1], fb)
         z, gl = z.float(), gl.float()                   # residual, softmax and loss always in fp32
         logits = logres_logits(z, gl, logq)

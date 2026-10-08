@@ -23,6 +23,10 @@ M=models/lm/v5                                   # checkpoints that must survive
 mkdir -p "$M"
 [ ! -f "$D/ckpt_plain/ckpt_3h.pt" ] || cp -n "$D/ckpt_plain/ckpt_3h.pt" "$M/plain_run2_3h.pt"
 [ -f "$D/prior_weights.json" ] || $PY experiments/v5_residual.py weights
+# compact, shared training inputs; the big component files are then no longer needed (RAM disk
+# counts against the container's memory limit)
+[ -f "$D/region_pp.npy" ] && [ -f "$D/region_feats.npy" ] || $PY experiments/v5_residual.py prep
+rm -f "$D/region_kn.npz" "$D/region_inf.npz" "$D/region_cache.npz"
 $PY -m experiments.v5_counter check > "$D/counter_check.log" 2>&1 || { echo "counter check failed" > "$D/run3.failed"; exit 1; }
 $PY experiments/v5_residual.py train --arm plain --hours "$HOURS" --threads 2 --results run3 --ckpt-dir plain_run3 \
   > "$D/train_plain_run3.log" 2>&1 &

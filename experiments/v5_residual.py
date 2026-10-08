@@ -119,6 +119,44 @@ def target_docs(starts: np.ndarray, n_tokens: int) -> np.ndarray:
     return np.searchsorted(starts, np.arange(1, n_tokens), side="right") - 1
 
 
+def prep_region(chunk: int = 4_000_000) -> None:
+    """Write the compact training inputs once: region_pp.npy (float32 prior of every target)
+    and region_feats.npy (int8 gate features). Chunked, so the peak stays near the size of
+    the component files; the trainers then memory-map these instead of rebuilding them."""
+    w = weights()
+    kn, inf, cache = np.load(DATA / "region_kn.npz"), np.load(DATA / "region_inf.npz"), np.load(DATA / "region_cache.npz")
+    p_kn, found = kn["p"], kn["found"]
+    k, cnt, cntw = inf["k"], inf["cnt"], inf["cnt_w"]
+    c = cache["p"]
+    n = len(p_kn)
+    pp = np.lib.format.open_memmap(DATA / "region_pp.tmp.npy", mode="w+", dtype=np.float32, shape=(n,))
+    ft = np.lib.format.open_memmap(DATA / "region_feats.tmp.npy", mode="w+", dtype=np.int8, shape=(n, 3))
+    for a in range(0, n, chunk):
+        b = min(n, a + chunk)
+        cols, f = prior_columns({"p": p_kn[a:b], "found": found[a:b]},
+                                {"k": k[a:b], "cnt": cnt[a:b], "cnt_w": cntw[a:b]}, {"p": c[a:b]})
+        pp[a:b] = prior_prob(cols, w)
+        ft[a:b] = f
+    pp.flush()
+    ft.flush()
+    del pp, ft
+    (DATA / "region_pp.tmp.npy").rename(DATA / "region_pp.npy")
+    (DATA / "region_feats.tmp.npy").rename(DATA / "region_feats.npy")
+
+
+def load_region():
+    """tokens, prior pp (float32) and gate features (int8) of the training region, memory-mapped;
+    row i belongs to target i + 1."""
+    if not ((DATA / "region_pp.npy").exists() and (DATA / "region_feats.npy").exists()):
+        prep_region()
+    tokens = np.load(DATA / "region_tokens.npy", mmap_mode="r")
+    pp = np.load(DATA / "region_pp.npy", mmap_mode="r")
+    feats = np.load(DATA / "region_feats.npy", mmap_mode="r")
+    if len(pp) != len(tokens) - 1 or len(feats) != len(tokens) - 1:
+        raise SystemExit("region inputs do not match the region tokens")
+    return tokens, pp, feats
+
+
 def fit_weights(cols: np.ndarray, iters: int = 200) -> np.ndarray:
     w = np.full(cols.shape[1], 1.0 / cols.shape[1])
     for _ in range(iters):
@@ -260,9 +298,7 @@ def train(args):
     torch.set_num_threads(args.threads)
     torch.manual_seed(42)
     rng = np.random.default_rng(42)
-    tokens, cols, feats = load_prior("region")
-    pp_all = prior_prob(cols, weights())                # pp_all[i] = prior of tokens[i + 1]
-    del cols
+    tokens, pp_all, feats = load_region()                # pp_all[i] = prior of tokens[i + 1]
     model = GPT(gate_bias_for(args.arm))
     n_params = sum(p.numel() for p in model.parameters())
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, betas=(0.9, 0.95), weight_decay=0.1)
@@ -300,7 +336,7 @@ def train(args):
         batch = torch.from_numpy(np.stack([tokens[s:s + CTX + 1] for s in starts]).astype(np.int64))
         tgt = batch[:, 1:]
         if args.arm == "plain":
-            with torch.autocast("cpu", dtype=torch.bfloat16, enabled=args.bf16):
+            with torch.autocast("cpu", dtype=torch.bfloat16, enabled=bool(args.bf16)):
                 logits, _ = model(batch[:, :-1])
             logits = logits.float()                      # softmax and loss always in fp32
             loss = F.cross_entropy(logits.reshape(-1, V), tgt.reshape(-1))
@@ -308,7 +344,7 @@ def train(args):
         else:
             pp = torch.from_numpy(np.stack([pp_all[s:s + CTX] for s in starts]))
             fb = torch.from_numpy(np.stack([feats[s:s + CTX] for s in starts]).astype(np.int64))
-            with torch.autocast("cpu", dtype=torch.bfloat16, enabled=args.bf16):
+            with torch.autocast("cpu", dtype=torch.bfloat16, enabled=bool(args.bf16)):
                 logits, gl = model(batch[:, :-1], fb, extra=args.arm == "residual2")
             logits, gl = logits.float(), gl.float()
             lp, lp_net = mixture_logp(logits, gl, tgt, pp)
@@ -442,6 +478,7 @@ def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("weights")
+    sub.add_parser("prep")
     t = sub.add_parser("train")
     t.add_argument("--arm", choices=("plain", "residual", "residual2"), required=True)
     t.add_argument("--beta", type=float, default=0.5, help="weight of the network-alone loss (residual2)")
@@ -461,7 +498,7 @@ def main():
     e.add_argument("--max-docs", type=int, default=0, help="smoke test on the first documents only")
     e.add_argument("--results", default="")
     args = ap.parse_args()
-    {"weights": cmd_weights, "train": train, "eval": evaluate}[args.cmd](args)
+    {"weights": cmd_weights, "prep": lambda a: prep_region(), "train": train, "eval": evaluate}[args.cmd](args)
 
 
 if __name__ == "__main__":
