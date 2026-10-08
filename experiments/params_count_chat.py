@@ -164,8 +164,8 @@ def lexica(pack: Path) -> dict:
     d = json_load(pack / "capstats.json")
     out["capstats"] = {"values": len(d), "disk_bytes": (pack / "capstats.json").stat().st_size}
     d = json_load(PROGRAM["letters"])
-    out["letters"] = {"trigram_logp": len(d["logp"]), "unseen_bigram_logp": len(d["unseen"]),
-                      "words": len(d["words"]), "values": len(d["logp"]) + len(d["unseen"]) + 1,
+    out["letters"] = {"trigram_logp": len(d["trigram_logp"]), "unseen_bigram_logp": len(d["unseen_logp"]),
+                      "words": len(d["words"]), "values": len(d["trigram_logp"]) + len(d["unseen_logp"]) + 1,
                       "disk_bytes": PROGRAM["letters"].stat().st_size}
     for name in ("lex_en", "lex_de", "forms_en", "forms_de"):
         with gzip.open(PROGRAM[name], "rt", encoding="utf-8") as f:
