@@ -186,3 +186,45 @@ beide Arme, Zähler-Merkmale auch als Netz-Eingabe (2×2-Vergleich), dann ein 6-
 - Ein Zähler auf mehr Daten spart nach heutiger Schätzung 10–25 % davon.
 - Es fehlen außerdem ≥ 1 Mrd. weitere Token Trainingstext.
 - GPT-3-Niveau ist auf dieser Hardware nicht erreichbar.
+
+## 9. Lauf 4: schnelles Trainingsrezept „fast-v1“ (vor dem Start festgelegt)
+
+**Warum.**
+- Lauf 2 und Lauf 3 zeigen: Der Zähler hilft bei wenig Rechenzeit, aber nur um 0,01–0,02 bpb.
+- Den Weg zu GPT-2-Niveau entscheidet die Rechenleistung pro Stunde. Eine Recherche mit mehreren Agenten hat die Hebel für
+  diese 4-Kern-CPU nach Literatur und Messung geordnet (Speedrun-Rekorde, Porian et al. 2024, Marek et al. 2025,
+  Hägele et al. 2024, Bergsma et al. 2025, Wen et al. 2025).
+
+**fast-v1 (`experiments/v5_fast.py`), gleiche Breite, Tiefe, Batch und Daten wie das klassische Netz.**
+- **System:**
+  - jemalloc als Speicherverwaltung; gemessen: 17 % der CPU-Zeit gingen bisher in Seitenfehler und Kernel.
+  - bf16 auf den AMX-Einheiten.
+  - Kopf und Verlust in Blöcken, ohne die 4.096 × 32.768-Matrix.
+  - fused AdamW.
+- **Modell:**
+  - RMSNorm, QK-Norm + RoPE, ReLU², ohne Bias.
+  - Null-initialisierte Ausgänge, eigener Ausgabekopf mit Soft-Cap 30.
+  - Gehashte Bigramm-Eingabetabelle.
+- **Training:**
+  - AdamW mit β₂ aus der Suche, Gewichtsabnahme nur auf Blockmatrizen, 150 Aufwärmschritte.
+  - Konstante Lernrate, lineare Abnahme auf 0 im letzten Drittel.
+  - Dokumente ohne Zurücklegen gepackt, Aufmerksamkeit nur im eigenen Dokument.
+- **Geprüft:**
+  - Verlustfunktion gleich der Referenz (Fehler 2·10⁻⁹ in fp32);
+  - Kausalität und Dokumentmaske;
+  - Auswertungs-Weg gleich dem Trainings-Weg;
+  - Startverlust = ln V.
+
+**Ablauf (`sh experiments/v5_run4.sh`):**
+1. Lernrate {2·10⁻³, 4·10⁻³} × β₂ {0,99; 0,999}, je 45 min, Auswahl nach val-A.
+2. Je 3 h klassisch (A) gegen fast-v1 (B), auf getrennte Kerne gepinnt, Messung nach 1, 2 und 3 h.
+
+**Entscheidungsregel.**
+- **fast-v1 wird neue Referenz**, wenn B nach 3 h (Netz allein, Test, gefiltert) mindestens 0,08 bpb besser ist als A und
+  das 95-%-Intervall des Verhältnisses unter 1 liegt.
+- **Zeit-Faktor:** 3 h geteilt durch die früheste Messung von B, die A nach 3 h erreicht. Das ist eine Untergrenze, weil
+  B dort noch nicht abgekühlt ist.
+- **Ziel für den Langlauf zu GPT-2-Niveau:**
+  - Faktor ≥ 3 bei 2 Threads;
+  - mit 4 Threads in einem Prozess ≈ 1 Woche bis 1,04 bpb (Spanne 4–14 Tage);
+  - Modell d = 640–768, 12 Schichten, Kontext bis 1.024, 0,5–0,8 Mrd. Token.

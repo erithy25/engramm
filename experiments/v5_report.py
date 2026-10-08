@@ -56,9 +56,12 @@ def main() -> int:
     ap.add_argument("--new", default="residual2", help="the new arm")
     ap.add_argument("--variant", default="gated_mix", help="the new arm's system output (gated_mix | logres)")
     ap.add_argument("--pipe", type=float, default=0.0, help="run-3 rule: pipeline results at this checkpoint (hours)")
+    ap.add_argument("--fast", action="store_true", help="run-4 rule: fast recipe against plain")
     args = ap.parse_args()
     if args.pipe:
         return pipe_report(args.run or "run3", args.pipe)
+    if args.fast:
+        return fast_report(args.run or "run4")
     RESULTS = RESULTS / args.run if args.run else RESULTS
     new_arm, var = args.new, args.variant
     common = sorted(set(checkpoints("plain")) & set(checkpoints(new_arm)))
@@ -166,6 +169,50 @@ def pipe_report(run: str, hours: float) -> int:
     print(f"\nprimary: logres pipeline − {best} pipeline = {delta:+.4f} bpb, ratio {ratio['ratio']:.4f} "
           f"[{ratio['ci95'][0]:.4f}, {ratio['ci95'][1]:.4f}] → {'WIN' if win else 'no win'}"
           f"{' (replication with seed 43 required)' if replicate else ''}; gates {gates}")
+    return 0
+
+
+
+def fast_report(run: str) -> int:
+    """Run 4 rule (docs/PLAN_V5_FROM_SCRATCH.md §9): the fast recipe's network alone against the
+    plain network alone after 3 h; time multiplier from the fast arm's 1 h / 2 h points (lower
+    bound: those are taken before its learning-rate decay)."""
+    d = RESULTS / run
+    rows, pd = {}, {}
+    for arm in ("plain", "fast"):
+        for h in (1, 2, 3):
+            f = d / f"eval_{arm}_{h}h.json"
+            if f.exists():
+                rows[(arm, h)] = json.loads(f.read_text())
+                pd[(arm, h)] = np.load(d / f"eval_{arm}_{h}h_perdoc.npz")
+    if ("plain", 3) not in rows or ("fast", 3) not in rows:
+        print(f"missing 3 h results in {d}", file=sys.stderr)
+        return 1
+    keep, nbytes = pd[("plain", 3)]["test_keep"], pd[("plain", 3)]["test_doc_bytes"]
+    table = {}
+    for (arm, h), p in pd.items():
+        for var in ("net_alone", "posthoc_bucket_mix"):
+            table[f"{arm} {h} h {var}"] = bpb(p[f"test_{var}"], nbytes, mask=keep).as_dict()
+        table[f"{arm} {h} h tokens"] = rows[(arm, h)]["tokens_seen"]
+    a3 = table["plain 3 h net_alone"]["bpb"]
+    b3 = table["fast 3 h net_alone"]["bpb"]
+    ratio = bpb_ratio(pd[("fast", 3)]["test_net_alone"], pd[("plain", 3)]["test_net_alone"], mask=keep)
+    win = bool(b3 <= a3 - 0.08 and ratio["ci95"][1] < 1.0)
+    reach = [h for h in (1, 2, 3) if ("fast", h) in pd and table[f"fast {h} h net_alone"]["bpb"] <= a3]
+    mult = (3 / min(reach)) if reach else None
+    out = {"plain_3h": a3, "fast_3h": b3, "delta": b3 - a3, "ratio": ratio, "adopt_fast": win,
+           "time_multiplier_lower_bound": mult, "test": table,
+           "sweep": json.loads((d / "sweep.json").read_text()) if (d / "sweep.json").exists() else None}
+    (d / "summary_fast.json").write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n")
+    print("| Test, bpb (filtered) | 1 h | 2 h | 3 h |\n|---|---|---|---|")
+    for arm in ("plain", "fast"):
+        for var in ("net_alone", "posthoc_bucket_mix"):
+            cells = [f"{table[f'{arm} {h} h {var}']['bpb']:.4f}" if f"{arm} {h} h {var}" in table else "–" for h in (1, 2, 3)]
+            print(f"| {arm} {var} | " + " | ".join(cells) + " |")
+        cells = [f"{table[f'{arm} {h} h tokens'] / 1e6:.1f} M" if f"{arm} {h} h tokens" in table else "–" for h in (1, 2, 3)]
+        print(f"| {arm} tokens | " + " | ".join(cells) + " |")
+    print(f"\nfast − plain at 3 h: {b3 - a3:+.4f} bpb, ratio {ratio['ratio']:.4f} [{ratio['ci95'][0]:.4f}, "
+          f"{ratio['ci95'][1]:.4f}] → {'ADOPT fast-v1' if win else 'keep plain'}; time multiplier ≥ {mult}")
     return 0
 
 
