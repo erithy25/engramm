@@ -1,0 +1,211 @@
+{
+ "schema": "engramm-params/1",
+ "name": "b_engramm_lm",
+ "study": "docs/PREREG_PARAMS.md v1.0",
+ "timestamp_utc": "20261008T210838Z",
+ "git": {
+  "commit": "82e584a587fd1ba7ecf2de5175a984130dc3bd36",
+  "dirty": false,
+  "untracked": 0,
+  "changed_during_run": false
+ },
+ "environment": {
+  "canonical": false,
+  "python": "3.13.16",
+  "numpy": "2.4.1",
+  "platform": "Linux-6.18.44-fc-v80-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "cpu_count": 4,
+  "pythonhashseed": null
+ },
+ "runtime": {
+  "wall_seconds": 3957.299995660782,
+  "peak_rss_mb": 5469.83203125,
+  "note": "container timing/memory: never official (docs/PROTOCOL.md rule 2)"
+ },
+ "subject": {
+  "scale": "main",
+  "seed": 42,
+  "tau_index": 1,
+  "beta_index": 1,
+  "base_digest": "b45c20659e5591ff5298d631da4f5c9d566421d6db69f80eaa16a94737779b54",
+  "test_bpb_e12": 1.51357693,
+  "model_dir": "/home/user/engramm/models/lm/main/model",
+  "base_digest_checked": "b45c20659e5591ff5298d631da4f5c9d566421d6db69f80eaa16a94737779b54"
+ },
+ "compressors": {
+  "xz": "xz (XZ Utils) 5.4.5",
+  "zstd": "*** Zstandard CLI (64-bit) v1.5.5, by Yann Collet ***"
+ },
+ "commands": {
+  "xz": [
+   "xz",
+   "-9",
+   "-T1",
+   "-c"
+  ],
+  "zstd": [
+   "zstd",
+   "-19",
+   "-T1",
+   "-q",
+   "-c"
+  ]
+ },
+ "groups_learned": {
+  "kn5_order1": {
+   "raw_bytes": 196884,
+   "xz": {
+    "bytes": 87832,
+    "seconds": 0.20671844482421875
+   },
+   "zstd": {
+    "bytes": 116304,
+    "seconds": 0.14095401763916016
+   }
+  },
+  "kn5_order2": {
+   "raw_bytes": 117420810,
+   "xz": {
+    "bytes": 23979484,
+    "seconds": 95.10580468177795
+   },
+   "zstd": {
+    "bytes": 27740267,
+    "seconds": 80.4069664478302
+   }
+  },
+  "kn5_order3": {
+   "raw_bytes": 247292988,
+   "xz": {
+    "bytes": 41282612,
+    "seconds": 236.34049367904663
+   },
+   "zstd": {
+    "bytes": 50063952,
+    "seconds": 190.66895484924316
+   }
+  },
+  "kn5_order4": {
+   "raw_bytes": 394747128,
+   "xz": {
+    "bytes": 56106312,
+    "seconds": 348.946745634079
+   },
+   "zstd": {
+    "bytes": 72743297,
+    "seconds": 301.09104180336
+   }
+  },
+  "kn5_order5": {
+   "raw_bytes": 594648960,
+   "xz": {
+    "bytes": 86356528,
+    "seconds": 420.41567492485046
+   },
+   "zstd": {
+    "bytes": 110819269,
+    "seconds": 440.1464719772339
+   }
+  },
+  "codebook": {
+   "raw_bytes": 17301846,
+   "xz": {
+    "bytes": 16889660,
+    "seconds": 6.854717493057251
+   },
+   "zstd": {
+    "bytes": 16919406,
+    "seconds": 4.744044780731201
+   }
+  },
+  "mixture": {
+   "raw_bytes": 2743,
+   "xz": {
+    "bytes": 968,
+    "seconds": 0.006771564483642578
+   },
+   "zstd": {
+    "bytes": 944,
+    "seconds": 0.0029096603393554688
+   }
+  }
+ },
+ "groups_corpus_bound": {
+  "knn_position_index": {
+   "raw_bytes": 1138964695,
+   "xz": {
+    "bytes": 1051330844,
+    "seconds": 1034.1578993797302
+   },
+   "zstd": {
+    "bytes": 1077804183,
+    "seconds": 424.11892914772034
+   }
+  },
+  "segment_signatures": {
+   "raw_bytes": 71185366,
+   "xz": {
+    "bytes": 25737244,
+    "seconds": 122.48167610168457
+   },
+   "zstd": {
+    "bytes": 32036262,
+    "seconds": 83.3221971988678
+   }
+  }
+ },
+ "reference_training_text": {
+  "train_text_utf8": {
+   "raw_bytes": 1281435828,
+   "xz": {
+    "bytes": 331535236,
+    "seconds": 2210.0439882278442
+   },
+   "zstd": {
+    "bytes": 361291582,
+    "seconds": 1462.927084684372
+   }
+  },
+  "train_token_stream": {
+   "raw_bytes": 569482322,
+   "xz": {
+    "bytes": 292754440,
+    "seconds": 812.3965904712677
+   },
+   "zstd": {
+    "bytes": 331127391,
+    "seconds": 466.0192880630493
+   }
+  }
+ },
+ "transformers": {},
+ "summary": {
+  "raw_bytes": 1371611359,
+  "compressed_bytes": {
+   "xz": 224703396,
+   "zstd": 278403439
+  },
+  "best_compressor": "xz",
+  "B_bits": 1797627168,
+  "capacity_equivalent_params": {
+   "at_2_bits_per_param": 898813584.0,
+   "at_1_bit_per_param": 1797627168.0,
+   "at_4_bits_per_param": 449406792.0
+  },
+  "assumption": "≈ 2 bits of knowledge per parameter (Allen-Zhu & Li 2024, Physics of Language Models Part 3.3, arXiv:2404.05405); span 1–4 bits/parameter",
+  "status": "estimate with external assumption, not a measurement",
+  "with_knn_index": {
+   "compressed_bytes": {
+    "xz": 1301771484,
+    "zstd": 1388243884
+   },
+   "B_bits": 10414171872,
+   "capacity_equivalent_params": {
+    "at_2_bits_per_param": 5207085936.0,
+    "at_1_bit_per_param": 10414171872.0,
+    "at_4_bits_per_param": 2603542968.0
+   }
+  }
+ }
+}
