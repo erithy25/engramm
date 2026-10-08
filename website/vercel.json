@@ -1,8 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
-  "outputDirectory": "public",
   "framework": null,
+  "buildCommand": "echo \"Static site, nothing to build\"",
+  "installCommand": "echo \"No dependencies\"",
+  "outputDirectory": "public",
   "headers": [
     {
       "source": "/img/(.*)",
