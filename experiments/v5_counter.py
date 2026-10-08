@@ -112,12 +112,13 @@ def _kn_into(dist, h, hl, n_orders, p_uni, ctxs, ptrs, totals, n1s, n2s, n3s, ws
         tot = float(totals[n][r])
         d1, d2_, d3 = disc[n, 0], disc[n, 1], disc[n, 2]
         f = scale * mult[n] / tot
+        aa, wa = as_[n], ws[n]                   # hoisted: typed-list indexing in the loop is slow
         for k in range(ptrs[n][r], ptrs[n][r + 1]):
-            a = as_[n][k]
+            a = aa[k]
             disc_a = d1 if a == 1 else (d2_ if a == 2 else d3)
             num = a - disc_a
             if num > 0.0:
-                dist[ws[n][k]] += num * f
+                dist[wa[k]] += num * f
     return found
 
 
@@ -311,8 +312,10 @@ def load_counter(where: str, base: Counter | None = None) -> Counter:
     return Counter.build(ev, starts, w, kn, tokens_c, sa, slot, d2)
 
 
-def check(n_win: int = 24, T: int = 256) -> int:
-    """q(target) must equal the component prior; q must sum to 1; report speed."""
+def check(n_win: int = 24, T: int = 256, threads: int = 2) -> int:
+    """q(target) must equal the component prior; q must sum to 1; q must not look at the
+    target or anything after it (causality); report speed at a fixed thread count."""
+    numba.set_num_threads(threads)
     c = load_counter("val_a")
     d = REPO / "models" / "lm" / "pilot" / "eval"
     kz, iz, cz = np.load(d / "val_a_kn.npz"), np.load(d / "val_a_inf.npz"), np.load(d / "val_a_cache.npz")
@@ -336,7 +339,24 @@ def check(n_win: int = 24, T: int = 256) -> int:
     print(f"positions {n_win * T}: {secs / (n_win * T) * 1e6:.1f} µs/position ({numba.get_num_threads()} threads)")
     print(f"q(target) vs component prior: max rel err {rel.max():.2e}")
     print(f"Σ q over the vocabulary: min {sums.min():.6f}, max {sums.max():.6f}")
-    ok = rel.max() < 1e-5 and abs(sums.min() - 1) < 1e-3 and abs(sums.max() - 1) < 1e-3
+    # causality: change the token at target position s + 1 + t₀ (and everything after it);
+    # rows of targets up to and including s + 1 + t₀ must stay bit-identical
+    t0_ = T // 2
+    ev2 = c.ev.copy()
+    causal = True
+    for b, s in enumerate(win[:6]):
+        j = s + 1 + t0_
+        ev2[j:j + T] = (ev2[j:j + T].astype(np.int64) * 7 + 13) % 32767 + 1   # no EOS introduced
+    c2 = c.for_stream(ev2, c.doc_start)
+    out2 = np.empty((6, T, out.shape[2]), dtype=np.float32)
+    c2.q(win[:6], T, out2)
+    for b in range(6):
+        if not np.array_equal(out[b, :t0_ + 1], out2[b, :t0_ + 1]):
+            causal = False
+        if np.array_equal(out[b, t0_ + 1:], out2[b, t0_ + 1:]):
+            causal = False                                             # the change must matter later
+    print(f"causality (rows up to the changed target unchanged, later rows changed): {causal}")
+    ok = rel.max() < 1e-5 and abs(sums.min() - 1) < 1e-3 and abs(sums.max() - 1) < 1e-3 and causal
     print("OK" if ok else "MISMATCH")
     return 0 if ok else 1
 

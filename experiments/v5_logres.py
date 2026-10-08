@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import resource
 import time
 
 import numba
@@ -35,6 +36,23 @@ from experiments.v5_counter import load_counter
 ARM = "logres"
 ALPHA0_BIAS = math.log(math.e - 1.0)          # softplus(bias) = 1: start as the counter
 LOGQ_FLOOR = 1e-30
+PP_TOL = 1e-4                                  # q(target) must equal the component prior
+SUM_TOL = 1e-3                                 # Σ_v q(v) must be 1
+
+
+class CounterMismatch(RuntimeError):
+    pass
+
+
+def assert_counter(q_t: np.ndarray, pp: np.ndarray, rows: np.ndarray | None = None) -> None:
+    """Abort if the on-the-fly counter disagrees with the component prior (or is not normalised)."""
+    rel = np.abs(q_t - pp) / pp
+    if rel.max() > PP_TOL:
+        raise CounterMismatch(f"q(target) differs from the prior: max rel err {rel.max():.2e}")
+    if rows is not None:
+        sums = rows.sum(axis=-1, dtype=np.float64)
+        if np.abs(sums - 1).max() > SUM_TOL:
+            raise CounterMismatch(f"Σq deviates from 1 by {np.abs(sums - 1).max():.2e}")
 
 
 def make_model() -> R.GPT:
@@ -57,6 +75,7 @@ def train(args) -> None:
     torch.manual_seed(42)
     rng = np.random.default_rng(42)
     tokens, cols, feats = R.load_prior("region")
+    pp_all = R.prior_prob(cols, R.weights())               # pp_all[i] = prior of tokens[i + 1]
     del cols
     counter = load_counter("region")
     if not np.array_equal(counter.ev, tokens):
@@ -71,7 +90,7 @@ def train(args) -> None:
     pending = sorted({h for h in marks if h <= args.hours} | {args.hours})
     log = open(out / "train_log.jsonl", "a")
     qbuf = np.empty((args.batch, R.CTX, R.V), dtype=np.float32)
-    q_seconds = 0.0
+    q_seconds = torch_seconds = 0.0
     while True:
         elapsed = time.time() - t0 - paused
         if pending and elapsed >= pending[0] * 3600:
@@ -98,7 +117,10 @@ def train(args) -> None:
         fb = torch.from_numpy(np.stack([feats[s:s + R.CTX] for s in starts]).astype(np.int64))
         tq = time.time()
         q_t = counter.q(starts, R.CTX, qbuf)              # targets s+1 … s+CTX, the batch's targets
+        assert_counter(q_t, np.stack([pp_all[s:s + R.CTX] for s in starts]).astype(np.float64),
+                       qbuf if step % 10 == 0 else None)
         q_seconds += time.time() - tq
+        tt = time.time()
         logq = torch.from_numpy(qbuf).clamp_min_(LOGQ_FLOOR).log_()
         z, gl = model(batch[:, :-1], fb)
         logits = logres_logits(z, gl, logq)
@@ -107,25 +129,31 @@ def train(args) -> None:
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         opt.step()
+        torch_seconds += time.time() - tt
         step += 1
         seen += args.batch * R.CTX
         if step % 100 == 0:
             with torch.no_grad():
                 net_loss = float(F.cross_entropy(z.reshape(-1, R.V), tgt.reshape(-1)))
-                alpha = float(F.softplus(gl).mean())
+                al = F.softplus(gl).flatten()
+                alpha_q = [float(x) for x in torch.quantile(al, torch.tensor([0.1, 0.5, 0.9]))]
             rec = {"step": step, "loss": float(loss), "net_only_loss": net_loss,
-                   "counter_loss": float(-np.log(np.maximum(q_t, R.EPS)).mean()), "mean_alpha": alpha, "lr": lr,
-                   "elapsed_s": time.time() - t0, "tokens_seen": seen, "counter_seconds": q_seconds}
+                   "counter_loss": float(-np.log(np.maximum(q_t, R.EPS)).mean()),
+                   "alpha_p10_p50_p90_max": alpha_q + [float(al.max())], "lr": lr,
+                   "elapsed_s": time.time() - t0, "tokens_seen": seen, "counter_seconds": q_seconds,
+                   "torch_seconds": torch_seconds,
+                   "rss_mb": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024}
             log.write(json.dumps(rec) + "\n")
             log.flush()
             print(rec, flush=True)
 
 
 @torch.no_grad()
-def token_logprobs(model, counter, tokens, starts, feat_all):
+def token_logprobs(model, counter, tokens, starts, feat_all, pp_ev):
     """Per target position (global index i ≥ 1): log p of the logit-residual model, of the
     network alone, and the trust α. Same windows as v5_residual.token_logprobs; ``tokens``
-    may be a document-aligned prefix of the counter's stream (smoke tests)."""
+    may be a document-aligned prefix of the counter's stream (smoke tests); ``pp_ev[i]`` is
+    the component prior of target i + 1 (checked against q on every window)."""
     ends = np.append(starts[1:] - 1, len(tokens) - 1)
     lp_out = np.zeros(len(tokens))
     lpn_out = np.zeros(len(tokens))
@@ -140,7 +168,8 @@ def token_logprobs(model, counter, tokens, starts, feat_all):
             window = torch.from_numpy(seq[a:a + R.CTX + 1])[None]
             L = window.shape[1] - 1
             fb = torch.from_numpy(feat_all[base + a:base + a + L].astype(np.int64))[None]
-            counter.q(np.array([base + a], dtype=np.int64), L, qbuf[:, :L])
+            q_t = counter.q(np.array([base + a], dtype=np.int64), L, qbuf[:, :L])
+            assert_counter(q_t[0], pp_ev[base + a:base + a + L])
             logq = torch.from_numpy(qbuf[:, :L]).clamp_min(LOGQ_FLOOR).log()
             z, gl = model(window[:, :-1], fb)
             tgt = window[0, 1:]
@@ -178,7 +207,8 @@ def run_eval(model, ck: dict, threads: int, max_docs: int = 0, base=None) -> dic
             tokens, cols, feats = tokens[:cut], cols[:cut - 1], feats[:cut - 1]
         feat_all = np.concatenate([feats, np.zeros((1, 3), dtype=np.int8)])
         t0 = time.time()
-        lp, lpn, al = token_logprobs(model, counter, tokens, starts, feat_all)
+        pp_ev = R.prior_prob(cols, w).astype(np.float64)
+        lp, lpn, al = token_logprobs(model, counter, tokens, starts, feat_all, pp_ev)
         n = len(tokens)
         docs = R.target_docs(starts, n)
         keep = R.keep_docs(split, len(np.load(R.TOK / f"{split}.starts.npy")))[:len(starts)]

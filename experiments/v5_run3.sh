@@ -17,9 +17,13 @@ if [ ! -d "$PT/torch" ]; then
   rm -rf /dev/shm/engramm/pipcache
 fi
 [ -f "$D/prior.done" ] || .venv/bin/python -m experiments.v5_prior --tokens 40000000 --out "$D"
+export NUMBA_THREADING_LAYER=workqueue
 PY="env PYTHONPATH=$PT:$(pwd) .venv/bin/python -u"
+M=models/lm/v5                                   # checkpoints that must survive a restart
+mkdir -p "$M"
+[ ! -f "$D/ckpt_plain/ckpt_3h.pt" ] || cp -n "$D/ckpt_plain/ckpt_3h.pt" "$M/plain_run2_3h.pt"
 [ -f "$D/prior_weights.json" ] || $PY experiments/v5_residual.py weights
-$PY -m experiments.v5_counter check > "$D/counter_check.log" 2>&1
+$PY -m experiments.v5_counter check > "$D/counter_check.log" 2>&1 || { echo "counter check failed" > "$D/run3.failed"; exit 1; }
 $PY experiments/v5_residual.py train --arm plain --hours "$HOURS" --threads 2 --results run3 --ckpt-dir plain_run3 \
   > "$D/train_plain_run3.log" 2>&1 &
 p1=$!
@@ -28,4 +32,14 @@ p2=$!
 rc=0
 wait "$p1" || rc=1
 wait "$p2" || rc=1
-if [ "$rc" -eq 0 ]; then echo "run 3 finished" > "$D/run3.done"; else echo "an arm failed" > "$D/run3.failed"; exit 1; fi
+if [ "$rc" -ne 0 ]; then echo "an arm failed" > "$D/run3.failed"; exit 1; fi
+cp "$D/ckpt_logres/ckpt_${HOURS}h.pt" "$M/logres_${HOURS}h.pt"
+cp "$D/ckpt_plain_run3/ckpt_${HOURS}h.pt" "$M/plain_run3_${HOURS}h.pt"
+# the same post-hoc pipeline for every model (4 threads, machine otherwise idle)
+for t in logres plain_run3 plain_run2; do
+  [ -f "$M/${t}_${HOURS}h.pt" ] || continue
+  $PY -m experiments.v5_posthoc --ckpt "$M/${t}_${HOURS}h.pt" --tag "${t}_${HOURS}h" --results run3 \
+    > "$D/posthoc_$t.log" 2>&1 || { echo "posthoc $t failed" > "$D/run3.failed"; exit 1; }
+done
+.venv/bin/python -m experiments.v5_report --run run3 --pipe "$HOURS" > "$D/report_run3.txt" 2>&1 || true
+echo "run 3 finished" > "$D/run3.done"

@@ -120,3 +120,49 @@ Jede Zwischenmessung (1, 2, 3 h) schreibt der Trainingsprozess sofort nach `resu
   statt aus nur einer Wahrscheinlichkeit.
 - **Zusätzlich berichtet:** der Effekt des Trainingsverfahrens allein, also beide Netze mit demselben nachträglichen
   Mischer.
+
+## 8. Lauf 3: Logit-Residual auf der vollen Zählverteilung (vor dem Start festgelegt)
+
+**Verfahren (`experiments/v5_logres.py`).** p(w) ∝ exp(z_w + α·log q(w)). q ist die volle Verteilung des Pilot-Zählers
+über alle 32.768 Wörter, exakt und während des Trainings berechnet (`experiments/v5_counter.py`). α = softplus(Schalter)
+startet bei 1; die Verstärkung der letzten LayerNorm startet bei 0. Damit ist das ungelernte Modell exakt der Zähler
+(gemessen: 1,70726 = 1,70726 bpb auf val-A). Der Gradient auf z ist p − one-hot und verschwindet nie: das Netz lernt
+nur die Korrektur, die der Zähler braucht. Gleiche Netzgröße, Daten, Seed und Lernrate wie Lauf 2, fp32, beide Arme
+parallel mit je 2 Threads.
+
+**Prüfungen während des Laufs.**
+- Jede Trainings-Charge und jedes Auswertungsfenster: q(Ziel) = Komponenten-Prior (relativer Fehler < 10⁻⁴).
+- Jede 10. Charge: Σq = 1 (± 10⁻³).
+- Kausalitätstest: Ändern eines Tokens lässt alle früheren Zeilen bitgleich.
+
+**Gleiche Nachbearbeitung für jedes Modell X (`experiments/v5_posthoc.py`), nur auf gefiltertem val-A geschätzt.**
+1. log-linear: log p′ = b·log p_X + a·log q − log Z, (a, b) per Maximum-Likelihood auf 24 Fenstern;
+2. linear: λ je Bucket mit dem Komponenten-Prior.
+
+Diese Nachbearbeitung kombiniert ein fertiges Netz mit dem Zähler auf genau die Art, die logres im Training lernt. Ein
+Gewinn zeigt also, dass **gemeinsames Training** mehr bringt als nachträgliches Kombinieren.
+
+**Entscheidungsregel nach 3 h, Test-Satz, gefiltert.**
+- **Gewinn:** bpb(Pipeline(logres)) − bpb(Pipeline(B*)) ≤ −0,03, das 95-%-Intervall des gepaarten Bootstraps liegt unter
+  1, und die Zähler-Werte aller Arme sind identisch.
+  - B* = das bessere klassische Netz aus Lauf 2 und Lauf 3. Das schützt davor, dass logres das parallel laufende
+    klassische Netz ausbremst.
+- **Wiederholung mit Seed 43**, wenn −0,05 < Δ ≤ −0,03 ist oder die beiden klassischen Läufe nach der Pipeline um mehr
+  als 0,015 bpb auseinanderliegen. Bestätigt gilt der Gewinn dann nur, wenn Δ(Seed 43) ≤ −0,02 und der Mittelwert
+  ≤ −0,03 ist.
+- **Zusätzlich berichtet, nicht entscheidend:**
+  - die einfache lineare Regel aus §7;
+  - logres allein und das Netz allein;
+  - Δ nach 1 h und 2 h;
+  - Pipeline(logres nach 2 h) ≤ Pipeline(klassisch nach 3 h), was einem Faktor ≥ 1,5 bei der Rechenzeit entspräche;
+  - Token und Sekunden pro Schritt, getrennt nach Zähler- und Torch-Anteil.
+
+**Danach (Lauf 4).** Bei Gewinn: bf16 auf den AMX-Einheiten dieser CPU (gemessen ≈ 1,9× schnellerer Trainingsschritt) für
+beide Arme, Zähler-Merkmale auch als Netz-Eingabe (2×2-Vergleich), dann ein 6-h-Paar zur Messung des Faktors.
+
+**Ehrliche Hochrechnung bis GPT-2-Niveau (1,04 bpb).**
+- Nötig sind ein Modell mit ~124 Mio. Parametern und 1–3 Mrd. Token, also 5·10¹⁷–2·10¹⁸ Rechenschritte.
+- Diese Maschine schafft ~1–2·10¹⁶ pro Tag in fp32 und ~3–5·10¹⁶ mit bf16, das sind 2–8 Wochen.
+- Ein Zähler auf mehr Daten spart nach heutiger Schätzung 10–25 % davon.
+- Es fehlen außerdem ≥ 1 Mrd. weitere Token Trainingstext.
+- GPT-3-Niveau ist auf dieser Hardware nicht erreichbar.

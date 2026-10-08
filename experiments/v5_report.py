@@ -55,7 +55,10 @@ def main() -> int:
     ap.add_argument("--run", default="", help="subdirectory of results/v5")
     ap.add_argument("--new", default="residual2", help="the new arm")
     ap.add_argument("--variant", default="gated_mix", help="the new arm's system output (gated_mix | logres)")
+    ap.add_argument("--pipe", type=float, default=0.0, help="run-3 rule: pipeline results at this checkpoint (hours)")
     args = ap.parse_args()
+    if args.pipe:
+        return pipe_report(args.run or "run3", args.pipe)
     RESULTS = RESULTS / args.run if args.run else RESULTS
     new_arm, var = args.new, args.variant
     common = sorted(set(checkpoints("plain")) & set(checkpoints(new_arm)))
@@ -116,6 +119,53 @@ def main() -> int:
     m = last["method_effect"]
     print(f"method effect (same post-hoc mixer): Δ = {m['delta_bpb']:+.4f} bpb, ratio {m['ratio']['ratio']:.4f} "
           f"[{m['ratio']['ci95'][0]:.4f}, {m['ratio']['ci95'][1]:.4f}]")
+    return 0
+
+
+
+def pipe_report(run: str, hours: float) -> int:
+    """Run 3 primary rule (docs/PLAN_V5_FROM_SCRATCH.md §8): logres through the post-hoc
+    pipeline against the better plain arm (run 2 or run 3) through the same pipeline."""
+    d = RESULTS / run
+    tag = f"{hours:g}h"
+    arms = {"logres": f"logres_{tag}", "plain_run3": f"plain_run3_{tag}", "plain_run2": f"plain_run2_{tag}"}
+    loaded = {}
+    for k, t in arms.items():
+        f = d / f"eval_{t}_pipe.json"
+        if f.exists():
+            loaded[k] = (json.loads(f.read_text()), np.load(d / f"eval_{t}_pipe_perdoc.npz"))
+    if "logres" not in loaded or not ({"plain_run3", "plain_run2"} & set(loaded)):
+        print(f"missing pipeline results in {d}", file=sys.stderr)
+        return 1
+    keep = loaded["logres"][1]["test_keep"]
+    nbytes = loaded["logres"][1]["test_doc_bytes"]
+    gates = {"prior_identical": all(np.array_equal(v[1]["test_prior_alone"], loaded["logres"][1]["test_prior_alone"])
+                                    for v in loaded.values())}
+    rows = {}
+    for k, (res, pd) in loaded.items():
+        for var in ("model_alone", "loglinear", "linear_bucket", "pipeline"):
+            rows[f"{k} {var}"] = bpb(pd[f"test_{var}"], nbytes, mask=keep).as_dict()
+    rows["counter alone"] = bpb(loaded["logres"][1]["test_prior_alone"], nbytes, mask=keep).as_dict()
+    plains = [k for k in ("plain_run3", "plain_run2") if k in loaded]
+    best = min(plains, key=lambda k: rows[f"{k} pipeline"]["bpb"])
+    if len(plains) == 2:
+        diff = abs(rows["plain_run3 pipeline"]["bpb"] - rows["plain_run2 pipeline"]["bpb"])
+        gates["plain_runs_agree"] = bool(diff <= 0.015)
+        gates["plain_runs_diff"] = diff
+    delta = rows["logres pipeline"]["bpb"] - rows[f"{best} pipeline"]["bpb"]
+    ratio = bpb_ratio(loaded["logres"][1]["test_pipeline"], loaded[best][1]["test_pipeline"], mask=keep)
+    win = bool(delta <= -WIN_MARGIN and ratio["ci95"][1] < 1.0 and gates["prior_identical"])
+    replicate = bool((-0.05 < delta <= -WIN_MARGIN) or not gates.get("plain_runs_agree", True))
+    out = {"hours": hours, "baseline": best, "delta_bpb": delta, "ratio": ratio, "win": win,
+           "replication_needed": replicate, "gates": gates, "test": rows,
+           "loglinear_ab": {k: (v[0]["loglinear_a"], v[0]["loglinear_b"]) for k, v in loaded.items()}}
+    (d / f"summary_pipe_{tag}.json").write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n")
+    print(f"| Test, bpb (filtered), {tag} | bpb | 95 % CI |\n|---|---|---|")
+    for k, v in rows.items():
+        print(f"| {k} | {v['bpb']:.4f} | {v['ci95'][0]:.4f}–{v['ci95'][1]:.4f} |")
+    print(f"\nprimary: logres pipeline − {best} pipeline = {delta:+.4f} bpb, ratio {ratio['ratio']:.4f} "
+          f"[{ratio['ci95'][0]:.4f}, {ratio['ci95'][1]:.4f}] → {'WIN' if win else 'no win'}"
+          f"{' (replication with seed 43 required)' if replicate else ''}; gates {gates}")
     return 0
 
 

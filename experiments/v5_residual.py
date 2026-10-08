@@ -278,8 +278,8 @@ def train(args):
             h = pending.pop(0)
             ck = {"model": model.state_dict(), "step": step, "tokens_seen": seen, "hours": h,
                   "params": n_params, "arm": args.arm, "beta": args.beta, "train_seconds": elapsed}
-            torch.save(ck, out / f"ckpt_{h}h.pt")
-            print(f"checkpoint {h} h: step {step}, {seen} tokens", flush=True)
+            torch.save(ck, out / f"ckpt_{h:g}h.pt")
+            print(f"checkpoint {h:g} h: step {step}, {seen} tokens", flush=True)
             if args.eval_at_checkpoints:
                 te = time.time()
                 model.eval()
