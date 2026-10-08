@@ -121,6 +121,26 @@ Jede Zwischenmessung (1, 2, 3 h) schreibt der Trainingsprozess sofort nach `resu
 - **Zusätzlich berichtet:** der Effekt des Trainingsverfahrens allein, also beide Netze mit demselben nachträglichen
   Mischer.
 
+**Ergebnis Lauf 2 (8. Oktober, `results/v5/`, `summary.json`).** Test, gefiltert, Bits pro Byte:
+
+| | 1 h | 2 h | 3 h |
+|---|---|---|---|
+| klassisches Netz allein | 2,031 | 1,893 | 1,835 |
+| Zähler allein | 1,674 | 1,674 | 1,674 |
+| klassisch + Zähler, nachträglich (λ je Bucket) | 1,663 | 1,633 | 1,614 |
+| residual2 + Zähler, nachträglich (λ je Bucket) | 1,661 | 1,629 | 1,612 |
+| **residual2, gelernte Mischung** | **1,655** | **1,618** | **1,598** |
+| Token gesehen je Arm | 3,3 Mio. | 7,0 Mio. | 10,8 Mio. |
+
+**Entscheidung nach Regel §7: kein Gewinn.**
+- Der Vorsprung beträgt nach 3 h −0,016 bpb, Verhältnis 0,9901 [0,9897; 0,9906]. Er ist statistisch klar, liegt aber unter
+  der vorab festgelegten Schwelle von −0,03.
+- Er wuchs von −0,008 über −0,014 auf −0,016 und flacht ab.
+- Der Effekt des Trainingsverfahrens allein, also beide Netze mit demselben nachträglichen Mischer, ist −0,002.
+- Der Gewinn kommt also vor allem vom gelernten, kontextabhängigen Schalter, nicht von einem besseren Netz.
+- Nebenbefund: Zähler + Netz zusammen (1,598) schlagen nach 3 h CPU-Training sowohl den Zähler allein (1,674) als auch den
+  6-h-Transformer der LM-Studie (1,638).
+
 ## 8. Lauf 3: Logit-Residual auf der vollen Zählverteilung (vor dem Start festgelegt)
 
 **Verfahren (`experiments/v5_logres.py`).** p(w) ∝ exp(z_w + α·log q(w)). q ist die volle Verteilung des Pilot-Zählers
