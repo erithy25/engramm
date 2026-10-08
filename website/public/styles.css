@@ -138,6 +138,22 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   background: linear-gradient(160deg, rgba(40, 42, 48, 0.62), rgba(14, 15, 18, 0.5));
 }
 
+/* Grab and rotate */
+.stack-hit { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 3; pointer-events: none; cursor: grab; touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+.stack-hit.is-live { pointer-events: auto; }
+html.is-grabbing, html.is-grabbing * { cursor: grabbing !important; -webkit-user-select: none !important; user-select: none !important; }
+.stack-hint {
+  position: absolute; left: 50%; top: var(--hint-top, 70vh); z-index: 4; transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: 8px; margin: 0; white-space: nowrap; pointer-events: none;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.42);
+  opacity: 0; transition: opacity 0.6s var(--ease);
+}
+.stack-hint.is-on { opacity: 1; transition-delay: 0.8s; }
+.stack-hint svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; animation: hintTurn 3s var(--ease-io) infinite; }
+@keyframes hintTurn { 0%, 20% { transform: rotate(0deg); } 70%, 100% { transform: rotate(180deg); } }
+.stack-hint__touch { display: none; }
+@media (hover: none) { .stack-hint__mouse { display: none; } .stack-hint__touch { display: inline; } }
+
 /* Skywriting */
 .sky {
   --sky-top: 0.1; --sky-h: 0.58; --sky-right: 0.13;
@@ -416,7 +432,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero__scroll i, .access__aura i, .dot { animation: none !important; }
+  .hero__scroll i, .access__aura i, .dot, .stack-hint svg { animation: none !important; }
   .sky, .sky__trail, .sky__aged { transition: none; }
   .is-in .ltr, .chapter.is-on .ltr { animation: none; }
   .hero__title .ltr, .float__title .ltr { opacity: 1; }

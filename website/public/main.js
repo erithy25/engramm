@@ -114,6 +114,8 @@
   const shade = $(".pane__shade");
   const layers = $$(".pane:not(.pane--photo)").map((el) => ({ el, i: parseFloat(el.style.getPropertyValue("--i")) || 0 }));
   const photoDim = $("[data-pane-dim]");
+  const stackHit = $("[data-stack-hit]");
+  const stackHint = $("[data-stack-hint]");
   const chaptersBox = $("[data-chapters]");
   const chapters = $$("[data-chapter]");
   const rail = $("[data-rail]");
@@ -432,6 +434,103 @@
     { x: 4, y: 14 },
   ];
 
+  /* Grab the stack and turn it: the pointer drives the angle directly, release hands the
+     momentum to a soft spring that brings the cards back to their resting pose. */
+  const grab = { down: false, id: null, x: 0, y: 0, rawX: 0, rawY: 0, tX: 0, tY: 0, offX: 0, offY: 0, velX: 0, velY: 0, lift: 0, used: false, samples: [] };
+  const LIM_X = 38;
+  const LIM_Y = 78;
+  const softLimit = (v, l) => l * Math.tanh(v / l);
+  const unsoft = (v, l) => {
+    const q = clamp(v / l, -0.995, 0.995);
+    return l * 0.5 * Math.log((1 + q) / (1 - q));
+  };
+  const endGrab = () => {
+    if (!grab.down) return;
+    grab.down = false;
+    document.documentElement.classList.remove("is-grabbing");
+    const now = performance.now();
+    const recent = grab.samples.filter((smp) => now - smp.t <= 90);
+    if (recent.length > 1) {
+      const a = recent[0];
+      const b = recent[recent.length - 1];
+      const span = Math.max(16, b.t - a.t);
+      grab.velX = clamp(((b.x - a.x) / span) * 1000, -220, 220);
+      grab.velY = clamp(((b.y - a.y) / span) * 1000, -320, 320);
+    } else {
+      grab.velX = 0;
+      grab.velY = 0;
+    }
+    grab.samples = [];
+  };
+  if (stackHit) {
+    stackHit.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      grab.down = true;
+      grab.id = e.pointerId;
+      grab.x = e.clientX;
+      grab.y = e.clientY;
+      grab.tX = grab.offX;
+      grab.tY = grab.offY;
+      grab.rawX = unsoft(grab.offX, LIM_X);
+      grab.rawY = unsoft(grab.offY, LIM_Y);
+      grab.velX = 0;
+      grab.velY = 0;
+      grab.used = true;
+      grab.samples = [{ t: performance.now(), x: grab.tX, y: grab.tY }];
+      try { stackHit.setPointerCapture(e.pointerId); } catch (err) { /* capture is optional */ }
+      document.documentElement.classList.add("is-grabbing");
+      if (e.pointerType === "mouse") e.preventDefault();
+    });
+    stackHit.addEventListener("pointermove", (e) => {
+      if (!grab.down || e.pointerId !== grab.id) return;
+      const dx = e.clientX - grab.x;
+      const dy = e.clientY - grab.y;
+      grab.x = e.clientX;
+      grab.y = e.clientY;
+      const touch = e.pointerType !== "mouse";
+      grab.rawY += dx * (touch ? 0.42 : 0.34);
+      grab.rawX -= dy * (touch ? 0.14 : 0.24);
+      grab.tX = softLimit(grab.rawX, LIM_X);
+      grab.tY = softLimit(grab.rawY, LIM_Y);
+      const now = performance.now();
+      grab.samples.push({ t: now, x: grab.tX, y: grab.tY });
+      while (grab.samples.length > 2 && now - grab.samples[0].t > 120) grab.samples.shift();
+    });
+    for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
+      stackHit.addEventListener(type, (e) => { if (e.pointerId === grab.id) endGrab(); });
+    }
+    window.addEventListener("blur", endGrab);
+  }
+  const updateGrab = (dt) => {
+    if (grab.down) {
+      const k = 1 - Math.exp(-dt / 26);
+      grab.offX += (grab.tX - grab.offX) * k;
+      grab.offY += (grab.tY - grab.offY) * k;
+    } else if (grab.offX !== 0 || grab.offY !== 0 || grab.velX !== 0 || grab.velY !== 0) {
+      const K = 30;
+      const C = 2 * Math.sqrt(K) * 0.8;
+      const sec = dt / 1000;
+      const steps = Math.max(1, Math.ceil(sec / 0.008));
+      const h = sec / steps;
+      for (let i = 0; i < steps; i += 1) {
+        grab.velX += (-K * grab.offX - C * grab.velX) * h;
+        grab.velY += (-K * grab.offY - C * grab.velY) * h;
+        grab.offX += grab.velX * h;
+        grab.offY += grab.velY * h;
+      }
+      grab.offX = clamp(grab.offX, -LIM_X * 1.15, LIM_X * 1.15);
+      grab.offY = clamp(grab.offY, -LIM_Y * 1.15, LIM_Y * 1.15);
+      if (Math.abs(grab.offX) < 0.005 && Math.abs(grab.offY) < 0.005 && Math.abs(grab.velX) < 0.05 && Math.abs(grab.velY) < 0.05) {
+        grab.offX = 0;
+        grab.offY = 0;
+        grab.velX = 0;
+        grab.velY = 0;
+      }
+    }
+    grab.lift += ((grab.down ? 1 : 0) - grab.lift) * (1 - Math.exp(-dt / (grab.down ? 140 : 320)));
+    if (!grab.down && grab.lift < 0.001) grab.lift = 0;
+  };
+
   const setView = (v) => {
     if (v === activeView) return;
     activeView = v;
@@ -534,7 +633,7 @@
     const r = reduceMotion ? (p > 0.01 ? 1 : 0) : easeOut(clamp((p - 0.07) / 0.1));
     setStyle(stack, "--pw", `${W.toFixed(1)}px`);
     setStyle(stack, "--ph", `${H.toFixed(1)}px`);
-    const gap = (small ? 26 : 60) * r;
+    const gap = (small ? 26 : 60) * r * (1 + grab.lift * 0.45);
     for (const l of layers) {
       setStyle(l.el, "transform", `translate(-50%, -50%) translateZ(${(l.i * gap).toFixed(2)}px)`);
       setStyle(l.el, "opacity", r.toFixed(3));
@@ -547,16 +646,30 @@
     if (c < 0 && r > 0.4) setView(0);
 
     const tilt = chapterTilt[c + 1];
-    const targetX = (11 + tilt.x - pointer.sy * 3) * r;
-    const targetY = (-34 + tilt.y + pointer.sx * 5) * r;
+    const follow = 1 - grab.lift;
+    const targetX = (11 + tilt.x - pointer.sy * 3 * follow) * r;
+    const targetY = (-34 + tilt.y + pointer.sx * 5 * follow) * r;
     const k = reduceMotion ? 1 : 0.075;
     rot.x += (targetX - rot.x) * k;
     rot.y += (targetY - rot.y) * k;
     if (r === 0) { rot.x = 0; rot.y = 0; }
-    setStyle(stack, "transform", `translate3d(0, ${(cy - vh / 2).toFixed(1)}px, 0) rotateX(${rot.x.toFixed(2)}deg) rotateY(${rot.y.toFixed(2)}deg)`);
+    const turnX = rot.x + grab.offX * r;
+    const turnY = rot.y + grab.offY * r;
+    setStyle(stack, "transform", `translate3d(0, ${(cy - vh / 2).toFixed(1)}px, ${(grab.lift * 36).toFixed(2)}px) rotateX(${turnX.toFixed(2)}deg) rotateY(${turnY.toFixed(2)}deg)`);
     setStyle(stackWrap, "perspectiveOrigin", `50% ${cy.toFixed(0)}px`);
 
     setClass(rail, "is-on", r > 0.9 && p < 0.995);
+
+    /* the grab surface sits over the resting cards only */
+    const live = !reduceMotion && r > 0.9 && t1 >= 0.999 && p < 0.995;
+    if (!live && grab.down) endGrab();
+    setClass(stackHit, "is-live", live);
+    setStyle(stackHit, "left", `${(vw / 2 - W * 0.85).toFixed(0)}px`);
+    setStyle(stackHit, "top", `${(cy - H * 0.95).toFixed(0)}px`);
+    setStyle(stackHit, "width", `${(W * 1.7).toFixed(0)}px`);
+    setStyle(stackHit, "height", `${(H * 1.75).toFixed(0)}px`);
+    setClass(stackHint, "is-on", live && c >= 0 && !grab.used);
+    setStyle(stackHint, "--hint-top", `${(cyFinal + H * 0.62 + (small ? 14 : 22)).toFixed(0)}px`);
     setStyle(chaptersBox, "--chapters-top", `${(cyFinal + H * 0.62 + (small ? 40 : 56)).toFixed(0)}px`);
   };
 
@@ -1036,6 +1149,7 @@
     pointer.sx = lerp(pointer.sx, reduceMotion ? 0 : pointer.x, 0.06);
     pointer.sy = lerp(pointer.sy, reduceMotion ? 0 : pointer.y, 0.06);
     if (sky) sky.update(dt);
+    updateGrab(dt);
     renderStage(sy);
     renderStatement(sy);
     renderMarquee(sy, dt);
