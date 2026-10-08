@@ -4315,3 +4315,32 @@ Startplan, erfundene Namen, Vertiefen, „more“) und `_essay` (gegliederter Au
 Beide Fälle sind als Browser-Test festgehalten. Rückfall-Schutz je Schritt: Suite grün (zuletzt 898), NQ-Dev 400
 Fragen 0 Antworten verändert, Entwicklungsgespräche wortgleich. Grenze: kombinierte bzw. zitierte Inhalte, kein frei
 formulierter Text; im Lite-Paket nur Artikelanfänge, daher etwa einseitige Aufsätze.
+
+---
+
+## E31 — „Parameter-Äquivalent“ von ENGRAMM: drei getrennte Größen
+
+**Registrierung: `docs/PREREG_PARAMS.md` v1.0** (2026-10-08, vor jeder Messung von A, B, C).
+Gegenstand: ENGRAMM-LM in der registrierten Endfassung (Basis-Digest `b45c2065…`), für A
+zusätzlich Chat v3.2 mit Lite-Paket (`v3.2.0-beta.6`). Es gibt keine einzelne „Parameterzahl“:
+
+- **A** zählt gespeicherte Werte;
+- **B** schätzt den Informationsgehalt per Kompression, mit der externen Annahme ≈ 2 Bit je Parameter;
+- **C** misst, wie groß ein Transformer unter gleichen Daten sein muss, um dieselben Bits pro
+  Byte auf dem Testsatz zu erreichen.
+
+**Erwartung.**
+
+| Punkt | Erwartung |
+|---|---|
+| A: gelernte Werte (KN-5, Codebuch, Mischung) | ≈ 0,6 Mrd. (0,35–1,0), ≈ 2,0 GB auf Platte |
+| A: Speicher-Äquivalent fp16 / fp32 | ≈ 1,0 / 0,5 Mrd. |
+| A: ARPA-Äquivalent KN-5 | ≈ 150 M Werte (90–250 M) |
+| B: komprimierter Lernzustand | ≈ 0,7 GB → Kapazitäts-Äquivalent ≈ 2,8 Mrd. (Spanne 1,4–5,6) |
+| B größer als der komprimierte Trainingstext | wahrscheinlich (80 %) |
+| C: N* (Gesamtparameter, 20 Token je Parameter) | ≈ 4 M, 80 %-Band 2–12 M; im gemessenen Bereich S0–S5 mit 85 % |
+| C: Trainingsaufwand bei N* | ≈ 2·10¹⁵ FLOPs, ≈ 3–4 h im Container gegen ≈ 10 min Aufbau ENGRAMM |
+
+**Lesart vorab.** A und B landen bei Milliarden, weil eine Zähltabelle jedes n-Gramm einzeln
+speichert. C landet bei wenigen Millionen. Der Abstand ist die Botschaft. Deshalb heißen A und B
+nie „Parameter“.
