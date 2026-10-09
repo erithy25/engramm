@@ -335,6 +335,40 @@ def train(args) -> None:
         print("finished", flush=True)
 
 
+def bench(args) -> None:
+    """Tokens per hour of one configuration at full context (1024), as in the late phase."""
+    torch.set_num_threads(args.threads)
+    torch.manual_seed(0)
+    model = LongGPT(args.d, args.layers, args.heads, 1024, args.bigram_rows)
+    dense, sparse = make_optimizers(model, 1e-3, 0.99, 0.1)
+    data = TrainStream(0)
+    params = [p for n, p in model.named_parameters() if not n.startswith("bigram")]
+    times = []
+    for i in range(args.warm + args.steps):
+        t0 = time.time()
+        dense.zero_grad(set_to_none=True)
+        for _ in range(args.batch_tokens // MICRO_TOKENS):
+            batch = data.batch(MICRO_TOKENS // 1024, 1024)
+            inp, tgt = batch[:, :-1], batch[:, 1:]
+            with torch.autocast("cpu", dtype=torch.bfloat16):
+                h = model.hidden(inp, Fm.doc_mask(inp))
+            (Fm.chunked_loss(h, model.head.weight, tgt) / (args.batch_tokens // MICRO_TOKENS)).backward()
+        torch.nn.utils.clip_grad_norm_(params, 1.0)
+        dense.step()
+        if i >= args.warm:
+            times.append(time.time() - t0)
+    s_step = float(np.median(times))
+    res = {"d": args.d, "layers": args.layers, "heads": args.heads, "body_params": body_params(model),
+           "all_params": sum(p.numel() for p in model.parameters()), "threads": args.threads,
+           "batch_tokens": args.batch_tokens, "s_per_step": s_step,
+           "tokens_per_hour": args.batch_tokens / s_step * 3600,
+           "rss_mb": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024}
+    OUT.mkdir(parents=True, exist_ok=True)
+    with open(OUT / "bench.jsonl", "a") as f:
+        f.write(json.dumps(res) + "\n")
+    print(json.dumps(res), flush=True)
+
+
 def evaluate(args) -> None:
     torch.set_num_threads(args.threads)
     st = torch.load(args.ckpt, map_location="cpu", weights_only=False)
@@ -381,8 +415,17 @@ def main() -> None:
     e.add_argument("--max-docs", type=int, default=0)
     e.add_argument("--threads", type=int, default=4)
     e.add_argument("--tag", default="final")
+    bn = sub.add_parser("bench")
+    bn.add_argument("--d", type=int, required=True)
+    bn.add_argument("--layers", type=int, default=12)
+    bn.add_argument("--heads", type=int, required=True)
+    bn.add_argument("--bigram-rows", type=int, default=0)
+    bn.add_argument("--batch-tokens", type=int, default=8192)
+    bn.add_argument("--threads", type=int, default=4)
+    bn.add_argument("--warm", type=int, default=3)
+    bn.add_argument("--steps", type=int, default=12)
     args = ap.parse_args()
-    train(args) if args.cmd == "train" else evaluate(args)
+    {"train": train, "eval": evaluate, "bench": bench}[args.cmd](args)
 
 
 if __name__ == "__main__":
