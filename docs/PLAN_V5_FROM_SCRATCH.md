@@ -251,3 +251,30 @@ Rechenleistung pro Stunde (§9).
   - Faktor ≥ 3 bei 2 Threads;
   - mit 4 Threads in einem Prozess ≈ 1 Woche bis 1,04 bpb (Spanne 4–14 Tage);
   - Modell d = 640–768, 12 Schichten, Kontext bis 1.024, 0,5–0,8 Mrd. Token.
+
+## 10. Langlauf zu Stufe 1 (GPT-2-Niveau), vor dem Start festgelegt
+
+**Startbedingung.** fast-v1 wird nach der Regel aus §9 zur neuen Referenz.
+
+**Aufbau (`experiments/v5_long.py`, Steuerung `experiments/v5_long_run.sh`).**
+- **Rezept:** fast-v1 (§9) ohne Bigramm-Tabelle. Die Tabelle wäre bei d = 640 mit Optimierer-Zustand 1,3 GB groß und passt
+  nicht in den Neustart-Speicher auf der Platte; ihr Einzelbeitrag ist in Lauf 4 nicht gemessen.
+- **Modellgröße:** Ein kurzer Durchsatz-Test misst d ∈ {512, 640, 768} mit 12 Schichten. Gewählt wird das größte Modell,
+  das 0,6 Mrd. Token in ≤ 7 Tagen schafft.
+- **Lernrate und Optimierer:** Lernrate 2·10⁻³ · 384/d (bestes Ergebnis der Suche, umgerechnet nach Breite), β₂ = 0,99,
+  300 Aufwärmschritte, lineare Abnahme auf 0 in den letzten 30 % der Token, 8.192 Token pro Schritt.
+- **Daten:** der ganze Train-Split (285 Mio. Token, getrennt von val/test), also 2,1 Epochen. Der Kontext wächst
+  256 → 512 → 1.024.
+- **Neustartfest:**
+  - stündlich voller Zustand in den Arbeitsspeicher und bf16-Gewichte auf die Platte (`models/lm/v5/long_latest.pt`);
+  - der Zeitplan richtet sich nach Token;
+  - nach einem Abbruch startet die Überwachung neu.
+- **Lernkurve:** alle 6 h Trainingszeit auf 150 val-A-Dokumenten (Fenster 1.024, Schritt 512) in
+  `results/v5/long/curve.jsonl`.
+
+**Messung und Entscheidung.**
+- **Messgröße:** Test-Satz, gefiltert, Netz allein, Fenster 1.024 / Schritt 512. GPT-2 small wurde in der LM-Studie
+  genauso gemessen (`experiments/lm_gpt2_ref.py`).
+- **Stufe 1 erreicht:** bpb ≤ 1,04. Andernfalls wird der gemessene Wert mit dem Abstand berichtet und der Lauf mit
+  weiteren Token verlängert (neue Abnahme-Phase ab dem letzten konstanten Stand).
+- **Zusätzlich berichtet:** die Mischung mit dem Zähler (λ je Bucket) und val-A.
