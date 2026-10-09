@@ -1,0 +1,1 @@
+{"train_hours": 6.0003440473477045, "tokens": 29450240, "split": "val_a", "window": 1024, "stride": 512, "docs": 150, "bpb": 1.7624826425192062, "bpb_unfiltered": 1.7618674036237776}
