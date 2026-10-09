@@ -51,6 +51,8 @@ BOOT_REPS, BOOT_SEED = 2000, 42
 #: Throughput guard (Auftraggeber, 2026-10-09): a run more than 25 % below the §6.6 probe pauses.
 PROBE = REPO / "results" / "params" / "probe_throughput_chunked_20261008T193349Z.json"
 GUARD = 0.75
+#: Seconds between resumable checkpoints (600 since 2026-10-09 21:05 UTC: a container restart cost 25 min at 1,800 s).
+SAVE_EVERY = 600
 PAUSED = CDIR / "PAUSED.json"
 
 
@@ -89,7 +91,7 @@ def _train(size: str, lr: float, seed: int, sweep: bool, out: Path) -> int:
     cmd = [str(TORCH_PY), "-u", str(TRAINER), "train-tokens", "--d", str(d), "--layers", str(layers),
            "--heads", str(heads), "--tokens", str(tokens), "--seed", str(seed), "--lr", repr(lr),
            "--batch", str(BATCH), "--threads", str(THREADS), "--chunked",
-           "--min-tps", f"{GUARD * probe_tps()[size]:.1f}", "--out", str(out)]
+           "--min-tps", f"{GUARD * probe_tps()[size]:.1f}", "--save-every", str(SAVE_EVERY), "--out", str(out)]
     with open(out.parent / f"{out.name}.log", "a") as log:
         return subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, cwd=REPO).returncode
 

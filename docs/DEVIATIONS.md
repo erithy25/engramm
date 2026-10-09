@@ -612,3 +612,13 @@ Vorregistrierung selbst wird nicht geändert; der Auftraggeber hat den Kern von 
   - Der E12-Transformer ist genau an Fremdlast gescheitert.
 - **Python 3.13 statt 3.11 (E12-Container).** Der Basis-Digest ist trotzdem bitgleich
   `b45c20659e55…`, alle Teil-Digests wie in `experiments/lm_digests.py`. Keine Wirkung.
+- **Container-Neustart während C (2026-10-09, 21:04:40 UTC).**
+  - Betroffen war der Sweep-Lauf `S2_lr0.002_s42_q` bei Schritt 3.100 von 4.280. Er hatte noch
+    keine Sicherung (Intervall 1.800 s, gelaufen 1.480 s), deshalb gingen 25 min verloren.
+  - Der Lauf beginnt von vorn: gleicher Seed, gleiche Konfiguration, also dieselbe
+    Chargenfolge. Am Ergebnis ändert sich nichts.
+  - Folge: Das Sicherungsintervall des Treibers sinkt auf 600 s (`params_c.py`, `SAVE_EVERY`).
+    Die Wiederaufnahme ist bitgleich getestet; der Aufwand liegt unter 1 %.
+  - Diese Python-Änderung fällt nach dem Start der Reihe (`drive_start.json`: Commit `86c4bcd`).
+    Der Fit-Record führt sie deshalb unter `code_changed_since_drive_start`.
+  - Sie ändert keine Trainings- oder Auswertungsregel.
