@@ -1,0 +1,51 @@
+{
+ "d": 640,
+ "heads": 10,
+ "layers": 12,
+ "total_tokens": 600000000.0,
+ "lr": 0.0012,
+ "beta2": 0.99,
+ "warmup": 300,
+ "decay_frac": 0.3,
+ "batch_tokens": 8192,
+ "expected_days": 6.306891918939073,
+ "bench": [
+  {
+   "d": 512,
+   "layers": 12,
+   "heads": 8,
+   "body_params": 37748736,
+   "all_params": 71303180,
+   "threads": 4,
+   "batch_tokens": 8192,
+   "s_per_step": 6.0980552434921265,
+   "tokens_per_hour": 4836164.780808299,
+   "rss_mb": 7335.12109375
+  },
+  {
+   "d": 640,
+   "layers": 12,
+   "heads": 10,
+   "body_params": 58982400,
+   "all_params": 100925452,
+   "threads": 4,
+   "batch_tokens": 8192,
+   "s_per_step": 7.439912438392639,
+   "tokens_per_hour": 3963917.619220186,
+   "rss_mb": 5591.88671875
+  },
+  {
+   "d": 768,
+   "layers": 12,
+   "heads": 12,
+   "body_params": 84934656,
+   "all_params": 135266316,
+   "threads": 4,
+   "batch_tokens": 8192,
+   "s_per_step": 8.925975322723389,
+   "tokens_per_hour": 3303975.0765300114,
+   "rss_mb": 9478.26953125
+  }
+ ],
+ "rule": "largest d whose benchmark throughput finishes 0.6 B tokens in <= 7 days; lr = 2e-3 * 384 / d (best fast-v1 sweep value at d = 384, scaled with 1/width); beta2 = 0.99 (sweep)"
+}
