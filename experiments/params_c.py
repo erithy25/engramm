@@ -48,6 +48,19 @@ SWEEP_SIZES = ("S0", "S1", "S2", "S3", "S4")
 SEED_SWEEP = 42
 FINAL_SEEDS = {"S0": (42, 7), "S1": (42, 7), "S2": (42, 7), "S3": (42, 7), "S4": (42, 7), "S5": (42,)}
 BOOT_REPS, BOOT_SEED = 2000, 42
+#: Throughput guard (Auftraggeber, 2026-10-09): a run more than 25 % below the §6.6 probe pauses.
+PROBE = REPO / "results" / "params" / "probe_throughput_chunked_20261008T193349Z.json"
+GUARD = 0.75
+PAUSED = CDIR / "PAUSED.json"
+
+
+class Paused(Exception):
+    pass
+
+
+def probe_tps() -> dict:
+    rows = json.loads(PROBE.read_text())["rows"]
+    return {r["size"]: r["tokens_per_s"] for r in rows if r["threads"] == THREADS and r["chunked_loss"]}
 
 
 def say(msg: str) -> None:
@@ -75,7 +88,8 @@ def _train(size: str, lr: float, seed: int, sweep: bool, out: Path) -> int:
     tokens = (5 if sweep else 20) * PARAMS[size][0]
     cmd = [str(TORCH_PY), "-u", str(TRAINER), "train-tokens", "--d", str(d), "--layers", str(layers),
            "--heads", str(heads), "--tokens", str(tokens), "--seed", str(seed), "--lr", repr(lr),
-           "--batch", str(BATCH), "--threads", str(THREADS), "--chunked", "--out", str(out)]
+           "--batch", str(BATCH), "--threads", str(THREADS), "--chunked",
+           "--min-tps", f"{GUARD * probe_tps()[size]:.1f}", "--out", str(out)]
     with open(out.parent / f"{out.name}.log", "a") as log:
         return subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, cwd=REPO).returncode
 
@@ -96,6 +110,11 @@ def ensure_trained(size: str, lr: float, seed: int, sweep: bool) -> bool:
         say(f"train {run} (attempt {attempt}){' resuming' if (out / 'resume.pt').exists() else ''}")
         t0 = time.time()
         rc = _train(size, lr, seed, sweep, out)
+        if rc == 3:                                             # throughput guard: pause, report, do not go on
+            info = json.loads((out / "paused_throughput.json").read_text())
+            PAUSED.write_text(json.dumps({"run": run, **info}) + "\n")
+            say(f"PAUSED {run}: {info['tokens_per_s']:.0f} tokens/s < {info['min_tokens_per_s']:.0f}")
+            raise Paused(run)
         if rc == 0 and (out / "final.pt").exists():
             say(f"trained {run} in {time.time() - t0:.0f} s")
             return True
@@ -178,6 +197,17 @@ def select(size: str) -> float:
 
 def drive(args) -> None:
     CDIR.mkdir(parents=True, exist_ok=True)
+    if PAUSED.exists():
+        raise SystemExit(f"paused by the throughput guard ({PAUSED.read_text().strip()}); "
+                         "remove the marker only after the Auftraggeber has decided")
+    try:
+        _drive(args)
+    except Paused:
+        say("drive paused")
+        raise SystemExit(3)
+
+
+def _drive(args) -> None:
     start = git_revision()
     say(f"drive start at commit {start.get('commit')} dirty={start.get('dirty')}")
     marker = CDIR / "drive_start.json"

@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import sys
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -281,6 +282,13 @@ def train_tokens(args):
     print(json.dumps(meta), flush=True)
     log = open(out / "train_log.jsonl", "a" if start else "w")
     t0, last_save = time.time() - done_s, time.time()
+    marks = [(start, time.time())]                  # (step, time) every 100 steps since this (re)start
+
+    def save_resume(step_done: int) -> None:
+        _save_atomic({"meta": meta, "model": model.state_dict(), "opt": opt.state_dict(),
+                      "np_rng": rng.bit_generator.state, "torch_rng": torch.get_rng_state(),
+                      "step": step_done, "elapsed_s": time.time() - t0, "ema": ema, "resumed": resumed}, resume)
+
     for step in range(start, total_steps):
         lr = lr_at(step, total_steps, args.lr)
         for g in opt.param_groups:
@@ -305,10 +313,22 @@ def train_tokens(args):
             log.flush()
             if (step + 1) % 1000 == 0 or step + 1 == total_steps:
                 print(rec, flush=True)
+        if (step + 1) % 100 == 0:
+            marks.append((step + 1, time.time()))
+            # throughput guard (Auftraggeber, 2026-10-09): over the last ≤ 1,000 steps since this (re)start,
+            # once ≥ 200 steps have run; below --min-tps the run saves its state and pauses (exit 3)
+            if args.min_tps > 0 and step + 1 - start >= 200 and step + 1 < total_steps:
+                s0, ts0 = marks[max(0, len(marks) - 11)]
+                tps = (step + 1 - s0) * per_step / (marks[-1][1] - ts0)
+                if tps < args.min_tps:
+                    save_resume(step + 1)
+                    (out / "paused_throughput.json").write_text(json.dumps(
+                        {"step": step + 1, "window_steps": step + 1 - s0, "tokens_per_s": tps,
+                         "min_tokens_per_s": args.min_tps, "time": time.time()}) + "\n")
+                    print(f"PAUSED: {tps:.0f} tokens/s < {args.min_tps:.0f} at step {step + 1}", flush=True)
+                    sys.exit(3)
         if time.time() - last_save >= args.save_every and step + 1 < total_steps:
-            _save_atomic({"meta": meta, "model": model.state_dict(), "opt": opt.state_dict(),
-                          "np_rng": rng.bit_generator.state, "torch_rng": torch.get_rng_state(),
-                          "step": step + 1, "elapsed_s": time.time() - t0, "ema": ema, "resumed": resumed}, resume)
+            save_resume(step + 1)
             last_save = time.time()
     wall = time.time() - t0
     _save_atomic({"model": model.state_dict(), "arch": asdict(arch), **counts, "step": total_steps,
@@ -382,6 +402,8 @@ def main():
     s.add_argument("--bf16", action="store_true", help="bf16 autocast for the forward pass (fp32 weights)")
     s.add_argument("--chunked", action="store_true", help="block-wise cross-entropy (same loss, faster on CPU)")
     s.add_argument("--save-every", type=float, default=1800.0, help="seconds between resumable checkpoints")
+    s.add_argument("--min-tps", type=float, default=0.0,
+                   help="pause (save state, exit 3) when the throughput over the last ≤ 1,000 steps falls below this")
     s.add_argument("--out", required=True)
     e = sub.add_parser("eval")
     e.add_argument("--ckpt", type=Path, required=True)
