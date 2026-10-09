@@ -573,3 +573,42 @@ decided before the measurement it affects, except where stated.
 - **Exploratory writing mode** (cache off while writing, top-p 0.8). This was designed
   *after* seeing the registered P6 texts and judged on val-B prompts only. It changes no
   registered verdict.
+
+---
+
+## CHANGED-10 — Parameter-Äquivalent (E31, `docs/PREREG_PARAMS.md` v1.0): Abweichungen, laufend geführt
+
+Jede Abweichung wird hier eingetragen, sobald sie auftritt, nicht erst am Ende. Die
+Vorregistrierung selbst wird nicht geändert; der Auftraggeber hat den Kern von C am
+2026-10-09 unverändert freigegeben (ohne v1.1).
+
+- **A, Chat: zwei Lesefehler im Zählskript, drei Records.**
+  - `a_chat_v32_lite_20261008T193939Z.json`: Lauf mit uncommittetem Fix für falsche
+    Schlüsselnamen in `letters.json` (`git.dirty: true`), nicht zitierfähig.
+  - `…T193958Z.json`: sauber, aber ohne RAM-Wert der Lexika. Die RSS-Messung überschrieb
+    ihre eigene Basisvariable.
+  - **Zitiert wird `…T194027Z.json`.**
+  - Die Zählregel hat sich in keinem der beiden Fixes geändert. Alle drei Records bleiben
+    liegen.
+- **B lief 66 min ohne vorherige Freigabe.** Vorab geschätzt waren 30–45 min, deshalb wurde
+  B als Schritt unter 1 h gestartet. Allein der Trainingstext brauchte mit `xz -9` 37 min.
+  Am Ergebnis ändert das nichts; die Freigaberegel für Läufe über 1 h war damit aber verletzt.
+- **Neue Regel des Auftraggebers (2026-10-09), nicht in v1.0: Durchsatzsperre.**
+  - Liegt ein Trainingslauf über die letzten ≤ 1.000 Schritte (frühestens nach 200 Schritten)
+    mehr als 25 % unter der Probe aus §6.6, sichert er seinen Zustand und hält an (Exit 3).
+  - Der Treiber pausiert dann die ganze Reihe (`data/cache/params/c/PAUSED.json`) und wartet
+    auf die Entscheidung des Auftraggebers.
+  - Code: `lm_transformer.py --min-tps`, `params_c.py` (`GUARD = 0.75`).
+  - Die Sperre ändert keine Mess- oder Auswertungsregel; sie kann einen Lauf nur anhalten.
+  - Getestet: Anhalten bei Schritt 200, danach bitgleiche Wiederaufnahme.
+- **Container-Neustart zwischen B und dem Start von C.** Am 2026-10-09 lief der Container
+  frisch hoch; Platte, Daten-Cache und Modelle waren erhalten. Kein Lauf war betroffen, weil
+  keiner lief.
+- **Andere Rechenlast.** Der v5-Langlauf läuft in einer anderen Sitzung und damit in einem
+  anderen Container. In diesem Container läuft außer der Größenreihe kein Rechenjob.
+  - Ob beide Container auf demselben physischen Rechner liegen, ist von hier aus nicht
+    prüfbar.
+  - Die Durchsatzsperre ist der Schutz dagegen.
+  - Der E12-Transformer ist genau an Fremdlast gescheitert.
+- **Python 3.13 statt 3.11 (E12-Container).** Der Basis-Digest ist trotzdem bitgleich
+  `b45c20659e55…`, alle Teil-Digests wie in `experiments/lm_digests.py`. Keine Wirkung.
