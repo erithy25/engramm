@@ -1,0 +1,41 @@
+{
+ "arm": "logres",
+ "tag": "logres_3h",
+ "ckpt": "models/lm/v5/logres_3h.pt",
+ "hours": 3,
+ "tokens_seen": 9113600,
+ "loglinear_a": -0.182127445936203,
+ "loglinear_b": 1.1902735233306885,
+ "fit_windows": 24,
+ "fit_seconds": 31.3980975151062,
+ "val_a": {
+  "docs": 767,
+  "docs_kept": 735,
+  "eval_seconds": 488.08218693733215,
+  "bpb_model_alone": 1.6347572161034283,
+  "bpb_model_alone_unfiltered": 1.6265771281806745,
+  "bpb_prior_alone": 1.6648158773212571,
+  "bpb_prior_alone_unfiltered": 1.657064992999952,
+  "bpb_loglinear": 1.6348897415190562,
+  "bpb_loglinear_unfiltered": 1.6266618931028483,
+  "bpb_linear_bucket": 1.634781099272537,
+  "bpb_linear_bucket_unfiltered": 1.6266055665843544,
+  "bpb_pipeline": 1.6346075112236365,
+  "bpb_pipeline_unfiltered": 1.6263974142560995
+ },
+ "test": {
+  "docs": 1137,
+  "docs_kept": 1092,
+  "eval_seconds": 787.8418304920197,
+  "bpb_model_alone": 1.6434876067371218,
+  "bpb_model_alone_unfiltered": 1.6319274097409782,
+  "bpb_prior_alone": 1.674072976786703,
+  "bpb_prior_alone_unfiltered": 1.6635384232620247,
+  "bpb_loglinear": 1.643639974345595,
+  "bpb_loglinear_unfiltered": 1.6319788425698902,
+  "bpb_linear_bucket": 1.6435155883600043,
+  "bpb_linear_bucket_unfiltered": 1.6319669032221171,
+  "bpb_pipeline": 1.643390421754981,
+  "bpb_pipeline_unfiltered": 1.6317713970199301
+ }
+}

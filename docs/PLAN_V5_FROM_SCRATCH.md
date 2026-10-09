@@ -187,6 +187,29 @@ beide Arme, Zähler-Merkmale auch als Netz-Eingabe (2×2-Vergleich), dann ein 6-
 - Es fehlen außerdem ≥ 1 Mrd. weitere Token Trainingstext.
 - GPT-3-Niveau ist auf dieser Hardware nicht erreichbar.
 
+**Ergebnis Lauf 3 (9. Oktober, `results/v5/run3/`).** Test, gefiltert, Bits pro Byte:
+
+| | 1 h | 2 h | 3 h |
+|---|---|---|---|
+| klassisches Netz allein | 2,004 | 1,875 | 1,822 |
+| klassisch + Zähler, nachträglich (λ je Bucket) | 1,658 | 1,627 | 1,609 |
+| **logres (gemeinsam trainiert)** | **1,659** | **1,649** | **1,644** |
+| Token (klassisch / logres) | 3,9 / 3,1 Mio. | 7,6 / 6,1 Mio. | 11,5 / 9,1 Mio. |
+
+Nachbearbeitung nach Regel (log-linear, dann λ je Bucket), nach 3 h:
+- logres: 1,6434;
+- klassisch Lauf 3: 1,6137;
+- klassisch Lauf 2: 1,6192.
+
+Die beiden klassischen Läufe stimmen auf 0,005 überein. **Entscheidung: kein Gewinn.** logres liegt +0,030 bpb hinten,
+Verhältnis 1,0184 [1,0171; 1,0197].
+
+Befund: Das Logit-Residual startet exakt beim Zähler, lernt aber fast nichts dazu (1,674 → 1,644 in 3 h). Das
+klassische Netz plus nachträgliche Mischung kommt auf 1,609. Mit dem multiplikativen Prior muss das Netz eine
+schwierigere Korrektur-Funktion lernen. Dazu kostet die volle Verteilung 20 % Durchsatz. Bei diesem Rechenbudget ist
+die additive Mischung (Lauf 2) der bessere Weg, den Zähler zu nutzen. Der Hebel für GPT-2-Niveau bleibt die
+Rechenleistung pro Stunde (§9).
+
 ## 9. Lauf 4: schnelles Trainingsrezept „fast-v1“ (vor dem Start festgelegt)
 
 **Warum.**
