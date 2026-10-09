@@ -252,6 +252,31 @@ Rechenleistung pro Stunde (§9).
   - mit 4 Threads in einem Prozess ≈ 1 Woche bis 1,04 bpb (Spanne 4–14 Tage);
   - Modell d = 640–768, 12 Schichten, Kontext bis 1.024, 0,5–0,8 Mrd. Token.
 
+**Ergebnis Lauf 4 (9. Oktober, `results/v5/run4/`, `summary_fast.json`).** Lernraten-Suche (45 min, val-A):
+
+| Lernrate | β₂ = 0,99 | β₂ = 0,999 |
+|---|---|---|
+| 2·10⁻³ | **1,814** | 1,847 |
+| 4·10⁻³ | 1,847 | 1,867 |
+
+3-h-Vergleich, Test, gefiltert, Bits pro Byte:
+
+| | 1 h | 2 h | 3 h |
+|---|---|---|---|
+| klassisch, Netz allein | 1,999 | 1,869 | 1,818 |
+| **fast-v1, Netz allein** | **1,799** | **1,689** | **1,579** |
+| klassisch + Zähler (λ je Bucket) | 1,657 | 1,625 | 1,608 |
+| **fast-v1 + Zähler (λ je Bucket)** | **1,603** | **1,556** | **1,498** |
+| Token (klassisch / fast-v1) | 4,0 / 7,2 Mio. | 7,8 / 14,3 Mio. | 11,5 / 21,0 Mio. |
+
+**Entscheidung nach Regel §9: fast-v1 wird neue Referenz.**
+- Vorsprung nach 3 h: −0,239 bpb, Verhältnis 0,8687 [0,8658; 0,8718].
+- Zeit-Faktor ≥ 3: fast-v1 nach 1 h (1,799, noch ohne Abnahme der Lernrate) ist besser als klassisch nach 3 h (1,818).
+- Durchsatz 1,8× (7,0 statt 3,9 Mio. Token/h bei 2 Threads); der Rest kommt vom Rezept.
+- **Einordnung:**
+  - fast-v1 nach 3 h auf 2 Kernen schlägt den 6-h-Transformer der LM-Studie (1,638).
+  - Mit dem Pilot-Zähler gemischt (1,498) schlägt es auch das beste reine Zählmodell auf 300 Mio. Token (1,514).
+
 ## 10. Langlauf zu Stufe 1 (GPT-2-Niveau), vor dem Start festgelegt
 
 **Startbedingung.** fast-v1 wird nach der Regel aus §9 zur neuen Referenz.
