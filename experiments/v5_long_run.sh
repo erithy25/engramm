@@ -46,7 +46,7 @@ print("config:", cfg)
 PYEOF
 fi
 C() { .venv/bin/python -c "import json;print(json.load(open('$OUT/config.json'))['$1'])"; }
-ARGS="--d $(C d) --heads $(C heads) --layers $(C layers) --total-tokens $(C total_tokens) --lr $(C lr) --beta2 $(C beta2) --warmup $(C warmup) --decay-frac $(C decay_frac) --batch-tokens $(C batch_tokens)"
+ARGS="--d $(C d) --heads $(C heads) --layers $(C layers) --total-tokens $(C total_tokens) --lr $(C lr) --beta2 $(C beta2) --warmup $(C warmup) --decay-frac $(C decay_frac) --batch-tokens $(C batch_tokens) --ckpt-minutes 20"
 
 # --- 2. supervised training
 fails=0
