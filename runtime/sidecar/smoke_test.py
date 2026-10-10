@@ -28,12 +28,15 @@ def main() -> int:
     assert any(w.startswith("engramm/understand/data/") for w in wanted), "source tree without data files?"
     missing = [w for w in wanted if not any(p.as_posix().endswith(w) for p in dist.rglob(Path(w).name))]
     assert not missing, f"missing from the frozen server: {missing}"
-    # the network core beside the server (desktop builds): it must answer and have Tor
+    # the network core beside the server (desktop builds): it must answer and know the web search
     core = dist / ("engramm-core.exe" if sys.platform == "win32" else "engramm-core")
     if core.exists():
-        out = subprocess.run([str(core), "egress"], input=b'{"op":"status","id":1}\n', capture_output=True, timeout=30)
-        status = json.loads(out.stdout.decode().splitlines()[0])
-        assert status.get("ok") and status.get("tor") is True, status
+        out = subprocess.run([str(core), "egress"], input=b'{"op":"status","id":1}\n'
+                             b'{"id":2,"channel":"search","url":"https://192.168.1.1/","allow_hosts":["*"]}\n',
+                             capture_output=True, timeout=30)
+        lines = [json.loads(x) for x in out.stdout.decode().splitlines()]
+        assert lines[0].get("ok"), lines
+        assert lines[1].get("error") == "private address not allowed: 192.168.1.1", lines
 
     with tempfile.TemporaryDirectory() as tmp:
         t0 = time.time()

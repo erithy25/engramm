@@ -11,16 +11,14 @@
 //! * [`normalise`]: the message normalisation the conversation router matches against, as in
 //!   `engramm/chat/bank.py::normalise`;
 //! * [`fetch`] (feature `fetch`): downloading a pack with resume, pinned manifest and checks;
-//! * [`egress`] (feature `fetch`): the one way out to the network for the Atlas channels;
-//! * [`tor`] (feature `tor`): HTTPS over an embedded Arti (Tor) client, for the messenger.
+//! * [`egress`] (feature `fetch`): the one way out to the network for the Atlas channels
+//!   (Wikipedia shelf, news feeds, web search).
 
 pub mod choose;
 #[cfg(feature = "fetch")]
 pub mod egress;
 #[cfg(feature = "fetch")]
 pub mod fetch;
-#[cfg(feature = "tor")]
-pub mod tor;
 pub mod normalise;
 pub mod pack;
 
