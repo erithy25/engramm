@@ -41,6 +41,10 @@ jobs:
         continue-on-error: true
         timeout-minutes: 5
         run: python scripts/search_smoke.py runtime/core/target/release/engramm-core
+      - name: DuckDuckGo probe - Python urllib against the network core, same address (informational)
+        continue-on-error: true
+        timeout-minutes: 3
+        run: python scripts/ddg_probe.py runtime/core/target/release/engramm-core
       - name: Conversation bank is compiled from data/conv
         run: python -m engramm.chat.studio check
       - name: Python tests
