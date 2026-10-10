@@ -90,7 +90,7 @@ const { chromium } = require('playwright');
   await page.selectOption('#netEngine', 'auto');
   await page.waitForFunction(() => document.querySelector('#netEngine').value === 'auto');
   check('shelf info', (await page.locator('[data-channel=shelf] .channel-info').innerText()).includes('as of 2026-09-27'));
-  check('log: the search, nothing else yet', (await page.locator('#netLog').innerText()).includes('search:bing')
+  check('log: the search, nothing else yet', (await page.locator('#netLog').innerText()).includes('search:duckduckgo')
         && !(await page.locator('#netLog').innerText()).includes('bucket'));
   await page.click('#netShelf');
   await page.waitForFunction(() => document.querySelector('#netShelf').checked);
@@ -108,7 +108,7 @@ const { chromium } = require('playwright');
   await page.waitForSelector('#netLog');
   const log = await page.locator('#netLog').innerText();
   check('log lists the buckets', log.includes('bucket'), log);
-  check('log lists the search and the page', log.includes('search:bing') && log.includes('quorvia.example'), log);
+  check('log lists the search and the page', log.includes('search:duckduckgo') && log.includes('quorvia.example'), log);
   check('log never holds the question', !/zorblax|opened|\btall\b/i.test(log.replace(/quorvia\.example/g, '')), log);
   await page.screenshot({ path: shot, fullPage: true });
   await page.click('#netShelf');
