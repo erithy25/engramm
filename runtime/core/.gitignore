@@ -1,1 +1,3 @@
 /target/
+# the Tor build of the CI live check (CARGO_TARGET_DIR=target-tor, .github/workflows/ci.yml)
+/target-tor/
