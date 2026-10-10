@@ -49,6 +49,16 @@ V = R.V
 MICRO_TOKENS = 4096
 
 
+def bf16_hardware() -> bool:
+    """bf16 only where the CPU computes it natively (AMX or AVX512-BF16). Without it, torch
+    emulates bf16: measured ≈ 6× slower and steadily growing memory on a Xeon without these units."""
+    try:
+        flags = Path("/proc/cpuinfo").read_text()
+    except OSError:
+        return False
+    return "amx_bf16" in flags or "avx512_bf16" in flags
+
+
 # ---------------------------------------------------------------------------
 # model (fast-v1 blocks with configurable width, depth and context)
 # ---------------------------------------------------------------------------
@@ -265,6 +275,8 @@ def train(args) -> None:
         print(f"resumed bf16 weights at {meta['tokens'] / 1e6:.1f} M tokens (optimiser re-warmed)", flush=True)
     if meta["args"]["d"] != args.d or meta["args"]["layers"] != args.layers:
         raise SystemExit("checkpoint has a different model shape")
+    use_bf16 = bool(args.bf16) and bf16_hardware()
+    print(f"bf16 matmuls: {use_bf16} (requested {bool(args.bf16)}, hardware {bf16_hardware()})", flush=True)
     data = TrainStream(args.seed, meta["epoch"], meta["pos"])
     data.pos = meta["pos"]
     total = args.total_tokens
@@ -295,9 +307,9 @@ def train(args) -> None:
         for _ in range(micro):
             batch = data.batch(bsz, T)
             inp, tgt = batch[:, :-1], batch[:, 1:]
-            with torch.autocast("cpu", dtype=torch.bfloat16, enabled=bool(args.bf16)):
+            with torch.autocast("cpu", dtype=torch.bfloat16, enabled=use_bf16):
                 h = model.hidden(inp, Fm.doc_mask(inp))
-            loss = Fm.chunked_loss(h, model.head.weight, tgt, bf16=bool(args.bf16)) / micro
+            loss = Fm.chunked_loss(h, model.head.weight, tgt, bf16=use_bf16) / micro
             loss.backward()
             loss_sum += float(loss)
         gn = float(torch.nn.utils.clip_grad_norm_(params, 1.0))
@@ -350,15 +362,17 @@ def bench(args) -> None:
         for _ in range(args.batch_tokens // MICRO_TOKENS):
             batch = data.batch(MICRO_TOKENS // 1024, 1024)
             inp, tgt = batch[:, :-1], batch[:, 1:]
-            with torch.autocast("cpu", dtype=torch.bfloat16):
+            with torch.autocast("cpu", dtype=torch.bfloat16, enabled=bf16_hardware()):
                 h = model.hidden(inp, Fm.doc_mask(inp))
-            (Fm.chunked_loss(h, model.head.weight, tgt) / (args.batch_tokens // MICRO_TOKENS)).backward()
+            (Fm.chunked_loss(h, model.head.weight, tgt, bf16=bf16_hardware()) / (args.batch_tokens // MICRO_TOKENS)).backward()
         torch.nn.utils.clip_grad_norm_(params, 1.0)
         dense.step()
         if i >= args.warm:
             times.append(time.time() - t0)
     s_step = float(np.median(times))
     res = {"d": args.d, "layers": args.layers, "heads": args.heads, "body_params": body_params(model),
+           "bf16": bf16_hardware(), "cpu": next((l.split(":", 1)[1].strip() for l in Path("/proc/cpuinfo").read_text().splitlines()
+                                                 if l.startswith("model name")), "?"),
            "all_params": sum(p.numel() for p in model.parameters()), "threads": args.threads,
            "batch_tokens": args.batch_tokens, "s_per_step": s_step,
            "tokens_per_hour": args.batch_tokens / s_step * 3600,
