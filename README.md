@@ -62,6 +62,10 @@ V=v3.2.0-beta.6; curl -LO https://github.com/erithy25/engramm/releases/download/
 
 - On first start the app asks before downloading the lite (≈ 1.25 GB) or standard (≈ 2.7 GB) pack. Offline
   alternative: unzip `engramm-pack-lite.zip` from the release and choose the folder in the app.
+- Switching later (for example lite → standard): "Knowledge pack" in the sidebar opens the pack page;
+  download the other pack, "Use" it, and delete the one you no longer need. What ENGRAMM learned about you
+  stays. Windows: the pack loads since the fix after 3.2.0-beta.6 (it stopped with "error while loading");
+  `.github/workflows/windows-e2e.yml` checks lite and standard on Windows with every change.
 - The builds are not signed by Apple or Microsoft yet. macOS: open the app once, click "Done", then System
   Settings → Privacy & Security → "Open Anyway". Windows: SmartScreen → "More info" → "Run anyway".
 - Check the download against `SHA256SUMS.txt` in the release.
