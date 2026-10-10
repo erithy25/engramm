@@ -14237,22 +14237,31 @@ class Assistant:
         """Search, read the best result pages and answer with the sentences that answer best, each
         with its source, and the results as links. None when an automatic search may not run
         (the channel is off: nothing was sent)."""
+        from concurrent.futures import ThreadPoolExecutor
+
         from engramm.web.egress import EgressError
-        from engramm.web.search import ENGINE_NAMES, WebSearch, agree, answers
+        from engramm.web.search import ENGINE_NAMES, WebSearch, agree, answers, subject_phrase
         T = _WEB_TEXT[lang]
         ws = getattr(self.atlas, "search", None) if self.atlas is not None else None
         if ws is None:
             return Reply(msg, "unknown", T["unavailable"], via="web")
+        subject = subject_phrase(query, lang)
         try:
-            found = ws.search(query, lang, explicit=explicit)
-            pages = ws.read(found.results, n=3, explicit=explicit) if found.ok else []
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                # the facts about the thing asked about (only its name goes out), while the search runs
+                facts_job = pool.submit(ws.instant, subject, lang, explicit) if subject else None
+                found = ws.search(query, lang, explicit=explicit)
+                pages = ws.read(found.results, n=3, explicit=explicit) if found.ok else []
+                facts = facts_job.result() if facts_job is not None else None
         except EgressError:
             return None
         except Exception as e:                       # the network must never break the chat
             return Reply(msg, "unknown", T["failed"].format(err=f"{type(e).__name__}: {e}"[:160]), via="web")
-        engine = ENGINE_NAMES.get(found.engine or "", found.engine or "")
+        if facts is not None:
+            pages = [facts] + pages
+        engine = ENGINE_NAMES.get(found.engine or "", found.engine or "") or "DuckDuckGo"
         links = [r.to_dict() for r in found.results[:6]]
-        if not found.ok:
+        if not found.ok and facts is None:
             why = "; ".join(f"{ENGINE_NAMES.get(e, e)}: {w}" for e, w in list(dict.fromkeys(found.tried))[:4])
             text = T["none"].format(q=query, why=why or T["no_engine"])
             return Reply(msg, "unknown", text, via="web")
@@ -14274,14 +14283,20 @@ class Assistant:
             other = next((b for b in best[1:] if b[2]["host"] != d0["host"] and agree(query, s0, b[1])), None)
             if other is not None:
                 lines.append(T["also"].format(site=other[2]["host"], s=_end(other[1])))
-        else:
+        elif found.results:
             r0 = found.results[0]
             source = {"kind": "web", "source": r0.site, "key": r0.url, "title": r0.title, "as_of": today}
             lines.append(T["only_list"].format(q=query))
+        else:                                        # only the facts, and none of them answers it
+            why = "; ".join(f"{ENGINE_NAMES.get(e, e)}: {w}" for e, w in list(dict.fromkeys(found.tried))[:4])
+            return Reply(msg, "unknown", T["none"].format(q=query, why=why or T["no_engine"]), via="web")
         if offline is not None and offline.answer:
             lines.append(T["offline"].format(a=offline.answer))
         n = len(pages)
         lines.append(T["foot" if n > 1 else "foot1" if n == 1 else "foot0"].format(engine=engine, n=n))
+        if not links and facts is not None:
+            links = [{"title": facts["t"], "url": facts["url"], "snippet": "", "site": facts["host"],
+                      "engine": "duckduckgo"}]
         if explicit and not self.egress_on("search") and "web_tip" not in st.uses:
             st.uses["web_tip"] = st.turn
             lines[-1] += T["tip"]
@@ -15524,12 +15539,13 @@ def _web_question(message: str) -> str | None:
 
 def _web_covers(query: str, sentence: str, doc: dict) -> bool:
     """The sentence (with its page title) has at least half of the question's content words."""
-    from engramm.web.search import content_words
-    toks = [w[:5] for w in content_words(query).split() if len(w) >= 3]
+    from engramm.web.search import _near, content_words
+    toks = list(dict.fromkeys(w for w in content_words(query).split() if len(w) >= 3))
     if not toks:
         return True
     hay = f"{doc.get('t', '')} {sentence}".lower()
-    return sum(t in hay for t in dict.fromkeys(toks)) * 2 >= len(set(toks))
+    words = set(re.findall(r"[^\W_]{4,}", hay))
+    return sum(t[:5] in hay or _near(t, words) for t in toks) * 2 >= len(toks)
 
 
 def _end(sentence: str) -> str:

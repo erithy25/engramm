@@ -6,8 +6,9 @@ Plan: `/root/.claude/plans/zippy-nibbling-feigenbaum.md`. Messung: `docs/PREREG_
 
 **Das Gehirn bleibt lokal.** Lesen, Auswählen und Antworten geschieht auf dem eigenen Rechner, ohne KI-API.
 - Regal und Abo schicken nie eine Frage hinaus: Niemand kann sie aus ihren Abrufen ablesen.
-- **Die Websuche (seit 3.2) ist die eine Ausnahme:** Sie schickt die Frage an eine Suchmaschine (Bing,
-  DuckDuckGo, auf Wunsch die Brave-Search-API) und liest die besten Treffer hier.
+- **Die Websuche (seit 3.2) ist die eine Ausnahme:** Sie schickt die Frage an eine Suchmaschine (DuckDuckGo,
+  Bing, auf Wunsch die Brave-Search-API) und liest die besten Treffer hier; DuckDuckGos Faktenbox bekommt nur
+  den Namen des Gefragten („Siemens“), nicht die Frage.
 - **Standard (seit 3.2.0-beta.8, Entscheidung des Eigentümers am 10.10.2026):** Die Websuche ist ab Werk
   **an**. ENGRAMM sucht von selbst, wenn es offline keine Antwort hat oder die Frage nach Aktuellem fragt;
   persönliche Fragen nie. Ein Schalter schaltet sie ab; dann bietet ENGRAMM die Suche an („ja“ sucht), und
@@ -71,7 +72,11 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
   bis zu 4 Dienste und lädt parallel (`fetch_many`).
 - Bekannte Grenze: ureq 2.12 schreibt hinter einem HTTP-Proxy (`HTTPS_PROXY`) die absolute URL in die
   Anfragezeile, auch im CONNECT-Tunnel; DuckDuckGo antwortet darauf mit 400. Ohne Proxy (Normalfall) nicht
-  betroffen; mit Proxy bleibt Bing. Abhilfe: ureq 3.
+  betroffen; mit Proxy bleiben Bing, Wikipedia und die Faktenbox. Abhilfe: ureq 3.
+- Formulare (seit beta.9): Die Websuche darf ein Suchformular per POST schicken (`"form": [[k, v], …]`,
+  höchstens 8 Felder, je ≤ 600 Zeichen; nur Kanal `search`), mit `Referer`/`Origin` wie das Suchfeld der
+  Maschine. Nach einer Weiterleitung holt der Dienst die Antwort per GET. `"plain_agent": true` schickt auch
+  auf dem Suchkanal ENGRAMMs eigenen User-Agent (Wikipedia und DuckDuckGos API wünschen das).
 
 ## Regal (K1)
 
@@ -146,12 +151,27 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
   „google …“, „search the web for …“, „such im Internet nach …“, „kannst du das googeln?“ immer (auch mit
   ausgeschaltetem Kanal); mit ausgeschaltetem Kanal „ja“ auf „Soll ich im Web danach suchen?“, das ENGRAMM
   nach einem „weiß ich nicht“ anbietet. Persönliche Fragen (ich/mein/du …) nie.
-- **Suchmaschinen** („auto“): Brave-Search-API (nur mit Schlüssel) → Bing → DuckDuckGo (HTML, dann lite) →
-  Wikipedia-Suche. Je Maschine zwei Formen: die Frage wie getippt, dann Stichwörter mit den Namen zuerst.
+- **Suchmaschinen** („auto“, seit beta.9): Brave-Search-API (nur mit Schlüssel) → DuckDuckGo (HTML, dann
+  lite) → Bing → Wikipedia-Suche. Je Maschine zwei Formen: die Frage wie getippt, dann Stichwörter mit dem
+  Gefragten zuerst; **Bing bekommt die Stichwörter zuerst**: Einem Client ohne Cookies antwortet es nur
+  auf das erste Wort („How tall is the Zugspitze“ → Wörterbuchseiten zu „tall“).
   Als „keine Antwort“ gelten eine Bot-Prüfung (Captcha, HTTP 202/403/429) und **Treffer, die nicht zur Frage
   passen**: Misstraut eine Maschine dem Client, liefert sie fremde Seiten („bitcoin kurs“ → ein Download,
-  „who is the CEO of Siemens“ → nur Siemens-Startseiten). Gemessen 10.10.2026 aus einem Rechenzentrum:
-  Bing in etwa der Hälfte der Fragen vergiftet, DuckDuckGo zeitweise 202.
+  „who is the CEO of Siemens“ → nur Siemens-Startseiten). Bing muss streng passen (zwei Treffer, einer mit
+  allen Wörtern); DuckDuckGo, Brave und Wikipedia antworten jedem Client gleich: ein passender Treffer
+  genügt, und ein Tippfehler im Namen zählt als Treffer (ähnliche Schreibung ≥ 0,75: „Chatbt“ → ChatGPT).
+- **Befund vom 10.10.2026 (Nutzerbericht, beta.8 auf Windows):** Jede Suche endete mit „no usable results“.
+  Ursachen: DuckDuckGo beantwortet ein GET der Ergebnisseite seit 2026 mit HTTP 202 (Bot-Prüfung), das
+  POST des Formulars (wie sein Suchfeld) mit den Treffern; Bings Ergebnisliste trug zusätzliche Klassen
+  (`b_algo b_vtl_…`), die der Leser übersah; der Relevanztest verwarf richtige Treffer bei Tippfehlern.
+  Alle drei behoben; live aus dem Rechenzentrum danach: OpenAI-CEO (mit Tippfehler „Chatbt“), Siemens-CEO,
+  Zugspitze, Bitcoin-Kurs, Louvre-Öffnungszeiten, Champions-League-Sieger richtig beantwortet.
+  Andere Maschinen ohne Schlüssel (Mojeek, Brave-HTML, Startpage, Ecosia, Yahoo) sperrten im Test alle
+  Rechenzentrums-Adressen (403/429/JS-Prüfung) und sind keine Ausweichmöglichkeit.
+- **Faktenbox:** Parallel zur Suche fragt ENGRAMM DuckDuckGos Instant-Answer-API (offiziell, ohne
+  Schlüssel) nach dem Gefragten (`subject_phrase`: die zusammenhängenden Namenswörter, „Bayern München“).
+  Zusammenfassung und Infobox („Siemens – Key people: Roland Busch (CEO)…“) gehen als Satzquelle in die
+  Auswahl; scheitern alle Suchmaschinen, kann die Faktenbox allein antworten.
 - **Lesen:** die ersten 3 lesbaren Treffer parallel (je 8 s, 2 MB; keine Videos, PDFs, sozialen Netze),
   Haupttext per `engramm/web/clean.py` (jusText-Ansatz, Stoppwörter Englisch und Deutsch).
 - **Antwort:** der Satz aus Snippets und Seiten, der die Frage am besten trifft, mit Quelle; eine zweite

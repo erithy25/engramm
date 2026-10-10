@@ -3,7 +3,8 @@
 //! `engramm-core egress [--log PATH]` reads one JSON request per line on stdin and answers with
 //! one JSON line on stdout. The rules are the same as in `engramm/web/egress.py`: https only
 //! (loopback http only when a test allows it), the host must be allowed for the request, no
-//! private addresses for the web search, redirects only to allowed hosts, GET only, no cookies,
+//! private addresses for the web search, redirects only to allowed hosts, GET only (a web search may
+//! post its form, as the engine's own search box does), no cookies,
 //! a fixed user agent (a browser's for the web search: search engines and many sites refuse
 //! other clients), only a few harmless extra headers, and hard limits on size and time. Each
 //! fetch is logged (what was fetched, never why).
@@ -20,8 +21,11 @@ pub const USER_AGENT: &str = "ENGRAMM/3.1 (+offline assistant)";
 pub const BROWSER_USER_AGENT: &str =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36";
 const CHANNELS: [&str; 3] = ["shelf", "feeds", "search"];
-/// The only headers a request may add (lower case): content negotiation and a search API key.
-const HEADERS: [&str; 3] = ["accept", "accept-language", "x-subscription-token"];
+/// The only headers a request may add (lower case): content negotiation, the page a search form
+/// sits on (search engines refuse a form post without it) and a search API key.
+const HEADERS: [&str; 5] = ["accept", "accept-language", "referer", "origin", "x-subscription-token"];
+/// A web search may send its form (POST, as the engine's own search box does); at most this many fields.
+const FORM_FIELDS: usize = 8;
 
 #[derive(Debug, Deserialize)]
 pub struct EgressRequest {
@@ -39,6 +43,12 @@ pub struct EgressRequest {
     pub max_bytes: Option<u64>,
     #[serde(default)]
     pub headers: Vec<(String, String)>,
+    /// form fields sent as a POST (`application/x-www-form-urlencoded`); the web search only
+    #[serde(default)]
+    pub form: Vec<(String, String)>,
+    /// the plain ENGRAMM user agent also on the web search (Wikipedia asks clients to name themselves)
+    #[serde(default)]
+    pub plain_agent: bool,
     #[serde(default)]
     pub timeout: Option<f64>,
     #[serde(default)]
@@ -141,6 +151,14 @@ pub fn check(req: &EgressRequest, url: &str) -> Result<(), String> {
             return Err(format!("bad value for header {name}"));
         }
     }
+    if !req.form.is_empty() {
+        if req.channel != "search" {
+            return Err("only the web search sends a form".into());
+        }
+        if req.form.len() > FORM_FIELDS || req.form.iter().any(|(k, v)| k.chars().count() > 40 || v.chars().count() > 600) {
+            return Err("form too large".into());
+        }
+    }
     Ok(())
 }
 
@@ -203,9 +221,10 @@ fn describe(e: &ureq::Error) -> String {
 /// One fetch with the rules, following up to five redirects to allowed hosts.
 pub fn fetch(req: &EgressRequest) -> EgressResponse {
     let mut resp = EgressResponse { id: req.id, via: "direct".into(), ..Default::default() };
-    let user_agent = if req.channel == "search" { BROWSER_USER_AGENT } else { USER_AGENT };
+    let user_agent = if req.channel == "search" && !req.plain_agent { BROWSER_USER_AGENT } else { USER_AGENT };
     let limit = req.max_bytes.unwrap_or(2 << 20).min(64 << 20);
     let mut url = req.url.clone();
+    let mut post = !req.form.is_empty();         // after a redirect the answer is fetched with GET
     for _ in 0..6 {
         if let Err(e) = check(req, &url) {
             resp.error = e;
@@ -213,14 +232,21 @@ pub fn fetch(req: &EgressRequest) -> EgressResponse {
         }
         let host = split_url(&url).map(|(_, h)| h).unwrap_or_default();
         let loopback = req.allow_loopback && matches!(host.as_str(), "127.0.0.1" | "localhost" | "::1");
-        let mut call = agent(req.timeout.unwrap_or(30.0), loopback, user_agent).get(&url).set("Accept-Encoding", "identity");
+        let ag = agent(req.timeout.unwrap_or(30.0), loopback, user_agent);
+        let mut call = if post { ag.post(&url) } else { ag.get(&url) }.set("Accept-Encoding", "identity");
         for (name, value) in &req.headers {
             call = call.set(name, value);
         }
         if let Some((a, b)) = req.range {
             call = call.set("Range", &format!("bytes={a}-{b}"));
         }
-        let r = match call.call() {
+        let sent = if post {
+            let pairs: Vec<(&str, &str)> = req.form.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+            call.send_form(&pairs)
+        } else {
+            call.call()
+        };
+        let r = match sent {
             Ok(r) => r,
             Err(ureq::Error::Status(code, r)) if !(300..400).contains(&code) => {
                 resp.status = code;
@@ -252,6 +278,7 @@ pub fn fetch(req: &EgressRequest) -> EgressResponse {
                 resp.error = "relative redirect without a path".into();
                 return resp;
             };
+            post = false;
             continue;
         }
         resp.status = code;
@@ -337,7 +364,7 @@ mod tests {
     fn req(channel: &str, url: &str, allow: &[&str]) -> EgressRequest {
         EgressRequest { id: 1, channel: channel.into(), url: url.into(), what: "t".into(),
             allow_hosts: allow.iter().map(|s| s.to_string()).collect(), range: None, max_bytes: None,
-            headers: vec![], timeout: None, allow_loopback: false }
+            headers: vec![], form: vec![], plain_agent: false, timeout: None, allow_loopback: false }
     }
 
     #[test]
@@ -367,6 +394,22 @@ mod tests {
         assert_eq!(check(&r, &r.url).unwrap_err(), "header not allowed: Cookie");
         r.headers = vec![("Accept-Language".into(), "de\r\nCookie: a=b".into())];
         assert!(check(&r, &r.url).is_err());
+        r.headers = vec![("Referer".into(), "https://html.duckduckgo.com/".into()), ("Origin".into(), "https://html.duckduckgo.com".into())];
+        assert!(check(&r, &r.url).is_ok());
+    }
+
+    #[test]
+    fn forms() {
+        let mut r = req("search", "https://html.duckduckgo.com/html/", &["duckduckgo.com"]);
+        r.form = vec![("q".into(), "who leads openai".into()), ("kl".into(), "us-en".into())];
+        assert!(check(&r, &r.url).is_ok());
+        let mut s = req("shelf", "https://github.com/x", &["github.com"]);
+        s.form = vec![("q".into(), "x".into())];
+        assert_eq!(check(&s, &s.url).unwrap_err(), "only the web search sends a form");
+        r.form = vec![("q".into(), "日本".repeat(300))];           // 600 characters (1800 bytes): as in Python
+        assert!(check(&r, &r.url).is_ok());
+        r.form = (0..9).map(|i| (format!("k{i}"), "v".into())).collect();
+        assert_eq!(check(&r, &r.url).unwrap_err(), "form too large");
     }
 
     #[test]

@@ -47,7 +47,8 @@ DEFAULT_SETTINGS = {"version": 2, "channels": {"shelf": {"enabled": False},
                                                "search": {"enabled": True, "engine": "auto", "brave_key": ""}}}
 MAX_BYTES = {"shelf": 4 << 20, "feeds": 2 << 20, "search": 3 << 20}
 TIMEOUT = {"shelf": 30.0, "feeds": 20.0, "search": 15.0}
-HEADERS = ("accept", "accept-language", "x-subscription-token")
+HEADERS = ("accept", "accept-language", "referer", "origin", "x-subscription-token")
+FORM_FIELDS = 8                                # a web search may post its form (as the engine's search box does)
 LOG_MAX_BYTES = 2 << 20
 POOL = 4                                       # parallel fetches (result pages of one search)
 
@@ -79,6 +80,8 @@ class Request:
     headers: tuple[tuple[str, str], ...] = ()
     explicit: bool = False                    # the user asked for this web search ("google …")
     timeout: float = 0.0                      # 0: the channel's limit
+    form: tuple[tuple[str, str], ...] = ()    # POST fields (web search only)
+    plain_agent: bool = False                 # ENGRAMM's own user agent also on the web search (Wikipedia)
 
 
 def host_of(url: str) -> str:
@@ -142,6 +145,11 @@ def check(req: Request, settings: dict) -> None:
             raise EgressError(f"header not allowed: {name}")
         if len(value) > 200 or any(ord(c) < 32 or ord(c) == 127 for c in value):
             raise EgressError(f"bad value for header {name}")
+    if req.form:
+        if req.channel != "search":
+            raise EgressError("only the web search sends a form")
+        if len(req.form) > FORM_FIELDS or any(len(k) > 40 or len(v) > 600 for k, v in req.form):
+            raise EgressError("form too large")
 
 
 class NetworkLog:
@@ -202,19 +210,25 @@ class PythonBackend:
     def fetch(self, req: Request, settings: dict) -> Fetched:
         url = req.url
         limit = req.max_bytes or MAX_BYTES[req.channel]
+        form = req.form                       # after a redirect the answer is fetched with GET
         for hop in range(6):
             try:
                 check(Request(req.channel, url, req.what, req.allow_hosts, req.range, req.max_bytes,
-                              req.allow_loopback, req.headers, req.explicit), settings)
+                              req.allow_loopback, req.headers, req.explicit, form=form), settings)
             except EgressError as e:
                 if hop == 0:
                     raise
                 return Fetched(False, error=f"redirect refused: {e}")
+            browser = req.channel == "search" and not req.plain_agent
             headers = {**dict(req.headers), "Accept-Encoding": "identity",
-                       "User-Agent": BROWSER_USER_AGENT if req.channel == "search" else USER_AGENT}
+                       "User-Agent": BROWSER_USER_AGENT if browser else USER_AGENT}
             if req.range is not None:
                 headers["Range"] = f"bytes={req.range[0]}-{req.range[1]}"
-            r = urllib.request.Request(url, headers=headers, method="GET")
+            data = None
+            if form:
+                data = urllib.parse.urlencode(form).encode()
+                headers["Content-Type"] = "application/x-www-form-urlencoded"
+            r = urllib.request.Request(url, data=data, headers=headers, method="POST" if form else "GET")
             try:
                 with self.opener.open(r, timeout=req.timeout or TIMEOUT[req.channel]) as resp:
                     body = resp.read(limit + 1)
@@ -225,6 +239,7 @@ class PythonBackend:
             except urllib.error.HTTPError as e:
                 if e.code in (301, 302, 303, 307, 308) and e.headers.get("Location"):
                     url = urllib.parse.urljoin(url, e.headers["Location"])
+                    form = ()
                     continue
                 return Fetched(False, e.code, error=f"HTTP {e.code}")
             except (urllib.error.URLError, TimeoutError, OSError) as e:
@@ -265,7 +280,8 @@ class RustBackend:
             msg = {"id": self.n, "channel": req.channel, "url": req.url, "what": req.what,
                    "allow_hosts": list(req.allow_hosts), "max_bytes": req.max_bytes or MAX_BYTES[req.channel],
                    "timeout": req.timeout or TIMEOUT[req.channel], "allow_loopback": req.allow_loopback,
-                   "headers": [list(h) for h in req.headers]}
+                   "headers": [list(h) for h in req.headers], "form": [list(f) for f in req.form],
+                   "plain_agent": req.plain_agent}
             if req.range is not None:
                 msg["range"] = list(req.range)
             try:

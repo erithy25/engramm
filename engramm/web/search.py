@@ -32,7 +32,7 @@ from dataclasses import dataclass, field
 
 from engramm.web.egress import Egress, Request, is_private_host
 
-ENGINES = ("brave", "bing", "duckduckgo", "duckduckgo-lite")
+ENGINES = ("brave", "duckduckgo", "duckduckgo-lite", "bing")
 ENGINE_NAMES = {"brave": "Brave Search", "bing": "Bing", "duckduckgo": "DuckDuckGo", "duckduckgo-lite": "DuckDuckGo",
                 "wikipedia": "Wikipedia"}
 MAX_QUERY = 300
@@ -51,7 +51,8 @@ those what which who whom whose when where why how do does did can could would s
 tell me us you your i my about there here der die das den dem des ein eine einer eines einem einen und oder ist sind war
 waren wird werden wurde wurden hat haben hatte im in am an auf aus bei mit nach von vom zu zum zur für über unter wer wie
 was wann wo warum wieso weshalb welche welcher welches welchen kannst könntest du mir mal bitte sag sage erzähl
-erzähle es sich""".split())
+erzähle es sich current currently latest now today recent recently still actually aktuell aktuelle aktuellen aktueller
+derzeit derzeitige heute jetzt momentan gerade noch eigentlich""".split())
 
 
 @dataclass
@@ -104,14 +105,49 @@ def content_words(text: str) -> str:
     return " ".join(w for w in words if w not in _STOP_QUERY) or text
 
 
-def query_forms(text: str) -> list[str]:
-    """The question as typed and, as a second try, its content words with the names first
-    ("How tall is the Zugspitze?" → "zugspitze tall")."""
+def query_forms(text: str, engine: str = "duckduckgo", lang: str = "en") -> list[str]:
+    """The ways to ask an engine, best first: the question as typed and its content words with the
+    thing asked about first ("How tall is the Zugspitze?" → "zugspitze tall"). Bing gets the
+    keywords first: to a client it distrusts it answers for the first word alone ("How tall is the
+    Zugspitze" → dictionary pages for "tall"), so that word must be the thing asked about."""
     q = search_query(text)
-    names = [w.lower() for w in _names(text)]
+    names = [w.lower() for w in subject_words(text, lang)]
     rest = [w for w in content_words(q).split() if w not in names]
     kw = " ".join(dict.fromkeys(names + rest))
-    return [q] + ([kw] if kw and kw.lower() != q.lower() else [])
+    forms = [q] + ([kw] if kw and kw.lower() != q.lower() else [])
+    return forms[::-1] if engine == "bing" else forms
+
+
+_COMMON_DE = re.compile(r"(?:ung|ungen|heit|keit|schaft|zeit|zeiten|tion|tät|nis|tum|ismus|ment|höhe|länge|preis|preise|"
+                        r"kurs|wetter|rezept|rezepte|hauptstadt|einwohner|bedeutung)$")
+
+
+def subject_words(text: str, lang: str = "en") -> list[str]:
+    """The words that name the thing asked about, most telling first: the names of an English
+    question; in German (every noun capitalised) the capitalised words that are no common nouns
+    ("Öffnungszeiten", "Höhe"), from the end ("die Öffnungszeiten vom Louvre": "Louvre")."""
+    names = _names(text)
+    if lang != "de":
+        return names
+    proper = [w for w in names if not _COMMON_DE.search(w.lower())]
+    return list(reversed(proper)) + [w for w in names if w not in proper]
+
+
+def subject_phrase(text: str, lang: str = "en") -> str | None:
+    """The whole name of the thing asked about: the run of adjacent name words around the most
+    telling one ("Wann spielt Bayern München?" → "Bayern München", "How tall is the Zorblax
+    Tower?" → "Zorblax Tower"); at most four words. None when the question names nothing."""
+    first = next(iter(subject_words(text, lang)), None)
+    if first is None:
+        return None
+    names = {w for w in _names(text) if lang != "de" or not _COMMON_DE.search(w.lower())} | {first}
+    words = _WORD.findall(text)
+    i = j = words.index(first)
+    while i > 0 and words[i - 1] in names and j - i < 3:
+        i -= 1
+    while j + 1 < len(words) and words[j + 1] in names and j - i < 3:
+        j += 1
+    return " ".join(words[i:j + 1])
 
 
 _WORD = re.compile(r"[^\W_][\w'\-]*")
@@ -124,28 +160,41 @@ def _names(text: str) -> list[str]:
     return [w for w in _WORD.findall(text) if w[:1].isupper() and not w.isupper() and w.lower() not in _STOP_QUERY]
 
 
-def relevant(question: str, results: list[Result], lang: str = "en", top: int = 6) -> bool:
+def relevant(question: str, results: list[Result], lang: str = "en", top: int = 6, strict: bool = True) -> bool:
     """Do the results match the question? A result matches when it has every name of an English
     question and at least half of its content words (title, snippet or address; words compared by
     their first five letters, a word an answer uses for it counts: "tall" → "height", "metres").
     Two matching results among the first six are needed (one when the engine returned fewer than
     three), and one of them must have all the content words (all but one of three or more): an
     engine that distrusts the client answers "who is the CEO of Siemens" with Siemens' own home
-    pages, which never say who leads it."""
+    pages, which never say who leads it. ``strict=False`` (engines that answer every client the same,
+    DuckDuckGo, Brave, Wikipedia): one matching result is enough, and it need not hold every word —
+    they understand typos and synonyms ("Chatbt" → ChatGPT pages) better than a word count does."""
     toks = list(dict.fromkeys(w for w in content_words(question).split() if len(w) >= 3))
     if not toks:
         return bool(results)
-    must = {w.lower()[:5] for w in _names(question)} if lang != "de" else set()
+    must = [w.lower() for w in _names(question)] if lang != "de" else []
     forms = {t: {t[:5]} | {x[:5] for x in _ANSWER_WORDS.get(t, ())} for t in toks}
     need = max(1, -(-len(toks) // 2))
     hits = full = 0
     for r in results[:top]:
         hay = f"{r.title} {r.snippet} {urllib.parse.unquote(r.url)}".lower()
-        have = {t for t in toks if any(f in hay for f in forms[t])}
-        if must <= {t[:5] for t in have} | {m for m in must if m in hay} and len(have) >= need:
+        words = set(re.findall(r"[^\W_]{4,}", hay))
+        have = {t for t in toks if any(f in hay for f in forms[t]) or _near(t, words)}
+        if all(m in have or m[:5] in hay or _near(m, words) for m in must) and len(have) >= need:
             hits += 1
             full += len(have) >= len(toks) - (1 if len(toks) >= 3 else 0)
+    if not strict:
+        return hits >= 1
     return hits >= (1 if len(results) < 3 else 2) and full >= 1
+
+
+def _near(word: str, words: set[str]) -> bool:
+    """A typo or another spelling of the word among the words ("chatbt" and "chatgpt")."""
+    if len(word) < 5:
+        return False
+    import difflib
+    return bool(difflib.get_close_matches(word, [w for w in words if abs(len(w) - len(word)) <= 2], n=1, cutoff=0.75))
 
 
 def _market(lang: str) -> tuple[str, str, str]:
@@ -196,7 +245,7 @@ def _bing_target(href: str) -> str:
 
 def parse_bing(page: str) -> list[Result]:
     out = []
-    for block in re.split(r'<li class="b_algo"', page)[1:]:
+    for block in re.split(r'<li class="b_algo(?:\s[^"]*)?"', page)[1:]:
         block = block.split('<li class="b_ad', 1)[0]
         h2 = re.search(r"<h2[^>]*>\s*<a [^>]*href=\"([^\"]+)\"[^>]*>(.*?)</a>", block, re.S)
         if not h2:
@@ -215,9 +264,12 @@ def parse_bing(page: str) -> list[Result]:
     return out
 
 
-def ddg_url(query: str, lang: str, lite: bool = False) -> str:
-    base = "https://lite.duckduckgo.com/lite/?" if lite else "https://html.duckduckgo.com/html/?"
-    return base + urllib.parse.urlencode({"q": query, "kl": _market(lang)[2]})
+def ddg_form(query: str, lang: str, lite: bool = False) -> tuple[str, tuple[tuple[str, str], ...]]:
+    """(address, form fields) of DuckDuckGo's HTML or lite search form."""
+    region = _market(lang)[2]
+    if lite:
+        return "https://lite.duckduckgo.com/lite/", (("q", query), ("kl", region))
+    return "https://html.duckduckgo.com/html/", (("q", query), ("b", ""), ("kl", region))
 
 
 def _ddg_target(href: str) -> str:
@@ -308,6 +360,28 @@ def parse_wikipedia(body: str, lang: str) -> list[Result]:
     return out
 
 
+def parse_instant(body: str) -> dict | None:
+    """A DuckDuckGo Instant Answer as a document: its summary and one sentence per fact box line."""
+    try:
+        d = json.loads(body)
+    except json.JSONDecodeError:
+        return None
+    heading = clean_text(str(d.get("Heading") or ""))
+    abstract = clean_text(str(d.get("AbstractText") or ""))
+    lines = [abstract] if abstract else []
+    for c in ((d.get("Infobox") or {}).get("content") or [])[:20]:
+        label, value = clean_text(str(c.get("label") or "")), c.get("value")
+        if label and isinstance(value, str) and value.strip() and not label.lower().endswith("profile"):
+            value = clean_text(re.sub(r"[\[\]]+", " ", value)).strip(" .")   # "[ ISIN: [ DE0007236101]]"
+            value = re.sub(rf"^{re.escape(label)}\s*:\s*", "", value, flags=re.I)
+            if value:
+                lines.append(f"{heading} – {label}: {value}.")
+    if not heading or not lines:
+        return None
+    url = _https(str(d.get("AbstractURL") or "")) or "https://duckduckgo.com/?q=" + urllib.parse.quote(heading)
+    return {"t": heading, "x": "\n".join(lines), "url": url, "host": site_of(url), "rank": 0, "facts": True}
+
+
 def blocked(status: int, body: str, results: list[Result]) -> str | None:
     """Why an engine's answer is no result list, or None when it is one."""
     if results:
@@ -334,7 +408,7 @@ class WebSearch:
         conf = self.settings()
         choice = conf.get("engine", "auto")
         if choice == "auto":
-            return (["brave"] if conf.get("brave_key") else []) + ["bing", "duckduckgo", "duckduckgo-lite"]
+            return (["brave"] if conf.get("brave_key") else []) + ["duckduckgo", "duckduckgo-lite", "bing"]
         if choice == "duckduckgo":
             return ["duckduckgo", "duckduckgo-lite"]
         return [choice]
@@ -349,9 +423,9 @@ class WebSearch:
             return found
         chain = self.engines()
         for engine in chain + (["wikipedia"] if self.settings().get("engine", "auto") == "auto" else []):
-            for form in query_forms(query)[:1 if engine in ("brave", "wikipedia") else 2]:
+            for form in query_forms(query, engine, lang)[:1 if engine in ("brave", "wikipedia") else 2]:
                 results, why = self._ask(engine, form, lang, explicit)
-                if results and not relevant(query, results, lang):
+                if results and not relevant(query, results, lang, strict=engine == "bing"):
                     results, why = [], "results did not match the question"
                 if results:
                     results = _dedupe(results)[:k]
@@ -381,11 +455,16 @@ class WebSearch:
             req = Request("search", bing_url(query, lang), "search:bing", ("bing.com",),
                           headers=(accept_html, accept_lang), explicit=explicit)
         elif engine in ("duckduckgo", "duckduckgo-lite"):
-            req = Request("search", ddg_url(query, lang, lite=engine.endswith("lite")), f"search:{engine}",
-                          ("duckduckgo.com",), headers=(accept_html, accept_lang), explicit=explicit)
+            # the form, posted as DuckDuckGo's own search box does: a GET of the same page is
+            # answered with a bot check (HTTP 202) since 2026
+            url, form = ddg_form(query, lang, lite=engine.endswith("lite"))
+            origin = url.split("/", 3)[:3]
+            origin = "/".join(origin)
+            req = Request("search", url, f"search:{engine}", ("duckduckgo.com",), explicit=explicit, form=form,
+                          headers=(accept_html, accept_lang, ("Referer", origin + "/"), ("Origin", origin)))
         elif engine == "wikipedia":
             req = Request("search", wikipedia_url(query, lang), "search:wikipedia", (f"{lg}.wikipedia.org",),
-                          headers=(("Accept", "application/json"),), explicit=explicit)
+                          headers=(("Accept", "application/json"),), explicit=explicit, plain_agent=True)
         else:
             return [], "unknown engine"
         res = self.egress.fetch(req)
@@ -402,6 +481,22 @@ class WebSearch:
                  "wikipedia": lambda b: parse_wikipedia(b, lang)}[engine]
         results = parse(body) if res.status == 200 else []
         return results, blocked(res.status, body, results)
+
+    def instant(self, subject: str, lang: str = "en", explicit: bool = False) -> dict | None:
+        """DuckDuckGo's Instant Answer API for the thing asked about: the encyclopedia summary and its
+        fact box ("Key people: Sam Altman (CEO)") as a document of sentences, or None. An official,
+        keyless API (no question text: only the name)."""
+        if not subject or len(subject) > 80:
+            return None
+        url = "https://api.duckduckgo.com/?" + urllib.parse.urlencode(
+            {"q": subject, "format": "json", "no_html": "1", "skip_disambig": "1", "t": "engramm"})
+        req = Request("search", url, "facts:duckduckgo", ("api.duckduckgo.com",), headers=(("Accept", "application/json"),),
+                      explicit=explicit, plain_agent=True, timeout=8.0)
+        # through the pool: it runs while the search runs, and the service answers one request at a time
+        res = self.egress.fetch_many([req])[0]
+        if res is None or not res.ok:
+            return None
+        return parse_instant(res.body.decode("utf-8", "replace"))
 
     def read(self, results: list[Result], n: int = 3, explicit: bool = False) -> list[dict]:
         """The main text of the first ``n`` readable result pages, fetched at once:
@@ -456,7 +551,8 @@ class WebSearch:
             for para in d["x"].split("\n"):
                 for sent in SENTENCE.split(para.strip()):
                     sent = sent.strip()
-                    if 25 <= len(sent) <= 450 and _prose(sent) and not is_reference(sent) and not _junk(sent):
+                    if 25 <= len(sent) <= 450 and (d.get("facts") or _prose(sent)) and not is_reference(sent) \
+                            and not _junk(sent):
                         toks = set(tokens(sent))
                         if toks & qset or any(x in sent.lower() for x in expanded):
                             cands.append((sent, d, toks, title))

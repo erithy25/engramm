@@ -1,7 +1,8 @@
 """The network gate (engramm/web/egress.py, runtime/core/src/egress.rs): channels off by default,
 https only, allowed hosts only (also after redirects), no private addresses for the web search,
-a browser's user agent and only a few extra headers for the web search, a search the user asked
-for even with the channel off, size limits, range requests, parallel fetches, settings of older
+a browser's user agent and only a few extra headers for the web search, a search form posted as
+the engine's own search box does (only the web search, small, a GET after a redirect), a search the
+user asked for even with the channel off, size limits, range requests, parallel fetches, settings of older
 versions and the network log — against a local test server, with the Python backend and, when
 built, the Rust backend (engramm-core egress)."""
 
@@ -72,6 +73,23 @@ class _Handler(BaseHTTPRequestHandler):
             self.send_response(404)
             self.end_headers()
 
+    def do_POST(self):
+        if self.path == "/form":
+            n = int(self.headers.get("Content-Length") or 0)
+            sent = {k.lower(): v for k, v in self.headers.items()}
+            body = json.dumps({"method": "POST", "body": self.rfile.read(n).decode(), **sent}).encode()
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        elif self.path == "/form-redir":            # the answer is a GET of /ua (a POST of it: 404)
+            self.send_response(303)
+            self.send_header("Location", "/ua")
+            self.end_headers()
+        else:
+            self.send_response(404)
+            self.end_headers()
+
 
 @pytest.fixture(scope="module")
 def server():
@@ -138,6 +156,14 @@ def test_rules_without_network():
         check(Request("search", "https://example.org/", "t", ("*",), headers=(("Cookie", "a=b"),)), s)
     with pytest.raises(EgressError, match="bad value"):
         check(Request("search", "https://example.org/", "t", ("*",), headers=(("Accept", "a\r\nCookie: b"),)), s)
+    check(Request("search", "https://html.duckduckgo.com/html/", "t", ("duckduckgo.com",), form=(("q", "x"),),
+                  headers=(("Referer", "https://html.duckduckgo.com/"), ("Origin", "https://html.duckduckgo.com"))), s)
+    with pytest.raises(EgressError, match="only the web search"):
+        check(Request("shelf", "https://github.com/x", "t", ("github.com",), form=(("q", "x"),)), s)
+    with pytest.raises(EgressError, match="form too large"):
+        check(Request("search", "https://example.org/", "t", ("*",), form=tuple((f"f{i}", "x") for i in range(9))), s)
+    with pytest.raises(EgressError, match="form too large"):
+        check(Request("search", "https://example.org/", "t", ("*",), form=(("q", "x" * 601),)), s)
     assert host_allowed("objects.githubusercontent.com", ("githubusercontent.com",))
     assert not host_allowed("githubusercontent.com.evil.org", ("githubusercontent.com",))
     assert is_private_host("10.0.0.1") and is_private_host("router.local") and not is_private_host("example.org")
@@ -212,6 +238,18 @@ def test_fetch_range_redirect_limits_and_log(server, tmp_path, kind):
                         headers=(("Accept-Language", "de-DE,de;q=0.9"), ("X-Subscription-Token", "k1")), **loop))
     sent = json.loads(r.body)
     assert sent["accept-language"] == "de-DE,de;q=0.9" and sent["x-subscription-token"] == "k1" and "cookie" not in sent
+    r = e.fetch(Request("search", server + "/ua", "page", ("*",), plain_agent=True, **loop))   # Wikipedia's wish
+    assert r.ok and r.body.decode().startswith("ENGRAMM/")
+    r = e.fetch(Request("search", server + "/form", "search:form", ("*",), form=(("q", "zorblax tower"), ("kl", "de-de")),
+                        headers=(("Referer", "https://search.example/"), ("Origin", "https://search.example")), **loop))
+    sent = json.loads(r.body)
+    assert r.ok and sent["method"] == "POST" and sent["body"] == "q=zorblax+tower&kl=de-de", sent
+    assert sent["content-type"] == "application/x-www-form-urlencoded" and sent["origin"] == "https://search.example"
+    assert sent["referer"] == "https://search.example/" and sent["user-agent"].startswith("Mozilla/5.0")
+    r = e.fetch(Request("search", server + "/form-redir", "search:form", ("*",), form=(("q", "x"),), **loop))
+    assert r.ok and r.body.decode().startswith("Mozilla/5.0"), r              # fetched again with GET
+    with pytest.raises(EgressError, match="only the web search"):
+        e.fetch(Request("shelf", server + "/form", "bucket", ("*",), form=(("q", "x"),), **loop))
     many = e.fetch_many([Request("search", server + "/data", f"page {i}", ("*",), **loop) for i in range(6)]
                         + [Request("search", "https://10.1.2.3/", "page private", ("*",))])
     assert [m.ok for m in many[:6]] == [True] * 6 and all(m.body == DATA for m in many[:6]) and many[6] is None

@@ -1,7 +1,9 @@
 """The web search (engramm/web/search.py) and its place in the dialog (engramm/chat/dialog.py):
 result pages of Bing, DuckDuckGo (HTML and lite), the Brave Search API and Wikipedia's search are
-read correctly (click links decoded, ads left out); a bot check or results that do not match the
-question send the search on to the next engine; "google …" / "such im Internet nach …" are
+read correctly (click links decoded, ads left out); DuckDuckGo gets its form posted (a GET is a bot
+check), Bing the keywords first; a bot check or results that do not match the question (a typo is
+no mismatch) send the search on to the next engine; DuckDuckGo's fact box answers by itself when
+the engines fail; "google …" / "such im Internet nach …" are
 recognised in both languages and search even with the channel off; with the channel off an
 unanswered question gets an offer ("yes" searches); with it on, the search runs on its own; a
 personal question never goes out; the reply names its sources and lists the results as links.
@@ -21,8 +23,9 @@ from engramm.chat.textmem import LoggedTextMemory
 from engramm.web.atlas import Atlas
 from engramm.web.egress import Egress, EgressError, Fetched, NetworkLog, check
 from engramm.web.feeds import FeedRefresher
-from engramm.web.search import (WebSearch, content_words, parse_bing, parse_brave, parse_ddg, parse_ddg_lite,
-                                parse_wikipedia, query_forms, relevant, search_request)
+from engramm.web.search import (Result, WebSearch, content_words, parse_bing, parse_brave, parse_ddg, parse_ddg_lite,
+                                parse_instant, parse_wikipedia, query_forms, relevant, search_request, subject_phrase,
+                                subject_words)
 from tests.test_chat_flows import _bot, corpus  # noqa: F401  (fixture)
 
 CLOCK = lambda: dt.datetime(2026, 10, 1, 18, 30)          # noqa: E731
@@ -88,13 +91,27 @@ after four years of construction.</p>
 country when the weather is clear.</p></main><footer>© 2026 Quorvia Travel. All rights reserved.</footer></body></html>"""
 
 
+def instant_answer(heading: str, abstract: str, facts: dict[str, str]) -> dict:
+    return {"Heading": heading, "AbstractText": abstract, "AbstractURL": f"https://en.wikipedia.org/wiki/{heading.replace(' ', '_')}",
+            "Infobox": {"content": [{"label": k, "value": v, "data_type": "string"} for k, v in facts.items()]
+                        + [{"label": "Twitter profile", "value": "zorblax", "data_type": "twitter_profile"},
+                           {"label": "Founded", "value": {"time": "+1931"}, "data_type": "time"}]}}
+
+
+ZORBLAX_FACTS = instant_answer("Zorblax Tower", "The Zorblax Tower is a lattice tower in Velmar, Quorvia.",
+                               {"Height": "318 metres", "Architect": "Mirela Tosk"})
+
+
 class FakeWeb:
     """The search engines and pages of this test: the egress rules first (as the real backends),
-    then an answer by host. ``bing`` / ``ddg`` choose what those engines do."""
+    then an answer by host. ``bing`` / ``ddg`` / ``lite`` choose what those engines do; DuckDuckGo
+    answers only its posted form (a GET gets the bot check, as the real one since 2026); ``facts``
+    is what DuckDuckGo's Instant Answer API knows, by name."""
     name = "fake"
 
-    def __init__(self, bing="good", ddg="good", lite="good"):
+    def __init__(self, bing="good", ddg="good", lite="good", facts=None):
         self.bing, self.ddg, self.lite = bing, ddg, lite
+        self.facts = facts or {}
         self.seen: list = []
 
     def fetch(self, req, settings) -> Fetched:
@@ -109,13 +126,18 @@ class FakeWeb:
             page = bing_page(GOOD if self.bing == "good" else JUNK)
             return Fetched(True, 200, page.encode(), final_host=host, content_type=html_)
         if host == "html.duckduckgo.com":
-            if self.ddg == "anomaly":
+            if self.ddg == "anomaly" or not req.form or "Origin" not in dict(req.headers):
                 return Fetched(False, 202, b'<div class="anomaly-modal">', error="HTTP 202", final_host=host)
             return Fetched(True, 200, ddg_page(GOOD).encode(), final_host=host, content_type=html_)
         if host == "lite.duckduckgo.com":
-            if self.lite == "anomaly":
+            if self.lite == "anomaly" or not req.form:
                 return Fetched(False, 202, b"", error="HTTP 202", final_host=host)
-            return Fetched(True, 200, ddg_lite_page(GOOD).encode(), final_host=host, content_type=html_)
+            page = ddg_lite_page(GOOD if self.lite == "good" else JUNK)
+            return Fetched(True, 200, page.encode(), final_host=host, content_type=html_)
+        if host == "api.duckduckgo.com":
+            q = urllib.parse.parse_qs(u.query)["q"][0]
+            body = self.facts.get(q, {"Heading": "", "AbstractText": "", "Infobox": ""})
+            return Fetched(True, 200, json.dumps(body).encode(), final_host=host, content_type="application/x-javascript")
         if host.endswith("wikipedia.org"):
             return Fetched(False, 429, b"", error="HTTP 429", final_host=host)
         if host == "api.search.brave.com":
@@ -155,6 +177,17 @@ def test_result_pages_are_read():
                                                              '<span class="searchmatch">Zorblax</span> Tower is'}]}}), "de")
     assert wiki[0].url == "https://de.wikipedia.org/wiki/Zorblax_Tower" and wiki[0].snippet == "Zorblax Tower is"
     assert parse_bing("<html>captcha</html>") == [] and parse_brave("not json") == []
+    variant = bing_page(GOOD).replace('<li class="b_algo"', '<li class="b_algo b_vtl_deeplinks"')
+    assert [r.url for r in parse_bing(variant)] == [u for _, u, _ in GOOD]   # extra classes on a result
+
+
+def test_instant_answer_is_read():
+    doc = parse_instant(json.dumps(ZORBLAX_FACTS))
+    assert doc["t"] == "Zorblax Tower" and doc["facts"] and doc["host"] == "en.wikipedia.org"
+    assert doc["x"].split("\n") == ["The Zorblax Tower is a lattice tower in Velmar, Quorvia.",
+                                    "Zorblax Tower – Height: 318 metres.", "Zorblax Tower – Architect: Mirela Tosk."]
+    assert parse_instant(json.dumps({"Heading": "", "AbstractText": "", "Infobox": ""})) is None
+    assert parse_instant("<html>") is None
 
 
 def test_relevance_and_query_forms():
@@ -163,7 +196,31 @@ def test_relevance_and_query_forms():
     assert not relevant("How tall is the Zorblax Tower?", junk)              # "tall" alone: a dictionary
     assert not relevant("Wie hoch ist der Zorblax Tower?", junk, "de")
     assert query_forms("How tall is the Zugspitze?") == ["How tall is the Zugspitze", "zugspitze tall"]
+    # Bing answers a client it distrusts for the first word alone: the thing asked about goes first
+    assert query_forms("How tall is the Zugspitze?", "bing") == ["zugspitze tall", "How tall is the Zugspitze"]
+    assert query_forms("Wie sind die Öffnungszeiten vom Louvre?", "bing", "de")[0] == "louvre öffnungszeiten"
     assert content_words("Wie hoch ist die Zugspitze?") == "hoch zugspitze"
+    assert content_words("Who is the current CEO of Siemens?") == "ceo siemens"
+    assert subject_words("Wie sind die Öffnungszeiten vom Louvre?", "de") == ["Louvre", "Öffnungszeiten"]
+    assert subject_phrase("Wann spielt Bayern München das nächste Mal?", "de") == "Bayern München"
+    assert subject_phrase("How tall is the Zorblax Tower?") == "Zorblax Tower"
+    assert subject_phrase("what is the bitcoin price") is None
+
+
+def test_a_typo_is_no_mismatch():
+    """"Chatbt" for ChatGPT: DuckDuckGo understands it and answers with the right pages; they count
+    as matching (a near spelling of the name), Bing's word-for-word junk still does not."""
+    q = "Who is current CEO of Chatbt?"
+    results = [Result("Sam Altman - Wikipedia", "https://en.wikipedia.org/wiki/Sam_Altman",
+                      "Sam Altman is the chief executive officer of OpenAI, the company behind ChatGPT.", "en.wikipedia.org",
+                      "duckduckgo", 0),
+               Result("Who Owns ChatGPT? Owner & Makers", "https://example.org/chatgpt-owner",
+                      "ChatGPT is made by OpenAI; its CEO is Sam Altman.", "example.org", "duckduckgo", 1),
+               Result("OpenAI - Wikipedia", "https://en.wikipedia.org/wiki/OpenAI",
+                      "OpenAI is an American artificial intelligence organization.", "en.wikipedia.org", "duckduckgo", 2)]
+    assert relevant(q, results, strict=False)
+    assert not relevant(q, parse_bing(bing_page(JUNK)), strict=False)
+    assert not relevant("Who is the CEO of Zorblax?", results, strict=False)  # another name entirely
 
 
 @pytest.mark.parametrize("text,want", [
@@ -196,18 +253,26 @@ def test_search_requests(text, want):
 # -- the engines in turn -------------------------------------------------------------------------
 
 def test_engines_in_turn(tmp_path):
-    web = FakeWeb(bing="junk", ddg="anomaly")
+    web = FakeWeb(ddg="anomaly", lite="junk")
     e = _egress(tmp_path, web, enabled=False)
     ws = WebSearch(e)
     with pytest.raises(EgressError, match="switched off"):                  # not asked for, channel off: nothing sent
         ws.search("How tall is the Zorblax Tower?", "en")
     assert web.seen == []
     found = ws.search("How tall is the Zorblax Tower?", "en", explicit=True)
-    # Bing answered twice with unrelated pages (the question, then keywords), DuckDuckGo with a bot check
-    assert found.engine == "duckduckgo-lite" and found.results[0].url == TOWER, found
-    assert [t[0] for t in found.tried] == ["bing", "bing", "duckduckgo"]
-    assert "did not match" in found.tried[0][1] and "refused" in found.tried[2][1]
-    assert [r.what for r in web.seen] == ["search:bing", "search:bing", "search:duckduckgo", "search:duckduckgo-lite"]
+    # DuckDuckGo answered with a bot check, its lite page twice with unrelated pages (the question,
+    # then keywords); Bing, asked with the keywords first, with the tower
+    assert found.engine == "bing" and found.results[0].url == TOWER, found
+    assert [t[0] for t in found.tried] == ["duckduckgo", "duckduckgo-lite", "duckduckgo-lite"]
+    assert "refused" in found.tried[0][1] and "did not match" in found.tried[1][1]
+    assert [r.what for r in web.seen] == ["search:duckduckgo", "search:duckduckgo-lite", "search:duckduckgo-lite",
+                                          "search:bing"]
+    ddg = web.seen[0]
+    assert ddg.url == "https://html.duckduckgo.com/html/" and dict(ddg.form) == {"q": "How tall is the Zorblax Tower",
+                                                                               "b": "", "kl": "us-en"}
+    assert dict(ddg.headers)["Origin"] == "https://html.duckduckgo.com"   # posted as from its own search box
+    assert dict(web.seen[2].form)["q"] == "zorblax tower tall"
+    assert "q=zorblax+tower+tall" in web.seen[3].url
     assert all(dict(r.headers).get("Accept-Language", "").startswith("en") for r in web.seen)
     pages = ws.read(found.results, n=3, explicit=True)
     assert [p["url"] for p in pages] == [TOWER]                            # the others 404; videos are never read
@@ -253,7 +318,7 @@ def test_google_command_searches_even_with_the_channel_off(web_chat):
     st = DialogState("g")
     r = a.turn(st, "google how tall is the Zorblax Tower")
     assert r.via == "web" and r.kind in ("answer", "about"), r.text
-    assert "318 metres" in r.text and "quorvia.example" in r.text and "Bing" in r.text, r.text
+    assert "318 metres" in r.text and "quorvia.example" in r.text and "DuckDuckGo" in r.text, r.text
     assert r.source["kind"] == "web" and r.source["key"] == TOWER
     assert [x["url"] for x in r.links][:3] == [u for _, u, _ in GOOD][:3]
     assert "Web search" in r.text                                            # the tip to switch it on, once
@@ -270,7 +335,7 @@ def test_offer_then_yes_searches(web_chat):
     assert web.seen == []                                                    # an offer sends nothing
     r = a.turn(st, "yes please")
     assert r.via == "web" and "318 metres" in r.text, r.text
-    assert any("Zorblax" in urllib.parse.unquote(q.url) for q in web.seen if q.what.startswith("search:"))
+    assert any("Zorblax" in dict(q.form).get("q", "") for q in web.seen if q.what.startswith("search:"))
 
 
 def test_google_it_takes_the_question_before(web_chat):
@@ -299,9 +364,9 @@ def test_german(web_chat):
     a, eg, web = web_chat
     st = DialogState("de")
     r = a.turn(st, "such im Internet nach der Höhe vom Zorblax Tower")
-    assert r.via == "web" and r.text.startswith("Laut ") and "Gesucht mit Bing" in r.text, r.text
-    req = next(q for q in web.seen if q.what == "search:bing")
-    assert "setlang=de" in req.url and dict(req.headers)["Accept-Language"].startswith("de")
+    assert r.via == "web" and r.text.startswith("Laut ") and "Gesucht mit DuckDuckGo" in r.text, r.text
+    req = next(q for q in web.seen if q.what == "search:duckduckgo")
+    assert dict(req.form)["kl"] == "de-de" and dict(req.headers)["Accept-Language"].startswith("de")
     r = a.turn(DialogState("de2"), "googel mal")
     assert "wonach soll ich suchen" in r.text, r.text
 
@@ -314,6 +379,21 @@ def test_nothing_found_is_said_plainly(corpus, tmp_path, monkeypatch):   # noqa:
     a.atlas = Atlas(eg, None, tmp_path / "state")
     r = a.turn(DialogState("n"), "google Zorblax Tower")
     assert r.via == "web" and r.kind == "unknown" and "Bing: refused" in r.text and "Brave" in r.text, r.text
+
+
+def test_the_fact_box_answers_when_the_engines_fail(corpus, tmp_path, monkeypatch):   # noqa: F811
+    """Every engine refuses, DuckDuckGo's Instant Answer API knows the tower: its fact box answers,
+    with its source; only the name went to the API, not the question."""
+    monkeypatch.setattr(FeedRefresher, "start", lambda self: None)
+    web = FakeWeb(bing="captcha", ddg="anomaly", lite="anomaly", facts={"Zorblax Tower": ZORBLAX_FACTS})
+    eg = _egress(tmp_path, web, enabled=False)
+    a = Assistant(_bot(corpus, LoggedTextMemory(tmp_path / "m.log")), clock=CLOCK)
+    a.atlas = Atlas(eg, None, tmp_path / "state")
+    r = a.turn(DialogState("f"), "google who was the architect of the Zorblax Tower")
+    assert r.via == "web" and "Mirela Tosk" in r.text and "en.wikipedia.org" in r.text, r.text
+    assert r.links and r.links[0]["url"] == "https://en.wikipedia.org/wiki/Zorblax_Tower"
+    api = [q for q in web.seen if q.what == "facts:duckduckgo"]
+    assert len(api) == 1 and urllib.parse.parse_qs(urllib.parse.urlsplit(api[0].url).query)["q"] == ["Zorblax Tower"]
 
 
 def test_errors_never_carry_the_question(tmp_path):

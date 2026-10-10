@@ -234,7 +234,7 @@ const en: Texts = {
   searchPrivacy: "The question goes to the search engine, which sees it together with your IP address.",
   searchEngine: "Search engine",
   searchEngines: {
-    auto: "Automatic (Bing, then DuckDuckGo)",
+    auto: "Automatic (DuckDuckGo, then Bing)",
     bing: "Bing only",
     duckduckgo: "DuckDuckGo only",
     brave: "Brave Search API (needs a key)",
@@ -368,7 +368,7 @@ const de: Texts = {
   searchPrivacy: "Die Frage geht an die Suchmaschine, die sie zusammen mit deiner IP-Adresse sieht.",
   searchEngine: "Suchmaschine",
   searchEngines: {
-    auto: "Automatisch (Bing, dann DuckDuckGo)",
+    auto: "Automatisch (DuckDuckGo, dann Bing)",
     bing: "Nur Bing",
     duckduckgo: "Nur DuckDuckGo",
     brave: "Brave-Search-API (braucht einen Schlüssel)",

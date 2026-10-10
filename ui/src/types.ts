@@ -93,7 +93,7 @@ export function isError(r: StoredReply): r is ErrorReply {
 }
 
 export type SearchEngine = "auto" | "bing" | "duckduckgo" | "brave";
-export const SEARCH_ENGINES: readonly SearchEngine[] = ["auto", "bing", "duckduckgo", "brave"];
+export const SEARCH_ENGINES: readonly SearchEngine[] = ["auto", "duckduckgo", "bing", "brave"];
 
 /** One network channel's settings (engramm/web/egress.py DEFAULT_SETTINGS; the API key never comes back). */
 export interface ChannelSettings {
