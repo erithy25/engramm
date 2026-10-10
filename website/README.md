@@ -28,8 +28,8 @@ python3 -m http.server 4173 -d website/public
 
 On Vercel, set the project's Root Directory to `website`. With no framework and no build
 command, Vercel serves `public/` as `vercel.json` specifies. Once the project is connected to
-this repository, every push deploys: pushes to the branch `website` go live as production,
-pushes to other branches become previews behind the Vercel login.
+this repository, Vercel builds the branch `website` as production: every push there goes live.
+Pushes to other branches, `main` included, are not deployed.
 
 ## How the hero and the card stack work
 
