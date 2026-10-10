@@ -46,6 +46,7 @@ from pathlib import Path
 WEB = Path(__file__).resolve().parent / "web"
 mimetypes.add_type("application/manifest+json", ".webmanifest")
 mimetypes.add_type("text/javascript", ".js")
+mimetypes.add_type("font/woff2", ".woff2")      # the bundled fonts; Windows may map it otherwise
 DEFAULT_MODEL = Path(__file__).resolve().parents[2] / "models" / "lm" / "main" / "model"
 MAX_MESSAGE = 12000
 MAX_CONVERSATIONS = 500

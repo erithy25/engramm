@@ -3,7 +3,7 @@ import { api } from "./api";
 import { AssistantMessage } from "./components/AssistantMessage";
 import { AboutDialog, MemoryDialog } from "./components/Dialogs";
 import { NetworkDialog } from "./components/NetworkDialog";
-import { MenuIcon, SendIcon } from "./components/Icons";
+import { Mark, MenuIcon, SendIcon } from "./components/Icons";
 import { Sidebar } from "./components/Sidebar";
 import { isLang, type Lang, TEXTS } from "./i18n";
 import { load, save, uid } from "./storage";
@@ -40,8 +40,8 @@ export function App() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const t = TEXTS[lang];
 
-  const systemDark = typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches;
-  const dark = theme ? theme === "dark" : systemDark;
+  // dark like the website unless you chose light (the choice is kept)
+  const dark = theme !== "light";
   const ready = status.kind === "health" && status.health.ready;
   const active = useMemo(() => conversations.find((c) => c.id === activeId) ?? null, [conversations, activeId]);
 
@@ -226,7 +226,7 @@ export function App() {
             <MenuIcon />
           </button>
           <div className="model-pill" title={t.pillTitle}>
-            ENGRAMM <span className="muted">{t.pill}</span>
+            <span className="pill-word">engramm</span> <span className="muted">{t.pill.replace(/^·\s*/, "")}</span>
           </div>
           <div className={statusView.cls} id="status" title={statusView.title}>
             <span className="dot" />
@@ -240,7 +240,9 @@ export function App() {
         <section className="thread" id="thread" aria-live="polite" ref={threadRef}>
           {messages.length === 0 && pending === null && (
             <div className="empty" id="empty">
-              <img src="./logo.svg" alt="" className="empty-logo" width={72} height={72} />
+              <div className="empty-mark" aria-hidden="true">
+                <Mark />
+              </div>
               <h1>{t.emptyTitle}</h1>
               <p className="muted">{t.emptySub}</p>
               <div className="suggestions" id="suggestions">

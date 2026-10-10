@@ -97,6 +97,12 @@ def test_page_and_assets(running):
                         ("/icons/icon-192.png", "image/png"), ("/manifest.webmanifest", "application/manifest+json")):
         code, ct, body = _call(base, path)
         assert code == 200 and ct.startswith(ctype) and body, path
+    # the fonts ship with the app (no font is fetched from the internet) and come with their font type
+    _, _, sheet = _call(base, "/" + css)
+    fonts = re.findall(rb"url\(\.?/?([^)\"']+\.woff2)\)", sheet)
+    assert fonts and not re.search(rb"(?:url\(|@import)\s*['\"]?https?:", sheet)
+    code, ct, body = _call(base, "/assets/" + fonts[0].decode().rsplit("/", 1)[-1])
+    assert code == 200 and ct == "font/woff2" and body
 
 
 def test_no_files_outside_the_web_folder(running):

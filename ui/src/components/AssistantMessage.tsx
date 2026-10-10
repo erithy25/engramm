@@ -1,6 +1,7 @@
 import { type ReactElement, useEffect, useRef, useState } from "react";
 import type { Texts } from "../i18n";
 import { isError, type StoredReply } from "../types";
+import { Mark } from "./Icons";
 
 interface Props {
   reply: StoredReply | null; // null while waiting
@@ -77,7 +78,9 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
   if (reply === null) {
     return (
       <article className="msg assistant">
-        <img src="./logo.svg" alt="" className="avatar" width={28} height={28} />
+        <span className="avatar" aria-hidden="true">
+          <Mark />
+        </span>
         <div className="bubble">
           <div className="text">
             <span className="typing">
@@ -93,7 +96,9 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
   if (isError(reply)) {
     return (
       <article className="msg assistant">
-        <img src="./logo.svg" alt="" className="avatar" width={28} height={28} />
+        <span className="avatar" aria-hidden="true">
+          <Mark />
+        </span>
         <div className="bubble">
           <div className="text" data-done="1">
             <span className="error-text">{reply.error}</span>
@@ -135,7 +140,7 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
   }
   if (reply.resolved) chips.push(<Chip key="r" text={t.understoodAs + reply.resolved} />);
   if (typeof reply.seconds === "number") {
-    chips.push(<Chip key="sec" text={`${reply.seconds.toFixed(2)} s`} title={t.seconds} />);
+    chips.push(<Chip key="sec" text={`${reply.seconds.toFixed(2)} s`} cls="sec" title={t.seconds} />);
   }
   const hasEvidence = Boolean(reply.evidence) && k !== "about";
 
@@ -151,7 +156,9 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
 
   return (
     <article className="msg assistant">
-      <img src="./logo.svg" alt="" className="avatar" width={28} height={28} />
+      <span className="avatar" aria-hidden="true">
+        <Mark />
+      </span>
       <div className="bubble">
         <div className="text" {...(done ? { "data-done": "1" } : {})}>
           {shown}

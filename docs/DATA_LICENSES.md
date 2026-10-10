@@ -28,6 +28,7 @@ Ihre Lizenz steht zusätzlich in `manifest.json` → `licenses`.
 | Vorschlags-Kataloge (Gerichte, Backwaren, Geschenke, Filme, Ausflüge, Textbausteine für Anlässe), Situations-Gesprächszüge | selbst geschrieben (`engramm/understand/suggest.py`, `data/conv/understand.yaml`) | Projektlizenz (Apache 2.0) | im Programm | – |
 | Lernstand des Nutzers | entsteht auf dem Rechner des Nutzers (`learn.json` neben dem Chat-Gedächtnis) | gehört dem Nutzer | nicht ausgeliefert, nie übertragen | exakt vergessbar („vergiss das“, Zurücksetzen in der App) |
 | Nachrichten-Feeds | die Verlage der gewählten Feeds | jeweiliges Recht des Verlags | nicht ausgeliefert: nur auf dem Rechner des Nutzers geladen, wenn er den Kanal einschaltet (`engramm/web/feeds.json` enthält nur die Feed-Adressen) | Anzeige mit Quelle und Link; kein Weiterverteilen |
+| Schriften der Oberfläche (Geist Sans, Geist Mono, Newsreader kursiv; lateinischer Zeichensatz) | Vercel/basement.studio (Geist), Production Type (Newsreader); Dateien aus `@fontsource` 5.3.0 | SIL Open Font License 1.1 | im Programm: `engramm/app/web/assets/*.woff2` (Chat-Seite), `runtime/app/setup/fonts/` (Einrichtung der Desktop-App) | Lizenztexte liegen bei (`engramm/app/web/fonts/`, `runtime/app/setup/fonts/`); die Schriften nicht für sich allein verkaufen |
 
 ## Nur zum Messen, nicht ausgeliefert
 

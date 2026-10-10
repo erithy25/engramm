@@ -217,7 +217,7 @@ A chat window in the style of ChatGPT, on top of the ENGRAMM chat system. It has
 - conversations in a sidebar, kept in the browser;
 - answers with source chips, the evidence sentence on request, and a "sure" or "unsure" mark;
 - a memory panel that lists what you taught ENGRAMM and forgets it for real;
-- light and dark themes, and a layout for phones.
+- the look of the website (black by default, a light theme on request; fonts bundled, nothing loaded from the internet), and a layout for phones.
 
 ```bash
 python -m engramm.app --pack DIR   # local website: opens http://127.0.0.1:8770

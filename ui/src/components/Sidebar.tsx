@@ -1,6 +1,6 @@
 import type { Texts } from "../i18n";
 import type { Conversation } from "../types";
-import { GlobeIcon, InfoIcon, ListIcon, MoonIcon, NetworkIcon, PlusIcon } from "./Icons";
+import { GlobeIcon, InfoIcon, ListIcon, Mark, MoonIcon, NetworkIcon, PlusIcon } from "./Icons";
 
 interface Props {
   t: Texts;
@@ -31,8 +31,8 @@ export function Sidebar(p: Props) {
   return (
     <aside className={"sidebar" + (p.open ? " open" : "")} id="sidebar" aria-label={p.t.conversations}>
       <div className="brand">
-        <img src="./logo.svg" alt="" className="brand-logo" width={28} height={28} />
-        <span className="brand-name">ENGRAMM</span>
+        <Mark />
+        <span className="brand-name">engramm</span>
         <button className="icon-btn only-mobile" id="closeSidebar" type="button" aria-label={p.t.closeSidebar}
                 onClick={p.onClose}>
           ✕
