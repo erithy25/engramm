@@ -19,9 +19,15 @@ from pathlib import Path
 def main() -> int:
     dist = Path(sys.argv[1])
     exe = dist / ("engramm-server.exe" if sys.platform == "win32" else "engramm-server")
-    # data files the conversation layer needs at run time (PyInstaller puts them under _internal/)
-    for name in ("conv_bank.json", "letters.json", "feeds.json"):
-        assert any(dist.rglob(name)), f"{name} missing from the frozen server"
+    # every data file next to the code must be in the bundle (PyInstaller puts them under _internal/):
+    # without engramm/understand/data and engramm/know/data the app answered practical questions
+    # with generic advice instead of the how-to and Wikibooks steps
+    root = Path(__file__).resolve().parents[2]
+    wanted = [f.relative_to(root).as_posix() for f in (root / "engramm").rglob("*")
+              if f.is_file() and f.suffix not in (".py", ".pyc") and "__pycache__" not in f.parts]
+    assert any(w.startswith("engramm/understand/data/") for w in wanted), "source tree without data files?"
+    missing = [w for w in wanted if not any(p.as_posix().endswith(w) for p in dist.rglob(Path(w).name))]
+    assert not missing, f"missing from the frozen server: {missing}"
     # the network core beside the server (desktop builds): it must answer and have Tor
     core = dist / ("engramm-core.exe" if sys.platform == "win32" else "engramm-core")
     if core.exists():

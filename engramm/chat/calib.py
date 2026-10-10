@@ -70,11 +70,11 @@ class ConfCalibrator:
 
     def save(self, path: Path) -> None:
         Path(path).write_text(json.dumps({"kind": "conf-perceptron", "r0_bins": list(self.r0_bins),
-                                          "w": {k: self.w[k] for k in sorted(self.w)}}, indent=0) + "\n")
+                                          "w": {k: self.w[k] for k in sorted(self.w)}}, indent=0) + "\n", encoding="utf-8")
 
     @classmethod
     def load(cls, path: Path) -> ConfCalibrator:
-        d = json.loads(Path(path).read_text())
+        d = json.loads(Path(path).read_text(encoding="utf-8"))
         return cls(d["w"], d.get("r0_bins", DEFAULT_R0_BINS))
 
 

@@ -294,6 +294,8 @@ fn spawn_server(app: &AppHandle, state: &AppState, pack_dir: &str) -> Result<u16
         .arg(data.join("chat_memory.log"))
         .env("PYTHONUNBUFFERED", "1")
         .env("PYTHONIOENCODING", "utf-8")
+        // UTF-8 mode: files without an explicit encoding are UTF-8 too, not the ANSI code page of Windows
+        .env("PYTHONUTF8", "1")
         .env("ENGRAMM_NO_BROWSER", "1")
         .env("NUMBA_CACHE_DIR", &cache)
         .stdin(Stdio::piped())
