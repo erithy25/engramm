@@ -304,12 +304,14 @@ Rechenleistung pro Stunde (§9).
   weiteren Token verlängert (neue Abnahme-Phase ab dem letzten konstanten Stand).
 - **Zusätzlich berichtet:** die Mischung mit dem Zähler (λ je Bucket) und val-A.
 
-**Verlauf des Langlaufs (Stand 10. Oktober, 10:50 UTC).**
+**Verlauf des Langlaufs (Stand 10. Oktober, 23:45 UTC).**
 
 | Training | Token | val-A, bpb (Fenster 1.024) |
 |---|---|---|
 | 6 h | 29 Mio. | 1,762 |
 | 12 h | 60 Mio. | 1,640 |
+| 18 h | 81 Mio. | 1,590 |
+| 24 h | 93 Mio. | 1,562 |
 
 - **Unterbrechungen:** Zwei Container-Neustarts (9./10. Oktober) löschten die RAM-Disk. Der Lauf setzte jeweils von den
   Gewichten auf der Platte fort, bei 75,5 Mio. Token. Gesichert wird jetzt alle 20 min.
@@ -320,5 +322,16 @@ Rechenleistung pro Stunde (§9).
   - Jetzt wird fp32 gerechnet, wenn die CPU kein bf16 kann.
   - Tempo hier: 2,0 Mio. Token/h bei Kontext 256, 1,7 Mio. bei Kontext 1.024. Auf dem ursprünglichen Rechner mit bf16
     waren es 5,1 bzw. 4,0 Mio.
-- **Unverändert:** Modell, Token-Budget und Entscheidungsregel. Auf diesem Rechner dauert der Rest (≈ 525 Mio. Token)
-  rund 12 Tage, auf einem Rechner mit AMX rund 5.
+- **Unverändert:** Modell, Token-Budget und Entscheidungsregel.
+- **Restdauer nach Phasen** (Stand 101 Mio. Token nach 28,2 h; die frühere Schätzung „rund 12 Tage" rechnete mit
+  konstantem Tempo und war zu knapp, weil längerer Kontext jedes Token teurer macht):
+
+  | Phase | Token | Tempo hier (fp32) | Dauer |
+  |---|---|---|---|
+  | Kontext 256 | 101 → 150 Mio. | 2,1 Mio./h, gemessen im Lauf | ~23 h |
+  | Kontext 512 | 150 → 300 Mio. | ~1,85 Mio./h, gerechnet (Aufmerksamkeitsanteil) | ~81 h |
+  | Kontext 1.024 | 300 → 600 Mio. | 1,45–1,73 Mio./h, zwei Benchmarks hier | ~175–205 h |
+
+  Zusammen 280–310 h Training, dazu die Messpausen (~10 min je Kurvenpunkt) und die Endmessung. Ende auf diesem
+  Rechner also etwa am 23. Oktober (± 1 Tag), sofern weder ein Neustart noch ein Hardware-Wechsel dazwischenkommt.
+  Gemessen an der Rechenzeit ist der Lauf damit zu ≈ 9 % fertig, gemessen an den Token zu 17 %.
