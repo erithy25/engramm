@@ -56,6 +56,8 @@ export interface Health {
   error: string | null;
   mode: "full" | "quick" | null;
   sentences: number | null;
+  /** the knowledge pack the server runs on (desktop app); also set when loading failed */
+  pack?: { name: string; version: string; bytes: number } | null;
 }
 
 export interface MemoryItem {

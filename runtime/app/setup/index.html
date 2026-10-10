@@ -22,17 +22,20 @@
     </section>
 
     <section id="ready" class="box" hidden>
+      <h2>In use</h2>
       <p id="packLine"></p>
+      <p class="small muted" id="switchNote" hidden></p>
       <button type="button" id="start" class="primary">Start chatting</button>
       <p class="small muted" id="starting" hidden>Starting ENGRAMM … the first start can take up to a minute.</p>
     </section>
 
     <section id="install" class="box" hidden>
-      <h2>Install a knowledge pack</h2>
-      <p class="muted">ENGRAMM answers from a knowledge pack on this computer (Wikipedia text, facts from
+      <h2 id="installTitle">Install a knowledge pack</h2>
+      <p class="muted" id="installIntro">ENGRAMM answers from a knowledge pack on this computer (Wikipedia text, facts from
         Wikidata and DBpedia, its conversation bank). After installing it, ENGRAMM needs no internet.</p>
       <div id="catalog"></div>
       <p class="small muted" id="noCatalog" hidden>This build has no download address. Use a pack folder instead.</p>
+      <p class="small muted" id="packsNote" hidden>What ENGRAMM learned about you and your conversations stay the same when you switch packs.</p>
       <hr>
       <p class="muted">Already have a pack folder (for example from a USB stick)?</p>
       <button type="button" id="folder">Use a pack folder …</button>

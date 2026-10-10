@@ -7,6 +7,15 @@ export function Mark() {
   );
 }
 
+export function PackIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 3 3 7.5l9 4.5 9-4.5L12 3z" />
+      <path d="m3 12 9 4.5 9-4.5M3 16.5 12 21l9-4.5" />
+    </svg>
+  );
+}
+
 export function PlusIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">

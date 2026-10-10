@@ -15,7 +15,7 @@ everything you told the earlier app (``user.log``).
 API (JSON):
 
 * ``GET  /api/health``           → {"ready": bool, "error": str|None, "mode": "full"|"quick"|None,
-                                    "sentences": int|None}
+                                    "sentences": int|None, "pack": {"name", "version", "bytes"}|None}
 * ``POST /api/chat``             {"conversation": str, "message": str} → reply
 * ``GET  /api/memory``           → {"items": [{"source", "preview", "tokens"}]}
 * ``POST /api/memory/forget``    {"source": str} → {"forgot": str}
@@ -124,6 +124,7 @@ class ChatService:
         self.egress = None
         self.atlas = None
         self.shown_urls: set[str] = set()          # links this server put into replies (may be opened)
+        self._pack_info: dict | None = None
 
     # -- loading -----------------------------------------------------------------------------
 
@@ -204,9 +205,23 @@ class ChatService:
             lr.state.reset()
         return self.learning()
 
+    def pack_info(self) -> dict | None:
+        """Name, version and size of the knowledge pack (from its manifest), also when loading failed:
+        the desktop app shows it and offers the other packs."""
+        if self.pack is None:
+            return None
+        if self._pack_info is None:
+            try:
+                m = json.loads((self.pack / "manifest.json").read_text(encoding="utf-8"))
+                self._pack_info = {"name": str(m.get("pack") or ""), "version": str(m.get("version") or ""),
+                                   "bytes": int(m.get("bytes") or 0)}
+            except (OSError, ValueError, TypeError):
+                return None
+        return self._pack_info
+
     def health(self) -> dict:
         return {"ready": self.assistant is not None, "error": self.error, "mode": self.mode,
-                "sentences": None if self.bot is None else int(self.bot.c.index.n)}
+                "sentences": None if self.bot is None else int(self.bot.c.index.n), "pack": self.pack_info()}
 
     # -- chat --------------------------------------------------------------------------------
 

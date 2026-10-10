@@ -10,6 +10,9 @@
 //!   commands. Links it opens go through the server to the system browser.
 //! * The server's standard input stays open while the app runs; when it closes (the app quits
 //!   or crashes), the server stops on its own.
+//! * Packs can be switched later: the chat page links to `/__engramm/packs`, which the window
+//!   turns into the setup page in its pack view (lite → standard, back, delete a pack not in use).
+//!   Starting the chat with another pack restarts the server on it; the memory stays the same.
 //!
 //! No network traffic happens unless the user starts a download: no update checks, no telemetry.
 
@@ -18,7 +21,7 @@ use serde::{Deserialize, Serialize};
 use std::io::{BufRead, BufReader, Read};
 use std::path::{Path, PathBuf};
 use std::process::{Child, ChildStdin, Command, Stdio};
-use std::sync::atomic::{AtomicBool, AtomicU16, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU16, AtomicU64, Ordering};
 use std::sync::{mpsc, Arc, Mutex};
 use std::time::{Duration, Instant};
 use tauri::{AppHandle, Emitter, Manager, RunEvent, State, Url, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
@@ -36,6 +39,11 @@ struct Server {
 struct AppState {
     server: Arc<Mutex<Server>>,
     port: Arc<AtomicU16>,
+    /// the pack folder the running server was started on
+    running_pack: Arc<Mutex<Option<String>>>,
+    /// counts server starts and stops, so the output thread of a server that was stopped on
+    /// purpose (pack switch) neither reports an error nor resets the port of its successor
+    generation: Arc<AtomicU64>,
     quitting: Arc<AtomicBool>,
     cancel: Arc<AtomicBool>,
     downloading: Arc<AtomicBool>,
@@ -74,11 +82,25 @@ struct PackInfo {
     files: usize,
 }
 
+/// A complete pack on this computer, for the pack view of the setup page.
+#[derive(Debug, Clone, Serialize)]
+struct Installed {
+    #[serde(flatten)]
+    info: PackInfo,
+    /// the pack the chat starts with
+    current: bool,
+    /// downloaded into the app's data folder and not in use: may be deleted
+    removable: bool,
+}
+
 #[derive(Debug, Serialize)]
 struct Status {
     pack: Option<PackInfo>,
     problem: Option<String>,
     catalog: Vec<CatalogEntry>,
+    installed: Vec<Installed>,
+    /// the pack folder of the running server, if one runs
+    running: Option<String>,
     data_dir: String,
     downloading: bool,
 }
@@ -146,29 +168,50 @@ fn check_pack(dir: &Path, deep: bool) -> Result<PackInfo, String> {
     })
 }
 
-/// Where the pack is: the folder remembered in the settings, one bundled with the app, or one
-/// downloaded earlier into the app's data folder.
-fn find_pack(app: &AppHandle) -> (Option<PackInfo>, Option<String>) {
-    let mut candidates: Vec<PathBuf> = Vec::new();
-    if let Some(p) = read_settings(app).pack_dir {
-        candidates.push(p);
+fn packs_dir(app: &AppHandle) -> Result<PathBuf, String> {
+    Ok(data_dir(app)?.join("packs"))
+}
+
+/// Where packs may be, in order of preference: the folder remembered in the settings, one
+/// bundled with the app, then those downloaded into the app's data folder (newest name first).
+fn candidates(settings_dir: Option<PathBuf>, bundled: Option<PathBuf>, packs: Option<&Path>) -> Vec<PathBuf> {
+    let mut out: Vec<PathBuf> = settings_dir.into_iter().chain(bundled).collect();
+    if let Some(entries) = packs.and_then(|d| std::fs::read_dir(d).ok()) {
+        let mut dirs: Vec<PathBuf> = entries.flatten().map(|e| e.path()).filter(|p| p.is_dir()).collect();
+        dirs.sort();
+        out.extend(dirs.into_iter().rev());
     }
-    if let Ok(res) = app.path().resource_dir() {
-        candidates.push(res.join("pack"));
+    let mut seen = std::collections::HashSet::new();
+    out.retain(|p| seen.insert(same_path(p)));
+    out
+}
+
+/// A path in a form two spellings of the same folder agree on (Windows ignores case).
+fn same_path(p: &Path) -> String {
+    let s = std::fs::canonicalize(p).unwrap_or_else(|_| p.to_path_buf()).display().to_string();
+    if cfg!(windows) {
+        s.to_lowercase()
+    } else {
+        s
     }
-    if let Ok(d) = data_dir(app) {
-        if let Ok(entries) = std::fs::read_dir(d.join("packs")) {
-            let mut dirs: Vec<PathBuf> = entries.flatten().map(|e| e.path()).filter(|p| p.is_dir()).collect();
-            dirs.sort();
-            candidates.extend(dirs.into_iter().rev());
-        }
-    }
+}
+
+fn app_candidates(app: &AppHandle) -> Vec<PathBuf> {
+    candidates(
+        read_settings(app).pack_dir,
+        app.path().resource_dir().ok().map(|r| r.join("pack")),
+        packs_dir(app).ok().as_deref(),
+    )
+}
+
+/// The first complete pack among the candidates, or why none could be used.
+fn first_pack(candidates: &[PathBuf]) -> (Option<PackInfo>, Option<String>) {
     let mut problem = None;
     for c in candidates {
         if !c.join(pack::MANIFEST).is_file() {
             continue;
         }
-        match check_pack(&c, false) {
+        match check_pack(c, false) {
             Ok(info) => return (Some(info), None),
             Err(e) => problem = problem.or(Some(e)),
         }
@@ -176,16 +219,93 @@ fn find_pack(app: &AppHandle) -> (Option<PackInfo>, Option<String>) {
     (None, problem)
 }
 
+/// Where the pack is: the folder remembered in the settings, one bundled with the app, or one
+/// downloaded earlier into the app's data folder.
+fn find_pack(app: &AppHandle) -> (Option<PackInfo>, Option<String>) {
+    first_pack(&app_candidates(app))
+}
+
+/// Every complete pack among the candidates; `current` marks the one the chat starts with.
+fn installed_packs(candidates: &[PathBuf], current: Option<&PackInfo>, packs: Option<&Path>) -> Vec<Installed> {
+    let current = current.map(|c| same_path(Path::new(&c.dir)));
+    let packs = packs.map(same_path);
+    candidates
+        .iter()
+        .filter(|c| c.join(pack::MANIFEST).is_file())
+        .filter_map(|c| check_pack(c, false).ok().map(|info| (same_path(c), info)))
+        .map(|(key, info)| {
+            let current = current.as_deref() == Some(key.as_str());
+            let inside = packs.as_deref().is_some_and(|p| Path::new(&key).parent().map(same_path).as_deref() == Some(p));
+            Installed { info, current, removable: inside && !current }
+        })
+        .collect()
+}
+
 #[tauri::command]
 fn status(app: AppHandle, state: State<'_, AppState>) -> Result<Status, String> {
-    let (pack, problem) = find_pack(&app);
+    let cands = app_candidates(&app);
+    let (pack, problem) = first_pack(&cands);
+    let installed = installed_packs(&cands, pack.as_ref(), packs_dir(&app).ok().as_deref());
+    let running = if state.port.load(Ordering::SeqCst) != 0 {
+        state.running_pack.lock().ok().and_then(|r| r.clone())
+    } else {
+        None
+    };
     Ok(Status {
         pack,
         problem,
         catalog: catalog(&app),
+        installed,
+        running,
         data_dir: data_dir(&app)?.display().to_string(),
         downloading: state.downloading.load(Ordering::SeqCst),
     })
+}
+
+/// Makes an installed pack the one the chat starts with (the next start of the chat uses it).
+#[tauri::command]
+fn use_pack(app: AppHandle, dir: String) -> Result<PackInfo, String> {
+    let wanted = same_path(Path::new(&dir));
+    let cands = app_candidates(&app);
+    let found = cands
+        .into_iter()
+        .find(|c| same_path(c) == wanted)
+        .ok_or_else(|| format!("No installed knowledge pack at {dir}."))?;
+    let info = check_pack(&found, false)?;
+    write_settings(&app, &Settings { pack_dir: Some(found) })?;
+    Ok(info)
+}
+
+/// Deletes a downloaded pack that is neither the current one nor the one the server runs on.
+#[tauri::command]
+async fn remove_pack(app: AppHandle, state: State<'_, AppState>, dir: String) -> Result<(), String> {
+    let packs = packs_dir(&app)?;
+    let target = PathBuf::from(&dir);
+    let (current, _) = find_pack(&app);
+    let running = state.running_pack.lock().map_err(err)?.clone();
+    removable(&target, &packs, current.as_ref().map(|c| c.dir.as_str()), running.as_deref())?;
+    let shown = target.display().to_string();
+    tauri::async_runtime::spawn_blocking(move || std::fs::remove_dir_all(&target))
+        .await
+        .map_err(err)?
+        .map_err(|e| format!("Could not delete {shown}: {e}"))?;
+    Ok(())
+}
+
+/// Only a folder directly inside the app's pack folder may be deleted, and not the pack in use.
+fn removable(target: &Path, packs: &Path, current: Option<&str>, running: Option<&str>) -> Result<(), String> {
+    let key = same_path(target);
+    let inside = target.parent().map(same_path) == Some(same_path(packs)) && target.is_dir();
+    if !inside {
+        return Err(format!("{} is not a pack this app downloaded; delete it yourself if you want to.", target.display()));
+    }
+    if current.map(|c| same_path(Path::new(c))) == Some(key.clone()) {
+        return Err("This pack is in use. Switch to another pack first.".into());
+    }
+    if running.map(|r| same_path(Path::new(r))) == Some(key) {
+        return Err("The chat still runs on this pack. Start the chat with the other pack first.".into());
+    }
+    Ok(())
 }
 
 #[tauri::command]
@@ -278,11 +398,24 @@ fn log_tail(server: &Arc<Mutex<Server>>) -> String {
     server.lock().map(|s| s.log.join("\n")).unwrap_or_default()
 }
 
-fn show_setup_error(app: &AppHandle, state_url: &Arc<Mutex<Option<Url>>>, message: &str) {
+/// Moves the window to the bundled setup page, with the given query (`error=…`, `manage=1`).
+fn open_setup(app: &AppHandle, state_url: &Arc<Mutex<Option<Url>>>, query: &[(&str, &str)]) {
     let Some(window) = app.get_webview_window("main") else { return };
     let Some(mut url) = state_url.lock().ok().and_then(|u| u.clone()) else { return };
-    url.query_pairs_mut().clear().append_pair("error", message);
+    url.query_pairs_mut().clear().extend_pairs(query);
     let _ = window.navigate(url);
+}
+
+fn show_setup_error(app: &AppHandle, state_url: &Arc<Mutex<Option<Url>>>, message: &str) {
+    open_setup(app, state_url, &[("error", message)]);
+}
+
+/// The chat page's link to the pack view (`/__engramm/packs` on the local server).
+const PACKS_PATH: &str = "/__engramm/packs";
+
+fn is_packs_link(url: &Url, port: u16) -> bool {
+    url.scheme() == "http" && url.host_str() == Some("127.0.0.1") && port != 0 && url.port() == Some(port)
+        && url.path() == PACKS_PATH
 }
 
 fn spawn_server(app: &AppHandle, state: &AppState, pack_dir: &str) -> Result<u16, String> {
@@ -317,9 +450,11 @@ fn spawn_server(app: &AppHandle, state: &AppState, pack_dir: &str) -> Result<u16
         s.stdin = stdin;
         s.log.clear();
     }
+    let my_gen = state.generation.fetch_add(1, Ordering::SeqCst) + 1;
     let (tx, rx) = mpsc::channel::<u16>();
     let server = state.server.clone();
     let (quitting, port_cell, setup_url) = (state.quitting.clone(), state.port.clone(), state.setup_url.clone());
+    let generation = state.generation.clone();
     let app_out = app.clone();
     std::thread::spawn(move || {
         for line in BufReader::new(stdout).lines().map_while(Result::ok) {
@@ -330,10 +465,17 @@ fn spawn_server(app: &AppHandle, state: &AppState, pack_dir: &str) -> Result<u16
             }
             push_log(&server, line);
         }
-        // the server ended; unless the app is quitting, that is an error worth showing
+        // the server ended; unless the app is quitting or stopped it on purpose (a newer start
+        // or stop happened since), that is an error worth showing
+        if generation.load(Ordering::SeqCst) != my_gen {
+            return;
+        }
         port_cell.store(0, Ordering::SeqCst);
         if !quitting.load(Ordering::SeqCst) {
             std::thread::sleep(Duration::from_millis(300));
+            if generation.load(Ordering::SeqCst) != my_gen {
+                return;
+            }
             let msg = format!("The ENGRAMM server stopped.\n\n{}", log_tail(&server));
             show_setup_error(&app_out, &setup_url, &msg);
         }
@@ -359,6 +501,10 @@ fn spawn_server(app: &AppHandle, state: &AppState, pack_dir: &str) -> Result<u16
 }
 
 fn stop_server(state: &AppState) {
+    state.generation.fetch_add(1, Ordering::SeqCst);
+    if let Ok(mut r) = state.running_pack.lock() {
+        *r = None;
+    }
     let child = match state.server.lock() {
         Ok(mut s) => {
             s.stdin = None; // closing its input asks the server to stop
@@ -388,11 +534,17 @@ async fn start_chat(app: AppHandle, window: WebviewWindow) -> Result<(), String>
     let port = tauri::async_runtime::spawn_blocking(move || {
         let state = app2.state::<AppState>();
         let running = state.port.load(Ordering::SeqCst);
-        if running != 0 {
+        let same = state.running_pack.lock().map_err(err)?.as_deref().map(|r| same_path(Path::new(r)))
+            == Some(same_path(Path::new(&pack.dir)));
+        if running != 0 && same {
             return Ok(running);
+        }
+        if running != 0 {
+            stop_server(&state); // another pack was chosen: start the server on it
         }
         let port = spawn_server(&app2, &state, &pack.dir)?;
         state.port.store(port, Ordering::SeqCst);
+        *state.running_pack.lock().map_err(err)? = Some(pack.dir.clone());
         Ok::<u16, String>(port)
     })
     .await
@@ -420,6 +572,8 @@ pub fn run() {
     let state = AppState {
         server: Arc::new(Mutex::new(Server::default())),
         port: Arc::new(AtomicU16::new(0)),
+        running_pack: Arc::new(Mutex::new(None)),
+        generation: Arc::new(AtomicU64::new(0)),
         quitting: Arc::new(AtomicBool::new(false)),
         cancel: Arc::new(AtomicBool::new(false)),
         downloading: Arc::new(AtomicBool::new(false)),
@@ -427,16 +581,35 @@ pub fn run() {
     };
     let nav_port = state.port.clone();
     let setup_url = state.setup_url.clone();
+    let nav_setup = state.setup_url.clone();
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(state)
-        .invoke_handler(tauri::generate_handler![status, use_folder, download, cancel_download, start_chat])
+        .invoke_handler(tauri::generate_handler![
+            status,
+            use_folder,
+            use_pack,
+            remove_pack,
+            download,
+            cancel_download,
+            start_chat
+        ])
         .setup(move |app| {
+            let handle = app.handle().clone();
             let window = WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into()))
                 .title("ENGRAMM")
                 .inner_size(1240.0, 820.0)
                 .min_inner_size(380.0, 520.0)
-                .on_navigation(move |url| allowed(url, nav_port.load(Ordering::SeqCst)))
+                .on_navigation(move |url| {
+                    let port = nav_port.load(Ordering::SeqCst);
+                    if is_packs_link(url, port) {
+                        // the chat page asks for the pack view: show the setup page instead
+                        let (h, su) = (handle.clone(), nav_setup.clone());
+                        std::thread::spawn(move || open_setup(&h, &su, &[("manage", "1")]));
+                        return false;
+                    }
+                    allowed(url, port)
+                })
                 .build()?;
             if let Ok(url) = window.url() {
                 if let Ok(mut s) = setup_url.lock() {
@@ -459,8 +632,94 @@ pub fn run() {
 
 #[cfg(test)]
 mod tests {
-    use super::allowed;
+    use super::{allowed, candidates, first_pack, installed_packs, is_packs_link, removable};
+    use std::path::{Path, PathBuf};
     use tauri::Url;
+
+    /// A complete pack folder: one file and a manifest that lists it with its size and hash.
+    fn make_pack(dir: &Path, name: &str, version: &str) {
+        std::fs::create_dir_all(dir).unwrap();
+        let body = format!("{name} {version}");
+        std::fs::write(dir.join("data.txt"), &body).unwrap();
+        let sha = engramm_core::pack::sha256_file(&dir.join("data.txt")).unwrap();
+        let manifest = serde_json::json!({
+            "pack": name, "version": version, "bytes": body.len(),
+            "files": {"data.txt": {"bytes": body.len(), "sha256": sha}}
+        });
+        std::fs::write(dir.join("manifest.json"), serde_json::to_vec(&manifest).unwrap()).unwrap();
+    }
+
+    fn tmp(name: &str) -> PathBuf {
+        let d = std::env::temp_dir().join(format!("engramm-app-test-{}-{name}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        std::fs::create_dir_all(&d).unwrap();
+        d
+    }
+
+    #[test]
+    fn the_settings_pack_comes_first_then_downloaded_packs_newest_name_first() {
+        let root = tmp("order");
+        let packs = root.join("packs");
+        make_pack(&packs.join("lite-3.1.0"), "lite", "3.1.0");
+        make_pack(&packs.join("standard-3.1.0"), "standard", "3.1.0");
+        // nothing chosen: the first downloaded pack by name, newest first ("standard" > "lite")
+        let c = candidates(None, None, Some(&packs));
+        assert_eq!(first_pack(&c).0.unwrap().name, "standard");
+        // chosen in the settings: that one, and it is listed once only
+        let c = candidates(Some(packs.join("lite-3.1.0")), None, Some(&packs));
+        assert_eq!(c.len(), 2);
+        let (current, _) = first_pack(&c);
+        assert_eq!(current.as_ref().unwrap().name, "lite");
+        let inst = installed_packs(&c, current.as_ref(), Some(&packs));
+        let lite = inst.iter().find(|i| i.info.name == "lite").unwrap();
+        let standard = inst.iter().find(|i| i.info.name == "standard").unwrap();
+        assert!(lite.current && !lite.removable);
+        assert!(!standard.current && standard.removable);
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn an_incomplete_download_is_not_a_pack() {
+        let root = tmp("partial");
+        let packs = root.join("packs");
+        make_pack(&packs.join("lite-3.1.0"), "lite", "3.1.0");
+        // a download that stopped before its manifest was written (fetch_pack writes it last)
+        std::fs::create_dir_all(packs.join("standard-3.1.0")).unwrap();
+        std::fs::write(packs.join("standard-3.1.0").join("data.txt"), "half").unwrap();
+        let c = candidates(None, None, Some(&packs));
+        let (current, _) = first_pack(&c);
+        assert_eq!(current.as_ref().unwrap().name, "lite");
+        assert_eq!(installed_packs(&c, current.as_ref(), Some(&packs)).len(), 1);
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn only_a_downloaded_pack_not_in_use_may_be_deleted() {
+        let root = tmp("remove");
+        let packs = root.join("packs");
+        let (lite, standard, elsewhere) = (packs.join("lite-3.1.0"), packs.join("standard-3.1.0"), root.join("usb-pack"));
+        make_pack(&lite, "lite", "3.1.0");
+        make_pack(&standard, "standard", "3.1.0");
+        make_pack(&elsewhere, "lite", "3.1.0");
+        let s = |p: &Path| p.display().to_string();
+        assert!(removable(&lite, &packs, Some(&s(&standard)), None).is_ok());
+        assert!(removable(&lite, &packs, Some(&s(&lite)), None).is_err()); // current
+        assert!(removable(&lite, &packs, Some(&s(&standard)), Some(&s(&lite))).is_err()); // server runs on it
+        assert!(removable(&elsewhere, &packs, Some(&s(&standard)), None).is_err()); // not ours
+        assert!(removable(&packs, &packs, None, None).is_err()); // the pack folder itself
+        assert!(removable(&packs.join("nope"), &packs, None, None).is_err()); // missing
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn the_pack_link_is_recognised_only_on_the_running_local_server() {
+        let link = |s: &str, p: u16| is_packs_link(&Url::parse(s).unwrap(), p);
+        assert!(link("http://127.0.0.1:5123/__engramm/packs", 5123));
+        assert!(!link("http://127.0.0.1:5124/__engramm/packs", 5123));
+        assert!(!link("http://127.0.0.1:5123/__engramm/packs", 0));
+        assert!(!link("http://127.0.0.1:5123/?desktop=1", 5123));
+        assert!(!link("https://example.org/__engramm/packs", 5123));
+    }
 
     #[test]
     fn navigation_is_limited_to_the_app_and_the_local_server() {

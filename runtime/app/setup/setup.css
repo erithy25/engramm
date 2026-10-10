@@ -58,6 +58,15 @@ button.primary:hover { box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.08), 0 12px 4
   display: flex; gap: 14px; align-items: center; justify-content: space-between; transition: border-color 0.25s var(--ease); }
 .pack:hover { border-color: var(--line-2); }
 .pack b { display: block; font-weight: 500; }
+.pack > div:first-child { min-width: 0; }
+.pack .small { display: block; overflow-wrap: anywhere; }
+.actions { display: flex; gap: 8px; flex: none; }
+.badge { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-3);
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); }
+.badge::before { content: ""; width: 6px; height: 6px; margin-right: 8px; border-radius: 50%; background: var(--ink); box-shadow: 0 0 8px rgba(255, 255, 255, 0.7); }
+#ready h2 { margin-bottom: 6px; }
+#switchNote { margin-top: 2px; }
+#packsNote { margin-top: 12px; }
 #packLine { font-family: var(--mono); font-size: 12px; letter-spacing: 0.02em; color: var(--ink-2); }
 hr { border: 0; border-top: 1px solid var(--line); margin: 22px 0 14px; }
 .bar { height: 2px; border-radius: 2px; background: var(--line-2); overflow: hidden; margin: 14px 0 6px; }
@@ -67,6 +76,7 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 22px 0 14px; }
 
 @media (max-width: 520px) {
   .pack { flex-direction: column; align-items: stretch; }
+  .actions { justify-content: flex-start; }
   .brand { font-size: 34px; }
 }
 @media (prefers-reduced-motion: reduce) {

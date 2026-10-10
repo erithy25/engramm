@@ -128,6 +128,7 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 }
 .side-link svg { width: 16px; height: 16px; flex: none; }
 .side-link:hover { background: var(--raise); color: var(--ink); }
+a.side-link { text-decoration: none; }
 .net-on { color: var(--ink); }
 
 /* main -------------------------------------------------------------------------------- */
@@ -170,6 +171,21 @@ svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width:
 .suggestion:hover { background: var(--raise-2); border-color: var(--line-2); transform: translateY(-1px); }
 .suggestion b { display: block; font-size: 14.5px; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
 .suggestion span { display: block; margin-top: 2px; font-size: 13px; color: var(--muted); }
+.load-error {
+  margin: 32px auto 0; max-width: 560px; text-align: left; padding: 18px 20px; border-radius: 14px;
+  border: 1px solid var(--bad); background: var(--raise);
+}
+.load-error b { display: block; font-weight: 500; color: var(--ink); }
+.load-error code {
+  display: block; margin: 10px 0; padding: 10px 12px; border-radius: 10px; background: var(--raise-2);
+  font-family: var(--mono); font-size: 12px; line-height: 1.5; color: var(--bad); white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.load-error p { margin: 0 0 14px; font-size: 14px; }
+.pill-link {
+  display: inline-flex; align-items: center; height: 38px; padding: 0 18px; border-radius: 999px; font-size: 14px;
+  background: var(--accent); color: var(--accent-ink); text-decoration: none; font-weight: 500;
+}
+.pill-link:hover { opacity: .9; }
 
 .msg { display: flex; gap: 14px; margin: 0 auto 26px; animation: rise .45s var(--ease) both; }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } }

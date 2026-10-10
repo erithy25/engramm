@@ -15,6 +15,11 @@ export interface Texts {
   history: string;
   memory: string;
   about: string;
+  pack: string;
+  packTitle: string;
+  openPacks: string;
+  loadErrorTitle: string;
+  loadErrorHint: string;
   otherLanguage: string;
   darkMode: string;
   lightMode: string;
@@ -115,6 +120,11 @@ const en: Texts = {
   history: "History",
   memory: "What ENGRAMM knows",
   about: "About ENGRAMM",
+  pack: "Knowledge pack",
+  packTitle: "Download, switch or delete knowledge packs (lite, standard)",
+  openPacks: "Open knowledge packs",
+  loadErrorTitle: "ENGRAMM could not load its knowledge pack.",
+  loadErrorHint: "Switch to another pack or download this one again. What ENGRAMM learned about you stays.",
   otherLanguage: "Deutsch",
   darkMode: "Dark mode",
   lightMode: "Light mode",
@@ -241,6 +251,11 @@ const de: Texts = {
   history: "Verlauf",
   memory: "Was ENGRAMM weiß",
   about: "Über ENGRAMM",
+  pack: "Wissenspaket",
+  packTitle: "Wissenspakete laden, wechseln oder löschen (Lite, Standard)",
+  openPacks: "Wissenspakete öffnen",
+  loadErrorTitle: "ENGRAMM konnte sein Wissenspaket nicht laden.",
+  loadErrorHint: "Wechsle zu einem anderen Paket oder lade dieses neu herunter. Was ENGRAMM über dich gelernt hat, bleibt erhalten.",
   otherLanguage: "English",
   darkMode: "Dunkles Design",
   lightMode: "Helles Design",
