@@ -64,7 +64,7 @@ FROZEN = BotConfig(weights=WEIGHTS, extract=EXTRACT, text_k=120, theta=-5.0005, 
 def cap_ratio(index_dir: Path) -> dict | None:
     """Capitalisation statistics stored next to the v2 index (``capstats.json``)."""
     p = Path(index_dir) / "capstats.json"
-    return json.loads(p.read_text()) if p.exists() else None
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
 
 
 # Quick mode ("Schnellmodus"): the measured v9 configuration (PREREG_CHAT_V9, E22) on the small index "chat2" (train
@@ -88,7 +88,7 @@ def config_for(index_dir: Path) -> tuple[BotConfig, str]:
     d = Path(index_dir)
     name = d.name
     if (d / "info.json").exists():
-        info = json.loads((d / "info.json").read_text())
+        info = json.loads((d / "info.json").read_text(encoding="utf-8"))
         name = info.get("config") or info.get("materialized_from") or name
     if name == INDEX_NAME and (d / SPAN_MODEL).exists() and (d / CALIBRATOR).exists():
         return FROZEN, "full"

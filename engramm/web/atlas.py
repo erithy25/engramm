@@ -1,11 +1,12 @@
 """Atlas: the three network channels behind one object (docs/SPEC_ATLAS.md).
 
-``Atlas.candidates(question, names)`` escalates feeds → shelf → messenger, each stage only when
-its channel is on and the earlier stages found nothing useful, and returns sentences with their
-source for the existing answer extraction (``ChatBot.extra_rows``). ``Atlas.news(query)`` lists
-headlines from the subscribed feeds. Nothing here ever sends the question: the shelf fetches
-bucket numbers (with decoys), the feeds were fetched on a schedule, the messenger fetches a page
-the local wayfinder chose, over Tor.
+``Atlas.candidates(question, names)`` asks feeds → shelf, each stage only when its channel is on,
+and returns sentences with their source for the existing answer extraction
+(``ChatBot.extra_rows``). ``Atlas.news(query)`` lists headlines from the subscribed feeds.
+``Atlas.search`` is the web search (engramm/web/search.py; the conversation calls it when the
+user asks for a search or, with the channel on, when it cannot answer offline). The shelf and the
+feeds never send the question (the shelf fetches bucket numbers with decoys, the feeds are
+fetched on a schedule); the web search does: it asks a search engine.
 """
 
 from __future__ import annotations
@@ -16,13 +17,14 @@ import json
 import re
 import threading
 import time
-import urllib.parse
 from pathlib import Path
 
-from engramm.web.egress import Egress, EgressError, Request
+from engramm.web.egress import Egress, EgressError
 
 _FRESH = re.compile(r"\b(?:current(?:ly)?|latest|newest|recent(?:ly)?|now|today|tonight|yesterday|this (?:week|month|"
-                    r"year)|right now|at the moment|nowadays|still|anymore|20(?:2[3-9]|3\d))\b", re.I)
+                    r"year)|right now|at the moment|nowadays|still|anymore|20(?:2[3-9]|3\d)|aktuell(?:e[nmrs]?)?|derzeit(?:ig\w*)?|"
+                    r"momentan|zurzeit|jetzt|gerade|heute|gestern|neueste[nmrs]?|diese[nmrs]? (?:woche|monat|jahr)|noch immer|"
+                    r"immer noch|mittlerweile|inzwischen)\b", re.I)
 _NEWS = re.compile(r"^(?:(?:hey|ok|so|please)[, ]+)*(?:what(?:'s| is| are)? (?:the )?(?:latest |new |recent |top )?"
                    r"(?:news|headlines)(?: today)?(?: (?:about|on|in|from|regarding) (?P<x>.+))?|"
                    r"(?:any |the )?(?:latest |new |recent )?(?:news|headlines|updates)(?: today)?(?: (?:about|on|in|from|"
@@ -52,7 +54,6 @@ class Atlas:
         self.lock = threading.Lock()
         self.feeds = self.refresher = None
         self.shelf = None
-        self.wayfinder = None
         self.feed_list = []
         self.shelf_signed: bool | None = None
         self.shelf_error: str | None = None
@@ -60,7 +61,8 @@ class Atlas:
         self.calib = load_calib()
         self._init_feeds()
         self._init_shelf()
-        self._init_wayfinder()
+        from engramm.web.search import WebSearch
+        self.search = WebSearch(egress)
 
     # -- set-up -------------------------------------------------------------------------------
 
@@ -99,27 +101,26 @@ class Atlas:
         except (OSError, KeyError, ValueError, json.JSONDecodeError):
             self.shelf = None
 
-    def _init_wayfinder(self) -> None:
-        if self.pack is not None and (self.pack / "wayfinder.sqlite").exists():
-            from engramm.web.wayfinder import Wayfinder
-            self.wayfinder = Wayfinder(self.pack / "wayfinder.sqlite")
-
     @property
     def seed(self) -> str:
         """A per-installation secret for the decoy buckets (never derived from a question)."""
         if self._seed is None:
             p = (self.state / "atlas_seed") if self.state else None
             if p is not None and p.exists():
-                self._seed = p.read_text().strip()
+                self._seed = p.read_text(encoding="utf-8").strip()
             else:
                 self._seed = hashlib.sha256(f"{time.time_ns()}|{id(self)}".encode()).hexdigest()
                 if p is not None:
                     p.parent.mkdir(parents=True, exist_ok=True)
-                    p.write_text(self._seed)
+                    p.write_text(self._seed, encoding="utf-8")
         return self._seed
 
     def any_on(self) -> bool:
-        return any(self.egress.enabled(c) for c in ("shelf", "feeds", "messenger"))
+        return any(self.egress.enabled(c) for c in ("shelf", "feeds", "search"))
+
+    def reads_on(self) -> bool:
+        """A channel that ``candidates`` reads (the shelf or the feeds) is on."""
+        return any(self.egress.enabled(c) for c in ("shelf", "feeds"))
 
     def on_settings_changed(self) -> None:
         if self.egress.enabled("feeds"):
@@ -129,10 +130,6 @@ class Atlas:
             threading.Thread(target=self.refresher.refresh_now, daemon=True).start()
         else:
             self.refresher.stop()
-        ch = self.egress.settings["channels"]
-        if (self.egress.enabled("messenger") and ch["messenger"].get("tor", True)) or \
-                (self.egress.enabled("shelf") and ch["shelf"].get("tor")):
-            self.egress.warm_tor()
 
     # -- news ---------------------------------------------------------------------------------
 
@@ -149,7 +146,7 @@ class Atlas:
     # -- candidates for the answer extraction ---------------------------------------------------
 
     def candidates(self, question: str, names: list[str], max_rows: int = 24) -> tuple[list[tuple], list[str]]:
-        """(sentences with source, stages used) for a question, escalating feeds → shelf → messenger."""
+        """(sentences with source, stages used) for a question: the feeds, then the shelf."""
         rows: list[tuple[str, dict]] = []
         used = []
         if self.egress.enabled("feeds") and self.feeds is not None:
@@ -176,40 +173,7 @@ class Atlas:
                                     "as_of": d.get("d", "")}, prev))
             if got:
                 used.append("shelf")
-        if not used and self.egress.enabled("messenger"):
-            rows += self._messenger(question, names)
-            if rows:
-                used.append("messenger")
         return rows[:max_rows], used
-
-    def _messenger(self, question: str, names: list[str]) -> list[tuple[str, dict]]:
-        """Pages the wayfinder points to (official site; the live Wikipedia article), over Tor."""
-        from engramm.web.clean import paragraphs
-        from engramm.web.shelf import best_sentences
-        targets: list[tuple[str, str]] = []
-        for n in names[:2]:
-            if self.wayfinder is not None:
-                targets += self.wayfinder.sites(n, limit=1)
-            targets.append((n, "https://en.wikipedia.org/wiki/" + urllib.parse.quote(n.replace(" ", "_"))))
-        tor = bool(self.egress.settings["channels"]["messenger"].get("tor", True))
-        docs = []
-        for title, url in targets[:3]:
-            host = urllib.parse.urlsplit(url).hostname or ""
-            try:
-                res = self.egress.fetch(Request("messenger", url, "page", ("*",), tor=tor))
-            except EgressError:
-                continue
-            if not res.ok or "html" not in (res.content_type or "text/html"):
-                continue
-            text = "\n".join(paragraphs(res.body.decode("utf-8", "replace")))
-            if text:
-                docs.append({"t": title, "x": text, "url": url, "host": host})
-        out = []
-        today = dt.date.today().isoformat()
-        for _, text, d, prev in best_sentences(question, docs, n=14, context=True):
-            out.append((text, {"kind": "web", "source": d["host"], "key": d["url"], "title": d["t"], "as_of": today},
-                        prev))
-        return out
 
     def status(self) -> dict:
         from engramm.web.feeds import Feed  # noqa: F401
@@ -219,7 +183,7 @@ class Atlas:
                 "feed_items": self.feeds.count() if self.feeds else 0,
                 "feed_state": self.feeds.state() if self.feeds else {},
                 "shelf": getattr(self, "shelf_info", None), "shelf_error": self.shelf_error,
-                "wayfinder": self.wayfinder is not None}
+                "search_engines": ["auto", "bing", "duckduckgo", "brave"]}
 
 
 CALIB_PATH = Path(__file__).resolve().parent / "atlas_calib.json"

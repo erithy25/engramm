@@ -152,8 +152,10 @@ jobs:
         run: |
           python -c "import json,sys; m=json.load(open('/dev/shm/engramm/packs/standard/manifest.json')); print('standard pack MB', round(m['bytes']/1e6)); sys.exit(m['bytes'] > 4.5e9)"
           cp catalog-in/catalog.json runtime/app/src-tauri/resources/catalog.json
+          # the tag must be the one the release step below publishes (pack-standard-vX): until
+          # 3.2.0-beta.6 the catalog said pack-standard-X, and the standard download failed (404)
           python -u -m experiments.pack_release --pack /dev/shm/engramm/packs/standard --out dist/standard \
-            --tag "pack-standard-${TAG#v}" --catalog runtime/app/src-tauri/resources/catalog.json
+            --tag "pack-standard-${TAG}" --catalog runtime/app/src-tauri/resources/catalog.json
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: pack-standard-${{ needs.request.outputs.tag }}
@@ -169,11 +171,12 @@ jobs:
 
   catalog:
     # the catalog the installers carry: the lite pack's, plus the standard pack's when it was built
-    needs: [pack, pack_standard]
+    needs: [request, pack, pack_standard]
     # a failed standard pack does not hold back the release: the catalog then lists the lite pack only
     if: ${{ always() && needs.pack.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           pattern: catalog*
@@ -182,13 +185,19 @@ jobs:
           mkdir -p out
           if [ -f in/catalog-standard/catalog.json ]; then cp in/catalog-standard/catalog.json out/; else cp in/catalog/catalog.json out/; fi
           cat out/catalog.json
+      - name: Every pack in the catalog can be downloaded (the lite pack is uploaded with this release)
+        run: >
+          python3 experiments/catalog_check.py out/catalog.json
+          --skip-url-prefix "https://github.com/${{ github.repository }}/releases/download/${{ needs.request.outputs.tag }}/"
       - uses: actions/upload-artifact@v4
         with:
           name: catalog-final
           path: out/catalog.json
 
   reuse:
-    # packs and catalog of an earlier run (same tag), carried into this run under the same names
+    # the packs of an earlier run, carried into this run under the same names; the catalog is the
+    # repository's (runtime/app/src-tauri/resources/catalog.json), checked: an earlier run's catalog
+    # can point at a pack that does not exist (the standard pack until 3.2.0-beta.6)
     needs: request
     if: ${{ needs.request.outputs.reuse != '' }}
     runs-on: ubuntu-latest
@@ -197,20 +206,21 @@ jobs:
       actions: read
       contents: read
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: pack
           path: pack
           run-id: ${{ needs.request.outputs.reuse }}
           github-token: ${{ github.token }}
-      - uses: actions/download-artifact@v4
-        with:
-          name: catalog-final
-          path: catalog
-          run-id: ${{ needs.request.outputs.reuse }}
-          github-token: ${{ github.token }}
-      - run: |
-          ls -la pack pack/* catalog
+      - name: The catalog pins the reused lite pack, and every pack in it can be downloaded
+        run: |
+          ls -la pack pack/*
+          manifest=$(find pack -name manifest.json | head -n 1)
+          test -n "$manifest"
+          python3 experiments/catalog_check.py runtime/app/src-tauri/resources/catalog.json --same "lite=$manifest"
+          mkdir -p catalog
+          cp runtime/app/src-tauri/resources/catalog.json catalog/catalog.json
           cat catalog/catalog.json
       - uses: actions/upload-artifact@v4
         with:
@@ -257,7 +267,8 @@ jobs:
             **Install:** pick the installer for your system below. On first start the app asks before
             downloading a knowledge pack: lite (≈ 1.25 GB) or standard (≈ 2.7 GB, more articles and facts).
             Offline alternative: download `engramm-pack-lite.zip`, unzip it and choose the folder in the app.
-            Internet channels (shelf, feeds, Tor messenger) stay off until you switch them on one by one.
+            Internet: say “google …” and ENGRAMM searches the web for you (the search words go to the search engine).
+            Automatic web search, the Wikipedia shelf and news feeds stay off until you switch them on one by one.
 
             Builds are not signed with a developer certificate yet, so both systems ask once on first start.
             macOS: open ENGRAMM, click "Done", then System Settings → Privacy & Security → "Open Anyway".
@@ -286,7 +297,8 @@ jobs:
             **Install:** pick the installer for your system below. On first start the app asks before
             downloading a knowledge pack: lite (≈ 1.25 GB) or standard (≈ 2.7 GB, more articles and facts).
             Offline alternative: download `engramm-pack-lite.zip`, unzip it and choose the folder in the app.
-            Internet channels (shelf, feeds, Tor messenger) stay off until you switch them on one by one.
+            Internet: say “google …” and ENGRAMM searches the web for you (the search words go to the search engine).
+            Automatic web search, the Wikipedia shelf and news feeds stay off until you switch them on one by one.
 
             Builds are not signed with a developer certificate yet, so both systems ask once on first start.
             macOS: open ENGRAMM, click "Done", then System Settings → Privacy & Security → "Open Anyway".

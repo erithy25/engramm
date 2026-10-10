@@ -12,8 +12,10 @@
 
 ``split`` writes dev.jsonl and test.jsonl and the seal (SHA-256 of test.jsonl) into
 docs/SEARCHBENCH_SEAL.txt; ``run`` refuses a test file whose seal does not match. ``offline`` is v3
-(no network object at all), ``atlas`` switches the shelf, the feeds and the messenger on, ``atlas-off``
-is v3.1 with every channel off (criterion S5: identical to ``offline``).
+(no network object at all), ``atlas`` switches the shelf and the feeds on (the channels that never send a
+question; the Tor messenger of 3.1 is gone), ``web`` adds the web search (it sends the question to a search
+engine, so ``privacy`` reports it as leaked by design), ``atlas-off`` is every channel off (criterion S5:
+identical to ``offline``).
 """
 
 from __future__ import annotations
@@ -74,12 +76,13 @@ def _service(pack: str, system: str, state: Path):
         raise SystemExit(f"could not load the pack: {svc.error}")
     if system == "offline":
         svc.assistant.atlas = None                 # v3: no network object at all
-    elif system == "atlas":
+    elif system in ("atlas", "web"):
         if svc.egress is None:
             raise SystemExit("this build has no network layer")
         svc.egress.set_channel("shelf", enabled=True)
         svc.egress.set_channel("feeds", enabled=True)
-        svc.egress.set_channel("messenger", enabled=True, tor=True)
+        if system == "web":
+            svc.egress.set_channel("search", enabled=True)
         svc.atlas.on_settings_changed()
     return svc
 
@@ -177,7 +180,7 @@ def main(argv=None) -> int:
     r = sub.add_parser("run")
     r.add_argument("--items", required=True)
     r.add_argument("--pack", required=True)
-    r.add_argument("--system", choices=("offline", "atlas", "atlas-off"), required=True)
+    r.add_argument("--system", choices=("offline", "atlas", "web", "atlas-off"), required=True)
     r.add_argument("--out", required=True)
     p = sub.add_parser("privacy")
     p.add_argument("--runs", required=True)

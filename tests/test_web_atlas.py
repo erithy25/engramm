@@ -82,14 +82,20 @@ def test_helpers():
 
 
 def test_channels_off_answers_are_identical(corpus, atlas_chat, tmp_path):   # noqa: F811
+    """With every channel off the answers are those without Atlas; an unanswered question only gets
+    the offer to search the web (nothing is sent until the user says yes)."""
     a, atlas, eg = atlas_chat
     plain = Assistant(_bot(corpus, LoggedTextMemory(tmp_path / "plain.log")), clock=CLOCK)
     s1, s2 = DialogState("x"), DialogState("x")
+    offers = 0
     for q in QUESTIONS:
         if news_request(q)[0]:
             continue                               # the news phrase has its own (offline) reply
         r1, r2 = _ask(a, s1, q), _ask(plain, s2, q)
-        assert (r1.kind, r1.text, r1.answer) == (r2.kind, r2.text, r2.answer), q
+        offers += r1.text.endswith(" Should I search the web for it?")
+        assert (r1.kind, r1.text.removesuffix(" Should I search the web for it?"), r1.answer) == \
+            (r2.kind, r2.text, r2.answer), q
+    assert offers >= 1
     assert eg.log.tail(100) == []                  # nothing left the machine
 
 

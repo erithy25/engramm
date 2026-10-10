@@ -97,6 +97,25 @@ def test_page_and_assets(running):
                         ("/icons/icon-192.png", "image/png"), ("/manifest.webmanifest", "application/manifest+json")):
         code, ct, body = _call(base, path)
         assert code == 200 and ct.startswith(ctype) and body, path
+    # the fonts ship with the app (no font is fetched from the internet) and come with their font type
+    _, _, sheet = _call(base, "/" + css)
+    fonts = re.findall(rb"url\(\.?/?([^)\"']+\.woff2)\)", sheet)
+    assert fonts and not re.search(rb"(?:url\(|@import)\s*['\"]?https?:", sheet)
+    code, ct, body = _call(base, "/assets/" + fonts[0].decode().rsplit("/", 1)[-1])
+    assert code == 200 and ct == "font/woff2" and body
+
+
+def test_health_names_the_pack_even_when_loading_failed(tmp_path):
+    pack = tmp_path / "standard-3.1.0"
+    pack.mkdir()
+    svc = ChatService("unused", pack=pack)
+    assert svc.health()["pack"] is None                     # no manifest: nothing to name
+    (pack / "manifest.json").write_text(json.dumps({"pack": "standard", "version": "3.1.0", "bytes": 2728718774,
+                                                    "files": {}}), encoding="utf-8")
+    svc.error = "UnicodeDecodeError: …"
+    h = svc.health()
+    assert h["pack"] == {"name": "standard", "version": "3.1.0", "bytes": 2728718774} and h["error"]
+    assert ChatService("unused").health()["pack"] is None   # the website version without a pack
 
 
 def test_no_files_outside_the_web_folder(running):
@@ -109,7 +128,7 @@ def test_no_files_outside_the_web_folder(running):
 def test_health_and_each_conversation_keeps_its_context(running):
     base, _ = running
     assert json.loads(_call(base, "/api/health")[2]) == {"ready": True, "error": None, "mode": None,
-                                                         "sentences": 42}
+                                                         "sentences": 42, "pack": None}
     ask = lambda conv, msg: json.loads(_call(base, "/api/chat", {"conversation": conv, "message": msg})[2])
     assert ask("a", "one")["text"] == "prev=None"
     assert ask("b", "two")["text"] == "prev=None"

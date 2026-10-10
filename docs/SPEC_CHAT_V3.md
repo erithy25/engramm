@@ -37,7 +37,7 @@ Nachricht
 | Oberfläche | `ui/` (React 18, Vite 5, TS strict) → `engramm/app/web` | – | CI prüft Build und Aktualität |
 | Rust-Kern v0 | `runtime/core` | – | CI: Unit- und Konformitätstests gegen Python |
 | Desktop-App | `runtime/app` (Tauri 2), `runtime/sidecar` (PyInstaller) | – | CI baut Installer für Windows, macOS, Linux |
-| Website | `site/` (statisch, keine Tracker) | – | Veröffentlichen nur per Hand (`pages.yml`) |
+| Website | `website/` (statisch; lädt Schriften von Google Fonts und Lenis von jsDelivr) | – | Vercel veröffentlicht jeden Push auf den Branch `website` |
 | Messung | `engramm/bench/chatbench.py`, `experiments/chatbench.py`, `PREREG_CHATBENCH.md` | Team-Prompts (dev) | Menschen-Runde steht aus |
 
 ## Grundsätze

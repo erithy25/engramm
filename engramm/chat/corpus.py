@@ -131,7 +131,7 @@ class Corpus:
         stream, as long as the base ends with a document end."""
         from engramm.chat.index import load_docs
         index_dir = Path(index_dir)
-        meta = json.loads((index_dir / "segment.json").read_text())
+        meta = json.loads((index_dir / "segment.json").read_text(encoding="utf-8"))
         base = cls.with_index(tokens, doc_starts, doc_keys, tok, eng, index_dir.parent / meta["base"], mmap=True)
         seg_tokens = np.fromfile(index_dir / "segment.u16", dtype=np.uint16)
         seg_starts = np.load(index_dir / "segment.starts.npy")
@@ -252,7 +252,7 @@ def materialize(index_dir: Path, out_dir: Path, chunk: int = 1 << 24) -> Path:
 
     from engramm.chat.index import load_docs
     index_dir, out_dir = Path(index_dir), Path(out_dir)
-    meta = json.loads((index_dir / "segment.json").read_text())
+    meta = json.loads((index_dir / "segment.json").read_text(encoding="utf-8"))
     base_dir = index_dir.parent / meta["base"]
     out_dir.mkdir(parents=True, exist_ok=True)
     fmt = np.lib.format
@@ -321,11 +321,11 @@ def materialize(index_dir: Path, out_dir: Path, chunk: int = 1 << 24) -> Path:
     for p in index_dir.iterdir():
         if p.suffix == ".json" and p.name not in ("segment.json", "info.json"):
             shutil.copy2(p, out_dir / p.name)
-    info = json.loads((index_dir / "info.json").read_text()) if (index_dir / "info.json").exists() else {}
+    info = json.loads((index_dir / "info.json").read_text(encoding="utf-8")) if (index_dir / "info.json").exists() else {}
     info.update({"materialized_from": index_dir.name, "base": meta["base"], "sentences": int(n_sent + six.n)})
-    (out_dir / "info.json").write_text(json.dumps(info, indent=2) + "\n")
+    (out_dir / "info.json").write_text(json.dumps(info, indent=2) + "\n", encoding="utf-8")
     return out_dir
 
 
 def load_json(path: Path) -> dict:
-    return json.loads(Path(path).read_text())
+    return json.loads(Path(path).read_text(encoding="utf-8"))

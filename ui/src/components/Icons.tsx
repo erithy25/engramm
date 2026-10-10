@@ -1,3 +1,21 @@
+/** The E mark of the logo and the website: one stroke, drawn in the current text colour. */
+export function Mark() {
+  return (
+    <svg className="mark" viewBox="300 220 460 620" aria-hidden="true">
+      <path d="M 704 332 C 632 252 408 246 396 372 C 388 446 444 484 530 486 C 604 488 648 470 640 448 C 632 426 568 424 530 454 C 500 478 474 500 434 516 C 354 548 324 612 332 680 C 346 800 598 818 728 708" />
+    </svg>
+  );
+}
+
+export function PackIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 3 3 7.5l9 4.5 9-4.5L12 3z" />
+      <path d="m3 12 9 4.5 9-4.5M3 16.5 12 21l9-4.5" />
+    </svg>
+  );
+}
+
 export function PlusIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">

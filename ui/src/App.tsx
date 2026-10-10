@@ -3,8 +3,8 @@ import { api } from "./api";
 import { AssistantMessage } from "./components/AssistantMessage";
 import { AboutDialog, MemoryDialog } from "./components/Dialogs";
 import { NetworkDialog } from "./components/NetworkDialog";
-import { MenuIcon, SendIcon } from "./components/Icons";
-import { Sidebar } from "./components/Sidebar";
+import { Mark, MenuIcon, SendIcon } from "./components/Icons";
+import { PACKS_LINK, packName, Sidebar } from "./components/Sidebar";
 import { isLang, type Lang, TEXTS } from "./i18n";
 import { load, save, uid } from "./storage";
 import type { Conversation, Health, Message, NetworkStatus, StoredReply } from "./types";
@@ -40,8 +40,10 @@ export function App() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const t = TEXTS[lang];
 
-  const systemDark = typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches;
-  const dark = theme ? theme === "dark" : systemDark;
+  // dark like the website unless you chose light (the choice is kept)
+  const dark = theme !== "light";
+  // desktop app (loaded with ?desktop=1)
+  const desktop = useMemo(() => new URLSearchParams(window.location.search).has("desktop"), []);
   const ready = status.kind === "health" && status.health.ready;
   const active = useMemo(() => conversations.find((c) => c.id === activeId) ?? null, [conversations, activeId]);
 
@@ -89,7 +91,7 @@ export function App() {
 
   // desktop app (loaded with ?desktop=1): source links open in the system browser, not in the app window
   useEffect(() => {
-    if (!new URLSearchParams(window.location.search).has("desktop")) return;
+    if (!desktop) return;
     const onClick = (e: MouseEvent) => {
       const target = e.target instanceof Element ? e.target.closest("a[href]") : null;
       if (!(target instanceof HTMLAnchorElement)) return;
@@ -99,7 +101,7 @@ export function App() {
     };
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
-  }, []);
+  }, [desktop]);
 
   const scrollDown = useCallback((smooth = true) => {
     const el = threadRef.current;
@@ -190,6 +192,10 @@ export function App() {
     return { cls: "status ready", text: t.ready, more, title: h.mode === "quick" ? t.quickTitle : "" };
   })();
 
+  const health = status.kind === "health" ? status.health : null;
+  const packLabel = desktop ? packName(health?.pack?.name ?? "") : null;
+  const loadError = health?.error ?? null;
+
   const messages = active?.messages ?? [];
   const lastAssistant = messages.reduce((acc, m, i) => (m.role === "assistant" ? i : acc), -1);
 
@@ -209,6 +215,7 @@ export function App() {
         netLabel={netLabel}
         netOn={netOn}
         onNetwork={() => setNetworkOpen(true)}
+        packLabel={packLabel}
         onAbout={() => setAboutOpen(true)}
         onTheme={() => {
           const next = dark ? "light" : "dark";
@@ -226,7 +233,7 @@ export function App() {
             <MenuIcon />
           </button>
           <div className="model-pill" title={t.pillTitle}>
-            ENGRAMM <span className="muted">{t.pill}</span>
+            <span className="pill-word">engramm</span> <span className="muted">{t.pill.replace(/^·\s*/, "")}</span>
           </div>
           <div className={statusView.cls} id="status" title={statusView.title}>
             <span className="dot" />
@@ -240,17 +247,32 @@ export function App() {
         <section className="thread" id="thread" aria-live="polite" ref={threadRef}>
           {messages.length === 0 && pending === null && (
             <div className="empty" id="empty">
-              <img src="./logo.svg" alt="" className="empty-logo" width={72} height={72} />
+              <div className="empty-mark" aria-hidden="true">
+                <Mark />
+              </div>
               <h1>{t.emptyTitle}</h1>
               <p className="muted">{t.emptySub}</p>
-              <div className="suggestions" id="suggestions">
-                {t.suggestions.map((s) => (
-                  <button key={s.title} className="suggestion" type="button" onClick={() => void send(s.title)}>
-                    <b>{s.title}</b>
-                    <span>{s.sub}</span>
-                  </button>
-                ))}
-              </div>
+              {loadError ? (
+                <div className="load-error" id="loadError" role="alert">
+                  <b>{t.loadErrorTitle}</b>
+                  <code>{loadError}</code>
+                  <p className="muted">{t.loadErrorHint}</p>
+                  {desktop && (
+                    <a className="pill-link" href={PACKS_LINK}>
+                      {t.openPacks}
+                    </a>
+                  )}
+                </div>
+              ) : (
+                <div className="suggestions" id="suggestions">
+                  {t.suggestions.map((s) => (
+                    <button key={s.title} className="suggestion" type="button" onClick={() => void send(s.title)}>
+                      <b>{s.title}</b>
+                      <span>{s.sub}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           {messages.map((m, i) =>

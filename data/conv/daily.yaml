@@ -706,7 +706,7 @@ topic_gap_ongoing:
   - "I don't know — my offline text on {x} was written while it was still under way, so it doesn't have the outcome."
   - "My offline article on {x} is from before it ended, so I can't tell you the result for sure."
 topic_gap_online:
-  - "With Internet access switched on, I can check the current Wikipedia article."
+  - "Say “google it” and I'll check the web — or switch on the Wikipedia shelf under “Internet access”."
 # "i don't like movies"
 dislike:
   - "Fair enough — I'll remember you're not a fan of {x}. What do you enjoy instead?"

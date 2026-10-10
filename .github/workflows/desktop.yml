@@ -105,17 +105,19 @@ jobs:
             runtime/app/src-tauri
             runtime/core
 
-      - name: Network core (engramm-core with Tor) next to the frozen server
+      - name: Network core (engramm-core) next to the frozen server
         # all network access of the app goes through this binary (docs/SPEC_ATLAS.md); without it
-        # the server would fall back to Python sockets and the messenger would have no Tor
+        # the server would fall back to Python sockets
         working-directory: runtime/core
         shell: bash
         run: |
-          cargo build --release --features tor --target ${{ matrix.target }}
+          cargo build --release --features fetch --target ${{ matrix.target }}
           exe=engramm-core; if [ "$RUNNER_OS" = "Windows" ]; then exe=engramm-core.exe; fi
           cp "target/${{ matrix.target }}/release/$exe" ../app/src-tauri/resources/sidecar/
-          echo '{"op":"status","id":1}' | "../app/src-tauri/resources/sidecar/$exe" egress | tee status.json
-          grep -q '"tor":true' status.json
+          printf '%s\n' '{"op":"status","id":1}' '{"id":2,"channel":"search","url":"https://10.0.0.1/","allow_hosts":["*"]}' \
+            | "../app/src-tauri/resources/sidecar/$exe" egress | tee status.json
+          grep -q '"ok":true' status.json
+          grep -q 'private address not allowed' status.json
 
       - name: Icons
         working-directory: runtime/app

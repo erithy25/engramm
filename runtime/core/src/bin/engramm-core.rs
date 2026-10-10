@@ -5,8 +5,7 @@
 //!   engramm-core choose                   one JSON {"options","key","recent","salt"} per line → JSON string
 //!   engramm-core sha256 FILE              SHA-256 of a file
 //!   engramm-core fetch URL SHA256 DIR     download a pack (feature `fetch`); progress on stderr
-//!   engramm-core egress [--log PATH] [--tor-dir DIR]   the network gate for the Atlas channels (feature `fetch`;
-//!                                         Tor with feature `tor`)
+//!   engramm-core egress [--log PATH]      the network gate for the Atlas channels (feature `fetch`)
 
 use engramm_core::{choose, normalise, pack};
 use serde::Deserialize;
@@ -80,7 +79,7 @@ fn run() -> Result<ExitCode, Box<dyn std::error::Error>> {
         "egress" => {
             let arg = |name: &str| args.iter().position(|a| a == name).and_then(|i| args.get(i + 1)).map(std::path::PathBuf::from);
             drop(out);
-            engramm_core::egress::serve(arg("--log"), arg("--tor-dir"))?;
+            engramm_core::egress::serve(arg("--log"))?;
             Ok(ExitCode::SUCCESS)
         }
         "sha256" => {
