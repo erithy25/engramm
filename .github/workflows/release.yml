@@ -267,7 +267,8 @@ jobs:
             **Install:** pick the installer for your system below. On first start the app asks before
             downloading a knowledge pack: lite (≈ 1.25 GB) or standard (≈ 2.7 GB, more articles and facts).
             Offline alternative: download `engramm-pack-lite.zip`, unzip it and choose the folder in the app.
-            Internet channels (shelf, feeds, Tor messenger) stay off until you switch them on one by one.
+            Internet: say “google …” and ENGRAMM searches the web for you (the search words go to the search engine).
+            Automatic web search, the Wikipedia shelf and news feeds stay off until you switch them on one by one.
 
             Builds are not signed with a developer certificate yet, so both systems ask once on first start.
             macOS: open ENGRAMM, click "Done", then System Settings → Privacy & Security → "Open Anyway".
@@ -296,7 +297,8 @@ jobs:
             **Install:** pick the installer for your system below. On first start the app asks before
             downloading a knowledge pack: lite (≈ 1.25 GB) or standard (≈ 2.7 GB, more articles and facts).
             Offline alternative: download `engramm-pack-lite.zip`, unzip it and choose the folder in the app.
-            Internet channels (shelf, feeds, Tor messenger) stay off until you switch them on one by one.
+            Internet: say “google …” and ENGRAMM searches the web for you (the search words go to the search engine).
+            Automatic web search, the Wikipedia shelf and news feeds stay off until you switch them on one by one.
 
             Builds are not signed with a developer certificate yet, so both systems ask once on first start.
             macOS: open ENGRAMM, click "Done", then System Settings → Privacy & Security → "Open Anyway".

@@ -1,6 +1,6 @@
 import { type ReactElement, useEffect, useRef, useState } from "react";
 import type { Texts } from "../i18n";
-import { isError, type StoredReply } from "../types";
+import { isError, type StoredReply, type WebLink } from "../types";
 import { Mark } from "./Icons";
 
 interface Props {
@@ -35,6 +35,26 @@ function Highlighted({ sentence, part }: { sentence: string; part: string | null
       <mark>{sentence.slice(i, i + part.length)}</mark>
       {sentence.slice(i + part.length)}
     </>
+  );
+}
+
+/** The results of a web search under the reply: title (link), site and the engine's snippet. */
+function WebResults({ links, title }: { links: WebLink[]; title: string }) {
+  return (
+    <section className="web-results" aria-label={title}>
+      <h4>{title}</h4>
+      <ol>
+        {links.map((l) => (
+          <li key={l.url}>
+            <a href={l.url} target="_blank" rel="noopener noreferrer" title={l.url}>
+              {l.title}
+            </a>
+            <span className="site">{l.site}</span>
+            {l.snippet && <p>{l.snippet}</p>}
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 
@@ -108,6 +128,7 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
     );
   }
   const k = reply.kind;
+  const links = reply.links ?? [];
   const chips: ReactElement[] = [];
   if (k === "answer" && (reply.via === "lookup" || reply.via === "atlas")) {
     chips.push(<Chip key="s" text={t.sure} cls="sure" title={t.sureTitle} />);
@@ -145,8 +166,9 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
   const hasEvidence = Boolean(reply.evidence) && k !== "about";
 
   const copy = async () => {
+    const withLinks = links.length ? `${full}\n\n${links.map((l) => `• ${l.title} — ${l.url}`).join("\n")}` : full;
     try {
-      await navigator.clipboard.writeText(full);
+      await navigator.clipboard.writeText(withLinks);
       setCopyLabel(t.copied);
     } catch {
       setCopyLabel(t.copyFailed);
@@ -163,6 +185,7 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
         <div className="text" {...(done ? { "data-done": "1" } : {})}>
           {shown}
         </div>
+        {done && links.length > 0 && <WebResults links={links} title={t.webResults} />}
         <div className="meta">{chips}</div>
         <div className="actions">
           <button className="mini" data-act="copy" onClick={copy} type="button">

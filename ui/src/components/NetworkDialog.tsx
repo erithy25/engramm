@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../api";
 import type { Texts } from "../i18n";
-import type { ChannelChange, ChannelName, NetworkLogEntry, NetworkStatus } from "../types";
+import { type ChannelChange, type ChannelName, type NetworkLogEntry, type NetworkStatus, SEARCH_ENGINES,
+         type SearchEngine } from "../types";
 import { Modal } from "./Dialogs";
 
 const POLL_MS = 3000;
@@ -68,7 +69,46 @@ function LogTable({ log, t }: { log: NetworkLogEntry[]; t: Texts }) {
   );
 }
 
-/** The three network channels (all off until switched on), the Tor state and the network log. */
+function isEngine(v: string): v is SearchEngine {
+  return (SEARCH_ENGINES as readonly string[]).includes(v);
+}
+
+/** The Brave Search API key: typed here, sent once, never shown again (the server only says whether one is set). */
+function BraveKey(props: { isSet: boolean; busy: boolean; t: Texts; onSave: (key: string) => void }) {
+  const { isSet, busy, t, onSave } = props;
+  const [key, setKey] = useState("");
+  const valid = /^[\x21-\x7e]{8,200}$/.test(key.trim());
+  return (
+    <div className="field">
+      <label htmlFor="netBraveKey">{t.braveKey}</label>
+      {isSet ? (
+        <div className="field-row">
+          <span className="key-set" id="netBraveKeySet">{t.braveKeySet}</span>
+          <button className="mini" type="button" id="netBraveKeyRemove" disabled={busy} onClick={() => onSave("")}>
+            {t.braveKeyRemove}
+          </button>
+        </div>
+      ) : (
+        <form
+          className="field-row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!valid) return;
+            onSave(key.trim());
+            setKey("");
+          }}
+        >
+          <input id="netBraveKey" type="password" autoComplete="off" spellCheck={false} value={key}
+                 placeholder="BSA…" disabled={busy} onChange={(e) => setKey(e.target.value)} />
+          <button className="mini" type="submit" disabled={busy || !valid}>{t.braveKeySave}</button>
+        </form>
+      )}
+      <p className="muted field-hint">{t.braveKeyHint}</p>
+    </div>
+  );
+}
+
+/** The three network channels (all off until switched on) and the network log. */
 export function NetworkDialog(props: { open: boolean; onClose: () => void; t: Texts;
                                        onStatus: (s: NetworkStatus) => void }) {
   const { open, onClose, t, onStatus } = props;
@@ -135,14 +175,14 @@ export function NetworkDialog(props: { open: boolean; onClose: () => void; t: Te
     if (net === null) return error ? null : <p className="muted">{t.netLoading}</p>;
     if (!net.available) return <p id="netUnavailable">{t.netUnavailable}</p>;
     const ch = net.channels;
-    const torMissing = net.tor === "unavailable";
     const selected = net.feeds.filter((f) => f.selected).map((f) => f.id);
     const toggleFeed = (id: string, on: boolean) => {
       const next = on ? [...selected, id] : selected.filter((x) => x !== id);
       void change({ channel: "feeds", feeds: next }, `feed:${id}`);
     };
     const toggle = (channel: ChannelName) => (on: boolean) => void change({ channel, enabled: on }, channel);
-    const usesTor = (ch.messenger.enabled && ch.messenger.tor !== false) || (ch.shelf.enabled && ch.shelf.tor === true);
+    const engine: SearchEngine = ch.search.engine ?? "auto";
+    const keySet = ch.search.brave_key_set === true;
     return (
       <>
         <section className="channel" data-channel="shelf">
@@ -157,14 +197,6 @@ export function NetworkDialog(props: { open: boolean; onClose: () => void; t: Te
           <p className="channel-info">
             {net.shelf ? t.shelfInfo(net.shelf.docs.toLocaleString(), net.shelf.date) : t.shelfMissing}
           </p>
-          {ch.shelf.enabled && (
-            <label className="check">
-              <input type="checkbox" id="netShelfTor" checked={ch.shelf.tor === true}
-                     disabled={busy !== null || (torMissing && ch.shelf.tor !== true)}
-                     onChange={(e) => void change({ channel: "shelf", tor: e.target.checked }, "shelf-tor")} />
-              <span>{t.shelfTor}</span>
-            </label>
-          )}
         </section>
 
         <section className="channel" data-channel="feeds">
@@ -204,33 +236,40 @@ export function NetworkDialog(props: { open: boolean; onClose: () => void; t: Te
           </p>
         </section>
 
-        <section className="channel" data-channel="messenger">
+        <section className="channel" data-channel="search">
           <div className="channel-head">
             <div>
-              <b>{t.messengerTitle}</b>
-              <p className="muted">{t.messengerDesc}</p>
+              <b>{t.searchTitle}</b>
+              <p className="muted">{t.searchDesc}</p>
             </div>
-            <Switch id="netMessenger" label={t.messengerTitle} checked={ch.messenger.enabled} disabled={busy !== null}
-                    onChange={toggle("messenger")} />
+            <Switch id="netSearch" label={t.searchTitle} checked={ch.search.enabled} disabled={busy !== null}
+                    onChange={toggle("search")} />
           </div>
-          {ch.messenger.enabled && (
-            <>
-              <label className="check">
-                <input type="checkbox" id="netMessengerTor" checked={ch.messenger.tor !== false}
-                       disabled={busy !== null}
-                       onChange={(e) => void change({ channel: "messenger", tor: e.target.checked }, "messenger-tor")} />
-                <span>{t.messengerTor}</span>
-              </label>
-              {ch.messenger.tor === false && <p className="channel-info warn-text">{t.messengerDirect}</p>}
-            </>
-          )}
+          <p className="channel-info warn-text" id="searchPrivacy">{t.searchPrivacy}</p>
+          <div className="search-options">
+            <div className="field">
+              <label htmlFor="netEngine">{t.searchEngine}</label>
+              <select
+                id="netEngine"
+                value={engine}
+                disabled={busy !== null}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (isEngine(v)) void change({ channel: "search", engine: v }, "engine");
+                }}
+              >
+                {SEARCH_ENGINES.map((x) => (
+                  <option key={x} value={x}>
+                    {t.searchEngines[x]}
+                  </option>
+                ))}
+              </select>
+              {engine === "brave" && !keySet && <p className="field-hint bad-text">{t.braveMissing}</p>}
+            </div>
+            <BraveKey isSet={keySet} busy={busy !== null} t={t}
+                      onSave={(key) => void change({ channel: "search", brave_key: key }, "brave-key")} />
+          </div>
         </section>
-
-        {(usesTor || torMissing) && (
-          <p className={"channel-info" + (net.tor.startsWith("failed") ? " bad-text" : "")} id="torState">
-            {t.torState(net.tor)}
-          </p>
-        )}
 
         <h3 className="net-log-title">{t.netLog}</h3>
         <LogTable log={net.log} t={t} />

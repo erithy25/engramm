@@ -30,6 +30,15 @@ export interface Alternative {
   source: SourceView | null;
 }
 
+/** One result of a web search (engramm/web/search.py), shown under the reply. */
+export interface WebLink {
+  title: string;
+  url: string;
+  site: string;
+  snippet: string;
+  engine: string;
+}
+
 export interface Reply {
   kind: ReplyKind;
   text: string;
@@ -41,6 +50,8 @@ export interface Reply {
   via: string;
   resolved: string | null;
   alternatives: Alternative[];
+  /** web search results (only replies of the web search have them; older stored replies lack the field) */
+  links?: WebLink[];
   seconds: number;
 }
 
@@ -81,14 +92,18 @@ export function isError(r: StoredReply): r is ErrorReply {
   return (r as ErrorReply).error !== undefined;
 }
 
-/** One network channel's settings (engramm/web/egress.py DEFAULT_SETTINGS). */
+export type SearchEngine = "auto" | "bing" | "duckduckgo" | "brave";
+export const SEARCH_ENGINES: readonly SearchEngine[] = ["auto", "bing", "duckduckgo", "brave"];
+
+/** One network channel's settings (engramm/web/egress.py DEFAULT_SETTINGS; the API key never comes back). */
 export interface ChannelSettings {
   enabled: boolean;
-  tor?: boolean;
   feeds?: string[];
+  engine?: SearchEngine;
+  brave_key_set?: boolean;
 }
 
-export type ChannelName = "shelf" | "feeds" | "messenger";
+export type ChannelName = "shelf" | "feeds" | "search";
 
 export interface FeedInfo {
   id: string;
@@ -128,20 +143,20 @@ export type NetworkStatus =
       available: true;
       backend: string | null;
       channels: Record<ChannelName, ChannelSettings>;
-      tor: string;
       feeds: FeedInfo[];
       feed_items: number;
       feed_state: Record<string, FeedState>;
       shelf: ShelfInfo | null;
-      wayfinder: boolean;
       log: NetworkLogEntry[];
     };
 
 export interface ChannelChange {
   channel: ChannelName;
   enabled?: boolean;
-  tor?: boolean;
   feeds?: string[];
+  engine?: SearchEngine;
+  /** a Brave Search API key; "" removes it */
+  brave_key?: string;
 }
 
 /** What ENGRAMM learned locally (engramm/learn): counts, taught words and style wishes. */

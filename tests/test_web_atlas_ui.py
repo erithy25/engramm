@@ -1,7 +1,10 @@
-"""Internet access in the app, in a real browser: the sidebar says "off", the network dialog
-switches the shelf and the feeds on, a question the local reading cannot answer is answered from
-the (local) shelf with its source, date and channel chip, news come from the feed index, and the
-network log lists bucket fetches — never the question. Skipped without Node + Playwright."""
+"""Internet access in the app, in a real browser: the sidebar says "off", an unanswered question
+gets the offer to search the web, "google …" searches (a test double plays the search engine and
+the page) and shows the results as links, the network dialog has the web search card (engine,
+Brave key that is never shown again), switches the shelf and the feeds on, a question the local
+reading cannot answer is answered from the (local) shelf with its source, date and channel chip,
+news come from the feed index, and the network log lists bucket fetches and search requests —
+never the question. Skipped without Node + Playwright."""
 
 from __future__ import annotations
 
@@ -17,11 +20,23 @@ import pytest
 from engramm.app.server import ChatService, serve
 from engramm.chat.dialog import Assistant
 from engramm.web.atlas import Atlas
-from engramm.web.egress import Egress, NetworkLog, PythonBackend
+from engramm.web.egress import Egress, NetworkLog, PythonBackend, host_of
 from engramm.web.feeds import FeedRefresher, Item
 from tests.test_chat_flows import _bot, corpus  # noqa: F401  (fixture)
 from tests.test_chat_ui import _node_playwright
 from tests.test_web_atlas import shelf_pack  # noqa: F401  (fixture)
+from tests.test_web_search import FakeWeb
+
+
+class _Both:
+    """The local shelf over loopback (urllib), the search engine and its pages from the test double."""
+    name = "python"
+
+    def __init__(self):
+        self.local, self.web = PythonBackend(), FakeWeb(bing="good")
+
+    def fetch(self, req, settings):
+        return (self.local if host_of(req.url) in ("127.0.0.1", "localhost") else self.web).fetch(req, settings)
 
 SCRIPT = r"""
 const { chromium } = require('playwright');
@@ -50,12 +65,33 @@ const { chromium } = require('playwright');
   check('sidebar says off', (await page.locator('#netLabel').innerText()) === 'off');
   let text = await say('When was the Zorblax Bridge opened?');
   check('offline: no answer from the internet', !text.includes('1931'), text);
+  check('offline: the offer to search the web', text.includes('Should I search the web for it?'), text);
+  text = await say('google how tall is the Zorblax Tower');
+  check('google: answer with its source', text.includes('318 metres') && text.includes('quorvia.example')
+        && text.includes('via web search'), text);
+  check('google: results as links', (await page.locator('.msg.assistant').last().locator('.web-results li').count()) >= 3);
+  check('google: result link', (await page.locator('.msg.assistant').last().locator('.web-results a').first()
+        .getAttribute('href')) === 'https://quorvia.example/zorblax-tower');
+  check('sidebar still off', (await page.locator('#netLabel').innerText()) === 'off');
   await page.click('#openNetwork');
   await page.waitForSelector('#netShelf');
   check('all switches off', !(await page.isChecked('#netShelf')) && !(await page.isChecked('#netFeeds'))
-        && !(await page.isChecked('#netMessenger')));
+        && !(await page.isChecked('#netSearch')));
+  check('search: privacy note', (await page.locator('#searchPrivacy').innerText()).includes('IP address'));
+  check('search: engine auto', (await page.inputValue('#netEngine')) === 'auto');
+  await page.fill('#netBraveKey', 'BSAtestkey1234');
+  await page.press('#netBraveKey', 'Enter');
+  await page.waitForSelector('#netBraveKeySet');
+  check('brave key is never shown again', !(await page.content()).includes('BSAtestkey1234'));
+  await page.click('#netBraveKeyRemove');
+  await page.waitForSelector('#netBraveKey');
+  await page.selectOption('#netEngine', 'duckduckgo');
+  await page.waitForFunction(() => document.querySelector('#netEngine').value === 'duckduckgo');
+  await page.selectOption('#netEngine', 'auto');
+  await page.waitForFunction(() => document.querySelector('#netEngine').value === 'auto');
   check('shelf info', (await page.locator('[data-channel=shelf] .channel-info').innerText()).includes('as of 2026-09-27'));
-  check('empty log', await page.isVisible('#netLogEmpty'));
+  check('log: the search, nothing else yet', (await page.locator('#netLog').innerText()).includes('search:bing')
+        && !(await page.locator('#netLog').innerText()).includes('bucket'));
   await page.click('#netShelf');
   await page.waitForFunction(() => document.querySelector('#netShelf').checked);
   await page.click('#netFeeds');
@@ -71,8 +107,9 @@ const { chromium } = require('playwright');
   await page.click('#openNetwork');
   await page.waitForSelector('#netLog');
   const log = await page.locator('#netLog').innerText();
-  check('log lists buckets, never the question', log.includes('bucket') && !log.includes('Zorblax')
-        && !log.includes('opened'), log);
+  check('log lists the buckets', log.includes('bucket'), log);
+  check('log lists the search and the page', log.includes('search:bing') && log.includes('quorvia.example'), log);
+  check('log never holds the question', !/zorblax|opened|\btall\b/i.test(log.replace(/quorvia\.example/g, '')), log);
   await page.screenshot({ path: shot, fullPage: true });
   await page.click('#netShelf');
   await page.waitForFunction(() => !document.querySelector('#netShelf').checked);
@@ -99,7 +136,7 @@ def test_internet_access_in_the_browser(tmp_path, corpus, shelf_pack, monkeypatc
     svc.assistant = Assistant(svc.bot, clock=lambda: dt.datetime(2026, 10, 1, 14, 5))
     svc.mode = "full"
     svc.egress = Egress(settings_path=tmp_path / "network.json", log=NetworkLog(tmp_path / "network.log"),
-                        backend=PythonBackend())
+                        backend=_Both())
     svc.atlas = Atlas(svc.egress, shelf_pack, tmp_path / "state")
     svc.assistant.atlas = svc.atlas
     now = int(time.time())
