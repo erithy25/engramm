@@ -106,7 +106,10 @@ _NOT_NAME = {"a", "an", "the", "very", "so", "really", "my", "your", "not", "ein
              "aus", "von", "mit", "im", "am", "really", "always", "still", "never", "actually", "recently", "finally",
              "totally", "probably", "wirklich", "immer", "noch", "nie", "endlich", "gerade", "schon", "who's", "whos",
              "keeps", "loves", "hates", "lives", "works", "thinks", "wohnt", "arbeitet", "liebt", "meint", "today", "heute",
-             "dass", "ob", "weil", "wenn", "denn", "sondern", "als", "that's", "if", "because", "when", "so"}
+             "dass", "ob", "weil", "wenn", "denn", "sondern", "als", "that's", "if", "because", "when", "so",
+             # question words: "What is my sister's name?" asks for the name, it does not give one
+             "what", "what's", "whats", "which", "where", "how", "why", "whose", "whom", "wer", "wen", "wem", "wie",
+             "wo", "welche", "welcher", "welches", "warum", "wann", "wieso", "weshalb"}
 _TITLE = r"(?:mrs?\.?|ms\.?|dr\.?|herr|frau|prof\.?)\s+"
 _NONE = re.compile(r"\b(?:i|we) (?:don'?t|do not|didn'?t) (?:have|own|got) (?:any |a |an )?(pets?|kids|children|car|cars|"
                    r"siblings|brothers?|sisters?|dogs?|cats?)\b|\b(?:i|we) have no (pets?|kids|children|car|siblings)\b|"
@@ -373,7 +376,7 @@ def _note_facts(n: dict, msg: str, low: str) -> None:
     if m and (re.search(r"works as|arbeitet als|von beruf", low) or m.group(2).endswith(("er", "ist", "in", "or", "ant", "eur"))):
         n.setdefault("attr", {}).setdefault(m.group(1), {})["job"] = m.group(2)
     m = re.match(r"^(?:(?:dr|mr|mrs|ms|frau|herr|prof)\.?\s+)?([a-zäöüß][\wäöüß'-]+)\s+(?:is|ist)\s+(?:my|mein\w*)\s+(" + _REL + r")\b", low)
-    if m:
+    if m and m.group(1) not in _NOT_NAME:                   # "what is my sister's name?" names nobody
         full = re.match(r"^((?:(?:dr|mr|mrs|ms|frau|herr|prof)\.?\s+)?[a-zäöüß][\wäöüß'-]+)", low).group(1)
         key = m.group(1)
         n.setdefault("people", {})[key] = m.group(2)
