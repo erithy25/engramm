@@ -1,14 +1,17 @@
-# SPEC — ENGRAMM Atlas: privates Webwissen ohne neuronales Netz, ohne Server (Stand 2026-10-01)
+# SPEC — ENGRAMM Atlas: Webwissen ohne neuronales Netz, ohne eigene Server (Stand 2026-10-10)
 
 Plan: `/root/.claude/plans/zippy-nibbling-feigenbaum.md`. Messung: `docs/PREREG_SEARCH_V0.md`, Ergebnisse in `docs/EXPECTATIONS.md`.
 
 ## Grundsatz
 
-**Das Gehirn bleibt lokal, das Internet ist nur eine stumme Festplatte.**
-- ENGRAMM sucht ausschließlich auf dem eigenen Rechner.
-- Ins Netz gehen nur Abrufe, aus denen niemand die Frage ablesen kann.
-- Eine Suchmaschine oder KI-API wird nie kontaktiert.
+**Das Gehirn bleibt lokal.** Lesen, Auswählen und Antworten geschieht auf dem eigenen Rechner, ohne KI-API.
+- Regal und Abo schicken nie eine Frage hinaus: Niemand kann sie aus ihren Abrufen ablesen.
+- **Die Websuche (seit 3.2) ist die eine Ausnahme:** Sie schickt die Frage an eine Suchmaschine (Bing,
+  DuckDuckGo, auf Wunsch die Brave-Search-API) und liest die besten Treffer hier. Sie läuft nur, wenn der
+  Nutzer sie verlangt („google …“, „such im Internet nach …“, „ja“ auf das Angebot nach einem „weiß ich
+  nicht“) oder den Kanal eingeschaltet hat.
 - Standard ist **offline**: Alle drei Kanäle sind aus, bis der Nutzer sie einzeln einschaltet.
+- Der Tor-Bote von 3.1 ist entfernt (jeder Abruf scheiterte, „no HTTP header“; Arti fiel aus dem Build).
 
 ## Die drei Kanäle
 
@@ -16,26 +19,38 @@ Plan: `/root/.claude/plans/zippy-nibbling-feigenbaum.md`. Messung: `docs/PREREG_
 |---|---|---|---|---|
 | K1 Regal | `shelf` | HTTP-Range-Abruf eines Fachs fester Größe aus einem Volume, dazu 2 Tarn-Fächer | Host: IP (ohne Tor) und Fach-Nummern; jedes Fach mischt ~1.000 per Hash verteilte, thematisch unverbundene Artikel | statische Release-Dateien (GitHub, Spiegel) |
 | K2 Abo | `feeds` | zeitgesteuerter Abruf ausgewählter RSS/Atom-Feeds, unabhängig von Fragen | Feed-Betreiber: „dieser Rechner liest Feed X“ | Feeds der Verlage |
-| K3 Bote | `messenger` | GET einer vom lokalen Wegweiser gewählten Seite, standardmäßig über Tor | Zielseite: ein anonymer Besuch ohne Suchbegriff; Tor-Ausgang: die Zielseite | keiner |
+| K3 Websuche | `search` | die Frage als Suchanfrage an eine Suchmaschine, dann bis zu 3 Trefferseiten | Suchmaschine: Frage und IP; Trefferseiten: ein Besuch ohne Suchbegriff | keiner (Suchmaschinen Dritter) |
 
 ## Netz-Tor (`egress`)
 
 - **Ein einziger Weg nach draußen:** `engramm/web/egress.py` mit zwei Backends.
   - **Rust** (`engramm-core egress`, mit dem Sidecar ausgeliefert): ein Dienst über stdin/stdout mit JSON-Zeilen. In der App öffnet Python selbst keine Sockets.
-  - **Python** (`urllib`): Entwicklungsbetrieb und Tests; gleiche Regeln, kein Tor.
+  - **Python** (`urllib`): Entwicklungsbetrieb und Tests; gleiche Regeln.
 - **Regeln für jeden Abruf:**
   - nur `https` (Loopback nur in Tests, wenn ausdrücklich erlaubt);
   - nur `GET`, keine Cookies, keine Weiterleitung zu einem Host außerhalb der Kanal-Liste;
-  - fester User-Agent `ENGRAMM/3.1 (+offline assistant)`, Größen- und Zeitlimit.
-  - **Bote:** keine IP-Literale aus privaten Netzen und keine Hostnamen `localhost` oder `*.local` (kein Zugriff aufs Heimnetz).
+  - fester User-Agent `ENGRAMM/3.1 (+offline assistant)`, Größen- und Zeitlimit; für die Websuche der eines
+    Browsers (Suchmaschinen und viele Seiten weisen andere Clients ab);
+  - zusätzliche Header nur `Accept`, `Accept-Language` und `X-Subscription-Token` (Brave-Schlüssel), ohne
+    Steuerzeichen;
+  - **Websuche:** keine IP-Literale aus privaten Netzen und keine Hostnamen `localhost` oder `*.local` (kein
+    Zugriff aufs Heimnetz). Ein ausgeschalteter Kanal lässt nur eine ausdrücklich verlangte Suche durch
+    (`explicit`).
 - **Netzprotokoll:** jeder Abruf als JSON-Zeile in `network.log` neben dem Gedächtnis-Log.
-  - Felder: `ts`, `channel`, `host`, `what`, `bytes`, `status`, `via` (direct oder tor), `ok`.
-  - `what` beschreibt nur, was geholt wurde (z. B. `bucket 1834`, `feed bbc-world`, `page`), nie den Fragetext.
+  - Felder: `ts`, `channel`, `host`, `what`, `bytes`, `status`, `via`, `ok`.
+  - `what` beschreibt nur, was geholt wurde (z. B. `bucket 1834`, `feed bbc-world`, `search:bing`, `page`), nie den
+    Fragetext; Fehlertexte verlieren ihre URL (sie trüge bei der Websuche die Frage).
   - Die Oberfläche zeigt das Protokoll an (`GET /api/network`).
 - **Einstellungen:** `network.json` neben dem Gedächtnis-Log. Format:
   ```json
-  {"version": 1, "channels": {"shelf": {"enabled": false, "tor": false},
-   "feeds": {"enabled": false, "feeds": ["bbc-world"]}, "messenger": {"enabled": false, "tor": true}}}
+  {"version": 2, "channels": {"shelf": {"enabled": false},
+   "feeds": {"enabled": false, "feeds": ["bbc-world"]},
+   "search": {"enabled": false, "engine": "auto", "brave_key": ""}}}
+  ```
+  Einstellungen von 3.1 gelten weiter; der Bote wird nicht in die Websuche übernommen (sie schickt die Frage
+  hinaus, das braucht eine eigene Zustimmung). Den Brave-Schlüssel gibt der Server nie zurück, nur
+  `brave_key_set`.
+  ```
   ```
 
 ### Protokoll `engramm-core egress`
@@ -45,14 +60,18 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
 ```
 → {"id": 7, "channel": "shelf", "url": "https://…/shelf-0.bin", "range": [1048576, 2097151],
    "max_bytes": 1100000, "what": "bucket 1", "allow_hosts": ["github.com", "objects.githubusercontent.com"],
-   "tor": false}
+   "headers": [], "timeout": 30}
 ← {"id": 7, "ok": true, "status": 206, "bytes": 1048576, "body_b64": "…", "via": "direct", "final_host": "…"}
 ← {"id": 8, "ok": false, "error": "host not allowed: example.org"}
 ```
 
 - Den Start ruft `engramm-core egress --log PATH` auf.
 - Der Dienst endet, wenn stdin geschlossen wird.
-- Tor (`"tor": true`) braucht das Feature `tor` (Arti). Ohne dieses Feature antwortet der Dienst mit `ok: false, error: "tor unavailable"`, und der Bote bleibt aus.
+- Ein Dienst beantwortet eine Anfrage nach der anderen; für die Trefferseiten einer Suche startet `Egress`
+  bis zu 4 Dienste und lädt parallel (`fetch_many`).
+- Bekannte Grenze: ureq 2.12 schreibt hinter einem HTTP-Proxy (`HTTPS_PROXY`) die absolute URL in die
+  Anfragezeile, auch im CONNECT-Tunnel; DuckDuckGo antwortet darauf mit 400. Ohne Proxy (Normalfall) nicht
+  betroffen; mit Proxy bleibt Bing. Abhilfe: ureq 3.
 
 ## Regal (K1)
 
@@ -90,7 +109,7 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
   1. Artikel wählen: Namensformen aus der Frage (auch Weiterleitungen wie „xHCI“) zählen stark, dazu
      Schlüsselterme; nur Artikel mit ≥ 40 % des besten Treffers;
   2. deren Fächer plus 2 Tarn-Fächer (aus einem Geheimnis je Installation und einem Zähler, nie aus der
-     Frage) in zufälliger Reihenfolge laden, optional über Tor;
+     Frage) in zufälliger Reihenfolge laden;
   3. jede SHA-256 prüfen, Fehlschläge verwerfen;
   4. alles im LRU-Cache `shelf_cache/` behalten (Standard 500 MB).
 - **Signatur:** Ed25519 (RFC 8032, `engramm/web/ed25519.py`, reines Python) über die kanonische JSON-Form
@@ -121,18 +140,37 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
   - Alter fließt als Abschlag in den Rang (Halbwertszeit 3 Tage). Einträge älter als 30 Tage werden gelöscht.
 - **Antwort:** „Laut <Feed>, <Datum>: …“ mit Link.
 
-## Wegweiser und Bote (K3)
+## Websuche (K3, `engramm/web/search.py`)
 
-- **Wegweiser** (im Paket, `wayfinder.sqlite`): Entität → offizielle Website (Wikidata P856, DBpedia homepage) sowie Belegadressen aus Wikipedia.
-- **Bote:**
-  1. 1–3 Seiten über Tor laden, höchstens 2 MB, nur `text/html`;
-  2. regelbasierte Textbereinigung (`engramm/web/clean.py`, jusText-Ansatz: Absatzlänge, Linkdichte, Stoppwortanteil);
-  3. Sätze in die bestehende Antwortextraktion geben.
+- **Wann:** „google …“, „search the web for …“, „such im Internet nach …“, „kannst du das googeln?“ (auch mit
+  ausgeschaltetem Kanal); „ja“ auf „Soll ich im Web danach suchen?“, das ENGRAMM nach einem „weiß ich nicht“
+  anbietet; mit eingeschaltetem Kanal von selbst, wenn offline keine Antwort kommt oder die Frage nach
+  Aktuellem fragt. Persönliche Fragen (ich/mein/du …) nie.
+- **Suchmaschinen** („auto“): Brave-Search-API (nur mit Schlüssel) → Bing → DuckDuckGo (HTML, dann lite) →
+  Wikipedia-Suche. Je Maschine zwei Formen: die Frage wie getippt, dann Stichwörter mit den Namen zuerst.
+  Als „keine Antwort“ gelten eine Bot-Prüfung (Captcha, HTTP 202/403/429) und **Treffer, die nicht zur Frage
+  passen**: Misstraut eine Maschine dem Client, liefert sie fremde Seiten („bitcoin kurs“ → ein Download,
+  „who is the CEO of Siemens“ → nur Siemens-Startseiten). Gemessen 10.10.2026 aus einem Rechenzentrum:
+  Bing in etwa der Hälfte der Fragen vergiftet, DuckDuckGo zeitweise 202.
+- **Lesen:** die ersten 3 lesbaren Treffer parallel (je 8 s, 2 MB; keine Videos, PDFs, sozialen Netze),
+  Haupttext per `engramm/web/clean.py` (jusText-Ansatz, Stoppwörter Englisch und Deutsch).
+- **Antwort:** der Satz aus Snippets und Seiten, der die Frage am besten trifft, mit Quelle; eine zweite
+  Quelle nur, wenn sie dasselbe sagt (gleiche Zahl oder gleicher Name). Regeln: Fragewörter zählen nach
+  Seltenheit, Antwortwörter („how tall“ → „metres“) halb; der Name aus der Frage muss im Satz stehen; eine
+  Zahl, die mehrere Seiten nennen, zählt mehr; Mengen- und Zeitfragen brauchen eine Zahl bzw. Uhrzeit; ein
+  abgeschnittenes Snippet zählt weniger. Darunter die Treffer als Links. **Keine Kurzantwort aus Webtext:**
+  Die Antwortextraktion ist auf Lexikonsätze geeicht und griff im Test daneben („Australian Capital
+  Territory“ als Hauptstadt Australiens).
+- Offline-Abgleich an 8 echten Fragen (Treffer und Seiten gespeichert): 6 richtige Antwortsätze, 2 ehrliche
+  Enthaltungen (Louvre-Öffnungszeiten stehen nur in Tabellen; Siemens-Startseiten nennen den CEO nicht),
+  0 falsche.
+- Der Wegweiser (`wayfinder.sqlite`) liegt noch in den Paketen, die App liest ihn nicht mehr.
 
 ## Antworten (A4)
 
-- **Eskalation:** lokal (Faktenbank, Artikelanfänge) → Feeds → Regal → Bote. Fragen nach Aktuellem
-  (current/latest/now/today/2023+) gehen zuerst an die Kanäle; persönliche Fragen (I/me/my) nie.
+- **Eskalation:** lokal (Faktenbank, Artikelanfänge) → Feeds → Regal → Websuche. Fragen nach Aktuellem
+  (current/latest/now/today/2023+, aktuell/derzeit/heute …) gehen zuerst an die Kanäle; persönliche Fragen
+  (I/me/my) nie.
 - Die Sätze der Kanäle laufen als zusätzliche Kandidaten durch `ChatBot._lookup` (`extra_rows`), mit
   denselben Merkmalen wie lokale Sätze: Abdeckung (der Artikeltitel gilt in jedem seiner Sätze als genannt),
   Phrasen, Nähe, Titel als Schlüsselwörter, Dokument- und Kontextabdeckung (zwei Sätze davor). Fragewörter
@@ -263,10 +301,12 @@ ungesehen EN 33→0/48, DE 28→0/41, Umformulierung 19/49 und 12/42 → 0; 45 D
 ## Bedrohungsmodell und ehrliche Restrisiken
 
 - **Geschützt:**
-  - Fragetexte: Sie verlassen den Rechner nie.
+  - Fragetexte: Sie verlassen den Rechner nur über die Websuche, also nur auf Verlangen oder mit
+    eingeschaltetem Kanal.
   - Gesprächsinhalte und Gedächtnis: Sie bleiben lokal.
   - Profilbildung durch einen Vermittler: Es gibt keinen.
 - **Nicht geschützt:**
   - Regal ohne Tor: Der Host sieht die IP und die Fach-Nummern. Über viele Fragen hinweg sind Schnittmengen-Angriffe denkbar; Tarn-Fächer und der Cache erschweren sie.
   - Abo: Feed-Betreiber sehen die IP.
-  - Bote: Der Tor-Ausgang sieht die Zielseite.
+  - Websuche: Die Suchmaschine sieht Frage und IP und kann über viele Fragen ein Profil bilden; die
+    Trefferseiten sehen einen Besuch. Kein Tor mehr.

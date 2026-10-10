@@ -28,7 +28,7 @@ hyperdimensional vectors and counted linear models (averaged perceptrons).
 | Knowledge packs | **lite ≈ 1.25 GB** (lead sections of 400 000 Wikipedia articles, 150 000-entity fact bank, shelf index) · **standard 2.73 GB** (1.5 million article leads, 1 million-entity fact bank, full shelf index, wayfinder) — the plan's ceiling is 5 GB |
 | Memory and speed | lite: **555 MB peak**, p95 answer time 0.09 s, ready in ≈ 5 s · standard: **≈ 1.05 GB peak**, p95 0.17 s, ready in ≈ 9 s (container measurements; also under a hard 1.5 GiB memory limit without hitting it — real 4 GB hardware with a hard disk is still to be measured; `docs/EXPECTATIONS.md`) |
 | Languages | English; German for small talk, feelings, memory, advice, recommendations, everyday situations and common fact questions |
-| Internet (optional) | **off by default**; three channels you switch on one by one — full Wikipedia articles from a static "shelf" (6.37 million articles in 7 425 buckets; whole buckets plus decoys, no server of ours), news feeds fetched on a schedule, and single web pages over Tor. **The text of your question never leaves the computer**: ENGRAMM searches locally and fetches whole buckets, feeds or pages — the shelf host sees bucket numbers only; a page fetched by the messenger tells its site (anonymously, over Tor) which page was read. Every fetch is listed in the app's network log. Design and honest residual risks: `docs/SPEC_ATLAS.md` |
+| Internet (optional) | **off by default**. **Web search:** say "google …" / "such im Internet nach …" (or "yes" when ENGRAMM offers it after an "I don't know") and it asks a search engine (Bing, DuckDuckGo, optionally the Brave Search API with your key), reads the best result pages on your computer and answers with the sources and the results as links; switched on, it searches by itself whenever it cannot answer offline. **That is the one channel that sends your question out — to the search engine.** Two more channels never do: full Wikipedia articles from a static "shelf" (6.37 million articles in 7 425 buckets; whole buckets plus decoys, the host sees bucket numbers only) and news feeds fetched on a schedule. Every fetch is listed in the app's network log. Design and honest residual risks: `docs/SPEC_ATLAS.md` |
 | Understanding (v3.2) | situations recognised from word lists (Open English WordNet, OdeNet, FrameNet, Wiktionary) and an averaged perceptron, simple inferences from the conversation (times, dates, amounts, people, place, constraints), suggestions that respect what you said (diet, allergy, budget, likes), advice from the whole conversation, and **local learning**: corrections, taught words and style stay on your computer, logged step by step and undone bit-identically with "forget that" (`docs/SPEC_UNDERSTAND.md`) |
 | Measured on fresh, sealed conversations (v3.2, one run, blind AI reader) | event type recognised **92 %**; weak answers **65 %** (EN 71 %, DE 58 %; expected ≤ 25 % — **missed**); concrete advice on a request 1 of 81 — **missed**; re-measurements on further fresh sets after more work gave 74 %, 78 % and 72 % weak; roles in a sentence now 83 % (target 75 % — met); unsafe advice 0 in the last run; inferences 40 % (target 80 % — **missed**); a repeated correction comes back in 2.4 % (target ≤ 5 % — met); details in `docs/EXPECTATIONS.md`, summary in `docs/ABSCHLUSS_V3.2.md` |
 | Everyday conversation | read-tested on unseen conversations (probes 111–124, EN and DE, every answer read by a person, no AI judge): weak answers on the first run, 0 after fixing each category — the honest number is the first run, which is still high for new topics (`docs/EXPECTATIONS.md`) |
@@ -462,8 +462,9 @@ The rebuild is also a re-scoping. The research questions:
 6. **ENGRAMM Chat v3 — the desktop assistant** — *released as prereleases* (v3.0 betas): conversation layer,
    knowledge packs, Rust core, Tauri app with installers for macOS, Windows and Linux, German.
 7. **ENGRAMM Atlas (v3.1) — private web knowledge without a server** — *built*: one network gate with a per-fetch
-   log, the shelf (whole Wikipedia, 6.37 million articles), feeds, wayfinder and messenger over Tor, two-step
-   search with source and date per answer, packs measured at 1.25 and 2.73 GB. Open: checking several sources
+   log, the shelf (whole Wikipedia, 6.37 million articles), feeds, two-step search with source and date per
+   answer, packs measured at 1.25 and 2.73 GB. In 3.2 the Tor messenger (every fetch failed) gave way to a web
+   search ("google …": search engine, best result pages read locally, answer with sources). Open: checking several sources
    against each other and showing contradictions, comparison tables and rankings from the fact bank, the
    signing key for the shelf manifest, and the registered SearchBench test (`docs/PREREG_SEARCH_V0.md`), which
    needs 400 human-written questions and human raters.
@@ -561,10 +562,10 @@ engramm/chat/            the chat assistant: dialogue, conversation bank (built 
                          answer extraction, German
 engramm/nlp/             POS tagger, dependency parser, intent classifier, speller (averaged perceptrons)
 engramm/kb/              fact bank (kb.sqlite) and its question answering
-engramm/web/             ENGRAMM Atlas: network gate, shelf client, feeds, wayfinder, page cleaning, signatures
+engramm/web/             ENGRAMM Atlas: network gate, shelf client, feeds, web search, page cleaning, signatures
 engramm/app/             the local server the app talks to, and the website version
 engramm/bench/           ChatBench and SearchBench tooling
-runtime/                 desktop app: Rust core (runtime/core, egress, Tor), Tauri app (runtime/app), sidecar
+runtime/                 desktop app: Rust core (runtime/core, egress), Tauri app (runtime/app), sidecar
 ui/                      the React/Vite/TypeScript chat interface
 website/                 the product landing page (static, Vercel): website/README.md
 release/                 release requests (request.json starts a release build)
