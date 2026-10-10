@@ -6037,7 +6037,7 @@ class Assistant:
         self._spelled = None
         self._turn_keys = []
         try:
-            rep = self._essay(st, msg) or self._learn_pre(st, msg) or self._turn(st, msg)
+            rep = self._web_command(st, msg) or self._essay(st, msg) or self._learn_pre(st, msg) or self._turn(st, msg)
             if self._spelled and not rep.resolved:
                 rep.resolved = self._spelled          # shown as "I read this as …"
         finally:
@@ -6053,7 +6053,7 @@ class Assistant:
             st.ctx = dict(ctx)
             bot.context = dict(FRESH_CTX)
         rep.message = message
-        if rep.via not in ("learn", "infer") and rep.kind != "safety":
+        if rep.via not in ("learn", "infer", "web") and rep.kind != "safety":
             try:
                 from engramm.understand.suggest import check
                 alt = check(st, message, "de" if st.lang == "de" else "en", rep.text or "", rep.kind)
@@ -6061,7 +6061,7 @@ class Assistant:
                 alt = None
             if alt:                                       # the reply broke or ignored a condition the user stated
                 rep = Reply(message, "smalltalk", alt, via="suggest")
-        if rep.via not in ("learn", "infer", "suggest"):
+        if rep.via not in ("learn", "infer", "suggest", "web"):
             if rep.kind in ("unknown", "nothing") or (rep.text and re.match(
                     r"(?:I don't know|You haven't told me|Das weiß ich|Das kann ich auf Deutsch|Weiß ich nicht)", rep.text)):
                 try:
@@ -6075,7 +6075,7 @@ class Assistant:
                 rep = self._understand(st, message, rep)
             self._foresee(st)
             rep = self._foresight_followup(st, message, rep)
-        if rep.kind != "safety" and rep.via != "learn":
+        if rep.kind != "safety" and rep.via not in ("learn", "web"):
             try:                                          # ideas, names, a plan: composed, never "I don't know"
                 from engramm.understand import ideate
                 idea = ideate.respond(st, message, "de" if st.lang == "de" else "en")
@@ -6083,7 +6083,14 @@ class Assistant:
                 idea = None
             if idea:
                 rep = Reply(message, "smalltalk", idea, via="ideate")
-        if rep.via not in ("learn", "infer", "suggest", "ideate") and rep.kind != "safety":
+        if rep.via not in ("learn", "suggest", "ideate", "web") and rep.kind != "safety":
+            try:                                          # the web search, when switched on: what is not known offline
+                web = self._web_auto(st, message, rep)
+            except Exception:
+                web = None
+            if web is not None:
+                rep = web
+        if rep.via not in ("learn", "infer", "suggest", "ideate", "web") and rep.kind != "safety":
             try:
                 from engramm.understand import advise
                 lang_ = "de" if st.lang == "de" else "en"
@@ -6110,10 +6117,15 @@ class Assistant:
                     q = None
                 if q:                                     # a word it does not know: ask once, learn the answer
                     rep = Reply(message, "smalltalk", q, via="learn")
-        try:
-            rep.text = self._learner().post(st, message, rep.text or "", rep.via) if rep.text else rep.text
-        except Exception:
-            pass
+        if rep.via != "web":
+            try:
+                rep.text = self._learner().post(st, message, rep.text or "", rep.via) if rep.text else rep.text
+            except Exception:
+                pass
+            try:                                          # web search off, no answer: "Should I search the web?"
+                self._web_offer(st, message, rep)
+            except Exception:
+                pass
         rep.seconds = time.time() - t0
         if rep.text and rep.text == st.last_reply and normalise(message) != normalise(st.last_message or ""):
             if rep.kind == "unknown":
@@ -7231,7 +7243,7 @@ class Assistant:
             text = f"what language do people speak in {land}?" if kind == "language" else f"what currency does {land} use?"
         text = self._place_carry(st, text)
         text = self._carry_topic(st, text)
-        atlas_on = self.atlas is not None and self.atlas.any_on() and not re.search(r"\b(?:i|me|my|mine)\b", text, re.I)
+        atlas_on = self.atlas is not None and self.atlas.reads_on() and not re.search(r"\b(?:i|me|my|mine)\b", text, re.I)
         if atlas_on:
             from engramm.web.atlas import is_fresh
             if is_fresh(text):
@@ -13943,8 +13955,8 @@ class Assistant:
         return rep
 
     def _atlas_answer(self, st: DialogState, text: str) -> Reply | None:
-        """The question again, with sentences from the switched-on channels (feeds, shelf,
-        messenger) as extra candidates; None when they do not lead to a confident answer."""
+        """The question again, with sentences from the switched-on channels (feeds, shelf) as
+        extra candidates; None when they do not lead to a confident answer."""
         bot = self.bot
         q = bot.resolve(" ".join(text.split()))
         names = [m.group(0) for m in _CAPS_SPAN.finditer(q) if not q.startswith(m.group(0)) or " " in m.group(0)]
@@ -14146,20 +14158,136 @@ class Assistant:
                         st.topic = {"title": d["t"], "name": d["t"], "turn": st.turn}
                         return Reply(text, "about", " ".join(sents), evidence=sents[0], source=src, via="atlas",
                                      confidence=1.0)
-            if self.egress_on("messenger"):
-                rows = self.atlas._messenger(f"what is {topic}", [topic])
-                if rows:
-                    first = [r for r in rows if r[1]["kind"] == "web"][:3]
-                    if first:
-                        src = first[0][1]
-                        return Reply(text, "about", " ".join(r[0] for r in first), evidence=first[0][0], source=src,
-                                     via="atlas", confidence=1.0)
+            if self.egress_on("search"):
+                web = self._web_search(st, text, topic, "de" if st.lang == "de" else "en", explicit=False)
+                if web is not None and web.kind != "unknown":
+                    return web
         except Exception:
             return None
         return None
 
     def egress_on(self, channel: str) -> bool:
         return self.atlas is not None and self.atlas.egress.enabled(channel)
+
+    # -- web search (engramm/web/search.py) ---------------------------------------------------
+
+    def _web_command(self, st: DialogState, msg: str) -> Reply | None:
+        """"google …", "such im Internet nach …", "kannst du das googeln?" — and "yes" after
+        "Should I search the web for it?": a web search the user asked for (it runs even with the
+        web search switched off; the user asked in so many words)."""
+        from engramm.web.search import search_request
+        req = search_request(msg)
+        offer = st.uses.get("web_offer")
+        if req is None:
+            if offer and st.turn - offer[1] == 1 and _WEB_YES.fullmatch(_plain(msg)):
+                st.uses.pop("web_offer", None)
+                st.lang = offer[2]
+                return self._web_search(st, msg, offer[0], offer[2], explicit=True)
+            return None
+        hint, q = req
+        if not q:                                    # "google it": the question before
+            prev = st.last_message or ""
+            if offer and st.turn - offer[1] <= 2:
+                q = offer[0]
+            elif prev and (prev.rstrip().endswith("?") or message_type(prev) == "question") and \
+                    search_request(prev) is None:
+                q = prev
+        de_spec = self.bank.de
+        lang = hint or ("de" if st.lang == "de" or (q and de_spec and is_german(q, de_spec)) else "en")
+        if not q:
+            return Reply(msg, "smalltalk", _WEB_TEXT[lang]["what"], via="web")
+        st.uses.pop("web_offer", None)
+        st.lang = lang
+        return self._web_search(st, msg, q, lang, explicit=True)
+
+    def _web_auto(self, st: DialogState, message: str, rep: Reply) -> Reply | None:
+        """With the web search switched on: a question ENGRAMM could not answer offline (or one
+        about the present, "who is the current …") goes to the web; None keeps the reply."""
+        if not self.egress_on("search") or getattr(self.atlas, "search", None) is None:
+            return None
+        q = _web_question(message)
+        if q is None:
+            return None
+        from engramm.web.atlas import is_fresh
+        unknown = _is_unknown(rep)
+        fresh = rep.kind == "answer" and is_fresh(q)
+        if not (unknown or fresh):
+            return None
+        lang = "de" if st.lang == "de" else "en"
+        web = self._web_search(st, message, q, lang, explicit=False, offline=rep if fresh else None)
+        if web is None or (web.kind == "unknown" and not unknown):
+            return None                              # nothing better than the offline answer
+        return web
+
+    def _web_offer(self, st: DialogState, message: str, rep: Reply) -> None:
+        """Web search switched off and no answer offline: offer to search ("yes" searches)."""
+        if self.atlas is None or getattr(self.atlas, "search", None) is None or self.egress_on("search"):
+            return
+        if not _is_unknown(rep) or not rep.text:
+            return
+        q = _web_question(message)
+        if q is None:
+            return
+        lang = "de" if st.lang == "de" else "en"
+        st.uses["web_offer"] = [q, st.turn, lang]
+        rep.text = rep.text.rstrip() + _WEB_TEXT[lang]["offer"]
+
+    def _web_search(self, st: DialogState, msg: str, query: str, lang: str, explicit: bool,
+                    offline: Reply | None = None) -> Reply | None:
+        """Search, read the best result pages and answer with the sentences that answer best, each
+        with its source, and the results as links. None when an automatic search may not run
+        (the channel is off: nothing was sent)."""
+        from engramm.web.egress import EgressError
+        from engramm.web.search import ENGINE_NAMES, WebSearch, agree, answers
+        T = _WEB_TEXT[lang]
+        ws = getattr(self.atlas, "search", None) if self.atlas is not None else None
+        if ws is None:
+            return Reply(msg, "unknown", T["unavailable"], via="web")
+        try:
+            found = ws.search(query, lang, explicit=explicit)
+            pages = ws.read(found.results, n=3, explicit=explicit) if found.ok else []
+        except EgressError:
+            return None
+        except Exception as e:                       # the network must never break the chat
+            return Reply(msg, "unknown", T["failed"].format(err=f"{type(e).__name__}: {e}"[:160]), via="web")
+        engine = ENGINE_NAMES.get(found.engine or "", found.engine or "")
+        links = [r.to_dict() for r in found.results[:6]]
+        if not found.ok:
+            why = "; ".join(f"{ENGINE_NAMES.get(e, e)}: {w}" for e, w in list(dict.fromkeys(found.tried))[:4])
+            text = T["none"].format(q=query, why=why or T["no_engine"])
+            return Reply(msg, "unknown", text, via="web")
+        best = WebSearch.best(query, found.results, pages, n=8, lang=lang)
+        # only sentences that can answer it: the question's words, and a number when it asks for one
+        best = [b for b in best if _web_covers(query, b[1], b[2]) and answers(query, b[1])]
+        today = dt.date.today().isoformat()
+        # no short answer cut out of web text: the answer extraction is trained on encyclopedia
+        # sentences and picks wrong spans on other pages ("Australian Capital Territory" for the
+        # capital of Australia); the sentence itself, with its source, is the honest answer
+        lines = []
+        evidence = None
+        if best:
+            s0, d0 = best[0][1], best[0][2]
+            evidence = s0
+            source = {"kind": "web", "source": d0["host"], "key": d0["url"], "title": d0["t"], "as_of": today}
+            lines.append(T["lead"].format(site=d0["host"], s=_end(s0)))
+            # a second site only when it says the same (a number or a name of the first): agreement, not noise
+            other = next((b for b in best[1:] if b[2]["host"] != d0["host"] and agree(query, s0, b[1])), None)
+            if other is not None:
+                lines.append(T["also"].format(site=other[2]["host"], s=_end(other[1])))
+        else:
+            r0 = found.results[0]
+            source = {"kind": "web", "source": r0.site, "key": r0.url, "title": r0.title, "as_of": today}
+            lines.append(T["only_list"].format(q=query))
+        if offline is not None and offline.answer:
+            lines.append(T["offline"].format(a=offline.answer))
+        n = len(pages)
+        lines.append(T["foot" if n > 1 else "foot1" if n == 1 else "foot0"].format(engine=engine, n=n))
+        if explicit and not self.egress_on("search") and "web_tip" not in st.uses:
+            st.uses["web_tip"] = st.turn
+            lines[-1] += T["tip"]
+        st.last_fact = {"evidence": evidence, "source": source, "answer": None, "question": query, "sure": False}
+        self.bot.context.update({"answer": None, "atype": None})
+        return Reply(msg, "about", "\n\n".join(lines), evidence=evidence, source=source, via="web", links=links)
 
     def _news(self, st: DialogState, msg: str, topic: str | None) -> Reply:
         if self.atlas is None or not self.egress_on("feeds"):
@@ -15315,6 +15443,98 @@ def _winner_from(rows, topic: str | None):
     if (rest and rest[0][1] == n) or n < 2:
         return None                                   # two different "winners", or one weak hint: no answer
     return best, first[best][0], first[best][1]
+
+
+# -- web search: texts and helpers (Assistant._web_*) ----------------------------------------
+
+_WEB_TEXT = {
+    "en": {
+        "lead": "According to {site}: {s}",
+        "also": "{site} says the same: {s}",
+        "only_list": "I searched the web for “{q}”. No page I read answers it in so many words — the best results are below.",
+        "offline": "My offline knowledge (older) says: {a}.",
+        "foot": "Searched with {engine}; read {n} pages.",
+        "foot1": "Searched with {engine}; read 1 page.",
+        "foot0": "Searched with {engine}.",
+        "tip": " Tip: switch on “Web search” under “Internet access”, then I search on my own whenever I don't know something.",
+        "none": "I searched the web for “{q}”, but got no usable results ({why}). Try again in a moment or with other words — "
+                "or add a Brave Search API key under “Internet access” for more reliable results.",
+        "no_engine": "no search engine answered",
+        "failed": "The web search failed: {err}",
+        "unavailable": "The web search is not available here (no network channels in this version).",
+        "what": "Sure — what should I search for? For example: “google the capital of Peru”.",
+        "offer": " Should I search the web for it?",
+    },
+    "de": {
+        "lead": "Laut {site}: {s}",
+        "also": "{site} bestätigt das: {s}",
+        "only_list": "Ich habe im Web nach „{q}“ gesucht. Keine der gelesenen Seiten beantwortet das direkt – die besten Treffer stehen unten.",
+        "offline": "Mein Offline-Wissen (älter) sagt: {a}.",
+        "foot": "Gesucht mit {engine}, {n} Seiten gelesen.",
+        "foot1": "Gesucht mit {engine}, 1 Seite gelesen.",
+        "foot0": "Gesucht mit {engine}.",
+        "tip": " Tipp: Schalte unter „Internetzugang“ die Websuche ein, dann suche ich von selbst, wenn ich etwas nicht weiß.",
+        "none": "Ich habe im Web nach „{q}“ gesucht, aber keine brauchbaren Treffer bekommen ({why}). Versuch es gleich noch "
+                "einmal oder mit anderen Worten – oder trag unter „Internetzugang“ einen Brave-Search-API-Schlüssel ein, "
+                "das ist zuverlässiger.",
+        "no_engine": "keine Suchmaschine hat geantwortet",
+        "failed": "Die Websuche ist fehlgeschlagen: {err}",
+        "unavailable": "Die Websuche ist hier nicht verfügbar (diese Version hat keine Netzkanäle).",
+        "what": "Gern – wonach soll ich suchen? Zum Beispiel: „google die Hauptstadt von Peru“.",
+        "offer": " Soll ich im Web danach suchen?",
+    },
+}
+_WEB_YES = re.compile(r"(?:(?:ja|jo|jap|jep|klar|gerne?|bitte|ok|okay|okey|yes|yeah|yep|yup|sure|please|go|los|mach|mach das|"
+                      r"mach mal|do it|go ahead|go for it|search|such|suche|google|googel|google it|google es|na klar|"
+                      r"auf jeden fall|of course|absolutely|definitely|why not|warum nicht|unbedingt)\s*)+")
+_UNKNOWN_TEXT = re.compile(r"(?:I don't know|I do not know|I'm not sure|I have no idea|I couldn't find|Das weiß ich|"
+                           r"Weiß ich nicht|Das kann ich auf Deutsch|Ich weiß (?:es )?nicht|Dazu weiß ich)", re.I)
+_WEB_WRAP = re.compile(r"^(?:(?:hey|hi|ok(?:ay)?|so|also|und|and|but|aber|engramm|please|bitte)[, ]+)*"
+                       r"(?:(?:can|could|would) you (?:please )?tell me|do you (?:happen to )?know|tell me|"
+                       r"weißt du(?: zufällig)?|kannst du mir sagen|sag mir|erzähl mir)[, ]*", re.I)
+_WEB_PERSONAL = re.compile(r"\b(?:i|i'm|im|i've|i'd|i'll|my|mine|me|myself|we|our|ours|us|you|your|yours|yourself|"
+                           r"ich|mich|mir|mein\w*|wir|uns|unser\w*|du|dein\w*|dich|dir)\b", re.I)
+_WEB_QWORD = re.compile(r"(?:wer|was|wann|wo|wie|warum|wieso|weshalb|welche[rsmn]?|woher|wohin|wozu|gibt es|ist|sind|hat|"
+                        r"haben|kann|können|what|who|when|where|why|how|which|is|are|was|were|does|did|do|can|will|has)\b", re.I)
+
+
+def _plain(text: str) -> str:
+    return " ".join(re.sub(r"[^\w\s]", " ", text.lower()).split())
+
+
+def _is_unknown(rep: Reply) -> bool:
+    if rep.via in ("learn", "infer", "suggest", "ideate", "advise", "web", "safety"):
+        return False
+    return rep.kind in ("unknown", "nothing") or bool(_UNKNOWN_TEXT.match(rep.text or ""))
+
+
+def _web_question(message: str) -> str | None:
+    """A question the web can answer (a fact, not about the user or ENGRAMM), without "do you
+    know …", or None."""
+    t = " ".join(message.strip().split())
+    if not t or len(t) > 300:
+        return None
+    q = _WEB_WRAP.sub("", t).strip()
+    if len(re.findall(r"\w+", q)) < 2 or _WEB_PERSONAL.search(q):
+        return None
+    if not (t.endswith("?") or message_type(t) == "question" or _WEB_QWORD.match(q)):
+        return None
+    return q[:1].upper() + q[1:]
+
+
+def _web_covers(query: str, sentence: str, doc: dict) -> bool:
+    """The sentence (with its page title) has at least half of the question's content words."""
+    from engramm.web.search import content_words
+    toks = [w[:5] for w in content_words(query).split() if len(w) >= 3]
+    if not toks:
+        return True
+    hay = f"{doc.get('t', '')} {sentence}".lower()
+    return sum(t in hay for t in dict.fromkeys(toks)) * 2 >= len(set(toks))
+
+
+def _end(sentence: str) -> str:
+    s = sentence.strip()
+    return s if s.endswith((".", "!", "?", "…", "”", "“", "\"")) else s + "."
 
 
 def _src_title(src: dict | None) -> str:

@@ -104,6 +104,7 @@ class Reply:
     resolved: str | None = None        # the question after replacing pronouns
     alternatives: list = field(default_factory=list)
     seconds: float = 0.0
+    links: list = field(default_factory=list)  # web search results: {"title", "url", "snippet", "site", "engine"}
 
     def to_dict(self) -> dict:
         return asdict(self)

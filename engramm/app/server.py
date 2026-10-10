@@ -88,7 +88,7 @@ def source_view(src: dict | None) -> dict | None:
         title = src.get("title") or key
         return {"kind": "shelf", "title": title, "as_of": src.get("as_of") or None,
                 "url": "https://en.wikipedia.org/wiki/" + urllib.parse.quote(title.replace(" ", "_"))}
-    if src.get("kind") in ("feed", "web"):         # Atlas: a news feed item or a page the messenger read
+    if src.get("kind") in ("feed", "web"):         # Atlas: a news feed item or a page the web search read
         url = key if key.startswith("https://") else None
         return {"kind": src["kind"], "title": src.get("title") or key, "site": origin, "url": url,
                 "as_of": src.get("as_of") or None}
@@ -102,6 +102,21 @@ def source_view(src: dict | None) -> dict | None:
         url = key if key.startswith("http") else None
         return {"kind": "web", "title": urllib.parse.urlparse(key).netloc or key, "url": url}
     return {"kind": origin or "text", "title": key, "url": None}
+
+
+def link_view(link: dict) -> dict | None:
+    """A web search result for the page: https links only, text cut to size."""
+    if not isinstance(link, dict):
+        return None
+    url = str(link.get("url") or "")
+    try:
+        u = urllib.parse.urlsplit(url)
+    except ValueError:
+        return None
+    if u.scheme != "https" or not u.hostname or u.username or u.password or len(url) > 2000:
+        return None
+    return {"title": str(link.get("title") or u.hostname)[:200], "url": url, "site": str(link.get("site") or u.hostname)[:100],
+            "snippet": str(link.get("snippet") or "")[:400], "engine": str(link.get("engine") or "")[:40]}
 
 
 class ChatService:
@@ -246,11 +261,15 @@ class ChatService:
         for src in [d.get("source")] + [a.get("source") for a in (d.get("alternatives") or [])]:
             if src and str(src.get("key", "")).startswith("https://"):
                 self.shown_urls.add(src["key"])
+        links = [link_view(x) for x in (d.get("links") or [])]
+        links = [x for x in links if x is not None][:8]
+        self.shown_urls.update(x["url"] for x in links)
         return {"kind": d["kind"], "text": d["text"], "answer": d["answer"], "guess": d["guess"],
                 "evidence": d["evidence"], "source": source_view(d["source"]), "confidence": d["confidence"],
                 "via": d["via"], "resolved": d["resolved"] if d["resolved"] != message else None,
                 "alternatives": [{"text": a.get("text"), "source": source_view(a.get("source"))}
                                  for a in (d.get("alternatives") or [])][:3],
+                "links": links,
                 "seconds": round(time.time() - t0, 3)}
 
     # -- network (Atlas) ---------------------------------------------------------------------
@@ -264,10 +283,11 @@ class ChatService:
         if self.atlas is None:
             raise RuntimeError("The network channels are not available.")
         channel = str(data.get("channel", ""))
-        unknown = sorted(set(data) - {"channel", "enabled", "tor", "feeds"})
+        keys = ("enabled", "feeds", "engine", "brave_key")
+        unknown = sorted(set(data) - {"channel", *keys})
         if unknown:
             raise ValueError(f"Unknown setting: {unknown[0]}")
-        conf = {k: data[k] for k in ("enabled", "tor", "feeds") if k in data}
+        conf = {k: data[k] for k in keys if k in data}
         if not conf:
             raise ValueError("Nothing to change.")
         if "feeds" in conf:

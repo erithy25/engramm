@@ -1067,7 +1067,7 @@
    {
     "id": "device_action",
     "patterns": [
-     "(set|create|make) (an |a )?(alarm|timer|reminder|appointment|calendar event)( for .*)?|remind me (to|at|in|about) .*|(call|text|message|email|phone) (my |a )?\\w+( .*)?|send (an |a )?(email|message|text|sms)( to .*)?|open (the )?(app|browser|website|youtube|spotify|google|settings|camera)( .*)?|turn (on|off) (the )?.*|order (me )?(a |some )?.*|book (a |me a )?(table|flight|hotel|taxi|uber|ticket).*|google (it|that|this|.*)|search (the web|online|google|the internet) for .*|look (it|that) up (online|on the internet|on google)"
+     "(set|create|make) (an |a )?(alarm|timer|reminder|appointment|calendar event)( for .*)?|remind me (to|at|in|about) .*|(call|text|message|email|phone) (my |a )?\\w+( .*)?|send (an |a )?(email|message|text|sms)( to .*)?|open (the )?(app|browser|website|youtube|spotify|google|settings|camera)( .*)?|turn (on|off) (the )?.*|order (me )?(a |some )?.*|book (a |me a )?(table|flight|hotel|taxi|uber|ticket).*"
     ],
     "examples": [
      "set an alarm for 7",
@@ -1079,8 +1079,8 @@
     ],
     "responses": [
      "I can't reach your apps or devices — I only chat. Want help writing the text for it?",
-     "I can't do that — I'm a chat assistant that runs on its own, without access to your apps, phone or the internet. I can help you write the message, though!",
-     "That's outside what I can do: I have no access to your devices or the internet. But I can help you think it through or draft something."
+     "I can't do that — I'm a chat assistant that runs on its own, without access to your apps or your phone. I can help you write the message, though!",
+     "That's outside what I can do: I have no access to your devices. But I can help you think it through or draft something."
     ]
    },
    {
@@ -1099,7 +1099,7 @@
     "responses": [
      "I can answer questions (with sources), explain topics (“Tell me about the Moon”), remember what you tell me and forget it on request, calculate and convert units, and chat. Just type naturally!",
      "Try things like: “Who invented the telephone?”, “Tell me about volcanoes”, “My sister is called Anna”, “What do you know about me?”, “How many km is 10 miles?” or “Tell me a joke”.",
-     "Here's what I can do:\n• Answer questions from what I've read (Wikipedia and more) — with the source.\n• Explain things: “Tell me about black holes”.\n• Remember what you tell me (“My sister is called Anna”) — and forget it exactly when you ask.\n• Chat, tell jokes and fun facts.\n• Calculate, convert units, tell the date, give practical how-tos and suggestions.\nEverything runs on your computer, offline by default and without a neural network. With Internet access switched on, I can also read full, current Wikipedia articles and news feeds — your questions still never leave the computer."
+     "Here's what I can do:\n• Answer questions from what I've read (Wikipedia and more) — with the source.\n• Explain things: “Tell me about black holes”.\n• Remember what you tell me (“My sister is called Anna”) — and forget it exactly when you ask.\n• Chat, tell jokes and fun facts.\n• Calculate, convert units, tell the date, give practical how-tos and suggestions.\n• Search the web: “google …” — I read the best pages and answer with the sources.\nEverything runs on your computer, offline by default and without a neural network. Only a web search sends something out: the search words go to the search engine, and only when you ask for it or switch on “Web search”."
     ]
    },
    {
@@ -1554,7 +1554,7 @@
     ],
     "responses": [
      "Your data stays with you: everything you write and everything I remember lives on this computer. There's no account and no tracking, and you can make me forget anything.",
-     "Nobody else can see our chat — it never leaves this computer. Even with Internet access switched on, I only download (Wikipedia buckets, news feeds) and never send what you type.",
+     "Nobody else can see our chat — it stays on this computer. Only a web search sends something out: the search words go to a search engine (Bing or DuckDuckGo), and only when you ask me to search (“google …”) or switch on “Web search”. The Wikipedia shelf and the news feeds only download.",
      "It's just you and me here: no cloud, no account, no analytics. What I remember is a file on your computer — ask “What do you know about me?” to see it, and I'll forget anything you like."
     ]
    },
@@ -1569,8 +1569,8 @@
      "do you work offline"
     ],
     "responses": [
-     "By default I work completely offline. You can switch on Internet access (“Internet access” in the sidebar): then I can fetch full Wikipedia articles, news feeds you pick, or single pages over Tor — but your questions never leave this computer, and every download shows up in the network log.",
-     "Not like a search engine — no question ever leaves your computer. If you switch on Internet access, I can download whole Wikipedia buckets (with decoys), news feeds or pages over Tor and read them here."
+     "Yes — I can search the web: say “google …” or “search the web for …”, and I ask a search engine, read the best pages and answer with the sources. Otherwise I work offline. Under “Internet access” in the sidebar you can switch on automatic web search (when I don't know something), the full Wikipedia shelf and news feeds. Every request shows up in the network log.",
+     "I can, when you ask: “google the capital of Peru” searches the web, reads the best pages and answers with the sources. With “Web search” switched on under “Internet access”, I also search on my own whenever I don't know something. Each search sends the search words to the search engine; the network log lists every request."
     ]
    },
    {
@@ -1583,7 +1583,7 @@
      "how can i enable the internet"
     ],
     "responses": [
-     "Open “Internet access” in the sidebar and switch on the channels you want: the Wikipedia shelf, news feeds, or the messenger over Tor. Each one has its own switch, and the network log shows every download."
+     "Open “Internet access” in the sidebar and switch on what you want: Web search (I search on my own when I don't know something), the Wikipedia shelf, or news feeds. Each has its own switch, and the network log shows every request. A single search works without any switch: just say “google …”."
     ]
    },
    {
@@ -1639,7 +1639,7 @@
      "how does tor work"
     ],
     "responses": [
-     "Tor is a network that passes your connection through three relays run by volunteers, so the website you visit doesn't see your address and nobody along the way sees both who you are and where you go. I use it (if you switch it on) to fetch pages without revealing your IP."
+     "Tor is a network that passes your connection through three relays run by volunteers, so the website you visit doesn't see your address and nobody along the way sees both who you are and where you go."
     ]
    },
    {
@@ -4635,7 +4635,7 @@
     ],
     "responses": [
      "Deine Daten bleiben bei dir: Alles, was du schreibst und was ich mir merke, liegt auf diesem Rechner. Kein Konto, kein Tracking – und ich vergesse alles, was du willst.",
-     "Niemand sonst sieht unseren Chat – er verlässt diesen Rechner nie. Auch mit eingeschaltetem Internetzugang lade ich nur herunter (Wikipedia-Fächer, Nachrichten-Feeds) und schicke nie, was du schreibst."
+     "Niemand sonst sieht unseren Chat – er bleibt auf diesem Rechner. Nur eine Websuche schickt etwas hinaus: die Suchwörter gehen an eine Suchmaschine (Bing oder DuckDuckGo), und zwar nur, wenn du mich suchen lässt („google …“) oder die Websuche einschaltest. Wikipedia-Regal und Nachrichten-Feeds laden nur herunter."
     ]
    },
    {
@@ -4644,7 +4644,7 @@
      "bist du (mit dem internet verbunden|online)|hast du internet( zugang| zugriff)?|brauchst du (das )?internet|funktionierst du offline|kannst du (im internet|im netz|online) (suchen|nachschauen|surfen)|kannst du googeln|gehst du ins internet"
     ],
     "responses": [
-     "Standardmäßig arbeite ich komplett offline. Unter „Internetzugang“ in der Seitenleiste kannst du einzelne Kanäle einschalten: ganze Wikipedia-Artikel, Nachrichten-Feeds oder einzelne Seiten über Tor. Deine Fragen verlassen den Rechner trotzdem nie, und jeder Abruf steht im Netzprotokoll."
+     "Ja – ich kann im Web suchen: Sag „google …“ oder „such im Internet nach …“, dann frage ich eine Suchmaschine, lese die besten Seiten und antworte mit Quellen. Sonst arbeite ich offline. Unter „Internetzugang“ in der Seitenleiste kannst du die automatische Websuche (wenn ich etwas nicht weiß), das ganze Wikipedia-Regal und Nachrichten-Feeds einschalten. Jeder Abruf steht im Netzprotokoll."
     ]
    },
    {
@@ -4653,7 +4653,7 @@
      "wie (schalte|mache) ich (das )?(internet|den internetzugang|das netz|das regal) (an|ein)|wie aktiviere ich (das )?(internet|den internetzugang)|internet (einschalten|anschalten|aktivieren)"
     ],
     "responses": [
-     "Öffne „Internetzugang“ in der Seitenleiste und schalte die Kanäle ein, die du möchtest: das Wikipedia-Regal, Nachrichten-Feeds oder den Boten über Tor. Jeder Kanal hat seinen eigenen Schalter, und das Netzprotokoll zeigt jeden Abruf."
+     "Öffne „Internetzugang“ in der Seitenleiste und schalte ein, was du möchtest: die Websuche (ich suche von selbst, wenn ich etwas nicht weiß), das Wikipedia-Regal oder Nachrichten-Feeds. Jeder Kanal hat seinen eigenen Schalter, und das Netzprotokoll zeigt jeden Abruf. Eine einzelne Suche geht auch ohne Schalter: Sag einfach „google …“."
     ]
    },
    {
@@ -4671,7 +4671,7 @@
      "was ist tor|wie funktioniert tor|wozu tor|was macht tor|was ist das tor netzwerk"
     ],
     "responses": [
-     "Tor ist ein Netz, das deine Verbindung über drei Stationen von Freiwilligen leitet: Die besuchte Seite sieht deine Adresse nicht, und niemand unterwegs sieht zugleich, wer du bist und wohin du gehst. Ich nutze es – wenn du es einschaltest –, um Seiten abzurufen, ohne deine IP zu verraten."
+     "Tor ist ein Netz, das deine Verbindung über drei Stationen von Freiwilligen leitet: Die besuchte Seite sieht deine Adresse nicht, und niemand unterwegs sieht zugleich, wer du bist und wohin du gehst."
     ]
    },
    {
@@ -8779,7 +8779,7 @@
    "My offline article on {x} is from before it ended, so I can't tell you the result for sure."
   ],
   "topic_gap_online": [
-   "With Internet access switched on, I can check the current Wikipedia article."
+   "Say “google it” and I'll check the web — or switch on the Wikipedia shelf under “Internet access”."
   ],
   "dislike": [
    "Fair enough — I'll remember you're not a fan of {x}. What do you enjoy instead?",

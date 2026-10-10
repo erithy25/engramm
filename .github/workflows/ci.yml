@@ -32,17 +32,15 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: runtime/core
-      - name: Rust core (unit tests incl. Tor, then the release binary for the conformance and egress tests)
+      - name: Rust core (unit tests, then the release binary for the conformance and egress tests)
         working-directory: runtime/core
         run: |
           cargo test --release --all-features
           cargo build --release --features fetch
-      - name: Tor live check (informational - depends on the public Tor network)
+      - name: Web search live check (informational - search engines distrust data-centre addresses)
         continue-on-error: true
-        timeout-minutes: 15
-        run: |
-          (cd runtime/core && CARGO_TARGET_DIR=target-tor cargo build --release --features tor)
-          python scripts/tor_smoke.py runtime/core/target-tor/release/engramm-core
+        timeout-minutes: 5
+        run: python scripts/search_smoke.py runtime/core/target/release/engramm-core
       - name: Conversation bank is compiled from data/conv
         run: python -m engramm.chat.studio check
       - name: Python tests
@@ -53,7 +51,7 @@ jobs:
           tests/test_chat_app.py tests/test_chat_flows.py tests/test_kb.py tests/test_runtime_core.py tests/test_nlp.py tests/test_packs.py
           tests/test_chat_daily.py tests/test_web_egress.py tests/test_web_shelf.py tests/test_web_feeds.py tests/test_web_atlas.py tests/test_web_text.py
           tests/test_understand.py tests/test_learn.py tests/test_infer.py tests/test_suggest.py tests/test_advise.py tests/test_foresight.py tests/test_ideate.py tests/test_essay.py tests/test_advice_app_ui.py tests/test_learning_app_ui.py
-          tests/test_text_encoding.py
+          tests/test_text_encoding.py tests/test_web_search.py tests/test_web_atlas_ui.py
 
   ui:
     runs-on: ubuntu-22.04
