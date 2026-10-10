@@ -303,3 +303,22 @@ Rechenleistung pro Stunde (§9).
 - **Stufe 1 erreicht:** bpb ≤ 1,04. Andernfalls wird der gemessene Wert mit dem Abstand berichtet und der Lauf mit
   weiteren Token verlängert (neue Abnahme-Phase ab dem letzten konstanten Stand).
 - **Zusätzlich berichtet:** die Mischung mit dem Zähler (λ je Bucket) und val-A.
+
+**Verlauf des Langlaufs (Stand 10. Oktober, 10:50 UTC).**
+
+| Training | Token | val-A, bpb (Fenster 1.024) |
+|---|---|---|
+| 6 h | 29 Mio. | 1,762 |
+| 12 h | 60 Mio. | 1,640 |
+
+- **Unterbrechungen:** Zwei Container-Neustarts (9./10. Oktober) löschten die RAM-Disk. Der Lauf setzte jeweils von den
+  Gewichten auf der Platte fort, bei 75,5 Mio. Token. Gesichert wird jetzt alle 20 min.
+  `experiments/v5_long_resume.sh` startet den Lauf neu, wenn er nicht läuft.
+- **Hardware-Wechsel:** Seit dem zweiten Neustart läuft die Umgebung auf einem anderen Rechner (Xeon @ 2,8 GHz ohne AMX
+  und ohne AVX512-BF16). bf16 wurde dort nachgebildet: 6× langsamer, Speicher lief voll, 2 h Absturzschleife ohne
+  Fortschritt.
+  - Jetzt wird fp32 gerechnet, wenn die CPU kein bf16 kann.
+  - Tempo hier: 2,0 Mio. Token/h bei Kontext 256, 1,7 Mio. bei Kontext 1.024. Auf dem ursprünglichen Rechner mit bf16
+    waren es 5,1 bzw. 4,0 Mio.
+- **Unverändert:** Modell, Token-Budget und Entscheidungsregel. Auf diesem Rechner dauert der Rest (≈ 525 Mio. Token)
+  rund 12 Tage, auf einem Rechner mit AMX rund 5.
