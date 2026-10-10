@@ -110,6 +110,8 @@ def test_rules_without_network():
     s = json.loads(json.dumps(DEFAULT_SETTINGS))
     with pytest.raises(EgressError, match="switched off"):
         check(Request("shelf", "https://github.com/x", "t", ("github.com",)), s)
+    check(Request("search", "https://www.bing.com/search?q=x", "t", ("bing.com",)), s)   # on from the start
+    s["channels"]["search"]["enabled"] = False
     with pytest.raises(EgressError, match="switched off"):
         check(Request("search", "https://www.bing.com/search?q=x", "t", ("bing.com",)), s)
     # "google …": the user asked for this one search, the switch need not be on
@@ -143,9 +145,10 @@ def test_rules_without_network():
 
 def test_settings_persist_and_validate(tmp_path):
     e = Egress(settings_path=tmp_path / "network.json")
-    assert not any(e.enabled(c) for c in ("shelf", "feeds", "search"))      # offline by default
+    assert not e.enabled("shelf") and not e.enabled("feeds")      # the reading channels: off until switched on
+    assert e.enabled("search")                                    # the web search: on from the start (3.2.0-beta.8)
     e.set_channel("feeds", enabled=True, feeds=["bbc-world"])
-    e.set_channel("search", engine="duckduckgo", brave_key="  BSAkey123  ")
+    e.set_channel("search", enabled=False, engine="duckduckgo", brave_key="  BSAkey123  ")
     with pytest.raises(EgressError):
         e.set_channel("feeds", enabled="yes")
     with pytest.raises(EgressError):
@@ -169,18 +172,21 @@ def test_settings_persist_and_validate(tmp_path):
 
 def test_settings_of_3_1_carry_over(tmp_path):
     """network.json of 3.1 (Tor messenger, Tor for the shelf): the shelf and the feeds stay as they
-    were; the messenger is gone and does not switch on the web search (that sends the question)."""
+    were; the messenger is gone; the web search, new, gets its default (on)."""
     (tmp_path / "network.json").write_text(json.dumps({"version": 1, "channels": {
         "shelf": {"enabled": True, "tor": True}, "feeds": {"enabled": True, "feeds": ["dw-en"]},
         "messenger": {"enabled": True, "tor": True}}}), encoding="utf-8")
     e = Egress(settings_path=tmp_path / "network.json")
     e.load()
     assert e.settings["channels"] == {"shelf": {"enabled": True}, "feeds": {"enabled": True, "feeds": ["dw-en"]},
-                                      "search": {"enabled": False, "engine": "auto", "brave_key": ""}}
+                                      "search": {"enabled": True, "engine": "auto", "brave_key": ""}}
     (tmp_path / "network.json").write_text(json.dumps({"channels": {"search": {"enabled": "yes", "engine": "x"}}}),
                                            encoding="utf-8")
     e.load()                                   # wrong types and unknown engines fall back to the defaults
-    assert e.settings["channels"]["search"] == {"enabled": False, "engine": "auto", "brave_key": ""}
+    assert e.settings["channels"]["search"] == {"enabled": True, "engine": "auto", "brave_key": ""}
+    (tmp_path / "network.json").write_text(json.dumps({"channels": {"search": {"enabled": False}}}), encoding="utf-8")
+    e.load()                                   # switched off by the user: stays off
+    assert not e.enabled("search")
 
 
 @pytest.mark.parametrize("kind", BACKENDS)

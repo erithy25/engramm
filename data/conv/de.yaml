@@ -106,15 +106,15 @@ intents:
     patterns: ['(sind|ist) (meine daten|das hier|dieser chat|unser chat|das gespräch) (sicher|privat|geschützt)|(schickst|sendest|teilst|verkaufst|lädst) du (meine|unsere) (daten|nachrichten|fragen|chats?)( irgendwohin| hoch| weiter| an jemanden)?|wer kann (das|unseren chat|meine nachrichten|das gespräch) (sehen|lesen)|liest (da )?jemand mit|datenschutz|speicherst du (meine daten|alles)( irgendwo)?|trackst du mich']
     responses:
       - "Deine Daten bleiben bei dir: Alles, was du schreibst und was ich mir merke, liegt auf diesem Rechner. Kein Konto, kein Tracking – und ich vergesse alles, was du willst."
-      - "Niemand sonst sieht unseren Chat – er bleibt auf diesem Rechner. Nur eine Websuche schickt etwas hinaus: die Suchwörter gehen an eine Suchmaschine (Bing oder DuckDuckGo), und zwar nur, wenn du mich suchen lässt („google …“) oder die Websuche einschaltest. Wikipedia-Regal und Nachrichten-Feeds laden nur herunter."
+      - "Niemand sonst sieht unseren Chat – er bleibt auf diesem Rechner, genau wie dein Gedächtnis. Eines geht hinaus: Weiß ich etwas nicht, suche ich im Web, und die Frage geht an eine Suchmaschine (Bing oder DuckDuckGo), zusammen mit deiner IP-Adresse. Persönliche Fragen nie. Unter „Internetzugang“ kannst du die Websuche abschalten; jeder Abruf steht im Netzprotokoll."
   - id: de_internet
     patterns: ['bist du (mit dem internet verbunden|online)|hast du internet( zugang| zugriff)?|brauchst du (das )?internet|funktionierst du offline|kannst du (im internet|im netz|online) (suchen|nachschauen|surfen)|kannst du googeln|gehst du ins internet']
     responses:
-      - "Ja – ich kann im Web suchen: Sag „google …“ oder „such im Internet nach …“, dann frage ich eine Suchmaschine, lese die besten Seiten und antworte mit Quellen. Sonst arbeite ich offline. Unter „Internetzugang“ in der Seitenleiste kannst du die automatische Websuche (wenn ich etwas nicht weiß), das ganze Wikipedia-Regal und Nachrichten-Feeds einschalten. Jeder Abruf steht im Netzprotokoll."
+      - "Ja – weiß ich etwas nicht, suche ich von selbst im Web: Ich frage eine Suchmaschine, lese die besten Seiten und antworte mit Quellen. Du kannst auch „google …“ oder „such im Internet nach …“ sagen. Unter „Internetzugang“ in der Seitenleiste kannst du die Websuche abschalten oder das ganze Wikipedia-Regal und Nachrichten-Feeds einschalten. Jeder Abruf steht im Netzprotokoll."
   - id: de_net_howto
     patterns: ['wie (schalte|mache) ich (das )?(internet|den internetzugang|das netz|das regal) (an|ein)|wie aktiviere ich (das )?(internet|den internetzugang)|internet (einschalten|anschalten|aktivieren)']
     responses:
-      - "Öffne „Internetzugang“ in der Seitenleiste und schalte ein, was du möchtest: die Websuche (ich suche von selbst, wenn ich etwas nicht weiß), das Wikipedia-Regal oder Nachrichten-Feeds. Jeder Kanal hat seinen eigenen Schalter, und das Netzprotokoll zeigt jeden Abruf. Eine einzelne Suche geht auch ohne Schalter: Sag einfach „google …“."
+      - "Öffne „Internetzugang“ in der Seitenleiste: Die Websuche ist ab Werk an (ich suche, wenn ich etwas nicht weiß); Wikipedia-Regal und Nachrichten-Feeds schaltest du dort ein. Jeder Kanal hat seinen eigenen Schalter, und das Netzprotokoll zeigt jeden Abruf."
   - id: de_sources
     patterns: ['woher (hast|weißt|kennst) du (dein wissen|das alles|deine informationen|das)|was sind deine quellen|wie aktuell (ist|sind) dein (wissen|deine daten|deine informationen)|wie aktuell bist du|von wann (ist|sind) dein (wissen|deine daten)']
     responses:

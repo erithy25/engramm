@@ -7,10 +7,11 @@ Plan: `/root/.claude/plans/zippy-nibbling-feigenbaum.md`. Messung: `docs/PREREG_
 **Das Gehirn bleibt lokal.** Lesen, Auswählen und Antworten geschieht auf dem eigenen Rechner, ohne KI-API.
 - Regal und Abo schicken nie eine Frage hinaus: Niemand kann sie aus ihren Abrufen ablesen.
 - **Die Websuche (seit 3.2) ist die eine Ausnahme:** Sie schickt die Frage an eine Suchmaschine (Bing,
-  DuckDuckGo, auf Wunsch die Brave-Search-API) und liest die besten Treffer hier. Sie läuft nur, wenn der
-  Nutzer sie verlangt („google …“, „such im Internet nach …“, „ja“ auf das Angebot nach einem „weiß ich
-  nicht“) oder den Kanal eingeschaltet hat.
-- Standard ist **offline**: Alle drei Kanäle sind aus, bis der Nutzer sie einzeln einschaltet.
+  DuckDuckGo, auf Wunsch die Brave-Search-API) und liest die besten Treffer hier.
+- **Standard (seit 3.2.0-beta.8, Entscheidung des Eigentümers am 10.10.2026):** Die Websuche ist ab Werk
+  **an**. ENGRAMM sucht von selbst, wenn es offline keine Antwort hat oder die Frage nach Aktuellem fragt;
+  persönliche Fragen nie. Ein Schalter schaltet sie ab; dann bietet ENGRAMM die Suche an („ja“ sucht), und
+  „google …“ sucht trotzdem einmal. Regal und Abo sind aus, bis der Nutzer sie einschaltet.
 - Der Tor-Bote von 3.1 ist entfernt (jeder Abruf scheiterte, „no HTTP header“; Arti fiel aus dem Build).
 
 ## Die drei Kanäle
@@ -45,11 +46,10 @@ Plan: `/root/.claude/plans/zippy-nibbling-feigenbaum.md`. Messung: `docs/PREREG_
   ```json
   {"version": 2, "channels": {"shelf": {"enabled": false},
    "feeds": {"enabled": false, "feeds": ["bbc-world"]},
-   "search": {"enabled": false, "engine": "auto", "brave_key": ""}}}
+   "search": {"enabled": true, "engine": "auto", "brave_key": ""}}}
   ```
-  Einstellungen von 3.1 gelten weiter; der Bote wird nicht in die Websuche übernommen (sie schickt die Frage
-  hinaus, das braucht eine eigene Zustimmung). Den Brave-Schlüssel gibt der Server nie zurück, nur
-  `brave_key_set`.
+  Einstellungen von 3.1 gelten weiter; der Bote entfällt, die Websuche bekommt ihren Standard (an), solange
+  der Nutzer sie nicht abschaltet. Den Brave-Schlüssel gibt der Server nie zurück, nur `brave_key_set`.
   ```
   ```
 
@@ -142,10 +142,10 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
 
 ## Websuche (K3, `engramm/web/search.py`)
 
-- **Wann:** „google …“, „search the web for …“, „such im Internet nach …“, „kannst du das googeln?“ (auch mit
-  ausgeschaltetem Kanal); „ja“ auf „Soll ich im Web danach suchen?“, das ENGRAMM nach einem „weiß ich nicht“
-  anbietet; mit eingeschaltetem Kanal von selbst, wenn offline keine Antwort kommt oder die Frage nach
-  Aktuellem fragt. Persönliche Fragen (ich/mein/du …) nie.
+- **Wann:** ab Werk von selbst, wenn offline keine Antwort kommt oder die Frage nach Aktuellem fragt;
+  „google …“, „search the web for …“, „such im Internet nach …“, „kannst du das googeln?“ immer (auch mit
+  ausgeschaltetem Kanal); mit ausgeschaltetem Kanal „ja“ auf „Soll ich im Web danach suchen?“, das ENGRAMM
+  nach einem „weiß ich nicht“ anbietet. Persönliche Fragen (ich/mein/du …) nie.
 - **Suchmaschinen** („auto“): Brave-Search-API (nur mit Schlüssel) → Bing → DuckDuckGo (HTML, dann lite) →
   Wikipedia-Suche. Je Maschine zwei Formen: die Frage wie getippt, dann Stichwörter mit den Namen zuerst.
   Als „keine Antwort“ gelten eine Bot-Prüfung (Captcha, HTTP 202/403/429) und **Treffer, die nicht zur Frage
@@ -301,8 +301,8 @@ ungesehen EN 33→0/48, DE 28→0/41, Umformulierung 19/49 und 12/42 → 0; 45 D
 ## Bedrohungsmodell und ehrliche Restrisiken
 
 - **Geschützt:**
-  - Fragetexte: Sie verlassen den Rechner nur über die Websuche, also nur auf Verlangen oder mit
-    eingeschaltetem Kanal.
+  - Fragetexte: Sie verlassen den Rechner nur über die Websuche (ab Werk an, abschaltbar); persönliche
+    Fragen nie.
   - Gesprächsinhalte und Gedächtnis: Sie bleiben lokal.
   - Profilbildung durch einen Vermittler: Es gibt keinen.
 - **Nicht geschützt:**

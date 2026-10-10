@@ -38,12 +38,13 @@ BROWSER_USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537
                       "Chrome/129.0.0.0 Safari/537.36")
 CHANNELS = ("shelf", "feeds", "search")
 SEARCH_ENGINES = ("auto", "bing", "duckduckgo", "brave")
-# search.enabled: questions ENGRAMM cannot answer offline go to the web search on their own;
-# "google …" always searches (the user asks for it). engine "auto" tries the keyless engines in
-# turn; brave_key is an optional Brave Search API key (more reliable than reading result pages).
+# search.enabled: questions ENGRAMM cannot answer offline go to the web search on their own — on
+# from the start (3.2.0-beta.8; one switch turns it off, and then "google …" still searches once).
+# engine "auto" tries the keyless engines in turn; brave_key is an optional Brave Search API key
+# (more reliable than reading result pages). The shelf and the feeds stay off until switched on.
 DEFAULT_SETTINGS = {"version": 2, "channels": {"shelf": {"enabled": False},
                                                "feeds": {"enabled": False, "feeds": []},
-                                               "search": {"enabled": False, "engine": "auto", "brave_key": ""}}}
+                                               "search": {"enabled": True, "engine": "auto", "brave_key": ""}}}
 MAX_BYTES = {"shelf": 4 << 20, "feeds": 2 << 20, "search": 3 << 20}
 TIMEOUT = {"shelf": 30.0, "feeds": 20.0, "search": 15.0}
 HEADERS = ("accept", "accept-language", "x-subscription-token")
@@ -328,8 +329,8 @@ class Egress:
 
     def load(self) -> None:
         """network.json. Settings of earlier versions carry over where they still exist; the Tor
-        messenger of 3.1 is gone and is not carried over to the web search, which sends the question
-        itself to a search engine: that needs its own switch."""
+        messenger of 3.1 is gone. The web search did not exist before, so an older file gets its
+        default (on); a user who switched it off keeps it off."""
         if self.settings_path is not None and self.settings_path.exists():
             try:
                 d = json.loads(self.settings_path.read_text(encoding="utf-8"))

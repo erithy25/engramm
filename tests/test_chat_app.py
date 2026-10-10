@@ -269,7 +269,9 @@ def test_network_api_is_off_by_default_and_switches_channels(tmp_path, monkeypat
         code, _, body = _call(base, "/api/network")
         net = json.loads(body)
         assert code == 200 and net["available"] and net["backend"] == "python"
-        assert not any(c["enabled"] for c in net["channels"].values())          # offline until switched on
+        ch = net["channels"]
+        assert not ch["shelf"]["enabled"] and not ch["feeds"]["enabled"]        # reading channels: off until switched on
+        assert ch["search"]["enabled"] and ch["search"]["brave_key_set"] is False   # web search: on from the start
         assert net["feeds"] and not any(f["selected"] for f in net["feeds"]) and net["log"] == []
         code, _, body = _call(base, "/api/network", {"channel": "feeds", "enabled": True})
         net = json.loads(body)

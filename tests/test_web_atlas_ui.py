@@ -137,6 +137,7 @@ def test_internet_access_in_the_browser(tmp_path, corpus, shelf_pack, monkeypatc
     svc.mode = "full"
     svc.egress = Egress(settings_path=tmp_path / "network.json", log=NetworkLog(tmp_path / "network.log"),
                         backend=_Both())
+    svc.egress.set_channel("search", enabled=False)   # the flow below starts with every channel off
     svc.atlas = Atlas(svc.egress, shelf_pack, tmp_path / "state")
     svc.assistant.atlas = svc.atlas
     now = int(time.time())

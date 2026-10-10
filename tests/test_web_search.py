@@ -197,7 +197,7 @@ def test_search_requests(text, want):
 
 def test_engines_in_turn(tmp_path):
     web = FakeWeb(bing="junk", ddg="anomaly")
-    e = _egress(tmp_path, web)
+    e = _egress(tmp_path, web, enabled=False)
     ws = WebSearch(e)
     with pytest.raises(EgressError, match="switched off"):                  # not asked for, channel off: nothing sent
         ws.search("How tall is the Zorblax Tower?", "en")
@@ -241,7 +241,7 @@ def web_chat(corpus, tmp_path, monkeypatch):   # noqa: F811
     monkeypatch.setattr(FeedRefresher, "start", lambda self: None)
     monkeypatch.setattr(FeedRefresher, "refresh_now", lambda self: {})
     web = FakeWeb(bing="good")
-    eg = _egress(tmp_path, web)
+    eg = _egress(tmp_path, web, enabled=False)       # most of these tests are about the switch being off
     atlas = Atlas(eg, None, tmp_path / "state")
     a = Assistant(_bot(corpus, LoggedTextMemory(tmp_path / "chat_memory.log")), clock=CLOCK)
     a.atlas = atlas
@@ -309,7 +309,7 @@ def test_german(web_chat):
 def test_nothing_found_is_said_plainly(corpus, tmp_path, monkeypatch):   # noqa: F811
     monkeypatch.setattr(FeedRefresher, "start", lambda self: None)
     web = FakeWeb(bing="captcha", ddg="anomaly", lite="anomaly")
-    eg = _egress(tmp_path, web)
+    eg = _egress(tmp_path, web, enabled=False)
     a = Assistant(_bot(corpus, LoggedTextMemory(tmp_path / "m.log")), clock=CLOCK)
     a.atlas = Atlas(eg, None, tmp_path / "state")
     r = a.turn(DialogState("n"), "google Zorblax Tower")
@@ -350,3 +350,21 @@ def test_the_sentence_that_answers_wins():
     assert not answers("What are the opening hours of the museum?", "The museum is free after 6 p.m. on Fridays.")
     assert not answers("How tall is the tower?", "The tower is very tall and famous.")
     assert answers("Who designed the tower?", "It was designed by Mirela Tosk.")
+
+
+def test_web_search_is_on_from_the_start(corpus, tmp_path, monkeypatch):   # noqa: F811
+    """A new installation (no network.json): a question ENGRAMM cannot answer offline goes to the web
+    by itself, with sources; a personal one does not; the shelf and the feeds stay off."""
+    monkeypatch.setattr(FeedRefresher, "start", lambda self: None)
+    web = FakeWeb(bing="good")
+    eg = Egress(settings_path=tmp_path / "network.json", log=NetworkLog(tmp_path / "network.log"), backend=web)
+    assert eg.enabled("search") and not eg.enabled("shelf") and not eg.enabled("feeds")
+    a = Assistant(_bot(corpus, LoggedTextMemory(tmp_path / "m.log")), clock=CLOCK)
+    a.atlas = Atlas(eg, None, tmp_path / "state")
+    st = DialogState("new")
+    r = a.turn(st, "How tall is the Zorblax Tower?")
+    assert r.via == "web" and "318 metres" in r.text and r.links, r.text
+    assert "Should I search" not in r.text and "Tip:" not in r.text
+    n = len(web.seen)
+    a.turn(st, "What is my favourite tower?")
+    assert len(web.seen) == n

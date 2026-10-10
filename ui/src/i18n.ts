@@ -154,9 +154,9 @@ const en: Texts = {
   about3: "Small talk, jokes, explanations (“Tell me about volcanoes”), e-mails and letters, calculations.",
   about4: "Runs entirely on your computer. Same question, same answer.",
   aboutLimits:
-    "Limits: English first (German basics), weaker at long creative writing. Offline unless you ask it to search the " +
-    "web (“google …”) or switch on internet access — only a web search sends your words out, to the search engine. " +
-    "When unsure, ENGRAMM says so.",
+    "Limits: English first (German basics), weaker at long creative writing. It thinks on your computer; when it " +
+    "doesn't know something, it searches the web — then your question goes to the search engine (one switch under " +
+    "“Internet access” turns that off). When unsure, ENGRAMM says so.",
   today: "Today",
   earlier: "Earlier",
   untitled: "New chat",
@@ -206,9 +206,10 @@ const en: Texts = {
   netOn: "on",
   netOff: "off",
   netIntro:
-    "ENGRAMM works offline. Each channel below can be switched on by itself. The shelf and the news feeds never " +
-    "send your questions; the web search does — to the search engine. “google …” in the chat searches once, even " +
-    "with everything off. Every fetch is listed in the network log.",
+    "ENGRAMM answers from its own knowledge first. When it doesn't know, the web search (on from the start) asks a " +
+    "search engine — the only channel that sends your question out. The shelf and the news feeds never do; switch " +
+    "them on as you like. With the web search off, “google …” in the chat still searches once. Every fetch is " +
+    "listed in the network log.",
   netUnavailable: "Internet access is not available in this version.",
   netLoading: "loading …",
   shelfTitle: "Full Wikipedia articles (shelf)",
@@ -227,9 +228,9 @@ const en: Texts = {
   feedFailed: "failed",
   searchTitle: "Web search",
   searchDesc:
-    "When ENGRAMM cannot answer a question offline (or it is about the present), it asks a search engine, reads " +
-    "the best pages on your computer and answers with the sources. Off: it offers to search, and “google …” " +
-    "always works.",
+    "On from the start: when ENGRAMM cannot answer a question offline (or it is about the present), it asks a " +
+    "search engine, reads the best pages on your computer and answers with the sources. Personal questions never " +
+    "go out. Off: it offers to search, and “google …” always works.",
   searchPrivacy: "The question goes to the search engine, which sees it together with your IP address.",
   searchEngine: "Search engine",
   searchEngines: {
@@ -289,9 +290,9 @@ const de: Texts = {
   about3: "Smalltalk, Witze, Erklärungen („Tell me about volcanoes“), E-Mails und Briefe, Rechnen.",
   about4: "Läuft komplett auf deinem Rechner. Gleiche Frage – gleiche Antwort.",
   aboutLimits:
-    "Grenzen: vor allem Englisch (Deutsch in Grundzügen), schwächer bei langen kreativen Texten. Offline, solange du " +
-    "es nicht im Web suchen lässt („google …“) oder den Internetzugang einschaltest – nur eine Websuche schickt " +
-    "deine Worte hinaus, an die Suchmaschine. Bei Unsicherheit sagt ENGRAMM das.",
+    "Grenzen: vor allem Englisch (Deutsch in Grundzügen), schwächer bei langen kreativen Texten. Es denkt auf " +
+    "deinem Rechner; weiß es etwas nicht, sucht es im Web – dann geht deine Frage an die Suchmaschine (ein Schalter " +
+    "unter „Internetzugang“ schaltet das ab). Bei Unsicherheit sagt ENGRAMM das.",
   today: "Heute",
   earlier: "Früher",
   untitled: "Neuer Chat",
@@ -339,9 +340,10 @@ const de: Texts = {
   netOn: "an",
   netOff: "aus",
   netIntro:
-    "ENGRAMM arbeitet offline. Jeder Kanal unten lässt sich einzeln einschalten. Regal und Nachrichten-Feeds " +
-    "schicken nie deine Fragen hinaus; die Websuche schon – an die Suchmaschine. „google …“ im Chat sucht einmal, " +
-    "auch wenn alles aus ist. Jeder Abruf steht im Netzprotokoll.",
+    "ENGRAMM antwortet zuerst aus eigenem Wissen. Weiß es etwas nicht, fragt die Websuche (ab Werk an) eine " +
+    "Suchmaschine – der einzige Kanal, der deine Frage hinausschickt. Regal und Nachrichten-Feeds tun das nie; " +
+    "schalte sie ein, wie du willst. Ist die Websuche aus, sucht „google …“ im Chat trotzdem einmal. Jeder Abruf " +
+    "steht im Netzprotokoll.",
   netUnavailable: "Internetzugang ist in dieser Version nicht verfügbar.",
   netLoading: "lädt …",
   shelfTitle: "Vollständige Wikipedia-Artikel (Regal)",
@@ -360,9 +362,9 @@ const de: Texts = {
   feedFailed: "fehlgeschlagen",
   searchTitle: "Websuche",
   searchDesc:
-    "Kann ENGRAMM eine Frage offline nicht beantworten (oder geht es um Aktuelles), fragt es eine Suchmaschine, " +
-    "liest die besten Seiten auf deinem Rechner und antwortet mit Quellen. Aus: Es bietet die Suche an, und " +
-    "„google …“ funktioniert immer.",
+    "Ab Werk an: Kann ENGRAMM eine Frage offline nicht beantworten (oder geht es um Aktuelles), fragt es eine " +
+    "Suchmaschine, liest die besten Seiten auf deinem Rechner und antwortet mit Quellen. Persönliche Fragen gehen " +
+    "nie hinaus. Aus: Es bietet die Suche an, und „google …“ funktioniert immer.",
   searchPrivacy: "Die Frage geht an die Suchmaschine, die sie zusammen mit deiner IP-Adresse sieht.",
   searchEngine: "Suchmaschine",
   searchEngines: {

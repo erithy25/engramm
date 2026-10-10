@@ -57,6 +57,7 @@ def atlas_chat(corpus, shelf_pack, tmp_path, monkeypatch):   # noqa: F811
     monkeypatch.setattr(FeedRefresher, "refresh_now", lambda self: {})
     eg = Egress(settings_path=tmp_path / "network.json", log=NetworkLog(tmp_path / "network.log"),
                 backend=PythonBackend())
+    eg.set_channel("search", enabled=False)        # these tests start with every channel off (no real web)
     atlas = Atlas(eg, shelf_pack, tmp_path / "state")
     bot = _bot(corpus, LoggedTextMemory(tmp_path / "chat_memory.log"))
     a = Assistant(bot, clock=CLOCK)

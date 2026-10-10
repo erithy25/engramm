@@ -580,7 +580,7 @@ plan_plain:
   - "Ooh, what's the plan?"
 
 news_off:
-  - "I don't follow the news on my own — I'm offline by default. If you like, switch on news feeds under “Internet access” in the sidebar: I'll fetch the headlines of the feeds you pick every few hours, never with your questions."
+  - "I don't follow the news on my own. If you like, switch on news feeds under “Internet access” in the sidebar: I'll fetch the headlines of the feeds you pick every few hours, never with your questions. Or ask me about a topic and I'll search the web."
 news_none:
   - "My news feeds haven't brought anything in yet. They update every few hours — try again a little later."
 news_none_topic:
