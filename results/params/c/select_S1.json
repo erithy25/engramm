@@ -1,0 +1,14 @@
+{
+ "size": "S1",
+ "criterion": "BPB val-B half 1, near-duplicate filtered",
+ "tie": 0.0001,
+ "scores": {
+  "0.001": 2.023567705194025,
+  "0.002": 1.9689577394170361,
+  "0.004": 1.9419177143981114,
+  "0.008": 1.9285872792302587
+ },
+ "first_choice": 0.004,
+ "edge_extension": 0.008,
+ "chosen_lr": 0.008
+}

@@ -1,0 +1,14 @@
+{
+ "size": "S3",
+ "criterion": "BPB val-B half 1, near-duplicate filtered",
+ "tie": 0.0001,
+ "scores": {
+  "0.001": 1.823940154015007,
+  "0.002": 1.789213878749485,
+  "0.004": 1.7688220235180572,
+  "0.008": 1.755527518256844
+ },
+ "first_choice": 0.004,
+ "edge_extension": 0.008,
+ "chosen_lr": 0.008
+}
