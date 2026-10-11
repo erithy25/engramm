@@ -1,0 +1,33 @@
+{
+ "ckpt_tokens": 101441536,
+ "train_hours": 28.376079603036246,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is defined as “down-to-fascinating” and that the shrapnel land between ‘emergent’ and ‘implant’ was a good thing. The English, and we all know who we really love in the future are only businessmen—and them are always working on budgets for time. Some time, however, and"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " a rockcore mixed owner and producer of Albertlund's “CTVUK” BGSRATOR. He is the film’s highest selling TV star in 2017, with a rating estimated $18:50 for the second year. She brings the top grossing films and also has become an Films Film Animation Award recipient, and will show her"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " How does Amazon compare money in your pay-per-view? Learn more.\nLirlzeu - find out what foods are you trying to do at a higher price. Do not eat too much because you try to be sure that people try to make regular payments based on their schedules, and then come up with it for any possible results"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you can stop eating using a small bowl of cocoa.\nThis is a huge surge from waterflowing beans. In the mid-weekly phase (15 min), just frying eggs in butter, put, and slice into an oven. Set aside.\nStep into a bowl; mix the corn mixture over the tomatoes or sauteed until"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " kame I Qivegät i diestünd mit die und ein geltzen auf die zu einerungen die umungen zu zijn habgesnde die Sieungen er keðydring die besålich die ist istichtungungenenungenungen die übertenungentungen sehlungäke ist"
+  }
+ ]
+}
