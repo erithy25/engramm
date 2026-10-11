@@ -151,8 +151,9 @@ RELATIONS: tuple[Rel, ...] = (
     Rel("language", _rx(r"\b(?:official languages?|what languages? (?:is|are) spoken|amtssprachen?|welche sprache)\b"),
         ("P37",), "item", "The official language of {s}: {v}.", "Amtssprache von {s}: {v}.", "official language",
         "Amtssprache", many=True, kw=_rx(r"\b(?:official|languages?|spoken|amtssprachen?|sprache)\b")),
-    Rel("spouse", _rx(r"\b(?:married|wife|husband|spouse|verheiratet|ehefrau|ehemann)\b"), ("P26",), "item",
-        "{s} is married to {v}.", "{s} ist mit {v} verheiratet.", "spouse", "Ehepartner", now=True),
+    Rel("spouse", _rx(r"\b(?:married|wife|husband|spouse|verheiratet|ehefrau|ehemann)\b|\b(?:frau|mann)\s+von\b"),
+        ("P26",), "item", "{s} is married to {v}.", "{s} ist mit {v} verheiratet.", "spouse", "Ehepartner", now=True,
+        kw=_rx(r"\b(?:married|wife|husband|spouse|verheiratet|ehefrau|ehemann|frau|mann)\b")),
     Rel("children", _rx(r"\b(?:children|kids|kinder)\b"), ("P40",), "item", "{s}'s children: {v}.", "Kinder von {s}: {v}.",
         "child", "Kinder", many=True),
     Rel("stadium", _rx(r"\b(?:stadium|home ground|stadion|heimspielstätte)\b"), ("P115",), "item", "{s} plays at {v}.",
@@ -283,6 +284,7 @@ class Asked:
     subject: str
     rel: Rel | None = None
     word: str = ""                 # the question's word for the relation ("president", "Bundeskanzler")
+    typed: str = ""                # the thing as the question names it ("usa", "German"); "" when implied
 
 
 @dataclass
@@ -295,6 +297,9 @@ class Fact:
     url: str                       # its Wikipedia article (else its Wikidata page)
     evidence: str                  # "Real Madrid CF – inception: 6 March 1902" or the summary itself
     person: bool = False           # the answer names a person ("he" can refer to it next)
+    qid: str = ""                  # the thing's Wikidata item ("Q8682"): a follow-up's "it" is that one
+    desc: str = ""                 # its description ("association football club in Madrid, Spain")
+    values: tuple = ()             # the answer's items ("Q3052772"): a follow-up's "he" is that one
 
     @property
     def host(self) -> str:
@@ -308,7 +313,7 @@ def parse(question: str, lang: str = "en") -> Asked | None:
     q = re.sub(r"(?i)\b(what|who|where|how)['’]s\b", r"\1 is", q)
     if _MEANS.match(q):                          # "What does GDP mean?" asks what GDP is, not the GDP of "mean"
         x = defined(q)
-        return Asked(x) if x else None
+        return Asked(x, typed=x) if x else None
     for rel in RELATIONS:
         for m in rel.rx.finditer(q):
             word = m.group(0)
@@ -318,7 +323,7 @@ def parse(question: str, lang: str = "en") -> Asked | None:
                     and lang != "de":
                 continue
             rest = rel.kw.sub(" ", q) if rel.kw is not None else (q[:m.start()] + " " + q[m.end():])
-            subject = _subject(rest.strip(), rel)
+            subject = typed = _subject(rest.strip(), rel)
             low = subject.lower()
             if low in _DEMONYMS:
                 subject = _DEMONYMS[low]
@@ -327,10 +332,10 @@ def parse(question: str, lang: str = "en") -> Asked | None:
                 subject = _IMPLIED.get(key) or ("Deutschland" if lang == "de" and rel.key in ("head_gov", "head_state")
                                                 else "")
             if subject and len(subject.split()) <= 6 and not _VOLATILE.search(subject):
-                return Asked(subject, rel, _word(word))
+                return Asked(subject, rel, _word(word), typed)
             break
     x = defined(q)
-    return Asked(x) if x else None
+    return Asked(x, typed=x) if x else None
 
 
 def defined(question: str) -> str | None:
@@ -504,6 +509,14 @@ def _join(names: list[str], lang: str) -> str:
     return ", ".join(names[:-1]) + (" und " if lang == "de" else " and ") + names[-1]
 
 
+def _pinned(name: str, pin: dict[str, str] | None) -> str | None:
+    """The Wikidata item the conversation fixed for this name, if any."""
+    if not pin or not name:
+        return None
+    want = " ".join(name.lower().split())
+    return next((qid for k, qid in pin.items() if " ".join(k.lower().split()) == want), None)
+
+
 def _recase(text: str, typed: str, label: str) -> str:
     """The thing as the question typed it ("real madrid"), written as its name is ("Real Madrid")."""
     out = []
@@ -560,6 +573,23 @@ class WikiKnowledge:
                 break
         return hits
 
+    def same_kind(self, name: str, like: str, lang: str, explicit: bool) -> str | None:
+        """The item named ``name`` that is the same kind of thing as the item ``like`` ("Barcelona"
+        after Real Madrid: the football club, not the city; "Bayern" after a club: FC Bayern, not
+        Bavaria): Wikidata's search for the name among the items of like's classes (P31, "instance
+        of"). None when it finds none — then the plain search decides."""
+        d = self._wikidata(explicit, action="wbgetclaims", entity=like, property="P31")
+        classes = [st["mainsnak"]["datavalue"]["value"]["id"] for st in ((d or {}).get("claims") or {}).get("P31") or []
+                   if st.get("rank") != "deprecated" and "datavalue" in st.get("mainsnak", {})][:3]
+        for cls in classes:
+            r = self._wikidata(explicit, action="query", list="search", srsearch=f"{name[:80]} haswbstatement:P31={cls}",
+                               srlimit=5, srnamespace=0, srprop="")
+            for hit in ((r or {}).get("query") or {}).get("search") or []:
+                qid = str(hit.get("title") or "")
+                if re.fullmatch(r"Q\d+", qid) and qid != like:
+                    return qid
+        return None
+
     def labels(self, ids: list[str], lang: str, explicit: bool) -> dict[str, dict]:
         """{id: {"label", "description", "url"}} — names in the conversation's language (else the one
         for all languages, "mul", which many people's items have instead of "en" since 2024 — "Emmanuel
@@ -587,24 +617,30 @@ class WikiKnowledge:
         return out
 
     # answers
-    def answer(self, question: str, lang: str = "en", explicit: bool = False) -> Fact | None:
+    def answer(self, question: str, lang: str = "en", explicit: bool = False,
+               pin: dict[str, str] | None = None) -> Fact | None:
         """The answer to a question about a thing's relation (from its Wikidata statements) or about
-        what a thing is (its Wikipedia article's first sentences); None when there is none."""
+        what a thing is (its Wikipedia article's first sentences); None when there is none. ``pin``:
+        names whose Wikidata item is known from the conversation ({"Barcelona": "Q7156"} after
+        "When was Real Madrid founded?" — the club, not the city; {"Emmanuel Macron": "Q3052772"}
+        for "how old is he?")."""
         asked = parse(question, lang)
         if asked is None:
             return None
         if asked.rel is not None:
-            fact = self._statement(question, asked, lang, explicit)
+            fact = self._statement(question, asked, lang, explicit, pin)
             if fact is not None:
                 return fact
             # no statement: what the whole "who/what is X" names, if the question is one
             x = defined(question)
-            return self.summary(x, lang, explicit) if x else None
-        return self.summary(asked.subject, lang, explicit)
+            return self.summary(x, lang, explicit, pin) if x else None
+        return self.summary(asked.subject, lang, explicit, pin)
 
-    def _statement(self, question: str, asked: Asked, lang: str, explicit: bool) -> Fact | None:
+    def _statement(self, question: str, asked: Asked, lang: str, explicit: bool,
+                   pin: dict[str, str] | None = None) -> Fact | None:
         rel = asked.rel
-        hits = self.find(asked.subject, lang, explicit)[:3 if len(rel.props) == 1 else 2]
+        pinned = _pinned(asked.subject, pin)
+        hits = [{"id": pinned}] if pinned else self.find(asked.subject, lang, explicit)[:3 if len(rel.props) == 1 else 2]
         for hit in hits:
             qid = hit.get("id", "")
             for prop in rel.props:
@@ -618,17 +654,20 @@ class WikiKnowledge:
                     dd = self._wikidata(explicit, action="wbgetclaims", entity=qid, property="P570")
                     died = choose(((dd or {}).get("claims") or {}).get("P570") or [], False, False)
                     death = died[0]["mainsnak"].get("datavalue") if died else None
-                return self._compose(question, asked, lang, explicit, qid, prop, values, chosen, death)
+                return self._compose(question, asked, lang, explicit, qid, prop, values, chosen, death,
+                                     str(hit.get("description") or ""), bool(pinned))
         return None
 
     def _compose(self, question: str, asked: Asked, lang: str, explicit: bool, qid: str, prop: str,
-                 values: list[dict], chosen: list[dict], death: dict | None) -> Fact | None:
+                 values: list[dict], chosen: list[dict], death: dict | None, desc: str = "",
+                 pinned: bool = False) -> Fact | None:
         rel = asked.rel
         items = [v["value"]["id"] for v in values if v.get("type") == "wikibase-entityid"]
         units = [str(v["value"].get("unit", "")).rsplit("/", 1)[-1] for v in values if v.get("type") == "quantity"]
         names = self.labels([qid] + items + [u for u in units if u not in UNITS], lang, explicit)
         thing = names.get(qid, {"label": asked.subject, "url": f"https://www.wikidata.org/wiki/{qid}"})
         label = thing["label"]
+        desc = desc or thing.get("description", "")
         de = lang == "de"
         when = asof = ""
         person = False
@@ -650,7 +689,7 @@ class WikiKnowledge:
                         else f"{label} is {years} years old (born {born_when}).")
                 answer = f"{years}"
             return Fact(text, answer, rel.kind, label, thing["url"], f"{label} – {rel.name_de if de else rel.name_en}: "
-                        f"{born}", person=False)
+                        f"{born}", person=False, qid=qid, desc=desc)
         if v0.get("type") == "time":
             answer, when = format_date(v0["value"], lang)
         elif v0.get("type") == "quantity":
@@ -681,8 +720,13 @@ class WikiKnowledge:
             if country:
                 answer = f"{answer}, {country}"
         text = self._sentence(question, asked, lang, label, answer, when, asof, prop)
+        typed = asked.subject
+        if pinned and typed and label.lower() != typed.lower() and typed.lower() in label.lower():
+            # a thing the conversation picked ("Barcelona" after Real Madrid): say which ("FC Barcelona")
+            text = re.sub(rf"\b{re.escape(typed)}\b", label, text, count=1, flags=re.I)
         evidence = f"{label} – {rel.name_de if de else rel.name_en}: {answer}{asof}"
-        return Fact(text, answer, rel.kind, label, thing["url"], evidence, person=person)
+        return Fact(text, answer, rel.kind, label, thing["url"], evidence, person=person, qid=qid, desc=desc,
+                    values=tuple(items))
 
     def _country(self, qid: str, explicit: bool, lang: str, exclude: str) -> str:
         d = self._wikidata(explicit, action="wbgetclaims", entity=qid, property="P17")
@@ -724,11 +768,20 @@ class WikiKnowledge:
                 text = f"{'der' if m.group(1).lower() == 'den' else m.group(1).lower()} {text}"
         return text[:1].upper() + text[1:]
 
-    def summary(self, name: str, lang: str = "en", explicit: bool = False) -> Fact | None:
+    def summary(self, name: str, lang: str = "en", explicit: bool = False,
+                pin: dict[str, str] | None = None) -> Fact | None:
         """What a thing is: the first sentences of its Wikipedia article (REST summary) — the article
         of that very title first, which is Wikipedia's main meaning ("DNA": the molecule; Wikidata's
         search ranked Little Mix's album first in CI), else the article of the first Wikidata hit."""
         host = f"{'de' if lang == 'de' else 'en'}.wikipedia.org"
+        pinned = _pinned(name, pin)
+        if pinned:                                      # the thing the conversation is about, not a namesake
+            info = self.labels([pinned], lang, explicit).get(pinned)
+            if not info or "wikipedia.org/wiki/" not in info["url"]:
+                return None
+            u = urllib.parse.urlsplit(info["url"])
+            return self._summary_of(u.hostname, u.path.split("/wiki/", 1)[1], explicit, info["label"], info["url"],
+                                    pinned, info.get("description", ""))
         typed = " ".join(name.split()).strip(" \"'“”„?!.")
         tries = [typed[:1].upper() + typed[1:]] if typed else []
         if typed.islower() and 1 < len(typed.split()) <= 4:
@@ -744,10 +797,11 @@ class WikiKnowledge:
         if not info or "wikipedia.org/wiki/" not in info["url"]:
             return None
         u = urllib.parse.urlsplit(info["url"])
-        return self._summary_of(u.hostname, u.path.split("/wiki/", 1)[1], explicit, info["label"], info["url"])
+        return self._summary_of(u.hostname, u.path.split("/wiki/", 1)[1], explicit, info["label"], info["url"],
+                                hits[0]["id"], str(hits[0].get("description") or info.get("description", "")))
 
     def _summary_of(self, host: str, title: str, explicit: bool, label: str | None = None,
-                    url: str | None = None) -> Fact | None:
+                    url: str | None = None, qid: str = "", desc: str = "") -> Fact | None:
         """The first two sentences of one article (``title`` as in its URL); None for a missing page,
         a disambiguation page or an extract too short to say anything."""
         d = self._get(f"https://{host}/api/rest_v1/page/summary/{title}", host, "facts:wikipedia", explicit)
@@ -759,7 +813,8 @@ class WikiKnowledge:
         text = _first_sentences(extract, 2, 420)
         page = ((d.get("content_urls") or {}).get("desktop") or {}).get("page") or f"https://{host}/wiki/{title}"
         return Fact(text, "", "summary", label or str(d.get("title") or urllib.parse.unquote(title).replace("_", " ")),
-                    url or page, text)
+                    url or page, text, qid=qid or str(d.get("wikibase_item") or ""),
+                    desc=desc or str(d.get("description") or ""))
 
     def article(self, question: str, lang: str = "en", explicit: bool = False) -> list[dict]:
         """The Wikipedia article that matches the question's keywords best, as a page to read:

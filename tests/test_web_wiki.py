@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import re
 import urllib.parse
 
 import pytest
@@ -72,6 +73,8 @@ SEARCH = {
     "DNA": [_hit("Q211620", "DNA", "2012 studio album by Little Mix"), _hit("Q7430", "DNA", "molecule that carries genetic "
                                                                                          "information")],
     "Telefon": [_hit("Q11035", "Telefon", "Gerät zur Übertragung von Sprache")],
+    "Barcelona": [_hit("Q1492", "Barcelona", "capital city of Catalonia, Spain")],
+    "Österreich": [_hit("Q40", "Österreich", "Staat in Mitteleuropa")],
     "Siemens": [_hit("Q81230", "Siemens", "German multinational conglomerate"),
                 _hit("Q4523", "Siemens", "Wikimedia disambiguation page")],
 }
@@ -93,6 +96,10 @@ CLAIMS = {
     ("Q284163", "P1346"): [_st("P1346", _item("Q79800"))],
     ("Q283", "P2102"): [_st("P2102", _qty("+100", "Q25267"))],
     ("Q11035", "P61"): [_st("P61", _item("Q71100")), _st("P61", _item("Q71101")), _st("P61", _item("Q71102"))],
+    ("Q8682", "P31"): [_st("P31", _item("Q476028"))],                    # an association football club
+    ("Q7156", "P571"): [_st("P571", _time("+1899-11-29T00:00:00Z"))],
+    ("Q183", "P31"): [_st("P31", _item("Q6256"))],                       # a country
+    ("Q40", "P6"): [_st("P6", _item("Q99000001"), P580=_time("+2025-03-03T00:00:00Z"))],
 }
 LABELS = {
     "Q8682": ("Real Madrid CF", "Real Madrid", "Real_Madrid_CF", "Real_Madrid"),
@@ -108,6 +115,10 @@ LABELS = {
     "Q79800": ("Argentina national football team", "Argentinische Fußballnationalmannschaft",
                "Argentina_national_football_team", "Argentinische_Fußballnationalmannschaft"),
     "Q283": ("water", "Wasser", "Water", "Wasser"),
+    "Q7156": ("FC Barcelona", "FC Barcelona", "FC_Barcelona", "FC_Barcelona"),
+    "Q1492": ("Barcelona", "Barcelona", "Barcelona", "Barcelona"),
+    "Q40": ("Austria", "Österreich", "Austria", "Österreich"),
+    "Q99000001": ("Christian Stocker", "Christian Stocker", "Christian_Stocker", "Christian_Stocker"),
     "Q211620": ("DNA", "DNA", "DNA_(Little_Mix_album)", "DNA_(Album)"),
     "Q7430": ("DNA", "Desoxyribonukleinsäure", "DNA", "Desoxyribonukleinsäure"),
     "Q11035": ("telephone", "Telefon", "Telephone", "Telefon"),
@@ -122,6 +133,8 @@ LABELS = {
     "Q39829": ("Stephen King", "Stephen King", "Stephen_King", "Stephen_King"),
     "Q81230": ("Siemens", "Siemens", "Siemens", "Siemens"),
 }
+# Wikidata's full-text search within a class ("Barcelona haswbstatement:P31=Q476028": the club, not the city)
+KIND = {("barcelona", "Q476028"): ["Q7156"], ("österreich", "Q6256"): ["Q40"]}
 SUMMARIES = {
     "DNA": "Deoxyribonucleic acid (DNA) is a polymer composed of two polynucleotide chains that coil around each other "
            "to form a double helix. The polymer carries genetic instructions for the development of all known organisms.",
@@ -164,6 +177,10 @@ class FakeWikimedia:
                 return ok({"searchinfo": {"search": q["search"]}, "search": hits, "success": 1})
             if action == "wbgetclaims":
                 return ok({"claims": {q["property"]: CLAIMS.get((q["entity"], q["property"]), [])}})
+            if action == "query" and q.get("list") == "search":
+                m = re.fullmatch(r"(.+?) haswbstatement:P31=(Q\d+)", q.get("srsearch", ""))
+                ids = KIND.get((m.group(1).lower(), m.group(2)), []) if m else []
+                return ok({"query": {"search": [{"ns": 0, "title": qid} for qid in ids]}})
             if action == "wbgetentities":
                 ents = {}
                 wanted = set(q.get("languages", "").split("|"))

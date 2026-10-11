@@ -6,9 +6,10 @@ search engines and Wikimedia treat data-centre addresses with suspicion).
 Asks everyday questions in English and German the way a user does ("google …" makes the web search
 certain: the small test corpus behind the chat knows none of it) through the app's own network core
 (engramm-core egress, or urllib without it) and prints per question the reply the chat shows, its
-source and the time it took. A reply counts when it holds what it should; exit code 0 when at least
-three in four do, so whatever breaks an answer (a search engine's markup, an API, the composition in
-engramm/chat/dialog.py) shows up here.
+source and the time it took; then a few conversations with follow-ups ("And, Barcelona?" after Real
+Madrid, "How old is he?"). A reply counts when it holds what it should; exit code 0 when at least three
+in four do, so whatever breaks an answer (a search engine's markup, an API, the composition in
+engramm/chat/dialog.py, the follow-ups in engramm/web/followup.py) shows up here.
 """
 
 from __future__ import annotations
@@ -64,6 +65,17 @@ QUESTIONS = [("When was real madrid founded?", "en", ["1902"]),
              ("Wann ist Goethe gestorben?", "de", ["1832"]),
              ("Wie hoch ist der Mount Everest?", "de", ["8848", "8849"]),
              ("Wer hat das Telefon erfunden?", "de", ["bell", "reis", "meucci"])]
+# follow-ups within one conversation (the user's report: "And, Barcelona?" after Real Madrid got the city)
+CONVERSATIONS = [
+    [("google when was real madrid founded", "en", ["1902"]), ("And, Barcelona?", "en", ["1899"])],
+    [("google who is the president of France", "en", ["macron"]), ("And Germany?", "en", ["steinmeier"]),
+     ("How old is he?", "en", ["years old"])],
+    [("such im Internet nach wer ist der aktuelle Bundeskanzler", "de", ["merz"]), ("Und Österreich?", "de", ["stocker"]),
+     ("Wie alt ist er?", "de", ["jahre"])],
+    [("google what is the capital of France", "en", ["paris"]),
+     ("How many people live there?", "en", ["population", "million", "inhabitants"])],
+    [("google who is the CEO of Tesla", "en", ["musk"]), ("Where was he born?", "en", ["pretoria"])],
+]
 
 
 def _corpus() -> Corpus:
@@ -111,10 +123,25 @@ def main() -> int:
             print(f"{'ok ' if ok else 'BAD'} {q!r} ({took:.1f} s, {r.kind}, {host})\n      {text[:300]}")
             time.sleep(3.0)                          # a person's pace: Wikimedia allows 200 requests a minute per
                                                      # address, and CI shares its address with other jobs
+        print(f"{good}/{len(QUESTIONS)} answered; sources: {dict(sorted(sources.items(), key=lambda x: -x[1]))}; "
+              f"slower than 8 s: {len(slow)}")
+        follow, turns = 0, 0
+        for n, conversation in enumerate(CONVERSATIONS):
+            st = DialogState(f"follow-{n}")
+            for msg, lang, want in conversation:
+                st.lang = lang
+                t0 = time.time()
+                r = assistant.turn(st, msg)
+                ok = r.via == "web" and any(_plain(w) in _plain(r.text) for w in want)
+                follow += ok
+                turns += 1
+                read = f" [read as: {r.resolved}]" if r.resolved else ""
+                print(f"{'ok ' if ok else 'BAD'} {msg!r}{read} ({time.time() - t0:.1f} s)\n      "
+                      f"{r.text.replace(chr(10), ' ')[:240]}")
+                time.sleep(3.0)
+        print(f"{follow}/{turns} conversation turns answered")
         e.close()
-    print(f"{good}/{len(QUESTIONS)} answered; sources: {dict(sorted(sources.items(), key=lambda x: -x[1]))}; "
-          f"slower than 8 s: {len(slow)}")
-    return 0 if good * 4 >= len(QUESTIONS) * 3 else 1
+    return 0 if (good + follow) * 4 >= (len(QUESTIONS) + turns) * 3 else 1
 
 
 if __name__ == "__main__":

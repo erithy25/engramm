@@ -203,6 +203,25 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
     Systems (`/etc/ssl/cert.pem` auf macOS, Debian-, Fedora-, openSUSE-Pfade; Windows lädt seinen Speicher
     selbst). `engramm-server --tls-check` gibt die Zahl der geladenen Zertifizierungsstellen aus; der
     Smoke-Test jedes Desktop-Builds verlangt mehr als null.
+- **Nachfragen (seit beta.12; Nutzerbericht 11.10.2026: „And, Barcelona?“ nach „When was Real Madrid founded?“
+  beschrieb die Stadt Barcelona).** Nach einer Web-Antwort merkt sich der Dialog die Frage, den Gegenstand (wie
+  getippt, Name, Wikidata-Item), die Relation, die Antwort mit ihren Items und ob sie eine Person oder ein Ort
+  ist (`st.uses["web_last"]`). Die nächsten drei Nachrichten werden zuerst als Nachfrage gelesen
+  (`engramm/web/followup.py`, vor dem Offline-Teil):
+  - **anderer Gegenstand** („And, Barcelona?“, „Und Österreich?“, „What about Bayern?“, „Barcelona?“): dieselbe Frage
+    zum neuen Namen. Gemeint ist dieselbe Art Ding: Wikidatas Volltextsuche innerhalb der Klassen (P31) des
+    vorigen Gegenstands (`Barcelona haswbstatement:P31=Q476028` → FC Barcelona, nicht die Stadt; „Bayern“ nach
+    einem Verein → FC Bayern, nicht der Freistaat). Die Antwort nennt den gewählten Namen („FC Barcelona was
+    founded on 29 November 1899.“);
+  - **Pronomen** („How old is he?“, „Wann wurde es gegründet?“, „How many people live there?“): he/she/er = die
+    Person der Antwort (sonst der Gegenstand, wenn er eine Person ist), it/es = der Gegenstand, there/dort = der
+    Ort der Antwort; mit dem Wikidata-Item festgenagelt, kein Namensvetter;
+  - **andere Relation** zum selben Gegenstand („And the population?“, „Und der Trainer?“, „Und seine Frau?“ – die
+    Frau des eben Genannten, nicht des Landes).
+  Umgeschrieben wird nur, wenn `wiki.parse` die neue Frage als Frage über den eingesetzten Namen liest („Is it
+  raining?“, „Und jetzt?“, „How about pizza?“ bleiben unberührt); der Chip „I read this as …“ zeigt die ganze
+  Frage. Der Offline-Teil erkennt „and, X?“ jetzt auch mit Komma, und die Websuche nach einer offline
+  aufgelösten Nachfrage sucht die aufgelöste Frage. Live-Prüfung: Gespräche in `scripts/chat_smoke.py`.
 - **Wikimedia-Regeln (2026):** 200 Anfragen/Minute für Clients mit User-Agent samt Kontakt-URL, 10 ohne.
   ENGRAMMs User-Agent war „ENGRAMM/3.1 (+offline assistant)“ (ohne Kontakt → 10/min, daher die häufigen 429
   der Wikipedia-Ausweichsuche); jetzt „ENGRAMM/3.2 (https://engramm.vercel.app; https://github.com/erithy25/engramm)
