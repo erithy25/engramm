@@ -304,7 +304,7 @@ Rechenleistung pro Stunde (§9).
   weiteren Token verlängert (neue Abnahme-Phase ab dem letzten konstanten Stand).
 - **Zusätzlich berichtet:** die Mischung mit dem Zähler (λ je Bucket) und val-A.
 
-**Verlauf des Langlaufs (Stand 11. Oktober, 01:30 UTC).**
+**Verlauf des Langlaufs (Stand 11. Oktober, 10:15 UTC).**
 
 | Training | Token | val-A, bpb (Fenster 1.024) |
 |---|---|---|
@@ -336,6 +336,28 @@ Rechenleistung pro Stunde (§9).
   Zusammen 280–310 h Training, dazu die Messpausen (~10 min je Kurvenpunkt) und die Endmessung. Ende auf diesem
   Rechner also etwa am 23. Oktober (± 1 Tag), sofern weder ein Neustart noch ein Hardware-Wechsel dazwischenkommt.
   Gemessen an der Rechenzeit ist der Lauf damit zu ≈ 9 % fertig, gemessen an den Token zu 17 %.
+- **Dritter Neustart und zweiter Hardware-Wechsel (11. Oktober).** Der Container fiel gegen 03:30 UTC aus und kam erst
+  um 09:31 wieder. Die Gewichte von 03:24 lagen auf der Platte (109,1 Mio. Token), verloren gingen ≤ 20 min Training.
+  - Neuer Rechner: Xeon @ 2,3 GHz **mit** AMX und AVX512-BF16; bf16 schaltet sich von selbst wieder ein.
+  - **Speicherfehler gefunden:** Der Prozess wuchs unter bf16 um 100–370 MB je Schritt und wurde nach 4 min bei
+    14,3 GB beendet. Ursache war die jemalloc-Einstellung `oversize_threshold:1` zusammen mit „Speicher nie
+    zurückgeben" (`dirty/muzzy_decay_ms:-1`). Gemessen je 12–24 Schritte (`VmRSS`, Kontext 256):
+
+    | Allokator | Speicher | s/Schritt |
+    |---|---|---|
+    | jemalloc wie bisher (`oversize_threshold:1`, kein Zurückgeben) | wächst ohne Ende (4,5 → 7,1 GB in 12 Schritten) | 4,7 |
+    | glibc | 5,0 GB, flach | 5,7 |
+    | jemalloc mit Zurückgeben (Standard bzw. 30 s) | 3,2–3,3 GB, flach | 8,4 |
+    | **jemalloc ohne `oversize_threshold:1`, kein Zurückgeben** | **5,4 GB, flach (auch bei Kontext 512/1.024)** | **4,2–4,7** |
+
+    Übernommen ist die letzte Zeile. Das Wachstum am 10. Oktober („bf16 nachgebildet, Speicher lief voll") hatte
+    vermutlich dieselbe Ursache; die Verlangsamung durch die Nachbildung war davon unabhängig.
+  - **Speicherschutz:** Übersteigt der Prozess 9 GB, sichert er den vollen Zustand in die RAM-Disk und endet mit Code 75;
+    die Überwachung startet ihn neu, ohne erneutes Aufwärmen. Der Beginn eines laufenden Aufwärmens steht jetzt im
+    Zustand (`warm_from`), damit ein Neustart mitten im Aufwärmen nicht sofort die volle Lernrate setzt.
+  - **Tempo hier mit bf16:** 6,4–7,0 Mio. Token/h bei Kontext 256 (im Lauf), 5,8–6,4 Mio. bei 512 und 5,3–5,6 Mio. bei
+    1.024 (Messung ohne Last). Restdauer ab 109,8 Mio. Token: ~6 h + ~25 h + ~56 h ≈ 87 h Training. Ende also etwa am
+    **15. Oktober**, solange dieser Rechner bleibt; auf einem Rechner ohne bf16 gilt die Tabelle oben.
 - **Textproben:** je Kurvenpunkt fünf feste Prompts mit festem Seed (`results/v5/long/samples_<Token>M.json`). Bei
   101–104 Mio. Token: englische Sätze mit plausibler Form und frei erfundenem Inhalt; die Wissensfrage wird nicht
   beantwortet, Deutsch ergibt Buchstabensalat (Korpus englisch). Die App nutzt das Netz nicht; für Nutzer ändert der

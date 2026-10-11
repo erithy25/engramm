@@ -19,7 +19,9 @@ if [ ! -d "$PT/torch" ]; then
 fi
 export OMP_PROC_BIND=close OMP_PLACES=cores
 PY="env PYTHONPATH=$PT:$(pwd) .venv/bin/python -u"
-JE="env LD_PRELOAD=/lib/x86_64-linux-gnu/libjemalloc.so.2 MALLOC_CONF=oversize_threshold:1,background_thread:true,metadata_thp:auto,dirty_decay_ms:-1,muzzy_decay_ms:-1"
+# jemalloc without oversize_threshold:1: with it and no decay, bf16 training on an AMX Xeon grew by
+# 100-370 MB per step until the memory limit killed it (11 Oct); without it 5.4 GB flat at ctx 256-1024
+JE="env LD_PRELOAD=/lib/x86_64-linux-gnu/libjemalloc.so.2 MALLOC_CONF=background_thread:true,metadata_thp:auto,dirty_decay_ms:-1,muzzy_decay_ms:-1"
 
 # --- 1. size from a throughput benchmark (once; the choice is committed in config.json)
 if [ ! -f "$OUT/config.json" ]; then
@@ -53,9 +55,10 @@ fails=0
 until [ -f "$OUT/done.json" ]; do
   t0=$(date +%s)
   $JE $PY -m experiments.v5_long train --threads 4 $ARGS >> "$L/train.log" 2>&1
+  rc=$?
   [ -f "$OUT/done.json" ] && break
   t1=$(date +%s)
-  echo "process ended $(date -u) after $((t1 - t0)) s" >> "$L/restarts.log"
+  echo "process ended $(date -u) after $((t1 - t0)) s, exit code $rc (75 = memory guard)" >> "$L/restarts.log"
   if [ $((t1 - t0)) -lt 600 ]; then fails=$((fails + 1)); else fails=0; fi
   [ "$fails" -ge 5 ] && { echo "5 quick failures" > "$L/run.failed"; exit 1; }
   sleep 60

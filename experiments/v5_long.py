@@ -59,6 +59,22 @@ def bf16_hardware() -> bool:
     return "amx_bf16" in flags or "avx512_bf16" in flags
 
 
+MEMORY_EXIT = 75                                              # exit code of the memory guard
+
+
+def rss_now_mb() -> float:
+    """Current resident memory (VmRSS) of this process in MB, 0 if unknown. ru_maxrss is the peak
+    since the start and cannot show whether memory is still growing."""
+    try:
+        with open("/proc/self/status") as f:
+            for line in f:
+                if line.startswith("VmRSS:"):
+                    return int(line.split()[1]) / 1024
+    except OSError:
+        pass
+    return 0.0
+
+
 # ---------------------------------------------------------------------------
 # model (fast-v1 blocks with configurable width, depth and context)
 # ---------------------------------------------------------------------------
@@ -265,13 +281,14 @@ def train(args) -> None:
             opts[1].load_state_dict(st["sparse"])
         meta = st["meta"]
         print(f"resumed full state at {meta['tokens'] / 1e6:.1f} M tokens", flush=True)
-        warm_from = meta["step"] - args.warmup                       # no new warmup
+        warm_from = meta.get("warm_from", meta["step"] - args.warmup)  # continue a warmup in progress
     elif (DISK / "long_latest.pt").exists():
         st = torch.load(DISK / "long_latest.pt", map_location="cpu", weights_only=False)
         model.load_state_dict({k: v.float() for k, v in st["model"].items()})
         meta = st["meta"]
         meta["restarts"] += 1
         warm_from = meta["step"]                                     # fresh optimiser: warm up again
+        meta["warm_from"] = warm_from
         print(f"resumed bf16 weights at {meta['tokens'] / 1e6:.1f} M tokens (optimiser re-warmed)", flush=True)
     if meta["args"]["d"] != args.d or meta["args"]["layers"] != args.layers:
         raise SystemExit("checkpoint has a different model shape")
@@ -325,11 +342,20 @@ def train(args) -> None:
             now = time.time()
             rec = {"step": meta["step"], "tokens": meta["tokens"], "frac": round(frac, 5), "ctx": T, "loss": loss_sum,
                    "lr": lr, "grad_norm": gn, "tokens_per_hour": (meta["tokens"] - tok_n) / max(1e-9, now - tok_t) * 3600,
-                   "train_hours": meta["train_seconds"] / 3600, "epoch": data.epoch, "rss_mb": ru.ru_maxrss / 1024}
+                   "train_hours": meta["train_seconds"] / 3600, "epoch": data.epoch, "rss_mb": ru.ru_maxrss / 1024,
+                   "rss_now_mb": rss_now_mb()}
             tok_t, tok_n = now, meta["tokens"]
             log.write(json.dumps(rec) + "\n")
             log.flush()
             print(rec, flush=True)
+        if args.max_rss_gb and meta["step"] % 10 == 0 and (rss := rss_now_mb()) > args.max_rss_gb * 1024:
+            # A process whose memory keeps growing (allocator fragmentation, measured on 11 Oct with
+            # jemalloc oversize_threshold:1 and no decay under bf16) is replaced by a fresh one: the
+            # full state goes to the RAM disk, the supervisor restarts and resumes without re-warming.
+            save_state(model, opts, meta)
+            print(f"memory guard: rss {rss:.0f} MB > {args.max_rss_gb} GB at step {meta['step']}; "
+                  f"state saved, exiting for a fresh process", flush=True)
+            raise SystemExit(MEMORY_EXIT)
         if time.time() - t_ck > args.ckpt_minutes * 60:
             save_state(model, opts, meta)
             t_ck = time.time()
@@ -421,6 +447,8 @@ def main() -> None:
     t.add_argument("--ckpt-minutes", type=float, default=60)
     t.add_argument("--eval-hours", type=float, default=6)
     t.add_argument("--session-hours", type=float, default=0, help="stop after this wall-clock time (0 = run to the end)")
+    t.add_argument("--max-rss-gb", type=float, default=9.0,
+                   help="save the full state and exit (code 75) when resident memory exceeds this (0 = off)")
     e = sub.add_parser("eval")
     e.add_argument("--ckpt", required=True)
     e.add_argument("--splits", default="val_a,test")
