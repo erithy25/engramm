@@ -491,3 +491,24 @@ def test_the_main_meaning_and_the_questions_article(tmp_path):
     f = wk.answer("Wer hat das Telefon erfunden?", "de", explicit=True)
     assert f is not None and f.text == "Das Telefon wurde von Philipp Reis, Elisha Gray und Alexander Graham Bell erfunden.", f
 
+
+def test_an_answer_costs_wikimedia_few_requests(chat):
+    """CI shares one address, Wikimedia allows 200 requests a minute: with Wikidata's statement there
+    the matching Wikipedia article is not fetched as well, and "what is X" answers from its summary
+    without waiting for the search engines."""
+    import time
+    a, eg, web, wiki = chat
+    r = a.turn(DialogState("few"), "google when was real madrid founded")
+    assert r.text.startswith("Real Madrid was founded on 6 March 1902."), r.text
+    # the article look-up (its keywords, then the extract); the engines' own Wikipedia search may run
+    assert not [q.url for q in wiki.seen if "srsearch=real+madrid+founded" in q.url or "prop=extracts" in q.url]
+    slow_fetch = web.fetch
+
+    def slow(req, settings):
+        time.sleep(3.0)
+        return slow_fetch(req, settings)
+    web.fetch = slow
+    t0 = time.time()
+    r = a.turn(DialogState("musk"), "google who is elon musk")
+    assert r.text.startswith("Elon Reeve Musk (born June 28, 1971)") and time.time() - t0 < 2.5, (time.time() - t0, r.text)
+

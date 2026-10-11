@@ -14263,22 +14263,28 @@ class Assistant:
                 return found, []
             self._progress(st, "read", sites=list(dict.fromkeys(r.site for r in found.results))[:3])
             return found, ws.read(found.results, n=3, explicit=explicit, question=query)
+        # "what/who is X" asks what X is — unless it names a relation ("who is the CEO of Siemens")
+        asked = parse_question(query, lang)
+        define = asked is not None and asked.rel is None
         pool = ThreadPoolExecutor(max_workers=4)
         try:
             fact_job = pool.submit(wk.answer, query, lang, explicit) if wk is not None else None
-            article_job = pool.submit(wk.article, query, lang, explicit) if wk is not None else None
             box_job = pool.submit(ws.instant, subject, lang, explicit) if subject else None
             web_job = pool.submit(web)
             fact = None
             if fact_job is not None:
-                # a Wikidata statement is the answer as soon as it is there (blocked or slow engines and
-                # pages need not be waited for); when the engines finish first, Wikidata gets a moment more
+                # a Wikidata statement (or, for "what is X", Wikipedia's first sentences) is the answer as
+                # soon as it is there: blocked or slow engines and pages need not be waited for; when the
+                # engines finish first, Wikimedia gets a moment more
                 first, _ = wait([fact_job, web_job], return_when=FIRST_COMPLETED)
                 if fact_job in first or wait([fact_job], timeout=2.5)[0]:
                     fact = _result(fact_job)
-            if fact is not None and fact.kind != "summary":
+            if fact is not None and (fact.kind != "summary" or define):
                 found, pages, article, box = Found(query), [], [], None
             else:
+                # the Wikipedia article that matches the question, only now: each question costs
+                # Wikimedia fewer requests (200 a minute per address; CI shares one)
+                article_job = pool.submit(wk.article, query, lang, explicit) if wk is not None else None
                 found, pages = web_job.result()
                 article = _within(article_job, 2.5) or []
                 box = _within(box_job, 2.0)
@@ -14292,9 +14298,6 @@ class Assistant:
         self._progress(st, "write")
         pages = ([box] if box else []) + list(article) + pages
         today = dt.date.today().isoformat()
-        # "what/who is X" asks what X is — unless it names a relation ("who is the CEO of Siemens")
-        asked = parse_question(query, lang)
-        define = asked is not None and asked.rel is None
         rows = WebSearch.best(query, found.results, pages, n=60, lang=lang, per_source=12)
         rows = [b for b in rows if _web_covers(query, b[1], b[2]) and answers(query, b[1])
                 and _says_relation(query, b[1], asked)]

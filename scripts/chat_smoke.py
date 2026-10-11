@@ -109,7 +109,8 @@ def main() -> int:
                 slow.append(q)
             text = r.text.replace("\n", " ")
             print(f"{'ok ' if ok else 'BAD'} {q!r} ({took:.1f} s, {r.kind}, {host})\n      {text[:300]}")
-            time.sleep(1.5)                          # well inside Wikimedia's 200 requests a minute (a shared CI address)
+            time.sleep(3.0)                          # a person's pace: Wikimedia allows 200 requests a minute per
+                                                     # address, and CI shares its address with other jobs
         e.close()
     print(f"{good}/{len(QUESTIONS)} answered; sources: {dict(sorted(sources.items(), key=lambda x: -x[1]))}; "
           f"slower than 8 s: {len(slow)}")
