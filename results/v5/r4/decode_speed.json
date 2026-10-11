@@ -1,0 +1,6 @@
+{"note": "experiments/v5_generate.py, checkpoint models/lm/v5/long_latest.pt at 104.2 M tokens; 1 thread on the 4-core Xeon @ 2.8 GHz (fp32) WHILE the long run trained on all 4 cores, so these are lower bounds; cached = key/value cache, full = whole context recomputed per token",
+ "check": {"small_bigram0": 1.1444091796875e-05, "small_bigram97": 1.2040138244628906e-05, "checkpoint": 2.765655517578125e-05, "checkpoint_tokens": 37, "ok": true},
+ "speed": [
+  {"prompt_tokens": 32, "new_tokens": 64, "threads": 1, "cached_tokens_per_s": 16.63956561114667, "full_tokens_per_s": 4.49992962356031, "load_avg_1min": 4.55224609375},
+  {"prompt_tokens": 512, "new_tokens": 32, "threads": 1, "cached_tokens_per_s": 8.439797893552878, "full_tokens_per_s": 0.6916052993140167, "load_avg_1min": 4.837890625}
+ ]}
