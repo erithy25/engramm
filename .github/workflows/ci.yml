@@ -49,6 +49,10 @@ jobs:
         continue-on-error: true
         timeout-minutes: 3
         run: python scripts/ddg_probe.py runtime/core/target/release/engramm-core
+      - name: The chat's answers from the web, end to end (informational - data-centre address)
+        continue-on-error: true
+        timeout-minutes: 8
+        run: python -u scripts/chat_smoke.py runtime/core/target/release/engramm-core
       - name: Conversation bank is compiled from data/conv
         run: python -m engramm.chat.studio check
       - name: Python tests
