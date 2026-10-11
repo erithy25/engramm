@@ -69,6 +69,9 @@ SEARCH = {
     "Stephen King": [_hit("Q39829", "Stephen King", "American author (born 1947)")],
     "2022 FIFA World Cup": [_hit("Q284163", "2022 FIFA World Cup", "22nd FIFA World Cup, held in Qatar")],
     "water": [_hit("Q283", "water", "chemical compound")],
+    "DNA": [_hit("Q211620", "DNA", "2012 studio album by Little Mix"), _hit("Q7430", "DNA", "molecule that carries genetic "
+                                                                                         "information")],
+    "Telefon": [_hit("Q11035", "Telefon", "Gerät zur Übertragung von Sprache")],
     "Siemens": [_hit("Q81230", "Siemens", "German multinational conglomerate"),
                 _hit("Q4523", "Siemens", "Wikimedia disambiguation page")],
 }
@@ -89,6 +92,7 @@ CLAIMS = {
     ("Q81230", "P169"): [_st("P169", _item("Q99999999"))],               # an item Wikidata has no name for
     ("Q284163", "P1346"): [_st("P1346", _item("Q79800"))],
     ("Q283", "P2102"): [_st("P2102", _qty("+100", "Q25267"))],
+    ("Q11035", "P61"): [_st("P61", _item("Q71100")), _st("P61", _item("Q71101")), _st("P61", _item("Q71102"))],
 }
 LABELS = {
     "Q8682": ("Real Madrid CF", "Real Madrid", "Real_Madrid_CF", "Real_Madrid"),
@@ -104,6 +108,12 @@ LABELS = {
     "Q79800": ("Argentina national football team", "Argentinische Fußballnationalmannschaft",
                "Argentina_national_football_team", "Argentinische_Fußballnationalmannschaft"),
     "Q283": ("water", "Wasser", "Water", "Wasser"),
+    "Q211620": ("DNA", "DNA", "DNA_(Little_Mix_album)", "DNA_(Album)"),
+    "Q7430": ("DNA", "Desoxyribonukleinsäure", "DNA", "Desoxyribonukleinsäure"),
+    "Q11035": ("telephone", "Telefon", "Telephone", "Telefon"),
+    "Q71100": ("Philipp Reis", "Philipp Reis", "Johann_Philipp_Reis", "Philipp_Reis"),
+    "Q71101": ("Elisha Gray", "Elisha Gray", "Elisha_Gray", "Elisha_Gray"),
+    "Q71102": ("Alexander Graham Bell", "Alexander Graham Bell", "Alexander_Graham_Bell", "Alexander_Graham_Bell"),
     "Q3375": ("Zugspitze", "Zugspitze", "Zugspitze", "Zugspitze"),
     "Q3227": ("Faust", "Faust", "Faust,_Part_One", "Faust._Eine_Tragödie."),
     "Q5879": ("Johann Wolfgang von Goethe", "Johann Wolfgang von Goethe", "Johann_Wolfgang_von_Goethe",
@@ -113,6 +123,10 @@ LABELS = {
     "Q81230": ("Siemens", "Siemens", "Siemens", "Siemens"),
 }
 SUMMARIES = {
+    "DNA": "Deoxyribonucleic acid (DNA) is a polymer composed of two polynucleotide chains that coil around each other "
+           "to form a double helix. The polymer carries genetic instructions for the development of all known organisms.",
+    "DNA_(Little_Mix_album)": "DNA is the debut studio album by British girl group Little Mix, released on 19 November "
+                              "2012. The recording took place between December 2011 and September 2012.",
     "Elon_Musk": "Elon Reeve Musk (born June 28, 1971) is a businessman known for his leadership of Tesla, SpaceX and X. "
                  "He has been the wealthiest person in the world since 2021. Born in Pretoria, he moved to Canada.",
     "Stephen_King": "Stephen Edwin King (born September 21, 1947) is an American author of horror, supernatural fiction "
@@ -464,4 +478,16 @@ def test_winners_and_boiling_points(tmp_path):
     f = wk.answer("What is the boiling point of water?", "en", explicit=True)
     assert f is not None and f.answer == "100 °C" and "100 °C" in f.text and "water" in f.text.lower(), f
     assert parse("Who won the last Champions League?", "en") is None        # "last" changes every year
+
+
+def test_the_main_meaning_and_the_questions_article(tmp_path):
+    """"What does DNA stand for?" got Little Mix's album (Wikidata's first hit for "DNA"): the article of
+    that very title — Wikipedia's main meaning — comes first. "Wer hat das Telefon erfunden?" got
+    "Telefon wurde von … erfunden.": the question's article goes with the thing."""
+    wk, e = _wk(tmp_path, FakeWikimedia())
+    f = wk.answer("What does DNA stand for?", "en", explicit=True)
+    assert f is not None and f.text.startswith("Deoxyribonucleic acid (DNA) is a polymer"), f
+    assert f.url == "https://en.wikipedia.org/wiki/DNA"
+    f = wk.answer("Wer hat das Telefon erfunden?", "de", explicit=True)
+    assert f is not None and f.text == "Das Telefon wurde von Philipp Reis, Elisha Gray und Alexander Graham Bell erfunden.", f
 

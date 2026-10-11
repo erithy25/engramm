@@ -192,6 +192,17 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
     Antwortsatz sie nennen (Relationswörter EN+DE, Antwortwörter wie „metres“ für „how tall“); sonst gewann ein
     Satz mit dem Gegenstand und irgendeiner Jahreszahl („… title Real was bestowed in 1920“). Sagt keine Seite
     es: „I couldn't find that online — none of the pages I found says it.“ statt einer falschen Antwort.
+  - **Nach diesen Korrekturen: 26/28** (CI, 0,3–1,5 s je Frage); DuckDuckGo antwortete über den urllib-Weg
+    („→ duckduckgo in 1.2 s“). Die zwei übrigen: „What does DNA stand for?“ bekam Little Mix' Album „DNA“
+    (Wikidatas erster Treffer), „What is the speed of light?“ eine Zusammenfassung ohne Zahl. Seitdem kommt für
+    „Was/Wer ist X“ zuerst der Wikipedia-Artikel genau dieses Titels (Wikipedias Hauptbedeutung; kleingeschrieben
+    auch „Elon Musk“ für „elon musk“), erst dann der erste Wikidata-Treffer. Deutsche Sätze aus Vorlagen
+    nehmen den Artikel der Frage mit („Das Telefon wurde von … erfunden.“).
+  - **urllib im ausgelieferten Server:** dessen OpenSSL sucht Zertifikate im Ordner der Build-Maschine (macOS:
+    python.org, Linux: Debian) — auf einem Mac oder unter Fedora leer. `tls_context()` lädt dann das Bündel des
+    Systems (`/etc/ssl/cert.pem` auf macOS, Debian-, Fedora-, openSUSE-Pfade; Windows lädt seinen Speicher
+    selbst). `engramm-server --tls-check` gibt die Zahl der geladenen Zertifizierungsstellen aus; der
+    Smoke-Test jedes Desktop-Builds verlangt mehr als null.
 - **Wikimedia-Regeln (2026):** 200 Anfragen/Minute für Clients mit User-Agent samt Kontakt-URL, 10 ohne.
   ENGRAMMs User-Agent war „ENGRAMM/3.1 (+offline assistant)“ (ohne Kontakt → 10/min, daher die häufigen 429
   der Wikipedia-Ausweichsuche); jetzt „ENGRAMM/3.2 (https://engramm.vercel.app; https://github.com/erithy25/engramm)

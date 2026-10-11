@@ -717,10 +717,26 @@ class WikiKnowledge:
         w = asked.word
         text = template.format(s=label, v=value, when=when, asof=asof, w=w.lower() if lang != "de" else w,
                                W=w[:1].upper() + w[1:])
+        if lang == "de" and text.startswith(label):
+            # the question's article: "Wer hat das Telefon erfunden?" → "Das Telefon wurde von … erfunden."
+            m = re.search(rf"\b(der|die|das|den)\s+{re.escape(asked.subject)}\b", question, re.I)
+            if m:
+                text = f"{'der' if m.group(1).lower() == 'den' else m.group(1).lower()} {text}"
         return text[:1].upper() + text[1:]
 
     def summary(self, name: str, lang: str = "en", explicit: bool = False) -> Fact | None:
-        """What a thing is: the first sentences of its Wikipedia article (REST summary)."""
+        """What a thing is: the first sentences of its Wikipedia article (REST summary) — the article
+        of that very title first, which is Wikipedia's main meaning ("DNA": the molecule; Wikidata's
+        search ranked Little Mix's album first in CI), else the article of the first Wikidata hit."""
+        host = f"{'de' if lang == 'de' else 'en'}.wikipedia.org"
+        typed = " ".join(name.split()).strip(" \"'“”„?!.")
+        tries = [typed[:1].upper() + typed[1:]] if typed else []
+        if typed.islower() and 1 < len(typed.split()) <= 4:
+            tries.append(typed.title())                  # "elon musk" → "Elon Musk"
+        for title in tries:
+            fact = self._summary_of(host, urllib.parse.quote(title.replace(" ", "_")), explicit)
+            if fact is not None:
+                return fact
         hits = self.find(name, lang, explicit)
         if not hits:
             return None
@@ -728,15 +744,22 @@ class WikiKnowledge:
         if not info or "wikipedia.org/wiki/" not in info["url"]:
             return None
         u = urllib.parse.urlsplit(info["url"])
-        title = u.path.split("/wiki/", 1)[1]
-        d = self._get(f"https://{u.hostname}/api/rest_v1/page/summary/{title}", u.hostname, "facts:wikipedia", explicit)
+        return self._summary_of(u.hostname, u.path.split("/wiki/", 1)[1], explicit, info["label"], info["url"])
+
+    def _summary_of(self, host: str, title: str, explicit: bool, label: str | None = None,
+                    url: str | None = None) -> Fact | None:
+        """The first two sentences of one article (``title`` as in its URL); None for a missing page,
+        a disambiguation page or an extract too short to say anything."""
+        d = self._get(f"https://{host}/api/rest_v1/page/summary/{title}", host, "facts:wikipedia", explicit)
         if not d or d.get("type") == "disambiguation":
             return None
         extract = " ".join(str(d.get("extract") or "").split())
         if len(extract) < 40:
             return None
         text = _first_sentences(extract, 2, 420)
-        return Fact(text, "", "summary", info["label"], info["url"], text)
+        page = ((d.get("content_urls") or {}).get("desktop") or {}).get("page") or f"https://{host}/wiki/{title}"
+        return Fact(text, "", "summary", label or str(d.get("title") or urllib.parse.unquote(title).replace("_", " ")),
+                    url or page, text)
 
     def article(self, question: str, lang: str = "en", explicit: bool = False) -> list[dict]:
         """The Wikipedia article that matches the question's keywords best, as a page to read:
