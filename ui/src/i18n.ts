@@ -111,6 +111,8 @@ export interface Texts {
   braveKeyRemove: string;
   braveMissing: string;
   webResults: string;
+  showResults: string;
+  hideResults: string;
   netLog: string;
   netLogEmpty: string;
   netLogHead: [string, string, string, string, string];
@@ -246,6 +248,8 @@ const en: Texts = {
   braveKeyRemove: "Remove key",
   braveMissing: "Brave needs an API key.",
   webResults: "Web results",
+  showResults: "Web results ({n})",
+  hideResults: "Hide web results",
   netLog: "Network log",
   netLogEmpty: "Nothing fetched yet.",
   netLogHead: ["Time", "Channel", "Host", "What", "Size"],
@@ -380,6 +384,8 @@ const de: Texts = {
   braveKeyRemove: "Schlüssel entfernen",
   braveMissing: "Brave braucht einen API-Schlüssel.",
   webResults: "Treffer im Web",
+  showResults: "Treffer im Web ({n})",
+  hideResults: "Treffer ausblenden",
   netLog: "Netzprotokoll",
   netLogEmpty: "Noch nichts abgerufen.",
   netLogHead: ["Zeit", "Kanal", "Host", "Was", "Größe"],

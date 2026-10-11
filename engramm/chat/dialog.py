@@ -14240,7 +14240,7 @@ class Assistant:
         from concurrent.futures import ThreadPoolExecutor
 
         from engramm.web.egress import EgressError
-        from engramm.web.search import ENGINE_NAMES, WebSearch, agree, answers, subject_phrase
+        from engramm.web.search import ENGINE_NAMES, WebSearch, agree, answers, short_answer, subject_phrase
         T = _WEB_TEXT[lang]
         ws = getattr(self.atlas, "search", None) if self.atlas is not None else None
         if ws is None:
@@ -14265,16 +14265,32 @@ class Assistant:
             why = "; ".join(f"{ENGINE_NAMES.get(e, e)}: {w}" for e, w in list(dict.fromkeys(found.tried))[:4])
             text = T["none"].format(q=query, why=why or T["no_engine"])
             return Reply(msg, "unknown", text, via="web")
-        best = WebSearch.best(query, found.results, pages, n=8, lang=lang)
-        # only sentences that can answer it: the question's words, and a number when it asks for one
-        best = [b for b in best if _web_covers(query, b[1], b[2]) and answers(query, b[1])]
+        # the sentences that can answer it (the question's words, a number when it asks for one), many
+        # per page: the short answer is the span most of them agree on
+        rows = WebSearch.best(query, found.results, pages, n=60, lang=lang, per_source=12)
+        rows = [b for b in rows if _web_covers(query, b[1], b[2]) and answers(query, b[1])]
+        ans = short_answer(query, rows, lang)
+        best, per = [], {}
+        for b in rows:
+            if per.get(b[2]["url"], 0) < 2:
+                per[b[2]["url"]] = per.get(b[2]["url"], 0) + 1
+                best.append(b)
         today = dt.date.today().isoformat()
-        # no short answer cut out of web text: the answer extraction is trained on encyclopedia
-        # sentences and picks wrong spans on other pages ("Australian Capital Territory" for the
-        # capital of Australia); the sentence itself, with its source, is the honest answer
         lines = []
         evidence = None
-        if best:
+        if ans is not None:
+            # the answer first ("Donald Trump is currently the president of the USA."), then the
+            # sentence it comes from with its site, and how many other sites say it too
+            s0, d0 = ans.sentence, ans.doc
+            evidence = s0
+            source = {"kind": "web", "source": d0["host"], "key": d0["url"], "title": d0["t"], "as_of": today}
+            head = _web_head(query, ans, lang, [r.title for r in found.results] + [b[1] for b in rows[:20]])
+            if head:
+                lines.append(head)
+            more = ans.sites - 1
+            key = "lead" if more <= 0 else "lead_more1" if more == 1 else "lead_more"
+            lines.append(T[key].format(site=d0["host"], s=_end(s0), n=more))
+        elif best:
             s0, d0 = best[0][1], best[0][2]
             evidence = s0
             source = {"kind": "web", "source": d0["host"], "key": d0["url"], "title": d0["t"], "as_of": today}
@@ -14293,16 +14309,29 @@ class Assistant:
         if offline is not None and offline.answer:
             lines.append(T["offline"].format(a=offline.answer))
         n = len(pages)
-        lines.append(T["foot" if n > 1 else "foot1" if n == 1 else "foot0"].format(engine=engine, n=n))
+        foot = T["foot" if n > 1 else "foot1" if n == 1 else "foot0"].format(engine=engine, n=n)
+        # an engine before it had nothing: say which and why, briefly ("DuckDuckGo: refused")
+        skipped = list(dict.fromkeys((ENGINE_NAMES.get(e, e), w.split(" (")[0]) for e, w in found.tried
+                                     if ENGINE_NAMES.get(e, e) != engine))
+        if skipped and found.ok:
+            foot = foot.rstrip(".") + " (" + "; ".join(f"{e}: {T['why'].get(w, w)}" for e, w in skipped[:3]) + ")."
+        lines.append(foot)
         if not links and facts is not None:
             links = [{"title": facts["t"], "url": facts["url"], "snippet": "", "site": facts["host"],
                       "engine": "duckduckgo"}]
         if explicit and not self.egress_on("search") and "web_tip" not in st.uses:
             st.uses["web_tip"] = st.turn
             lines[-1] += T["tip"]
-        st.last_fact = {"evidence": evidence, "source": source, "answer": None, "question": query, "sure": False}
-        self.bot.context.update({"answer": None, "atype": None})
-        return Reply(msg, "about", "\n\n".join(lines), evidence=evidence, source=source, via="web", links=links)
+        short = ans.text if ans is not None else None
+        st.last_fact = {"evidence": evidence, "source": source, "answer": short, "question": query, "sure": False}
+        if ans is not None and ans.kind in ("person", "place"):
+            # "how old is he?" after "who is the president?": the answer is the one meant
+            self.bot.context.update({"answer": short, "atype": "PERSON" if ans.kind == "person" else None,
+                                     "mention": short})
+        else:
+            self.bot.context.update({"answer": None, "atype": None})
+        return Reply(msg, "answer" if ans is not None else "about", "\n\n".join(lines), answer=short,
+                     evidence=evidence, source=source, via="web", links=links)
 
     def _news(self, st: DialogState, msg: str, topic: str | None) -> Reply:
         if self.atlas is None or not self.egress_on("feeds"):
@@ -15465,6 +15494,8 @@ def _winner_from(rows, topic: str | None):
 _WEB_TEXT = {
     "en": {
         "lead": "According to {site}: {s}",
+        "lead_more1": "According to {site} (and one more site): {s}",
+        "lead_more": "According to {site} (and {n} more sites): {s}",
         "also": "{site} says the same: {s}",
         "only_list": "I searched the web for “{q}”. No page I read answers it in so many words — the best results are below.",
         "offline": "My offline knowledge (older) says: {a}.",
@@ -15475,6 +15506,7 @@ _WEB_TEXT = {
         "none": "I searched the web for “{q}”, but got no usable results ({why}). Try again in a moment or with other words — "
                 "or add a Brave Search API key under “Internet access” for more reliable results.",
         "no_engine": "no search engine answered",
+        "why": {"refused": "blocked", "results did not match the question": "no match", "no results": "nothing found"},
         "failed": "The web search failed: {err}",
         "unavailable": "The web search is not available here (no network channels in this version).",
         "what": "Sure — what should I search for? For example: “google the capital of Peru”.",
@@ -15482,6 +15514,8 @@ _WEB_TEXT = {
     },
     "de": {
         "lead": "Laut {site}: {s}",
+        "lead_more1": "Laut {site} (und einer weiteren Seite): {s}",
+        "lead_more": "Laut {site} (und {n} weiteren Seiten): {s}",
         "also": "{site} bestätigt das: {s}",
         "only_list": "Ich habe im Web nach „{q}“ gesucht. Keine der gelesenen Seiten beantwortet das direkt – die besten Treffer stehen unten.",
         "offline": "Mein Offline-Wissen (älter) sagt: {a}.",
@@ -15493,6 +15527,8 @@ _WEB_TEXT = {
                 "einmal oder mit anderen Worten – oder trag unter „Internetzugang“ einen Brave-Search-API-Schlüssel ein, "
                 "das ist zuverlässiger.",
         "no_engine": "keine Suchmaschine hat geantwortet",
+        "why": {"refused": "gesperrt", "results did not match the question": "nichts Passendes",
+                "no results": "nichts gefunden"},
         "failed": "Die Websuche ist fehlgeschlagen: {err}",
         "unavailable": "Die Websuche ist hier nicht verfügbar (diese Version hat keine Netzkanäle).",
         "what": "Gern – wonach soll ich suchen? Zum Beispiel: „google die Hauptstadt von Peru“.",
@@ -15539,13 +15575,109 @@ def _web_question(message: str) -> str | None:
 
 def _web_covers(query: str, sentence: str, doc: dict) -> bool:
     """The sentence (with its page title) has at least half of the question's content words."""
-    from engramm.web.search import _near, content_words
+    from engramm.web.search import _ANSWER_WORDS, _EXPAND, _near, content_words
     toks = list(dict.fromkeys(w for w in content_words(query).split() if len(w) >= 3))
     if not toks:
         return True
     hay = f"{doc.get('t', '')} {sentence}".lower()
     words = set(re.findall(r"[^\W_]{4,}", hay))
-    return sum(t[:5] in hay or _near(t, words) for t in toks) * 2 >= len(toks)
+    # a word counts in another form, written out ("usa" → "united states") or as an answer says it
+    # ("how many people live" → "population")
+    said = [t[:5] in hay or _near(t, words) or (t in _EXPAND and _EXPAND[t] in hay)
+            or any(x in hay for x in _ANSWER_WORDS.get(t, ())) for t in toks]
+    return sum(said) * 2 >= len(toks)
+
+
+def _web_head(query: str, ans, lang: str, seen: list[str]) -> str | None:
+    """The answer as a sentence ("Donald Trump is currently the president of the USA.", "Die
+    Zugspitze ist 2.962 m hoch."), or the bare answer; None for opening hours (the sentence that
+    gives them says it better). A name the question misspells is written as the pages write it
+    ("Chatbt" → "ChatGPT")."""
+    from engramm.chat.realize import answer_sentence
+    if ans.kind == "hours":
+        return None
+    if ans.kind == "count":
+        ans = _rounded(ans, lang)
+    head = _head_de(query, ans) if lang == "de" else answer_sentence(query, ans.text) or _head_en(query, ans)
+    head = head or f"{ans.text}."
+    if ans.kind == "count":
+        # a count holds for a year: the newest year its sentence names ("3.5 million (2015)")
+        years = [y for y in re.findall(r"\b(19\d{2}|20\d{2})\b", ans.sentence) if int(y) <= dt.date.today().year]
+        if years:
+            head = head.rstrip(".") + (f" (Stand {max(years)})." if lang == "de" else f" (as of {max(years)}).")
+    return _spelled_as_seen(head, query, seen)
+
+
+def _rounded(ans, lang: str):
+    """3,520,031 → "3.5 million" ("3,5 Millionen"): a count from the web is no exact number."""
+    import dataclasses
+    from engramm.web.search import _number
+    m = re.fullmatch(r"\s*(\d[\d,.\s\u202f\u00a0]*\d)\s*", ans.text)
+    v = _number(m.group(1)) if m else None
+    if not v or v < 1e6:
+        return ans
+    big, word = (v / 1e9, "billion" if lang != "de" else "Milliarden") if v >= 1e9 else \
+        (v / 1e6, "million" if lang != "de" else "Millionen")
+    num = f"{big:.1f}".rstrip("0").rstrip(".")
+    return dataclasses.replace(ans, text=f"{num.replace('.', ',') if lang == 'de' else num} {word}")
+
+
+def _spelled_as_seen(text: str, query: str, seen: list[str]) -> str:
+    from engramm.web.search import _names, _near
+    hay = " ".join(seen)
+    words = {w.lower(): w for w in re.findall(r"[^\W\d_][\w'\-]{3,}", hay) if w[:1].isupper()}
+    low = hay.lower()
+    for name in _names(query):
+        if name.lower() in low:
+            continue
+        if _near(name.lower(), set(words)):
+            import difflib
+            best = difflib.get_close_matches(name.lower(), [w for w in words if abs(len(w) - len(name)) <= 2], n=1, cutoff=0.75)
+            if best:
+                text = re.sub(rf"\b{re.escape(name)}\b", words[best[0]], text)
+    return text
+
+
+def _head_en(query: str, ans) -> str | None:
+    """English answer sentences for forms the general realiser leaves out."""
+    q = re.sub(r"[?!.\s]+$", "", query.strip())
+    m = re.fullmatch(r"(?i)how many (people|inhabitants|residents) (?:live|lives|are living) in (.+)", q)
+    if m:
+        return f"About {ans.text} {m.group(1).lower()} live in {m.group(2)}."
+    m = re.fullmatch(r"(?i)what is the population of (.+)", q)
+    if m:
+        return f"The population of {m.group(1)} is about {ans.text}."
+    return None
+
+
+def _head_de(query: str, ans) -> str | None:
+    """German answer sentences for the common question forms; None for the rest."""
+    q = re.sub(r"[?!.\s]+$", "", query.strip())
+    a = ans.text
+    m = re.fullmatch(r"(?i)wer (ist|war|sind|waren) (der|die|das) (.+)", q)
+    if m:
+        return f"{m.group(2).capitalize()} {m.group(3)} {m.group(1).lower()} {a}."
+    m = re.fullmatch(r"(?i)wie hei(?:ß|ss)t (der|die|das) (.+)", q)
+    if m:
+        return f"{m.group(1).capitalize()} {m.group(2)} heißt {a}."
+    m = re.fullmatch(r"(?i)wie (hoch|lang|tief|breit|weit|schwer|groß|schnell) ist (der|die|das) (.+)", q)
+    if m:
+        return f"{m.group(2).capitalize()} {m.group(3)} ist {a} {m.group(1).lower()}."
+    m = re.fullmatch(r"(?i)wann wurde (.+?) (gegründet|geboren|gebaut|eröffnet|erfunden|entdeckt|geschrieben|veröffentlicht|"
+                     r"gewählt|errichtet)", q)
+    if m:
+        when = f"am {a}" if re.search(r"[A-Za-zä]", a) else f"{a}"
+        return f"{m.group(1)[:1].upper() + m.group(1)[1:]} wurde {when} {m.group(2)}."
+    m = re.fullmatch(r"(?i)(?:was|wie heißt|welche stadt) ist die hauptstadt (?:von )?(.+)", q)
+    if m:
+        return f"Die Hauptstadt von {m.group(1)} ist {a}."
+    m = re.fullmatch(r"(?i)wie viele einwohner hat (.+)", q)
+    if m:
+        return f"{m.group(1)[:1].upper() + m.group(1)[1:]} hat {a} Einwohner."
+    m = re.fullmatch(r"(?i)wo (liegt|ist|befindet sich) (der|die|das) (.+)", q)
+    if m:
+        return f"{m.group(2).capitalize()} {m.group(3)} {m.group(1).lower()} in {a}."
+    return None
 
 
 def _end(sentence: str) -> str:

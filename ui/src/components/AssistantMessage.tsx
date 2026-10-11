@@ -91,6 +91,7 @@ function useTypedText(full: string, animate: boolean, onTyped?: () => void): [st
 
 export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
   const [showEvidence, setShowEvidence] = useState(false);
+  const [showResults, setShowResults] = useState(false);
   const [copyLabel, setCopyLabel] = useState<string | null>(null);
   const full = reply && !isError(reply) ? reply.text : "";
   const [shown, done] = useTypedText(full, animate && reply !== null && !isError(reply), onTyped);
@@ -164,6 +165,8 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
     chips.push(<Chip key="sec" text={`${reply.seconds.toFixed(2)} s`} cls="sec" title={t.seconds} />);
   }
   const hasEvidence = Boolean(reply.evidence) && k !== "about";
+  // with an answer, the search results stay folded (one click away); without one they are the reply
+  const resultsFolded = links.length > 0 && Boolean(reply.evidence);
 
   const copy = async () => {
     const withLinks = links.length ? `${full}\n\n${links.map((l) => `• ${l.title} — ${l.url}`).join("\n")}` : full;
@@ -185,7 +188,7 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
         <div className="text" {...(done ? { "data-done": "1" } : {})}>
           {shown}
         </div>
-        {done && links.length > 0 && <WebResults links={links} title={t.webResults} />}
+        {done && links.length > 0 && (!resultsFolded || showResults) && <WebResults links={links} title={t.webResults} />}
         <div className="meta">{chips}</div>
         <div className="actions">
           <button className="mini" data-act="copy" onClick={copy} type="button">
@@ -194,6 +197,11 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
           {hasEvidence && (
             <button className="mini" data-act="evidence" type="button" onClick={() => setShowEvidence((v) => !v)}>
               {showEvidence ? t.hideEvidence : t.evidence}
+            </button>
+          )}
+          {done && resultsFolded && (
+            <button className="mini" data-act="results" type="button" onClick={() => setShowResults((v) => !v)}>
+              {showResults ? t.hideResults : t.showResults.replace("{n}", String(links.length))}
             </button>
           )}
         </div>

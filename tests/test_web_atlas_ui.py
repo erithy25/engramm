@@ -69,8 +69,13 @@ const { chromium } = require('playwright');
   text = await say('google how tall is the Zorblax Tower');
   check('google: answer with its source', text.includes('318 metres') && text.includes('quorvia.example')
         && text.includes('via web search'), text);
-  check('google: results as links', (await page.locator('.msg.assistant').last().locator('.web-results li').count()) >= 3);
-  check('google: result link', (await page.locator('.msg.assistant').last().locator('.web-results a').first()
+  // the answer comes first; the results stay folded behind one button
+  const last = page.locator('.msg.assistant').last();
+  check('google: results folded', (await last.locator('.web-results').count()) === 0
+        && (await last.locator('[data-act=results]').innerText()).startsWith('Web results ('));
+  await last.locator('[data-act=results]').click();
+  check('google: results as links', (await last.locator('.web-results li').count()) >= 3);
+  check('google: result link', (await last.locator('.web-results a').first()
         .getAttribute('href')) === 'https://quorvia.example/zorblax-tower');
   check('sidebar still off', (await page.locator('#netLabel').innerText()) === 'off');
   await page.click('#openNetwork');

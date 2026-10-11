@@ -174,13 +174,46 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
   Auswahl; scheitern alle Suchmaschinen, kann die Faktenbox allein antworten.
 - **Lesen:** die ersten 3 lesbaren Treffer parallel (je 8 s, 2 MB; keine Videos, PDFs, sozialen Netze),
   Haupttext per `engramm/web/clean.py` (jusText-Ansatz, Stoppwörter Englisch und Deutsch).
-- **Antwort:** der Satz aus Snippets und Seiten, der die Frage am besten trifft, mit Quelle; eine zweite
+- **Kurzantwort (seit beta.10, Nutzerbericht 10.10.2026: „er sucht nur Quellen, ich muss selbst lesen“):**
+  ENGRAMM antwortet zuerst mit der Antwort als Satz, dann mit dem Satz, aus dem sie stammt, und der Quelle;
+  die Trefferliste liegt eingeklappt dahinter („Web results (6)“) und ist nur offen, wenn es keine Antwort gibt.
+  Ohne neuronales Netz, `short_answer` in `engramm/web/search.py`:
+  - **Fragetyp** aus dem Wortlaut: Person (who/wer), Ort (where/Hauptstadt), Datum (when/wann), Maß (how
+    tall/wie hoch), Anzahl (how many/Einwohner), Preis, Öffnungszeiten; sonst keine Kurzantwort („why …“).
+  - **Kandidaten** dieses Typs aus bis zu 60 Sätzen (12 je Seite): Namen = Folgen großgeschriebener Wörter,
+    an Titeln und Fragewörtern getrennt („President Donald Trump“ → „Donald Trump“); Zahlen mit Einheit, Daten.
+  - **Abstimmung:** jeder Satz gibt seinem Kandidaten sein Gewicht (relativ zum besten Satz), mehr wenn der
+    Kandidat im selben Satzteil wie ein Fragewort steht, je weitere Seite +40 %. Gegenwartsfragen („who is“,
+    „currently“, „aktuell“) heben Sätze mit „current/incumbent/seit“ und senken „former/served from … to“.
+  - **Schutz vor falschen Antworten** (gemessen an den Fallen des Live-Tests): Gewinner braucht 2 Sätze (oder
+    eine Faktenbox-Zeile mit passendem Etikett) und das Doppelte des Zweiten (oder das 1,5-Fache bei dreimal so
+    vielen Sätzen); eine Person ist ein voller Name (Varianten „Trump“, „Donald John Trump“ zählen für „Donald
+    Trump“); kein Name ist, was die Seiten auch kleingeschrieben verwenden („cup“, „territory“), Institutionen
+    („Cup“, „Amendment“), deutsche Substantivendungen, Teile des gefragten Namens („UEFA Europa League“), der
+    gefragte Gegenstand selbst („ChatGPT“ für „Chatbt“). „Who won …“ ohne Jahr stimmt nicht ab: der meistgenannte
+    Sieger ist der der Geschichte (Real Madrid), nicht der letzte. Anzahlen werden gerundet und datiert
+    („About 3.5 million people live in Berlin (as of 2015).“), Zahlen innerhalb ±6 % sind eine Antwort.
+  - **Satz zur Antwort:** englisch über `answer_sentence` („Donald Trump is currently the president of the
+    USA.“), deutsch über Muster („Der aktuelle Bundeskanzler ist Friedrich Merz.“); ein Tippfehler der Frage
+    wird so geschrieben, wie ihn die Seiten schreiben („… CEO of ChatGPT“).
+  - **Live-Messung 10./11.10.2026** (14 Fragen, aus dem Rechenzentrum, Suchmaschinen zeitweise gesperrt):
+    Kurzantwort richtig bei Präsident der USA, CEO Siemens, CEO „Chatbt“, Bundeskanzler, Hauptstadt
+    Australiens, Zugspitze, Gründung Siemens, Faust, Rhein, Louvre-Öffnungszeiten, Bayern-Trainer (je nach
+    Lauf 9–12 von 13 Sachfragen); ehrliche Enthaltung (Satz statt Kurzantwort) bei den übrigen; nach den
+    Schutzregeln 0 falsche Kurzantworten im letzten Lauf (vorher: „European Cup“, „UEFA Europa“, „Real Madrid“
+    als Champions-League-Sieger, „4,1 Mio.“ Berliner (Ballungsraum) — jeweils die Regel dagegen oben).
+- **Fußzeile:** antwortet nicht die erste Suchmaschine, steht dahinter kurz, warum („Searched with Bing; read 1
+  page (DuckDuckGo: blocked).“) — damit ein Nutzerbericht zeigt, welche Maschine ausfiel.
+- **DuckDuckGo-Probe (CI, 11.10.2026):** vom selben GitHub-Rechner bekamen Python-urllib und der Rust-Kern
+  dieselben Antworten (beide HTTP 202): DuckDuckGo sperrt nach Adresse (Rechenzentrum), nicht nach Client.
+- **Satzantwort (ohne Kurzantwort):** der Satz aus Snippets und Seiten, der die Frage am besten trifft, mit Quelle; eine zweite
   Quelle nur, wenn sie dasselbe sagt (gleiche Zahl oder gleicher Name). Regeln: Fragewörter zählen nach
   Seltenheit, Antwortwörter („how tall“ → „metres“) halb; der Name aus der Frage muss im Satz stehen; eine
   Zahl, die mehrere Seiten nennen, zählt mehr; Mengen- und Zeitfragen brauchen eine Zahl bzw. Uhrzeit; ein
-  abgeschnittenes Snippet zählt weniger. Darunter die Treffer als Links. **Keine Kurzantwort aus Webtext:**
-  Die Antwortextraktion ist auf Lexikonsätze geeicht und griff im Test daneben („Australian Capital
-  Territory“ als Hauptstadt Australiens).
+  abgeschnittenes Snippet zählt weniger; „why“-Fragen heben Sätze mit einem Grund („because“, „weil“).
+  Darunter die Treffer als Links. Die Antwortextraktion des Offline-Teils bleibt draußen (auf Lexikonsätze
+  geeicht, griff im Test daneben: „Australian Capital Territory“); die Kurzantwort oben ist eine eigene,
+  abstimmende Extraktion.
 - Offline-Abgleich an 8 echten Fragen (Treffer und Seiten gespeichert): 6 richtige Antwortsätze, 2 ehrliche
   Enthaltungen (Louvre-Öffnungszeiten stehen nur in Tabellen; Siemens-Startseiten nennen den CEO nicht),
   0 falsche.

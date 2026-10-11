@@ -317,7 +317,8 @@ def test_google_command_searches_even_with_the_channel_off(web_chat):
     a, eg, web = web_chat
     st = DialogState("g")
     r = a.turn(st, "google how tall is the Zorblax Tower")
-    assert r.via == "web" and r.kind in ("answer", "about"), r.text
+    assert r.via == "web" and r.kind == "answer" and r.answer == "318 metres", r.text
+    assert r.text.startswith("The Zorblax Tower is 318 metres tall."), r.text           # the answer first
     assert "318 metres" in r.text and "quorvia.example" in r.text and "DuckDuckGo" in r.text, r.text
     assert r.source["kind"] == "web" and r.source["key"] == TOWER
     assert [x["url"] for x in r.links][:3] == [u for _, u, _ in GOOD][:3]
@@ -364,11 +365,22 @@ def test_german(web_chat):
     a, eg, web = web_chat
     st = DialogState("de")
     r = a.turn(st, "such im Internet nach der Höhe vom Zorblax Tower")
-    assert r.via == "web" and r.text.startswith("Laut ") and "Gesucht mit DuckDuckGo" in r.text, r.text
+    assert r.via == "web" and r.text.startswith("318 metres.") and "Laut quorvia.example" in r.text, r.text
+    assert "Gesucht mit DuckDuckGo" in r.text, r.text
     req = next(q for q in web.seen if q.what == "search:duckduckgo")
     assert dict(req.form)["kl"] == "de-de" and dict(req.headers)["Accept-Language"].startswith("de")
     r = a.turn(DialogState("de2"), "googel mal")
     assert "wonach soll ich suchen" in r.text, r.text
+
+
+def test_the_footer_names_an_engine_that_had_nothing(corpus, tmp_path, monkeypatch):   # noqa: F811
+    monkeypatch.setattr(FeedRefresher, "start", lambda self: None)
+    web = FakeWeb(ddg="anomaly", lite="anomaly")
+    eg = _egress(tmp_path, web, enabled=False)
+    a = Assistant(_bot(corpus, LoggedTextMemory(tmp_path / "m.log")), clock=CLOCK)
+    a.atlas = Atlas(eg, None, tmp_path / "state")
+    r = a.turn(DialogState("b"), "google how tall is the Zorblax Tower")
+    assert r.answer == "318 metres" and "Searched with Bing" in r.text and "(DuckDuckGo: blocked)" in r.text, r.text
 
 
 def test_nothing_found_is_said_plainly(corpus, tmp_path, monkeypatch):   # noqa: F811
@@ -448,3 +460,111 @@ def test_web_search_is_on_from_the_start(corpus, tmp_path, monkeypatch):   # noq
     n = len(web.seen)
     a.turn(st, "What is my favourite tower?")
     assert len(web.seen) == n
+
+
+# -- the short answer ------------------------------------------------------------------------------
+
+def _rows(*items: tuple[float, str, str]) -> list[tuple[float, str, dict]]:
+    """(score, sentence, host) → WebSearch.best's rows."""
+    return [(sc, sent, {"t": host, "x": sent, "url": f"https://{host}/{i}", "host": host, "rank": i})
+            for i, (sc, sent, host) in enumerate(items)]
+
+
+def test_answer_types():
+    from engramm.web.search import answer_type
+    assert answer_type("Who is currently the president of the usa?") == "person"
+    assert answer_type("Wer ist der aktuelle Bundeskanzler?") == "person"
+    assert answer_type("What is the capital of Australia?") == "place"
+    assert answer_type("How tall is the Zugspitze?") == "quantity"
+    assert answer_type("How many people live in Berlin?") == "count"
+    assert answer_type("When was Siemens founded?") == "date"
+    assert answer_type("What is the bitcoin price?") == "money"
+    assert answer_type("Wie sind die Öffnungszeiten vom Louvre?") == "hours"
+    assert answer_type("Why is the sky blue?") is None
+
+
+def test_the_answer_the_sources_agree_on():
+    """The president question of the user's report: the pages hold the answer in several sentences
+    of several sites, between sentences about past presidents; the one about today wins, and the
+    sentence shown for it is the one that says "current"."""
+    from engramm.web.search import short_answer
+    q = "Who is currently the president of the usa?"
+    rows = _rows((5.0, "The President is to be commander-in-chief of the army and navy of the United States.", "en.wikipedia.org"),
+                 (4.6, "James Monroe was the fifth president of the United States, serving from 1817 to 1825.", "en.wikipedia.org"),
+                 (4.4, "Donald Trump is the 47th and current president since January 20, 2025.", "en.wikipedia.org"),
+                 (4.2, "The incumbent president is Donald Trump, who assumed office on January 20, 2025.", "britannica.com"),
+                 (4.0, "Under President Donald Trump’s second administration, the economy grew.", "whitehouse.gov"),
+                 (3.9, "Herbert Hoover was the 31st president of the United States, serving from 1929 to 1933.", "history.example"))
+    a = short_answer(q, rows)
+    assert a is not None and a.text == "Donald Trump" and a.kind == "person" and a.sites == 3, a
+    assert "current" in a.sentence or "incumbent" in a.sentence
+    # one sentence alone, or two names as strong as each other: no short answer
+    assert short_answer(q, rows[:3]) is None
+    assert short_answer("Who founded the Zorblax company?",
+                        _rows((5.0, "Mirela Tosk founded the Zorblax company with Ivo Brandt.", "a.example"),
+                              (4.9, "Ivo Brandt and Mirela Tosk founded Zorblax in 1931.", "b.example"))) is None
+
+
+def test_no_answer_from_the_wrong_kind_of_name():
+    """Traps met in the live test: a competition for its winner, part of the asked name, a common
+    word written with a capital ("Territory" of "Australian Capital Territory")."""
+    from engramm.web.search import short_answer
+    cup = _rows((5.0, "22 clubs have won the UEFA Champions League / European Cup.", "uefa.example"),
+                (4.8, "See also the UEFA Europa League, another annual competition.", "sports.example"),
+                (4.5, "The European Cup was renamed in 1992.", "sports.example"))
+    a = short_answer("Who won the last Champions League?", cup)
+    assert a is None, a
+    cap = _rows((5.0, "Canberra is the capital of Australia.", "a.example"),
+                (4.9, "The capital lies in the Australian Capital Territory, a federal territory.", "b.example"),
+                (4.8, "Canberra became the capital of Australia in 1913.", "c.example"))
+    a = short_answer("What is the capital of Australia?", cap)
+    assert a is not None and a.text == "Canberra", a
+
+
+def test_numbers_dates_and_hours():
+    from engramm.web.search import short_answer
+    rhine = _rows((5.0, "The Rhine is 1,232 kilometres (766 mi) long.", "a.example"),
+                  (4.0, "The Rhine River stretches for 1,232 km and drains six countries.", "b.example"),
+                  (3.0, "The Upper Rhine Plain is about 300 km long.", "c.example"))
+    a = short_answer("How long is the Rhine?", rhine)
+    assert a is not None and a.text in ("1,232 kilometres", "1,232 km"), a
+    founded = _rows((5.0, "Siemens – Founded: October 01, 1847, Berlin.", "en.wikipedia.org"),
+                    (4.0, "Siemens & Halske was founded on 1 October 1847.", "b.example"),
+                    (3.5, "Siemens was founded in 1847 by Werner von Siemens.", "c.example"))
+    a = short_answer("When was Siemens founded?", founded)
+    assert a is not None and "1847" in a.text and " 01," not in a.text, a
+    hours = _rows((5.0, "Das Louvre hat jeden Tag außer Dienstag von 9 Uhr bis 18 Uhr geöffnet.", "a.example"))
+    a = short_answer("Wie sind die Öffnungszeiten vom Louvre?", hours, "de")
+    assert a is not None and a.text == "9 Uhr bis 18 Uhr", a
+
+
+def test_the_answer_as_a_sentence():
+    from engramm.chat.dialog import _spelled_as_seen, _web_head
+    from engramm.web.search import Answer
+    def ans(text, kind, sentence="x"):
+        return Answer(text, kind, sentence, {"host": "a.example"}, 3, 2)
+    assert _web_head("Who is currently the president of the usa?", ans("Donald Trump", "person"), "en", []) \
+        == "Donald Trump is currently the president of the USA."
+    assert _web_head("Wer ist der aktuelle Bundeskanzler?", ans("Friedrich Merz", "person"), "de", []) \
+        == "Der aktuelle Bundeskanzler ist Friedrich Merz."
+    assert _web_head("Wie hoch ist die Zugspitze?", ans("2962 m", "quantity"), "de", []) == "Die Zugspitze ist 2962 m hoch."
+    # a count from the web is rounded and dated
+    head = _web_head("How many people live in Berlin?",
+                     ans("3,520,031", "count", "On 31 December 2015, Berlin had a population of 3,520,031."), "en", [])
+    assert head == "About 3.5 million people live in Berlin (as of 2015).", head
+    assert _web_head("When does the Louvre open?", ans("9 a.m. to 6 p.m.", "hours"), "en", []) is None
+    # the question's misspelling is written as the pages write the name
+    assert _spelled_as_seen("Sam Altman is current CEO of Chatbt.", "Who is current CEO of Chatbt?",
+                            ["Who Owns ChatGPT? Largest Shareholders"]) == "Sam Altman is current CEO of ChatGPT."
+
+
+def test_who_won_without_a_year_is_no_vote():
+    """The winner most pages name is history's most frequent one, not the last one."""
+    from engramm.web.search import short_answer
+    rows = _rows((5.0, "Real Madrid have won the Champions League a record 15 times.", "a.example"),
+                 (4.8, "Real Madrid beat Borussia Dortmund in the 2024 final.", "b.example"),
+                 (4.6, "The last winners are Paris Saint-Germain (2026) and Real Madrid (2024).", "c.example"),
+                 (4.4, "Real Madrid also won in 2022.", "d.example"))
+    assert short_answer("Who won the last Champions League?", rows) is None
+    a = short_answer("Who won the Champions League in 2024?", rows)
+    assert a is not None and a.text == "Real Madrid", a

@@ -180,7 +180,7 @@ def relevant(question: str, results: list[Result], lang: str = "en", top: int = 
     for r in results[:top]:
         hay = f"{r.title} {r.snippet} {urllib.parse.unquote(r.url)}".lower()
         words = set(re.findall(r"[^\W_]{4,}", hay))
-        have = {t for t in toks if any(f in hay for f in forms[t]) or _near(t, words)}
+        have = {t for t in toks if any(f in hay for f in forms[t]) or _near(t, words) or (t in _EXPAND and _EXPAND[t] in hay)}
         if all(m in have or m[:5] in hay or _near(m, words) for m in must) and len(have) >= need:
             hits += 1
             full += len(have) >= len(toks) - (1 if len(toks) >= 3 else 0)
@@ -521,7 +521,7 @@ class WebSearch:
 
     @staticmethod
     def best(question: str, results: list[Result], pages: list[dict], n: int = 6,
-             lang: str = "en") -> list[tuple[float, str, dict]]:
+             lang: str = "en", per_source: int = 2) -> list[tuple[float, str, dict]]:
         """The sentences of the snippets and pages that answer the question best, best first, at
         most two per source: (score, sentence, doc).
 
@@ -530,7 +530,10 @@ class WebSearch:
         about it anyway), words an answer uses for what is asked ("how tall" → "metres", "high")
         count half. Higher-ranked results weigh a little more (the engine's own judgment), a
         snippet the engine cut off ("…") less, and a sentence whose names other sites name too
-        more ("Roland Busch" on four sites, "Ann Fairchild" on one)."""
+        more ("Roland Busch" on four sites, "Ann Fairchild" on one). A question about the present
+        ("who is the president", "currently", "aktuell") prefers sentences about the present
+        ("current", "incumbent", "since 2025", "seit") over ones about the past ("former", "served
+        from … to …")."""
         from engramm.web.clean import SENTENCE, is_reference
         from engramm.web.shelf import tokens
         docs = [{"t": r.title, "x": r.snippet, "url": r.url, "host": r.site, "rank": r.rank, "snippet": True}
@@ -544,11 +547,14 @@ class WebSearch:
         phrases = _phrases(question)
         number = bool(_WANTS_NUMBER.search(question))
         clock = bool(_WANTS_CLOCK.search(question))
+        now = _asks_now(question)
+        why = bool(re.match(r"\s*(?:why|warum|wieso|weshalb|how come)\b", question, re.I))
         cands = []
         expanded = [_EXPAND[w] for w in qset if w in _EXPAND]
         for d in docs:
             title = set(tokens(d["t"]))
             for para in d["x"].split("\n"):
+                para = re.sub(r"\s*\[(?:\d{1,3}|[a-z]|note \d+|citation needed)\]", "", para)
                 for sent in SENTENCE.split(para.strip()):
                     sent = sent.strip()
                     if 25 <= len(sent) <= 450 and (d.get("facts") or _prose(sent)) and not is_reference(sent) \
@@ -597,6 +603,10 @@ class WebSearch:
                 score *= 1.0 + 0.25 * min(3, agree)
             if _PRONOUN_START.match(sent):            # "He held …": the subject is in an earlier sentence
                 score *= 0.8
+            if why and _BECAUSE.search(sent):          # "why …": the sentence that gives a reason
+                score *= 1.5
+            if now:                                    # "who is the president": the sentence about today
+                score *= (1.6 if _NOW_S.search(sent) else 1.0) * (0.6 if _PAST_S.search(sent) else 1.0)
             cut = d.get("snippet") and sent.endswith(("…", "..."))
             given = [w for w in _NAME.findall(sent) if w.lower()[:5] not in stems and w not in _NOT_NAME]
             support = max((sum(w.lower() in text for h, text in sites.items() if h != d["host"]) for w in given),
@@ -607,7 +617,7 @@ class WebSearch:
         out, per = [], {}
         for row in scored:
             key = row[2]["url"]
-            if per.get(key, 0) < 2:
+            if per.get(key, 0) < per_source:
                 per[key] = per.get(key, 0) + 1
                 out.append(row)
             if len(out) >= n:
@@ -647,7 +657,9 @@ def _decode(body: bytes, ctype: str) -> str:
 _JUNK = re.compile(r"cookie|javascript|sign in|log ?in|subscribe|newsletter|anmelden|registrier|datenschutz|privacy policy|"
                    r"all rights reserved|alle rechte|©|click here|hier klicken|advertisement|anzeige|"
                    r"^this (?:article|page) is about|^for other uses|^not to be confused|redirects here|"
-                   r"^dieser artikel (?:behandelt|beschreibt|befasst)|^zu weiteren bedeutungen|^siehe auch", re.I)
+                   r"^dieser artikel (?:behandelt|beschreibt|befasst)|^zu weiteren bedeutungen|^siehe auch|"
+                   r"^(?:learn more|read more|find out more|click|see more|watch|explore our|mehr erfahren|jetzt lesen)\b|"
+                   r"\bin this (?:guide|article|post|video|blog)\b|\bin diesem (?:artikel|beitrag|ratgeber|video)\b", re.I)
 # the words an answer sentence uses for what a question asks ("how tall" → "… 2,962 m high")
 _ANSWER_WORDS = {
     "tall": ("height", "high", "metres", "meters", "feet", "elevation"), "high": ("height", "metres", "meters", "elevation"),
@@ -661,6 +673,10 @@ _ANSWER_WORDS = {
     "ceo": ("chief", "executive", "vorstandsvorsitzender", "chef"), "chef": ("ceo", "vorstandsvorsitzender", "leitet"),
     "öffnungszeiten": ("geöffnet", "uhr", "montag", "dienstag", "mittwoch"), "hours": ("open", "opening", "closed"),
     "price": ("costs", "eur", "usd", "€", "$"), "preis": ("kostet", "euro", "€"), "kurs": ("preis", "euro", "€", "usd"),
+    "live": ("population", "inhabitants", "residents"), "people": ("population", "inhabitants", "residents"),
+    "leben": ("einwohner", "bevölkerung"), "menschen": ("einwohner", "bevölkerung"),
+    "trainer": ("coach", "cheftrainer", "head coach", "manager"), "coach": ("manager", "head coach", "trainer"),
+    "wrote": ("author", "written"), "founded": ("established", "founder"), "gegründet": ("gründung", "gründer"),
 }
 
 
@@ -701,7 +717,7 @@ def _prose(sentence: str) -> bool:
     """A sentence, not a list entry or a reference ("1 2 “Canberra – Australia's capital city”."):
     six words or more, three of them lower-case words of three letters or more."""
     words = sentence.split()
-    return len(words) >= 6 and sum(1 for w in words if re.fullmatch(r"[a-zäöüß]{3,}[,;:]?", w)) >= 3
+    return len(words) >= 6 and sum(1 for w in words if re.fullmatch(r"[a-zäöüß]{3,}[,;:.!]?", w)) >= 3
 
 
 def agree(question: str, first: str, second: str) -> bool:
@@ -732,6 +748,418 @@ def answers(question: str, sentence: str) -> bool:
     if _WANTS_NUMBER.search(question):
         return bool(re.search(r"\d", sentence))
     return True
+
+
+# -- the short answer --------------------------------------------------------------------------------
+# What kind of answer a question wants, and the spans of that kind in the sentences that answer it
+# best; the span most sentences and sites agree on is the answer ("Donald Trump" in nine sentences
+# of three sites, "James Monroe" in one). No neural network: the question's wording, the shape of
+# the span and the agreement of the sources.
+
+_Q_PERSON = re.compile(r"^\s*(?:and |und )?(?:who(?:'s|m)?|wer|wem|wen)\b|\bwho (?:is|was|are|were|leads|runs|won|wrote|founded|"
+                       r"invented|directed|owns|heads|coaches|plays|sang|painted|discovered)\b|\bwie hei(?:ß|ss)t (?:der|die|das)\b|"
+                       r"\bname of the\b", re.I)
+_Q_PLACE = re.compile(r"^\s*(?:where|wo|wohin|woher)\b|\bcapital (?:city )?of\b|\bhauptstadt\b|\bin which (?:city|country|state)\b|"
+                      r"\bin welche[mr]? (?:stadt|land|staat)\b", re.I)
+_Q_DATE = re.compile(r"^\s*(?:when|wann)\b|\b(?:what|which|in welchem) (?:year|jahr)\b|\bseit wann\b|\bdate of\b", re.I)
+_Q_QUANTITY = re.compile(r"\bhow (?:tall|high|long|far|deep|wide|heavy|big|large|fast)\b|\b(?:height|length|elevation|distance)\b|"
+                         r"\bwie (?:hoch|lang|weit|tief|breit|schwer|groß|schnell)\b|\b(?:höhe|länge|entfernung)\b", re.I)
+_Q_COUNT = re.compile(r"\bhow many\b|\bwie viele\b|\b(?:population|einwohner|einwohnerzahl|number of|anzahl)\b", re.I)
+_Q_MONEY = re.compile(r"\b(?:price|cost|costs|how much (?:is|does|do|are)|preis|kurs|kostet|wie viel kostet)\b", re.I)
+
+
+def answer_type(question: str) -> str | None:
+    """"hours", "money", "quantity", "count", "date", "place", "person" or None (a question that
+    a sentence answers, not a span: "why …", "what is …")."""
+    if _WANTS_CLOCK.search(question):
+        return "hours"
+    for kind, rx in (("money", _Q_MONEY), ("quantity", _Q_QUANTITY), ("count", _Q_COUNT), ("date", _Q_DATE),
+                     ("place", _Q_PLACE), ("person", _Q_PERSON)):
+        if rx.search(question):
+            return kind
+    return None
+
+
+_BECAUSE = re.compile(r"\b(?:because|due to|caused by|this is why|that is why|the reason|results? from|weil|aufgrund|"
+                      r"deshalb|daher|darum|verursacht|liegt (?:daran|an))\b", re.I)
+_EVENT_Q = re.compile(r"\b(?:won|win|wins|winner|winners|champion|champions?hip|beat|defeated|gewann|gewonnen|gewinnt|sieger|"
+                      r"siegerin|meister|weltmeister)\b", re.I)
+_NOW_Q = re.compile(r"\b(?:current|currently|now|today|incumbent|present|at the moment|right now|aktuell\w*|derzeit\w*|jetzt|"
+                    r"heute|momentan|zurzeit|amtierend\w*|gerade)\b", re.I)
+_PRESENT_Q = re.compile(r"^\s*(?:who|wer|wie hei(?:ß|ss)t)\b.*\b(?:is|are|ist|sind|heißt|heisst|leads|runs|heads|owns|coaches|"
+                        r"leitet|führt|regiert)\b", re.I)
+_NOW_S = re.compile(r"\b(?:current|currently|incumbent|now|present|today|serving|has been|since|as of|aktuell\w*|derzeit\w*|"
+                    r"amtierend\w*|seit|zurzeit|momentan|heute)\b", re.I)
+_PAST_S = re.compile(r"\b(?:former|formerly|previous|previously|was the|served (?:as|from)|from \d{4} (?:to|until) \d{4}|"
+                     r"\d{4}\s*[–-]\s*\d{4}|ehemalig\w*|früher\w*|war (?:der|die|von)|von \d{4} bis \d{4})\b", re.I)
+
+
+def _asks_now(question: str) -> bool:
+    """A question about the present: "currently", "aktuell", or "who is …" (who was is history)."""
+    return bool(_NOW_Q.search(question) or _PRESENT_Q.search(question))
+
+
+# capitalised words that are part of no name an answer gives: titles, articles, sentence starts
+_TITLE_WORDS = frozenset("""The A An In On At Of For And But Or As By To From Under Since After Before During With Without Its His
+Her Their Our Your My This That These Those There Then When While Where What Which Who Also However Although According
+President Presidents Vice Chancellor Kanzler Bundeskanzler Bundeskanzlerin Chief Executive Officer Chairman Chairwoman Chair
+Minister Prime Premier King Queen Prince Princess Pope Senator Governor Mayor Bürgermeister Bürgermeisterin Dr Mr Mrs Ms Sir
+Lord Lady General Former Current Incumbent Acting Head Leader Founder Co-founder Director Manager Coach Trainer Herr Frau
+Der Die Das Den Dem Des Ein Eine Einer Eines Im Am Vom Zum Zur Bei Mit Nach Seit Laut Unter Von Und Oder Er Sie Es
+Amtierender Amtierende Amtierenden Aktueller Aktuelle Derzeitiger Derzeitige Ehemaliger Ehemalige Neuer Neue Neuen
+Präsident Präsidentin Vorsitzender Vorsitzende Chef Chefin Gründer Gründerin Wikipedia Edit Born Died Geboren Gestorben
+Hauptstadt Capital City Stadt Population Einwohner See Siehe Image Photo Official Website Homepage Inc Ltd Corp Corporation
+Mai Jänner Januar Februar März April August September November Dezember
+GmbH AG SE LLC Group Company Unternehmen Jetzt Liste Mehr Hier Alle Alles Neu Neue Infos Info Erfahre Erfahren Erhalten
+Lesen Weitere Weiter Startseite News Nachrichten Aktuelles Übersicht Home Menu Menü Read More Learn Discover Find Click Visit
+Watch Live Latest Breaking Update Updates Top Best Guide""".split())
+_NOT_PERSON = frozenset("""amendment act constitution party league cup award awards prize trophy championship championships
+tournament council committee commission court congress senate house parliament government administration department ministry
+agency office university college school institute foundation museum church street avenue road river mountain lake island
+islands bank group company corporation club team stadium arena airport station bridge tower hotel festival series season
+edition final finals games olympics war battle treaty empire kingdom republic state states union city county district""".split())
+_ORDINAL = re.compile(r"(?:first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|twenty|thirty|"
+                      r"forty|fifty|sixty|seventy|eighty|ninety|hundred|thousand)[\w\-]*")
+_PARTICLES = frozenset("von van der den de da di du la le bin ibn al del dos zu y".split())
+_SPAN_TOKEN = re.compile(r"[^\W\d_][\w'’\-]*\.?")
+
+
+def _name_spans(sentence: str, asked: set[str]) -> list[tuple[str, int]]:
+    """The names a sentence gives that the question does not: runs of capitalised words (with
+    "von", "van", "de" … inside), split at titles and the question's own words ("President Donald
+    Trump" → "Donald Trump", "Siemens CEO Roland Busch" → "Roland Busch"). (name, token position)."""
+    toks = list(_SPAN_TOKEN.finditer(sentence))
+    out, run = [], []
+
+    def close() -> None:
+        while run and run[-1][0].lower() in _PARTICLES:
+            run.pop()
+        while run and run[0][0].lower() in _PARTICLES:
+            run.pop(0)
+        if run and len(run) <= 4 and not all(re.fullmatch(r"[A-Z]\.", w) for w, _ in run):
+            out.append((" ".join(w for w, _ in run), run[0][1]))
+        run.clear()
+
+    prev_end = None
+    for i, m in enumerate(toks):
+        w = re.sub(r"['’]s$", "", m.group(0))
+        w = w if re.fullmatch(r"[A-Z]\.", w) else w.rstrip(".")
+        gap = sentence[prev_end:m.start()] if prev_end is not None else " "
+        prev_end = m.end()
+        if run and gap.strip() not in ("",):
+            close()
+        low = w.lower()
+        stop = w in _TITLE_WORDS or w.capitalize() in _TITLE_WORDS or w in _NOT_NAME or low[:5] in asked or low in asked
+        if stop and run and not gap.strip() and w[:1].isupper() and (low[:5] in asked or low in asked):
+            run.clear()                            # "UEFA Europa League", "FC Bayern": part of the asked name
+        initial = bool(re.fullmatch(r"[A-Z]\.", w))
+        if w[:1].isupper() and not stop and (initial or not (w.isupper() and 1 < len(w) <= 3 and run)):
+            run.append((w, i))
+        elif low in _PARTICLES and run:
+            run.append((w, i))
+        else:
+            close()
+        if m.group(0).endswith((".", "'s", "’s")) and not re.fullmatch(r"[A-Z]\.", m.group(0)):
+            close()
+    close()
+    return out
+
+
+_UNIT = (r"(?:km²|km2|m²|square (?:kilomet(?:re|er)s|miles)|sq ?mi|quadratkilometer|km/h|mph|°C|°F|"
+         r"kilomet(?:re|er)s?|kilometern?|metres?|meters?|metern?|feet|foot|ft|miles?|mi|km|cm|mm|m|kg|kilograms?|"
+         r"tonnes?|tons?|t|years?|jahre?n?)")
+_QTY = re.compile(r"(?<![\w.,])(\d{1,3}(?:[,.\s  ]\d{3})+(?:[.,]\d+)?|\d+(?:[.,]\d+)?)\s*(" + _UNIT + r")(?![\w²])", re.I)
+_COUNT_RX = re.compile(r"(?<![\w.,])(\d+(?:[.,]\d+)?)\s*(million|billion|mio\.?|millionen|milliarden|mrd\.?)(?!\w)|"
+                       r"(?<![\w.,])(\d{1,3}(?:[,.\s  ]\d{3})+)(?![\d])", re.I)
+_MONTHS = ("january|february|march|april|may|june|july|august|september|october|november|december|"
+           "januar|februar|märz|mai|juni|juli|oktober|dezember")
+_DATE_RX = re.compile(rf"\b(?:(?:{_MONTHS})\s+\d{{1,2}},?\s+\d{{4}}|\d{{1,2}}\.?\s+(?:{_MONTHS})\s+\d{{4}})\b", re.I)
+_YEAR_RX = re.compile(r"(?<![\d.,])(1[0-9]{3}|20[0-9]{2})(?![\d.,]\d)")
+_MONEY_RX = re.compile(r"(?:[$€£]\s?\d[\d,.]*(?:\s?(?:million|billion|bn|k|mio\.?|mrd\.?))?|\d[\d,.]*\s?(?:€|eur|euro|usd|us-dollar|"
+                       r"dollars?|\$)(?!\w))", re.I)
+_RANGE_RX = re.compile(r"\b(?:[01]?\d|2[0-3])(?:[:.][0-5]\d)?\s*(?:a\.?m\.?|p\.?m\.?|uhr|h)?\s*(?:–|-|to|until|bis)\s*"
+                       r"(?:[01]?\d|2[0-3])(?:[:.][0-5]\d)?\s*(?:a\.?m\.?|p\.?m\.?|uhr|h)?(?![\w])", re.I)
+
+
+def _number(text: str) -> float | None:
+    """2,962 / 2.962 / 2 962 → 2962; 3,7 / 3.7 → 3.7."""
+    t = re.sub(r"[\s  ]", "", text)
+    if re.fullmatch(r"\d{1,3}(?:[,.]\d{3})+", t):
+        return float(re.sub(r"[,.]", "", t))
+    try:
+        return float(t.replace(",", "."))
+    except ValueError:
+        return None
+
+
+def _spans(kind: str, sentence: str, asked: set[str]) -> list[tuple[str, str, int]]:
+    """(key, text, position) of each span of the kind in the sentence; the key makes "2,962 m" and
+    "2962 m" one answer, "3.7 million" and "3,700,000" too."""
+    out = []
+    if kind in ("person", "place"):
+        for name, pos in _name_spans(sentence, asked):
+            out.append((name.lower(), name, pos))
+    elif kind == "quantity":
+        prev_end = -10
+        for m in _QTY.finditer(sentence):
+            alt = re.fullmatch(r"\s*[(\[]\s*|\s*(?:or|oder|/)\s*", sentence[prev_end:m.start()]) if prev_end >= 0 else None
+            prev_end = m.end()
+            if alt:
+                continue
+            v = _number(m.group(1))
+            unit = m.group(2).lower()
+            unit = {"metres": "m", "meters": "m", "metre": "m", "meter": "m", "metern": "m", "feet": "ft", "foot": "ft",
+                    "kilometres": "km", "kilometers": "km", "kilometre": "km", "kilometer": "km", "kilometern": "km",
+                    "miles": "mi", "mile": "mi"}.get(unit, unit)
+            if v is not None and unit not in ("years", "year", "jahre", "jahr", "jahren"):
+                out.append((f"{v:g} {unit}", m.group(0).strip(), len(sentence[:m.start()].split())))
+    elif kind == "count":
+        for m in _COUNT_RX.finditer(sentence):
+            if m.group(1):
+                v = _number(m.group(1))
+                mult = 1e9 if m.group(2).lower().startswith(("billion", "milliard", "mrd")) else 1e6
+                v = v * mult if v is not None else None
+            else:
+                v = _number(m.group(3))
+            if v:
+                key = f"{float(f'{v:.2g}'):g}"          # two significant digits: 3.68 million ≈ 3,685,265
+                out.append((key, m.group(0).strip(), len(sentence[:m.start()].split())))
+    elif kind == "date":
+        for m in _DATE_RX.finditer(sentence):
+            year = re.search(r"\d{4}", m.group(0)).group(0)
+            out.append((year, re.sub(r"\b0(\d)\b", r"\1", m.group(0)), len(sentence[:m.start()].split())))
+        for m in _YEAR_RX.finditer(sentence):
+            if not any(m.start() >= d.start() and m.end() <= d.end() for d in _DATE_RX.finditer(sentence)):
+                out.append((m.group(1), m.group(1), len(sentence[:m.start()].split())))
+    elif kind == "money":
+        for m in _MONEY_RX.finditer(sentence):
+            out.append((m.group(0).strip().lower(), m.group(0).strip(), len(sentence[:m.start()].split())))
+    elif kind == "hours":
+        for m in _RANGE_RX.finditer(sentence):
+            out.append((m.group(0).strip().lower(), m.group(0).strip(), len(sentence[:m.start()].split())))
+    return out
+
+
+@dataclass
+class Answer:
+    text: str                                   # the short answer: "Donald Trump", "2,962 m"
+    kind: str                                   # its kind (answer_type)
+    sentence: str                               # the sentence that says it best
+    doc: dict                                   # where that sentence stands
+    votes: int                                  # sentences that give it
+    sites: int                                  # sites that give it
+
+
+def rank_answers(question: str, rows: list[tuple[float, str, dict]], lang: str = "en") -> tuple[str | None, list[dict]]:
+    """(answer kind, candidates best first): {"text", "score", "votes", "sites", "facts", "best": (weight, sentence, doc)}.
+
+    Each span of the wanted kind gets the weight of each sentence that gives it (relative to the
+    best sentence). It weighs more when the sentence ties it to the question's words — "The
+    incumbent president is Donald Trump", "Siemens CEO Roland Busch", a fact box line "Siemens – Key
+    people: Roland Busch (CEO)" — and, for a question about the present, when the sentence is about
+    the present too. A person is a name of two words or more ("Sam Altman", not "OpenAI"); a lone
+    surname counts for the full name it ends. A span that is the question's own subject spelled
+    differently ("ChatGPT" for "Chatbt") is no answer."""
+    kind = answer_type(question)
+    if kind is None or not rows:
+        return kind, []
+    qwords = [w for w in re.findall(r"[^\W_][\w'\-]*", question.lower()) if w not in _STOP_QUERY]
+    asked = set(qwords) | {x for w in qwords if w in _EXPAND for x in _EXPAND[w].split()}
+    asked |= {x for w in qwords for x in _ANSWER_WORDS.get(w, ())}
+    asked |= {w[:5] for w in asked if len(w) >= 5}
+    subject = {w for w in qwords if len(w) >= 5}
+    now = _asks_now(question) and kind in ("person", "place")
+    top = max(r[0] for r in rows) or 1.0
+    year = re.search(r"\b(?:1[89]|20)\d{2}\b", question)   # "who won the 2014 World Cup": that year's sentences
+    # the words the pages also write in lower case ("cup", "territory", "amendment", "jetzt"): common
+    # words, which a name — written with a capital everywhere — is not
+    lower = set()
+    for d in {id(r[2]): r[2] for r in rows}.values():
+        lower |= set(re.findall(r"(?<![.!?]\s)(?<!^)\b([a-zäöüß][a-zäöüß'\-]{2,})\b", d.get("t", "") + " " + d.get("x", "")[:30_000]))
+    tally: dict[str, dict] = {}
+    for score, sent, doc in rows:
+        w = score / top
+        if now:
+            w *= (1.8 if _NOW_S.search(sent) else 1.0) * (0.5 if _PAST_S.search(sent) else 1.0)
+        if year and kind != "date" and year.group(0) not in sent:
+            w *= 0.3
+        if doc.get("facts") and re.search(r" – [^:]{2,40}: ", sent):
+            label = sent.split(" – ", 1)[1].split(":", 1)[0].lower()
+            # a fact box line whose label is what is asked ("Key people" for a CEO, "Length" for how long)
+            w *= 3.0 if any(x in label or label[:5] in x for x in asked if len(x) >= 3) else 0.3
+        low = sent.lower()
+        words = re.findall(r"[^\W_][\w'\-]*", low)
+        near_pos = [i for i, t in enumerate(words) if t in asked or t[:5] in asked]
+        # clauses (between commas, semicolons, brackets): "Roland Busch (CEO)" and "Jim Hagemann Snabe (chairman)"
+        bounds, n = [], 0
+        for part in re.split(r"[,;]|\s[–-]\s", sent):
+            k = len(re.findall(r"[^\W_][\w'\-]*", part))
+            bounds.append((n, n + k, any(t in asked or t[:5] in asked for t in re.findall(r"[^\W_][\w'\-]*", part.lower()))))
+            n += k
+        box = bool(doc.get("facts")) and " – " in sent and ":" in sent
+        if kind == "count":                            # a count changes: the newest year a sentence names counts most
+            years = [int(y) for y in re.findall(r"\b(19\d{2}|20\d{2})\b", sent)]
+            this = time.gmtime().tm_year
+            if years:
+                w *= 1.5 if max(years) >= this - 2 else 0.7 if max(years) < this - 5 else 1.0
+        if kind == "count" and re.search(r"\b(?:urban area|metropolitan|metro area|agglomeration|ballungsraum|metropolregion|"
+                                         r"großraum)\b", low) and not re.search(r"urban|metro|ballung|großraum", question.lower()):
+            w *= 0.4                                   # the city, not its metropolitan area
+        for key, text, pos in _spans(kind, sent, asked):
+            toks = key.split()
+            if kind in ("person", "place") and any(_near(t, subject) or t in subject for t in toks if len(t) >= 4):
+                continue                               # the thing asked about, not its answer
+            dist = min((abs(pos - i) for i in near_pos), default=99)
+            clause = next((c for c in bounds if c[0] <= pos < c[1]), None)
+            same = bool(clause and clause[2])
+            weight = w * (2.0 if same or dist <= 2 else 1.3 if dist <= 8 else 1.0)
+            if box and not same:
+                weight *= 0.2                          # "Jim Hagemann Snabe (chairman)" in a CEO's fact line
+            if kind == "person" and any(re.search(r"[a-zäöü][A-Z]|\d", t) for t in text.split()):
+                continue                               # "OpenAI", "iPhone 15": no name of a person
+            if kind == "person" and any(t in _NOT_PERSON or _ORDINAL.fullmatch(t) or _COMMON_DE.search(t) for t in toks):
+                continue                               # "European Cup", "Twenty-second Amendment", "Gründung"
+            if kind in ("person", "place"):
+                common = [t for t in toks if t in lower and t not in _PARTICLES]
+                if common:
+                    weight *= 0.25 if len(common) == len(toks) or kind == "person" else 0.6
+            e = tally.setdefault(key, {"text": text, "w": 0.0, "votes": 0, "sites": set(), "best": (-1.0, sent, doc),
+                                       "facts": False})
+            e["w"] += weight
+            e["votes"] += 1
+            e["sites"].add(doc.get("host", ""))
+            e["facts"] |= box and same
+            if weight > e["best"][0]:
+                e["best"] = (weight, sent, doc)
+                e["text"] = text
+    if kind == "person":
+        _merge_names(tally)
+    elif kind in ("count", "quantity"):
+        _merge_numbers(tally, 0.06 if kind == "count" else 0.01)
+    for e in tally.values():
+        e["score"] = e["w"] * (1.0 + 0.4 * (len(e["sites"]) - 1))
+    return kind, sorted(tally.values(), key=lambda e: -e["score"])
+
+
+def _absorb(into: dict, e: dict) -> None:
+    into["w"] += e["w"]
+    into["votes"] += e["votes"]
+    into["sites"] |= e["sites"]
+    into["facts"] |= e["facts"]
+    if e["best"][0] > into["best"][0]:
+        into["best"] = e["best"]
+
+
+def _merge_names(tally: dict[str, dict]) -> None:
+    """One person, one answer: "Trump", "Donald John Trump" and "Chefcoachs Vincent Kompany" count
+    for the full name written most ("Donald Trump", "Vincent Kompany"); a lone word that ends no
+    full name is no person's name ("OpenAI", "Deutschland") and drops out."""
+    full = sorted((k for k in tally if " " in k), key=lambda k: -tally[k]["votes"])
+    for k in full:
+        if k not in tally:
+            continue
+        last, first = k.split()[-1], k.split()[0]
+        for other in full:
+            if other == k or other not in tally:
+                continue
+            o_last, o_first = other.split()[-1], other.split()[0]
+            same = (o_last == last and (o_first.startswith(first[:3]) or first.startswith(o_first[:3]))) \
+                or f" {k} " in f" {other} "
+            if same and tally[other]["votes"] <= tally[k]["votes"]:
+                _absorb(tally[k], tally.pop(other))
+    for k in [k for k in tally if " " in k and re.fullmatch(r"[a-z]\.", k.split()[-1])]:
+        owner = [f for f in tally if f != k and f.split()[0] == k.split()[0] and not f.endswith(".")]
+        if len(owner) == 1:
+            _absorb(tally[owner[0]], tally.pop(k))
+    for k in [k for k in tally if " " not in k]:
+        owner = [f for f in tally if " " in f and k in (f.split()[-1], f.split()[0])]
+        e = tally.pop(k)
+        if len(owner) == 1:
+            _absorb(tally[owner[0]], e)
+
+
+def _merge_numbers(tally: dict[str, dict], tolerance: float) -> None:
+    """Numbers within the tolerance of each other are one answer (3.45, 3.7 and 3.88 million
+    people in Berlin, from different years), shown as the most voted one says it."""
+    def value(k: str) -> tuple[float, str] | None:
+        m = re.match(r"([\d.e+]+)\s*(.*)", k)
+        try:
+            return (float(m.group(1)), m.group(2)) if m else None
+        except ValueError:
+            return None
+    keys = sorted(tally, key=lambda k: -tally[k]["votes"])
+    for k in keys:
+        if k not in tally or value(k) is None:
+            continue
+        v, unit = value(k)
+        for other in keys:
+            if other == k or other not in tally or value(other) is None:
+                continue
+            ov, ounit = value(other)
+            if ounit == unit and v and abs(ov - v) / v <= tolerance:
+                _absorb(tally[k], tally.pop(other))
+
+
+def short_answer(question: str, rows: list[tuple[float, str, dict]], lang: str = "en") -> Answer | None:
+    """The answer the best sentences agree on (rank_answers), or None when they do not clearly
+    agree on one: the winner needs two sentences (or a fact box line), twice the weight of the
+    runner-up and a sentence that ties it to the question. A price or opening hours (they change,
+    sites disagree) come from the best sentence that has them."""
+    kind = answer_type(question)
+    if kind is None or not rows:
+        return None
+    if kind in ("money", "hours"):
+        asked = {w for w in re.findall(r"[^\W_][\w'\-]*", question.lower()) if w not in _STOP_QUERY}
+        top = max(r[0] for r in rows) or 1.0
+        for score, sent, doc in rows:
+            sp = _spans(kind, sent, asked)
+            if sp and score >= 0.5 * top:
+                return Answer(sp[0][1], kind, sent, doc, 1, 1)
+        return None
+    if kind == "person" and _EVENT_Q.search(question) and not re.search(r"\b(?:1[89]|20)\d{2}\b", question):
+        # "who won the last Champions League": the winner named most often is history's (Real Madrid),
+        # not the last one — the sentence answers that, not a vote
+        return None
+    kind, ranked = rank_answers(question, rows, lang)
+    if not ranked:
+        return None
+    win = ranked[0]
+    second = ranked[1]["score"] if len(ranked) > 1 else 0.0
+    if win["votes"] < 2 and not win["facts"]:
+        return None
+    votes2 = ranked[1]["votes"] if len(ranked) > 1 else 0
+    clear = win["score"] >= 2.0 * second or (win["score"] >= 1.5 * second and win["votes"] >= max(3, 3 * votes2)
+                                             and len(win["sites"]) >= 2)
+    if not clear or win["score"] < 1.0:
+        return None
+    if kind == "person" and " " not in win["text"]:
+        return None                                    # a person's answer is a full name
+    sent, doc = _evidence(question, win, rows)
+    return Answer(win["text"], kind, sent, doc, win["votes"], len(win["sites"]))
+
+
+def _evidence(question: str, win: dict, rows: list[tuple[float, str, dict]]) -> tuple[str, dict]:
+    """The sentence to show for the answer: one that holds the whole answer ("Johann Wolfgang von
+    Goethe", not "Goethe wrote to his son") close to a word of the question, short rather than
+    long, from a good row; else the one the answer got most weight from."""
+    asked = {w for w in re.findall(r"[^\W_][\w'\-]*", question.lower()) if w not in _STOP_QUERY and len(w) >= 3}
+    asked |= {x for w in list(asked) if w in _EXPAND for x in _EXPAND[w].split()}
+    want = win["text"].lower()
+    best, pick = -1.0, (win["best"][1], win["best"][2])
+    now = _asks_now(question)
+    for score, sent, doc in rows:
+        low = sent.lower()
+        if want not in low:
+            continue
+        words = re.findall(r"[^\W_][\w'\-]*", low)
+        at = len(low[:low.index(want)].split())
+        near = min((abs(at - i) for i, t in enumerate(words) if t in asked or t[:5] in {a[:5] for a in asked}), default=99)
+        value = score * (1.6 if near <= 6 else 1.0) / (1.0 + max(0, len(sent) - 160) / 200)
+        if now:
+            value *= (1.4 if _NOW_S.search(sent) else 1.0) * (0.6 if _PAST_S.search(sent) else 1.0)
+        if value > best:
+            best, pick = value, (sent, doc)
+    return pick
 
 
 def _same_word(t: str, w: str) -> bool:
