@@ -84,6 +84,20 @@ def test_and_barcelona_after_real_madrid_is_the_club(chat):  # noqa: F811
     assert r.resolved == "Who founded FC Barcelona?" or r.resolved == "Who founded Barcelona?", r.resolved
 
 
+def test_an_unanswered_follow_up_keeps_the_thing_it_picked(chat):  # noqa: F811
+    """No founder for the club in the double: "who founded it?" goes unanswered, and the thing stays
+    FC Barcelona's item for the next message, not the city's namesake."""
+    a, eg, web, wiki = chat
+    st = DialogState("keep")
+    a.turn(st, "google when was real madrid founded")
+    a.turn(st, "And, Barcelona?")
+    assert st.uses["web_last"]["qid"] == "Q7156"
+    a.turn(st, "Who founded it?")
+    assert st.uses["web_last"]["qid"] == "Q7156", st.uses["web_last"]
+    asked_founders = [q.url for q in wiki.seen if "property=P112" in q.url]
+    assert asked_founders and all("entity=Q7156" in u for u in asked_founders), asked_founders
+
+
 def test_he_is_the_person_just_named(chat):  # noqa: F811
     a, eg, web, wiki = chat
     st = DialogState("he")

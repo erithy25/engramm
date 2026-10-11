@@ -14375,12 +14375,12 @@ class Assistant:
                 source = src(snippet.site, snippet.url, snippet.title)
             elif found.ok or pages:
                 # the engines answered, but no page says it (better than a sentence that answers something else)
-                self._remember_web(st, query, lang, explicit, asked, None, None, None, False)
+                self._remember_web(st, query, lang, explicit, asked, None, None, None, False, pin)
                 return Reply(msg, "unknown", T["unsaid"], via="web")
             else:
                 why = "; ".join(dict.fromkeys(f"{ENGINE_NAMES.get(e, e)}: {T['why'].get(w.split(' (')[0], w.split(' (')[0])}"
                                               for e, w in found.tried))
-                self._remember_web(st, query, lang, explicit, asked, None, None, None, False)
+                self._remember_web(st, query, lang, explicit, asked, None, None, None, False, pin)
                 return Reply(msg, "unknown", T["none"].format(why=why or T["no_engine"]), via="web")
         lines = [text]
         if offline is not None and offline.answer and (short is None or offline.answer.lower() != short.lower()):
@@ -14389,7 +14389,7 @@ class Assistant:
             st.uses["web_tip"] = st.turn
             lines.append(T["tip"].strip())
         st.last_fact = {"evidence": evidence, "source": source, "answer": short, "question": query, "sure": False}
-        self._remember_web(st, query, lang, explicit, asked, used, short, who, place)
+        self._remember_web(st, query, lang, explicit, asked, used, short, who, place, pin)
         if short is not None and who is not None:
             # "how old is he?" after "who is the president?": the answer is the one meant
             self.bot.context.update({"answer": short, "atype": who or None, "mention": short})
@@ -14398,11 +14398,15 @@ class Assistant:
         return Reply(msg, kind, "\n\n".join(lines), answer=short, evidence=evidence, source=source, via="web")
 
     def _remember_web(self, st: DialogState, query: str, lang: str, explicit: bool, asked, fact, short: str | None,
-                      who: str | None, place: bool) -> None:
+                      who: str | None, place: bool, pin: dict | None = None) -> None:
         """What the next message may refer to (engramm/web/followup.py): the question, the thing it was
         about (as typed, its name, its Wikidata item), the relation, the answer and its items, and
-        whether the answer is a person or a place and the thing a person."""
+        whether the answer is a person or a place and the thing a person. Without an answer from
+        Wikidata the item the conversation fixed for the thing stays ("who founded it?" after an
+        unanswered "and Barcelona?" is still about the club)."""
+        from engramm.web.wiki import _pinned
         rel = asked.rel.key if asked is not None and asked.rel is not None else ""
+        qid = fact.qid if fact is not None else ((_pinned(asked.subject, pin) or "") if asked is not None else "")
         summary = fact is not None and fact.kind == "summary"
         desc = fact.desc if fact is not None else ""
         person_thing = rel in _PERSON_SUBJECT_RELS or bool(_BORN_DESC.search(desc or "")) or \
@@ -14410,7 +14414,7 @@ class Assistant:
         st.uses["web_last"] = {
             "n": st.uses.get("n", 0), "lang": lang, "explicit": bool(explicit), "question": query,
             "subject": asked.subject if asked is not None else "", "typed": asked.typed if asked is not None else "",
-            "rel": rel, "label": fact.title if fact is not None else "", "qid": fact.qid if fact is not None else "",
+            "rel": rel, "label": fact.title if fact is not None else "", "qid": qid,
             "desc": desc or "",
             "answer": short or "", "values": list(fact.values) if fact is not None and not summary else [],
             "person": who == "PERSON", "place": bool(place), "subject_person": person_thing,
