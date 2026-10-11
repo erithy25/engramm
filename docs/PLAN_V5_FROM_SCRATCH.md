@@ -304,7 +304,7 @@ Rechenleistung pro Stunde (§9).
   weiteren Token verlängert (neue Abnahme-Phase ab dem letzten konstanten Stand).
 - **Zusätzlich berichtet:** die Mischung mit dem Zähler (λ je Bucket) und val-A.
 
-**Verlauf des Langlaufs (Stand 10. Oktober, 23:45 UTC).**
+**Verlauf des Langlaufs (Stand 11. Oktober, 01:30 UTC).**
 
 | Training | Token | val-A, bpb (Fenster 1.024) |
 |---|---|---|
@@ -312,6 +312,7 @@ Rechenleistung pro Stunde (§9).
 | 12 h | 60 Mio. | 1,640 |
 | 18 h | 81 Mio. | 1,590 |
 | 24 h | 93 Mio. | 1,562 |
+| 30 h | 105 Mio. | 1,550 |
 
 - **Unterbrechungen:** Zwei Container-Neustarts (9./10. Oktober) löschten die RAM-Disk. Der Lauf setzte jeweils von den
   Gewichten auf der Platte fort, bei 75,5 Mio. Token. Gesichert wird jetzt alle 20 min.
@@ -335,3 +336,7 @@ Rechenleistung pro Stunde (§9).
   Zusammen 280–310 h Training, dazu die Messpausen (~10 min je Kurvenpunkt) und die Endmessung. Ende auf diesem
   Rechner also etwa am 23. Oktober (± 1 Tag), sofern weder ein Neustart noch ein Hardware-Wechsel dazwischenkommt.
   Gemessen an der Rechenzeit ist der Lauf damit zu ≈ 9 % fertig, gemessen an den Token zu 17 %.
+- **Textproben:** je Kurvenpunkt fünf feste Prompts mit festem Seed (`results/v5/long/samples_<Token>M.json`). Bei
+  101–104 Mio. Token: englische Sätze mit plausibler Form und frei erfundenem Inhalt; die Wissensfrage wird nicht
+  beantwortet, Deutsch ergibt Buchstabensalat (Korpus englisch). Die App nutzt das Netz nicht; für Nutzer ändert der
+  Lauf erst mit einem Einbau (Phase R4) etwas.

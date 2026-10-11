@@ -1,0 +1,33 @@
+{
+ "ckpt_tokens": 104161280,
+ "train_hours": 29.71853662643168,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is spread to a typical period of time by the release of the Amiga on March 22, 1998. The magazine called it a landmark to describe the first time its status by the emergence of an exclusive photograph of Plato by the football player. An advert still stands for the magazine’s patronizing sales and performance. It appears in another popular exhibition"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in Miami, Alberta, on March 24, 2014. He grew up with a record of 11 years and was influenced by his friends with his parents when he began his film career at Hollywood Studios in Hollywood.\nIn that same month he married with more than 20 years of experience working at APPLENCUTMYO - the only man from"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " Why often leave it on the way to end Africa.\nWhat’s wrong with my faith of history and life; I think that we have been going through every year too, so far as they were about men who believe in me, that if you do not succeed in years, then maybe, will be this, very likely, so. How"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " second, Sunday and Sundays.\nThe potty sauce is made from a delicious and convenient tadan/promantic topping that comes in two pieces.\nClarity: German and Hungarian soup with black pepper or milk.\nA great flavor for the soup.\nTwo slices of the eggplant are so tasty and an excellent way to put"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " naceernise qui werl chion.\nI want to understand about his xastro suit, and many things are different, but some people consider him to be more in their own tongue than just a little of the ones. When he discovers that me, I love him. He made me’ll be less or worse"
+  }
+ ]
+}
