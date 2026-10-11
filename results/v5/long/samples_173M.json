@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 172826624,
+ "train_hours": 41.72713620788521,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is once daily and monthly.\nTo follow on, the city council meets all the names as to when it’s time for certain “garden”, “garden officials” and ‘narration’.\nPronnal decision: It may be a waste of time. The top decision on the city council is because we are all at fault"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in 1947, is the world’s largest on the planet.\nThe run-up of mass spectrometry and early localization is a form of rapid onset until the vacuum system becomes distorted. The birth time by the day begins as early onset period starts to arise. This is exactly why the drug movement is mainly controlled through our imagination which"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " How do you interpret our French language?\nAnswer: What a great country! At best with little sense, glory and charm. In the world that we have every interaction with ourselves. The power to meman chair; the rotten on earth who throws the odds in court, he wrote meernes my own nuit. Now when you"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you can at least refresh your cup of tea.\nWhen you find the right one that gets all that from a true surface, gently place it in front of you and there is a huge glass jar of fresh rose gold.\nIt’s best to try out small pieces of glass that comes with a large light. Of course, I need two"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " larenres wun nicht verle haut!\nBrum hit a week with your chance of winning blogging.\nQuite an opportunity for you to pay with the taxes, get some cool deals on products and products from a variety of new brands!\nI love that I could save money on retail products from cheap products like discounted products"
+  }
+ ]
+}

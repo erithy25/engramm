@@ -310,7 +310,7 @@ Rechenleistung pro Stunde (§9).
   gefilterten Test-Dokumenten (`models/lm/gpt2/eval_test.json`, Bytes je Dokument geprüft) für das Netz allein und
   die beste Mischung. Vorher fehlte beides im Code; gemessen hatte die Endmessung nur das Netz allein.
 
-**Verlauf des Langlaufs (Stand 11. Oktober, 14:10 UTC).**
+**Verlauf des Langlaufs (Stand 11. Oktober, 20:10 UTC).**
 
 | Training | Token | val-A, bpb (Fenster 1.024) |
 |---|---|---|
@@ -320,6 +320,7 @@ Rechenleistung pro Stunde (§9).
 | 24 h | 93 Mio. | 1,562 |
 | 30 h | 105 Mio. | 1,550 |
 | 36 h | 137 Mio. | 1,546 |
+| 42 h | 175 Mio. | **1,439** (Kontext 512 seit 150 Mio.) |
 
 - **Unterbrechungen:** Zwei Container-Neustarts (9./10. Oktober) löschten die RAM-Disk. Der Lauf setzte jeweils von den
   Gewichten auf der Platte fort, bei 75,5 Mio. Token. Gesichert wird jetzt alle 20 min.
