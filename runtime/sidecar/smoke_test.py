@@ -38,6 +38,11 @@ def main() -> int:
         assert lines[0].get("ok"), lines
         assert lines[1].get("error") == "private address not allowed: 192.168.1.1", lines
 
+    # Python's TLS in the bundle trusts the system's certificate authorities (DuckDuckGo's pages go
+    # through urllib; a frozen OpenSSL looks in its build machine's folders — engramm.web.egress.tls_context)
+    out = subprocess.run([str(exe), "--tls-check"], capture_output=True, timeout=60)
+    assert out.returncode == 0, (out.stdout.decode()[-500:], out.stderr.decode()[-2000:])
+    print(out.stdout.decode().strip())
     with tempfile.TemporaryDirectory() as tmp:
         t0 = time.time()
         p = subprocess.Popen([str(exe), "--desktop", "--port", "0", "--pack", str(Path(tmp) / "nopack"),

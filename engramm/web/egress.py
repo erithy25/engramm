@@ -23,6 +23,7 @@ import os
 import queue
 import re
 import shutil
+import ssl
 import subprocess
 import threading
 from concurrent.futures import ThreadPoolExecutor
@@ -207,12 +208,34 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
         return None
 
 
+# the system's certificate bundles: macOS, Debian/Ubuntu, Fedora/RHEL, openSUSE
+_CA_BUNDLES = ("/etc/ssl/cert.pem", "/etc/ssl/certs/ca-certificates.crt", "/etc/pki/tls/certs/ca-bundle.crt",
+               "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem", "/etc/ssl/ca-bundle.pem")
+
+
+def tls_context() -> ssl.SSLContext:
+    """Python's default TLS context, with the system's certificates where its own OpenSSL loads none:
+    the frozen app's OpenSSL looks in its build machine's folders (python.org's on macOS, Debian's on
+    Linux), which a user's Mac or Fedora does not have — every HTTPS fetch would fail verification."""
+    ctx = ssl.create_default_context()
+    if ctx.cert_store_stats().get("x509_ca", 0) == 0:      # Windows loads its store here; a hashed folder loads late
+        for path in _CA_BUNDLES:
+            if os.path.isfile(path):
+                try:
+                    ctx.load_verify_locations(cafile=path)
+                    break
+                except (ssl.SSLError, OSError):
+                    continue
+    return ctx
+
+
 class PythonBackend:
-    """urllib with the egress rules (development and tests)."""
+    """urllib with the egress rules: development and tests, the app without its network core, and
+    DuckDuckGo's result pages (PYTHON_HOSTS)."""
     name = "python"
 
     def __init__(self):
-        self.opener = urllib.request.build_opener(_NoRedirect())
+        self.opener = urllib.request.build_opener(_NoRedirect(), urllib.request.HTTPSHandler(context=tls_context()))
 
     def fetch(self, req: Request, settings: dict) -> Fetched:
         url = req.url

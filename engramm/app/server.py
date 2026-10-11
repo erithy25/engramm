@@ -470,7 +470,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--desktop", action="store_true",
                     help="desktop-app mode: print ENGRAMM_URL=…, allow /api/open, exit when stdin closes")
+    ap.add_argument("--tls-check", action="store_true",
+                    help="print how many certificate authorities Python's TLS trusts here and exit (smoke test)")
     args = ap.parse_args(argv)
+    if args.tls_check:
+        import ssl
+
+        from engramm.web.egress import tls_context
+        n = tls_context().cert_store_stats().get("x509_ca", 0)
+        print(json.dumps({"x509_ca": n, "openssl": ssl.OPENSSL_VERSION}), flush=True)
+        return 0 if n > 0 else 1
     service = ChatService(args.model, args.index, pack=args.pack, memory_path=args.memory)
     server = serve(service, host=args.host, port=args.port, desktop=args.desktop)
     threading.Thread(target=service.load, daemon=True).start()

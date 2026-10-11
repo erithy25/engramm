@@ -297,3 +297,17 @@ def test_duckduckgo_result_pages_go_through_urllib(monkeypatch):
     e.fetch(Request("search", urls[0], "t", ("duckduckgo.com",), explicit=True))
     assert calls == [("rust", "html.duckduckgo.com")]
 
+
+def test_python_tls_finds_the_systems_certificates(monkeypatch):
+    """A frozen OpenSSL that loads no certificate authorities (python.org's on a Mac, Debian's on
+    Fedora) gets the system's bundle: without it every fetch over urllib fails verification."""
+    import ssl
+
+    from engramm.web import egress as eg
+    if not any(os.path.isfile(p) for p in eg._CA_BUNDLES):
+        pytest.skip("no system certificate bundle on this machine")
+    monkeypatch.setattr(eg.ssl, "create_default_context", lambda: ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT))
+    ctx = eg.tls_context()
+    assert ctx.cert_store_stats()["x509_ca"] > 0
+    assert ctx.verify_mode == ssl.CERT_REQUIRED and ctx.check_hostname
+
