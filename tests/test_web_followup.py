@@ -103,6 +103,15 @@ def test_und_oesterreich_after_the_german_chancellor(chat):  # noqa: F811
     assert r.via == "web" and "Christian Stocker" in r.text and "Merz" not in r.text, r.text
 
 
+def test_he_is_never_a_country(chat):  # noqa: F811
+    """CI: "Wie alt ist er?" after an answer that named no person became "Wie alt ist Österreich?"."""
+    kz = {**KZ, "question": "Wer ist der aktuelle Bundeskanzler von Österreich?", "subject": "Österreich",
+          "typed": "Österreich", "label": "Österreich", "qid": "Q40", "answer": "", "values": [], "person": False}
+    assert rewrite("Wie alt ist er?", kz, "de") is None
+    assert rewrite("Wie alt ist er?", {**kz, "answer": "Christian Stocker", "values": ["Q99000001"], "person": True},
+                   "de").question == "Wie alt ist Christian Stocker?"
+
+
 def test_a_follow_up_is_a_follow_up_for_three_messages(chat):  # noqa: F811
     a, eg, web, wiki = chat
     st = DialogState("late")

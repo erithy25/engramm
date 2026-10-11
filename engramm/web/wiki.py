@@ -577,18 +577,38 @@ class WikiKnowledge:
         """The item named ``name`` that is the same kind of thing as the item ``like`` ("Barcelona"
         after Real Madrid: the football club, not the city; "Bayern" after a club: FC Bayern, not
         Bavaria): Wikidata's search for the name among the items of like's classes (P31, "instance
-        of"). None when it finds none — then the plain search decides."""
+        of"), and of those the one named so (its name, else an alias, else a name that contains it)
+        that most Wikipedias have an article on — FC Barcelona, not its reserve team FC Barcelona
+        Atlètic, which the search ranked first in CI. None when it finds none: the plain search decides."""
         d = self._wikidata(explicit, action="wbgetclaims", entity=like, property="P31")
         classes = [st["mainsnak"]["datavalue"]["value"]["id"] for st in ((d or {}).get("claims") or {}).get("P31") or []
                    if st.get("rank") != "deprecated" and "datavalue" in st.get("mainsnak", {})][:3]
+        cands: list[str] = []
         for cls in classes:
             r = self._wikidata(explicit, action="query", list="search", srsearch=f"{name[:80]} haswbstatement:P31={cls}",
-                               srlimit=5, srnamespace=0, srprop="")
-            for hit in ((r or {}).get("query") or {}).get("search") or []:
-                qid = str(hit.get("title") or "")
-                if re.fullmatch(r"Q\d+", qid) and qid != like:
-                    return qid
-        return None
+                               srlimit=8, srnamespace=0, srprop="")
+            cands = [q for q in dict.fromkeys(str(h.get("title") or "")
+                                              for h in ((r or {}).get("query") or {}).get("search") or [])
+                     if re.fullmatch(r"Q\d+", q) and q != like]
+            if cands:
+                break
+        if not cands:
+            return None
+        e = self._wikidata(explicit, action="wbgetentities", ids="|".join(cands[:8]), props="labels|aliases|sitelinks",
+                           languages="|".join(dict.fromkeys((lang, "mul", "en"))))
+        ents = (e or {}).get("entities") or {}
+        want = " ".join(name.lower().split())
+
+        def score(qid: str) -> tuple:
+            ent = ents.get(qid) or {}
+            labels = [" ".join(str(v.get("value") or "").lower().split()) for v in (ent.get("labels") or {}).values()]
+            aliases = [" ".join(str(a.get("value") or "").lower().split())
+                       for vs in (ent.get("aliases") or {}).values() for a in vs]
+            match = 3 if want in labels else 2 if want in aliases else \
+                1 if any(re.search(rf"\b{re.escape(want)}\b", t) for t in labels + aliases) else 0
+            return match, len(ent.get("sitelinks") or {}), -cands.index(qid)
+        best = max(cands[:8], key=score)
+        return best if score(best)[0] > 0 else None
 
     def labels(self, ids: list[str], lang: str, explicit: bool) -> dict[str, dict]:
         """{id: {"label", "description", "url"}} — names in the conversation's language (else the one

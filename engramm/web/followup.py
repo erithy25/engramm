@@ -47,6 +47,8 @@ _PERSONAL = re.compile(r"\b(?:i|i'm|me|my|mine|you|your|yours|we|our|us|ich|mich
 # relations whose answer is a person ("Who is …") — the rest ask "What is …"
 _PERSON_RELS = frozenset("ceo head_gov head_state coach founder author director composer painter architect inventor "
                          "spouse children winner".split())
+# relations only a person has: "Wie alt ist er?" never asks how old Austria is
+_PERSON_ONLY = frozenset("age birth death birthplace deathplace spouse children party nationality".split())
 # a stop after a possessive's noun ("When was its stadium built?")
 _VERBS = frozenset("""is was are were be been being built founded opened born made released located called named
 die died do does did has have had ist war sind waren wurde wurden hat haben""".split())
@@ -211,7 +213,9 @@ def _pronoun(msg: str, last: dict, lang: str) -> Followup | None:
         break                                      # the first pronoun decides
     if not tries or tries[0][1] is None or not tries[0][1][0]:
         return None
-    how, (name, item) = tries[0]
+    how, ref = tries[0]
+    name, item = ref
+    is_person = person is not None and ref is person
     de = lang == "de"
     if how == "poss-en":
         m = re.search(r"\b(its|his|her|their)\s+((?:(?!\b(?:" + "|".join(_VERBS) + r")\b)[\w'’-]+\s*){1,3})", msg, re.I)
@@ -237,6 +241,8 @@ def _pronoun(msg: str, last: dict, lang: str) -> Followup | None:
     asked = parse(q, lang)
     if asked is None or not _same(asked.subject, name):
         return None
+    if asked.rel is not None and asked.rel.key in _PERSON_ONLY and not is_person:
+        return None                                # "how old is it?" about a country: no question about a person
     return Followup(q, "pronoun", lang, pin=_pin(name, item))
 
 

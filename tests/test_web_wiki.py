@@ -98,6 +98,7 @@ CLAIMS = {
     ("Q11035", "P61"): [_st("P61", _item("Q71100")), _st("P61", _item("Q71101")), _st("P61", _item("Q71102"))],
     ("Q8682", "P31"): [_st("P31", _item("Q476028"))],                    # an association football club
     ("Q7156", "P571"): [_st("P571", _time("+1899-11-29T00:00:00Z"))],
+    ("Q2000001", "P571"): [_st("P571", _time("+1970-00-00T00:00:00Z", 9))],
     ("Q183", "P31"): [_st("P31", _item("Q6256"))],                       # a country
     ("Q40", "P6"): [_st("P6", _item("Q99000001"), P580=_time("+2025-03-03T00:00:00Z"))],
 }
@@ -116,6 +117,7 @@ LABELS = {
                "Argentina_national_football_team", "Argentinische_Fußballnationalmannschaft"),
     "Q283": ("water", "Wasser", "Water", "Wasser"),
     "Q7156": ("FC Barcelona", "FC Barcelona", "FC_Barcelona", "FC_Barcelona"),
+    "Q2000001": ("FC Barcelona Atlètic", "FC Barcelona Atlètic", "FC_Barcelona_Atlètic", "FC_Barcelona_Atlètic"),
     "Q1492": ("Barcelona", "Barcelona", "Barcelona", "Barcelona"),
     "Q40": ("Austria", "Österreich", "Austria", "Österreich"),
     "Q99000001": ("Christian Stocker", "Christian Stocker", "Christian_Stocker", "Christian_Stocker"),
@@ -134,7 +136,9 @@ LABELS = {
     "Q81230": ("Siemens", "Siemens", "Siemens", "Siemens"),
 }
 # Wikidata's full-text search within a class ("Barcelona haswbstatement:P31=Q476028": the club, not the city)
-KIND = {("barcelona", "Q476028"): ["Q7156"], ("österreich", "Q6256"): ["Q40"]}
+KIND = {("barcelona", "Q476028"): ["Q2000001", "Q7156"], ("österreich", "Q6256"): ["Q40"]}
+# how many Wikipedias have an article on the item: the reserve team ranks first in the search, not in fame
+SITELINKS = {"Q7156": 180, "Q2000001": 30, "Q40": 250}
 SUMMARIES = {
     "DNA": "Deoxyribonucleic acid (DNA) is a polymer composed of two polynucleotide chains that coil around each other "
            "to form a double helix. The polymer carries genetic instructions for the development of all known organisms.",
@@ -197,6 +201,9 @@ class FakeWikimedia:
                                  "descriptions": {},
                                  "sitelinks": {"enwiki": {"site": "enwiki", "title": en_t.replace("_", " ")},
                                                "dewiki": {"site": "dewiki", "title": de_t.replace("_", " ")}}}
+                    if "sitefilter" not in q:      # all of them: as many as Wikipedias have the article
+                        ents[qid]["sitelinks"].update({f"x{i}wiki": {"site": f"x{i}wiki", "title": en}
+                                                       for i in range(SITELINKS.get(qid, 0))})
                 return ok({"entities": ents, "success": 1})
         if host.endswith("wikipedia.org"):
             if u.path.startswith("/api/rest_v1/page/summary/"):
