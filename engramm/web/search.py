@@ -413,9 +413,11 @@ class WebSearch:
             return ["duckduckgo", "duckduckgo-lite"]
         return [choice]
 
-    def search(self, query: str, lang: str = "en", explicit: bool = False, k: int = 8) -> Found:
+    def search(self, query: str, lang: str = "en", explicit: bool = False, k: int = 8,
+               stop=None) -> Found:
         """Ask the engines in turn until one returns results. Raises EgressError when the channel
-        is off and the search was not asked for (the caller decides; nothing was sent)."""
+        is off and the search was not asked for (the caller decides; nothing was sent). ``stop``:
+        asked before each engine; true ends the search (the answer came from elsewhere)."""
         t0 = time.time()
         query = search_query(query)
         found = Found(query)
@@ -423,6 +425,8 @@ class WebSearch:
             return found
         chain = self.engines()
         for engine in chain + (["wikipedia"] if self.settings().get("engine", "auto") == "auto" else []):
+            if stop is not None and found.tried and stop():
+                break
             for form in query_forms(query, engine, lang)[:1 if engine in ("brave", "wikipedia") else 2]:
                 results, why = self._ask(engine, form, lang, explicit)
                 if results and not relevant(query, results, lang, strict=engine == "bing"):

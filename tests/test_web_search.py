@@ -408,7 +408,7 @@ def test_the_fact_box_answers_when_the_engines_fail(corpus, tmp_path, monkeypatc
     a = Assistant(_bot(corpus, LoggedTextMemory(tmp_path / "m.log")), clock=CLOCK)
     a.atlas = Atlas(eg, None, tmp_path / "state")
     r = a.turn(DialogState("f"), "google who was the architect of the Zorblax Tower")
-    assert r.via == "web" and "Mirela Tosk" in r.text and "en.wikipedia.org" in r.text, r.text
+    assert r.via == "web" and r.text.startswith("Mirela Tosk was the architect of the Zorblax Tower."), r.text
     assert r.links == [] and r.source["key"] == "https://en.wikipedia.org/wiki/Zorblax_Tower"
     api = [q for q in web.seen if q.what == "facts:duckduckgo"]
     assert len(api) == 1 and urllib.parse.parse_qs(urllib.parse.urlsplit(api[0].url).query)["q"] == ["Zorblax Tower"]

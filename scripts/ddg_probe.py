@@ -3,9 +3,9 @@ urllib, from the same address? Informational in CI.
 
     python scripts/ddg_probe.py [ENGRAMM_CORE]
 
-Posts the same search form to DuckDuckGo's HTML and lite pages, alternating between the two
-clients (python, rust, python, rust, …) so that a rate limit hits both alike, and prints status
-and number of results per try. A client that DuckDuckGo singles out (its TLS handshake, its
+Posts the same search form to DuckDuckGo's HTML and lite pages with both clients, the one that
+asks first alternating row by row (python first, then rust first, …) so that a rate limit hits both
+alike, and prints status and number of results per try. A client that DuckDuckGo singles out (its TLS handshake, its
 headers) shows up as 202 for one and 200 for the other.
 """
 
@@ -40,10 +40,15 @@ def main() -> int:
     clients = {"python": Egress(backend=PythonBackend())}
     if core:
         clients["rust"] = Egress(backend=RustBackend(core), core=core)
+    n = 0
     for query in QUERIES:
         for lite in (False, True):
+            # who asks first alternates: a rate limit that lets every other request through must not
+            # look like DuckDuckGo telling the clients apart
+            order = list(clients.items()) if n % 2 == 0 else list(clients.items())[::-1]
+            n += 1
             row = []
-            for name, e in clients.items():
+            for name, e in order:
                 row.append(f"{name}: {probe(e, lite, query)}")
                 time.sleep(1.0)
             print(f"{'lite' if lite else 'html'} {query!r:24} " + " | ".join(row))

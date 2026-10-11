@@ -373,3 +373,29 @@ def test_what_is_x_gets_wikipedias_first_sentences(chat):
     r = a.turn(DialogState("w"), "google who is elon musk")
     assert r.via == "web" and r.text.startswith("Elon Reeve Musk (born June 28, 1971) is a businessman"), r.text
     assert r.source["key"] == "https://en.wikipedia.org/wiki/Elon_Musk" and r.links == []
+
+
+def test_a_fact_does_not_wait_for_slow_search_engines(chat):
+    """Wikidata answered: the reply comes then, not when blocked or slow engines and pages are done."""
+    import time
+    a, eg, web, wiki = chat
+    slow_fetch = web.fetch
+
+    def slow(req, settings):
+        time.sleep(3.0)
+        return slow_fetch(req, settings)
+    web.fetch = slow
+    t0 = time.time()
+    r = a.turn(DialogState("fast"), "google when was real madrid founded")
+    took = time.time() - t0
+    assert r.text.startswith("Real Madrid was founded on 6 March 1902.") and took < 2.5, (took, r.text)
+
+
+def test_a_relation_question_without_a_statement_still_gets_the_vote(chat):
+    """"Who is the CEO of Zorblax?" looks like "who is X" but asks a relation: without a Wikidata
+    statement the answer the pages agree on comes, not a definition."""
+    from engramm.web.wiki import parse
+    assert parse("Who is the CEO of Zorblax?", "en").rel.key == "ceo"
+    a, eg, web, wiki = chat
+    r = a.turn(DialogState("v"), "google how tall is the Zorblax Tower")
+    assert r.kind == "answer" and r.answer == "318 metres", r.text

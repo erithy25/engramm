@@ -24,6 +24,7 @@ import datetime as dt
 import hashlib
 import re
 from collections import Counter
+import threading
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -14242,11 +14243,11 @@ class Assistant:
         fact box are asked while the search engine is: they answer when the engines block.
         ``self.progress`` hears what happens ("search", "read", "write") for the page's status line.
         None when an automatic search may not run (the channel is off: nothing was sent)."""
-        from concurrent.futures import ThreadPoolExecutor
+        from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 
         from engramm.web.egress import EgressError
-        from engramm.web.search import ENGINE_NAMES, WebSearch, answers, short_answer, subject_phrase
-        from engramm.web.wiki import defined
+        from engramm.web.search import ENGINE_NAMES, Found, WebSearch, answers, short_answer, subject_phrase
+        from engramm.web.wiki import parse as parse_question
         T = _WEB_TEXT[lang]
         ws = getattr(self.atlas, "search", None) if self.atlas is not None else None
         if ws is None:
@@ -14254,26 +14255,48 @@ class Assistant:
         wk = getattr(self.atlas, "wiki", None)
         subject = subject_phrase(query, lang)
         self._progress(st, "search", query=query)
+        done = threading.Event()                     # the answer is there: the search engines may stop
+
+        def web() -> tuple:
+            found = ws.search(query, lang, explicit=explicit, stop=done.is_set)
+            if not found.ok or done.is_set():
+                return found, []
+            self._progress(st, "read", sites=list(dict.fromkeys(r.site for r in found.results))[:3])
+            return found, ws.read(found.results, n=3, explicit=explicit, question=query)
+        pool = ThreadPoolExecutor(max_workers=4)
         try:
-            with ThreadPoolExecutor(max_workers=3) as pool:
-                fact_job = pool.submit(wk.answer, query, lang, explicit) if wk is not None else None
-                article_job = pool.submit(wk.article, query, lang, explicit) if wk is not None else None
-                box_job = pool.submit(ws.instant, subject, lang, explicit) if subject else None
-                found = ws.search(query, lang, explicit=explicit)
-                if found.ok:
-                    self._progress(st, "read", sites=list(dict.fromkeys(r.site for r in found.results))[:3])
-                pages = ws.read(found.results, n=3, explicit=explicit, question=query) if found.ok else []
-                fact, article, box = _result(fact_job), _result(article_job) or [], _result(box_job)
+            fact_job = pool.submit(wk.answer, query, lang, explicit) if wk is not None else None
+            article_job = pool.submit(wk.article, query, lang, explicit) if wk is not None else None
+            box_job = pool.submit(ws.instant, subject, lang, explicit) if subject else None
+            web_job = pool.submit(web)
+            fact = None
+            if fact_job is not None:
+                # a Wikidata statement is the answer as soon as it is there (blocked or slow engines and
+                # pages need not be waited for); when the engines finish first, Wikidata gets a moment more
+                first, _ = wait([fact_job, web_job], return_when=FIRST_COMPLETED)
+                if fact_job in first or wait([fact_job], timeout=2.5)[0]:
+                    fact = _result(fact_job)
+            if fact is not None and fact.kind != "summary":
+                found, pages, article, box = Found(query), [], [], None
+            else:
+                found, pages = web_job.result()
+                article = _within(article_job, 2.5) or []
+                box = _within(box_job, 2.0)
         except EgressError:
             return None
         except Exception as e:                       # the network must never break the chat
             return Reply(msg, "unknown", T["failed"].format(err=f"{type(e).__name__}: {e}"[:160]), via="web")
+        finally:
+            done.set()
+            pool.shutdown(wait=False, cancel_futures=True)
         self._progress(st, "write")
         pages = ([box] if box else []) + list(article) + pages
         today = dt.date.today().isoformat()
         rows = WebSearch.best(query, found.results, pages, n=60, lang=lang, per_source=12)
         rows = [b for b in rows if _web_covers(query, b[1], b[2]) and answers(query, b[1])]
-        define = defined(query) is not None
+        # "what/who is X" asks what X is — unless it names a relation ("who is the CEO of Siemens")
+        asked = parse_question(query, lang)
+        define = asked is not None and asked.rel is None
 
         def src(host: str, url: str, title: str) -> dict:
             return {"kind": "web", "source": host, "key": url, "title": title, "as_of": today}
@@ -15561,6 +15584,14 @@ def _result(job):
         return job.result()
     except Exception:
         return None
+
+
+def _within(job, seconds: float):
+    """A background job's result if it is there within the time, else None (it runs on unheard)."""
+    if job is None:
+        return None
+    from concurrent.futures import wait
+    return _result(job) if wait([job], timeout=seconds)[0] else None
 
 
 def _passage(rows: list) -> tuple[str, dict]:
