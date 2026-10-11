@@ -303,6 +303,12 @@ Rechenleistung pro Stunde (§9).
 - **Stufe 1 erreicht:** bpb ≤ 1,04. Andernfalls wird der gemessene Wert mit dem Abstand berichtet und der Lauf mit
   weiteren Token verlängert (neue Abnahme-Phase ab dem letzten konstanten Stand).
 - **Zusätzlich berichtet:** die Mischung mit dem Zähler (λ je Bucket) und val-A.
+- **Nachtrag 11. Oktober, vor dem Ergebnis (Regel unverändert):** Die Endmessung (`v5_long.py eval`) rechnet die
+  Mischung mit zwei Zählern: dem vollen Zählmodell (exakter Teil von ENGRAMM-LM, alle 285 Mio. Train-Token,
+  `models/lm/main/eval`) und dem Pilot-Zähler aus Lauf 2–4 (30 Mio.). Zählergewichte und λ (global und je Bucket)
+  werden nur auf gefiltertem val-A angepasst. Dazu ein gepaarter Dokument-Bootstrap gegen GPT-2 small auf denselben
+  gefilterten Test-Dokumenten (`models/lm/gpt2/eval_test.json`, Bytes je Dokument geprüft) für das Netz allein und
+  die beste Mischung. Vorher fehlte beides im Code; gemessen hatte die Endmessung nur das Netz allein.
 
 **Verlauf des Langlaufs (Stand 11. Oktober, 10:15 UTC).**
 

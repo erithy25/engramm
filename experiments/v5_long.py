@@ -202,7 +202,9 @@ def lr_at(frac: float, steps_since_start: int, peak: float, warmup: int, decay_f
 # ---------------------------------------------------------------------------
 
 @torch.no_grad()
-def eval_bpb(model, split: str, window: int, stride: int, max_docs: int = 0) -> dict:
+def eval_bpb(model, split: str, window: int, stride: int, max_docs: int = 0, want_lp: bool = False) -> dict:
+    """bpb of the network alone; with ``want_lp`` also ``lp``: natural log p of every target token
+    at its global position (index i ≥ 1, as in the counters' per-token files, row i − 1)."""
     tokens = np.fromfile(TOK / f"{split}.u16", dtype=np.uint16)
     starts = np.load(TOK / f"{split}.starts.npy")
     nbytes = np.load(TOK / f"{split}.bytes.npy").astype(np.float64) + 1.0
@@ -211,8 +213,10 @@ def eval_bpb(model, split: str, window: int, stride: int, max_docs: int = 0) -> 
         starts, nbytes, keep = starts[:max_docs], nbytes[:max_docs], keep[:max_docs]
     ends = np.append(np.load(TOK / f"{split}.starts.npy")[1:] - 1, len(tokens) - 1)[:len(starts)]
     bits = np.zeros(len(starts))
+    lp_out = np.zeros(len(tokens), dtype=np.float64) if want_lp else None
     model.eval()
     for d in range(len(starts)):
+        base = int(starts[d]) - 1
         seq = torch.from_numpy(tokens[starts[d] - 1:ends[d] + 1].astype(np.int64))
         n = len(seq)
         done, a = 0, 0
@@ -224,12 +228,82 @@ def eval_bpb(model, split: str, window: int, stride: int, max_docs: int = 0) -> 
             sel = lp[torch.arange(L), tgt]
             first_new = done - a
             bits[d] -= float(sel[first_new:].sum()) / math.log(2)
+            if lp_out is not None:
+                lp_out[base + a + 1 + first_new:base + a + 1 + L] = sel[first_new:].double().numpy()
             done = a + L
             a += stride
     model.train()
-    return {"split": split, "window": window, "stride": stride, "docs": int(len(starts)),
-            "bpb": float(bits[keep].sum() / nbytes[keep].sum()), "bpb_unfiltered": float(bits.sum() / nbytes.sum()),
-            "per_doc_bits": bits.tolist()}
+    res = {"split": split, "window": window, "stride": stride, "docs": int(len(starts)),
+           "bpb": float(bits[keep].sum() / nbytes[keep].sum()), "bpb_unfiltered": float(bits.sum() / nbytes.sum()),
+           "per_doc_bits": bits.tolist()}
+    if lp_out is not None:
+        res["lp"] = lp_out[:int(ends[len(starts) - 1]) + 1]
+    return res
+
+
+# ---------------------------------------------------------------------------
+# final evaluation extras (PLAN §10): mixtures with the counting models, comparison with GPT-2
+# ---------------------------------------------------------------------------
+
+COUNTERS = {"main": REPO / "models" / "lm" / "main" / "eval",     # ENGRAMM-LM exact part, all 285 M train tokens
+            "pilot": REPO / "models" / "lm" / "pilot" / "eval"}   # the 30 M-token counter of runs 2-4
+GPT2_TEST = REPO / "models" / "lm" / "gpt2" / "eval_test.json"
+STAGE1_BPB = 1.04
+
+
+def _split_meta(split: str, n_tok: int, n_docs: int):
+    starts = np.load(TOK / f"{split}.starts.npy")[:n_docs]
+    nbytes = np.load(TOK / f"{split}.bytes.npy").astype(np.float64)[:n_docs] + 1.0
+    keep = R.keep_docs(split, len(np.load(TOK / f"{split}.starts.npy")))[:n_docs]
+    return R.target_docs(starts, n_tok), nbytes, keep
+
+
+def counter_mixtures(lp: dict, docs_n: dict, where: Path) -> tuple[dict, dict]:
+    """Network and one counting model mixed after training, p = λ·p_count + (1 − λ)·p_net, with λ
+    global and per history bucket (as the post-hoc baseline of runs 2-4). Counter weights
+    (kn, inf, cache) and λ are fitted on near-duplicate-filtered val-A only; test is untouched."""
+    per = {}
+    for split in ("val_a", "test"):
+        n_tok = len(lp[split])
+        cols, feats = R.prior_columns(*(np.load(where / f"{split}_{c}.npz") for c in ("kn", "inf", "cache")))
+        docs, nbytes, keep = _split_meta(split, n_tok, docs_n[split])
+        per[split] = {"cols": cols[:n_tok - 1], "ids": R.bucket_ids(feats[:n_tok - 1]),
+                      "p_net": np.exp(lp[split][1:]), "docs": docs, "nbytes": nbytes, "keep": keep}
+    v = per["val_a"]
+    kept = v["keep"][v["docs"]]
+    w = R.fit_weights(v["cols"][kept])
+    for e in per.values():
+        e["pp"] = R.prior_prob(e["cols"], w).astype(np.float64)
+    lam = R.fit_lambda(v["pp"][kept], v["p_net"][kept])
+    lam_b = R.fit_bucket_lambda(v["pp"][kept], v["p_net"][kept], v["ids"][kept], lam)
+    out, perdoc = {"counter_weights_kn_inf_cache": w.tolist(), "lambda": lam}, {}
+    for split, e in per.items():
+        lb = lam_b[e["ids"]]
+        o = {}
+        for name, p in (("counter_alone", e["pp"]), ("mix", lam * e["pp"] + (1 - lam) * e["p_net"]),
+                        ("bucket_mix", lb * e["pp"] + (1 - lb) * e["p_net"])):
+            b = np.bincount(e["docs"], weights=-np.log2(np.maximum(p, R.EPS)), minlength=len(e["nbytes"]))
+            perdoc[f"{split}_{name}"] = b
+            o[f"bpb_{name}"] = float(b[e["keep"]].sum() / e["nbytes"][e["keep"]].sum())
+            o[f"bpb_{name}_unfiltered"] = float(b.sum() / e["nbytes"].sum())
+        out[split] = o
+    return out, perdoc
+
+
+def versus_gpt2(bits: np.ndarray, label: str) -> dict:
+    """Paired document bootstrap against GPT-2 small on the same filtered test documents (the
+    reference was scored the same way: window 1024, stride 512; bytes per document must match)."""
+    from engramm.lm.evaluate import bpb as bpb_ci, bpb_ratio
+    g = json.loads(GPT2_TEST.read_text())
+    n = len(bits)
+    nbytes = np.load(TOK / "test.bytes.npy").astype(np.float64)[:n] + 1.0
+    if not np.array_equal(np.asarray(g["doc_bytes"], dtype=np.float64)[:n], nbytes):
+        raise SystemExit("GPT-2 reference documents do not match the test split")
+    keep = R.keep_docs("test", len(np.load(TOK / "test.starts.npy")))[:n]
+    gb = np.asarray(g["per_doc_bits"], dtype=np.float64)[:n]
+    ours, ref, ratio = bpb_ci(bits, nbytes, keep), bpb_ci(gb, nbytes, keep), bpb_ratio(bits, gb, keep)
+    return {"variant": label, "bpb": ours.as_dict(), "gpt2_bpb": ref.as_dict(),
+            "ratio_to_gpt2": ratio["ratio"], "ratio_ci95": ratio["ci95"]}
 
 
 # ---------------------------------------------------------------------------
@@ -416,11 +490,40 @@ def evaluate(args) -> None:
     model = LongGPT(a["d"], a["layers"], a["heads"], a["ctx_max"], a["bigram_rows"])
     model.load_state_dict({k: v.float() for k, v in st["model"].items()})
     OUT.mkdir(parents=True, exist_ok=True)
-    res = {"tokens": st["meta"]["tokens"], "train_hours": st["meta"]["train_seconds"] / 3600, "body_params": body_params(model)}
-    for split in args.splits.split(","):
-        r = eval_bpb(model, split, args.window, args.stride, args.max_docs)
-        np.save(OUT / f"perdoc_{split}_{args.window}.npy", np.array(r.pop("per_doc_bits")))
+    res = {"tokens": st["meta"]["tokens"], "train_hours": st["meta"]["train_seconds"] / 3600, "body_params": body_params(model),
+           "window": args.window, "stride": args.stride, "max_docs": args.max_docs, "torch": torch.__version__}
+    splits = args.splits.split(",")
+    mix = bool(args.mix) and {"val_a", "test"} <= set(splits)
+    lp, docs_n, perdoc = {}, {}, {}
+    for split in splits:
+        t0 = time.time()
+        r = eval_bpb(model, split, args.window, args.stride, args.max_docs, want_lp=mix)
+        bits = np.array(r.pop("per_doc_bits"))
+        if mix:
+            lp[split], docs_n[split] = r.pop("lp"), r["docs"]
+            docs, _, _ = _split_meta(split, len(lp[split]), r["docs"])
+            check = np.bincount(docs, weights=-lp[split][1:] / math.log(2), minlength=len(bits))
+            if not np.allclose(check, bits, rtol=1e-4, atol=1e-2):    # per-token and per-document paths agree
+                raise SystemExit(f"{split}: per-token log-probabilities do not add up to the document bits")
+        perdoc[f"{split}_net_alone"] = bits
+        np.save(OUT / f"perdoc_{split}_{args.window}.npy", bits)
+        r["eval_seconds"] = time.time() - t0
         res[split] = r
+    if mix:
+        res["mixtures"] = {}
+        for name, where in COUNTERS.items():
+            res["mixtures"][name], pd = counter_mixtures(lp, docs_n, where)
+            perdoc.update({f"{name}_{k}": v for k, v in pd.items()})
+    if "test" in splits and GPT2_TEST.exists():
+        res["vs_gpt2"] = [versus_gpt2(perdoc["test_net_alone"], "net_alone")]
+        if mix:
+            best = min(COUNTERS, key=lambda c: res["mixtures"][c]["test"]["bpb_bucket_mix"])
+            res["vs_gpt2"].append(versus_gpt2(perdoc[f"{best}_test_bucket_mix"], f"{best}_bucket_mix"))
+        res["stage1"] = {"rule": f"test, filtered, network alone, window {args.window} / stride {args.stride}: "
+                                 f"bpb <= {STAGE1_BPB} (PLAN §10)",
+                         "bpb": res["test"]["bpb"], "reached": bool(res["test"]["bpb"] <= STAGE1_BPB),
+                         "gap": res["test"]["bpb"] - STAGE1_BPB}
+    np.savez_compressed(OUT / f"perdoc_{args.tag}.npz", **perdoc)
     (OUT / f"eval_{args.tag}.json").write_text(json.dumps(res, indent=1) + "\n")
     print(json.dumps(res, indent=1), flush=True)
 
@@ -457,6 +560,7 @@ def main() -> None:
     e.add_argument("--max-docs", type=int, default=0)
     e.add_argument("--threads", type=int, default=4)
     e.add_argument("--tag", default="final")
+    e.add_argument("--mix", type=int, default=1, help="also the mixtures with the counting models (needs val_a and test)")
     bn = sub.add_parser("bench")
     bn.add_argument("--d", type=int, required=True)
     bn.add_argument("--layers", type=int, default=12)
