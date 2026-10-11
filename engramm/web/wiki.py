@@ -509,6 +509,16 @@ def _join(names: list[str], lang: str) -> str:
     return ", ".join(names[:-1]) + (" und " if lang == "de" else " and ") + names[-1]
 
 
+_DESC_STOP = frozenset("""a an the of in on at for and or to from by with based located former born died
+der die das des den dem ein eine einer eines in im am an auf aus bei mit von vom zu zur zum und oder
+""".split())
+
+
+def _desc_words(desc: str) -> set[str]:
+    """The words of a Wikidata description that say what kind of thing it is (years and fillers aside)."""
+    return {w for w in re.findall(r"[^\W\d_]{2,}", desc.lower()) if w not in _DESC_STOP}
+
+
 def _pinned(name: str, pin: dict[str, str] | None) -> str | None:
     """The Wikidata item the conversation fixed for this name, if any."""
     if not pin or not name:
@@ -573,42 +583,53 @@ class WikiKnowledge:
                 break
         return hits
 
-    def same_kind(self, name: str, like: str, lang: str, explicit: bool) -> str | None:
+    def same_kind(self, name: str, like: str, lang: str, explicit: bool, like_desc: str = "") -> str | None:
         """The item named ``name`` that is the same kind of thing as the item ``like`` ("Barcelona"
         after Real Madrid: the football club, not the city; "Bayern" after a club: FC Bayern, not
-        Bavaria): Wikidata's search for the name among the items of like's classes (P31, "instance
-        of"), and of those the one named so (its name, else an alias, else a name that contains it)
-        that most Wikipedias have an article on — FC Barcelona, not its reserve team FC Barcelona
-        Atlètic, which the search ranked first in CI. None when it finds none: the plain search decides."""
-        d = self._wikidata(explicit, action="wbgetclaims", entity=like, property="P31")
-        classes = [st["mainsnak"]["datavalue"]["value"]["id"] for st in ((d or {}).get("claims") or {}).get("P31") or []
-                   if st.get("rank") != "deprecated" and "datavalue" in st.get("mainsnak", {})][:3]
+        Bavaria). Candidates: the name's own search (names, aliases) and Wikidata's full-text search
+        (which finds "FC Barcelona" for "Barcelona" when that is no alias). The same kind: a
+        description that shares at least half the words of like's description ("association football
+        club in Madrid, Spain" — not "capital city of Catalonia, Spain"); of those, the one most
+        Wikipedias have an article on (FC Barcelona, not its reserve team, nor the club of Tarrafal).
+        Classes (P31) did not do: Wikidata types Real Madrid and FC Barcelona differently (CI, 2026).
+        None when nothing qualifies — then the plain search decides."""
+        if not like_desc:
+            like_desc = (self.labels([like], lang, explicit).get(like) or {}).get("description", "")
+        kind = _desc_words(like_desc)
+        if not kind:
+            return None
         cands: list[str] = []
-        for cls in classes:
-            r = self._wikidata(explicit, action="query", list="search", srsearch=f"{name[:80]} haswbstatement:P31={cls}",
-                               srlimit=8, srnamespace=0, srprop="")
-            cands = [q for q in dict.fromkeys(str(h.get("title") or "")
-                                              for h in ((r or {}).get("query") or {}).get("search") or [])
-                     if re.fullmatch(r"Q\d+", q) and q != like]
-            if cands:
-                break
+        d = self._wikidata(explicit, action="wbsearchentities", search=name[:120], language=lang, uselang=lang,
+                           limit=7, type="item")
+        cands += [str(h.get("id") or "") for h in (d or {}).get("search") or []]
+        r = self._wikidata(explicit, action="query", list="search", srsearch=name[:120], srlimit=10, srnamespace=0,
+                           srprop="")
+        cands += [str(h.get("title") or "") for h in ((r or {}).get("query") or {}).get("search") or []]
+        cands = [q for q in dict.fromkeys(cands) if re.fullmatch(r"Q\d+", q) and q != like][:15]
         if not cands:
             return None
-        e = self._wikidata(explicit, action="wbgetentities", ids="|".join(cands[:8]), props="labels|aliases|sitelinks",
+        e = self._wikidata(explicit, action="wbgetentities", ids="|".join(cands),
+                           props="labels|aliases|descriptions|sitelinks",
                            languages="|".join(dict.fromkeys((lang, "mul", "en"))))
         ents = (e or {}).get("entities") or {}
         want = " ".join(name.lower().split())
-
-        def score(qid: str) -> tuple:
+        best, best_key = None, None
+        for qid in cands:
             ent = ents.get(qid) or {}
-            labels = [" ".join(str(v.get("value") or "").lower().split()) for v in (ent.get("labels") or {}).values()]
-            aliases = [" ".join(str(a.get("value") or "").lower().split())
-                       for vs in (ent.get("aliases") or {}).values() for a in vs]
-            match = 3 if want in labels else 2 if want in aliases else \
-                1 if any(re.search(rf"\b{re.escape(want)}\b", t) for t in labels + aliases) else 0
-            return match, len(ent.get("sitelinks") or {}), -cands.index(qid)
-        best = max(cands[:8], key=score)
-        return best if score(best)[0] > 0 else None
+            names = [" ".join(str(v.get("value") or "").lower().split()) for v in (ent.get("labels") or {}).values()]
+            names += [" ".join(str(a.get("value") or "").lower().split())
+                      for vs in (ent.get("aliases") or {}).values() for a in vs]
+            if not any(t == want or re.search(rf"\b{re.escape(want)}\b", t) for t in names):
+                continue                                 # not named so
+            descs = ent.get("descriptions") or {}
+            desc = str((descs.get(lang) or descs.get("en") or {}).get("value") or "")
+            shared = len(_desc_words(desc) & kind) / len(kind)
+            if shared < 0.5:
+                continue                                 # another kind of thing
+            key = (len(ent.get("sitelinks") or {}), shared, -cands.index(qid))
+            if best_key is None or key > best_key:
+                best, best_key = qid, key
+        return best
 
     def labels(self, ids: list[str], lang: str, explicit: bool) -> dict[str, dict]:
         """{id: {"label", "description", "url"}} — names in the conversation's language (else the one

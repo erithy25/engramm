@@ -62,6 +62,7 @@ class Followup:
     pin: dict = field(default_factory=dict)        # names whose item is known: {"Emmanuel Macron": "Q3052772"}
     new: str = ""                                  # "subject": the new name ("Barcelona")
     like: str = ""                                 # "subject": the item of the thing before
+    like_desc: str = ""                            # … and its description ("association football club in Madrid")
 
 
 def rewrite(message: str, last: dict, lang: str = "en") -> Followup | None:
@@ -169,7 +170,7 @@ def _subject(x: str, last: dict) -> Followup | None:
         return None
     if last.get("rel") and (asked.rel is None or asked.rel.key != last["rel"]):
         return None                                # the new name changed what is asked: no follow-up
-    return Followup(q, "subject", lang, new=asked.subject, like=last.get("qid") or "")
+    return Followup(q, "subject", lang, new=asked.subject, like=last.get("qid") or "", like_desc=last.get("desc") or "")
 
 
 def _pronoun(msg: str, last: dict, lang: str) -> Followup | None:

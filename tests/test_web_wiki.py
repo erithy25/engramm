@@ -99,6 +99,7 @@ CLAIMS = {
     ("Q8682", "P31"): [_st("P31", _item("Q476028"))],                    # an association football club
     ("Q7156", "P571"): [_st("P571", _time("+1899-11-29T00:00:00Z"))],
     ("Q2000001", "P571"): [_st("P571", _time("+1970-00-00T00:00:00Z", 9))],
+    ("Q99001", "P571"): [_st("P571", _time("+1995-07-31T00:00:00Z"))],
     ("Q183", "P31"): [_st("P31", _item("Q6256"))],                       # a country
     ("Q40", "P6"): [_st("P6", _item("Q99000001"), P580=_time("+2025-03-03T00:00:00Z"))],
 }
@@ -118,6 +119,7 @@ LABELS = {
     "Q283": ("water", "Wasser", "Water", "Wasser"),
     "Q7156": ("FC Barcelona", "FC Barcelona", "FC_Barcelona", "FC_Barcelona"),
     "Q2000001": ("FC Barcelona Atlètic", "FC Barcelona Atlètic", "FC_Barcelona_Atlètic", "FC_Barcelona_Atlètic"),
+    "Q99001": ("CD Barcelona Tarrafal", "CD Barcelona Tarrafal", "CD_Barcelona_Tarrafal", "CD_Barcelona_Tarrafal"),
     "Q1492": ("Barcelona", "Barcelona", "Barcelona", "Barcelona"),
     "Q40": ("Austria", "Österreich", "Austria", "Österreich"),
     "Q99000001": ("Christian Stocker", "Christian Stocker", "Christian_Stocker", "Christian_Stocker"),
@@ -135,10 +137,18 @@ LABELS = {
     "Q39829": ("Stephen King", "Stephen King", "Stephen_King", "Stephen_King"),
     "Q81230": ("Siemens", "Siemens", "Siemens", "Siemens"),
 }
-# Wikidata's full-text search within a class ("Barcelona haswbstatement:P31=Q476028": the club, not the city)
-KIND = {("barcelona", "Q476028"): ["Q2000001", "Q7156"], ("österreich", "Q6256"): ["Q40"]}
-# how many Wikipedias have an article on the item: the reserve team ranks first in the search, not in fame
-SITELINKS = {"Q7156": 180, "Q2000001": 30, "Q40": 250}
+# Wikidata's full-text search ("Barcelona": the city first, the reserve team and a Cape Verdean club before FC Barcelona)
+TEXT = {"barcelona": ["Q1492", "Q2000001", "Q99001", "Q7156"], "österreich": ["Q40"]}
+# how many Wikipedias have an article on the item (the city has more than the club)
+SITELINKS = {"Q1492": 300, "Q7156": 180, "Q2000001": 30, "Q99001": 3, "Q40": 250}
+# descriptions: what kind of thing an item is
+DESCS = {"Q8682": {"en": "association football club in Madrid, Spain"},
+         "Q7156": {"en": "association football club in Barcelona, Catalonia, Spain"},
+         "Q2000001": {"en": "association football club in Barcelona, Spain, reserve team of FC Barcelona"},
+         "Q99001": {"en": "football club in Tarrafal, Cape Verde"},
+         "Q1492": {"en": "capital city of Catalonia, Spain"},
+         "Q40": {"en": "country in Central Europe", "de": "Staat in Mitteleuropa"},
+         "Q183": {"en": "country in Central Europe", "de": "Staat in Mitteleuropa"}}
 SUMMARIES = {
     "DNA": "Deoxyribonucleic acid (DNA) is a polymer composed of two polynucleotide chains that coil around each other "
            "to form a double helix. The polymer carries genetic instructions for the development of all known organisms.",
@@ -182,8 +192,7 @@ class FakeWikimedia:
             if action == "wbgetclaims":
                 return ok({"claims": {q["property"]: CLAIMS.get((q["entity"], q["property"]), [])}})
             if action == "query" and q.get("list") == "search":
-                m = re.fullmatch(r"(.+?) haswbstatement:P31=(Q\d+)", q.get("srsearch", ""))
-                ids = KIND.get((m.group(1).lower(), m.group(2)), []) if m else []
+                ids = TEXT.get(q.get("srsearch", "").lower(), [])
                 return ok({"query": {"search": [{"ns": 0, "title": qid} for qid in ids]}})
             if action == "wbgetentities":
                 ents = {}
@@ -198,7 +207,8 @@ class FakeWikimedia:
                         {"en": {"language": "en", "value": en}, "de": {"language": "de", "value": de}}
                     ents[qid] = {"type": "item", "id": qid,
                                  "labels": {k: v for k, v in labels.items() if k in wanted},
-                                 "descriptions": {},
+                                 "descriptions": {k: {"language": k, "value": v} for k, v in DESCS.get(qid, {}).items()
+                                                  if k in wanted},
                                  "sitelinks": {"enwiki": {"site": "enwiki", "title": en_t.replace("_", " ")},
                                                "dewiki": {"site": "dewiki", "title": de_t.replace("_", " ")}}}
                     if "sitefilter" not in q:      # all of them: as many as Wikipedias have the article

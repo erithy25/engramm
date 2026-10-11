@@ -14231,7 +14231,7 @@ class Assistant:
         wk = getattr(self.atlas, "wiki", None)
         if fu.kind == "subject" and fu.like and wk is not None:
             try:
-                same = wk.same_kind(fu.new, fu.like, fu.lang, explicit)
+                same = wk.same_kind(fu.new, fu.like, fu.lang, explicit, fu.like_desc)
             except Exception:
                 same = None
             if same:
@@ -14411,6 +14411,7 @@ class Assistant:
             "n": st.uses.get("n", 0), "lang": lang, "explicit": bool(explicit), "question": query,
             "subject": asked.subject if asked is not None else "", "typed": asked.typed if asked is not None else "",
             "rel": rel, "label": fact.title if fact is not None else "", "qid": fact.qid if fact is not None else "",
+            "desc": desc or "",
             "answer": short or "", "values": list(fact.values) if fact is not None and not summary else [],
             "person": who == "PERSON", "place": bool(place), "subject_person": person_thing,
         }
