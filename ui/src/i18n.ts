@@ -110,9 +110,9 @@ export interface Texts {
   braveKeySave: string;
   braveKeyRemove: string;
   braveMissing: string;
-  webResults: string;
-  showResults: string;
-  hideResults: string;
+  searching: string;
+  reading: string;
+  composing: string;
   netLog: string;
   netLogEmpty: string;
   netLogHead: [string, string, string, string, string];
@@ -247,9 +247,9 @@ const en: Texts = {
   braveKeySave: "Save key",
   braveKeyRemove: "Remove key",
   braveMissing: "Brave needs an API key.",
-  webResults: "Web results",
-  showResults: "Web results ({n})",
-  hideResults: "Hide web results",
+  searching: "Searching the web for “{q}” …",
+  reading: "Reading {sites} …",
+  composing: "Writing the answer …",
   netLog: "Network log",
   netLogEmpty: "Nothing fetched yet.",
   netLogHead: ["Time", "Channel", "Host", "What", "Size"],
@@ -383,9 +383,9 @@ const de: Texts = {
   braveKeySave: "Schlüssel speichern",
   braveKeyRemove: "Schlüssel entfernen",
   braveMissing: "Brave braucht einen API-Schlüssel.",
-  webResults: "Treffer im Web",
-  showResults: "Treffer im Web ({n})",
-  hideResults: "Treffer ausblenden",
+  searching: "Suche im Web nach „{q}“ …",
+  reading: "Lese {sites} …",
+  composing: "Schreibe die Antwort …",
   netLog: "Netzprotokoll",
   netLogEmpty: "Noch nichts abgerufen.",
   netLogHead: ["Zeit", "Kanal", "Host", "Was", "Größe"],

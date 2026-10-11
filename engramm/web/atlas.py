@@ -62,7 +62,9 @@ class Atlas:
         self._init_feeds()
         self._init_shelf()
         from engramm.web.search import WebSearch
+        from engramm.web.wiki import WikiKnowledge
         self.search = WebSearch(egress)
+        self.wiki = WikiKnowledge(egress)             # Wikidata's statements, Wikipedia's articles
 
     # -- set-up -------------------------------------------------------------------------------
 

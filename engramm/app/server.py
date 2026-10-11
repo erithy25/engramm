@@ -17,6 +17,9 @@ API (JSON):
 * ``GET  /api/health``           → {"ready": bool, "error": str|None, "mode": "full"|"quick"|None,
                                     "sentences": int|None, "pack": {"name", "version", "bytes"}|None}
 * ``POST /api/chat``             {"conversation": str, "message": str} → reply
+* ``GET  /api/progress?conversation=…`` → what the reply being written does now, for the page's status
+                                    line while it waits: {"stage": "search", "query": str} |
+                                    {"stage": "read", "sites": [str]} | {"stage": "write"} | {}
 * ``GET  /api/memory``           → {"items": [{"source", "preview", "tokens"}]}
 * ``POST /api/memory/forget``    {"source": str} → {"forgot": str}
 * ``POST /api/open``             {"url": str} → {"opened": str}   (desktop app only: opens a source
@@ -140,6 +143,7 @@ class ChatService:
         self.atlas = None
         self.shown_urls: set[str] = set()          # links this server put into replies (may be opened)
         self._pack_info: dict | None = None
+        self.progress: dict[str, dict] = {}        # conversation → what its reply in the making does now
 
     # -- loading -----------------------------------------------------------------------------
 
@@ -192,6 +196,7 @@ class ChatService:
                 self.egress = Egress.beside(Path(mem_file) if mem_file else None)
                 self.atlas = Atlas(self.egress, self.pack, Path(mem_file).parent if mem_file else None)
                 assistant.atlas = self.atlas
+                assistant.progress = self._on_progress
             except Exception:                        # the offline chat works without it
                 traceback.print_exc()
                 self.egress = self.atlas = None
@@ -240,6 +245,14 @@ class ChatService:
 
     # -- chat --------------------------------------------------------------------------------
 
+    def _on_progress(self, conversation: str, info: dict) -> None:
+        self.progress[conversation] = {k: v for k, v in info.items() if k in ("stage", "query", "sites")}
+
+    def progress_of(self, conversation: str) -> dict:
+        """What the reply in the making for a conversation does now (read without the chat lock:
+        the chat holds it while it works)."""
+        return dict(self.progress.get((conversation or "default")[:100]) or {})
+
     def chat(self, conversation: str, message: str) -> dict:
         from engramm.chat.dialog import DialogState
         message = message.strip()
@@ -253,7 +266,13 @@ class ChatService:
         with self.lock:
             st = self.states.pop(conversation, None) or DialogState(conversation=conversation)
             t0 = time.time()
-            r = self.assistant.turn(st, message)
+            if getattr(self.assistant, "progress", None) is None:
+                self.assistant.progress = self._on_progress   # the page's status line hears the web search
+            self.progress.pop(conversation, None)
+            try:
+                r = self.assistant.turn(st, message)
+            finally:
+                self.progress.pop(conversation, None)
             self.states[conversation] = st              # most recently used last
             while len(self.states) > MAX_CONVERSATIONS:
                 self.states.pop(next(iter(self.states)))
@@ -361,6 +380,9 @@ def make_handler(service: ChatService, desktop: bool = False):
                 return self._json(200, service.network())
             if path == "/api/learning":
                 return self._json(200, service.learning())
+            if path == "/api/progress":
+                query = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+                return self._json(200, service.progress_of((query.get("conversation") or [""])[0]))
             name = "index.html" if path in ("/", "/index.html") else path.lstrip("/")
             f = (WEB / name).resolve()
             if WEB.resolve() not in f.parents or not f.is_file():

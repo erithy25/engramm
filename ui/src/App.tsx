@@ -7,7 +7,7 @@ import { Mark, MenuIcon, SendIcon } from "./components/Icons";
 import { PACKS_LINK, packName, Sidebar } from "./components/Sidebar";
 import { isLang, type Lang, TEXTS } from "./i18n";
 import { load, save, uid } from "./storage";
-import type { Conversation, Health, Message, NetworkStatus, StoredReply } from "./types";
+import type { Conversation, Health, Message, NetworkStatus, Progress, StoredReply } from "./types";
 
 const STORE = "engramm.conversations.v1";
 const THEME = "engramm.theme";
@@ -30,6 +30,7 @@ export function App() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [pending, setPending] = useState<string | null>(null);      // conversation waiting for a reply
+  const [progress, setProgress] = useState<Progress | null>(null);  // what that reply in the making does now
   const [animateLast, setAnimateLast] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [memoryOpen, setMemoryOpen] = useState(false);
@@ -154,6 +155,30 @@ export function App() {
       inputRef.current?.focus();
     }, 0);
   };
+
+  // while a reply is written: what it does ("Searching the web for …"), asked every 350 ms
+  useEffect(() => {
+    if (pending === null) {
+      setProgress(null);
+      return;
+    }
+    let stopped = false;
+    const conversation = pending;
+    const tick = async () => {
+      try {
+        const p = await api.progress(conversation);
+        if (!stopped) setProgress(p.stage ? p : null);
+      } catch {
+        // the reply itself reports a lost connection
+      }
+    };
+    const timer = window.setInterval(() => void tick(), 350);
+    void tick();
+    return () => {
+      stopped = true;
+      window.clearInterval(timer);
+    };
+  }, [pending]);
 
   const newChat = () => {
     setActiveId(null);
@@ -290,7 +315,9 @@ export function App() {
               />
             ),
           )}
-          {pending !== null && pending === activeId && <AssistantMessage reply={null} animate={false} t={t} />}
+          {pending !== null && pending === activeId && (
+            <AssistantMessage reply={null} animate={false} t={t} progress={progress} />
+          )}
         </section>
 
         <footer className="composer-wrap">

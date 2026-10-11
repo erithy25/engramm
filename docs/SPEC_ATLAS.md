@@ -145,7 +145,41 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
   - Alter fließt als Abschlag in den Rang (Halbwertszeit 3 Tage). Einträge älter als 30 Tage werden gelöscht.
 - **Antwort:** „Laut <Feed>, <Datum>: …“ mit Link.
 
-## Websuche (K3, `engramm/web/search.py`)
+## Websuche (K3, `engramm/web/search.py`, `engramm/web/wiki.py`)
+
+- **Antwortkette (seit beta.11, Nutzerbericht 11.10.2026: „er findet immer noch nichts, zu den einfachsten
+  Sachen“ – „When was real madrid founded?“ endete mit „No page I read answers it…“).** Ursache: DuckDuckGo
+  sperrte (202), Bing antwortete ohne Cookies auf das erste Wort („real“ → realtor.com, realapp.com,
+  Merriam-Webster), keine der gelesenen Seiten trug Text. Die Suchmaschinen sind ohne Schlüssel das schwache
+  Glied; deshalb laufen parallel zur Suche Quellen mit offizieller API:
+  1. **Wikidata-Aussage** (`WikiKnowledge.answer`): Die Frage wird in Relation + Gegenstand zerlegt (40 Relationen
+     EN/DE: gegründet, CEO, Präsident, Kanzler, Hauptstadt, Einwohner, Höhe, Länge, Autor, Trainer, Geburt …;
+     Demonyme „German chancellor“ → Deutschland; „Bundeskanzler“ ohne Land → Deutschland). Der Gegenstand wird
+     über `wbsearchentities` gefunden (nur Treffer, deren Name/Alias der gefragte ist; keine
+     Begriffsklärungen), die Eigenschaft auf den ersten Treffern, die sie haben (`wbgetclaims`), die Namen in
+     einem Aufruf (`wbgetentities`). „Aktuell“-Relationen nehmen die Aussage ohne Ende und mit begonnenem Start
+     (bevorzugter Rang zuerst, Neuestes zuerst): Merz (seit 6.5.2025, Scholz endete am selben Tag), Kompany
+     (seit 1.7.2024). Antwort als Satz („Real Madrid was founded on 6 March 1902.“), Quelle: der
+     Wikipedia-Artikel.
+  2. **Wikipedia-Zusammenfassung** für „What/Who is X“ / „Was/Wer ist X“ (REST `page/summary`, erste zwei Sätze).
+  3. **Abstimmung** über Treffer und gelesene Seiten (`short_answer`, unten), dazu immer der zur Frage passende
+     Wikipedia-Artikel als weitere Seite (Suche + Klartext-Extrakt).
+  4. **Bester Abschnitt** einer Seite (Satz + Folgesatz) mit „According to <Seite>:“, sonst das beste Snippet.
+  5. Nur wenn alles scheitert: „I couldn't find an answer online just now (DuckDuckGo: blocked; …)“.
+  Keine Trefferliste und keine Fußzeile mehr; eine Quelle (Chip mit Link). Gemessen gegen echte, langsam
+  aufgezeichnete Wikidata-Antworten (11.10.2026): Format, aktuelle Aussagen und Treffer stimmen; live prüft
+  `scripts/answer_smoke.py` in CI 16 Fragen.
+- **Wikimedia-Regeln (2026):** 200 Anfragen/Minute für Clients mit User-Agent samt Kontakt-URL, 10 ohne.
+  ENGRAMMs User-Agent war „ENGRAMM/3.1 (+offline assistant)“ (ohne Kontakt → 10/min, daher die häufigen 429
+  der Wikipedia-Ausweichsuche); jetzt „ENGRAMM/3.2 (https://engramm.vercel.app; https://github.com/erithy25/engramm)
+  offline-assistant“ (Python und Rust gleich). Höchstens zwei gleichzeitige Wikimedia-Anfragen (erlaubt: drei);
+  nach 429/503 eine Minute Pause. Hinaus gehen der Name des Gegenstands (Wikidata, Zusammenfassung) und die
+  Stichwörter der Frage (Wikipedia-Suche); das Netzwerkprotokoll hält nur den Host.
+- **Anzeige beim Warten:** `GET /api/progress?conversation=…` meldet die Stufe (search mit Frage, read mit den
+  Seiten, write); die Seite fragt alle 350 ms und zeigt „Searching the web for “…” …“ / „Reading en.wikipedia.org,
+  … …“ / „Writing the answer …“ (DE: „Suche im Web nach „…“ …“) mit Schimmer-Animation statt der Tipp-Punkte.
+- **Lesen nach Passung (seit beta.11):** Die Treffer, die die Wörter der Frage nennen, werden zuerst gelesen (nicht
+  realtor.com für „real madrid founded“), bei gleicher Passung Wikipedia zuerst, eine Seite mehr als nötig.
 
 - **Wann:** ab Werk von selbst, wenn offline keine Antwort kommt oder die Frage nach Aktuellem fragt;
   „google …“, „search the web for …“, „such im Internet nach …“, „kannst du das googeln?“ immer (auch mit
@@ -202,8 +236,8 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
     Lauf 9–12 von 13 Sachfragen); ehrliche Enthaltung (Satz statt Kurzantwort) bei den übrigen; nach den
     Schutzregeln 0 falsche Kurzantworten im letzten Lauf (vorher: „European Cup“, „UEFA Europa“, „Real Madrid“
     als Champions-League-Sieger, „4,1 Mio.“ Berliner (Ballungsraum) — jeweils die Regel dagegen oben).
-- **Fußzeile:** antwortet nicht die erste Suchmaschine, steht dahinter kurz, warum („Searched with Bing; read 1
-  page (DuckDuckGo: blocked).“) — damit ein Nutzerbericht zeigt, welche Maschine ausfiel.
+- **Fußzeile (beta.10, in beta.11 entfernt):** nannte eine ausgefallene Maschine; die Antwort soll ohne
+  Verfahrenshinweise auskommen, das Netzwerkprotokoll zeigt jeden Abruf.
 - **DuckDuckGo-Probe (CI, 11.10.2026):** vom selben GitHub-Rechner bekamen Python-urllib und der Rust-Kern
   dieselben Antworten (beide HTTP 202): DuckDuckGo sperrt nach Adresse (Rechenzentrum), nicht nach Client.
 - **Satzantwort (ohne Kurzantwort):** der Satz aus Snippets und Seiten, der die Frage am besten trifft, mit Quelle; eine zweite

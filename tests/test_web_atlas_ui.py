@@ -36,6 +36,8 @@ class _Both:
         self.local, self.web = PythonBackend(), FakeWeb(bing="good")
 
     def fetch(self, req, settings):
+        if req.what.startswith("search:"):
+            time.sleep(0.8)                        # a search takes a moment: the page says what it does meanwhile
         return (self.local if host_of(req.url) in ("127.0.0.1", "localhost") else self.web).fetch(req, settings)
 
 SCRIPT = r"""
@@ -66,17 +68,26 @@ const { chromium } = require('playwright');
   let text = await say('When was the Zorblax Bridge opened?');
   check('offline: no answer from the internet', !text.includes('1931'), text);
   check('offline: the offer to search the web', text.includes('Should I search the web for it?'), text);
-  text = await say('google how tall is the Zorblax Tower');
-  check('google: answer with its source', text.includes('318 metres') && text.includes('quorvia.example')
-        && text.includes('via web search'), text);
-  // the answer comes first; the results stay folded behind one button
+  // while the answer is written the page says what happens, like a chat with a web search does
+  const before = await page.locator('.msg.assistant').count();
+  await page.fill('#input', 'google how tall is the Zorblax Tower');
+  await page.press('#input', 'Enter');
+  await page.waitForSelector('.searching', { timeout: 10000 });
+  const status = await page.locator('.searching').innerText();
+  check('status line while searching', /^(Searching the web for “.*Zorblax Tower.*”|Reading |Writing the answer)/.test(status), status);
+  await page.waitForFunction(n => {
+    const all = document.querySelectorAll('.msg.assistant');
+    return all.length > n && all[all.length - 1].querySelector('.text[data-done]');
+  }, before, { timeout: 30000 });
+  check('status line gone with the answer', (await page.locator('.searching').count()) === 0);
   const last = page.locator('.msg.assistant').last();
-  check('google: results folded', (await last.locator('.web-results').count()) === 0
-        && (await last.locator('[data-act=results]').innerText()).startsWith('Web results ('));
-  await last.locator('[data-act=results]').click();
-  check('google: results as links', (await last.locator('.web-results li').count()) >= 3);
-  check('google: result link', (await last.locator('.web-results a').first()
-        .getAttribute('href')) === 'https://quorvia.example/zorblax-tower');
+  text = await last.innerText();
+  check('google: the answer first', text.startsWith('The Zorblax Tower is 318 metres tall.'), text);
+  check('google: one source', text.includes('quorvia.example') && text.includes('via web search'), text);
+  check('google: no list of results', (await last.locator('.web-results').count()) === 0
+        && (await last.locator('[data-act=results]').count()) === 0 && !text.includes('Web results'), text);
+  check('google: the source is a link', (await last.locator('a.chip').first().getAttribute('href'))
+        === 'https://quorvia.example/zorblax-tower');
   check('sidebar still off', (await page.locator('#netLabel').innerText()) === 'off');
   await page.click('#openNetwork');
   await page.waitForSelector('#netShelf');

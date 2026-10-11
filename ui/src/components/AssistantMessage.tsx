@@ -1,13 +1,25 @@
 import { type ReactElement, useEffect, useRef, useState } from "react";
 import type { Texts } from "../i18n";
-import { isError, type StoredReply, type WebLink } from "../types";
-import { Mark } from "./Icons";
+import { isError, type Progress, type StoredReply } from "../types";
+import { GlobeIcon, Mark } from "./Icons";
 
 interface Props {
   reply: StoredReply | null; // null while waiting
   animate: boolean;
   t: Texts;
   onTyped?: () => void;
+  progress?: Progress | null; // while waiting: what the reply in the making does now
+}
+
+/** "Searching the web for “…”", "Reading en.wikipedia.org, …", "Writing the answer …". */
+function progressLine(p: Progress, t: Texts): string | null {
+  if (p.stage === "search") {
+    const q = (p.query ?? "").trim();
+    return t.searching.replace("{q}", q.length > 70 ? `${q.slice(0, 67)}…` : q);
+  }
+  if (p.stage === "read") return t.reading.replace("{sites}", (p.sites ?? []).slice(0, 3).join(", "));
+  if (p.stage === "write") return t.composing;
+  return null;
 }
 
 function Chip(props: { text: string; cls?: string; href?: string | null; title?: string }) {
@@ -35,26 +47,6 @@ function Highlighted({ sentence, part }: { sentence: string; part: string | null
       <mark>{sentence.slice(i, i + part.length)}</mark>
       {sentence.slice(i + part.length)}
     </>
-  );
-}
-
-/** The results of a web search under the reply: title (link), site and the engine's snippet. */
-function WebResults({ links, title }: { links: WebLink[]; title: string }) {
-  return (
-    <section className="web-results" aria-label={title}>
-      <h4>{title}</h4>
-      <ol>
-        {links.map((l) => (
-          <li key={l.url}>
-            <a href={l.url} target="_blank" rel="noopener noreferrer" title={l.url}>
-              {l.title}
-            </a>
-            <span className="site">{l.site}</span>
-            {l.snippet && <p>{l.snippet}</p>}
-          </li>
-        ))}
-      </ol>
-    </section>
   );
 }
 
@@ -89,14 +81,14 @@ function useTypedText(full: string, animate: boolean, onTyped?: () => void): [st
   return [shown, done];
 }
 
-export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
+export function AssistantMessage({ reply, animate, t, onTyped, progress }: Props) {
   const [showEvidence, setShowEvidence] = useState(false);
-  const [showResults, setShowResults] = useState(false);
   const [copyLabel, setCopyLabel] = useState<string | null>(null);
   const full = reply && !isError(reply) ? reply.text : "";
   const [shown, done] = useTypedText(full, animate && reply !== null && !isError(reply), onTyped);
 
   if (reply === null) {
+    const line = progress ? progressLine(progress, t) : null;
     return (
       <article className="msg assistant">
         <span className="avatar" aria-hidden="true">
@@ -104,11 +96,18 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
         </span>
         <div className="bubble">
           <div className="text">
-            <span className="typing">
-              <i />
-              <i />
-              <i />
-            </span>
+            {line ? (
+              <span className="searching" data-stage={progress?.stage} role="status" aria-live="polite">
+                <GlobeIcon />
+                <span className="searching-text">{line}</span>
+              </span>
+            ) : (
+              <span className="typing">
+                <i />
+                <i />
+                <i />
+              </span>
+            )}
           </div>
         </div>
       </article>
@@ -129,7 +128,6 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
     );
   }
   const k = reply.kind;
-  const links = reply.links ?? [];
   const chips: ReactElement[] = [];
   if (k === "answer" && (reply.via === "lookup" || reply.via === "atlas")) {
     chips.push(<Chip key="s" text={t.sure} cls="sure" title={t.sureTitle} />);
@@ -165,13 +163,11 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
     chips.push(<Chip key="sec" text={`${reply.seconds.toFixed(2)} s`} cls="sec" title={t.seconds} />);
   }
   const hasEvidence = Boolean(reply.evidence) && k !== "about";
-  // with an answer, the search results stay folded (one click away); without one they are the reply
-  const resultsFolded = links.length > 0 && Boolean(reply.evidence);
 
   const copy = async () => {
-    const withLinks = links.length ? `${full}\n\n${links.map((l) => `• ${l.title} — ${l.url}`).join("\n")}` : full;
+    const withSource = reply.source?.url ? `${full}\n\n${reply.source.url}` : full;
     try {
-      await navigator.clipboard.writeText(withLinks);
+      await navigator.clipboard.writeText(withSource);
       setCopyLabel(t.copied);
     } catch {
       setCopyLabel(t.copyFailed);
@@ -188,7 +184,6 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
         <div className="text" {...(done ? { "data-done": "1" } : {})}>
           {shown}
         </div>
-        {done && links.length > 0 && (!resultsFolded || showResults) && <WebResults links={links} title={t.webResults} />}
         <div className="meta">{chips}</div>
         <div className="actions">
           <button className="mini" data-act="copy" onClick={copy} type="button">
@@ -197,11 +192,6 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
           {hasEvidence && (
             <button className="mini" data-act="evidence" type="button" onClick={() => setShowEvidence((v) => !v)}>
               {showEvidence ? t.hideEvidence : t.evidence}
-            </button>
-          )}
-          {done && resultsFolded && (
-            <button className="mini" data-act="results" type="button" onClick={() => setShowResults((v) => !v)}>
-              {showResults ? t.hideResults : t.showResults.replace("{n}", String(links.length))}
             </button>
           )}
         </div>

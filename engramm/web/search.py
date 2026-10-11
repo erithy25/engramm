@@ -498,11 +498,23 @@ class WebSearch:
             return None
         return parse_instant(res.body.decode("utf-8", "replace"))
 
-    def read(self, results: list[Result], n: int = 3, explicit: bool = False) -> list[dict]:
-        """The main text of the first ``n`` readable result pages, fetched at once:
-        [{"t": title, "x": text, "url", "host", "rank"}], in result order."""
+    def read(self, results: list[Result], n: int = 3, explicit: bool = False, question: str = "") -> list[dict]:
+        """The main text of ``n`` readable result pages, fetched at once: [{"t": title, "x": text,
+        "url", "host", "rank"}]. With the question: the results that name its words first (an
+        engine that distrusts the client puts realtor.com first for "real madrid founded"), an
+        encyclopedia before the rest at equal match, one page more than needed (one often fails)."""
         from engramm.web.clean import paragraphs
-        picked = [r for r in results if _readable(r.url)][:n]
+        readable = [r for r in results if _readable(r.url)]
+        if question:
+            words = [w for w in content_words(question).lower().split() if len(w) >= 3]
+
+            def match(r: Result) -> tuple:
+                hay = f"{r.title} {r.snippet} {urllib.parse.unquote(r.url)}".lower()
+                said = sum(bool(re.search(rf"\b{re.escape(w[:6])}", hay)) for w in words)
+                return (-said, 0 if "wikipedia.org" in r.site else 1, r.rank)
+            readable = sorted(readable, key=match)
+            n += 1
+        picked = readable[:n]
         reqs = [Request("search", r.url, "page", ("*",), max_bytes=PAGE_BYTES, explicit=explicit,
                         headers=(("Accept", "text/html,application/xhtml+xml;q=0.9,*/*;q=0.5"),),
                         timeout=PAGE_TIMEOUT) for r in picked]
@@ -517,7 +529,7 @@ class WebSearch:
             text = "\n".join(paragraphs(page)) if "html" in ctype else page
             if len(text) >= 80:
                 docs.append({"t": r.title, "x": text[:60_000], "url": r.url, "host": r.site, "rank": r.rank})
-        return docs
+        return docs[:n - 1] if question else docs
 
     @staticmethod
     def best(question: str, results: list[Result], pages: list[dict], n: int = 6,

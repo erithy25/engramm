@@ -32,7 +32,9 @@ import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 
-USER_AGENT = "ENGRAMM/3.1 (+offline assistant)"
+# who ENGRAMM is, with where to reach its makers: Wikimedia allows a client that names itself so
+# 200 requests a minute, an anonymous one 10 (its API rules of 2026)
+USER_AGENT = "ENGRAMM/3.2 (https://engramm.vercel.app; https://github.com/erithy25/engramm) offline-assistant"
 # search engines and many sites refuse unknown clients; the same string as runtime/core/src/egress.rs
 BROWSER_USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                       "Chrome/129.0.0.0 Safari/537.36")

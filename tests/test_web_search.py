@@ -319,9 +319,9 @@ def test_google_command_searches_even_with_the_channel_off(web_chat):
     r = a.turn(st, "google how tall is the Zorblax Tower")
     assert r.via == "web" and r.kind == "answer" and r.answer == "318 metres", r.text
     assert r.text.startswith("The Zorblax Tower is 318 metres tall."), r.text           # the answer first
-    assert "318 metres" in r.text and "quorvia.example" in r.text and "DuckDuckGo" in r.text, r.text
-    assert r.source["kind"] == "web" and r.source["key"] == TOWER
-    assert [x["url"] for x in r.links][:3] == [u for _, u, _ in GOOD][:3]
+    # one source (the page that says it), no list of results, no footer about the search
+    assert r.source["kind"] == "web" and r.source["key"] == TOWER and r.source["source"] == "quorvia.example"
+    assert r.links == [] and "Searched with" not in r.text and "results are below" not in r.text
     assert "Web search" in r.text                                            # the tip to switch it on, once
     assert eg.log.tail(50) and all(x["channel"] == "search" for x in eg.log.tail(50))
     r2 = a.turn(st, "search the web for the Zorblax Tower tickets")
@@ -365,22 +365,26 @@ def test_german(web_chat):
     a, eg, web = web_chat
     st = DialogState("de")
     r = a.turn(st, "such im Internet nach der Höhe vom Zorblax Tower")
-    assert r.via == "web" and r.text.startswith("318 metres.") and "Laut quorvia.example" in r.text, r.text
-    assert "Gesucht mit DuckDuckGo" in r.text, r.text
+    # no German sentence form for "der Höhe vom …": the source's own sentence, which holds the answer
+    assert r.via == "web" and r.answer == "318 metres" and r.text.startswith("Laut quorvia.example: "), r.text
+    assert "318 metres high" in r.text and "Gesucht mit" not in r.text, r.text
     req = next(q for q in web.seen if q.what == "search:duckduckgo")
     assert dict(req.form)["kl"] == "de-de" and dict(req.headers)["Accept-Language"].startswith("de")
     r = a.turn(DialogState("de2"), "googel mal")
     assert "wonach soll ich suchen" in r.text, r.text
 
 
-def test_the_footer_names_an_engine_that_had_nothing(corpus, tmp_path, monkeypatch):   # noqa: F811
+def test_a_blocked_engine_is_no_dead_end(corpus, tmp_path, monkeypatch):   # noqa: F811
+    """DuckDuckGo blocks: Bing answers, and the reply is just the answer (which engine is the
+    network log's business, not the reply's)."""
     monkeypatch.setattr(FeedRefresher, "start", lambda self: None)
     web = FakeWeb(ddg="anomaly", lite="anomaly")
     eg = _egress(tmp_path, web, enabled=False)
     a = Assistant(_bot(corpus, LoggedTextMemory(tmp_path / "m.log")), clock=CLOCK)
     a.atlas = Atlas(eg, None, tmp_path / "state")
     r = a.turn(DialogState("b"), "google how tall is the Zorblax Tower")
-    assert r.answer == "318 metres" and "Searched with Bing" in r.text and "(DuckDuckGo: blocked)" in r.text, r.text
+    assert r.answer == "318 metres" and r.text.startswith("The Zorblax Tower is 318 metres tall."), r.text
+    assert "blocked" not in r.text and any(x["what"] == "search:bing" for x in eg.log.tail(50))
 
 
 def test_nothing_found_is_said_plainly(corpus, tmp_path, monkeypatch):   # noqa: F811
@@ -390,7 +394,9 @@ def test_nothing_found_is_said_plainly(corpus, tmp_path, monkeypatch):   # noqa:
     a = Assistant(_bot(corpus, LoggedTextMemory(tmp_path / "m.log")), clock=CLOCK)
     a.atlas = Atlas(eg, None, tmp_path / "state")
     r = a.turn(DialogState("n"), "google Zorblax Tower")
-    assert r.via == "web" and r.kind == "unknown" and "Bing: refused" in r.text and "Brave" in r.text, r.text
+    assert r.via == "web" and r.kind == "unknown" and "Brave" in r.text, r.text
+    # each engine once, in plain words
+    assert "(DuckDuckGo: blocked; Bing: blocked; Wikipedia: blocked)" in r.text, r.text
 
 
 def test_the_fact_box_answers_when_the_engines_fail(corpus, tmp_path, monkeypatch):   # noqa: F811
@@ -403,7 +409,7 @@ def test_the_fact_box_answers_when_the_engines_fail(corpus, tmp_path, monkeypatc
     a.atlas = Atlas(eg, None, tmp_path / "state")
     r = a.turn(DialogState("f"), "google who was the architect of the Zorblax Tower")
     assert r.via == "web" and "Mirela Tosk" in r.text and "en.wikipedia.org" in r.text, r.text
-    assert r.links and r.links[0]["url"] == "https://en.wikipedia.org/wiki/Zorblax_Tower"
+    assert r.links == [] and r.source["key"] == "https://en.wikipedia.org/wiki/Zorblax_Tower"
     api = [q for q in web.seen if q.what == "facts:duckduckgo"]
     assert len(api) == 1 and urllib.parse.parse_qs(urllib.parse.urlsplit(api[0].url).query)["q"] == ["Zorblax Tower"]
 
@@ -455,7 +461,7 @@ def test_web_search_is_on_from_the_start(corpus, tmp_path, monkeypatch):   # noq
     a.atlas = Atlas(eg, None, tmp_path / "state")
     st = DialogState("new")
     r = a.turn(st, "How tall is the Zorblax Tower?")
-    assert r.via == "web" and "318 metres" in r.text and r.links, r.text
+    assert r.via == "web" and "318 metres" in r.text and r.source["key"] == TOWER, r.text
     assert "Should I search" not in r.text and "Tip:" not in r.text
     n = len(web.seen)
     a.turn(st, "What is my favourite tower?")

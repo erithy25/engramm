@@ -1,4 +1,4 @@
-import type { ChannelChange, Health, MemoryItem, NetworkStatus, Reply, Learning } from "./types";
+import type { ChannelChange, Health, Learning, MemoryItem, NetworkStatus, Progress, Reply } from "./types";
 
 export class ApiError extends Error {
   readonly status: number;
@@ -34,6 +34,7 @@ async function call<T>(path: string, body?: unknown): Promise<T> {
 export const api = {
   health: () => call<Health>("/api/health"),
   chat: (conversation: string, message: string) => call<Reply>("/api/chat", { conversation, message }),
+  progress: (conversation: string) => call<Progress>(`/api/progress?conversation=${encodeURIComponent(conversation)}`),
   memory: async () => (await call<{ items: MemoryItem[] }>("/api/memory")).items,
   forget: (source: string) => call<{ forgot: string }>("/api/memory/forget", { source }),
   /** What ENGRAMM learned on this computer (corrections, taught words, style) and the reset. */

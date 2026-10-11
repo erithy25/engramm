@@ -50,9 +50,16 @@ export interface Reply {
   via: string;
   resolved: string | null;
   alternatives: Alternative[];
-  /** web search results (only replies of the web search have them; older stored replies lack the field) */
+  /** web search results of older versions (stored replies may still have them; not shown any more) */
   links?: WebLink[];
   seconds: number;
+}
+
+/** What a reply in the making does now (``GET /api/progress``), for the status line while waiting. */
+export interface Progress {
+  stage?: "search" | "read" | "write";
+  query?: string;
+  sites?: string[];
 }
 
 /** What the page stores for a failed request instead of a reply. */

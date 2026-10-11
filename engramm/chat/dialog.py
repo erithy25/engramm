@@ -14234,104 +14234,99 @@ class Assistant:
 
     def _web_search(self, st: DialogState, msg: str, query: str, lang: str, explicit: bool,
                     offline: Reply | None = None) -> Reply | None:
-        """Search, read the best result pages and answer with the sentences that answer best, each
-        with its source, and the results as links. None when an automatic search may not run
-        (the channel is off: nothing was sent)."""
+        """Answer a question from the web, with one source and no list of links: a Wikidata
+        statement when the question asks for a relation of a thing ("When was Real Madrid founded?"),
+        Wikipedia's first sentences when it asks what or who something is, else the answer the
+        search results and the pages read agree on, else the passage of a page (or of the Wikipedia
+        article that matches the question) that answers best. Wikidata, Wikipedia and DuckDuckGo's
+        fact box are asked while the search engine is: they answer when the engines block.
+        ``self.progress`` hears what happens ("search", "read", "write") for the page's status line.
+        None when an automatic search may not run (the channel is off: nothing was sent)."""
         from concurrent.futures import ThreadPoolExecutor
 
         from engramm.web.egress import EgressError
-        from engramm.web.search import ENGINE_NAMES, WebSearch, agree, answers, short_answer, subject_phrase
+        from engramm.web.search import ENGINE_NAMES, WebSearch, answers, short_answer, subject_phrase
+        from engramm.web.wiki import defined
         T = _WEB_TEXT[lang]
         ws = getattr(self.atlas, "search", None) if self.atlas is not None else None
         if ws is None:
             return Reply(msg, "unknown", T["unavailable"], via="web")
+        wk = getattr(self.atlas, "wiki", None)
         subject = subject_phrase(query, lang)
+        self._progress(st, "search", query=query)
         try:
-            with ThreadPoolExecutor(max_workers=1) as pool:
-                # the facts about the thing asked about (only its name goes out), while the search runs
-                facts_job = pool.submit(ws.instant, subject, lang, explicit) if subject else None
+            with ThreadPoolExecutor(max_workers=3) as pool:
+                fact_job = pool.submit(wk.answer, query, lang, explicit) if wk is not None else None
+                article_job = pool.submit(wk.article, query, lang, explicit) if wk is not None else None
+                box_job = pool.submit(ws.instant, subject, lang, explicit) if subject else None
                 found = ws.search(query, lang, explicit=explicit)
-                pages = ws.read(found.results, n=3, explicit=explicit) if found.ok else []
-                facts = facts_job.result() if facts_job is not None else None
+                if found.ok:
+                    self._progress(st, "read", sites=list(dict.fromkeys(r.site for r in found.results))[:3])
+                pages = ws.read(found.results, n=3, explicit=explicit, question=query) if found.ok else []
+                fact, article, box = _result(fact_job), _result(article_job) or [], _result(box_job)
         except EgressError:
             return None
         except Exception as e:                       # the network must never break the chat
             return Reply(msg, "unknown", T["failed"].format(err=f"{type(e).__name__}: {e}"[:160]), via="web")
-        if facts is not None:
-            pages = [facts] + pages
-        engine = ENGINE_NAMES.get(found.engine or "", found.engine or "") or "DuckDuckGo"
-        links = [r.to_dict() for r in found.results[:6]]
-        if not found.ok and facts is None:
-            why = "; ".join(f"{ENGINE_NAMES.get(e, e)}: {w}" for e, w in list(dict.fromkeys(found.tried))[:4])
-            text = T["none"].format(q=query, why=why or T["no_engine"])
-            return Reply(msg, "unknown", text, via="web")
-        # the sentences that can answer it (the question's words, a number when it asks for one), many
-        # per page: the short answer is the span most of them agree on
+        self._progress(st, "write")
+        pages = ([box] if box else []) + list(article) + pages
+        today = dt.date.today().isoformat()
         rows = WebSearch.best(query, found.results, pages, n=60, lang=lang, per_source=12)
         rows = [b for b in rows if _web_covers(query, b[1], b[2]) and answers(query, b[1])]
-        ans = short_answer(query, rows, lang)
-        best, per = [], {}
-        for b in rows:
-            if per.get(b[2]["url"], 0) < 2:
-                per[b[2]["url"]] = per.get(b[2]["url"], 0) + 1
-                best.append(b)
-        today = dt.date.today().isoformat()
-        lines = []
-        evidence = None
-        if ans is not None:
-            # the answer first ("Donald Trump is currently the president of the USA."), then the
-            # sentence it comes from with its site, and how many other sites say it too
-            s0, d0 = ans.sentence, ans.doc
-            evidence = s0
-            source = {"kind": "web", "source": d0["host"], "key": d0["url"], "title": d0["t"], "as_of": today}
-            head = _web_head(query, ans, lang, [r.title for r in found.results] + [b[1] for b in rows[:20]])
-            if head:
-                lines.append(head)
-            more = ans.sites - 1
-            key = "lead" if more <= 0 else "lead_more1" if more == 1 else "lead_more"
-            lines.append(T[key].format(site=d0["host"], s=_end(s0), n=more))
-        elif best:
-            s0, d0 = best[0][1], best[0][2]
-            evidence = s0
-            source = {"kind": "web", "source": d0["host"], "key": d0["url"], "title": d0["t"], "as_of": today}
-            lines.append(T["lead"].format(site=d0["host"], s=_end(s0)))
-            # a second site only when it says the same (a number or a name of the first): agreement, not noise
-            other = next((b for b in best[1:] if b[2]["host"] != d0["host"] and agree(query, s0, b[1])), None)
-            if other is not None:
-                lines.append(T["also"].format(site=other[2]["host"], s=_end(other[1])))
-        elif found.results:
-            r0 = found.results[0]
-            source = {"kind": "web", "source": r0.site, "key": r0.url, "title": r0.title, "as_of": today}
-            lines.append(T["only_list"].format(q=query))
-        else:                                        # only the facts, and none of them answers it
-            why = "; ".join(f"{ENGINE_NAMES.get(e, e)}: {w}" for e, w in list(dict.fromkeys(found.tried))[:4])
-            return Reply(msg, "unknown", T["none"].format(q=query, why=why or T["no_engine"]), via="web")
-        if offline is not None and offline.answer:
+        define = defined(query) is not None
+
+        def src(host: str, url: str, title: str) -> dict:
+            return {"kind": "web", "source": host, "key": url, "title": title, "as_of": today}
+        short = evidence = None
+        kind, who = "about", None
+        if fact is not None and (fact.kind != "summary" or define):
+            # a Wikidata statement ("Real Madrid was founded on 6 March 1902.") or what a thing is
+            text, evidence, source = fact.text, fact.evidence, src(fact.host, fact.url, fact.title)
+            if fact.kind != "summary":
+                short, kind, who = fact.answer, "answer", ("PERSON" if fact.person else "")
+        else:
+            ans = short_answer(query, rows, lang) if not define else None
+            if ans is not None:
+                # the answer the pages agree on, as a sentence ("Donald Trump is currently the president of the USA.")
+                text = _web_head(query, ans, lang, [r.title for r in found.results] + [b[1] for b in rows[:20]]) \
+                    or T["lead"].format(site=ans.doc["host"], s=_end(ans.sentence))
+                short, evidence, kind = ans.text, ans.sentence, "answer"
+                source = src(ans.doc["host"], ans.doc["url"], ans.doc["t"])
+                who = "PERSON" if ans.kind == "person" else "" if ans.kind == "place" else None
+            elif rows:
+                passage, d0 = _passage(rows)
+                text, evidence = T["lead"].format(site=d0["host"], s=passage), rows[0][1]
+                source = src(d0["host"], d0["url"], d0["t"])
+            elif any(r.snippet for r in found.results):
+                r0 = next(r for r in found.results if r.snippet)
+                text, evidence = T["lead"].format(site=r0.site, s=_end(r0.snippet)), r0.snippet
+                source = src(r0.site, r0.url, r0.title)
+            else:
+                why = "; ".join(dict.fromkeys(f"{ENGINE_NAMES.get(e, e)}: {T['why'].get(w.split(' (')[0], w.split(' (')[0])}"
+                                              for e, w in found.tried))
+                return Reply(msg, "unknown", T["none"].format(why=why or T["no_engine"]), via="web")
+        lines = [text]
+        if offline is not None and offline.answer and (short is None or offline.answer.lower() != short.lower()):
             lines.append(T["offline"].format(a=offline.answer))
-        n = len(pages)
-        foot = T["foot" if n > 1 else "foot1" if n == 1 else "foot0"].format(engine=engine, n=n)
-        # an engine before it had nothing: say which and why, briefly ("DuckDuckGo: refused")
-        skipped = list(dict.fromkeys((ENGINE_NAMES.get(e, e), w.split(" (")[0]) for e, w in found.tried
-                                     if ENGINE_NAMES.get(e, e) != engine))
-        if skipped and found.ok:
-            foot = foot.rstrip(".") + " (" + "; ".join(f"{e}: {T['why'].get(w, w)}" for e, w in skipped[:3]) + ")."
-        lines.append(foot)
-        if not links and facts is not None:
-            links = [{"title": facts["t"], "url": facts["url"], "snippet": "", "site": facts["host"],
-                      "engine": "duckduckgo"}]
         if explicit and not self.egress_on("search") and "web_tip" not in st.uses:
             st.uses["web_tip"] = st.turn
-            lines[-1] += T["tip"]
-        short = ans.text if ans is not None else None
+            lines.append(T["tip"].strip())
         st.last_fact = {"evidence": evidence, "source": source, "answer": short, "question": query, "sure": False}
-        if ans is not None and ans.kind in ("person", "place"):
+        if short is not None and who is not None:
             # "how old is he?" after "who is the president?": the answer is the one meant
-            self.bot.context.update({"answer": short, "atype": "PERSON" if ans.kind == "person" else None,
-                                     "mention": short})
+            self.bot.context.update({"answer": short, "atype": who or None, "mention": short})
         else:
             self.bot.context.update({"answer": None, "atype": None})
-        return Reply(msg, "answer" if ans is not None else "about", "\n\n".join(lines), answer=short,
-                     evidence=evidence, source=source, via="web", links=links)
+        return Reply(msg, kind, "\n\n".join(lines), answer=short, evidence=evidence, source=source, via="web")
+
+    def _progress(self, st: DialogState, stage: str, **info) -> None:
+        """Tell whoever listens (the app's status line) what the web search does now."""
+        listener = getattr(self, "progress", None)
+        if listener is not None:
+            try:
+                listener(st.conversation, {"stage": stage, **info})
+            except Exception:                        # a status line must never break an answer
+                pass
 
     def _news(self, st: DialogState, msg: str, topic: str | None) -> Reply:
         if self.atlas is None or not self.egress_on("feeds"):
@@ -15494,17 +15489,10 @@ def _winner_from(rows, topic: str | None):
 _WEB_TEXT = {
     "en": {
         "lead": "According to {site}: {s}",
-        "lead_more1": "According to {site} (and one more site): {s}",
-        "lead_more": "According to {site} (and {n} more sites): {s}",
-        "also": "{site} says the same: {s}",
-        "only_list": "I searched the web for “{q}”. No page I read answers it in so many words — the best results are below.",
         "offline": "My offline knowledge (older) says: {a}.",
-        "foot": "Searched with {engine}; read {n} pages.",
-        "foot1": "Searched with {engine}; read 1 page.",
-        "foot0": "Searched with {engine}.",
         "tip": " Tip: switch on “Web search” under “Internet access”, then I search on my own whenever I don't know something.",
-        "none": "I searched the web for “{q}”, but got no usable results ({why}). Try again in a moment or with other words — "
-                "or add a Brave Search API key under “Internet access” for more reliable results.",
+        "none": "I couldn't find an answer online just now ({why}). Please try again in a moment — a Brave Search API key "
+                "under “Internet access” makes the search more reliable.",
         "no_engine": "no search engine answered",
         "why": {"refused": "blocked", "results did not match the question": "no match", "no results": "nothing found"},
         "failed": "The web search failed: {err}",
@@ -15514,18 +15502,10 @@ _WEB_TEXT = {
     },
     "de": {
         "lead": "Laut {site}: {s}",
-        "lead_more1": "Laut {site} (und einer weiteren Seite): {s}",
-        "lead_more": "Laut {site} (und {n} weiteren Seiten): {s}",
-        "also": "{site} bestätigt das: {s}",
-        "only_list": "Ich habe im Web nach „{q}“ gesucht. Keine der gelesenen Seiten beantwortet das direkt – die besten Treffer stehen unten.",
         "offline": "Mein Offline-Wissen (älter) sagt: {a}.",
-        "foot": "Gesucht mit {engine}, {n} Seiten gelesen.",
-        "foot1": "Gesucht mit {engine}, 1 Seite gelesen.",
-        "foot0": "Gesucht mit {engine}.",
         "tip": " Tipp: Schalte unter „Internetzugang“ die Websuche ein, dann suche ich von selbst, wenn ich etwas nicht weiß.",
-        "none": "Ich habe im Web nach „{q}“ gesucht, aber keine brauchbaren Treffer bekommen ({why}). Versuch es gleich noch "
-                "einmal oder mit anderen Worten – oder trag unter „Internetzugang“ einen Brave-Search-API-Schlüssel ein, "
-                "das ist zuverlässiger.",
+        "none": "Ich habe gerade online keine Antwort gefunden ({why}). Versuch es gleich noch einmal – ein "
+                "Brave-Search-API-Schlüssel unter „Internetzugang“ macht die Suche zuverlässiger.",
         "no_engine": "keine Suchmaschine hat geantwortet",
         "why": {"refused": "gesperrt", "results did not match the question": "nichts Passendes",
                 "no results": "nichts gefunden"},
@@ -15573,6 +15553,35 @@ def _web_question(message: str) -> str | None:
     return q[:1].upper() + q[1:]
 
 
+def _result(job):
+    """A background job's result, or None when it failed (a source that fails is a source fewer)."""
+    if job is None:
+        return None
+    try:
+        return job.result()
+    except Exception:
+        return None
+
+
+def _passage(rows: list) -> tuple[str, dict]:
+    """The best sentence and, when the page goes on about it, the next one ("… blue. This is
+    because …"), at most about 480 characters: (passage, the page it stands on)."""
+    from engramm.web.clean import SENTENCE
+    from engramm.web.search import _junk, _prose, _tidy
+    s0, d0 = rows[0][1], rows[0][2]
+    for para in str(d0.get("x") or "").split("\n"):
+        para = re.sub(r"\s*\[(?:\d{1,3}|[a-z]|note \d+|citation needed)\]", "", para)
+        sents = [x.strip() for x in SENTENCE.split(para.strip())]
+        for i, sent in enumerate(sents):
+            if _tidy(sent) != s0:
+                continue
+            nxt = sents[i + 1] if i + 1 < len(sents) else ""
+            if nxt and 25 <= len(nxt) <= 280 and len(s0) + len(nxt) <= 480 and _prose(nxt) and not _junk(nxt):
+                return f"{_end(s0)} {_end(_tidy(nxt))}", d0
+            return _end(s0), d0
+    return _end(s0), d0
+
+
 def _web_covers(query: str, sentence: str, doc: dict) -> bool:
     """The sentence (with its page title) has at least half of the question's content words."""
     from engramm.web.search import _ANSWER_WORDS, _EXPAND, _near, content_words
@@ -15590,16 +15599,17 @@ def _web_covers(query: str, sentence: str, doc: dict) -> bool:
 
 def _web_head(query: str, ans, lang: str, seen: list[str]) -> str | None:
     """The answer as a sentence ("Donald Trump is currently the president of the USA.", "Die
-    Zugspitze ist 2.962 m hoch."), or the bare answer; None for opening hours (the sentence that
-    gives them says it better). A name the question misspells is written as the pages write it
-    ("Chatbt" → "ChatGPT")."""
+    Zugspitze ist 2.962 m hoch."); None for opening hours and when no sentence form fits the
+    question (the sentence of the source, which holds the answer, says it better than "318 m.").
+    A name the question misspells is written as the pages write it ("Chatbt" → "ChatGPT")."""
     from engramm.chat.realize import answer_sentence
     if ans.kind == "hours":
         return None
     if ans.kind == "count":
         ans = _rounded(ans, lang)
     head = _head_de(query, ans) if lang == "de" else answer_sentence(query, ans.text) or _head_en(query, ans)
-    head = head or f"{ans.text}."
+    if not head:
+        return None                                  # no sentence of its own: the source's sentence says it
     if ans.kind == "count":
         # a count holds for a year: the newest year its sentence names ("3.5 million (2015)")
         years = [y for y in re.findall(r"\b(19\d{2}|20\d{2})\b", ans.sentence) if int(y) <= dt.date.today().year]
