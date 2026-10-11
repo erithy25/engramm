@@ -31,6 +31,8 @@ from pathlib import Path
 
 import numpy as np
 
+from engramm.web.clean import SENTENCE
+
 MAGIC = b"EGB1"
 SHELF_HOSTS = ("github.com", "githubusercontent.com")
 _STOP = frozenset("""a an the of in on at to for from by with and or but is are was were be been being it its this that
@@ -375,7 +377,7 @@ class ShelfClient:
 # sentences for the answer extraction
 # ---------------------------------------------------------------------------
 
-_SENT = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9\"“(])")
+_SENT = SENTENCE                     # an initial, a short form or a German date ends no sentence
 MIN_RELATIVE = 0.4           # a fetched article scores at least this share of the best one
 
 

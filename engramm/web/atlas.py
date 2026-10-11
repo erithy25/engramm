@@ -19,6 +19,7 @@ import threading
 import time
 from pathlib import Path
 
+from engramm.web.clean import SENTENCE
 from engramm.web.egress import Egress, EgressError
 
 _FRESH = re.compile(r"\b(?:current(?:ly)?|latest|newest|recent(?:ly)?|now|today|tonight|yesterday|this (?:week|month|"
@@ -200,7 +201,7 @@ def load_calib(path: Path = CALIB_PATH):
     return ConfCalibrator(d["w"], d.get("r0_bins") or (6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.5)), float(d["theta"])
 
 
-_SPLIT = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9\"“(])")
+_SPLIT = SENTENCE                    # an initial, a short form or a German date ends no sentence
 
 
 def _sentences(text: str) -> list[str]:

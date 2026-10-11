@@ -67,6 +67,8 @@ SEARCH = {
     "Donald Trump": [_hit("Q22686", "Donald Trump", "president of the United States since 2025")],
     "Elon Musk": [_hit("Q317521", "Elon Musk", "businessman (born 1971)")],
     "Stephen King": [_hit("Q39829", "Stephen King", "American author (born 1947)")],
+    "2022 FIFA World Cup": [_hit("Q284163", "2022 FIFA World Cup", "22nd FIFA World Cup, held in Qatar")],
+    "water": [_hit("Q283", "water", "chemical compound")],
     "Siemens": [_hit("Q81230", "Siemens", "German multinational conglomerate"),
                 _hit("Q4523", "Siemens", "Wikimedia disambiguation page")],
 }
@@ -84,6 +86,9 @@ CLAIMS = {
     ("Q3375", "P2044"): [_st("P2044", _qty("+2962", "Q11573"))],
     ("Q3227", "P50"): [_st("P50", _item("Q5879"))],
     ("Q22686", "P569"): [_st("P569", _time("+1946-06-14T00:00:00Z"))],
+    ("Q81230", "P169"): [_st("P169", _item("Q99999999"))],               # an item Wikidata has no name for
+    ("Q284163", "P1346"): [_st("P1346", _item("Q79800"))],
+    ("Q283", "P2102"): [_st("P2102", _qty("+100", "Q25267"))],
 }
 LABELS = {
     "Q8682": ("Real Madrid CF", "Real Madrid", "Real_Madrid_CF", "Real_Madrid"),
@@ -94,6 +99,11 @@ LABELS = {
     "Q1173": ("Friedrich Merz", "Friedrich Merz", "Friedrich_Merz", "Friedrich_Merz"),
     "Q61053": ("Olaf Scholz", "Olaf Scholz", "Olaf_Scholz", "Olaf_Scholz"),
     "Q64": ("Berlin", "Berlin", "Berlin", "Berlin"),
+    "Q284163": ("2022 FIFA World Cup", "Fußball-Weltmeisterschaft 2022", "2022_FIFA_World_Cup",
+                "Fußball-Weltmeisterschaft_2022"),
+    "Q79800": ("Argentina national football team", "Argentinische Fußballnationalmannschaft",
+               "Argentina_national_football_team", "Argentinische_Fußballnationalmannschaft"),
+    "Q283": ("water", "Wasser", "Water", "Wasser"),
     "Q3375": ("Zugspitze", "Zugspitze", "Zugspitze", "Zugspitze"),
     "Q3227": ("Faust", "Faust", "Faust,_Part_One", "Faust._Eine_Tragödie."),
     "Q5879": ("Johann Wolfgang von Goethe", "Johann Wolfgang von Goethe", "Johann_Wolfgang_von_Goethe",
@@ -142,12 +152,17 @@ class FakeWikimedia:
                 return ok({"claims": {q["property"]: CLAIMS.get((q["entity"], q["property"]), [])}})
             if action == "wbgetentities":
                 ents = {}
+                wanted = set(q.get("languages", "").split("|"))
                 for qid in q["ids"].split("|"):
                     if qid not in LABELS:
+                        ents[qid] = {"id": qid, "missing": ""}
                         continue
                     en, de, en_t, de_t = LABELS[qid]
+                    # a name that is the same in every language stands under "mul" only, as on Wikidata since 2024
+                    labels = {"mul": {"language": "mul", "value": en}} if en == de else \
+                        {"en": {"language": "en", "value": en}, "de": {"language": "de", "value": de}}
                     ents[qid] = {"type": "item", "id": qid,
-                                 "labels": {"en": {"language": "en", "value": en}, "de": {"language": "de", "value": de}},
+                                 "labels": {k: v for k, v in labels.items() if k in wanted},
                                  "descriptions": {},
                                  "sitelinks": {"enwiki": {"site": "enwiki", "title": en_t.replace("_", " ")},
                                                "dewiki": {"site": "dewiki", "title": de_t.replace("_", " ")}}}
@@ -215,6 +230,9 @@ def _wk(tmp_path, wiki: FakeWikimedia, **search) -> tuple[WikiKnowledge, Egress]
     ("Who is Stephen King?", "en", None, "Stephen King"),                 # a name, not the king of Stephen
     ("What is photosynthesis?", "en", None, "photosynthesis"),
     ("Was ist ein Schwarzes Loch?", "de", None, "Schwarzes Loch"),
+    ("What does DNA stand for?", "en", None, "DNA"),
+    ("What does GDP mean?", "en", None, "GDP"),                          # what GDP is, not the GDP of "mean"
+    ("Wofür steht die Abkürzung NATO?", "de", None, "NATO"),
 ])
 def test_questions_are_read(question, lang, rel, subject):
     asked = parse(question, lang)
@@ -225,6 +243,17 @@ def test_questions_are_read(question, lang, rel, subject):
                                       "Who won the last Champions League?", "How do I cook rice?", "What is my name?"])
 def test_questions_no_entry_answers(question):
     assert parse(question, "en") is None
+
+
+def test_a_summary_is_cut_after_whole_sentences():
+    """German dates ("* 28. August 1749") and initials end no sentence: the first two sentences of an
+    article are whole ("… war ein deutscher Dichter."), not "Johann Wolfgang von Goethe (* 28."."""
+    from engramm.web.wiki import _first_sentences
+    de = ("Johann Wolfgang von Goethe (* 28. August 1749 in Frankfurt am Main; † 22. März 1832 in Weimar) war ein "
+          "deutscher Dichter. Er gilt als einer der bedeutendsten Schöpfer deutschsprachiger Dichtung. Drittens.")
+    assert _first_sentences(de, 2, 420) == de.rsplit(" Drittens.", 1)[0]
+    en = "Harry Potter is a series of novels by J. K. Rowling. It follows a wizard. A third sentence."
+    assert _first_sentences(en, 1, 420) == "Harry Potter is a series of novels by J. K. Rowling."
 
 
 def test_values_are_written_in_the_conversations_language():
@@ -399,3 +428,40 @@ def test_a_relation_question_without_a_statement_still_gets_the_vote(chat):
     a, eg, web, wiki = chat
     r = a.turn(DialogState("v"), "google how tall is the Zorblax Tower")
     assert r.kind == "answer" and r.answer == "318 metres", r.text
+
+
+def test_a_sentence_must_say_the_relation_asked_for(chat):
+    """Wikidata does not know it and the pages only name the thing and another year ("… was opened in
+    1931"): that is no answer to "when was it demolished?" (the sandbox's live check answered "When
+    was real madrid founded?" with the year the club got its title, 1920). Asked when it opened, the
+    same sentences answer."""
+    a, eg, web, wiki = chat
+    r = a.turn(DialogState("d"), "google when was the Zorblax Tower demolished")
+    assert r.via == "web" and r.kind == "unknown" and "1931" not in r.text, r.text
+    r = a.turn(DialogState("o"), "google when was the Zorblax Tower opened")
+    assert r.via == "web" and "1931" in r.text, r.text
+
+
+def test_names_for_all_languages_and_no_ids(tmp_path):
+    """Wikidata keeps a person's name once for all languages ("mul": "Emmanuel Macron") instead of
+    under "en" — CI answered "Q3052772 is the president of France." Asked for "mul" too, the name
+    comes; a value without any name is no answer (no "Q99999999 is the CEO of Siemens")."""
+    wk, e = _wk(tmp_path, FakeWikimedia())
+    f = wk.answer("Who is currently the president of the usa?", "en", explicit=True)
+    assert f is not None and f.text.startswith("Donald Trump ") and "Q" not in f.answer, f
+    f = wk.answer("Wer ist der aktuelle Bundeskanzler?", "de", explicit=True)
+    assert f is not None and f.answer == "Friedrich Merz", f
+    f = wk.answer("Who is the CEO of Siemens?", "en", explicit=True)
+    assert f is None or "Q99999999" not in f.text, f
+
+
+def test_winners_and_boiling_points(tmp_path):
+    """"Who won the 2022 FIFA World Cup?" was answered with a sentence about rainbow flags, "What is the
+    boiling point of water?" with a picture caption: Wikidata knows both (P1346, P2102)."""
+    wk, e = _wk(tmp_path, FakeWikimedia())
+    f = wk.answer("Who won the 2022 FIFA World Cup?", "en", explicit=True)
+    assert f is not None and f.answer == "Argentina" and f.text.startswith("Argentina won the 2022 FIFA World Cup"), f
+    f = wk.answer("What is the boiling point of water?", "en", explicit=True)
+    assert f is not None and f.answer == "100 °C" and "100 °C" in f.text and "water" in f.text.lower(), f
+    assert parse("Who won the last Champions League?", "en") is None        # "last" changes every year
+

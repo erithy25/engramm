@@ -157,6 +157,14 @@ RELATIONS: tuple[Rel, ...] = (
         "child", "Kinder", many=True),
     Rel("stadium", _rx(r"\b(?:stadium|home ground|stadion|heimspielstätte)\b"), ("P115",), "item", "{s} plays at {v}.",
         "Heimstadion von {s}: {v}.", "home venue", "Heimstadion", now=True),
+    # "Who won the 2022 FIFA World Cup?" — a season's or a race's winner (the live check answered with a
+    # sentence about rainbow flags at that World Cup)
+    Rel("winner", _rx(r"^\s*(?:who|which (?:team|country|club|nation|player|driver|film|movie))\s+(?:has\s+)?won\b|"
+                      r"\bwinners? of\b|^\s*wer\s+(?:hat|gewann)\b.*\b(?:gewonnen|gewann)\b|"
+                      r"\b(?:sieger|gewinner)(?:in)?\s+(?:der|des|von)\b"),
+        ("P1346",), "item", "{v} won {s}.", "{v} gewann {s}.", "winner", "Sieger", now=True,
+        drop=_drop("team country club nation player driver film movie"),
+        kw=_rx(r"\b(?:won|winners?|gewann|gewonnen|sieger(?:in)?|gewinner(?:in)?)\b")),
     Rel("team", _rx(r"\bplays? for\b|\bwhich (?:team|club)\b|\bwelche[nm]? (?:verein|team|klub|club)\b|\bspielt (?:für|bei)\b"),
         ("P54",), "item", "{s} plays for {v}.", "{s} spielt für {v}.", "member of sports team", "Verein", now=True,
         kw=_rx(r"\b(?:plays?|playing|team|club|verein|klub|spielt)\b")),
@@ -180,6 +188,18 @@ RELATIONS: tuple[Rel, ...] = (
         "{s} is a citizen of {v}.", "Staatsangehörigkeit von {s}: {v}.", "citizenship", "Staatsangehörigkeit", many=True),
     Rel("parent", _rx(r"\b(?:parent company|parent organi[sz]ation|mutterkonzern|muttergesellschaft)\b"), ("P749",),
         "item", "{s} belongs to {v}.", "{s} gehört zu {v}.", "parent organization", "Mutterkonzern", now=True),
+    Rel("boiling", _rx(r"\bboiling (?:point|temperature)\b|\bsiede(?:punkt|temperatur)\b|"
+                       r"\bat what temperature does .+ boil\b|\bbei wie viel(?:en)? grad (?:siedet|kocht)\b"),
+        ("P2102",), "quantity", "The boiling point of {s} is {v}.", "Der Siedepunkt von {s} liegt bei {v}.",
+        "boiling point", "Siedepunkt", kw=_rx(r"\bboiling (?:point|temperature)\b|\bsiede(?:punkt|temperatur)\b|"
+                                              r"\bat what temperature does\b|\bboil\b|\bbei wie viel(?:en)? grad\b|"
+                                              r"\bsiedet\b|\bkocht\b")),
+    Rel("melting", _rx(r"\bmelting (?:point|temperature)\b|\bschmelz(?:punkt|temperatur)\b|"
+                       r"\bat what temperature does .+ melt\b|\bbei wie viel(?:en)? grad schmilzt\b"),
+        ("P2101",), "quantity", "The melting point of {s} is {v}.", "Der Schmelzpunkt von {s} liegt bei {v}.",
+        "melting point", "Schmelzpunkt", kw=_rx(r"\bmelting (?:point|temperature)\b|\bschmelz(?:punkt|temperatur)\b|"
+                                               r"\bat what temperature does\b|\bmelt\b|\bbei wie viel(?:en)? grad\b|"
+                                               r"\bschmilzt\b")),
 )
 # a value found under another property than the relation's first one has its own sentence
 _BY_PROP = {"P2048": ("{s} is {v} tall.", "{s} ist {v} groß."), "P17": ("{s} is in {v}.", "{s} liegt in {v}."),
@@ -223,15 +243,19 @@ _IMPLIED = {"bundeskanzler": "Deutschland", "bundeskanzlerin": "Deutschland", "k
 _DEFINE = (
     _rx(r"^\s*(?:what|who)(?:'s|\s+is|\s+are|\s+was|\s+were)\s+(?:a\s+|an\s+|the\s+)?(?P<x>.+?)\s*[?.!]*$"),
     _rx(r"^\s*(?:tell me (?:something |more )?about|define|explain)\s+(?:a\s+|an\s+|the\s+)?(?P<x>.+?)\s*[?.!]*$"),
-    _rx(r"^\s*what does\s+(?P<x>.+?)\s+mean\s*[?.!]*$"),
+    _rx(r"^\s*what does\s+(?P<x>.+?)\s+(?:mean|stand for)\s*[?.!]*$"),
+    _rx(r"^\s*(?:wofür|für was)\s+steht\s+(?:die\s+|der\s+|das\s+)?(?:abkürzung\s+)?(?P<x>.+?)\s*[?.!]*$"),
     _rx(r"^\s*(?:was|wer)\s+(?:ist|sind|war|waren)\s+(?:ein\s+|eine\s+|der\s+|die\s+|das\s+)?(?P<x>.+?)\s*[?.!]*$"),
     _rx(r"^\s*(?:erzähl(?:e)?\s+mir\s+(?:etwas\s+|was\s+|mehr\s+)?(?:über|von)|was bedeutet|was heißt|erkläre?(?:\s+mir)?)\s+"
         r"(?:ein\s+|eine\s+|der\s+|die\s+|das\s+|den\s+)?(?P<x>.+?)\s*[?.!]*$"),
 )
+# "what does X mean / stand for", "wofür steht X", "was bedeutet X": what X is, whatever relation word X holds
+_MEANS = _rx(r"^\s*(?:what does\s+.+?\s+(?:mean|stand for)|(?:wofür|für was)\s+steht\s.+|was bedeutet\s.+)\s*[?.!]*$")
 # questions about the moment or the asker: no encyclopedia article answers them
 _VOLATILE = _rx(r"\b(?:weather|forecast|wetter|price|prices|preis|preise|kurs|stock|aktie|score|ergebnis|result|news|"
                 r"nachrichten|today|tonight|tomorrow|yesterday|heute|morgen|gestern|open|opening|geöffnet|öffnungszeiten|"
-                r"time is it|uhrzeit|my|mine|your|mein|meine|dein|deine|best|beste|besten|cheapest|günstigste)\b")
+                r"time is it|uhrzeit|my|mine|your|mein|meine|dein|deine|best|beste|besten|cheapest|günstigste|last|latest|"
+                r"letzte[nmrs]?|neueste[nmrs]?)\b")
 
 _WORD = re.compile(r"[^\W_][\w'’.\-]*")
 _MONTHS = {"en": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
@@ -244,8 +268,13 @@ UNITS = {"Q11573": ("m", "m"), "Q828224": ("km", "km"), "Q712226": ("km²", "km�
          "Q11570": ("kg", "kg"), "Q191118": ("t", "t"), "Q11229": ("%", "%"), "Q35852": ("ha", "ha"),
          "Q232291": ("sq mi", "sq mi"), "Q180154": ("km/h", "km/h"), "Q211256": ("mph", "mph"),
          "Q577": ("years", "Jahre"), "Q4917": ("US$", "US-Dollar"), "Q4916": ("€", "Euro"), "Q25224": ("£", "Pfund"),
-         "Q8146": ("¥", "Yen"), "Q25344": ("CHF", "Franken"), "Q41044": ("₽", "Rubel"), "Q39099": ("¥", "Renminbi")}
+         "Q8146": ("¥", "Yen"), "Q25344": ("CHF", "Franken"), "Q41044": ("₽", "Rubel"), "Q39099": ("¥", "Renminbi"),
+         "Q25267": ("°C", "°C"), "Q42289": ("°F", "°F"), "Q11579": ("K", "K")}
 _CURRENCY = {"Q4917", "Q4916", "Q25224", "Q8146", "Q25344", "Q41044", "Q39099"}
+# "Argentina national football team won the 2022 FIFA World Cup." says "Argentina"
+_NATIONAL_TEAM = re.compile(r"\s+(?:men's\s+|women's\s+)?national\s+(?:association\s+)?(?:football|soccer|rugby union|"
+                            r"rugby league|rugby|basketball|ice hockey|handball|volleyball|cricket|baseball|water polo|"
+                            r"field hockey)\s+team$", re.I)
 
 
 @dataclass
@@ -277,6 +306,9 @@ def parse(question: str, lang: str = "en") -> Asked | None:
     None when it is neither (or about the asker, or about the moment)."""
     q = re.sub(r"\s+", " ", question.strip())
     q = re.sub(r"(?i)\b(what|who|where|how)['’]s\b", r"\1 is", q)
+    if _MEANS.match(q):                          # "What does GDP mean?" asks what GDP is, not the GDP of "mean"
+        x = defined(q)
+        return Asked(x) if x else None
     for rel in RELATIONS:
         for m in rel.rx.finditer(q):
             word = m.group(0)
@@ -529,17 +561,21 @@ class WikiKnowledge:
         return hits
 
     def labels(self, ids: list[str], lang: str, explicit: bool) -> dict[str, dict]:
-        """{id: {"label", "description", "url"}} — names in the conversation's language (else English),
-        the Wikipedia article in it (else the English one, else the Wikidata page)."""
+        """{id: {"label", "description", "url"}} — names in the conversation's language (else the one
+        for all languages, "mul", which many people's items have instead of "en" since 2024 — "Emmanuel
+        Macron" — else English), the Wikipedia article in it (else the English one, else the Wikidata
+        page). An item without a name is left out: its id ("Q3052772") is no answer."""
         ids = list(dict.fromkeys(i for i in ids if re.fullmatch(r"Q\d+", i)))[:40]
         if not ids:
             return {}
         d = self._wikidata(explicit, action="wbgetentities", ids="|".join(ids), props="labels|descriptions|sitelinks",
-                           languages=f"{lang}|en", sitefilter=f"{lang}wiki|enwiki")
+                           languages="|".join(dict.fromkeys((lang, "mul", "en"))), sitefilter=f"{lang}wiki|enwiki")
         out = {}
         for qid, e in ((d or {}).get("entities") or {}).items():
             labels, descs, links = e.get("labels") or {}, e.get("descriptions") or {}, e.get("sitelinks") or {}
-            label = (labels.get(lang) or labels.get("en") or {}).get("value") or qid
+            label = (labels.get(lang) or labels.get("mul") or labels.get("en") or {}).get("value")
+            if not label:
+                continue
             desc = (descs.get(lang) or descs.get("en") or {}).get("value") or ""
             url = f"https://www.wikidata.org/wiki/{qid}"
             for lg in dict.fromkeys((lang, "en")):
@@ -625,7 +661,10 @@ class WikiKnowledge:
                 year = _time_key(point.get("time"))[0]
                 asof = f" (Stand {year})" if de else f" (as of {year})"
         elif items:
-            answer = _join([names.get(i, {}).get("label", i) for i in items], lang)
+            if any(i not in names for i in items):
+                return None                          # a value without a name (or Wikidata did not answer)
+            answer = _join([_NATIONAL_TEAM.sub("", names[i]["label"]) if rel.key == "winner" else names[i]["label"]
+                            for i in items], lang)
             person = rel.kind == "item" and rel.key in ("head_state", "head_gov", "ceo", "coach", "founder", "author",
                                                          "director", "composer", "painter", "architect", "inventor",
                                                          "spouse")
@@ -734,7 +773,8 @@ class _Short:
 
 
 def _first_sentences(text: str, n: int, limit: int) -> str:
-    parts = re.split(r"(?<=[.!?])\s+(?=[A-ZÄÖÜ0-9\"“„(])", text)
+    from engramm.web.clean import split_sentences
+    parts = split_sentences(text)
     out = ""
     for p in parts[:n]:
         if out and len(out) + len(p) + 1 > limit:

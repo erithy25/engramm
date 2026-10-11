@@ -169,6 +169,29 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
   Keine Trefferliste und keine Fußzeile mehr; eine Quelle (Chip mit Link). Gemessen gegen echte, langsam
   aufgezeichnete Wikidata-Antworten (11.10.2026): Format, aktuelle Aussagen und Treffer stimmen; live prüft
   `scripts/answer_smoke.py` in CI 16 Fragen.
+- **Ende-zu-Ende-Live-Check (`scripts/chat_smoke.py`, CI, 11.10.2026):** 28 Alltagsfragen EN/DE durch den
+  ganzen Chat-Pfad: **21/28** vor den folgenden Korrekturen. Die Fehler und was dagegen steht:
+  - „**Q3052772** is the president of France“, „Steve Wozniak, **Q332591** and Steve Jobs founded Apple“: Wikidata
+    führt Namen, die in allen Sprachen gleich sind, seit 2024 als Label `mul` statt `en`/`de` (Personen). Die
+    Namen werden jetzt in `<Sprache>|mul|en` geholt; ein Wert ohne Namen ist keine Antwort (nie eine ID im Satz).
+  - „A spider has **50,000** legs“ (Zahl der Arten): Eine Zählantwort muss am Gezählten stehen („eight legs“,
+    „8 legs“, „eight-legged“; Zahlwörter EN/DE bis 20 und Zehner); Einwohner zählen wie bisher im Umfeld von
+    „population/inhabitants/Einwohner“.
+  - „Mount Everest – **Wikidata id: Q513**.“ auf „Wie hoch …“: Faktenbox-Zeilen mit Kennungen, Aliasen, Links fallen weg.
+  - „Who won the 2022 FIFA World Cup?“ (Satz über Regenbogenflaggen) und „What is the boiling point of water?“
+    (Bildunterschrift): neue Relationen **Sieger** (P1346, „Argentina won the 2022 FIFA World Cup.“; „last/letzte“
+    bleibt draußen, das ändert sich jährlich), **Siede-/Schmelzpunkt** (P2102/P2101, °C/°F/K).
+  - „What does GDP mean?“ wurde als BIP von „mean“ gelesen: „what does X mean / stand for“, „wofür steht X“,
+    „was bedeutet X“ sind Definitionsfragen.
+  - **Satzgrenzen** (alle Web-Texte, Zusammenfassung, Regal): „… written by British author **J.**“, „**Mai 1949**
+    wurde das Grundgesetz …“, Goethes Zusammenfassung brach nach „(* 28.“ ab. `split_sentences`
+    (`engramm/web/clean.py`) trennt nicht nach Initialen („J. K.“, „z. B.“, „U.S.“), Titeln („Dr.“, „St.“),
+    Kurzformen („Mio.“, „bzw.“ – außer ein Satz beginnt danach: „… usw. Die …“) und deutschen Ordnungszahlen vor
+    Monat, Jahrhundert, Liga („am 6. März“, „1. FC Köln“); nach „SpaceX and X. He …“ trennt er.
+  - **Relationswort-Pflicht:** Fragt die Frage eine Relation („When was Real Madrid founded?“), muss der
+    Antwortsatz sie nennen (Relationswörter EN+DE, Antwortwörter wie „metres“ für „how tall“); sonst gewann ein
+    Satz mit dem Gegenstand und irgendeiner Jahreszahl („… title Real was bestowed in 1920“). Sagt keine Seite
+    es: „I couldn't find that online — none of the pages I found says it.“ statt einer falschen Antwort.
 - **Wikimedia-Regeln (2026):** 200 Anfragen/Minute für Clients mit User-Agent samt Kontakt-URL, 10 ohne.
   ENGRAMMs User-Agent war „ENGRAMM/3.1 (+offline assistant)“ (ohne Kontakt → 10/min, daher die häufigen 429
   der Wikipedia-Ausweichsuche); jetzt „ENGRAMM/3.2 (https://engramm.vercel.app; https://github.com/erithy25/engramm)
@@ -243,12 +266,18 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
   Python-urllib bekam auf HTML- und Lite-Seite 200 mit 10 Treffern, der Rust-Kern 202 ohne Treffer – auch
   wenn er zuerst fragte. DuckDuckGo unterscheidet also die Clients, nicht nur die Adresse; das erklärt, warum
   die Suche in der App (alle Abrufe laufen über den Kern) leer blieb, während derselbe Abruf aus Python ging.
-  Größter Unterschied der beiden: der TLS-Handshake (rustls gegen OpenSSL). **Seit beta.11 spricht der Kern
-  TLS über das Betriebssystem** (ureq mit `native-tls`: SChannel unter Windows, Security.framework unter macOS,
-  OpenSSL 3 unter Linux; rustls nur noch als Rückfall, wenn die System-Bibliothek nicht lädt). Nebeneffekt:
-  Zertifikate kommen aus dem System-Speicher, eine Firmen-CA gilt ohne Zutun. Das Linux-Paket verlangt dafür
-  `libssl3 | libssl3t64` (deb) bzw. `libssl.so.3()(64bit)` (rpm) – auf jedem System mit WebKitGTK 4.1 ohnehin
-  installiert.
+  Erster Verdacht: der TLS-Handshake (rustls gegen OpenSSL). **Seit beta.11 spricht der Kern TLS über das
+  Betriebssystem** (ureq mit `native-tls`: SChannel unter Windows, Security.framework unter macOS, OpenSSL 3
+  unter Linux; rustls nur noch als Rückfall, wenn die System-Bibliothek nicht lädt; Zertifikate aus dem
+  System-Speicher, eine Firmen-CA gilt ohne Zutun; das Linux-Paket verlangt `libssl3 | libssl3t64` (deb) bzw.
+  `libssl.so.3()(64bit)` (rpm)). **Dritter Lauf (CI, mit OpenSSL im Kern): unverändert** – Python 200, Kern
+  202. Der Handshake allein ist es also nicht; die Anfragen unterscheiden sich auch sonst (lokal mitgeschnitten:
+  Python sendet `Connection: close` und eine andere Header-Reihenfolge, setzt ALPN `http/1.1` und eine eigene
+  Cipher-Liste). **Folge (beta.11):** DuckDuckGos zwei Ergebnisseiten-Hosts (`html.`/`lite.duckduckgo.com`,
+  `PYTHON_HOSTS` in `engramm/web/egress.py`) gehen über Pythons urllib – mit denselben Regeln, in Python vor dem
+  Senden geprüft (`check`: Kanal, Host-Liste, private Adressen, Header-Whitelist, Größe, Zeit), und im selben
+  Netzwerkprotokoll. Alles andere (Bing, Brave, DuckDuckGos Faktenbox-API, Wikimedia, Seiten) bleibt im Kern.
+  `scripts/ddg_probe.py` misst weiter den nackten Kern gegen urllib.
 - **Satzantwort (ohne Kurzantwort):** der Satz aus Snippets und Seiten, der die Frage am besten trifft, mit Quelle; eine zweite
   Quelle nur, wenn sie dasselbe sagt (gleiche Zahl oder gleicher Name). Regeln: Fragewörter zählen nach
   Seltenheit, Antwortwörter („how tall“ → „metres“) halb; der Name aus der Frage muss im Satz stehen; eine

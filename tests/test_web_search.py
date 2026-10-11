@@ -574,3 +574,64 @@ def test_who_won_without_a_year_is_no_vote():
     assert short_answer("Who won the last Champions League?", rows) is None
     a = short_answer("Who won the Champions League in 2024?", rows)
     assert a is not None and a.text == "Real Madrid", a
+
+
+# -- sentences, counts, fact boxes (the live check's wrong answers, 11.10.2026) --------------------------
+
+@pytest.mark.parametrize("text,first", [
+    ("Harry Potter is a series of novels written by British author J. K. Rowling. The novels follow a wizard.",
+     "Harry Potter is a series of novels written by British author J. K. Rowling."),
+    ("Am 23. Mai 1949 wurde das Grundgesetz verkündet. Es trat am 24. Mai in Kraft.",
+     "Am 23. Mai 1949 wurde das Grundgesetz verkündet."),
+    ("Bei der anoxygenen Photosynthese, die z. B. Purpurbakterien betreiben, entsteht kein Sauerstoff. Sie ist älter.",
+     "Bei der anoxygenen Photosynthese, die z. B. Purpurbakterien betreiben, entsteht kein Sauerstoff."),
+    ("Berlin hat rund 3,7 Mio. Einwohner. Es ist die größte Stadt.", "Berlin hat rund 3,7 Mio. Einwohner."),
+    ("Der 1. FC Köln spielt im 21. Jahrhundert in der 2. Bundesliga. Über die Jahre stieg er oft ab.",
+     "Der 1. FC Köln spielt im 21. Jahrhundert in der 2. Bundesliga."),
+    ("The U.S. President lives in the White House. Dr. Smith went to St. Louis.", "The U.S. President lives in the White House."),
+    ("Real Madrid was founded in 1902. The club has won 15 European Cups.", "Real Madrid was founded in 1902."),
+    ("Prices rose by 10. Then they fell.", "Prices rose by 10."),
+])
+def test_sentences_end_where_sentences_end(text, first):
+    from engramm.web.clean import SENTENCE
+    parts = SENTENCE.split(text)
+    assert parts[0] == first and len(parts) == 2, parts
+
+
+def test_a_count_counts_what_is_asked():
+    """"How many legs does a spider have?" was answered "A spider has 50,000 legs." (the number of
+    species): a count must stand at what is asked ("eight legs", "8 legs", "eight-legged")."""
+    from engramm.web.search import short_answer
+
+    def row(score, host, sent):
+        return (score, sent, {"t": "Spiders", "x": sent, "url": f"https://{host}/spiders", "host": host})
+    rows = [row(3.0, "atlas.example", "There are about 50,000 species of spiders in the world."),
+            row(2.5, "atlas.example", "Spiders have eight legs and two main body parts."),
+            row(2.0, "kids.example", "All spiders have 8 legs, while insects have six."),
+            row(1.5, "bugs.example", "A spider is an eight-legged arachnid that spins silk.")]
+    ans = short_answer("How many legs does a spider have?", rows, "en")
+    assert ans is not None and ans.text in ("eight", "8") and ans.sites >= 2, ans
+    assert short_answer("How many legs does a spider have?", rows[:1], "en") is None
+    de = [row(3.0, "a.example", "Spinnen haben acht Beine."), row(2.0, "b.example", "Alle Spinnen besitzen 8 Beine."),
+          row(1.0, "c.example", "Es gibt rund 50.000 Spinnenarten.")]
+    ans = short_answer("Wie viele Beine hat eine Spinne?", de, "de")
+    assert ans is not None and ans.text in ("acht", "8"), ans
+    # a population still counts people near the number ("a population of …", "… million inhabitants")
+    pop = [row(3.0, "a.example", "Berlin has a population of 3,685,265 as of 2024."),
+           row(2.5, "b.example", "Its 12 districts have about 3.7 million inhabitants."),
+           row(2.0, "c.example", "Berlin is home to 3.68 million people.")]
+    ans = short_answer("How many people live in Berlin?", pop, "en")
+    assert ans is not None and ans.text.replace(",", "").startswith("3"), ans
+
+
+def test_identifiers_are_no_facts():
+    """"Mount Everest – Wikidata id: Q513." answered "how high is Mount Everest" (it has a number)."""
+    body = json.dumps({"Heading": "Mount Everest", "AbstractText": "", "AbstractURL": "https://en.wikipedia.org/wiki/Mount_Everest",
+                       "Infobox": {"content": [{"label": "Elevation", "value": "8,849 m"},
+                                               {"label": "Wikidata id", "value": "Q513"},
+                                               {"label": "Wikidata aliases", "value": "Chomolungma"},
+                                               {"label": "Instagram profile", "value": "everest"},
+                                               {"label": "Official Website", "value": "https://example.org"}]}})
+    doc = parse_instant(body)
+    assert doc is not None and doc["x"] == "Mount Everest – Elevation: 8,849 m.", doc
+

@@ -360,6 +360,11 @@ def parse_wikipedia(body: str, lang: str) -> list[Result]:
     return out
 
 
+# fact box lines that are no facts: identifiers, aliases, links ("Mount Everest – Wikidata id: Q513." answered
+# "how high is Mount Everest" in the live check: it has a number)
+_ID_LABEL = re.compile(r"\b(?:ids?|identifier|aliases|website|url|homepage|profile|username|handle|channel)\b", re.I)
+
+
 def parse_instant(body: str) -> dict | None:
     """A DuckDuckGo Instant Answer as a document: its summary and one sentence per fact box line."""
     try:
@@ -371,7 +376,7 @@ def parse_instant(body: str) -> dict | None:
     lines = [abstract] if abstract else []
     for c in ((d.get("Infobox") or {}).get("content") or [])[:20]:
         label, value = clean_text(str(c.get("label") or "")), c.get("value")
-        if label and isinstance(value, str) and value.strip() and not label.lower().endswith("profile"):
+        if label and isinstance(value, str) and value.strip() and not _ID_LABEL.search(label):
             value = clean_text(re.sub(r"[\[\]]+", " ", value)).strip(" .")   # "[ ISIN: [ DE0007236101]]"
             value = re.sub(rf"^{re.escape(label)}\s*:\s*", "", value, flags=re.I)
             if value:
@@ -956,6 +961,64 @@ def _spans(kind: str, sentence: str, asked: set[str]) -> list[tuple[str, str, in
     return out
 
 
+# what a count question counts: "how many legs …" → legs; people and the like are a population
+_COUNT_NOUN = re.compile(r"\b(?:how many|wie viele?)\s+(?:of (?:the )?)?([^\W\d_][\w\-]*)", re.I)
+_POPULATION = frozenset("people persons population inhabitants residents einwohner einwohnerzahl bevölkerung menschen leute "
+                        "bewohner".split())
+_NUMBER_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
+                 "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17,
+                 "eighteen": 18, "nineteen": 19, "twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "hundred": 100,
+                 "zwei": 2, "drei": 3, "vier": 4, "fünf": 5, "sechs": 6, "sieben": 7, "acht": 8, "neun": 9, "zehn": 10,
+                 "elf": 11, "zwölf": 12, "zwanzig": 20, "dreißig": 30, "hundert": 100}
+
+
+def _counted(question: str) -> tuple[bool, frozenset[str]] | None:
+    """(a population?, the stems of what is counted) for a count question, or None when it names
+    nothing countable ("how many" alone)."""
+    def stem(w: str) -> str:
+        w = w.lower()
+        return (w[:-1] if len(w) > 3 and w.endswith(("s", "e", "n")) else w)[:5]
+    m = _COUNT_NOUN.search(question)
+    noun = m.group(1).lower() if m else None
+    if noun in _POPULATION or (noun is None and re.search(r"\b(?:population|einwohner\w*|bevölkerung)\b", question, re.I)):
+        return True, frozenset(stem(w) for w in _POPULATION)
+    if noun is None:
+        m = re.search(r"\b(?:number of|anzahl (?:der|an|von))\s+([^\W\d_][\w\-]*)", question, re.I)
+        noun = m.group(1).lower() if m else None
+    if noun is None or noun in _STOP_QUERY:
+        return None
+    return False, frozenset({stem(noun)} | {stem(x) for x in _ANSWER_WORDS.get(noun, ()) if " " not in x})
+
+
+def _counts(sentence: str, pos: int, counted: tuple[bool, frozenset[str]]) -> bool:
+    """The number at word ``pos`` counts what is asked: a population word near it ("a population
+    of 3,685,265", "3.7 million inhabitants"), else the thing right after it ("eight legs",
+    "206 bones" — not "50,000 species" for "how many legs")."""
+    population, stems = counted
+    toks = [re.sub(r"[^\w\-]", "", t.lower()) for t in sentence.split()]
+    near = toks[max(0, pos - 6):pos + 7] if population else toks[pos + 1:pos + 4]
+    return any(t.startswith(st) or any(p.startswith(st) for p in t.split("-")[1:]) for t in near for st in stems)
+
+
+def _small_counts(sentence: str, counted: tuple[bool, frozenset[str]]) -> list[tuple[str, str, int]]:
+    """(key, text, position) of the small numbers that count what is asked ("eight legs", "8 legs",
+    "an eight-legged animal"): the count spans (``_COUNT_RX``) start at a thousand. Not for a
+    population ("one of the 16 states … 3.7 million inhabitants")."""
+    if counted[0]:
+        return []
+    out = []
+    for i, tok in enumerate(sentence.split()):
+        word = tok.strip(".,;:()[]\"'“”„").lower()
+        head = word.split("-")[0]
+        v = int(head) if re.fullmatch(r"\d{1,3}", head) else _NUMBER_WORDS.get(head)
+        if v is None or (head != word and not _counts(word.replace("-", " "), 0, counted)):
+            continue
+        if head == word and not _counts(sentence, i, counted):
+            continue
+        out.append((f"{v:g}", tok.strip(".,;:()[]\"'“”„").split("-")[0], i))
+    return out
+
+
 @dataclass
 class Answer:
     text: str                                   # the short answer: "Donald Trump", "2,962 m"
@@ -993,6 +1056,7 @@ def rank_answers(question: str, rows: list[tuple[float, str, dict]], lang: str =
     for d in {id(r[2]): r[2] for r in rows}.values():
         lower |= set(re.findall(r"(?<![.!?]\s)(?<!^)\b([a-zäöüß][a-zäöüß'\-]{2,})\b", d.get("t", "") + " " + d.get("x", "")[:30_000]))
     tally: dict[str, dict] = {}
+    counted = _counted(question) if kind == "count" else None
     for score, sent, doc in rows:
         w = score / top
         if now:
@@ -1021,7 +1085,10 @@ def rank_answers(question: str, rows: list[tuple[float, str, dict]], lang: str =
         if kind == "count" and re.search(r"\b(?:urban area|metropolitan|metro area|agglomeration|ballungsraum|metropolregion|"
                                          r"großraum)\b", low) and not re.search(r"urban|metro|ballung|großraum", question.lower()):
             w *= 0.4                                   # the city, not its metropolitan area
-        for key, text, pos in _spans(kind, sent, asked):
+        spans = _spans(kind, sent, asked)
+        if counted is not None:                    # the number of what is asked, not of something else
+            spans = [x for x in spans if _counts(sent, x[2], counted)] + _small_counts(sent, counted)
+        for key, text, pos in spans:
             toks = key.split()
             if kind in ("person", "place") and any(_near(t, subject) or t in subject for t in toks if len(t) >= 4):
                 continue                               # the thing asked about, not its answer

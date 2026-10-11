@@ -14292,11 +14292,12 @@ class Assistant:
         self._progress(st, "write")
         pages = ([box] if box else []) + list(article) + pages
         today = dt.date.today().isoformat()
-        rows = WebSearch.best(query, found.results, pages, n=60, lang=lang, per_source=12)
-        rows = [b for b in rows if _web_covers(query, b[1], b[2]) and answers(query, b[1])]
         # "what/who is X" asks what X is — unless it names a relation ("who is the CEO of Siemens")
         asked = parse_question(query, lang)
         define = asked is not None and asked.rel is None
+        rows = WebSearch.best(query, found.results, pages, n=60, lang=lang, per_source=12)
+        rows = [b for b in rows if _web_covers(query, b[1], b[2]) and answers(query, b[1])
+                and _says_relation(query, b[1], asked)]
 
         def src(host: str, url: str, title: str) -> dict:
             return {"kind": "web", "source": host, "key": url, "title": title, "as_of": today}
@@ -14320,10 +14321,13 @@ class Assistant:
                 passage, d0 = _passage(rows)
                 text, evidence = T["lead"].format(site=d0["host"], s=passage), rows[0][1]
                 source = src(d0["host"], d0["url"], d0["t"])
-            elif any(r.snippet for r in found.results):
-                r0 = next(r for r in found.results if r.snippet)
-                text, evidence = T["lead"].format(site=r0.site, s=_end(r0.snippet)), r0.snippet
-                source = src(r0.site, r0.url, r0.title)
+            elif snippet := next((r for r in found.results if r.snippet and _web_covers(query, r.snippet, {"t": r.title})
+                                  and answers(query, r.snippet) and _says_relation(query, r.snippet, asked)), None):
+                text, evidence = T["lead"].format(site=snippet.site, s=_end(snippet.snippet)), snippet.snippet
+                source = src(snippet.site, snippet.url, snippet.title)
+            elif found.ok or pages:
+                # the engines answered, but no page says it (better than a sentence that answers something else)
+                return Reply(msg, "unknown", T["unsaid"], via="web")
             else:
                 why = "; ".join(dict.fromkeys(f"{ENGINE_NAMES.get(e, e)}: {T['why'].get(w.split(' (')[0], w.split(' (')[0])}"
                                               for e, w in found.tried))
@@ -15517,6 +15521,7 @@ _WEB_TEXT = {
         "none": "I couldn't find an answer online just now ({why}). Please try again in a moment — a Brave Search API key "
                 "under “Internet access” makes the search more reliable.",
         "no_engine": "no search engine answered",
+        "unsaid": "I couldn't find that online — none of the pages I found says it.",
         "why": {"refused": "blocked", "results did not match the question": "no match", "no results": "nothing found"},
         "failed": "The web search failed: {err}",
         "unavailable": "The web search is not available here (no network channels in this version).",
@@ -15530,6 +15535,7 @@ _WEB_TEXT = {
         "none": "Ich habe gerade online keine Antwort gefunden ({why}). Versuch es gleich noch einmal – ein "
                 "Brave-Search-API-Schlüssel unter „Internetzugang“ macht die Suche zuverlässiger.",
         "no_engine": "keine Suchmaschine hat geantwortet",
+        "unsaid": "Das habe ich online nicht gefunden – keine der gefundenen Seiten sagt es.",
         "why": {"refused": "gesperrt", "results did not match the question": "nichts Passendes",
                 "no results": "nichts gefunden"},
         "failed": "Die Websuche ist fehlgeschlagen: {err}",
@@ -15626,6 +15632,48 @@ def _web_covers(query: str, sentence: str, doc: dict) -> bool:
     said = [t[:5] in hay or _near(t, words) or (t in _EXPAND and _EXPAND[t] in hay)
             or any(x in hay for x in _ANSWER_WORDS.get(t, ())) for t in toks]
     return sum(said) * 2 >= len(toks)
+
+
+def _says_relation(query: str, sentence: str, asked) -> bool:
+    """A question for a relation of a thing ("When was Real Madrid founded?") is answered by a
+    sentence that says the relation ("Founded in 1902 as Madrid Football Club, …"), not by one
+    that names the thing and some other year ("… the title 'Real' was bestowed in 1920" — the
+    live check's answer before): the relation's own words in the sentence (``Rel.kw``/``rx``), the
+    question's word for it in another form ("Founded"), written out ("CEO" → "chief executive
+    officer") or as an answer says it ("how tall" → "metres"), or a word of the relation's answer
+    sentences in either language ("Höhe" asked, "318 metres high" on an English page)."""
+    from engramm.web.search import _ANSWER_WORDS, _EXPAND, _near, content_words
+    if asked is None or asked.rel is None:
+        return True
+    rx = asked.rel.kw or asked.rel.rx
+    if rx.search(sentence):
+        return True
+    cues = {w for m in rx.finditer(query) for w in content_words(m.group(0)).split() if len(w) >= 3}
+    cues |= _relation_words(asked.rel)
+    if not cues:
+        return True
+    low = sentence.lower()
+    words = set(re.findall(r"[^\W_]+", low))
+    long_words = {w for w in words if len(w) >= 4}
+    return any(any(w.startswith(t[:5]) for w in words) or _near(t, long_words) or (t in _EXPAND and _EXPAND[t] in low)
+               or any(x in low for x in _ANSWER_WORDS.get(t, ())) for t in cues)
+
+
+_REL_WORDS: dict[str, frozenset[str]] = {}
+_REL_GENERIC = frozenset("head state date place government end number value has hat seinen beträgt officer official nominal "
+                          "net sports führte member organization home plays belongs".split())
+
+
+def _relation_words(rel) -> frozenset[str]:
+    """The words of a relation's answer sentences and names in English and German ("founded",
+    "gegründet", "inception", "gründung"): a German question's answer may stand on an English page."""
+    from engramm.web.search import content_words
+    got = _REL_WORDS.get(rel.key)
+    if got is None:
+        text = re.sub(r"\{\w+\}", " ", " ".join((rel.en, rel.de, rel.name_en, rel.name_de)))
+        got = _REL_WORDS[rel.key] = frozenset(w for w in content_words(text).split()
+                                              if len(w) >= 3 and w not in _REL_GENERIC)
+    return got
 
 
 def _web_head(query: str, ans, lang: str, seen: list[str]) -> str | None:
