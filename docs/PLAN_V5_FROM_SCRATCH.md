@@ -365,6 +365,17 @@ Rechenleistung pro Stunde (§9).
   - **Tempo hier mit bf16:** 6,4–7,0 Mio. Token/h bei Kontext 256 (im Lauf), 5,8–6,4 Mio. bei 512 und 5,3–5,6 Mio. bei
     1.024 (Messung ohne Last). Restdauer ab 109,8 Mio. Token: ~6 h + ~25 h + ~56 h ≈ 87 h Training. Ende also etwa am
     **15. Oktober**, solange dieser Rechner bleibt; auf einem Rechner ohne bf16 gilt die Tabelle oben.
+- **Prüfungen beim 36-h-Punkt** (`results/v5/long/probe_36h.json`, je 150 val-A-Dokumente):
+  - **Fenster gegen Kontext:** Derselbe Checkpoint (134,7 Mio. Token) kommt mit Fenster 256 auf 1,477 bpb, mit
+    Fenster 1.024 auf 1,527. Mit mehr Kontext wird das Modell also schlechter, weil es Positionen 256–1.023 noch
+    nie trainiert hat. Die Kurve mit Fenster 1.024 unterschätzt den Fortschritt, bis der Kontext wächst (512 ab
+    150 Mio. Token, 1.024 ab 300 Mio.). Der Trainingsverlust fiel zwischen 100 und 130 Mio. Token um ≈ 0,08
+    nats/Token, die Kurve im selben Abschnitt nur um 0,005.
+  - **bf16-Speicherung:** Gewichte in bf16 auf der Platte und der fp32-Zustand derselben Sicherung ergeben 1,538893
+    gegen 1,538899. Für die Endmessung ist es gleich, welche Datei sie lädt.
+  - **Rauschen zwischen Checkpoints:** Bei konstanter Lernrate liegen Checkpoints 2 Mio. Token auseinander bis zu
+    0,02 bpb auseinander (1,527 / 1,546 / 1,539). Einzelne Kurvenpunkte sind entsprechend unsicher; die Abnahme der
+    Lernrate am Ende glättet das.
 - **Textproben:** je Kurvenpunkt fünf feste Prompts mit festem Seed (`results/v5/long/samples_<Token>M.json`). Bei
   101–104 Mio. Token: englische Sätze mit plausibler Form und frei erfundenem Inhalt; die Wissensfrage wird nicht
   beantwortet, Deutsch ergibt Buchstabensalat (Korpus englisch). Die App nutzt das Netz nicht; für Nutzer ändert der

@@ -1,0 +1,7 @@
+{"note": "checks at the 36 h curve point (11 Oct), first 150 val-A documents, near-duplicate-filtered bpb, experiments/v5_long.eval_bpb, 1 thread at low priority next to the training",
+ "window_vs_context": {"ckpt_tokens": 134668288, "window256_stride128": 1.4767454975250494, "window1024_stride512": 1.5266648369857518,
+   "reading": "the model, trained on 256-token windows so far, is worse with the longer GPT-2-style window: positions 256-1023 are untrained, so the window-1024 curve understates progress until the context grows (512 from 150 M tokens, 1024 from 300 M)"},
+ "bf16_storage": {"ckpt_tokens": 136830976, "fp32_state": 1.538898774724041, "bf16_disk": 1.5388924630896295,
+   "reading": "the bf16 weights on disk evaluate like the fp32 state (difference 6e-6): the final evaluation is not affected by which of the two it loads"},
+ "checkpoint_noise": {"window1024_bpb_by_tokens": {"134668288": 1.5266648369857518, "136568832": 1.5457272464091574, "136830976": 1.538898774724041},
+   "reading": "at the constant learning rate, checkpoints 2 M tokens apart differ by up to 0.02 bpb: single curve points are uncertain by about that much"}}
