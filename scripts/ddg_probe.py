@@ -39,7 +39,8 @@ def main() -> int:
     core = sys.argv[1] if len(sys.argv) > 1 else None
     clients = {"python": Egress(backend=PythonBackend())}
     if core:
-        clients["rust"] = Egress(backend=RustBackend(core), core=core)
+        # the bare core: with ``core=`` set, the app sends DuckDuckGo's pages through urllib (PYTHON_HOSTS)
+        clients["rust"] = Egress(backend=RustBackend(core))
     n = 0
     for query in QUERIES:
         for lite in (False, True):

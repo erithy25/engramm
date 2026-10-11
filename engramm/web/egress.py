@@ -53,6 +53,11 @@ HEADERS = ("accept", "accept-language", "referer", "origin", "x-subscription-tok
 FORM_FIELDS = 8                                # a web search may post its form (as the engine's search box does)
 LOG_MAX_BYTES = 2 << 20
 POOL = 4                                       # parallel fetches (result pages of one search)
+# DuckDuckGo's result pages answer the network core with a bot check (HTTP 202) and Python's urllib with
+# results — from the same address, whichever asks first, with the core on rustls and on the system's TLS
+# alike (scripts/ddg_probe.py in CI, 11.10.2026). These two hosts go through urllib (PythonBackend):
+# the same rules, checked in Python before anything is sent (``check``), and the same network log.
+PYTHON_HOSTS = frozenset({"html.duckduckgo.com", "lite.duckduckgo.com"})
 
 
 class EgressError(Exception):
@@ -332,6 +337,7 @@ class Egress:
     _pool: queue.Queue = field(default_factory=queue.Queue, repr=False)
     _made: int = 0
     _pool_lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
+    _python: object = field(default=None, repr=False)   # urllib for PYTHON_HOSTS, made on first use
 
     @classmethod
     def beside(cls, memory_path: Path | None, prefer_rust: bool = True) -> Egress:
@@ -400,6 +406,11 @@ class Egress:
         return self._fetch(req, self.backend)
 
     def _fetch(self, req: Request, backend) -> Fetched:
+        if self.core and isinstance(backend, RustBackend) and host_of(req.url) in PYTHON_HOSTS:
+            with self._pool_lock:
+                if self._python is None:
+                    self._python = PythonBackend()
+            backend = self._python
         try:
             res = backend.fetch(req, self.settings) if backend else Fetched(False, error="no backend")
             res.error = scrub(res.error)

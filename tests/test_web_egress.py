@@ -271,3 +271,29 @@ def test_network_log_stays_bounded(tmp_path):
     assert (tmp_path / "network.log").stat().st_size <= 8_000 + 200
     tail = log.tail(1000)
     assert tail[-1]["what"] == "feed 399" and len(tail) < 400          # the newest lines survive
+
+
+def test_duckduckgo_result_pages_go_through_urllib(monkeypatch):
+    """DuckDuckGo answers the core with a bot check and urllib with results (scripts/ddg_probe.py in CI):
+    its two result-page hosts go through PythonBackend (the same rules); everything else, its fact box
+    API too, through the core. Without the core (the fallback) or with a test double nothing changes."""
+    from engramm.web.egress import Fetched, host_of
+    calls = []
+    monkeypatch.setattr(PythonBackend, "fetch", lambda self, req, settings: calls.append(("python", host_of(req.url)))
+                        or Fetched(True, 200, b"ok"))
+    monkeypatch.setattr(RustBackend, "fetch", lambda self, req, settings: calls.append(("rust", host_of(req.url)))
+                        or Fetched(True, 200, b"ok"))
+    urls = ("https://html.duckduckgo.com/html/", "https://lite.duckduckgo.com/lite/", "https://www.bing.com/search?q=x",
+            "https://api.duckduckgo.com/?q=x")
+    e = Egress(backend=RustBackend.__new__(RustBackend), core="engramm-core")      # no process: fetch is replaced
+    for url in urls:
+        assert e.fetch(Request("search", url, "t", ("duckduckgo.com", "bing.com"), explicit=True)).ok
+    assert calls == [("python", "html.duckduckgo.com"), ("python", "lite.duckduckgo.com"), ("rust", "www.bing.com"),
+                     ("rust", "api.duckduckgo.com")], calls
+    assert e.fetch_many([Request("search", urls[0], "t", ("duckduckgo.com",), explicit=True)])[0].ok
+    assert calls[-1] == ("python", "html.duckduckgo.com")
+    calls.clear()
+    e = Egress(backend=RustBackend.__new__(RustBackend))                               # the probe's bare core
+    e.fetch(Request("search", urls[0], "t", ("duckduckgo.com",), explicit=True))
+    assert calls == [("rust", "html.duckduckgo.com")]
+
