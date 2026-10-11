@@ -196,15 +196,22 @@ pub fn iso_utc(secs: u64) -> String {
     format!("{y:04}-{m:02}-{d:02}T{:02}:{:02}:{:02}+00:00", rem / 3600, rem % 3600 / 60, rem % 60)
 }
 
+/// The connection for one fetch: the operating system's own TLS (SChannel on Windows, Security.framework
+/// on macOS, OpenSSL on Linux) rather than rustls, whose handshake DuckDuckGo tells apart: from one
+/// address in CI on 11.10.2026 it answered rustls with its bot check (HTTP 202) and OpenSSL with results,
+/// whichever asked first. The system's certificates come with it (a company's own CA too).
 fn agent(timeout: f64, loopback: bool, user_agent: &str) -> ureq::Agent {
     let timeout = timeout.clamp(1.0, 120.0);
-    ureq::AgentBuilder::new()
+    let mut builder = ureq::AgentBuilder::new()
         .timeout_connect(Duration::from_secs_f64(timeout.min(20.0)))
         .timeout(Duration::from_secs_f64(timeout))
         .redirects(0)
         .try_proxy_from_env(!loopback)
-        .user_agent(user_agent)
-        .build()
+        .user_agent(user_agent);
+    if let Ok(tls) = native_tls::TlsConnector::new() {
+        builder = builder.tls_connector(std::sync::Arc::new(tls));
+    }
+    builder.build()
 }
 
 /// A transport error without the URL (for the web search it holds the search words, and the

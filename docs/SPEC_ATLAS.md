@@ -238,8 +238,17 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
     als Champions-League-Sieger, „4,1 Mio.“ Berliner (Ballungsraum) — jeweils die Regel dagegen oben).
 - **Fußzeile (beta.10, in beta.11 entfernt):** nannte eine ausgefallene Maschine; die Antwort soll ohne
   Verfahrenshinweise auskommen, das Netzwerkprotokoll zeigt jeden Abruf.
-- **DuckDuckGo-Probe (CI, 11.10.2026):** vom selben GitHub-Rechner bekamen Python-urllib und der Rust-Kern
-  dieselben Antworten (beide HTTP 202): DuckDuckGo sperrt nach Adresse (Rechenzentrum), nicht nach Client.
+- **DuckDuckGo-Probe (CI, 11.10.2026):** Erster Lauf (Python stets zuerst): beide Clients HTTP 202 –
+  scheinbar eine Sperre nach Adresse. **Zweiter Lauf mit wechselnder Reihenfolge** (`scripts/ddg_probe.py`):
+  Python-urllib bekam auf HTML- und Lite-Seite 200 mit 10 Treffern, der Rust-Kern 202 ohne Treffer – auch
+  wenn er zuerst fragte. DuckDuckGo unterscheidet also die Clients, nicht nur die Adresse; das erklärt, warum
+  die Suche in der App (alle Abrufe laufen über den Kern) leer blieb, während derselbe Abruf aus Python ging.
+  Größter Unterschied der beiden: der TLS-Handshake (rustls gegen OpenSSL). **Seit beta.11 spricht der Kern
+  TLS über das Betriebssystem** (ureq mit `native-tls`: SChannel unter Windows, Security.framework unter macOS,
+  OpenSSL 3 unter Linux; rustls nur noch als Rückfall, wenn die System-Bibliothek nicht lädt). Nebeneffekt:
+  Zertifikate kommen aus dem System-Speicher, eine Firmen-CA gilt ohne Zutun. Das Linux-Paket verlangt dafür
+  `libssl3 | libssl3t64` (deb) bzw. `libssl.so.3()(64bit)` (rpm) – auf jedem System mit WebKitGTK 4.1 ohnehin
+  installiert.
 - **Satzantwort (ohne Kurzantwort):** der Satz aus Snippets und Seiten, der die Frage am besten trifft, mit Quelle; eine zweite
   Quelle nur, wenn sie dasselbe sagt (gleiche Zahl oder gleicher Name). Regeln: Fragewörter zählen nach
   Seltenheit, Antwortwörter („how tall“ → „metres“) halb; der Name aus der Frage muss im Satz stehen; eine

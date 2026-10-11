@@ -27,7 +27,8 @@
       "resources/sidecar/": "sidecar/"
     },
     "linux": {
-      "deb": { "depends": [] }
+      "deb": { "depends": ["libssl3 | libssl3t64"] },
+      "rpm": { "depends": ["libssl.so.3()(64bit)"] }
     },
     "macOS": {
       "minimumSystemVersion": "10.15",
