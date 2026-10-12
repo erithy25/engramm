@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 280756224,
+ "train_hours": 59.721487538947,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is named after its top flight. The ship was laid down in 1994 and designed to a premium for over 100 airlines (including this one with a small nose). The great sailing vessel was constructed in 1910 by the highest standards made from it's surface; so she could be an asset, not more than 80 nautical miles (121 km) to fly away"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in 1925 and now works as a tutor in the New York Institute for International Studies, Russia. She is also a member of the Swedish School of Physics (Pskir) OK. She received his PhD from Columbia University in 1978.\nDiana Jacobs graduated from high school with her thesis, distinguished by focusing on degrees of detail such as information"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " What is the referendum, what are the goods and services.\nThis article provides a overview of each government’s traditional party under [The Republic of the World].\n2) Best-ever economy for both average GDP and global trade (either traditional or modern).\n3) The working age of the local population seems to be similar with more"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " the problem is that if you are not into an airsoft coffee (the consequence of this point could be better then swimming in the area of the coffee or diet), then in the case it's hard for you. If you're having trouble keeping track of your coffee situation and to have an hour of enjoyable drink when you notice it's the end result"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " břia ke ti- ld ich kon.\nThe Leticide of the Great Thing is a sweetener, but with a clear understanding that it’s an unpretentious lie - and there’s some charm in the other side of this. These are lip-synched sweeteners which hold tightly as"
+  }
+ ]
+}
