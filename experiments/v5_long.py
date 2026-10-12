@@ -320,9 +320,16 @@ def save_state(model, opts, meta: dict) -> None:
     SHM.mkdir(parents=True, exist_ok=True)
     atomic_save({"model": model.state_dict(), "dense": opts[0].state_dict(),
                  "sparse": opts[1].state_dict() if opts[1] is not None else None, "meta": meta}, SHM / "state.pt")
-    DISK.mkdir(parents=True, exist_ok=True)
-    atomic_save({"model": {k: v.to(torch.bfloat16) for k, v in model.state_dict().items()}, "meta": meta},
-                DISK / "long_latest.pt")
+    # The disk copy only guards against a container restart. On a nearly full root disk (the atomic
+    # write needs the file's size again, ~200 MB) a failed write must neither stop the training nor
+    # leave a partial temporary file behind: the full state is already on the RAM disk.
+    path = DISK / "long_latest.pt"
+    try:
+        DISK.mkdir(parents=True, exist_ok=True)
+        atomic_save({"model": {k: v.to(torch.bfloat16) for k, v in model.state_dict().items()}, "meta": meta}, path)
+    except (OSError, RuntimeError) as e:          # torch.save reports a full disk as RuntimeError
+        path.with_suffix(path.suffix + ".tmp").unlink(missing_ok=True)
+        print(f"disk checkpoint skipped at {meta['tokens'] / 1e6:.1f} M tokens: {e}", flush=True)
 
 
 def make_optimizers(model: LongGPT, lr, beta2, wd):

@@ -368,6 +368,11 @@ Rechenleistung pro Stunde (§9).
   - **Tempo hier mit bf16:** 6,4–7,0 Mio. Token/h bei Kontext 256 (im Lauf), 5,8–6,4 Mio. bei 512 und 5,3–5,6 Mio. bei
     1.024 (Messung ohne Last). Restdauer ab 109,8 Mio. Token: ~6 h + ~25 h + ~56 h ≈ 87 h Training. Ende also etwa am
     **15. Oktober**, solange dieser Rechner bleibt; auf einem Rechner ohne bf16 gilt die Tabelle oben.
+- **Vierter Neustart (12. Oktober, ≈ 08:10–09:13 UTC).** Die RAM-Disk war wieder leer; fortgesetzt von den Gewichten
+  auf der Platte (08:02, 250,4 Mio. Token, Optimierer neu aufgewärmt), verloren ≤ 20 min Training plus Ausfallzeit.
+  Vorher war die Platte durch Downloads der Preisrecherche auf 203 MB frei gefallen (bereinigt: 353 MB). Seitdem
+  überspringt der Lauf eine fehlgeschlagene Plattensicherung (volle Platte) mit Warnung und löscht die halbe
+  Temporärdatei, statt abzubrechen; der volle Zustand liegt ohnehin auf der RAM-Disk.
 - **Prüfungen beim 36-h-Punkt** (`results/v5/long/probe_36h.json`, je 150 val-A-Dokumente):
   - **Fenster gegen Kontext:** Derselbe Checkpoint (134,7 Mio. Token) kommt mit Fenster 256 auf 1,477 bpb, mit
     Fenster 1.024 auf 1,527. Mit mehr Kontext wird das Modell also schlechter, weil es Positionen 256–1.023 noch
