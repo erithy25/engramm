@@ -258,15 +258,19 @@ def _split_meta(split: str, n_tok: int, n_docs: int):
     return R.target_docs(starts, n_tok), nbytes, keep
 
 
-def counter_mixtures(lp: dict, docs_n: dict, where: Path) -> tuple[dict, dict]:
+def counter_mixtures(lp: dict, docs_n: dict, where: Path, keep_override: dict | None = None) -> tuple[dict, dict]:
     """Network and one counting model mixed after training, p = λ·p_count + (1 − λ)·p_net, with λ
     global and per history bucket (as the post-hoc baseline of runs 2-4). Counter weights
-    (kn, inf, cache) and λ are fitted on near-duplicate-filtered val-A only; test is untouched."""
+    (kn, inf, cache) and λ are fitted on near-duplicate-filtered val-A only; test is untouched.
+    ``keep_override`` (split -> bool per document) replaces the near-duplicate filter, e.g. the extended filter
+    of the H100 run (experiments/h100_mix.py)."""
     per = {}
     for split in ("val_a", "test"):
         n_tok = len(lp[split])
         cols, feats = R.prior_columns(*(np.load(where / f"{split}_{c}.npz") for c in ("kn", "inf", "cache")))
         docs, nbytes, keep = _split_meta(split, n_tok, docs_n[split])
+        if keep_override is not None:
+            keep = np.asarray(keep_override[split][:docs_n[split]], dtype=bool)
         per[split] = {"cols": cols[:n_tok - 1], "ids": R.bucket_ids(feats[:n_tok - 1]),
                       "p_net": np.exp(lp[split][1:]), "docs": docs, "nbytes": nbytes, "keep": keep}
     v = per["val_a"]

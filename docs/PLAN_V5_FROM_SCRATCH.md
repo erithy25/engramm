@@ -417,3 +417,16 @@ startete viermal neu. Eine H100 (~4 $/h) rechnet etwa 300-mal schneller. Ablauf 
 - Selbstprüfungen vor dem Lauf (CPU): der Prüfcode reproduziert `results/lm/dedup.json` auf allen vier Prüfsätzen exakt;
   der ganze Trainings- und Messpfad läuft im Kleintest (`h100_train smoke`); C4-Teil 1 wurde echt geladen, geprüft,
   tokenisiert (353.856 Dokumente, 171 Mio. Token, 2.462 aus val/test-Bereichen ausgelassen) und zusammengeführt.
+
+**Nachtrag 12. Oktober abends, vor dem Lauf (Budget; Messregel unverändert).** Das Guthaben ist auf 30 $ festgelegt.
+- Kostenbremse: Pod-Zeit höchstens 25 $ (4,01 $/h), gemessen über alle Pod-Sitzungen; danach stoppt sich der Pod selbst
+  (`experiments/h100_meter.sh`). Das Haupttraining bekommt als Frist „Grenze − bisherige Pod-Zeit − 30 min“ und setzt
+  seine Tokenzahl nach gemessenem Durchsatz darauf (Obergrenze 10 Mrd.; über 6,4 Mrd. wird der Text neu gemischt ein
+  zweites Mal gelesen). Erwartet: ~4–4,5 h Training statt 5,5 h, also weniger Token als oben geplant.
+- Divergenz: weiter ab dem letzten Speicherstand mit halber Lernrate (kein Neubeginn); eine zweite Divergenz beendet
+  das Training mit der Endmessung des letzten gesicherten Stands.
+- Fortsetzungs-Stand: Der letzte Stand vor der Lernraten-Abnahme wird mit dem Modell gesichert. Wird Stufe 1 verfehlt,
+  gilt §10: Verlängerung mit weiteren Token ab diesem Stand (neue Abnahme-Phase), auf eigener GPU oder neu gemietet.
+- Die Mischung mit den Zählmodellen rechnet `experiments/h100_mix.py` auf dem CPU-Rechner: Zählergewichte und λ nur auf
+  gefiltertem val-A, Test mit beiden Filtern, der erweiterte zuerst; die beste Mischung gepaart gegen GPT-2 small.
+  Stufe 1 entscheidet weiterhin allein das Netz (Regel oben).
