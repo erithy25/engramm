@@ -388,3 +388,31 @@ Rechenleistung pro Stunde (§9).
   101–104 Mio. Token: englische Sätze mit plausibler Form und frei erfundenem Inhalt; die Wissensfrage wird nicht
   beantwortet, Deutsch ergibt Buchstabensalat (Korpus englisch). Die App nutzt das Netz nicht; für Nutzer ändert der
   Lauf erst mit einem Einbau (Phase R4) etwas.
+
+## 11. Stufe 1 auf einer gemieteten H100 (vor dem Lauf festgelegt, 12. Oktober)
+
+**Anlass.** Der CPU-Langlauf (§10) kommt auf dieser Hardware wahrscheinlich nur auf 1,15–1,30 bpb; der Container
+startete viermal neu. Eine H100 (~4 $/h) rechnet etwa 300-mal schneller. Ablauf und Anleitung: `docs/H100_ANLEITUNG.md`.
+
+**Aufbau.**
+- Modell: Rezept fast-v1 wie §10, Größe GPT-2 small (d = 768, 12 Schichten, 12 Köpfe), Kontext 1.024 von Anfang an
+  (keine Stufen, damit die Messung mit Fenster 1.024 nicht auf ungeübte Positionen trifft, vgl. Prüfung beim 36-h-Punkt).
+- Daten: Basis (bitgleich zum CPU-Rechner, SHA-256 je Datei) und C4-en-Teile 1–36, nur Dokumente des Trainings-Hash-
+  Bereichs (`split_of`), SHA-256 der Quelldateien vorab festgelegt; zusammen ≈ 6,4 Mrd. Token. Training bis 6 Mrd. Token,
+  Zeitgrenze 5,5 h (die Tokenzahl wird nach den ersten Schritten auf die Zeitgrenze gekürzt, vor der Abnahme-Phase).
+- Lernrate: drei kurze Läufe (1·10⁻³, 2·10⁻³, 4·10⁻³; je 200 Mio. Token auf den Basisdaten), gewählt nach val-A
+  (gleichauf innerhalb 0,003 bpb: die kleinere). 524.288 Token je Schritt, β₂ = 0,95, 300 Aufwärmschritte, Abnahme in den
+  letzten 30 %.
+
+**Messung und Entscheidung (Regel aus §10, angewendet auf den tatsächlichen Trainingstext).**
+- Der Filter aus §10 schließt Test-Dokumente aus, von deren 13-Token-Fenstern ≥ 20 % im Trainingstext vorkommen. Mit
+  dem Zusatztext wird dieselbe Regel auf Basis + Zusatz angewendet (`results/v5/h100/contamination.json`). Probe mit
+  einem einzigen Zusatzteil: 58 statt 45 Test-Dokumente betroffen — mit der alten Liste allein stünden Beinahe-Kopien
+  von Trainingsdokumenten im Test, der Wert wäre geschönt.
+- **Stufe 1 erreicht:** Test, erweiterter Filter, Netz allein, Fenster 1.024 / Schritt 512: bpb ≤ 1,04.
+- Zusätzlich berichtet: derselbe Wert mit der alten Filterliste, gepaarter Dokument-Bootstrap gegen GPT-2 small auf
+  denselben Dokumenten (beide Filter), val-A, Textproben; die Mischung mit den Zählmodellen rechne ich anschließend auf
+  dem CPU-Rechner aus den gespeicherten Token-Wahrscheinlichkeiten.
+- Selbstprüfungen vor dem Lauf (CPU): der Prüfcode reproduziert `results/lm/dedup.json` auf allen vier Prüfsätzen exakt;
+  der ganze Trainings- und Messpfad läuft im Kleintest (`h100_train smoke`); C4-Teil 1 wurde echt geladen, geprüft,
+  tokenisiert (353.856 Dokumente, 171 Mio. Token, 2.462 aus val/test-Bereichen ausgelassen) und zusammengeführt.

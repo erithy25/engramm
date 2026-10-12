@@ -140,7 +140,7 @@ tag = sys.argv[1]
 r = json.load(open(f"results/v5/h100/eval_{tag}.json"))
 s = r["stage1"]
 print(f"Stufe 1 (GPT-2-Niveau): {'ERREICHT' if s['reached'] else 'nicht erreicht'}")
-print(f"  Test, gefiltert: {r['test']['bpb']:.4f} bpb   (Ziel 1.04, GPT-2 small 1.039)")
+print(f"  Test ({s['filter']}): {s['bpb']:.4f} bpb   (Ziel 1.04; mit der alten Filterliste {s['bpb_original_filter']:.4f})")
 print(f"  val-A:           {r['val_a']['bpb']:.4f} bpb")
 for v in r.get("vs_gpt2", []):
     print(f"  gegen GPT-2 ({v['filter']}): Verhältnis {v['ratio_to_gpt2']:.3f}, 95 %-KI {v['ratio_ci95'][0]:.3f}–{v['ratio_ci95'][1]:.3f}")

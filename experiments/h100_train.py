@@ -233,13 +233,20 @@ def final_eval(model, device, meta: dict, tag: str, max_docs: int = 0, out: Path
         ext = extended_keep("test", len(np.load(TOK / "test.starts.npy")), out)
         if ext is not None:
             res["vs_gpt2"].append(versus_gpt2(perdoc["test"], ext, "extended (+ contamination.json)"))
-    res["stage1"] = {"rule": "test, near-duplicate filtered (results/lm/dedup.json), network alone, window 1024 / "
-                             f"stride 512: bpb <= {L.STAGE1_BPB} (PLAN §10)",
-                     "bpb": res["test"]["bpb"], "reached": bool(res["test"]["bpb"] <= L.STAGE1_BPB),
-                     "gap": res["test"]["bpb"] - L.STAGE1_BPB}
+    # The filter of PLAN §10 excludes test documents with >= 20 % of their 13-token windows in the training text.
+    # With the extra C4 text that rule has to be applied to the text actually trained on (contamination.json);
+    # the list of the LM study alone would leave near-copies of training documents in the test score.
+    ext_bpb = res["test"].get("bpb_extended_filter")
+    primary = ext_bpb if ext_bpb is not None else res["test"]["bpb"]
+    res["stage1"] = {"rule": "test, documents with >= 20 % of their 13-token windows in the training text excluded "
+                             "(rule of results/lm/dedup.json applied to the text trained on), network alone, window "
+                             f"1024 / stride 512: bpb <= {L.STAGE1_BPB} (PLAN §10/§11)",
+                     "filter": "extended (contamination.json)" if ext_bpb is not None else "original (dedup.json)",
+                     "bpb": primary, "bpb_original_filter": res["test"]["bpb"],
+                     "reached": bool(primary <= L.STAGE1_BPB), "gap": primary - L.STAGE1_BPB}
     (out / f"eval_{tag}.json").write_text(json.dumps(res, indent=1) + "\n")
-    log(f"Stage 1 {'REACHED' if res['stage1']['reached'] else 'not reached'}: test {res['test']['bpb']:.4f} bpb "
-        f"(target {L.STAGE1_BPB})")
+    log(f"Stage 1 {'REACHED' if res['stage1']['reached'] else 'not reached'}: test {primary:.4f} bpb "
+        f"({res['stage1']['filter']}; original filter {res['test']['bpb']:.4f}; target {L.STAGE1_BPB})")
     return res
 
 
