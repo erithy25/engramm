@@ -6,6 +6,11 @@ Messart A, B or C. Container timings are never official (docs/PROTOCOL.md,
 rule 2); the record carries ``environment.canonical`` like every other.
 
     .venv_b1/bin/python -u -m experiments.params_probe
+    .venv_b1/bin/python -u -m experiments.params_probe --size S5 --append <file.jsonl>
+
+With ``--size`` it measures one size in the registered setting only (fp32, block-wise
+loss, batch 16, 4 threads), appends the row to ``--append`` and writes no record: this
+is the fresh probe the Messart-C throughput guard compares against (docs/DEVIATIONS.md).
 """
 
 from __future__ import annotations
@@ -49,7 +54,20 @@ def main() -> None:
     ap.add_argument("--steps", type=int, default=20)
     ap.add_argument("--warm", type=int, default=3)
     ap.add_argument("--chunked", action="store_true", help="only the registered setting: fp32, block-wise loss")
+    ap.add_argument("--size", choices=sorted(GRID), help="one size, registered setting, no record")
+    ap.add_argument("--append", type=Path, help="with --size: append the row as one JSON line")
     args = ap.parse_args()
+    if args.size:
+        d, layers, heads = GRID[args.size]
+        r = probe(Arch(d, layers, heads), 16, 4, False, args.steps, args.warm, True)
+        row = {"size": args.size, "time_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+               "steps": args.steps, "warm": args.warm, "batch": 16, "threads": 4, "chunked_loss": True, **r}
+        if args.append:
+            args.append.parent.mkdir(parents=True, exist_ok=True)
+            with open(args.append, "a") as f:
+                f.write(json.dumps(row) + "\n")
+        print(json.dumps(row), flush=True)
+        return
     from engramm.repro import collect_environment, git_revision
 
     rows = []

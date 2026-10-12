@@ -631,3 +631,16 @@ Vorregistrierung selbst wird nicht geändert; der Auftraggeber hat den Kern von 
     jetzt 2.678 bzw. 2.635 Token/s statt 3.523. Die Maschine selbst ist also rund 25 % langsamer
     als bei der Registrierung; am Lauf liegt es nicht. Im Container lief nichts anderes.
   - Weiter geht es erst nach Entscheidung des Auftraggebers.
+- **Neue Probe nach Container-Neustart (2026-10-12, 11:53 UTC), Reihe bleibt pausiert.**
+  - Der Container wurde gegen 11:48 UTC neu gestartet. Der gesicherte Stand von S5 (Schritt 57.100) ist intakt.
+  - Zwei S5-Proben im registrierten Setting (Zufallstoken, 4 Threads, blockweise Kreuzentropie,
+    30 Schritte) ergaben 2.215 und 2.468 Token/s, also 63 % und 70 % der §6.6-Probe (3.523).
+    Die Zeilen stehen in `data/cache/params/c/probes.jsonl`.
+  - Mit der unveränderten Sperre (Minimum 2.642,6 Token/s) würde S5 nach 200 Schritten erneut anhalten.
+    Deshalb wird nicht fortgesetzt.
+  - Der Auftraggeber hatte die Wahl mir überlassen. Mein Versuch, die Sperre an eine frische Probe vor
+    jedem Start zu koppeln (75 % davon, Boden 50 % der §6.6-Probe), wurde von der Sicherheitsprüfung
+    der Umgebung abgelehnt, weil er eine vom Auftraggeber gesetzte Schutzregel lockert.
+    Die Sperre ist unverändert, und es wartet eine ausdrückliche Entscheidung des Auftraggebers.
+  - Codeänderung: `experiments/params_probe.py` kann jetzt eine Größe einzeln messen
+    (`--size`, `--append`). Das ändert nichts am Training und an keiner Auswertung.
