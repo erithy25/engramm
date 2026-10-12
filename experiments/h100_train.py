@@ -220,10 +220,11 @@ def final_eval(model, device, meta: dict, tag: str, max_docs: int = 0, out: Path
            "window": min(1024, model.cfg["ctx_max"]), "stride": min(1024, model.cfg["ctx_max"]) // 2, "max_docs": max_docs, "torch": torch.__version__,
            "device": torch.cuda.get_device_name(0) if device.type == "cuda" else "cpu"}
     perdoc = {}
+    sfx = "" if tag == "main" else f"_{tag}"                     # a re-evaluation never overwrites the run's arrays
     for split in ("val_a", "test"):
         t0 = time.time()
         r = eval_bpb(model, split, 1024, 512, device, max_docs)
-        np.save(out / f"lp_{split}.npy", r.pop("lp").astype(np.float32))
+        np.save(out / f"lp_{split}{sfx}.npy", r.pop("lp").astype(np.float32))
         perdoc[split] = r.pop("per_doc_bits")
         r["eval_seconds"] = time.time() - t0
         n = len(perdoc[split])
@@ -234,7 +235,7 @@ def final_eval(model, device, meta: dict, tag: str, max_docs: int = 0, out: Path
             r["docs_extended_filter"] = int(ext[:n].sum())
         res[split] = r
         log(f"{split}: {r['bpb']:.4f} bpb (filtered), {r['bpb_unfiltered']:.4f} unfiltered")
-    np.savez_compressed(out / "perdoc_final.npz", **{f"{k}_net_alone": v for k, v in perdoc.items()})
+    np.savez_compressed(out / f"perdoc_final{sfx}.npz", **{f"{k}_net_alone": v for k, v in perdoc.items()})
     if L.GPT2_TEST.exists():
         n = len(perdoc["test"])
         res["vs_gpt2"] = [versus_gpt2(perdoc["test"], R.keep_docs("test", len(np.load(TOK / "test.starts.npy"))),
@@ -415,8 +416,10 @@ def run(args, device) -> dict:
             atomic_save({"model": model.state_dict(), "opt": dense.state_dict(), "meta": meta}, state_path)
             t_ck = time.time()
     logf.close()
+    meta["loss_used"], meta["compiled_used"] = ("fused" if fused else "chunked"), compiled   # after any fallback
     atomic_save({"model": model.state_dict(), "opt": dense.state_dict(), "meta": meta}, state_path)
-    atomic_save({"model": {k: v.to(torch.bfloat16) for k, v in model.state_dict().items()}, "meta": meta, "cfg": cfg},
+    # fp32 like the in-memory weights the final evaluation measures: the uploaded file reproduces the reported numbers
+    atomic_save({"model": {k: v.detach().float().cpu() for k, v in model.state_dict().items()}, "meta": meta, "cfg": cfg},
                 ckdir / f"model_{args.tag}.pt")
     meta["model"] = model
     return meta
@@ -502,6 +505,14 @@ def cmd_smoke(args) -> None:
     common.update(bf16=True, loss="fused", compile=True)     # compiled only on CUDA or with H100_COMPILE_CPU=1
     cmd_train(argparse.Namespace(**common, lr=0, tag="main", total_tokens=100_000, warmup=5, lrs="", sweep_tokens=0,
                                  sweep_warmup=0))
+    # the fallback must not hide a broken fused/compiled path: the smoke test fails if the run left it
+    saved = torch.load(Path(common["ckpt_dir"]) / "model_main.pt", map_location="cpu", weights_only=False)
+    want_compiled = os.environ.get("H100_COMPILE_CPU") == "1"
+    if saved["meta"]["loss_used"] != "fused" or saved["meta"]["compiled_used"] != want_compiled:
+        raise SystemExit(f"smoke test: fell back to loss={saved['meta']['loss_used']}, "
+                         f"compiled={saved['meta']['compiled_used']} (expected fused, compiled={want_compiled})")
+    if any(v.dtype != torch.float32 for v in saved["model"].values()):
+        raise SystemExit("smoke test: the saved model is not fp32")
     # a resumed run continues from its state file without repeating work
     cmd_train(argparse.Namespace(**common, lr=0, tag="main", total_tokens=100_000, warmup=5, lrs="", sweep_tokens=0,
                                  sweep_warmup=0))

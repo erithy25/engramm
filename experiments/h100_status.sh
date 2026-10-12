@@ -22,6 +22,18 @@ uploaded = (W / "stages" / "uploaded").exists()
 print(f"Lauf aktiv: {'ja' if alive else 'NEIN'}" + ("" if alive or finished else
       f"   → Neustart: zuerst Befehl 2 (Schlüssel), dann:  {restart}"))
 print(f"Laufzeit seit dem ersten Start: {hours:.2f} h  (≈ {hours * price:.0f} $ bei {price} $/h)")
+gh = W / "github_check"
+print("GitHub-Schlüssel geprüft: " + (gh.read_text().strip() if gh.exists() else "noch nicht (Lauf hat Prüfung 0 nicht erreicht)"))
+# newest write of anything the run produces: a live run never stays silent for an hour
+watched = [W / "run.log", W / "sweep.log", Path("/workspace/h100_console.log")]
+watched += list(R.glob("train_log_*.jsonl")) + list(R.glob("curve_*.jsonl")) + list(R.glob("sweep_lr*.json"))
+watched += list(Path("data/cache/lm/tokens/extra").glob("*.done.json")) + list(Path("data/cache/lm/tokens/h100").glob("*"))
+mtimes = [f.stat().st_mtime for f in watched if f.exists()]
+if alive and mtimes:
+    idle = (time.time() - max(mtimes)) / 60
+    print(f"Letzte Aktivität: vor {idle:.0f} min" + ("   ← ungewöhnlich lange still: diese Ausgabe an Claude schicken" if idle > 60 else ""))
+if alive and hours > 9:
+    print("Laufzeit über 9 h – länger als geplant: diese Ausgabe an Claude schicken")
 for s in stages:
     print(f"  [{'x' if s in done else ' '}] {names[s]}")
 if (W / "FAILED").exists():

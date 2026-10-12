@@ -48,6 +48,9 @@ except Exception:
 print(n)" 2>/dev/null || nproc)
 say() { echo "[$(date -u +%H:%M:%S) UTC] $*"; }
 done_() { [ -f "$W/stages/$1" ]; }
+# test mode (CPU machine): stages that download, build or train for real are refused, never run by accident
+heavy() { if [ "${H100_TEST_SKIP_GPU:-0}" = 1 ] && [ "${H100_TEST_ALLOW_HEAVY:-0}" != 1 ]; then
+            fail "TEST-MODUS: Stufe '$1' würde jetzt echt laufen (Download/Training) – im Testmodus gesperrt"; fi; }
 mark() { date -u > "$W/stages/$1"; }
 # Stop the pod after a delay unless the situation changed (new start, KEEP file); never holds the run lock.
 autostop_later() {  # seconds marker-file
@@ -77,6 +80,8 @@ say "=== ENGRAMM H100-Lauf (Stufe 1), Arbeitsordner $W, $NCPU CPUs ==="
 say "== 0. Prüfungen"
 if [ "${H100_TEST_SKIP_GPU:-0}" = 1 ]; then
   say "TEST-MODUS: GPU-Prüfungen übersprungen (nur für Tests auf dem CPU-Rechner)"
+elif done_ main; then                                       # only the upload is left: works on a pod without GPU
+  say "Training bereits fertig: GPU-Prüfungen übersprungen (nur noch Ergebnisse/Upload)"
 else
 command -v nvidia-smi >/dev/null || fail "nvidia-smi fehlt – das ist kein GPU-Rechner"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader || fail "nvidia-smi meldet keine GPU"
@@ -103,14 +108,18 @@ fi
 if [ -n "${GH_TOKEN:-}" ]; then
   GIT_TERMINAL_PROMPT=0 timeout 90 git -c credential.helper= -c credential.helper="$CRED" \
     push --dry-run -q "$GHREPO" HEAD:refs/heads/h100-token-check >/dev/null 2>&1 \
-    || fail "GitHub-Schlüssel ungültig oder ohne Schreibrecht (bei 'Contents' muss 'Read and write' stehen) – neuen Schlüssel anlegen, Befehl 2, dann Befehl 3"
+    || { echo "NEIN (ungültig oder ohne Schreibrecht)" > "$W/github_check"
+         fail "GitHub-Schlüssel ungültig oder ohne Schreibrecht (bei 'Contents' muss 'Read and write' stehen) – neuen Schlüssel anlegen, Befehl 2, dann Befehl 3"; }
+  echo "ja (Schreibrecht bestätigt, $(date -u +%H:%M) UTC)" > "$W/github_check"
   say "GitHub-Schlüssel: Schreibrecht bestätigt"
 elif [ "${H100_NO_GITHUB:-0}" != 1 ]; then
-  fail "Kein GitHub-Schlüssel gesetzt (Befehl 2 vergessen?). Ohne Schlüssel bewusst starten: H100_NO_GITHUB=1 vor Befehl 3 setzen"
+  echo "NEIN (kein Schlüssel gesetzt)" > "$W/github_check"
+  fail "Kein GitHub-Schlüssel gesetzt (Befehl 2 vergessen?). Ohne Schlüssel bewusst starten: zuerst  export H100_NO_GITHUB=1  dann Befehl 3"
 else
+  echo "aus (bewusst ohne Schlüssel – Ergebnisse bleiben auf dem Pod)" > "$W/github_check"
   say "Ohne GitHub-Schlüssel: Ergebnisse und Modell bleiben auf dem Pod (Anleitung Schritt 5b)"
 fi
-if [ "${H100_TEST_SKIP_GPU:-0}" != 1 ] && [ "$(python3 -c 'import torch;print(int("H100" in torch.cuda.get_device_name(0)))')" != "1" ]; then
+if [ "${H100_TEST_SKIP_GPU:-0}" != 1 ] && ! done_ main && [ "$(python3 -c 'import torch;print(int("H100" in torch.cuda.get_device_name(0)))')" != "1" ]; then
   say "Hinweis: keine H100 – der Lauf funktioniert, dauert aber anders; die Zeitgrenze kürzt notfalls die Tokenzahl."
 fi
 
@@ -125,6 +134,7 @@ mark packages
 
 # --- 2. base data ---------------------------------------------------------------------------------------------
 if ! done_ base; then
+  heavy base
   say "== 2. Basisdaten (C4-Teil 0 + WikiText-103, bitgleich zum CPU-Rechner)"
   ok=0
   for attempt in 1 2 3; do
@@ -137,6 +147,7 @@ fi
 
 # --- 3. sweep (GPU) while the extra text is prepared (CPU) ------------------------------------------------------
 if ! done_ sweep || ! done_ extra; then
+  heavy sweep/extra
   say "== 3. Lernraten-Suche auf der GPU, parallel: $SHARDS zusätzliche C4-Teile auf der CPU"
   spid=""
   if ! done_ sweep; then
@@ -168,6 +179,7 @@ say "gewählte Lernrate: $LR"
 
 # --- 4. merge -------------------------------------------------------------------------------------------------
 if ! done_ merge; then
+  heavy merge
   say "== 4. Ein Trainingsstrom aus Basis + Zusatztext"
   python3 -m experiments.h100_data merge --shards "$SHARDS" || fail "Zusammenführen fehlgeschlagen"
   mark merge
@@ -175,6 +187,7 @@ fi
 
 # --- 5. contamination -------------------------------------------------------------------------------------------
 if ! done_ contamination; then
+  heavy contamination
   say "== 5. Kontaminationsprüfung (13-Token-Fenster aller val/test-Dokumente im Trainingstext)"
   python3 -m experiments.h100_data contamination --workers $(( NCPU > 4 ? (NCPU - 2 > 16 ? 16 : NCPU - 2) : 1 )) \
     || fail "Kontaminationsprüfung fehlgeschlagen"
@@ -183,6 +196,7 @@ fi
 
 # --- 6. main training + final evaluation ---------------------------------------------------------------------------
 if ! done_ main; then
+  heavy main
   say "== 6. Haupttraining (bis $TOKENS Token, Zeitgrenze $BUDGET h) und Endmessung"
   if [ -f "$W/stages/main_diverged" ]; then
     rc=3                                                    # decided earlier: continue the half-rate run
@@ -239,7 +253,8 @@ elif [ -n "${GH_TOKEN:-}" ]; then
   pushed=0
   for attempt in 1 2 3; do
     GIT_TERMINAL_PROMPT=0 timeout 900 git -c credential.helper= -c credential.helper="$CRED" push -q "$GHREPO" "$BR" \
-      && git ls-remote "$GHREPO" "refs/heads/$BR" | grep -q "$BR" && { pushed=1; break; }
+      && GIT_TERMINAL_PROMPT=0 timeout 120 git -c credential.helper= -c credential.helper="$CRED" \
+           ls-remote "$GHREPO" "refs/heads/$BR" | grep -q "$BR" && { pushed=1; break; }
     say "Push Versuch $attempt fehlgeschlagen, neuer Versuch in 60 s"; sleep 60
   done
   if [ $pushed = 1 ]; then
@@ -259,10 +274,18 @@ elif [ -n "${GH_TOKEN:-}" ]; then
     fi
     if [ -n "$RID" ] && [ -f "$MODEL" ]; then
       SIZE=$(stat -c %s "$MODEL")
+      # an earlier start may already have uploaded it (only its answer got lost): check before uploading again
+      EXIST=$(curl -sS --connect-timeout 30 --max-time 120 -H "Authorization: Bearer $GH_TOKEN" \
+        -H "Accept: application/vnd.github+json" "https://api.github.com/repos/erithy25/engramm/releases/$RID/assets?per_page=100")
+      python3 -c "import json,sys; a=json.loads(sys.stdin.read()); sys.exit(0 if isinstance(a, list) and any(
+          x.get('state') == 'uploaded' and x.get('size') == int(sys.argv[1]) for x in a) else 1)" "$SIZE" <<< "$EXIST" \
+        2>/dev/null && uploaded=1
       for attempt in 1 2 3; do
+        [ $uploaded = 1 ] && break
+        # a fresh name per attempt and start: GitHub refuses a name that an interrupted upload still holds
         ASSET=$(curl -sS --connect-timeout 30 --max-time 1800 -X POST -H "Authorization: Bearer $GH_TOKEN" \
           -H "Content-Type: application/octet-stream" --data-binary @"$MODEL" \
-          "https://uploads.github.com/repos/erithy25/engramm/releases/$RID/assets?name=model_${TAG}_try$attempt.pt")
+          "https://uploads.github.com/repos/erithy25/engramm/releases/$RID/assets?name=model_${TAG}_$(date -u +%Y%m%d%H%M%S).pt")
         GOT=$(python3 -c "import json,sys;print(json.loads(sys.stdin.read()).get('size',0))" <<< "$ASSET" 2>/dev/null)
         if [ "$GOT" = "$SIZE" ]; then uploaded=1; break; fi
         say "Modell-Upload Versuch $attempt unvollständig: $(python3 -c "import json,sys;print(json.loads(sys.stdin.read()).get('message',''))" <<< "$ASSET" 2>/dev/null)"
