@@ -72,7 +72,7 @@ Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet 
 3. **Befehl 1** – Programm holen (den genauen, geprüften Stand):
 
    ```bash
-   cd /workspace && git clone -q -b claude/optimistic-cannon-i0u0ap https://github.com/erithy25/engramm.git && cd engramm && git checkout -q COMMIT_PRUEFSTAND && echo "OK: Programm geladen"
+   cd /workspace && git clone -q -b claude/optimistic-cannon-i0u0ap https://github.com/erithy25/engramm.git && cd engramm && git checkout -q 6de894fd05ea18dce9db672b634260669983aab6 && echo "OK: Programm geladen"
    ```
 
    Es muss „OK: Programm geladen“ erscheinen.
