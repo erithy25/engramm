@@ -29,6 +29,7 @@ if ! flock -n 9; then
   echo "Lauf läuft bereits – kein zweiter Start nötig. Status: bash /workspace/engramm/experiments/h100_status.sh"
   exit 0
 fi
+rm -f /tmp/engramm_idle_stop                                # a run in this session cancels the status idle stop
 export H100_CKPT_DIR="$W/ckpt"
 LOG="$W/run.log"
 exec > >(tee -a "$LOG") 2>&1
@@ -319,8 +320,8 @@ elif [ -n "${GH_TOKEN:-}" ]; then
   git diff --cached --quiet || git commit -q -m "v5/H100: Ergebnisse des Stufe-1-Laufs ($TAG), automatisch vom GPU-Rechner"
   pushed=0
   for attempt in 1 2 3; do
-    left=$(time_left); [ "$left" -gt 600 ] || { say "Push: keine Zeit mehr vor der Kostenbremse"; break; }
-    pt=$(( left - 300 )); [ "$pt" -le 900 ] || pt=900
+    left=$(time_left); [ "$left" -gt 240 ] || { say "Push: keine Zeit mehr vor der Kostenbremse"; break; }
+    pt=$(( left - 120 )); [ "$pt" -le 900 ] || pt=900          # the results push is small; everything else needs it
     GIT_TERMINAL_PROMPT=0 timeout "$pt" git -c credential.helper= -c credential.helper="$CRED" push -q "$GHREPO" "$BR" \
       && GIT_TERMINAL_PROMPT=0 timeout 120 git -c credential.helper= -c credential.helper="$CRED" \
            ls-remote "$GHREPO" "refs/heads/$BR" | grep -q "$BR" && { pushed=1; break; }

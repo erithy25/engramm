@@ -10,12 +10,24 @@ pod_env
 if [ -n "${RUNPOD_POD_ID:-}" ] && [ -f "$W/cost_limit" ]; then
   setsid bash -c 'W="$1"; . experiments/h100_meter.sh; pod_env; start_meter' _ "$W" </dev/null >/dev/null 2>&1 &
   sleep 1                                                   # its first tick is then part of the numbers below
-  if [ "$ALIVE" = 0 ] && [ ! -f /tmp/engramm_idle_stop ]; then   # no run in this session: stop the idle pod in 30 min
-    touch /tmp/engramm_idle_stop
-    setsid bash -c 'sleep 1800; rm -f /tmp/engramm_idle_stop; [ -f "$1/KEEP" ] && exit 0
-                    flock -n /tmp/engramm_h100.lock true || exit 0; W="$1"; . experiments/h100_meter.sh; pod_env; stop_pod' \
-      _ "$W" </dev/null >/dev/null 2>&1 &
-    IDLE_NOTE=1
+  # No run in this session: stop the idle pod in 30 min. The marker "<session start> <token> <armed at>" ties the
+  # timer to this pod session; a run started meanwhile deletes it (cancel), KEEP counts only from this session.
+  S0=$(session_start)
+  read -r MS0 MTOK MAT 2>/dev/null < /tmp/engramm_idle_stop || MS0=""
+  if [ "$ALIVE" = 0 ] && { ! [[ "$MS0" =~ ^[0-9]+$ ]] || [ $(( MS0 - S0 )) -gt 120 ] || [ $(( S0 - MS0 )) -gt 120 ]; }; then
+    TOK="$S0.$$.$(date +%s%N)"
+    echo "$S0 $TOK $(date +%s)" > /tmp/engramm_idle_stop
+    setsid bash -c 'sleep 1800
+      read -r _ tok _ < /tmp/engramm_idle_stop 2>/dev/null || exit 0
+      [ "$tok" = "$2" ] || exit 0                               # cancelled or replaced
+      rm -f /tmp/engramm_idle_stop
+      [ -f "$1/KEEP" ] && [ "$(stat -c %Y "$1/KEEP")" -ge "$3" ] && exit 0
+      flock -n /tmp/engramm_h100.lock true || exit 0
+      W="$1"; . experiments/h100_meter.sh; pod_env; stop_pod' _ "$W" "$TOK" "$S0" </dev/null >/dev/null 2>&1 &
+  fi
+  read -r MS0 MTOK MAT 2>/dev/null < /tmp/engramm_idle_stop || MAT=""
+  if [ "$ALIVE" = 0 ] && [[ "${MAT:-}" =~ ^[0-9]+$ ]]; then
+    IDLE_LEFT=$(( (1800 - $(date +%s) + MAT) / 60 )); [ "$IDLE_LEFT" -ge 0 ] || IDLE_LEFT=0
   fi
 fi
 python3 - "$W" "$PRICE" "$ALIVE" <<'EOF'
@@ -101,6 +113,6 @@ if finished:
         print("\nAuf GitHub gesichert: NEIN – vor dem Beenden herunterladen (Anleitung Schritt 5b):")
         print(f"   {W / 'h100_results.tgz'},   {W / 'MODELL.pt'}   und   {W / 'FORTSETZEN.pt'}")
 EOF
-[ "${IDLE_NOTE:-0}" = 1 ] && echo "Kostenschutz: es läuft kein Lauf – der Pod stoppt sich in 30 min selbst (Daten bleiben). Aussetzen: touch $W/KEEP"
+[ -n "${IDLE_LEFT:-}" ] && echo "Kostenschutz: es läuft kein Lauf – der Pod stoppt sich in ${IDLE_LEFT} min selbst (Daten bleiben). Aussetzen: touch $W/KEEP"
 echo "--- letzte Zeilen des Protokolls ($W/run.log, Zeiten in UTC = deutsche Zeit minus 2 h):"
 tail -n 5 "$W/run.log" 2>/dev/null

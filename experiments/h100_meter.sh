@@ -20,15 +20,27 @@ pod_env() {
 billed_s() { cat "$W"/meter/* 2>/dev/null | awk 'NF == 2 {s += $2 - $1} END {printf "%d\n", s + 0}'; }
 limit_s() { awk '{printf "%d\n", $1 / $2 * 3600}' "$W/cost_limit" 2>/dev/null || echo 0; }
 
-# Seconds until the meter stops this pod (a lower bound, never negative); huge when no limit is set.
+# Start of this pod session (container start); the meter's session file name.
+session_start() {
+  local s0 up
+  s0=$(cat /tmp/engramm_session 2>/dev/null)
+  if ! [[ "$s0" =~ ^[0-9]+$ ]]; then
+    up=$(ps -o etimes= -p 1 2>/dev/null | tr -d ' '); [[ "$up" =~ ^[0-9]+$ ]] || up=0
+    s0=$(( $(date +%s) - up ))
+  fi
+  echo "$s0"
+}
+
+# Seconds until the meter stops this pod, minus one tick of margin (never negative); huge when no limit is set.
+# The meter stops at b >= l and (session age >= 1800 or b >= l + 1800); b and the age both grow by 1 s per s.
 time_left() {
-  local l b s0 age r1 r2
+  local l b age r1 r2 t
   l=$(limit_s); b=$(billed_s)
   [ "$l" -gt 0 ] || { echo 999999; return 0; }
-  if [ "$b" -lt "$l" ]; then echo $(( l - b )); return 0; fi
-  s0=$(cat /tmp/engramm_session 2>/dev/null); [[ "$s0" =~ ^[0-9]+$ ]] || s0=$(date +%s)
-  age=$(( $(date +%s) - s0 )); r1=$(( 1800 - age )); r2=$(( l + 1800 - b ))
-  r1=$(( r1 < r2 ? r1 : r2 )); echo $(( r1 > 0 ? r1 : 0 ))
+  age=$(( $(date +%s) - $(session_start) ))
+  r1=$(( 1800 - age )); r2=$(( l + 1800 - b )); r1=$(( r1 < r2 ? r1 : r2 ))
+  t=$(( l - b > r1 ? l - b : r1 )); t=$(( t - 60 ))
+  echo $(( t > 0 ? t : 0 ))
 }
 
 # Stop this pod (data in /workspace stays); 0 when one of the ways was accepted.

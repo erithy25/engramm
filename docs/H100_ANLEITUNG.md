@@ -202,7 +202,7 @@ sind alle Daten noch da: Pod → **Start** → Jupyter Lab → Terminal → **zu
 - Fortsetzungs-Stand: `state_main_predecay.pt` (im Release `fortsetzen_main_….pt`, auf dem Pod `FORTSETZEN.pt`) =
   Gewichte + Optimierer + Datenposition beim Übergang in die Abnahmephase der Lernrate (WSD); endete das Training wegen
   der Zeitgrenze schon vorher, ist es der letzte Stand. Weitertrainieren auf einem Rechner mit NVIDIA-GPU (≥ 16 GB),
-  ≥ 32 GB Arbeitsspeicher und ~30 GB freiem Platz:
+  ≥ 32 GB Arbeitsspeicher und ≥ 45 GB freiem Platz:
   1. Denselben Programmstand holen wie Befehl 1 (`git clone -b claude/optimistic-cannon-i0u0ap …` und `git checkout`
      derselben Nummer), eine Python-Umgebung anlegen und Pakete installieren (Ubuntu: ggf. vorher
      `sudo apt install python3-venv`):
@@ -219,4 +219,4 @@ sind alle Daten noch da: Pod → **Start** → Jupyter Lab → Terminal → **zu
   4. Auf einem gemieteten Pod gibt es dabei **keine** Kostenbremse – dort `--deadline <Unix-Zeit>` setzen oder mich fragen.
 - Einstellungen per Umgebungsvariable: `H100_MAX_USD` (25), `H100_PRICE` (4.01), `H100_BUDGET_HOURS` (5.5), `H100_SHARDS` (36), `H100_TOKENS` (10000000000),
   `H100_AUTO_END` (`terminate` | `stop` | `none`), `export H100_NO_GITHUB=1` vor Befehl 3 (bewusst ohne Schlüssel), `touch /workspace/h100/KEEP`
-  (setzt nur den 30-min-Stopp nach FEHLER/fehlgeschlagenem Hochladen für diese Sitzung aus – **nie** die 25-$-Bremse).
+  (setzt die 30-min-Stopps – nach FEHLER/fehlgeschlagenem Hochladen und im Leerlauf – für diese Pod-Sitzung aus, **nie** die 25-$-Bremse).
