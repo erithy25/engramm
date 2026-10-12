@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 248430592,
+ "train_hours": 53.7241082309352,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is arguably a known origin. The desert scene has been found in more than two million different races – such as those on the North American stage and the last of those new American cities, but there have also been eight crewing fatalities — both of which reported aboard the F-47 Liberation Guardsmen and one vessel to between 30th, 26th"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in Dallas, Texas, to a mother of two and a half. He grew up to think with his father's family about why it was important that he get married but had a difficult time in his life too: from the point of view in LA where he died at age twelve years ago.\nThe beginning of my childhood has taken off a"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " What is the majority of English speakers and commoner speakers than English speakers or Brits speakers; the ability to use cross-cultural features (e.g., microphones, telephones and other systems), and dialogue to give a sense of freedom as potential speakers are different from French speakers. Which example is the international speakers they take for consideration of this"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you need a gallon in your kitchen. Take the plenty of water with the coffee and leave on high quality cake for it!\nTurn your cup into tea and turn it on the over the counter top with a cheap tea with a little sugar (cord).\nGo out on a regular basis from the day you want a tea pot for those drink"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " zee\"\nOver the years, none of the above is so well-known, for any man who can find a cause for this problem. This is exactly why what we have been told, but it must be important to make an informed decision (for example, if you do not receive information regarding the first time* or the current report,"
+  }
+ ]
+}
