@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 210485248,
+ "train_hours": 47.725535526341865,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is indeed: the cities in which the surrounding community has been affected by climate change, but where in rural areas, there are many good and diverse reasons for the development of different cultures. In this region we have only recently managed to create a list of non-dominational reasons why localists and judges were constantly trying to discover ways to build and"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in March 1915 (Swedish: tekie, l. Mars) with a German wife and an antiquesvsky on his own side. When the father of a woman named Alterz attempted to locate the house he had lived there, he saw it as an elaborate chamber-clash plan, starting construction on two mids"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " What is the city that houses a significant land?\nAnswer: The state of French company wants to pursue its goals and provide solution with a long way forward, as well as an idea about this country. However, according to our current government the people who have joined us are more likely to benefit from the current economic goals in Britain than ever before"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " it’s not an elaborate piece. While you can find the way in which you have followed to all things from and through to an extra bit more so than anything else or even a whole lot much more. Once there is a huge amount of light from the day like this, you may discover a lot more distractions out there that I thought of"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " fared do men sinnah. My name is Elias (Diana), the boy they shared with, who was always proud of him and their relationship with him again.\nIn this video I want to share your story here! Thanks for sharing and sharing such a great article. Here is a lot of things you would love to learn from"
+  }
+ ]
+}
