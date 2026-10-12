@@ -101,6 +101,10 @@ Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet 
    Es muss **„Lauf aktiv: ja“** und **„GitHub-Schlüssel geprüft: ja (Schreibrecht bestätigt …)“** stehen. Steht dort
    „NEIN“ oder ein FEHLER zum Schlüssel: neuen Schlüssel anlegen (Schritt 1.3), dann Befehl 2 und Befehl 3 wiederholen.
    **Danach kannst du den Browser schließen** – der Lauf geht weiter.
+7. **Empfohlen: nach ca. 45 Minuten** noch einmal den Status aufrufen (Schritt 4). Erst dann arbeitet die GPU zum ersten
+   Mal (Lernraten-Suche). Es muss „Lauf aktiv: ja“ und **[x] Basisdaten** stehen und kein FEHLER; spätestens nach ~1 Stunde
+   erscheint die erste Zeile „Lernrate …: val-A … bpb“. Steht ein FEHLER da: Zeilen an mich schicken – so kostet ein
+   GPU-Problem höchstens ~4 $ statt mehr.
 
 ## Schritt 4 – Während es läuft (optional)
 
