@@ -1,149 +1,171 @@
 # Anleitung: ENGRAMM auf einer gemieteten H100 bis GPT-2-Niveau trainieren
 
-Stand 12. Oktober 2026. Ziel (Stufe 1, PLAN §6/§10/§11): Test-Satz ≤ 1,04 Bits pro Byte, das Niveau von GPT-2 small,
-gemessen genau wie im CPU-Lauf.
+Stand 12. Oktober 2026. Ziel (Stufe 1, PLAN §6/§11): Test-Satz ≤ 1,04 Bits pro Byte, das Niveau von GPT-2 small.
+Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet auf den tatsächlich trainierten Text
+(PLAN §11). Der Wert mit der alten Filterliste wird zusätzlich berichtet.
 
 ## Kurz gesagt
 
 | | |
 |---|---|
-| Was du tust | Konto anlegen, Guthaben aufladen, eine GPU mieten, **drei Befehle** einfügen, am Ende prüfen, dass der Pod weg ist |
-| Was automatisch passiert | Daten laden und prüfen, Lernrate suchen, trainieren, messen, Ergebnisse auf GitHub sichern, Pod löscht sich selbst |
-| Dauer | ca. 6,5–7,5 Stunden, davon 15 Minuten mit dir |
-| Kosten | ca. 25–30 $ (+ ggf. Steuer); Guthaben 50 $ aufladen, der Rest bleibt auf dem Konto |
-| Ergebnis | Messwerte im Repository (Branch `h100-results-…`), das Modell (≈ 270 MB) als privater Entwurf unter „Releases“ |
-| Ehrlich | GPT-2-Niveau ist wahrscheinlich (meine Schätzung ~70 %), nicht garantiert. Auch ohne Ziel sind alle Messungen gesichert |
+| Was du tust | Konto anlegen, Guthaben aufladen, GitHub-Schlüssel anlegen, eine GPU mieten, **drei Befehle** einfügen, am Ende kurz kontrollieren |
+| Was automatisch passiert | Daten laden und prüfen, Lernrate suchen, trainieren, messen, Ergebnisse und Modell auf GitHub sichern, dann löscht sich der Pod selbst |
+| Dauer | ca. 6,5–7,5 Stunden, davon ~20 Minuten mit dir |
+| Kosten | erwartet ca. 25–30 $ (+ ggf. Steuer); **75 $ aufladen** (ungünstigster Fall ≈ 55 $, siehe unten); der Rest bleibt auf dem Konto |
+| Ergebnis | Messwerte im Repository (Branch `h100-results-…`), das Modell (≈ 270 MB) als **privater** Entwurf unter „Releases“ (nur für dich sichtbar) |
+| Ehrlich | GPT-2-Niveau ist wahrscheinlich, nicht garantiert (meine Schätzung: eher ja als nein). Auch ohne Ziel sind alle Messungen gesichert |
 
-## Was die Skripte für dich absichern
+## Was die Skripte absichern
 
 | Risiko | Schutz |
 |---|---|
-| Falsche oder kaputte Daten | Jede Quelldatei ist per SHA-256 festgelegt; die nachgebauten Prüfdaten müssen **bitgleich** zum CPU-Rechner sein, sonst Abbruch vor dem Training |
-| Testdaten im Training (geschönte Werte) | Zusatztext nur aus dem Trainings-Bereich der Hash-Aufteilung; danach Prüfung aller 13-Token-Fenster der Test-Dokumente im gesamten Trainingstext (Prüfcode reproduziert die bisherige Liste exakt) |
+| Falsche oder kaputte Daten | Jede Quelldatei per SHA-256 festgelegt; die nachgebauten Prüfdaten müssen **bitgleich** zum CPU-Rechner sein, sonst Abbruch vor dem Training |
+| Testdaten im Training (geschönte Werte) | Zusatztext nur aus dem Trainings-Bereich der Hash-Aufteilung; Prüfung aller 13-Token-Fenster der Test-Dokumente im gesamten Trainingstext; Beinahe-Duplikate zählen nicht |
+| GitHub-Schlüssel falsch oder ohne Schreibrecht | Wird **in der ersten Minute** geprüft, nicht erst nach 7 Stunden |
 | Falsche Lernrate | Kurze Suche über drei Werte vor dem Hauptlauf |
-| Zu teuer, falls die GPU langsamer ist | Zeitgrenze 5,5 h für das Haupttraining; die Tokenzahl wird nach den ersten Minuten angepasst |
-| Speicher der GPU reicht nicht | Teil-Batches werden automatisch halbiert |
+| GPU langsamer als gedacht | Zeitgrenze 5,5 h für das Haupttraining (Tokenzahl wird angepasst) |
+| GPU-Speicher reicht nicht / Beschleunigung versagt | automatischer Rückfall auf die sparsame, auf der CPU getestete Variante |
 | Training „explodiert“ | Erkennung; einmaliger Neustart mit halber Lernrate |
-| Abbruch / Neustart des Pods | Zustand alle 30 min gesichert; derselbe Startbefehl setzt fort |
-| Pod läuft nach dem Ende weiter und kostet | Pod löscht sich selbst — **nur** nachdem Ergebnisse und Modell nachweislich auf GitHub liegen |
+| Pod startet neu | Zustand alle 30 min gesichert; derselbe Startbefehl setzt fort; Pakete werden bei jedem Start geprüft |
+| Doppelter Start | Ein zweiter Start erkennt den laufenden und beendet sich sofort |
+| Fehler, während du nicht schaust | Pod **stoppt sich nach 2 h selbst** (GPU kostet nichts mehr, Daten bleiben) |
+| Pod läuft nach dem Ende weiter | Pod löscht sich selbst — **nur** nachdem Ergebnisse und Modell nachweislich auf GitHub liegen |
 
 ---
 
-## Schritt 1 – Konto und Guthaben (10 Minuten, einmalig)
+## Schritt 1 – Konto, Guthaben, GitHub-Schlüssel (15 Minuten, einmalig)
 
 1. **RunPod-Konto:** <https://www.runpod.io> → *Sign up* → E-Mail bestätigen.
-2. **Guthaben:** links *Billing* → *Add Credits* → **50 $** (Kreditkarte).
-   - Guthaben wird nicht erstattet, verfällt aber nicht. Erwartet sind ~25–30 $.
-   - Wichtig: Fällt das Guthaben auf 0, löscht RunPod den Pod samt Daten. 50 $ decken auch den ungünstigsten Fall.
-3. **GitHub-Schlüssel (dringend empfohlen, sonst musst du Ergebnisse von Hand herunterladen):**
-   - <https://github.com/settings/personal-access-tokens/new> (*Settings → Developer settings → Personal access tokens →
-     Fine-grained tokens → Generate new token*)
-   - *Token name:* `engramm-h100` · *Expiration:* 7 days
+2. **Guthaben:** links *Billing* → *Add Credits* → **75 $** (Kreditkarte).
+   - Guthaben wird nicht erstattet, bleibt aber auf dem Konto. Erwartet sind ~25–30 $.
+   - Wichtig: Fällt das Guthaben auf 0, löscht RunPod den Pod samt Daten. 75 $ decken auch den ungünstigsten Fall
+     (Training explodiert spät und läuft noch einmal: ≈ 13 h ≈ 55 $).
+3. **GitHub-Schlüssel** (damit der Pod Ergebnisse und Modell selbst sichert und sich danach löschen darf):
+   - Öffnen: <https://github.com/settings/personal-access-tokens/new>
+     (*Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token*)
+   - *Token name:* `engramm-h100` · *Expiration:* **7 days**
    - *Repository access:* **Only select repositories** → `erithy25/engramm`
-   - *Permissions → Repository permissions → Contents:* **Read and write**
-   - *Generate token* → den Schlüssel (`github_pat_…`) kopieren und kurz in einer Notiz ablegen. Er wird nur einmal angezeigt.
+   - *Permissions*: bei *Repository permissions* (ggf. erst *+ Add permissions*) → **Contents** → **Read and write**
+     („Metadata: Read-only“ kommt automatisch dazu – richtig so)
+   - *Generate token* → Schlüssel (`github_pat_…`) kopieren und kurz in einer Notiz ablegen (wird nur einmal angezeigt).
 
 ## Schritt 2 – GPU mieten (5 Minuten)
 
 1. Links **Pods** → **Deploy**.
-2. **Secure Cloud** wählen (nicht Community: zuverlässiger, ~1 $/h teurer).
-3. GPU: **H100 SXM** (80 GB), Anzahl **1**. Falls nicht verfügbar: **H100 NVL** oder **H100 PCIe** (läuft auch, etwas langsamer).
-4. Template (Vorlage): **Runpod PyTorch** in der **neuesten** Version (PyTorch 2.4 oder neuer).
-5. *Edit Template* bzw. Speicher-Einstellungen: **Container Disk 50 GB**, **Volume Disk 100 GB** (Pfad `/workspace`).
+2. **Secure Cloud** wählen (nicht Community – zuverlässiger, ~1 $/h teurer).
+3. GPU: **H100 SXM** (80 GB), Anzahl **1**. Falls nicht verfügbar: **H100 NVL** oder **H100 PCIe** (geht auch, etwas langsamer).
+4. Template (Vorlage): **Runpod PyTorch**, neueste Version. Falls es einen Filter *CUDA Version* gibt: die zur Vorlage
+   passende Version (oder neuer) wählen.
+5. Speicher (*Edit Template* / Storage): **Container Disk 50 GB**, **Volume Disk 100 GB** (Pfad `/workspace`).
 6. **Deploy On-Demand** (nicht „Spot“/„Interruptible“ – die können mitten im Lauf weggenommen werden).
-7. Warten, bis der Pod **Running** zeigt (1–3 Minuten). Ab jetzt läuft die Uhr (~4 $/h).
+7. Warten, bis der Pod **Running** zeigt (1–3 Minuten; nach 10 Minuten noch nicht → siehe Tabelle unten). Ab jetzt läuft
+   die Uhr (~4 $/h).
 
 ## Schritt 3 – Training starten (5 Minuten)
 
-1. Beim Pod auf **Connect** → **Jupyter Lab** (öffnet sich im Browser) → dort *File → New → Terminal*.
-2. **Befehl 1** einfügen (Rechtsklick → Einfügen oder Strg+Shift+V) und Enter:
+1. Beim Pod auf **Connect** → **Jupyter Lab** (öffnet sich im Browser) → oben *File → New → Terminal*.
+2. Einfügen im Terminal: **Windows/Linux: Strg+Shift+V** (oder Rechtsklick → Paste), **Mac: Cmd+V**. Nach jedem Befehl Enter.
+3. **Befehl 1** – Programm holen (den genauen, geprüften Stand):
 
    ```bash
-   cd /workspace && git clone --depth 1 -b claude/optimistic-cannon-i0u0ap https://github.com/erithy25/engramm.git && cd engramm
+   cd /workspace && git clone -q -b claude/optimistic-cannon-i0u0ap https://github.com/erithy25/engramm.git && cd engramm && git checkout -q COMMIT_PRUEFSTAND && echo "OK: Programm geladen"
    ```
 
-3. **Befehl 2** (GitHub-Schlüssel; er wird beim Einfügen **nicht angezeigt** – das ist richtig) einfügen, Enter,
-   dann den Schlüssel einfügen und noch einmal Enter:
+   Es muss „OK: Programm geladen“ erscheinen.
+4. **Befehl 2** – GitHub-Schlüssel (beim Einfügen wird **nichts angezeigt** – das ist richtig): Befehl einfügen, Enter,
+   dann den Schlüssel einfügen, Enter:
 
    ```bash
    read -s -p "GitHub-Schlüssel einfügen, dann Enter: " GH_TOKEN; export GH_TOKEN; echo; echo "Schlüssel gesetzt (${#GH_TOKEN} Zeichen)"
    ```
 
-   Es muss „Schlüssel gesetzt (93 Zeichen)“ o. ä. erscheinen (nicht 0).
-4. **Befehl 3** – Start:
+   Es muss „Schlüssel gesetzt (93 Zeichen)“ o. ä. erscheinen. **Steht dort 0 Zeichen: Befehl 2 einfach noch einmal.**
+   Den Schlüssel nie direkt an der normalen Eingabe einfügen.
+5. **Befehl 3** – Start:
 
    ```bash
-   setsid nohup bash experiments/h100_run.sh > /workspace/h100_console.log 2>&1 &
+   setsid nohup bash /workspace/engramm/experiments/h100_run.sh > /workspace/h100_console.log 2>&1 &
    ```
 
-5. Nach 1–2 Minuten prüfen, dass es läuft:
+   Danach erscheint evtl. „[1] 1234“ oder „[1]+ Done …“ – **das ist normal**, der Lauf läuft im Hintergrund weiter.
+6. Nach **2 Minuten** prüfen:
 
    ```bash
    bash /workspace/engramm/experiments/h100_status.sh
    ```
 
-   Es sollten „[x] Pakete“ und bald „[x] Basisdaten“ erscheinen. **Du kannst den Browser jetzt schließen** – der Lauf
-   geht weiter.
+   Es muss **„Lauf aktiv: ja“** stehen und im Protokoll „GitHub-Schlüssel: Schreibrecht bestätigt“. Steht dort ein FEHLER
+   zum Schlüssel: neuen Schlüssel anlegen (Schritt 1.3), dann Befehl 2 und Befehl 3 wiederholen.
+   **Danach kannst du den Browser schließen** – der Lauf geht weiter.
 
 ## Schritt 4 – Während es läuft (optional)
 
-Jederzeit: Pod → *Connect* → *Jupyter Lab* → Terminal → Status:
+Jederzeit: Pod → *Connect* → *Jupyter Lab* → Terminal → `bash /workspace/engramm/experiments/h100_status.sh`
 
-```bash
-bash /workspace/engramm/experiments/h100_status.sh
-```
-
-Live-Protokoll (Strg+C beendet nur die Anzeige, nicht das Training): `tail -f /workspace/h100/run.log`
+Live-Protokoll (Strg+C beendet nur die Anzeige): `tail -f /workspace/h100/run.log` (Zeiten in UTC = deutsche Zeit − 2 h)
 
 | Phase | Dauer (Schätzung) |
 |---|---|
 | Prüfungen, Pakete | 2–5 min |
 | Basisdaten (Download 630 MB, Tokenisierung, Bit-Prüfung) | 10–20 min |
-| Lernraten-Suche (GPU), gleichzeitig Zusatztext: 36 C4-Teile, ~11 GB Download (CPU) | 30–45 min |
+| Lernraten-Suche (GPU), gleichzeitig Zusatztext: 36 C4-Teile, ~11 GB (CPU) | 30–45 min |
 | Zusammenführen und Kontaminationsprüfung | 5–15 min |
 | **Haupttraining** (bis 6 Mrd. Token, Grenze 5,5 h) | **4,5–5,5 h** |
 | Endmessung, Textproben, Hochladen | 10–20 min |
 | **Gesamt** | **≈ 6,5–7,5 h** |
 
-## Schritt 5 – Am Ende
+## Schritt 5 – Am Ende (nach ca. 7,5 Stunden nachsehen)
 
-**Mit GitHub-Schlüssel (Normalfall):** Im Protokoll steht „FERTIG. Ergebnisse und Modell sind auf GitHub gesichert. Der
-Pod beendet sich in 2 Minuten selbst.“
+**Fertig erkennst du daran:** Auf <https://github.com/erithy25/engramm/branches> gibt es einen Branch
+`h100-results-…` **und** der Pod ist aus der Liste unter *Pods* verschwunden. Dann:
 
-1. Schreib mir einfach **„H100 fertig“** – ich hole die Ergebnisse (Branch `h100-results-…`), rechne die Mischung mit
-   dem Zählmodell und berichte.
-2. **Kontrolle (wichtig, 1 Minute):** RunPod → *Pods*: Der Pod darf nicht mehr da sein. Falls doch: aufklappen →
-   **Stop** (Quadrat) → **Terminate** (Mülleimer) → bestätigen. Unter *Billing* darf nichts mehr laufen.
-3. Das Modell liegt privat (nur für dich sichtbar) unter <https://github.com/erithy25/engramm/releases> als Entwurf.
+1. Mir schreiben: **„H100 fertig“** – ich hole die Ergebnisse, rechne die Mischung mit dem Zählmodell und berichte.
+2. Kontrolle unter *Billing*: es läuft nichts mehr.
+3. Das Modell liegt privat unter <https://github.com/erithy25/engramm/releases> (Entwurf, nur für dich sichtbar).
 
-**Ohne GitHub-Schlüssel:** Im Protokoll steht „FERTIG. JETZT: Archiv und Modell herunterladen …“.
+**Ist der Pod noch da: NICHT sofort beenden**, erst Status aufrufen (Connect → Jupyter Lab → Terminal →
+`bash /workspace/engramm/experiments/h100_status.sh`):
 
-1. In Jupyter Lab links im Dateibrowser: `h100/h100_results.tgz` und `h100/ckpt/model_main.pt` → Rechtsklick → **Download**.
-2. Danach Pod **beenden**: *Pods* → aufklappen → **Stop** → **Terminate** → bestätigen. **Sonst kostet er weiter (~4 $/h).**
-3. Mir Bescheid geben; die Ergebnisse müssen dann noch ins Repository (ich sage dir wie).
+| Status zeigt | Bedeutung → Was tun |
+|---|---|
+| „Lauf aktiv: ja“ | läuft noch → später wieder nachsehen |
+| „Auf GitHub gesichert: JA“ | alles gesichert, nur die Selbstlöschung klappte nicht → Pod aufklappen → **Stop** → **Terminate** |
+| „Auf GitHub gesichert: NEIN“ | → **Schritt 5b** |
+| „FEHLER: …“ | Zeilen an mich schicken; Neustart siehe Tabelle unten |
+
+### Schritt 5b – Ohne GitHub-Schlüssel oder wenn das Hochladen fehlschlug
+
+1. In Jupyter Lab links im Dateibrowser in den Ordner `h100` wechseln → `h100_results.tgz` und `MODELL.pt` jeweils
+   Rechtsklick → **Download**.
+2. Erst danach den Pod beenden: *Pods* → aufklappen → **Stop** (Quadrat) → **Terminate** (Mülleimer) → bestätigen.
+3. Mir Bescheid geben; ich sage dir, wie die kleine Datei `h100_results.tgz` ins Repository kommt.
+
+Hinweis: Hat sich der Pod nach einem Fehler oder fehlgeschlagenem Hochladen selbst **gestoppt** (Kostenschutz nach 2 h),
+sind alle Daten noch da: Pod → **Start** → Jupyter Lab → wie oben herunterladen (oder Neustart, siehe unten).
 
 ## Was tun, wenn …
 
 | Situation | Lösung |
 |---|---|
-| Status zeigt „FEHLER: …“ | Die Zeilen an mich schicken. Meist reicht derselbe Startbefehl (Schritt 3, Befehl 3); er setzt fort |
-| Pod wurde neu gestartet / Terminal zeigt nichts | Terminal öffnen, `cd /workspace/engramm`, Befehl 2 (Schlüssel) und Befehl 3 wiederholen – es geht beim letzten Stand weiter |
-| „keine GPU“ / „torch zu alt“ | Pod beenden, neu mieten mit neuerem *Runpod PyTorch*-Template |
-| „zu wenig Platz“ | Pod beenden, neu mieten mit Volume Disk 100 GB |
+| Status zeigt „FEHLER: …“ oder „Lauf aktiv: NEIN“ (ohne „Lauf beendet“) | Zeilen an mich schicken. Neustart setzt fort: neues Terminal → **Befehl 2** (Schlüssel) → **Befehl 3** |
+| Pod wurde neu gestartet / war gestoppt | Pod starten → Jupyter Lab → Terminal → **Befehl 2** → **Befehl 3** (Befehl 1 nicht nötig) |
+| Pod nach 10 Minuten nicht „Running“ / „keine GPU“ | Pod beenden, neu mieten: CUDA-Filter passend zur Vorlage oder eine Vorlage mit älterem CUDA (z. B. PyTorch 2.4 / CUDA 12.4) |
+| „torch zu alt“ | Pod beenden, neu mieten mit neuerer *Runpod PyTorch*-Vorlage |
+| „zu wenig Platz“ beim **ersten** Start | Pod beenden, neu mieten mit Volume Disk 100 GB. Mitten im Lauf nicht beenden, sondern mir schreiben |
 | H100 SXM nicht verfügbar | H100 NVL oder H100 PCIe nehmen; die Zeitgrenze kürzt notfalls die Tokenzahl |
 | Guthaben wird knapp | Unter *Billing* nachladen (Lauf läuft weiter) |
-| Du willst abbrechen | *Pods* → Stop → Terminate. Bereits Gesichertes auf GitHub bleibt erhalten |
+| Du willst abbrechen | Erst Status: „Auf GitHub gesichert“? Sonst Schritt 5b. Dann Stop → Terminate |
 
-## Technische Details (für mich / zum Nachprüfen)
+## Technische Details (zum Nachprüfen)
 
 - Skripte: `experiments/h100_run.sh` (Ablauf), `experiments/h100_data.py` (Daten), `experiments/h100_train.py`
-  (Training, Endmessung), `experiments/h100_status.sh` (Status). CPU-Tests: `h100_train smoke`, `h100_data check-dedup`.
-- Modell: Rezept fast-v1 aus dem CPU-Lauf, Größe GPT-2 small (d = 768, 12 Schichten, 12 Köpfe), Kontext 1.024 von Anfang an,
+  (Training, Endmessung), `experiments/h100_status.sh` (Status). Tests auf der CPU: `h100_train smoke` (mit/ohne
+  torch.compile, bf16, beide Verlust-Varianten, Fortsetzen), `h100_data check-dedup` (reproduziert dedup.json exakt),
+  echter Download + Tokenisierung + Zusammenführung + Kontaminationsprüfung von C4-Teil 1, Ablaufskript im Testmodus.
+- Modell: Rezept fast-v1 aus dem CPU-Lauf, Größe GPT-2 small (d = 768, 12 Schichten, 12 Köpfe), Kontext 1.024,
   bf16, 524.288 Token je Schritt, AdamW (β₂ 0,95), WSD (300 Aufwärmschritte, Abnahme in den letzten 30 %).
 - Daten: Basis (C4-Teil 0 + WikiText-103, 285 Mio. Token, bitgleich) + C4-Teile 1–36 (nur Trainings-Hash-Bereich),
-  zusammen ≈ 6 Mrd. Token.
-- Messung: wie PLAN §10 (Fenster 1.024 / Schritt 512, gefiltert, gepaarter Bootstrap gegen GPT-2 small), zusätzlich mit
-  der erweiterten Duplikat-Liste des Zusatztexts. Die Mischung mit dem Zählmodell rechne ich danach auf dem CPU-Rechner
-  aus den gespeicherten Token-Wahrscheinlichkeiten.
+  zusammen ≈ 6,4 Mrd. Token; trainiert werden bis zu 6 Mrd.
 - Einstellungen per Umgebungsvariable: `H100_BUDGET_HOURS` (5.5), `H100_SHARDS` (36), `H100_TOKENS` (6000000000),
-  `H100_AUTO_END` (`terminate` | `stop` | `none`).
+  `H100_AUTO_END` (`terminate` | `stop` | `none`), `H100_NO_GITHUB=1` (bewusst ohne Schlüssel), `touch /workspace/h100/KEEP`
+  (Kostenschutz-Stopp aussetzen).

@@ -1,25 +1,32 @@
 #!/usr/bin/env bash
-# Status of the H100 run (docs/H100_ANLEITUNG.md):  bash experiments/h100_status.sh
+# Status of the H100 run (docs/H100_ANLEITUNG.md):  bash /workspace/engramm/experiments/h100_status.sh
 cd "$(dirname "$0")/.." || exit 1
 W=${H100_WORK:-/workspace/h100}
 PRICE=${H100_PRICE:-3.99}
-python3 - "$W" "$PRICE" <<'EOF'
-import json, os, sys, time
+if flock -n /tmp/engramm_h100.lock true 2>/dev/null; then ALIVE=0; else ALIVE=1; fi
+python3 - "$W" "$PRICE" "$ALIVE" <<'EOF'
+import json, sys, time
 from pathlib import Path
-W, price = Path(sys.argv[1]), float(sys.argv[2])
+W, price, alive = Path(sys.argv[1]), float(sys.argv[2]), sys.argv[3] == "1"
 R = Path("results/v5/h100")
+restart = "setsid nohup bash /workspace/engramm/experiments/h100_run.sh > /workspace/h100_console.log 2>&1 &"
 stages = ["packages", "base", "extra", "sweep", "merge", "contamination", "main", "finished"]
 names = {"packages": "Pakete", "base": "Basisdaten", "extra": "Zusatztext (C4)", "sweep": "Lernraten-Suche",
          "merge": "Zusammenführen", "contamination": "Kontaminationsprüfung", "main": "Haupttraining + Endmessung",
-         "finished": "Ergebnisse gesichert"}
+         "finished": "Lauf beendet"}
 done = [s for s in stages if (W / "stages" / s).exists()]
 started = float((W / "started").read_text()) if (W / "started").exists() else None
 hours = (time.time() - started) / 3600 if started else 0.0
-print(f"Laufzeit seit Start: {hours:.2f} h  (≈ {hours * price:.2f} $ bei {price} $/h)")
+finished = "finished" in done
+uploaded = (W / "stages" / "uploaded").exists()
+print(f"Lauf aktiv: {'ja' if alive else 'NEIN'}" + ("" if alive or finished else
+      f"   → Neustart: zuerst Befehl 2 (Schlüssel), dann:  {restart}"))
+print(f"Laufzeit seit dem ersten Start: {hours:.2f} h  (≈ {hours * price:.0f} $ bei {price} $/h)")
 for s in stages:
     print(f"  [{'x' if s in done else ' '}] {names[s]}")
 if (W / "FAILED").exists():
-    print("FEHLER:", (W / "FAILED").read_text().strip(), "– Neustart: nohup bash experiments/h100_run.sh > /workspace/h100_console.log 2>&1 &")
+    print("FEHLER:", (W / "FAILED").read_text().strip().split(" ", 1)[-1])
+    print(f"  → Neustart (setzt fort): zuerst Befehl 2 (Schlüssel), dann:  {restart}")
 if not (W / "stages" / "extra").exists() and Path("data/cache/lm/tokens/extra").exists():
     n = len(list(Path("data/cache/lm/tokens/extra").glob("*.done.json")))
     print(f"Zusatztext: {n} Teile fertig")
@@ -35,15 +42,21 @@ for tag in ("main", "main_lrhalf"):
             total = r["tokens"] / max(r["frac"], 1e-9)
             left = (total - r["tokens"]) / max(r["tok_per_s"], 1)
             print(f"Haupttraining ({tag}): {r['tokens'] / 1e9:.2f} von {total / 1e9:.2f} Mrd. Token "
-                  f"({100 * r['frac']:.1f} %), {r['tok_per_s'] / 1e3:.0f} k Token/s, Rest ≈ {left / 3600:.1f} h, "
-                  f"Verlust {r['loss']:.3f}")
+                  f"({100 * r['frac']:.1f} %), {r['tok_per_s'] / 1e3:.0f} k Token/s, Rest ≈ {left / 3600:.1f} h")
     c = R / f"curve_{tag}.jsonl"
     if c.exists():
         pts = [json.loads(l) for l in c.read_text().splitlines() if l.strip()]
         if pts:
             print("Lernkurve val-A (bpb): " + ", ".join(f"{p['tokens'] / 1e9:.1f} Mrd. → {p['bpb']:.3f}" for p in pts[-6:]))
 if (W / "SUMMARY.txt").exists():
-    print("\n" + (W / "SUMMARY.txt").read_text())
+    print("\n" + (W / "SUMMARY.txt").read_text().rstrip())
+if finished:
+    if uploaded:
+        print(f"\nAuf GitHub gesichert: JA (Branch {(W / 'stages' / 'uploaded').read_text().strip()}, Modell als privater Entwurf-Release)")
+        print("→ Den Pod jetzt beenden: Stop, dann Terminate.")
+    else:
+        print("\nAuf GitHub gesichert: NEIN – vor dem Beenden herunterladen (Anleitung Schritt 5b):")
+        print(f"   {W / 'h100_results.tgz'}   und   {W / 'MODELL.pt'}")
 EOF
-echo "--- letzte Zeilen des Protokolls ($W/run.log):"
+echo "--- letzte Zeilen des Protokolls ($W/run.log, Zeiten in UTC = deutsche Zeit minus 2 h):"
 tail -n 5 "$W/run.log" 2>/dev/null

@@ -14,10 +14,10 @@ cut to the time budget after the first steps (the schedule is by tokens, so this
 a full state is written every ``--ckpt-minutes`` and a restarted run resumes from it; three non-finite loss
 readings in a row stop the run with exit code 3 (the driver then retries once at half the learning rate).
 
-Final evaluation (as PLAN §10, on the GPU in fp32): val-A and test, window 1,024 / stride 512, near-duplicate
-filtered (results/lm/dedup.json) and with the extended filter of the extra training text
-(results/v5/h100/contamination.json); paired document bootstrap against GPT-2 small on the same documents;
-Stage 1 reached iff test bpb ≤ 1.04 (network alone, original filter). Per-token log-probabilities are saved
+Final evaluation (as PLAN §10/§11, on the GPU in fp32): val-A and test, window 1,024 / stride 512; documents with
+≥ 20 % of their 13-token windows in the text actually trained on are excluded (results/v5/h100/contamination.json;
+the list of the LM study alone, results/lm/dedup.json, is reported too); paired document bootstrap against GPT-2
+small on the same documents; Stage 1 reached iff that test bpb ≤ 1.04 (network alone). Per-token log-probabilities are saved
 (float32) so the mixtures with the counting models can be computed on the CPU machine.
 """
 
@@ -101,6 +101,15 @@ class ChunkedSoftcapCE(torch.autograd.Function):
 
 def chunked_loss(h, W, tgt, bf16: bool, chunk: int = 4096):
     return ChunkedSoftcapCE.apply(h.reshape(-1, h.shape[-1]), W, tgt.reshape(-1), chunk, bf16)
+
+
+def fused_loss(h, W, tgt, bf16: bool):
+    """The same soft-capped cross-entropy with ordinary autograd over the whole micro-batch. Under
+    torch.compile the element-wise work is fused (the chunked loop above runs ~12 separate fp32 passes
+    over every (chunk, V) block); costs (N, V) memory, which the 80 GB of an H100 hold."""
+    z = (h.to(torch.bfloat16) @ W.to(torch.bfloat16).T).float() if bf16 else h @ W.T
+    c = Fm.SOFTCAP * torch.tanh(z / Fm.SOFTCAP)
+    return F.cross_entropy(c.reshape(-1, c.shape[-1]), tgt.reshape(-1))
 
 
 # ---------------------------------------------------------------------------
@@ -299,9 +308,10 @@ def run(args, device) -> dict:
     data = Stream(Path(args.data), seed=args.seed, epoch=meta["epoch"], pos=meta["pos"], limit=args.data_limit)
     params = [p for p in model.parameters()]
     cuda = device.type == "cuda"
-    fwd = model.hidden
-    if cuda and args.compile:
-        fwd = torch.compile(model.hidden)
+    compiled = bool(args.compile and (cuda or os.environ.get("H100_COMPILE_CPU") == "1"))   # CPU: tests only
+    fwd = torch.compile(model.hidden) if compiled else model.hidden
+    fused = args.loss == "fused"
+    loss_fn = (torch.compile(fused_loss) if compiled else fused_loss) if fused else None
     micro = args.micro_batch
     start_step = meta["step"]
     Path(args.out).mkdir(parents=True, exist_ok=True)
@@ -327,23 +337,33 @@ def run(args, device) -> dict:
                     inp, tgt = batch[:, :-1], batch[:, 1:]
                     with torch.autocast(device.type, dtype=torch.bfloat16, enabled=args.bf16):
                         h = fwd(inp, doc_mask(inp))
-                    loss = chunked_loss(h, model.head.weight, tgt, bf16=args.bf16) / n_micro
+                    if fused:
+                        loss = loss_fn(h, model.head.weight, tgt, args.bf16) / n_micro
+                    else:
+                        loss = chunked_loss(h, model.head.weight, tgt, bf16=args.bf16) / n_micro
                     loss.backward()
                     loss_sum += float(loss.detach())
                 break
             except OOM:
+                h = loss = batch = inp = tgt = None            # release the failed attempt's graph first
+                dense.zero_grad(set_to_none=True)
+                torch.cuda.empty_cache()
+                if fused:                                      # the (N, V) loss is the largest buffer: drop it first
+                    fused = False
+                    log("CUDA out of memory: switching to the chunked loss")
+                    continue
                 if micro <= 4:
                     raise
                 micro //= 2
-                dense.zero_grad(set_to_none=True)
-                torch.cuda.empty_cache()
                 log(f"CUDA out of memory: micro-batch halved to {micro} sequences (same tokens per step)")
-            except Exception as e:                             # torch.compile problems: run eagerly instead
-                if fwd is model.hidden or meta["step"] > start_step + 3:
-                    raise
-                log(f"torch.compile failed ({type(e).__name__}: {e}); continuing without compilation")
-                fwd = model.hidden
+            except Exception as e:                             # compilation / fused-loss problems in the first steps
+                h = loss = batch = inp = tgt = None
                 dense.zero_grad(set_to_none=True)
+                if meta["step"] > start_step + 3 or not (compiled or fused):
+                    raise
+                log(f"step failed with compilation/fused loss ({type(e).__name__}: {e}); "
+                    f"continuing eagerly with the chunked loss")
+                compiled, fused, fwd = False, False, model.hidden
         gn = float(torch.nn.utils.clip_grad_norm_(params, 1.0))
         if not (math.isfinite(loss_sum) and math.isfinite(gn)):
             meta["bad"] += 1
@@ -473,11 +493,13 @@ def cmd_smoke(args) -> None:
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     common = dict(cpu=True, d=64, layers=2, heads=2, ctx=128, batch_tokens=2048, micro_batch=8, beta2=0.95, wd=0.1,
-                  decay_frac=0.3, seed=42, bf16=False, compile=0, log_every=5, eval_docs=3, final_docs=3,
+                  decay_frac=0.3, seed=42, bf16=False, compile=False, loss="chunked", log_every=5, eval_docs=3, final_docs=3,
                   ckpt_minutes=1e9, data=str(TOK / "train"), data_limit=400_000, ckpt_dir=str(out / "ckpt"),
                   out=str(out), budget_hours=0, eval_every=40_000)
     cmd_sweep(argparse.Namespace(**common, lrs="1e-3,3e-3", sweep_tokens=30_000, sweep_warmup=3, lr=0, tag="",
                                  total_tokens=0, warmup=0))
+    # main run with bf16 autocast and the fused loss (the H100 defaults)
+    common.update(bf16=True, loss="fused", compile=True)     # compiled only on CUDA or with H100_COMPILE_CPU=1
     cmd_train(argparse.Namespace(**common, lr=0, tag="main", total_tokens=100_000, warmup=5, lrs="", sweep_tokens=0,
                                  sweep_warmup=0))
     # a resumed run continues from its state file without repeating work
@@ -500,6 +522,8 @@ def add_common(p) -> None:
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--bf16", type=int, default=1)
     p.add_argument("--compile", type=int, default=1)
+    p.add_argument("--loss", choices=("fused", "chunked"), default="fused",
+                   help="fused: whole micro-batch, compiled; chunked: the CPU run's memory-saving loop (fallback)")
     p.add_argument("--log-every", type=int, default=20)
     p.add_argument("--eval-docs", type=int, default=150, help="val-A documents for the curve and the sweep")
     p.add_argument("--final-docs", type=int, default=0, help="0 = all documents in the final evaluation")
@@ -535,6 +559,9 @@ def main() -> None:
     k = sub.add_parser("smoke")
     k.add_argument("--out", default="/dev/shm/engramm/h100_smoke")
     args = ap.parse_args()
+    for flag in ("bf16", "compile"):                       # torch.autocast(enabled=...) accepts only a real bool
+        if hasattr(args, flag):
+            setattr(args, flag, bool(getattr(args, flag)))
     if args.cmd == "sweep":
         args.eval_every, args.tag, args.total_tokens, args.warmup, args.lr = 10 ** 18, "", 0, 0, 0
     {"sweep": cmd_sweep, "train": cmd_train, "eval": cmd_eval, "smoke": cmd_smoke}[args.cmd](args)

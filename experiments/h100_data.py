@@ -166,7 +166,7 @@ def cmd_base(args) -> None:
 # extra C4 shards
 # ---------------------------------------------------------------------------
 
-def download(url: str, dest: Path, sha256: str, size: int, tries: int = 6) -> None:
+def download(url: str, dest: Path, sha256: str, size: int, tries: int = 8) -> None:
     """Download with retries (exponential back-off); the file is accepted only with the pinned digest."""
     part = dest.with_suffix(dest.suffix + ".part")
     for attempt in range(1, tries + 1):
@@ -189,7 +189,7 @@ def download(url: str, dest: Path, sha256: str, size: int, tries: int = 6) -> No
             part.unlink(missing_ok=True)
             if attempt == tries:
                 raise SystemExit(f"download failed {tries}× ({url}): {e}")
-            wait = min(120, 5 * 2 ** (attempt - 1))
+            wait = min(300, 10 * 2 ** (attempt - 1))
             log(f"download attempt {attempt} failed ({e}); retrying in {wait} s")
             time.sleep(wait)
 
@@ -407,6 +407,8 @@ def main() -> None:
         p = sub.add_parser(name)
         p.add_argument("--workers", type=int, default=max(1, min(16, (os.cpu_count() or 2) - 2)))
     args = ap.parse_args()
+    import socket
+    socket.setdefaulttimeout(300)          # a stalled download (also inside lm_prepare) fails instead of hanging
     {"base": cmd_base, "extra": cmd_extra, "merge": cmd_merge, "contamination": cmd_contamination,
      "check-dedup": cmd_check_dedup}[args.cmd](args)
 
