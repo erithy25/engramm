@@ -10,6 +10,13 @@ pod_env
 if [ -n "${RUNPOD_POD_ID:-}" ] && [ -f "$W/cost_limit" ]; then
   setsid bash -c 'W="$1"; . experiments/h100_meter.sh; pod_env; start_meter' _ "$W" </dev/null >/dev/null 2>&1 &
   sleep 1                                                   # its first tick is then part of the numbers below
+  if [ "$ALIVE" = 0 ] && [ ! -f /tmp/engramm_idle_stop ]; then   # no run in this session: stop the idle pod in 30 min
+    touch /tmp/engramm_idle_stop
+    setsid bash -c 'sleep 1800; rm -f /tmp/engramm_idle_stop; [ -f "$1/KEEP" ] && exit 0
+                    flock -n /tmp/engramm_h100.lock true || exit 0; W="$1"; . experiments/h100_meter.sh; pod_env; stop_pod' \
+      _ "$W" </dev/null >/dev/null 2>&1 &
+    IDLE_NOTE=1
+  fi
 fi
 python3 - "$W" "$PRICE" "$ALIVE" <<'EOF'
 import json, sys, time
@@ -94,5 +101,6 @@ if finished:
         print("\nAuf GitHub gesichert: NEIN – vor dem Beenden herunterladen (Anleitung Schritt 5b):")
         print(f"   {W / 'h100_results.tgz'},   {W / 'MODELL.pt'}   und   {W / 'FORTSETZEN.pt'}")
 EOF
+[ "${IDLE_NOTE:-0}" = 1 ] && echo "Kostenschutz: es läuft kein Lauf – der Pod stoppt sich in 30 min selbst (Daten bleiben). Aussetzen: touch $W/KEEP"
 echo "--- letzte Zeilen des Protokolls ($W/run.log, Zeiten in UTC = deutsche Zeit minus 2 h):"
 tail -n 5 "$W/run.log" 2>/dev/null

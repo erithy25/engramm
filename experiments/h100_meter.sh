@@ -20,6 +20,17 @@ pod_env() {
 billed_s() { cat "$W"/meter/* 2>/dev/null | awk 'NF == 2 {s += $2 - $1} END {printf "%d\n", s + 0}'; }
 limit_s() { awk '{printf "%d\n", $1 / $2 * 3600}' "$W/cost_limit" 2>/dev/null || echo 0; }
 
+# Seconds until the meter stops this pod (a lower bound, never negative); huge when no limit is set.
+time_left() {
+  local l b s0 age r1 r2
+  l=$(limit_s); b=$(billed_s)
+  [ "$l" -gt 0 ] || { echo 999999; return 0; }
+  if [ "$b" -lt "$l" ]; then echo $(( l - b )); return 0; fi
+  s0=$(cat /tmp/engramm_session 2>/dev/null); [[ "$s0" =~ ^[0-9]+$ ]] || s0=$(date +%s)
+  age=$(( $(date +%s) - s0 )); r1=$(( 1800 - age )); r2=$(( l + 1800 - b ))
+  r1=$(( r1 < r2 ? r1 : r2 )); echo $(( r1 > 0 ? r1 : 0 ))
+}
+
 # Stop this pod (data in /workspace stays); 0 when one of the ways was accepted.
 stop_pod() {
   [ -n "${RUNPOD_POD_ID:-}" ] || return 1

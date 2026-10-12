@@ -91,6 +91,12 @@ rm -f "$W/FAILED" "$W/NOT_UPLOADED" "$W/KEEP"             # KEEP holds for one s
 mkdir -p "$W/meter"
 echo "$MAX_USD $PRICE" > "$W/cost_limit"                   # read on every tick: a restart may raise the limit
 start_meter
+# after an unattended container restart the RunPod template runs /post_start.sh (container disk): the status
+# command then re-arms the meter and the 30-min idle stop
+if [ -n "${RUNPOD_POD_ID:-}" ] && [ -w / ]; then
+  printf '#!/bin/bash\ncd %q && setsid bash experiments/h100_status.sh </dev/null >/dev/null 2>&1 &\n' "$REPO_DIR" > /post_start.sh \
+    && chmod +x /post_start.sh
+fi
 usd_now() { awk -v s="$(billed_s)" -v p="$PRICE" 'BEGIN {printf "%.2f", s / 3600 * p}'; }
 say "Kostenbremse: höchstens $MAX_USD \$ (bisher ≈ $(usd_now) \$); bei Erreichen stoppt sich der Pod selbst"
 if [ "$(billed_s)" -ge "$(limit_s)" ]; then
@@ -260,9 +266,16 @@ upload_asset() {  # file name-prefix
       for x in a) else 1)" "$size" "$pre" <<< "$exist" 2>/dev/null; then
     say "$pre: bereits hochgeladen ($size Bytes)"; return 0
   fi
+  local left mt
   for attempt in 1 2 3; do
-    # a fresh name per attempt and start: GitHub refuses a name that an interrupted upload still holds
-    asset=$(curl -sS --connect-timeout 30 --max-time 2400 -X POST -H "Authorization: Bearer $GH_TOKEN" \
+    left=$(time_left)                                       # never upload into the cost meter's stop
+    if [ "$left" -le 300 ]; then
+      say "$pre: keine Zeit mehr vor der Kostenbremse – die Datei bleibt auf dem Pod (Anleitung Schritt 5b)"; return 1
+    fi
+    mt=$(( left - 240 )); [ "$mt" -le 2400 ] || mt=2400
+    # a fresh name per attempt and start: GitHub refuses a name that an interrupted upload still holds;
+    # a stalled transfer (< 200 kB/s for 2 min) is abandoned instead of eating the remaining time
+    asset=$(curl -sS --connect-timeout 30 --speed-limit 200000 --speed-time 120 --max-time "$mt" -X POST -H "Authorization: Bearer $GH_TOKEN" \
       -H "Content-Type: application/octet-stream" --data-binary @"$f" \
       "https://uploads.github.com/repos/erithy25/engramm/releases/$RID/assets?name=${pre}_$(date -u +%Y%m%d%H%M%S).pt")
     got=$(python3 -c "import json,sys;print(json.loads(sys.stdin.read()).get('size',0))" <<< "$asset" 2>/dev/null)
@@ -306,7 +319,9 @@ elif [ -n "${GH_TOKEN:-}" ]; then
   git diff --cached --quiet || git commit -q -m "v5/H100: Ergebnisse des Stufe-1-Laufs ($TAG), automatisch vom GPU-Rechner"
   pushed=0
   for attempt in 1 2 3; do
-    GIT_TERMINAL_PROMPT=0 timeout 900 git -c credential.helper= -c credential.helper="$CRED" push -q "$GHREPO" "$BR" \
+    left=$(time_left); [ "$left" -gt 600 ] || { say "Push: keine Zeit mehr vor der Kostenbremse"; break; }
+    pt=$(( left - 300 )); [ "$pt" -le 900 ] || pt=900
+    GIT_TERMINAL_PROMPT=0 timeout "$pt" git -c credential.helper= -c credential.helper="$CRED" push -q "$GHREPO" "$BR" \
       && GIT_TERMINAL_PROMPT=0 timeout 120 git -c credential.helper= -c credential.helper="$CRED" \
            ls-remote "$GHREPO" "refs/heads/$BR" | grep -q "$BR" && { pushed=1; break; }
     say "Push Versuch $attempt fehlgeschlagen, neuer Versuch in 60 s"; sleep 60
@@ -327,9 +342,10 @@ elif [ -n "${GH_TOKEN:-}" ]; then
       fi
     fi
     if [ -n "$RID" ] && [ -f "$MODEL" ]; then
-      ok_pre=1
+      ok_model=0; ok_pre=1                                  # the measured model first, then the continuation state
+      upload_asset "$MODEL" "model_${TAG}" && ok_model=1
       [ -f "$PRE" ] && { upload_asset "$PRE" "fortsetzen_${TAG}" || ok_pre=0; }
-      if upload_asset "$MODEL" "model_${TAG}" && [ $ok_pre = 1 ]; then
+      if [ $ok_model = 1 ] && [ $ok_pre = 1 ]; then
         uploaded=1
         say "Modell und Fortsetzungs-Stand hochgeladen (privater Entwurf-Release)"
         echo "$BR" > "$W/stages/uploaded"
