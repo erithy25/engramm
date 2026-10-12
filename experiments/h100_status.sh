@@ -4,6 +4,13 @@ cd "$(dirname "$0")/.." || exit 1
 W=${H100_WORK:-/workspace/h100}
 PRICE=${H100_PRICE:-4.01}
 if flock -n /tmp/engramm_h100.lock true 2>/dev/null; then ALIVE=0; else ALIVE=1; fi
+# On the pod, every status call also makes sure the cost meter runs (e.g. after starting a stopped pod to download)
+. experiments/h100_meter.sh
+pod_env
+if [ -n "${RUNPOD_POD_ID:-}" ] && [ -f "$W/cost_limit" ]; then
+  setsid bash -c 'W="$1"; . experiments/h100_meter.sh; pod_env; start_meter' _ "$W" </dev/null >/dev/null 2>&1 &
+  sleep 1                                                   # its first tick is then part of the numbers below
+fi
 python3 - "$W" "$PRICE" "$ALIVE" <<'EOF'
 import json, sys, time
 from pathlib import Path
@@ -36,8 +43,11 @@ except (ValueError, OSError):
 print(f"Laufzeit seit dem ersten Start: {hours:.2f} h")
 if max_usd:
     print(f"Kosten bisher ≈ {billed / 3600 * p_limit:.2f} $ von höchstens {max_usd:g} $ (Kostenbremse; Pod-Laufzeit {billed / 3600:.2f} h)")
+    over = billed - max_usd / p_limit * 3600
+    if over >= 0:
+        print(f"Grenze erreicht: noch höchstens {max(0, 1800 - over) / 60:.0f} min zum Herunterladen/Hochladen, dann stoppt der Pod")
 if (W / "COST_LIMIT_REACHED").exists():
-    print("KOSTENBREMSE hat gegriffen: der Pod wurde gestoppt (Daten in /workspace bleiben). Diese Ausgabe an Claude schicken.")
+    print("KOSTENBREMSE hat gegriffen: der Pod stoppt sich (läuft er trotzdem weiter: von Hand Stop drücken). Daten in /workspace bleiben. Diese Ausgabe an Claude schicken.")
 gh = W / "github_check"
 print("GitHub-Schlüssel geprüft: " + (gh.read_text().strip() if gh.exists() else "noch nicht (Lauf hat Prüfung 0 nicht erreicht)"))
 # newest write of anything the run produces: a live run never stays silent for an hour

@@ -13,7 +13,7 @@
 #          H100_PRICE 4.01 $/h) it stops the pod, whatever the run is doing (a session started after the limit gets
 #          30 min for results/download). The main training ends early enough to stay below the limit. After a FEHLER,
 #          or when the uploads failed, the pod stops itself after 30 min. A stopped pod keeps /workspace with all
-#          data; `touch /workspace/h100/KEEP` suspends the automatic stops.
+#          data; `touch /workspace/h100/KEEP` suspends the 30-min stops of this session (never the dollar limit).
 # Settings (environment): H100_MAX_USD (25), H100_PRICE (4.01), H100_BUDGET_HOURS (main training, default 5.5),
 #          H100_SHARDS (36), H100_TOKENS (10000000000: an upper bound; the dollar limit decides the actual number),
 #          H100_AUTO_END = terminate | stop | none (default terminate), H100_NO_GITHUB=1 (run without a GitHub key).
@@ -42,6 +42,8 @@ AUTO_END=${H100_AUTO_END:-terminate}
 RESTART="setsid nohup bash /workspace/engramm/experiments/h100_run.sh > /workspace/h100_console.log 2>&1 &"
 CRED='!f() { echo username=x-access-token; echo "password=$GH_TOKEN"; }; f'
 GHREPO=https://github.com/erithy25/engramm.git
+. "$REPO_DIR/experiments/h100_meter.sh"                    # cost meter, stop_pod
+pod_env
 # GitHub actions only on a RunPod pod (or when explicitly allowed): a test elsewhere must never push anything
 if [ -z "${RUNPOD_POD_ID:-}" ] && [ "${H100_ALLOW_GITHUB_OFFPOD:-0}" != 1 ]; then GH_TOKEN=""; H100_NO_GITHUB=1; fi
 # CPUs actually granted (nproc may report the whole host inside a CPU-quota container)
@@ -62,6 +64,7 @@ heavy() { if [ "${H100_TEST_SKIP_GPU:-0}" = 1 ] && [ "${H100_TEST_ALLOW_HEAVY:-0
             fail "TEST-MODUS: Stufe '$1' würde jetzt echt laufen (Download/Training) – im Testmodus gesperrt"; fi; }
 mark() { date -u > "$W/stages/$1"; }
 # Stop the pod after a delay unless the situation changed (new start, KEEP file); never holds the run lock.
+# (The dollar limit of the cost meter applies in any case.)
 autostop_later() {  # seconds marker-file
   [ -n "${RUNPOD_POD_ID:-}" ] && [ "$AUTO_END" != none ] || return 0
   local id; id=$(head -1 "$2" 2>/dev/null)
@@ -69,7 +72,7 @@ autostop_later() {  # seconds marker-file
     [ -f "$W/KEEP" ] && exit 0
     [ "$(head -1 "$2" 2>/dev/null)" = "$id" ] || exit 0
     flock -n /tmp/engramm_h100.lock true || exit 0      # a new run is alive: leave it alone
-    runpodctl stop pod "$RUNPOD_POD_ID" 2>/dev/null || runpodctl pod stop "$RUNPOD_POD_ID" 2>/dev/null
+    stop_pod
   ) >/dev/null 2>&1 &
 }
 fail() {
@@ -81,47 +84,17 @@ fail() {
   autostop_later 1800 "$W/FAILED"
   exit 1
 }
-rm -f "$W/FAILED" "$W/NOT_UPLOADED"
+rm -f "$W/FAILED" "$W/NOT_UPLOADED" "$W/KEEP"             # KEEP holds for one session only
 [ -f "$W/started" ] || date -u +%s > "$W/started"
 
-# --- cost meter: billed pod time over all sessions; stops the pod at the dollar limit -----------------------------
+# --- cost meter (experiments/h100_meter.sh): billed pod time over all sessions; stops the pod at the dollar limit ------
 mkdir -p "$W/meter"
 echo "$MAX_USD $PRICE" > "$W/cost_limit"                   # read on every tick: a restart may raise the limit
-billed_s() { cat "$W"/meter/* 2>/dev/null | awk 'NF == 2 {s += $2 - $1} END {printf "%d\n", s + 0}'; }
-limit_s() { awk '{printf "%d\n", $1 / $2 * 3600}' "$W/cost_limit"; }
-start_meter() {
-  [ -n "${RUNPOD_POD_ID:-}" ] || [ "${H100_TEST_METER:-0}" = 1 ] || return 0
-  local mp; mp=$(cat /tmp/engramm_meter.pid 2>/dev/null)
-  if [[ "$mp" =~ ^[0-9]+$ ]] && ps -o stat= -p "$mp" 2>/dev/null | grep -qv '^Z'; then return 0; fi   # alive, not a zombie
-  local up s0 old
-  up=$(ps -o etimes= -p 1 2>/dev/null | tr -d ' ')          # this container (= pod session) is running since …
-  [[ "$up" =~ ^[0-9]+$ ]] || up=0
-  s0=$(( $(date +%s) - up ))
-  old=$(cat /tmp/engramm_session 2>/dev/null)                 # same session as an earlier meter: same file
-  if [[ "$old" =~ ^[0-9]+$ ]] && [ $(( s0 - old )) -le 120 ] && [ $(( old - s0 )) -le 120 ]; then s0=$old; fi
-  echo "$s0" > /tmp/engramm_session
-  echo "$s0 $(date +%s)" > "$W/meter/.tick_$s0" && mv -f "$W/meter/.tick_$s0" "$W/meter/$s0"   # first tick at once
-  ( exec 9>&-
-    while true; do
-      now=$(date +%s)
-      echo "$s0 $now" > "$W/meter/.tick_$s0" && mv -f "$W/meter/.tick_$s0" "$W/meter/$s0"   # hidden: not summed
-      if [ "$(billed_s)" -ge "$(limit_s)" ] && [ $(( now - s0 )) -ge 1800 ] && [ ! -f "$W/KEEP" ]; then
-        echo "[$(date -u +%H:%M:%S) UTC] KOSTENBREMSE: $(cut -d' ' -f1 "$W/cost_limit") \$ erreicht – der Pod stoppt sich jetzt (Daten in /workspace bleiben)." >> "$W/run.log"
-        date +%s > "$W/COST_LIMIT_REACHED"
-        if [ -n "${RUNPOD_POD_ID:-}" ]; then
-          runpodctl stop pod "$RUNPOD_POD_ID" 2>/dev/null || runpodctl pod stop "$RUNPOD_POD_ID" 2>/dev/null
-        fi
-        exit 0
-      fi
-      sleep 60
-    done ) >/dev/null 2>&1 &
-  echo $! > /tmp/engramm_meter.pid
-}
 start_meter
 usd_now() { awk -v s="$(billed_s)" -v p="$PRICE" 'BEGIN {printf "%.2f", s / 3600 * p}'; }
 say "Kostenbremse: höchstens $MAX_USD \$ (bisher ≈ $(usd_now) \$); bei Erreichen stoppt sich der Pod selbst"
 if [ "$(billed_s)" -ge "$(limit_s)" ]; then
-  say "Kostengrenze bereits erreicht: kein weiteres Training, nur noch Ergebnisse sichern (30 min). Mehr erlauben: export H100_MAX_USD=…"
+  say "Kostengrenze bereits erreicht: kein weiteres Training, nur noch Ergebnisse sichern (nach der Grenze insgesamt höchstens 30 min). Mehr erlauben: export H100_MAX_USD=…"
 fi
 say "=== ENGRAMM H100-Lauf (Stufe 1), Arbeitsordner $W, $NCPU CPUs ==="
 
@@ -154,6 +127,9 @@ print(f"OK: Python {sys.version.split()[0]}, torch {torch.__version__}, {name} {
 EOF
 fi
 [ -f models/lm/gpt2/eval_test.json ] || fail "GPT-2-Referenz models/lm/gpt2/eval_test.json fehlt im Checkout"
+if [ -n "${RUNPOD_POD_ID:-}" ] && ! command -v runpodctl >/dev/null && [ -z "${RUNPOD_API_KEY:-}" ]; then
+  fail "Weder runpodctl noch RUNPOD_API_KEY vorhanden – der Pod könnte sich nicht selbst stoppen (Kostenbremse). Bitte an Claude schicken"
+fi
 if [ -n "${GH_TOKEN:-}" ]; then
   GIT_TERMINAL_PROMPT=0 timeout 90 git -c credential.helper= -c credential.helper="$CRED" \
     push --dry-run -q "$GHREPO" HEAD:refs/heads/h100-token-check >/dev/null 2>&1 \
@@ -312,6 +288,7 @@ EOF
 cp "$W/run.log" results/v5/h100/run.log 2>/dev/null
 MODEL="$W/ckpt/model_$TAG.pt"
 PRE="$W/ckpt/state_${TAG}_predecay.pt"
+[ -f "$PRE" ] || PRE="$W/ckpt/state_${TAG}.pt"              # training ended before the decay: that state continues
 [ -f "$MODEL" ] && { ln -f "$MODEL" "$W/MODELL.pt" 2>/dev/null || cp "$MODEL" "$W/MODELL.pt"; }
 [ -f "$PRE" ] && { ln -f "$PRE" "$W/FORTSETZEN.pt" 2>/dev/null || cp "$PRE" "$W/FORTSETZEN.pt"; }
 tar czf "$W/h100_results.tgz" -C "$REPO_DIR" results/v5/h100 2>/dev/null
@@ -373,7 +350,7 @@ if [ "$uploaded" = 1 ] && [ -n "${RUNPOD_POD_ID:-}" ] && [ "$AUTO_END" != none ]
     runpodctl remove pod "$RUNPOD_POD_ID" 2>/dev/null || runpodctl pod delete "$RUNPOD_POD_ID" 2>/dev/null && ended=1
   fi
   if [ $ended = 0 ]; then
-    runpodctl stop pod "$RUNPOD_POD_ID" 2>/dev/null || runpodctl pod stop "$RUNPOD_POD_ID" 2>/dev/null && ended=1
+    stop_pod && ended=1
   fi
   sleep 60
   say "Selbstbeendigung hat nicht geklappt – bitte den Pod in der RunPod-Konsole beenden (Stop, dann Terminate). Alles ist gesichert."
@@ -381,7 +358,7 @@ elif [ "$uploaded" = 1 ]; then
   say "FERTIG. Ergebnisse und Modell sind auf GitHub gesichert. Den Pod jetzt beenden (Stop, dann Terminate)."
 else
   say "FERTIG – aber NICHT auf GitHub gesichert. JETZT herunterladen (Anleitung Schritt 5b): $W/h100_results.tgz, $W/MODELL.pt und $W/FORTSETZEN.pt"
-  say "Kostenschutz: der Pod stoppt sich in 30 Minuten selbst (Daten in /workspace bleiben, Pod danach wieder startbar). Verhindern: touch $W/KEEP"
+  say "Kostenschutz: der Pod stoppt sich in 30 Minuten selbst (Daten in /workspace bleiben, Pod danach wieder startbar). Aussetzen: touch $W/KEEP (die Kostenbremse gilt trotzdem)"
   date +%s > "$W/NOT_UPLOADED"
   autostop_later 1800 "$W/NOT_UPLOADED"
 fi

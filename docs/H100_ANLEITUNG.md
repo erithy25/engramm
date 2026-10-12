@@ -13,7 +13,7 @@ Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet 
 | Dauer | ca. 6 Stunden, davon ~20 Minuten mit dir |
 | Kosten | **höchstens 25 $** (feste Kostenbremse, gemessen ab dem Mieten). Bei 30 $ Guthaben bleiben 5 $ Puffer – RunPod darf nie auf 0 $ fallen |
 | Ergebnis | Messwerte im Repository (Branch `h100-results-…`); als **privater** Entwurf unter „Releases“ (nur für dich sichtbar): das fertige Modell (≈ 0,5 GB) und der **Fortsetzungs-Stand** (≈ 1,6 GB) zum späteren Weitertrainieren |
-| Ehrlich | Mit 25 $ bleiben ~4–4,5 h echtes Training (statt 5,5 h). GPT-2-Niveau ist damit offen – etwa Münzwurf. Reicht es nicht, kann vom Fortsetzungs-Stand aus weitertrainiert werden (eigene NVIDIA-GPU ab 16–24 GB oder ein paar Dollar mehr auf RunPod) |
+| Ehrlich | Mit 25 $ bleiben ~4–4,5 h echtes Training (statt 5,5 h). GPT-2-Niveau ist damit offen – etwa Münzwurf. Reicht es nicht, kann vom Fortsetzungs-Stand aus weitertrainiert werden: eigener Rechner mit NVIDIA-GPU ab 16 GB, ≥ 32 GB Arbeitsspeicher und ~30 GB freiem Platz – oder ein paar Dollar mehr auf RunPod |
 
 ## Was die Skripte absichern
 
@@ -136,12 +136,13 @@ ist aus der Liste unter *Pods* verschwunden. Dann:
    <https://github.com/erithy25/engramm/releases> (Entwurf, nur für dich sichtbar).
 
 **Ist der Pod noch da: NICHT sofort beenden**, erst Status aufrufen (Connect → Jupyter Lab → Terminal →
-`bash /workspace/engramm/experiments/h100_status.sh`):
+`bash /workspace/engramm/experiments/h100_status.sh`). Ist der Pod **gestoppt**: erst *Start*, dann sofort diesen
+Status-Befehl – er schaltet auch den Kostenschutz für diese Sitzung ein.
 
 | Status zeigt | Bedeutung → Was tun |
 |---|---|
 | „Lauf aktiv: ja“ | läuft noch → später wieder nachsehen. **Ausnahme:** Status meldet „ungewöhnlich lange still“ (über 60 min keine Aktivität) → Ausgabe an mich schicken, Pod **nicht** beenden |
-| „KOSTENBREMSE hat gegriffen“ | Pod hat sich bei 25 $ selbst gestoppt (sollte nicht vorkommen – das Training endet vorher). Daten sind da → Ausgabe an mich; herunterladen wie in 5b (ein Neustart bekommt dafür 30 min, ≈ 2 $) |
+| „KOSTENBREMSE hat gegriffen“ | Pod hat sich bei 25 $ selbst gestoppt (sollte nicht vorkommen – das Training endet vorher). Daten sind da → Ausgabe an mich. Herunterladen wie in 5b: nach der Grenze gibt es **insgesamt höchstens 30 min** (≈ 2 $, der Status zeigt die Restzeit), danach stoppt der Pod wieder |
 | „Auf GitHub gesichert: JA“ | alles gesichert, nur die Selbstlöschung klappte nicht → Pod aufklappen → **Stop** → **Terminate** |
 | „Auf GitHub gesichert: NEIN“ | → **Schritt 5b** |
 | „FEHLER: …“ | Zeilen an mich schicken; Neustart siehe Tabelle unten |
@@ -154,9 +155,10 @@ ist aus der Liste unter *Pods* verschwunden. Dann:
 3. Mir Bescheid geben; ich sage dir, wie die kleine Datei `h100_results.tgz` ins Repository kommt.
 
 Hinweis: Hat sich der Pod nach einem Fehler oder fehlgeschlagenem Hochladen selbst **gestoppt** (Kostenschutz nach 30 min),
-sind alle Daten noch da: Pod → **Start** → Jupyter Lab → wie oben herunterladen (oder Neustart, siehe unten).
-- Ein gestoppter Pod kostet für die 100 GB Speicher weiter **≈ 0,70 $/Tag** – also bald herunterladen oder neu starten,
-  und am Ende immer **Terminate**.
+sind alle Daten noch da: Pod → **Start** → Jupyter Lab → Terminal → **zuerst** `bash /workspace/engramm/experiments/h100_status.sh`
+(schaltet den Kostenschutz ein) → wie oben herunterladen (oder Neustart, siehe unten) → danach sofort **Stop**.
+- Ein gestoppter Pod kostet für die 100 GB Speicher weiter **≈ 0,70 $/Tag**. Nach einem Lauf bis zur Grenze bleiben vom
+  Guthaben nur ~3–5 $ – also innerhalb weniger Tage herunterladen und dann **Terminate**.
 - Startet ein gestoppter Pod nicht mehr oder ohne GPU (die GPU wurde inzwischen an jemand anderen vergeben): **niemals
   Terminate** – dort liegt die einzige Kopie. Bietet RunPod an, ohne GPU zu starten („0 GPUs“), das wählen: Zum
   Herunterladen (5b) und für das erneute Hochladen (Befehl 2 + 3, sobald das Training fertig war) reicht das. Sonst mir
@@ -167,13 +169,13 @@ sind alle Daten noch da: Pod → **Start** → Jupyter Lab → wie oben herunter
 | Situation | Lösung |
 |---|---|
 | Status zeigt „FEHLER: …“ oder „Lauf aktiv: NEIN“ (ohne „Lauf beendet“) | Zeilen an mich schicken. Neustart setzt fort: neues Terminal → **Befehl 2** (Schlüssel) → **Befehl 3** |
-| Pod wurde neu gestartet / war gestoppt | Pod starten → Jupyter Lab → Terminal → **Befehl 2** → **Befehl 3** (Befehl 1 nicht nötig) |
+| Pod wurde neu gestartet / war gestoppt | Pod starten → Jupyter Lab → Terminal → **Befehl 2** → **Befehl 3** (Befehl 1 nicht nötig; Befehl 3 schaltet auch den Kostenschutz ein) |
 | Ein **frisch gemieteter** Pod (Befehl 3 noch nie gelaufen) ist nach 10 Minuten nicht „Running“ / meldet „keine GPU“ | Pod beenden, neu mieten: CUDA-Filter passend zur Vorlage oder eine Vorlage mit älterem CUDA (z. B. PyTorch 2.4 / CUDA 12.4) |
 | Ein **gestoppter** Pod (Lauf hatte schon begonnen) startet nicht oder ohne GPU | **Nie Terminate.** Siehe Hinweis unter Schritt 5b (ohne GPU starten, herunterladen, mir schreiben) |
 | „torch zu alt“ | Pod beenden, neu mieten mit neuerer *Runpod PyTorch*-Vorlage |
 | „zu wenig Platz“ beim **ersten** Start | Pod beenden, neu mieten mit Volume Disk 100 GB. Mitten im Lauf nicht beenden, sondern mir schreiben |
 | H100 SXM nicht verfügbar | H100 NVL oder H100 PCIe nehmen; die Zeitgrenze kürzt notfalls die Tokenzahl |
-| Guthaben wird knapp | Mit 30 $ vor dem Start nicht möglich (Kostenbremse 25 $) |
+| Guthaben wird knapp | Pod-Zeit ist auf 25 $ (+ höchstens 30 min zum Sichern ≈ 2 $) begrenzt. Danach nur noch Speicher ≈ 0,70 $/Tag, solange der Pod gestoppt herumsteht → bald **Terminate** |
 | Du willst abbrechen | Erst Status: „Auf GitHub gesichert“? Sonst Schritt 5b. Dann Stop → Terminate |
 
 ## Technische Details (zum Nachprüfen)
@@ -188,17 +190,24 @@ sind alle Daten noch da: Pod → **Start** → Jupyter Lab → wie oben herunter
   bf16, 524.288 Token je Schritt, AdamW (β₂ 0,95), WSD (300 Aufwärmschritte, Abnahme in den letzten 30 %).
 - Daten: Basis (C4-Teil 0 + WikiText-103, 285 Mio. Token, bitgleich) + C4-Teile 1–36 (nur Trainings-Hash-Bereich),
   zusammen ≈ 6,4 Mrd. Token; trainiert wird, so viel das Budget erlaubt.
-- Kostenbremse: `experiments/h100_run.sh` zählt die Laufzeit jeder Pod-Sitzung (ab Container-Start) in
-  `/workspace/h100/meter/`; bei `H100_MAX_USD` / `H100_PRICE` Stunden stoppt es den Pod (eine nach der Grenze gestartete
-  Sitzung bekommt 30 min). Das Haupttraining bekommt als Frist „Grenze minus bisherige Laufzeit minus 30 min“ und
+- Kostenbremse (`experiments/h100_meter.sh`, gestartet von `h100_run.sh` und `h100_status.sh`): zählt die Laufzeit jeder
+  Pod-Sitzung (ab Container-Start) in `/workspace/h100/meter/`; bei `H100_MAX_USD` / `H100_PRICE` Stunden stoppt sie den
+  Pod (runpodctl, ersatzweise die RunPod-API) und versucht es jede Minute erneut, bis er aus ist. Nach der Grenze gibt es
+  insgesamt höchstens 30 min zum Sichern. Das Haupttraining bekommt als Frist „Grenze minus bisherige Laufzeit minus 30 min“ und
   setzt seine Tokenzahl nach gemessenem Durchsatz darauf (Obergrenze `H100_TOKENS`, 10 Mrd.; über 6,4 Mrd. hinaus
   wird der Text ein zweites Mal, neu gemischt, gelesen).
-- Fortsetzungs-Stand: `state_main_predecay.pt` = Gewichte + Optimierer + Datenposition beim Übergang in die
-  Abnahmephase der Lernrate (WSD). Weitertrainieren: Datei in `/workspace/h100/ckpt/state_main.pt` umbenennen, dann
-  `python3 -m experiments.h100_train train --tag main --lr <Lernrate aus sweep.json> --extend-to <Token gesamt>`
-  (Daten vorher mit `h100_data base/extra/merge` bauen). Die Lernrate bleibt bis 70 % des neuen Ziels konstant,
-  danach folgt die Abnahme – praktisch wie ein von Anfang an längerer Lauf (an 70 % des neuen Ziels entsteht ein neuer
-  Fortsetzungs-Stand).
+- Fortsetzungs-Stand: `state_main_predecay.pt` (im Release `fortsetzen_main_….pt`, auf dem Pod `FORTSETZEN.pt`) =
+  Gewichte + Optimierer + Datenposition beim Übergang in die Abnahmephase der Lernrate (WSD); endete das Training wegen
+  der Zeitgrenze schon vorher, ist es der letzte Stand. Weitertrainieren auf einem Rechner mit NVIDIA-GPU (≥ 16 GB),
+  ≥ 32 GB Arbeitsspeicher und ~30 GB freiem Platz:
+  1. Repository klonen, `pip install torch tokenizers==0.23.2 pyarrow`, Daten bauen:
+     `python3 -m experiments.h100_data base && python3 -m experiments.h100_data extra --shards 36 && python3 -m experiments.h100_data merge --shards 36`
+  2. Die Datei als `<ordner>/state_main.pt` ablegen (umbenennen).
+  3. `python3 -m experiments.h100_train train --ckpt-dir <ordner> --tag main --extend-to <Token gesamt> --budget-hours 0 --lr $(python3 -c "import torch;print(torch.load('<ordner>/state_main.pt',map_location='cpu',weights_only=False)['meta']['args']['lr'])")`
+     (Lernrate immer aus der Datei, nie `--allow-lr-change`). Im Protokoll muss „resumed main at … M tokens“ stehen,
+     sonst sofort abbrechen. Die Lernrate bleibt bis 70 % des neuen Ziels konstant, danach folgt die Abnahme – praktisch
+     wie ein von Anfang an längerer Lauf; bei 70 % entsteht ein neuer Fortsetzungs-Stand.
+  4. Auf einem gemieteten Pod gibt es dabei **keine** Kostenbremse – dort `--deadline <Unix-Zeit>` setzen oder mich fragen.
 - Einstellungen per Umgebungsvariable: `H100_MAX_USD` (25), `H100_PRICE` (4.01), `H100_BUDGET_HOURS` (5.5), `H100_SHARDS` (36), `H100_TOKENS` (10000000000),
   `H100_AUTO_END` (`terminate` | `stop` | `none`), `export H100_NO_GITHUB=1` vor Befehl 3 (bewusst ohne Schlüssel), `touch /workspace/h100/KEEP`
-  (Kostenschutz-Stopp aussetzen).
+  (setzt nur den 30-min-Stopp nach FEHLER/fehlgeschlagenem Hochladen für diese Sitzung aus – **nie** die 25-$-Bremse).

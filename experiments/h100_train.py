@@ -132,14 +132,23 @@ class Stream:
         self.pos = pos
 
     def _build(self):
+        """The epoch's documents in shuffled order, one array (the previous epoch's is released first)."""
         order = np.random.default_rng(self.seed + 7919 * self.epoch).permutation(len(self.lo))
-        self.stream = np.concatenate([self.tokens[self.lo[d]:self.hi[d]] for d in order] +
-                                     [np.zeros(1, dtype=np.uint16)])
+        lens = self.hi - self.lo
+        out = np.empty(int(lens.sum()) + 1, dtype=np.uint16)
+        p = 0
+        for d in order:
+            k = int(lens[d])
+            out[p:p + k] = self.tokens[self.lo[d]:self.hi[d]]
+            p += k
+        out[p] = 0
+        self.stream = out
         self.pos = 0
 
     def batch(self, B: int, T: int) -> torch.Tensor:
         if self.pos + B * T + 1 > len(self.stream):
             self.epoch += 1
+            self.stream = None                                  # one copy in memory, not two
             self._build()
         x = np.lib.stride_tricks.sliding_window_view(self.stream[self.pos:self.pos + B * T + 1], T + 1)[::T][:B]
         self.pos += B * T
@@ -299,6 +308,9 @@ def run(args, device) -> dict:
     ckdir = Path(args.ckpt_dir)
     ckdir.mkdir(parents=True, exist_ok=True)
     state_path = ckdir / f"state_{args.tag}.pt"
+    extend = int(getattr(args, "extend_to", 0) or 0)
+    if extend and not state_path.exists():
+        raise SystemExit(f"--extend-to: no saved state {state_path} (wrong --ckpt-dir or --tag?)")
     meta = {"tokens": 0, "step": 0, "epoch": 0, "pos": 0, "train_seconds": 0.0, "total_tokens": args.total_tokens,
             "args": vars(args), "cfg": cfg, "next_eval": args.eval_every, "bad": 0}
     if state_path.exists():
@@ -313,10 +325,13 @@ def run(args, device) -> dict:
             log(f"continuing {args.tag} from its last saved state at peak lr {args.lr:g} (was {old_lr:g})")
             st["meta"].setdefault("lr_changes", []).append({"tokens": st["meta"]["tokens"], "from": old_lr, "to": args.lr})
             st["meta"]["args"]["lr"] = args.lr
-        extend = int(getattr(args, "extend_to", 0) or 0)
         if extend > st["meta"]["total_tokens"]:                # continuing a saved state (e.g. the pre-decay one)
+            if not st["meta"].get("predecay") and st["meta"]["tokens"] / st["meta"]["total_tokens"] > 1 - args.decay_frac:
+                raise SystemExit(f"{state_path} is already in its learning-rate decay; continue from the pre-decay "
+                                 f"state (state_{args.tag}_predecay.pt, renamed to {state_path.name})")
             log(f"token target of {args.tag} raised from {st['meta']['total_tokens'] / 1e9:.3f} B to {extend / 1e9:.3f} B")
             st["meta"]["args"]["total_tokens"] = st["meta"]["total_tokens"] = extend
+        st["meta"].pop("predecay", None)                       # later saves of this run are ordinary states
         model.load_state_dict(st["model"])
         dense.load_state_dict(st["opt"])
         meta = st["meta"]
@@ -340,7 +355,9 @@ def run(args, device) -> dict:
     end_by = min(ends) if ends else 0.0
     rate_from, rate_at = (int(x) for x in str(getattr(args, "budget_steps", "40,100")).split(","))
     checked = not end_by
-    if end_by and time.time() >= end_by and meta["tokens"] > 0:
+    if end_by and time.time() >= end_by:
+        if meta["tokens"] == 0:
+            raise SystemExit("time budget used up before any training: nothing to evaluate")
         log("time budget already used up: no further training, final evaluation of the saved state")
         meta["total_tokens"] = meta["tokens"]
     predecay = ckdir / f"state_{args.tag}_predecay.pt"
@@ -449,6 +466,10 @@ def run(args, device) -> dict:
             atomic_save({"model": model.state_dict(), "opt": dense.state_dict(), "meta": meta}, state_path)
             t_ck = time.time()
     logf.close()
+    if getattr(args, "save_predecay", 1) and meta["tokens"] > 0 and not predecay.exists():
+        # training ended at the constant rate (time budget): this state is the one to continue from
+        atomic_save({"model": model.state_dict(), "opt": dense.state_dict(), "meta": {**meta, "predecay": True}}, predecay)
+        log(f"training ended before the decay: continuable state saved: {predecay}")
     if meta["step"] > start_step or "loss_used" not in meta:   # what actually ran, after any fallback
         meta["loss_used"], meta["compiled_used"] = ("fused" if fused else "chunked"), compiled
     atomic_save({"model": model.state_dict(), "opt": dense.state_dict(), "meta": meta}, state_path)
@@ -572,19 +593,42 @@ def cmd_smoke(args) -> None:
             raise
     else:
         raise SystemExit("smoke test: a changed learning rate was accepted without --allow-lr-change")
-    # ... then it continues the saved state, and a deadline cuts the token budget of that start
-    before = torch.load(state, map_location="cpu", weights_only=False)["meta"]["tokens"]
+    # ... a state already in its decay cannot be extended ...
+    try:
+        cmd_train(argparse.Namespace(**{**common, **more, "lr": lr2, "total_tokens": 400_000, "allow_lr_change": 1,
+                                        "extend_to": 400_000}))
+    except SystemExit as e:
+        if "already in its learning-rate decay" not in str(e):
+            raise
+    else:
+        raise SystemExit("smoke test: a decayed state was extended")
+    # ... the pre-decay state continues (renamed to state_main.pt, as in the guide); a deadline cuts that start
+    pre_path = Path(common["ckpt_dir"]) / "state_main_predecay.pt"
+    before = torch.load(pre_path, map_location="cpu", weights_only=False)["meta"]["tokens"]
+    pre_path.replace(state)
     cmd_train(argparse.Namespace(**{**common, **more, "lr": lr2, "total_tokens": 400_000, "allow_lr_change": 1,
                                     "extend_to": 400_000, "deadline": time.time() + 2, "budget_steps": "2,4"}))
     m = torch.load(state, map_location="cpu", weights_only=False)["meta"]
-    if not (before < m["tokens"] < 400_000 and m["total_tokens"] < 400_000 and m["lr_changes"][-1]["to"] == lr2):
-        raise SystemExit(f"smoke test: lr change / deadline cut failed (tokens {before} -> {m['tokens']}, "
+    if not (before < m["tokens"] < 400_000 and m["total_tokens"] < 400_000 and m["lr_changes"][-1]["to"] == lr2
+            and "predecay" not in m):
+        raise SystemExit(f"smoke test: continuation / deadline cut failed (tokens {before} -> {m['tokens']}, "
                          f"budget {m['total_tokens']}, lr changes {m.get('lr_changes')})")
+    if not pre_path.exists():
+        raise SystemExit("smoke test: no continuable state after a run that ended before its decay")
     # an expired deadline: no further training, only the final evaluation of the saved state
     cmd_train(argparse.Namespace(**{**common, **more, "lr": lr2, "total_tokens": 400_000, "allow_lr_change": 1,
                                     "deadline": time.time() - 1}))
     if torch.load(state, map_location="cpu", weights_only=False)["meta"]["tokens"] != m["tokens"]:
         raise SystemExit("smoke test: training continued after the deadline")
+    # refused: --extend-to without a saved state; an expired deadline without any training
+    for extra, msg in (({"extend_to": 400_000}, "no saved state"), ({"deadline": time.time() - 1}, "nothing to evaluate")):
+        try:
+            cmd_train(argparse.Namespace(**{**common, **more, "tag": "nostate", "lr": lr2, "total_tokens": 400_000, **extra}))
+        except SystemExit as e:
+            if msg not in str(e):
+                raise
+        else:
+            raise SystemExit(f"smoke test: expected a refusal ({msg})")
     log("smoke test passed")
 
 
