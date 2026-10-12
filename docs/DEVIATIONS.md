@@ -622,3 +622,12 @@ Vorregistrierung selbst wird nicht geändert; der Auftraggeber hat den Kern von 
   - Diese Python-Änderung fällt nach dem Start der Reihe (`drive_start.json`: Commit `86c4bcd`).
     Der Fit-Record führt sie deshalb unter `code_changed_since_drive_start`.
   - Sie ändert keine Trainings- oder Auswertungsregel.
+- **Durchsatzsperre ausgelöst (2026-10-12, 07:12:15 UTC).**
+  - Betroffen: Endlauf `S5_lr0.008_s42_f` bei Schritt 57.100 von 64.420.
+  - Gemessen wurden 2.642,4 Token/s über die letzten 1.000 Schritte, die Schwelle lag bei 2.642,6
+    (75 % der Probe 3.523).
+  - Der Zustand ist bitgenau in `resume.pt` gesichert, die Reihe pausiert (`PAUSED.json`).
+  - **Gegenprobe im pausierten Zustand:** dieselbe S5-Probe mit Zufallstoken wie in §6.6 ergab
+    jetzt 2.678 bzw. 2.635 Token/s statt 3.523. Die Maschine selbst ist also rund 25 % langsamer
+    als bei der Registrierung; am Lauf liegt es nicht. Im Container lief nichts anderes.
+  - Weiter geht es erst nach Entscheidung des Auftraggebers.
