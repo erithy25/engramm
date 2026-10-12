@@ -27,6 +27,7 @@ import argparse
 import json
 import math
 import os
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -43,6 +44,7 @@ REPO = Path(__file__).resolve().parents[1]
 TOK = R.TOK
 RESULTS = REPO / "results" / "v5" / "h100"
 CKPT = Path(os.environ.get("H100_CKPT_DIR", "/workspace/h100_ckpt"))
+SMOKE_OUT = "/dev/shm/engramm/h100_smoke"                   # scratch, never the repository
 DIVERGED = 3                                         # exit code: loss became non-finite
 OOM = getattr(torch, "OutOfMemoryError", None) or torch.cuda.OutOfMemoryError
 PROMPTS = ("The history of the city", "Albert Einstein was", "Question: What is the capital of France? Answer:",
@@ -416,7 +418,8 @@ def run(args, device) -> dict:
             atomic_save({"model": model.state_dict(), "opt": dense.state_dict(), "meta": meta}, state_path)
             t_ck = time.time()
     logf.close()
-    meta["loss_used"], meta["compiled_used"] = ("fused" if fused else "chunked"), compiled   # after any fallback
+    if meta["step"] > start_step or "loss_used" not in meta:   # what actually ran, after any fallback
+        meta["loss_used"], meta["compiled_used"] = ("fused" if fused else "chunked"), compiled
     atomic_save({"model": model.state_dict(), "opt": dense.state_dict(), "meta": meta}, state_path)
     # fp32 like the in-memory weights the final evaluation measures: the uploaded file reproduces the reported numbers
     atomic_save({"model": {k: v.detach().float().cpu() for k, v in model.state_dict().items()}, "meta": meta, "cfg": cfg},
@@ -494,6 +497,10 @@ def cmd_eval(args) -> None:
 def cmd_smoke(args) -> None:
     """Every code path on the CPU with a tiny model and a slice of the base data (results to a scratch dir)."""
     out = Path(args.out)
+    if out.exists() and any(out.iterdir()):                    # leftovers would skip the steps the checks rely on
+        if str(out) != SMOKE_OUT:
+            raise SystemExit(f"smoke test: {out} must be empty (remove it first)")
+        shutil.rmtree(out)
     out.mkdir(parents=True, exist_ok=True)
     common = dict(cpu=True, d=64, layers=2, heads=2, ctx=128, batch_tokens=2048, micro_batch=8, beta2=0.95, wd=0.1,
                   decay_frac=0.3, seed=42, bf16=False, compile=False, loss="chunked", log_every=5, eval_docs=3, final_docs=3,
@@ -568,7 +575,7 @@ def main() -> None:
     e.add_argument("--ckpt", required=True)
     e.add_argument("--tag", default="final")
     k = sub.add_parser("smoke")
-    k.add_argument("--out", default="/dev/shm/engramm/h100_smoke")
+    k.add_argument("--out", default=SMOKE_OUT)
     args = ap.parse_args()
     for flag in ("bf16", "compile"):                       # torch.autocast(enabled=...) accepts only a real bool
         if hasattr(args, flag):
