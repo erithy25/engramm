@@ -9,10 +9,16 @@
 #          GPU while the extra C4 text is prepared on the CPU · 4 merge · 5 contamination check · 6 main training
 #          + final evaluation · 7 results to GitHub (branch + private draft release with the model), then the pod
 #          deletes itself — only after both uploads were verified.
-# Cost guards: after a FEHLER, or when the uploads failed, the pod stops itself after 2 h (GPU billing ends,
-#          /workspace with all data stays; `touch /workspace/h100/KEEP` prevents it).
-# Settings (environment): H100_BUDGET_HOURS (main training, default 5.5), H100_SHARDS (36), H100_TOKENS (6000000000),
+# Cost guards: a meter adds up the pod's running time over all its sessions; at H100_MAX_USD (default 25 $ at
+#          H100_PRICE 4.01 $/h) it stops the pod, whatever the run is doing (a session started after the limit gets
+#          30 min for results/download). The main training ends early enough to stay below the limit. After a FEHLER,
+#          or when the uploads failed, the pod stops itself after 30 min. A stopped pod keeps /workspace with all
+#          data; `touch /workspace/h100/KEEP` suspends the automatic stops.
+# Settings (environment): H100_MAX_USD (25), H100_PRICE (4.01), H100_BUDGET_HOURS (main training, default 5.5),
+#          H100_SHARDS (36), H100_TOKENS (10000000000: an upper bound; the dollar limit decides the actual number),
 #          H100_AUTO_END = terminate | stop | none (default terminate), H100_NO_GITHUB=1 (run without a GitHub key).
+# Results: model_main.pt (final, fp32) and state_main_predecay.pt (last state before the learning-rate decay: training
+#          can continue from it later, elsewhere) go to the private draft release; results/v5/h100 to a branch.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 REPO_DIR=$(pwd)
@@ -27,8 +33,11 @@ export H100_CKPT_DIR="$W/ckpt"
 LOG="$W/run.log"
 exec > >(tee -a "$LOG") 2>&1
 BUDGET=${H100_BUDGET_HOURS:-5.5}
+PRICE=${H100_PRICE:-4.01}
+MAX_USD=${H100_MAX_USD:-25}
+RESERVE_S=1800                                              # final evaluation, samples, upload, self-termination
 SHARDS=${H100_SHARDS:-36}
-TOKENS=${H100_TOKENS:-6000000000}
+TOKENS=${H100_TOKENS:-10000000000}
 AUTO_END=${H100_AUTO_END:-terminate}
 RESTART="setsid nohup bash /workspace/engramm/experiments/h100_run.sh > /workspace/h100_console.log 2>&1 &"
 CRED='!f() { echo username=x-access-token; echo "password=$GH_TOKEN"; }; f'
@@ -68,12 +77,52 @@ fail() {
   say "Der Lauf ist angehalten. Bitte diese Zeilen an Claude schicken. Neustart (setzt fort): zuerst Befehl 2 (Schlüssel), dann:"
   say "  $RESTART"
   echo "$(date +%s) $*" > "$W/FAILED"
-  say "Kostenschutz: ohne Neustart stoppt sich der Pod in 2 Stunden selbst (Daten in /workspace bleiben erhalten)."
-  autostop_later 7200 "$W/FAILED"
+  say "Kostenschutz: ohne Neustart stoppt sich der Pod in 30 Minuten selbst (Daten in /workspace bleiben erhalten)."
+  autostop_later 1800 "$W/FAILED"
   exit 1
 }
 rm -f "$W/FAILED" "$W/NOT_UPLOADED"
 [ -f "$W/started" ] || date -u +%s > "$W/started"
+
+# --- cost meter: billed pod time over all sessions; stops the pod at the dollar limit -----------------------------
+mkdir -p "$W/meter"
+echo "$MAX_USD $PRICE" > "$W/cost_limit"                   # read on every tick: a restart may raise the limit
+billed_s() { cat "$W"/meter/* 2>/dev/null | awk 'NF == 2 {s += $2 - $1} END {printf "%d\n", s + 0}'; }
+limit_s() { awk '{printf "%d\n", $1 / $2 * 3600}' "$W/cost_limit"; }
+start_meter() {
+  [ -n "${RUNPOD_POD_ID:-}" ] || [ "${H100_TEST_METER:-0}" = 1 ] || return 0
+  local mp; mp=$(cat /tmp/engramm_meter.pid 2>/dev/null)
+  if [[ "$mp" =~ ^[0-9]+$ ]] && ps -o stat= -p "$mp" 2>/dev/null | grep -qv '^Z'; then return 0; fi   # alive, not a zombie
+  local up s0 old
+  up=$(ps -o etimes= -p 1 2>/dev/null | tr -d ' ')          # this container (= pod session) is running since …
+  [[ "$up" =~ ^[0-9]+$ ]] || up=0
+  s0=$(( $(date +%s) - up ))
+  old=$(cat /tmp/engramm_session 2>/dev/null)                 # same session as an earlier meter: same file
+  if [[ "$old" =~ ^[0-9]+$ ]] && [ $(( s0 - old )) -le 120 ] && [ $(( old - s0 )) -le 120 ]; then s0=$old; fi
+  echo "$s0" > /tmp/engramm_session
+  echo "$s0 $(date +%s)" > "$W/meter/.tick_$s0" && mv -f "$W/meter/.tick_$s0" "$W/meter/$s0"   # first tick at once
+  ( exec 9>&-
+    while true; do
+      now=$(date +%s)
+      echo "$s0 $now" > "$W/meter/.tick_$s0" && mv -f "$W/meter/.tick_$s0" "$W/meter/$s0"   # hidden: not summed
+      if [ "$(billed_s)" -ge "$(limit_s)" ] && [ $(( now - s0 )) -ge 1800 ] && [ ! -f "$W/KEEP" ]; then
+        echo "[$(date -u +%H:%M:%S) UTC] KOSTENBREMSE: $(cut -d' ' -f1 "$W/cost_limit") \$ erreicht – der Pod stoppt sich jetzt (Daten in /workspace bleiben)." >> "$W/run.log"
+        date +%s > "$W/COST_LIMIT_REACHED"
+        if [ -n "${RUNPOD_POD_ID:-}" ]; then
+          runpodctl stop pod "$RUNPOD_POD_ID" 2>/dev/null || runpodctl pod stop "$RUNPOD_POD_ID" 2>/dev/null
+        fi
+        exit 0
+      fi
+      sleep 60
+    done ) >/dev/null 2>&1 &
+  echo $! > /tmp/engramm_meter.pid
+}
+start_meter
+usd_now() { awk -v s="$(billed_s)" -v p="$PRICE" 'BEGIN {printf "%.2f", s / 3600 * p}'; }
+say "Kostenbremse: höchstens $MAX_USD \$ (bisher ≈ $(usd_now) \$); bei Erreichen stoppt sich der Pod selbst"
+if [ "$(billed_s)" -ge "$(limit_s)" ]; then
+  say "Kostengrenze bereits erreicht: kein weiteres Training, nur noch Ergebnisse sichern (30 min). Mehr erlauben: export H100_MAX_USD=…"
+fi
 say "=== ENGRAMM H100-Lauf (Stufe 1), Arbeitsordner $W, $NCPU CPUs ==="
 
 # --- 0. checks ---------------------------------------------------------------------------------------------
@@ -197,30 +246,56 @@ fi
 # --- 6. main training + final evaluation ---------------------------------------------------------------------------
 if ! done_ main; then
   heavy main
-  say "== 6. Haupttraining (bis $TOKENS Token, Zeitgrenze $BUDGET h) und Endmessung"
-  if [ -f "$W/stages/main_diverged" ]; then
-    rc=3                                                    # decided earlier: continue the half-rate run
-  else
-    python3 -m experiments.h100_train train --lr "$LR" --tag main --total-tokens "$TOKENS" --budget-hours "$BUDGET"
+  DEADLINE=$(( $(date +%s) + $(limit_s) - $(billed_s) - RESERVE_S ))   # training ends in time for the dollar limit
+  say "== 6. Haupttraining (bis $TOKENS Token, höchstens $BUDGET h; wegen der Kostenbremse spätestens bis $(date -u -d "@$DEADLINE" +%H:%M) UTC) und Endmessung"
+  LRUSE=$LR; ALLOW=0
+  if [ -f "$W/stages/main_diverged" ]; then LRUSE=$(head -1 "$W/stages/main_diverged"); ALLOW=1; fi
+  python3 -m experiments.h100_train train --lr "$LRUSE" --tag main --total-tokens "$TOKENS" --budget-hours "$BUDGET" \
+    --deadline "$DEADLINE" --allow-lr-change "$ALLOW"
+  rc=$?
+  if [ $rc = 3 ] && [ ! -f "$W/stages/main_diverged" ]; then
+    LR2=$(python3 -c "print($LR / 2)")
+    echo "$LR2" > "$W/stages/main_diverged"
+    say "Training divergiert – weiter ab dem letzten Speicherstand mit halber Lernrate $LR2 (kein Neubeginn)"
+    python3 -m experiments.h100_train train --lr "$LR2" --tag main --total-tokens "$TOKENS" --budget-hours "$BUDGET" \
+      --deadline "$DEADLINE" --allow-lr-change 1
     rc=$?
   fi
-  TAG=main
   if [ $rc = 3 ]; then
-    echo "$LR" > "$W/stages/main_diverged"
-    LR2=$(python3 -c "print($LR / 2)")
-    say "Training divergiert – Lauf mit halber Lernrate $LR2 (einmalig)"
-    TAG=main_lrhalf
-    python3 -m experiments.h100_train train --lr "$LR2" --tag main_lrhalf --total-tokens "$TOKENS" --budget-hours "$BUDGET" \
-      || fail "Training mit halber Lernrate fehlgeschlagen (Neustart setzt am letzten Stand fort)"
-  elif [ $rc != 0 ]; then
-    fail "Haupttraining mit Code $rc beendet (Neustart setzt am letzten Stand fort)"
+    say "Training erneut divergiert – keine weiteren Versuche: Endmessung mit dem letzten gesicherten Stand"
+    python3 -m experiments.h100_train train --lr "$(head -1 "$W/stages/main_diverged")" --tag main \
+      --total-tokens "$TOKENS" --deadline 1 --allow-lr-change 1
+    rc=$?
   fi
-  echo "$TAG" > "$W/stages/main"
+  [ $rc = 0 ] || fail "Haupttraining mit Code $rc beendet (Neustart setzt am letzten Stand fort)"
+  echo main > "$W/stages/main"
 fi
-TAG=$(head -1 "$W/stages/main" 2>/dev/null)
-case "$TAG" in main|main_lrhalf) ;; *) TAG=main ;; esac
+TAG=main
 
 # --- 7. results ---------------------------------------------------------------------------------------------------
+# One file into the draft release $RID, verified by its size; an earlier start may already have uploaded it.
+upload_asset() {  # file name-prefix
+  local f=$1 pre=$2 size exist asset got attempt
+  size=$(stat -c %s "$f")
+  exist=$(curl -sS --connect-timeout 30 --max-time 120 -H "Authorization: Bearer $GH_TOKEN" \
+    -H "Accept: application/vnd.github+json" "https://api.github.com/repos/erithy25/engramm/releases/$RID/assets?per_page=100")
+  if python3 -c "import json,sys; a=json.loads(sys.stdin.read()); sys.exit(0 if isinstance(a, list) and any(
+      x.get('state') == 'uploaded' and x.get('size') == int(sys.argv[1]) and x.get('name', '').startswith(sys.argv[2])
+      for x in a) else 1)" "$size" "$pre" <<< "$exist" 2>/dev/null; then
+    say "$pre: bereits hochgeladen ($size Bytes)"; return 0
+  fi
+  for attempt in 1 2 3; do
+    # a fresh name per attempt and start: GitHub refuses a name that an interrupted upload still holds
+    asset=$(curl -sS --connect-timeout 30 --max-time 2400 -X POST -H "Authorization: Bearer $GH_TOKEN" \
+      -H "Content-Type: application/octet-stream" --data-binary @"$f" \
+      "https://uploads.github.com/repos/erithy25/engramm/releases/$RID/assets?name=${pre}_$(date -u +%Y%m%d%H%M%S).pt")
+    got=$(python3 -c "import json,sys;print(json.loads(sys.stdin.read()).get('size',0))" <<< "$asset" 2>/dev/null)
+    if [ "$got" = "$size" ]; then say "$pre hochgeladen ($size Bytes)"; return 0; fi
+    say "$pre: Upload-Versuch $attempt unvollständig: $(python3 -c "import json,sys;print(json.loads(sys.stdin.read()).get('message',''))" <<< "$asset" 2>/dev/null)"
+    sleep 60
+  done
+  return 1
+}
 say "== 7. Ergebnisse"
 python3 - "$TAG" <<'EOF' | tee "$W/SUMMARY.txt"
 import json, sys
@@ -236,7 +311,9 @@ print(f"  trainiert: {r['tokens'] / 1e9:.2f} Mrd. Token in {r['train_hours']:.2f
 EOF
 cp "$W/run.log" results/v5/h100/run.log 2>/dev/null
 MODEL="$W/ckpt/model_$TAG.pt"
+PRE="$W/ckpt/state_${TAG}_predecay.pt"
 [ -f "$MODEL" ] && { ln -f "$MODEL" "$W/MODELL.pt" 2>/dev/null || cp "$MODEL" "$W/MODELL.pt"; }
+[ -f "$PRE" ] && { ln -f "$PRE" "$W/FORTSETZEN.pt" 2>/dev/null || cp "$PRE" "$W/FORTSETZEN.pt"; }
 tar czf "$W/h100_results.tgz" -C "$REPO_DIR" results/v5/h100 2>/dev/null
 uploaded=0
 if [ -f "$W/stages/uploaded" ]; then
@@ -273,26 +350,11 @@ elif [ -n "${GH_TOKEN:-}" ]; then
       fi
     fi
     if [ -n "$RID" ] && [ -f "$MODEL" ]; then
-      SIZE=$(stat -c %s "$MODEL")
-      # an earlier start may already have uploaded it (only its answer got lost): check before uploading again
-      EXIST=$(curl -sS --connect-timeout 30 --max-time 120 -H "Authorization: Bearer $GH_TOKEN" \
-        -H "Accept: application/vnd.github+json" "https://api.github.com/repos/erithy25/engramm/releases/$RID/assets?per_page=100")
-      python3 -c "import json,sys; a=json.loads(sys.stdin.read()); sys.exit(0 if isinstance(a, list) and any(
-          x.get('state') == 'uploaded' and x.get('size') == int(sys.argv[1]) for x in a) else 1)" "$SIZE" <<< "$EXIST" \
-        2>/dev/null && uploaded=1
-      for attempt in 1 2 3; do
-        [ $uploaded = 1 ] && break
-        # a fresh name per attempt and start: GitHub refuses a name that an interrupted upload still holds
-        ASSET=$(curl -sS --connect-timeout 30 --max-time 1800 -X POST -H "Authorization: Bearer $GH_TOKEN" \
-          -H "Content-Type: application/octet-stream" --data-binary @"$MODEL" \
-          "https://uploads.github.com/repos/erithy25/engramm/releases/$RID/assets?name=model_${TAG}_$(date -u +%Y%m%d%H%M%S).pt")
-        GOT=$(python3 -c "import json,sys;print(json.loads(sys.stdin.read()).get('size',0))" <<< "$ASSET" 2>/dev/null)
-        if [ "$GOT" = "$SIZE" ]; then uploaded=1; break; fi
-        say "Modell-Upload Versuch $attempt unvollständig: $(python3 -c "import json,sys;print(json.loads(sys.stdin.read()).get('message',''))" <<< "$ASSET" 2>/dev/null)"
-        sleep 60
-      done
-      if [ $uploaded = 1 ]; then
-        say "Modell hochgeladen (privater Entwurf-Release, $SIZE Bytes)"
+      ok_pre=1
+      [ -f "$PRE" ] && { upload_asset "$PRE" "fortsetzen_${TAG}" || ok_pre=0; }
+      if upload_asset "$MODEL" "model_${TAG}" && [ $ok_pre = 1 ]; then
+        uploaded=1
+        say "Modell und Fortsetzungs-Stand hochgeladen (privater Entwurf-Release)"
         echo "$BR" > "$W/stages/uploaded"
       fi
     fi
@@ -318,8 +380,8 @@ if [ "$uploaded" = 1 ] && [ -n "${RUNPOD_POD_ID:-}" ] && [ "$AUTO_END" != none ]
 elif [ "$uploaded" = 1 ]; then
   say "FERTIG. Ergebnisse und Modell sind auf GitHub gesichert. Den Pod jetzt beenden (Stop, dann Terminate)."
 else
-  say "FERTIG – aber NICHT auf GitHub gesichert. JETZT herunterladen (Anleitung Schritt 5b): $W/h100_results.tgz und $W/MODELL.pt"
-  say "Kostenschutz: der Pod stoppt sich in 2 Stunden selbst (Daten in /workspace bleiben, Pod danach wieder startbar). Verhindern: touch $W/KEEP"
+  say "FERTIG – aber NICHT auf GitHub gesichert. JETZT herunterladen (Anleitung Schritt 5b): $W/h100_results.tgz, $W/MODELL.pt und $W/FORTSETZEN.pt"
+  say "Kostenschutz: der Pod stoppt sich in 30 Minuten selbst (Daten in /workspace bleiben, Pod danach wieder startbar). Verhindern: touch $W/KEEP"
   date +%s > "$W/NOT_UPLOADED"
-  autostop_later 7200 "$W/NOT_UPLOADED"
+  autostop_later 1800 "$W/NOT_UPLOADED"
 fi

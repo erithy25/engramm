@@ -9,10 +9,11 @@ size (d = 768, 12 layers, 12 heads), trained with the context of the final measu
     python -m experiments.h100_train eval --ckpt PATH       # final evaluation of a saved model
     python -m experiments.h100_train smoke                  # the whole path on the CPU with a tiny model
 
-Safeguards: the step falls back to smaller micro-batches on a CUDA out-of-memory error; the token budget is
-cut to the time budget after the first steps (the schedule is by tokens, so this is safe before the decay);
-a full state is written every ``--ckpt-minutes`` and a restarted run resumes from it; three non-finite loss
-readings in a row stop the run with exit code 3 (the driver then retries once at half the learning rate).
+Safeguards: the step falls back to smaller micro-batches on a CUDA out-of-memory error; on every start the token
+budget is cut so that training ends by ``--deadline`` / within ``--budget-hours`` (measured throughput after the
+first steps; the schedule is by tokens, so a cut before the decay is harmless); a full state is written every
+``--ckpt-minutes`` and a restarted run resumes from it; three non-finite loss readings in a row stop the run with
+exit code 3 (the driver then continues from the last saved state at half the learning rate, ``--allow-lr-change``).
 
 Final evaluation (as PLAN §10/§11, on the GPU in fp32): val-A and test, window 1,024 / stride 512; documents with
 ≥ 20 % of their 13-token windows in the text actually trained on are excluded (results/v5/h100/contamination.json;
@@ -299,11 +300,23 @@ def run(args, device) -> dict:
     ckdir.mkdir(parents=True, exist_ok=True)
     state_path = ckdir / f"state_{args.tag}.pt"
     meta = {"tokens": 0, "step": 0, "epoch": 0, "pos": 0, "train_seconds": 0.0, "total_tokens": args.total_tokens,
-            "args": vars(args), "cfg": cfg, "next_eval": args.eval_every, "budget_checked": False, "bad": 0}
+            "args": vars(args), "cfg": cfg, "next_eval": args.eval_every, "bad": 0}
     if state_path.exists():
         st = torch.load(state_path, map_location="cpu", weights_only=False)
-        if st["meta"]["cfg"] != cfg or st["meta"]["args"]["lr"] != args.lr:
+        if st["meta"]["cfg"] != cfg:
             raise SystemExit(f"{state_path} belongs to a different configuration; move it away to start fresh")
+        old_lr = st["meta"]["args"]["lr"]
+        if old_lr != args.lr:
+            if not getattr(args, "allow_lr_change", False):
+                raise SystemExit(f"{state_path} was trained at lr {old_lr:g}, not {args.lr:g}; "
+                                 f"pass --allow-lr-change 1 to continue it at the new rate")
+            log(f"continuing {args.tag} from its last saved state at peak lr {args.lr:g} (was {old_lr:g})")
+            st["meta"].setdefault("lr_changes", []).append({"tokens": st["meta"]["tokens"], "from": old_lr, "to": args.lr})
+            st["meta"]["args"]["lr"] = args.lr
+        extend = int(getattr(args, "extend_to", 0) or 0)
+        if extend > st["meta"]["total_tokens"]:                # continuing a saved state (e.g. the pre-decay one)
+            log(f"token target of {args.tag} raised from {st['meta']['total_tokens'] / 1e9:.3f} B to {extend / 1e9:.3f} B")
+            st["meta"]["args"]["total_tokens"] = st["meta"]["total_tokens"] = extend
         model.load_state_dict(st["model"])
         dense.load_state_dict(st["opt"])
         meta = st["meta"]
@@ -321,9 +334,24 @@ def run(args, device) -> dict:
     logf = open(Path(args.out) / f"train_log_{args.tag}.jsonl", "a")
     curve = Path(args.out) / f"curve_{args.tag}.jsonl"
     t_ck, t_rate, tok_rate = time.time(), time.time(), meta["tokens"]
+    # time budget of this start: the earlier of --deadline and --budget-hours from now (checked on every start)
+    ends = [x for x in (getattr(args, "deadline", 0) or 0,
+                        time.time() + args.budget_hours * 3600 if args.budget_hours else 0) if x]
+    end_by = min(ends) if ends else 0.0
+    rate_from, rate_at = (int(x) for x in str(getattr(args, "budget_steps", "40,100")).split(","))
+    checked = not end_by
+    if end_by and time.time() >= end_by and meta["tokens"] > 0:
+        log("time budget already used up: no further training, final evaluation of the saved state")
+        meta["total_tokens"] = meta["tokens"]
+    predecay = ckdir / f"state_{args.tag}_predecay.pt"
     while meta["tokens"] < meta["total_tokens"]:
         total = meta["total_tokens"]
         frac = meta["tokens"] / total
+        if (getattr(args, "save_predecay", 1) and meta["tokens"] > 0 and frac >= 1 - args.decay_frac
+                and not predecay.exists()):                    # last state at the constant rate: continuable later
+            atomic_save({"model": model.state_dict(), "opt": dense.state_dict(), "meta": {**meta, "predecay": True}},
+                        predecay)
+            log(f"pre-decay state saved at {meta['tokens'] / 1e9:.3f} B tokens: {predecay}")
         lr = L.lr_at(frac, meta["step"], args.lr, args.warmup, args.decay_frac)
         for g in dense.param_groups:
             g["lr"] = lr
@@ -382,21 +410,24 @@ def run(args, device) -> dict:
         meta["tokens"] += n_micro * micro * args.ctx
         meta["epoch"], meta["pos"] = data.epoch, data.pos
         meta["train_seconds"] += time.time() - t0
-        if args.budget_hours and not meta["budget_checked"]:
-            if meta["step"] == start_step + 40:                # after compilation and warm-up of the kernels
+        if not checked:
+            if meta["step"] == start_step + rate_from:         # after compilation and warm-up of the kernels
                 t_rate, tok_rate = time.time(), meta["tokens"]
-            elif meta["step"] >= start_step + 100:
+            elif meta["step"] >= start_step + rate_at:
+                checked = True
                 rate = (meta["tokens"] - tok_rate) / max(1e-9, time.time() - t_rate)
-                fit = int(rate * args.budget_hours * 3600 * 0.95)
-                meta["budget_checked"] = True
+                left = max(0.0, end_by - time.time())
+                fit = int(meta["tokens"] + rate * left * 0.95)
                 if fit < meta["total_tokens"]:
-                    log(f"throughput {rate / 1e3:.0f} k tok/s: {meta['total_tokens'] / 1e9:.2f} B tokens would take "
-                        f"{meta['total_tokens'] / rate / 3600:.1f} h > budget {args.budget_hours} h; "
-                        f"token budget cut to {fit / 1e9:.2f} B")
-                    meta["total_tokens"] = fit
+                    log(f"throughput {rate / 1e3:.0f} k tok/s, {left / 3600:.2f} h of time budget left: "
+                        f"token budget cut from {meta['total_tokens'] / 1e9:.3f} B to {fit / 1e9:.3f} B")
+                    meta["total_tokens"] = max(fit, meta["tokens"])
                 else:
-                    log(f"throughput {rate / 1e3:.0f} k tok/s: {meta['total_tokens'] / 1e9:.2f} B tokens in "
-                        f"{meta['total_tokens'] / rate / 3600:.1f} h (budget {args.budget_hours} h)")
+                    log(f"throughput {rate / 1e3:.0f} k tok/s: the remaining {(meta['total_tokens'] - meta['tokens']) / 1e9:.3f} "
+                        f"B tokens fit into the {left / 3600:.2f} h of time budget left")
+        if end_by and time.time() > end_by + 900 and meta["total_tokens"] > meta["tokens"]:
+            log("time budget exceeded by 15 min: training stops here, final evaluation follows")   # cost guard
+            meta["total_tokens"] = meta["tokens"]
         if meta["step"] % args.log_every == 0:
             rec = {"step": meta["step"], "tokens": meta["tokens"], "frac": round(meta["tokens"] / meta["total_tokens"], 5),
                    "loss": loss_sum, "lr": lr, "grad_norm": gn, "micro": micro,
@@ -444,7 +475,8 @@ def cmd_sweep(args) -> None:
     rows = {}
     for lr in [float(x) for x in args.lrs.split(",")]:
         a = argparse.Namespace(**{**vars(args), "lr": lr, "tag": f"sweep_lr{lr:g}", "total_tokens": args.sweep_tokens,
-                                  "warmup": args.sweep_warmup, "budget_hours": 0, "eval_every": 10 ** 18})
+                                  "warmup": args.sweep_warmup, "budget_hours": 0, "deadline": 0, "save_predecay": 0,
+                                  "eval_every": 10 ** 18})
         done = out / f"sweep_lr{lr:g}.json"
         if done.exists():
             rows[lr] = json.loads(done.read_text())["bpb"]
@@ -504,8 +536,9 @@ def cmd_smoke(args) -> None:
     out.mkdir(parents=True, exist_ok=True)
     common = dict(cpu=True, d=64, layers=2, heads=2, ctx=128, batch_tokens=2048, micro_batch=8, beta2=0.95, wd=0.1,
                   decay_frac=0.3, seed=42, bf16=False, compile=False, loss="chunked", log_every=5, eval_docs=3, final_docs=3,
-                  ckpt_minutes=1e9, data=str(TOK / "train"), data_limit=400_000, ckpt_dir=str(out / "ckpt"),
-                  out=str(out), budget_hours=0, eval_every=40_000)
+                  ckpt_minutes=1e9, data=str(TOK / "train"), data_limit=60_000, ckpt_dir=str(out / "ckpt"),
+                  out=str(out), budget_hours=0, deadline=0, budget_steps="40,100", allow_lr_change=0, extend_to=0,
+                  save_predecay=1, eval_every=40_000)
     cmd_sweep(argparse.Namespace(**common, lrs="1e-3,3e-3", sweep_tokens=30_000, sweep_warmup=3, lr=0, tag="",
                                  total_tokens=0, warmup=0))
     # main run with bf16 autocast and the fused loss (the H100 defaults)
@@ -520,9 +553,38 @@ def cmd_smoke(args) -> None:
                          f"compiled={saved['meta']['compiled_used']} (expected fused, compiled={want_compiled})")
     if any(v.dtype != torch.float32 for v in saved["model"].values()):
         raise SystemExit("smoke test: the saved model is not fp32")
+    pre = torch.load(Path(common["ckpt_dir"]) / "state_main_predecay.pt", map_location="cpu", weights_only=False)["meta"]
+    if not (pre["predecay"] and 0.69 <= pre["tokens"] / pre["total_tokens"] < 0.72 + 2048 / pre["total_tokens"]):
+        raise SystemExit(f"smoke test: pre-decay state at the wrong place ({pre['tokens']} of {pre['total_tokens']})")
+    if saved["meta"]["epoch"] < 1:
+        raise SystemExit("smoke test: the data stream never wrapped into a second epoch")
     # a resumed run continues from its state file without repeating work
     cmd_train(argparse.Namespace(**common, lr=0, tag="main", total_tokens=100_000, warmup=5, lrs="", sweep_tokens=0,
                                  sweep_warmup=0))
+    # divergence path of the driver: a different learning rate only with explicit permission ...
+    state = Path(common["ckpt_dir"]) / "state_main.pt"
+    lr2 = json.loads((out / "sweep.json").read_text())["lr"] / 2
+    more = dict(tag="main", warmup=5, lrs="", sweep_tokens=0, sweep_warmup=0)
+    try:
+        cmd_train(argparse.Namespace(**{**common, **more, "lr": lr2, "total_tokens": 200_000}))
+    except SystemExit as e:
+        if "allow-lr-change" not in str(e):
+            raise
+    else:
+        raise SystemExit("smoke test: a changed learning rate was accepted without --allow-lr-change")
+    # ... then it continues the saved state, and a deadline cuts the token budget of that start
+    before = torch.load(state, map_location="cpu", weights_only=False)["meta"]["tokens"]
+    cmd_train(argparse.Namespace(**{**common, **more, "lr": lr2, "total_tokens": 400_000, "allow_lr_change": 1,
+                                    "extend_to": 400_000, "deadline": time.time() + 2, "budget_steps": "2,4"}))
+    m = torch.load(state, map_location="cpu", weights_only=False)["meta"]
+    if not (before < m["tokens"] < 400_000 and m["total_tokens"] < 400_000 and m["lr_changes"][-1]["to"] == lr2):
+        raise SystemExit(f"smoke test: lr change / deadline cut failed (tokens {before} -> {m['tokens']}, "
+                         f"budget {m['total_tokens']}, lr changes {m.get('lr_changes')})")
+    # an expired deadline: no further training, only the final evaluation of the saved state
+    cmd_train(argparse.Namespace(**{**common, **more, "lr": lr2, "total_tokens": 400_000, "allow_lr_change": 1,
+                                    "deadline": time.time() - 1}))
+    if torch.load(state, map_location="cpu", weights_only=False)["meta"]["tokens"] != m["tokens"]:
+        raise SystemExit("smoke test: training continued after the deadline")
     log("smoke test passed")
 
 
@@ -549,6 +611,7 @@ def add_common(p) -> None:
     p.add_argument("--ckpt-dir", default=str(CKPT))
     p.add_argument("--out", default=str(RESULTS))
     p.add_argument("--data-limit", type=int, default=0, help="use only the first documents up to this many tokens")
+    p.add_argument("--budget-steps", default="40,100", help="throughput measured between these steps of a start")
 
 
 def main() -> None:
@@ -561,13 +624,18 @@ def main() -> None:
     s.add_argument("--sweep-warmup", type=int, default=100)
     s.add_argument("--data", default=str(TOK / "train"), help="token stream stem (base train: available first)")
     s.add_argument("--budget-hours", type=float, default=0)
+    s.add_argument("--deadline", type=float, default=0)
     t = sub.add_parser("train")
     add_common(t)
     t.add_argument("--lr", type=float, default=0, help="0 = the sweep's choice (sweep.json)")
     t.add_argument("--tag", default="main")
-    t.add_argument("--total-tokens", type=int, default=6_000_000_000)
+    t.add_argument("--total-tokens", type=int, default=10_000_000_000)
     t.add_argument("--warmup", type=int, default=300)
-    t.add_argument("--budget-hours", type=float, default=5.5, help="cap the token budget to this training time")
+    t.add_argument("--budget-hours", type=float, default=5.5, help="training of this start ends within this time")
+    t.add_argument("--deadline", type=float, default=0, help="unix time by which training must end (0 = none)")
+    t.add_argument("--allow-lr-change", type=int, default=0, help="1: continue a saved state at a different peak lr")
+    t.add_argument("--extend-to", type=int, default=0, help="continue a saved state up to this many tokens in total")
+    t.add_argument("--save-predecay", type=int, default=1, help="keep the last state before the decay (continuable)")
     t.add_argument("--eval-every", type=int, default=500_000_000)
     t.add_argument("--data", default=str(TOK / "h100" / "train_all"))
     e = sub.add_parser("eval")

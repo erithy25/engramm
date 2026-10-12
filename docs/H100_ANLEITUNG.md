@@ -9,11 +9,11 @@ Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet 
 | | |
 |---|---|
 | Was du tust | Konto anlegen, Guthaben aufladen, GitHub-Schlüssel anlegen, eine GPU mieten, **drei Befehle** einfügen, am Ende kurz kontrollieren |
-| Was automatisch passiert | Daten laden und prüfen, Lernrate suchen, trainieren, messen, Ergebnisse und Modell auf GitHub sichern, dann löscht sich der Pod selbst |
-| Dauer | ca. 6,5–7,5 Stunden, davon ~20 Minuten mit dir |
-| Kosten | erwartet ca. 25–30 $ (+ ggf. Steuer); **75 $ aufladen** (ungünstigster Fall ≈ 55 $, siehe unten); der Rest bleibt auf dem Konto |
-| Ergebnis | Messwerte im Repository (Branch `h100-results-…`), das Modell (≈ 0,5 GB, volle Genauigkeit) als **privater** Entwurf unter „Releases“ (nur für dich sichtbar) |
-| Ehrlich | GPT-2-Niveau ist wahrscheinlich, nicht garantiert (meine Schätzung: eher ja als nein). Auch ohne Ziel sind alle Messungen gesichert |
+| Was automatisch passiert | Daten laden und prüfen, Lernrate suchen, trainieren **so lange das Budget reicht**, messen, Ergebnisse, Modell und Fortsetzungs-Stand auf GitHub sichern, dann löscht sich der Pod selbst |
+| Dauer | ca. 6 Stunden, davon ~20 Minuten mit dir |
+| Kosten | **höchstens 25 $** (feste Kostenbremse, gemessen ab dem Mieten). Bei 30 $ Guthaben bleiben 5 $ Puffer – RunPod darf nie auf 0 $ fallen |
+| Ergebnis | Messwerte im Repository (Branch `h100-results-…`); als **privater** Entwurf unter „Releases“ (nur für dich sichtbar): das fertige Modell (≈ 0,5 GB) und der **Fortsetzungs-Stand** (≈ 1,6 GB) zum späteren Weitertrainieren |
+| Ehrlich | Mit 25 $ bleiben ~4–4,5 h echtes Training (statt 5,5 h). GPT-2-Niveau ist damit offen – etwa Münzwurf. Reicht es nicht, kann vom Fortsetzungs-Stand aus weitertrainiert werden (eigene NVIDIA-GPU ab 16–24 GB oder ein paar Dollar mehr auf RunPod) |
 
 ## Was die Skripte absichern
 
@@ -23,13 +23,15 @@ Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet 
 | Testdaten im Training (geschönte Werte) | Zusatztext nur aus dem Trainings-Bereich der Hash-Aufteilung; Prüfung aller 13-Token-Fenster der Test-Dokumente im gesamten Trainingstext; Beinahe-Duplikate zählen nicht |
 | GitHub-Schlüssel falsch oder ohne Schreibrecht | Wird **in der ersten Minute** geprüft, nicht erst nach 7 Stunden |
 | Falsche Lernrate | Kurze Suche über drei Werte vor dem Hauptlauf |
-| GPU langsamer als gedacht | Zeitgrenze 5,5 h für das Haupttraining (Tokenzahl wird angepasst) |
+| GPU langsamer oder schneller als gedacht | Die Tokenzahl richtet sich nach dem gemessenen Tempo und der restlichen Budgetzeit |
 | GPU-Speicher reicht nicht / Beschleunigung versagt | automatischer Rückfall auf die sparsame, auf der CPU getestete Variante |
-| Training „explodiert“ | Erkennung; einmaliger Neustart mit halber Lernrate |
+| Training „explodiert“ | Erkennung; weiter ab dem letzten Speicherstand (≤ 30 min alt) mit halber Lernrate – kein teurer Neubeginn |
+| Kosten laufen aus dem Ruder | **Kostenbremse:** ein Zähler misst die bezahlte Pod-Zeit (auch über Neustarts); bei **25 $** stoppt sich der Pod in jedem Fall selbst. Das Training plant sein Ende so, dass Messung und Hochladen vorher fertig sind |
+| Budget reicht nicht bis GPT-2-Niveau | Der letzte Stand vor dem Absinken der Lernrate wird als Fortsetzungs-Stand gesichert: von dort kann man später nahtlos weitertrainieren |
 | Pod startet neu | Zustand alle 30 min gesichert; derselbe Startbefehl setzt fort; Pakete werden bei jedem Start geprüft |
 | Doppelter Start | Ein zweiter Start erkennt den laufenden und beendet sich sofort |
-| Lauf hängt, ohne abzubrechen | Status zeigt „Letzte Aktivität vor … min“ und warnt ab 60 min Stille bzw. ab 9 h Laufzeit |
-| Fehler, während du nicht schaust | Pod **stoppt sich nach 2 h selbst** (GPU kostet nichts mehr, Daten bleiben; nur die 100 GB Speicher kosten weiter ≈ 0,70 $/Tag) |
+| Lauf hängt, ohne abzubrechen | Status zeigt „Letzte Aktivität vor … min“ und warnt ab 60 min Stille; spätestens die Kostenbremse stoppt den Pod |
+| Fehler, während du nicht schaust | Pod **stoppt sich nach 30 min selbst** (GPU kostet nichts mehr, Daten bleiben; nur die 100 GB Speicher kosten weiter ≈ 0,70 $/Tag) |
 | Pod läuft nach dem Ende weiter | Pod löscht sich selbst — **nur** nachdem Ergebnisse und Modell nachweislich auf GitHub liegen |
 
 ---
@@ -37,10 +39,9 @@ Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet 
 ## Schritt 1 – Konto, Guthaben, GitHub-Schlüssel (15 Minuten, einmalig)
 
 1. **RunPod-Konto:** <https://www.runpod.io> → *Sign up* → E-Mail bestätigen.
-2. **Guthaben:** links *Billing* → *Add Credits* → **75 $** (Kreditkarte).
-   - Guthaben wird nicht erstattet, bleibt aber auf dem Konto. Erwartet sind ~25–30 $.
-   - Wichtig: Fällt das Guthaben auf 0, löscht RunPod den Pod samt Daten. 75 $ decken auch den ungünstigsten Fall
-     (Training explodiert spät und läuft noch einmal: ≈ 13 h ≈ 55 $).
+2. **Guthaben:** **30 $** reichen (nichts weiter aufladen). Die **Kostenbremse** steht auf **25 $**; die übrigen 5 $
+   sind Puffer, damit das Guthaben nie auf 0 fällt (bei 0 $ stoppt RunPod den Pod und kann die Daten löschen).
+   - Anderes Guthaben? Dann vor Befehl 3 zusätzlich `export H100_MAX_USD=…` mit *Guthaben minus 5* eingeben.
 3. **GitHub-Schlüssel** (damit der Pod Ergebnisse und Modell selbst sichert und sich danach löschen darf):
    - Öffnen: <https://github.com/settings/personal-access-tokens/new>
      (*Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token*)
@@ -56,14 +57,14 @@ Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet 
 ## Schritt 2 – GPU mieten (5 Minuten)
 
 1. Links **Pods** → **Deploy**.
-2. **Secure Cloud** wählen (nicht Community – zuverlässiger, ~1 $/h teurer).
+2. Falls angeboten: **Secure Cloud** (nicht Community – zuverlässiger). Bei H100 SXM erkennbar am Preis von ~3,99 $/h.
 3. GPU: **H100 SXM** (80 GB), Anzahl **1**. Falls nicht verfügbar: **H100 NVL** oder **H100 PCIe** (geht auch, etwas langsamer).
 4. Template (Vorlage): **Runpod PyTorch**, neueste Version. Falls es einen Filter *CUDA Version* gibt: die zur Vorlage
    passende Version (oder neuer) wählen.
 5. Speicher (*Edit Template* / Storage): **Container Disk 50 GB**, **Volume Disk 100 GB** (Pfad `/workspace`).
 6. **Deploy On-Demand** (nicht „Spot“/„Interruptible“ – die können mitten im Lauf weggenommen werden).
 7. Warten, bis der Pod **Running** zeigt (1–3 Minuten; nach 10 Minuten noch nicht → siehe Tabelle unten). Ab jetzt läuft
-   die Uhr (~4 $/h).
+   die Uhr (4,01 $/h) – und die Kostenbremse rechnet diese Zeit mit. Also gleich mit Schritt 3 weitermachen.
 
 ## Schritt 3 – Training starten (5 Minuten)
 
@@ -98,7 +99,8 @@ Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet 
    bash /workspace/engramm/experiments/h100_status.sh
    ```
 
-   Es muss **„Lauf aktiv: ja“** und **„GitHub-Schlüssel geprüft: ja (Schreibrecht bestätigt …)“** stehen. Steht dort
+   Es muss **„Lauf aktiv: ja“**, **„GitHub-Schlüssel geprüft: ja (Schreibrecht bestätigt …)“** und
+   „Kosten bisher ≈ … $ von höchstens 25 $“ stehen. Steht dort
    „NEIN“ oder ein FEHLER zum Schlüssel: neuen Schlüssel anlegen (Schritt 1.3), dann Befehl 2 und Befehl 3 wiederholen.
    **Danach kannst du den Browser schließen** – der Lauf geht weiter.
 7. **Empfohlen: nach ca. 45 Minuten** noch einmal den Status aufrufen (Schritt 4). Erst dann arbeitet die GPU zum ersten
@@ -118,11 +120,11 @@ Live-Protokoll (Strg+C beendet nur die Anzeige): `tail -f /workspace/h100/run.lo
 | Basisdaten (Download 630 MB, Tokenisierung, Bit-Prüfung) | 10–20 min |
 | Lernraten-Suche (GPU), gleichzeitig Zusatztext: 36 C4-Teile, ~11 GB (CPU) | 30–45 min |
 | Zusammenführen und Kontaminationsprüfung | 5–15 min |
-| **Haupttraining** (bis 6 Mrd. Token, Grenze 5,5 h) | **4,5–5,5 h** |
+| **Haupttraining** (so viele Token, wie das Budget erlaubt) | **≈ 4–4,5 h** |
 | Endmessung, Textproben, Hochladen | 10–20 min |
-| **Gesamt** | **≈ 6,5–7,5 h** |
+| **Gesamt** | **≈ 6 h (≤ 25 $)** |
 
-## Schritt 5 – Am Ende (nach ca. 7,5 Stunden nachsehen)
+## Schritt 5 – Am Ende (nach ca. 6–6,5 Stunden nachsehen)
 
 **Fertig erkennst du daran:** Auf <https://github.com/erithy25/engramm/branches> gibt es einen Branch
 `h100-results-…` (**nicht** `h100-results-20261012-1047` – das ist der alte Probelauf aus Schritt 1.4) **und** der Pod
@@ -130,26 +132,28 @@ ist aus der Liste unter *Pods* verschwunden. Dann:
 
 1. Mir schreiben: **„H100 fertig“** – ich hole die Ergebnisse, rechne die Mischung mit dem Zählmodell und berichte.
 2. Kontrolle unter *Billing*: es läuft nichts mehr.
-3. Das Modell liegt privat unter <https://github.com/erithy25/engramm/releases> (Entwurf, nur für dich sichtbar).
+3. Modell (`model_main_….pt`) und Fortsetzungs-Stand (`fortsetzen_main_….pt`) liegen privat unter
+   <https://github.com/erithy25/engramm/releases> (Entwurf, nur für dich sichtbar).
 
 **Ist der Pod noch da: NICHT sofort beenden**, erst Status aufrufen (Connect → Jupyter Lab → Terminal →
 `bash /workspace/engramm/experiments/h100_status.sh`):
 
 | Status zeigt | Bedeutung → Was tun |
 |---|---|
-| „Lauf aktiv: ja“ | läuft noch → später wieder nachsehen. **Ausnahme:** Status meldet „ungewöhnlich lange still“ (über 60 min keine Aktivität) oder „Laufzeit über 9 h“ → Ausgabe an mich schicken, Pod **nicht** beenden |
+| „Lauf aktiv: ja“ | läuft noch → später wieder nachsehen. **Ausnahme:** Status meldet „ungewöhnlich lange still“ (über 60 min keine Aktivität) → Ausgabe an mich schicken, Pod **nicht** beenden |
+| „KOSTENBREMSE hat gegriffen“ | Pod hat sich bei 25 $ selbst gestoppt (sollte nicht vorkommen – das Training endet vorher). Daten sind da → Ausgabe an mich; herunterladen wie in 5b (ein Neustart bekommt dafür 30 min, ≈ 2 $) |
 | „Auf GitHub gesichert: JA“ | alles gesichert, nur die Selbstlöschung klappte nicht → Pod aufklappen → **Stop** → **Terminate** |
 | „Auf GitHub gesichert: NEIN“ | → **Schritt 5b** |
 | „FEHLER: …“ | Zeilen an mich schicken; Neustart siehe Tabelle unten |
 
 ### Schritt 5b – Ohne GitHub-Schlüssel oder wenn das Hochladen fehlschlug
 
-1. In Jupyter Lab links im Dateibrowser in den Ordner `h100` wechseln → `h100_results.tgz` und `MODELL.pt` jeweils
-   Rechtsklick → **Download**.
+1. In Jupyter Lab links im Dateibrowser in den Ordner `h100` wechseln → `h100_results.tgz`, `MODELL.pt` und
+   `FORTSETZEN.pt` jeweils Rechtsklick → **Download**.
 2. Erst danach den Pod beenden: *Pods* → aufklappen → **Stop** (Quadrat) → **Terminate** (Mülleimer) → bestätigen.
 3. Mir Bescheid geben; ich sage dir, wie die kleine Datei `h100_results.tgz` ins Repository kommt.
 
-Hinweis: Hat sich der Pod nach einem Fehler oder fehlgeschlagenem Hochladen selbst **gestoppt** (Kostenschutz nach 2 h),
+Hinweis: Hat sich der Pod nach einem Fehler oder fehlgeschlagenem Hochladen selbst **gestoppt** (Kostenschutz nach 30 min),
 sind alle Daten noch da: Pod → **Start** → Jupyter Lab → wie oben herunterladen (oder Neustart, siehe unten).
 - Ein gestoppter Pod kostet für die 100 GB Speicher weiter **≈ 0,70 $/Tag** – also bald herunterladen oder neu starten,
   und am Ende immer **Terminate**.
@@ -169,20 +173,32 @@ sind alle Daten noch da: Pod → **Start** → Jupyter Lab → wie oben herunter
 | „torch zu alt“ | Pod beenden, neu mieten mit neuerer *Runpod PyTorch*-Vorlage |
 | „zu wenig Platz“ beim **ersten** Start | Pod beenden, neu mieten mit Volume Disk 100 GB. Mitten im Lauf nicht beenden, sondern mir schreiben |
 | H100 SXM nicht verfügbar | H100 NVL oder H100 PCIe nehmen; die Zeitgrenze kürzt notfalls die Tokenzahl |
-| Guthaben wird knapp | Unter *Billing* nachladen (Lauf läuft weiter) |
+| Guthaben wird knapp | Mit 30 $ vor dem Start nicht möglich (Kostenbremse 25 $) |
 | Du willst abbrechen | Erst Status: „Auf GitHub gesichert“? Sonst Schritt 5b. Dann Stop → Terminate |
 
 ## Technische Details (zum Nachprüfen)
 
 - Skripte: `experiments/h100_run.sh` (Ablauf), `experiments/h100_data.py` (Daten), `experiments/h100_train.py`
   (Training, Endmessung), `experiments/h100_status.sh` (Status). Tests auf der CPU: `h100_train smoke` (mit/ohne
-  torch.compile, bf16, beide Verlust-Varianten, Fortsetzen; schlägt fehl, wenn der Lauf still auf die Ersatz-Variante
-  ausweicht oder das gespeicherte Modell nicht fp32 ist), `h100_data check-dedup` (reproduziert dedup.json exakt),
+  torch.compile, bf16, beide Verlust-Varianten, Fortsetzen, Fortsetzen mit halber Lernrate, Kürzen auf die Zeitgrenze,
+  keine Fortsetzung nach abgelaufener Zeit; schlägt fehl, wenn der Lauf still auf die Ersatz-Variante ausweicht oder das
+  gespeicherte Modell nicht fp32 ist), `h100_data check-dedup` (reproduziert dedup.json exakt),
   echter Download + Tokenisierung + Zusammenführung + Kontaminationsprüfung von C4-Teil 1, Ablaufskript im Testmodus.
 - Modell: Rezept fast-v1 aus dem CPU-Lauf, Größe GPT-2 small (d = 768, 12 Schichten, 12 Köpfe), Kontext 1.024,
   bf16, 524.288 Token je Schritt, AdamW (β₂ 0,95), WSD (300 Aufwärmschritte, Abnahme in den letzten 30 %).
 - Daten: Basis (C4-Teil 0 + WikiText-103, 285 Mio. Token, bitgleich) + C4-Teile 1–36 (nur Trainings-Hash-Bereich),
-  zusammen ≈ 6,4 Mrd. Token; trainiert werden bis zu 6 Mrd.
-- Einstellungen per Umgebungsvariable: `H100_BUDGET_HOURS` (5.5), `H100_SHARDS` (36), `H100_TOKENS` (6000000000),
+  zusammen ≈ 6,4 Mrd. Token; trainiert wird, so viel das Budget erlaubt.
+- Kostenbremse: `experiments/h100_run.sh` zählt die Laufzeit jeder Pod-Sitzung (ab Container-Start) in
+  `/workspace/h100/meter/`; bei `H100_MAX_USD` / `H100_PRICE` Stunden stoppt es den Pod (eine nach der Grenze gestartete
+  Sitzung bekommt 30 min). Das Haupttraining bekommt als Frist „Grenze minus bisherige Laufzeit minus 30 min“ und
+  setzt seine Tokenzahl nach gemessenem Durchsatz darauf (Obergrenze `H100_TOKENS`, 10 Mrd.; über 6,4 Mrd. hinaus
+  wird der Text ein zweites Mal, neu gemischt, gelesen).
+- Fortsetzungs-Stand: `state_main_predecay.pt` = Gewichte + Optimierer + Datenposition beim Übergang in die
+  Abnahmephase der Lernrate (WSD). Weitertrainieren: Datei in `/workspace/h100/ckpt/state_main.pt` umbenennen, dann
+  `python3 -m experiments.h100_train train --tag main --lr <Lernrate aus sweep.json> --extend-to <Token gesamt>`
+  (Daten vorher mit `h100_data base/extra/merge` bauen). Die Lernrate bleibt bis 70 % des neuen Ziels konstant,
+  danach folgt die Abnahme – praktisch wie ein von Anfang an längerer Lauf (an 70 % des neuen Ziels entsteht ein neuer
+  Fortsetzungs-Stand).
+- Einstellungen per Umgebungsvariable: `H100_MAX_USD` (25), `H100_PRICE` (4.01), `H100_BUDGET_HOURS` (5.5), `H100_SHARDS` (36), `H100_TOKENS` (10000000000),
   `H100_AUTO_END` (`terminate` | `stop` | `none`), `export H100_NO_GITHUB=1` vor Befehl 3 (bewusst ohne Schlüssel), `touch /workspace/h100/KEEP`
   (Kostenschutz-Stopp aussetzen).

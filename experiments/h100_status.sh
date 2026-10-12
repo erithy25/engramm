@@ -2,7 +2,7 @@
 # Status of the H100 run (docs/H100_ANLEITUNG.md):  bash /workspace/engramm/experiments/h100_status.sh
 cd "$(dirname "$0")/.." || exit 1
 W=${H100_WORK:-/workspace/h100}
-PRICE=${H100_PRICE:-3.99}
+PRICE=${H100_PRICE:-4.01}
 if flock -n /tmp/engramm_h100.lock true 2>/dev/null; then ALIVE=0; else ALIVE=1; fi
 python3 - "$W" "$PRICE" "$ALIVE" <<'EOF'
 import json, sys, time
@@ -21,7 +21,23 @@ finished = "finished" in done
 uploaded = (W / "stages" / "uploaded").exists()
 print(f"Lauf aktiv: {'ja' if alive else 'NEIN'}" + ("" if alive or finished else
       f"   → Neustart: zuerst Befehl 2 (Schlüssel), dann:  {restart}"))
-print(f"Laufzeit seit dem ersten Start: {hours:.2f} h  (≈ {hours * price:.0f} $ bei {price} $/h)")
+# billed pod time from the run's cost meter (all pod sessions; see h100_run.sh)
+billed = 0
+for f in (W / "meter").glob("[0-9]*"):
+    try:
+        a, b = f.read_text().split()[:2]
+        billed += int(b) - int(a)
+    except (ValueError, OSError):
+        pass
+try:
+    max_usd, p_limit = (float(x) for x in (W / "cost_limit").read_text().split()[:2])
+except (ValueError, OSError):
+    max_usd, p_limit = 0.0, price
+print(f"Laufzeit seit dem ersten Start: {hours:.2f} h")
+if max_usd:
+    print(f"Kosten bisher ≈ {billed / 3600 * p_limit:.2f} $ von höchstens {max_usd:g} $ (Kostenbremse; Pod-Laufzeit {billed / 3600:.2f} h)")
+if (W / "COST_LIMIT_REACHED").exists():
+    print("KOSTENBREMSE hat gegriffen: der Pod wurde gestoppt (Daten in /workspace bleiben). Diese Ausgabe an Claude schicken.")
 gh = W / "github_check"
 print("GitHub-Schlüssel geprüft: " + (gh.read_text().strip() if gh.exists() else "noch nicht (Lauf hat Prüfung 0 nicht erreicht)"))
 # newest write of anything the run produces: a live run never stays silent for an hour
@@ -32,8 +48,6 @@ mtimes = [f.stat().st_mtime for f in watched if f.exists()]
 if alive and mtimes:
     idle = (time.time() - max(mtimes)) / 60
     print(f"Letzte Aktivität: vor {idle:.0f} min" + ("   ← ungewöhnlich lange still: diese Ausgabe an Claude schicken" if idle > 60 else ""))
-if alive and hours > 9:
-    print("Laufzeit über 9 h – länger als geplant: diese Ausgabe an Claude schicken")
 for s in stages:
     print(f"  [{'x' if s in done else ' '}] {names[s]}")
 if (W / "FAILED").exists():
@@ -64,11 +78,11 @@ if (W / "SUMMARY.txt").exists():
     print("\n" + (W / "SUMMARY.txt").read_text().rstrip())
 if finished:
     if uploaded:
-        print(f"\nAuf GitHub gesichert: JA (Branch {(W / 'stages' / 'uploaded').read_text().strip()}, Modell als privater Entwurf-Release)")
+        print(f"\nAuf GitHub gesichert: JA (Branch {(W / 'stages' / 'uploaded').read_text().strip()}; Modell und Fortsetzungs-Stand als privater Entwurf-Release)")
         print("→ Den Pod jetzt beenden: Stop, dann Terminate.")
     else:
         print("\nAuf GitHub gesichert: NEIN – vor dem Beenden herunterladen (Anleitung Schritt 5b):")
-        print(f"   {W / 'h100_results.tgz'}   und   {W / 'MODELL.pt'}")
+        print(f"   {W / 'h100_results.tgz'},   {W / 'MODELL.pt'}   und   {W / 'FORTSETZEN.pt'}")
 EOF
 echo "--- letzte Zeilen des Protokolls ($W/run.log, Zeiten in UTC = deutsche Zeit minus 2 h):"
 tail -n 5 "$W/run.log" 2>/dev/null
