@@ -48,9 +48,17 @@ SWEEP_SIZES = ("S0", "S1", "S2", "S3", "S4")
 SEED_SWEEP = 42
 FINAL_SEEDS = {"S0": (42, 7), "S1": (42, 7), "S2": (42, 7), "S3": (42, 7), "S4": (42, 7), "S5": (42,)}
 BOOT_REPS, BOOT_SEED = 2000, 42
-#: Throughput guard (Auftraggeber, 2026-10-09): a run more than 25 % below the §6.6 probe pauses.
+#: Throughput guard (Auftraggeber, 2026-10-09; new rule 2026-10-12, docs/DEVIATIONS.md): a run more
+#: than 25 % below a fresh probe of its size, taken right before every (re)start, pauses. A trip
+#: re-probes and resumes. The series pauses for the Auftraggeber when a fresh probe falls below
+#: FLOOR × the §6.6 probe, when the run is slower than the guard against the re-probe, or after
+#: MAX_TRIPS trips of one run.
 PROBE = REPO / "results" / "params" / "probe_throughput_chunked_20261008T193349Z.json"
 GUARD = 0.75
+FLOOR = 0.5
+MAX_TRIPS = 5
+PROBE_STEPS = 30
+GUARD_LOG = CDIR / "guard.jsonl"
 #: Seconds between resumable checkpoints (600 since 2026-10-09 21:05 UTC: a container restart cost 25 min at 1,800 s).
 SAVE_EVERY = 600
 PAUSED = CDIR / "PAUSED.json"
@@ -85,15 +93,71 @@ def eval_path(run: str, split: str) -> Path:
 # drive
 # ---------------------------------------------------------------------------
 
-def _train(size: str, lr: float, seed: int, sweep: bool, out: Path) -> int:
+def _train(size: str, lr: float, seed: int, sweep: bool, out: Path, min_tps: float) -> int:
     d, layers, heads = GRID[size]
     tokens = (5 if sweep else 20) * PARAMS[size][0]
     cmd = [str(TORCH_PY), "-u", str(TRAINER), "train-tokens", "--d", str(d), "--layers", str(layers),
            "--heads", str(heads), "--tokens", str(tokens), "--seed", str(seed), "--lr", repr(lr),
            "--batch", str(BATCH), "--threads", str(THREADS), "--chunked",
-           "--min-tps", f"{GUARD * probe_tps()[size]:.1f}", "--save-every", str(SAVE_EVERY), "--out", str(out)]
+           "--min-tps", f"{min_tps:.1f}", "--save-every", str(SAVE_EVERY), "--out", str(out)]
     with open(out.parent / f"{out.name}.log", "a") as log:
         return subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, cwd=REPO).returncode
+
+
+def fresh_probe(size: str) -> float:
+    """Tokens/s of this size on random tokens right now, registered setting (rows in probes.jsonl)."""
+    cmd = [str(TORCH_PY), "-u", "-m", "experiments.params_probe", "--size", size,
+           "--steps", str(PROBE_STEPS), "--append", str(CDIR / "probes.jsonl")]
+    r = subprocess.run(cmd, capture_output=True, text=True, cwd=REPO)
+    if r.returncode != 0:
+        raise RuntimeError(f"probe {size} failed: {r.stderr[-2000:]}")
+    return float(json.loads(r.stdout.strip().splitlines()[-1])["tokens_per_s"])
+
+
+def guard_event(run: str, kind: str, **info) -> None:
+    row = {"time_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "run": run, "event": kind, **info}
+    with open(GUARD_LOG, "a") as f:
+        f.write(json.dumps(row) + "\n")
+
+
+def pause(run: str, reason: str, **info) -> None:
+    guard_event(run, "pause", reason=reason, **info)
+    PAUSED.write_text(json.dumps({"run": run, "reason": reason, **info}) + "\n")
+    say(f"PAUSED {run}: {reason} {json.dumps(info)}")
+    raise Paused(run)
+
+
+def trips_so_far(run: str) -> int:
+    if not GUARD_LOG.exists():
+        return 0
+    rows = (json.loads(line) for line in GUARD_LOG.read_text().splitlines() if line.strip())
+    return sum(1 for r in rows if r["run"] == run and r["event"] == "trip")
+
+
+def guarded_train(size: str, lr: float, seed: int, sweep: bool, out: Path) -> int:
+    """One training attempt under the throughput guard; returns the trainer's exit code (never 3)."""
+    run, reg = out.name, probe_tps()[size]
+    if trips_so_far(run) >= MAX_TRIPS:
+        pause(run, "too_many_trips", trips=trips_so_far(run))
+    fresh = fresh_probe(size)
+    while True:
+        if fresh < FLOOR * reg:
+            pause(run, "host_below_floor", fresh_probe_tps=fresh, registered_probe_tps=reg, floor=FLOOR)
+        guard_event(run, "start", fresh_probe_tps=fresh, registered_probe_tps=reg, min_tps=GUARD * fresh)
+        say(f"guard {run}: probe {fresh:.0f} tokens/s ({fresh / reg:.0%} of §6.6), minimum {GUARD * fresh:.0f}")
+        rc = _train(size, lr, seed, sweep, out, GUARD * fresh)
+        if rc != 3:
+            return rc
+        info = json.loads((out / "paused_throughput.json").read_text())
+        fresh = fresh_probe(size)
+        trips = trips_so_far(run) + 1
+        guard_event(run, "trip", trip=trips, reprobe_tps=fresh, **info)
+        say(f"guard trip {trips} {run} at step {info['step']}: {info['tokens_per_s']:.0f} < "
+            f"{info['min_tokens_per_s']:.0f} tokens/s; re-probe {fresh:.0f}")
+        if info["tokens_per_s"] < GUARD * fresh:                # the run is slow, not the machine
+            pause(run, "run_slower_than_reprobe", reprobe_tps=fresh, **info)
+        if trips >= MAX_TRIPS:
+            pause(run, "too_many_trips", trips=trips)
 
 
 def ensure_trained(size: str, lr: float, seed: int, sweep: bool) -> bool:
@@ -111,12 +175,7 @@ def ensure_trained(size: str, lr: float, seed: int, sweep: bool) -> bool:
             continue
         say(f"train {run} (attempt {attempt}){' resuming' if (out / 'resume.pt').exists() else ''}")
         t0 = time.time()
-        rc = _train(size, lr, seed, sweep, out)
-        if rc == 3:                                             # throughput guard: pause, report, do not go on
-            info = json.loads((out / "paused_throughput.json").read_text())
-            PAUSED.write_text(json.dumps({"run": run, **info}) + "\n")
-            say(f"PAUSED {run}: {info['tokens_per_s']:.0f} tokens/s < {info['min_tokens_per_s']:.0f}")
-            raise Paused(run)
+        rc = guarded_train(size, lr, seed, sweep, out)
         if rc == 0 and (out / "final.pt").exists():
             say(f"trained {run} in {time.time() - t0:.0f} s")
             return True

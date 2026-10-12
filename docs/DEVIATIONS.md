@@ -644,3 +644,20 @@ Vorregistrierung selbst wird nicht geändert; der Auftraggeber hat den Kern von 
     Die Sperre ist unverändert, und es wartet eine ausdrückliche Entscheidung des Auftraggebers.
   - Codeänderung: `experiments/params_probe.py` kann jetzt eine Größe einzeln messen
     (`--size`, `--append`). Das ändert nichts am Training und an keiner Auswertung.
+- **Neue Durchsatz-Sperre auf Anweisung des Auftraggebers (2026-10-12, ≈ 12:00 UTC).**
+  - Wortlaut: „Sperre neu: 75 % einer frischen Probe vor jedem Start, Boden 50 % der §6.6-Probe,
+    nach 5 Auslösungen je Lauf anhalten.“
+  - Umsetzung in `experiments/params_c.py` (`guarded_train`):
+    - Vor jedem Start und jeder Fortsetzung misst der Treiber die Größe neu
+      (Zufallstoken, registriertes Setting, 30 Schritte). Das Minimum ist 75 % dieser Messung.
+    - Löst die Sperre aus, misst der Treiber neu und setzt fort.
+    - Die Reihe hält für den Auftraggeber an, wenn eine frische Probe unter 50 % der §6.6-Probe
+      liegt, wenn der Lauf langsamer war als 75 % der Neumessung (dann liegt es am Lauf, nicht an
+      der Maschine) oder nach der 5. Auslösung desselben Laufs.
+    - Jede Messung, jeder Start, jede Auslösung und jede Pause steht in `data/cache/params/c/guard.jsonl`;
+      die Rohproben in `probes.jsonl`.
+  - Die alte Pause von 07:12 UTC zählt nicht als Auslösung nach der neuen Regel.
+  - Begründung: Das Budget von C ist in Token festgelegt (§6.3). Eine langsamere Maschine verlängert
+    nur die Laufzeit und ändert keinen Messwert. Die alte Sperre hätte wegen der Maschine (63–70 % der
+    §6.6-Probe) jeden Neustart nach 200 Schritten angehalten.
+  - Trainingscode (`lm_transformer.py`), Daten, Lernraten und Seeds sind unverändert.
