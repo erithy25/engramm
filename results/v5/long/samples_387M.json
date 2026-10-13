@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 387284992,
+ "train_hours": 83.71533193932639,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " has been rising in recent years. The earliest phase of the construction boom is due to completion from housing and growing infrastructure projects, which diverged by 2017, according to the United States National Building Council estimates today.\n\"During this two weeks period on site leasing, only after 2010, our hands-on lumber supply was 4 times more advanced than those"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in Austria. He graduated from the University of Dublin on June 30, 1910 and got his law degree at Icelandic Law School. The youngest of a few months later, he attended University of Dublin (now Wellesley College) as an Assistant Clinical Education Officer for the University of Ireland. From there, he pursued his way to study English; working"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " How does the material structures survive in a modern world, and how do you have to communicate in every element according to your own needs.\nWhat are their legal functions for ‘gentlemanic-levels’ to be called ‘animalism” against hijackers who meet at least one thing (for example) has their rights made clear but"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you can’t go into the coffee market.\nIn this recipe we made our own fresh moa leaf cake which is filling with some water and fruit juice or one or two pieces for a short period of time before harvest. In that same plant is convenient in recipes such as coffee beans I’ve been using since 1991 – so please send your"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " santevel .\nThis is a full-size bottle of whiskey that will fit everything you need.\nThese are the super yummy! Perfect to use as an energy source or storage container when you’re on water, in addition to serving one another and sharing your current knowledge with others…being able to enjoy daily freebies/comput"
+  }
+ ]
+}
