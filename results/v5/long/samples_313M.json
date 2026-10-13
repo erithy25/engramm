@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 313098240,
+ "train_hours": 65.72204140987661,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is rooted in a name made by the town, which was founded and established by the Marquis Rosos Valdara. The Stavar River area has always been filled with uplift, wholeness and looping trees for its proximity to that of the Daimler family."
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in LaFran, New York. He graduated from the University of Pennsylvania and completed his college studies at Harvard College.\nUnterased by the great brothers, The Albert Philosophy has long become a celebrated tool for this student who would become enticed to a life-long life full of infinite possibilities.\nCofia Crestor"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " Why do you have this opportunity to read his story.\nThe title is, “Your only other enemy we must be in our past who will fight us.” He’s a typical soldier with such a temperament and reputation that he has not taken away from him even when he is still looking for something else.\nJay is currently making more"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you can re-priced your coffee for too much. The only problem that happens is actually enjoying our kids’ snacks and drinks!\nI have an amazing collection of tiny black beans in hand. A little bit so cute!!\nThanks so much from Allison for the size of the ranch this season. I love the fabric used to convey their products"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " dir -- Where to find a replacement truck, duke.\nbeth et al., Ulysses oderhmen have a reputation for its support in the fight against rifles that can steal from them to work more effectively in the defense of Umpiree's radar and fire hydrangetors.'s bulletboxing ability of enact"
+  }
+ ]
+}
