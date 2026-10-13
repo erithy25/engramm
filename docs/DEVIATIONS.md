@@ -661,3 +661,16 @@ Vorregistrierung selbst wird nicht geändert; der Auftraggeber hat den Kern von 
     nur die Laufzeit und ändert keinen Messwert. Die alte Sperre hätte wegen der Maschine (63–70 % der
     §6.6-Probe) jeden Neustart nach 200 Schritten angehalten.
   - Trainingscode (`lm_transformer.py`), Daten, Lernraten und Seeds sind unverändert.
+- **Kern-Fit und S6 (2026-10-13).**
+  - Der Kern-Fit (`results/params/c_fit_20261013T103552Z.json`) ergab N* = 14,7 M, 95 %-KI 13,3–16,2 M,
+    oberhalb von S5 (13,2 M). Nach §6.7 wurde deshalb S6 gestartet (vorab freigegeben), um 10:36 UTC.
+  - Das ist keine Abweichung. Es steht hier nur, damit der Ablauf an einer Stelle steht.
+- **Durchsatz-Sperre hat S6 angehalten (2026-10-13, 11:46 UTC). Grund: der Lauf war langsamer als
+  die Neuprobe.**
+  - Probe vor dem Start: 2.027 Token/s (86 % der §6.6-Probe). Minimum damit 1.520.
+  - Schritte 1–1.000: 1.749 Token/s. Fenster der Schritte 600–1.600: 1.498 Token/s, also unter dem Minimum.
+  - Neuprobe direkt danach: 2.002 Token/s. Damit lag der Lauf unter 75 % der Neuprobe, und die Reihe
+    hält nach der Regel vom 2026-10-12 für den Auftraggeber an.
+  - Die Ursache ist unklar: Die Maschine misst kurz danach fast so schnell wie vor dem Start.
+  - Der Stand ist bitgenau gesichert (`resume.pt`, Schritt 1.600 von 113.910). Weiter geht es erst
+    nach Entscheidung des Auftraggebers.
