@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 362037248,
+ "train_hours": 77.71908008707894,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " has been questioned, in accordance with the City Council's recommendation.\nIt is not possible to build a National Monument since it was first founded on 13 August 2009 by Dean Gordon and Baron Moriarty, who moved his newly formed building from the city earlier this year.\nSo what does Charles Davis say about Lee? he could be talking in one"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in 1965 to Ernst, who is John's younger brother. Alvin has been working for Dale and other people on the ground as well as a family member of his church. He is currently in charge of programming for NBC News with the help of TV ads that create its own program.\nHis retirement from business can be hard work thanks to George"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " The New Cities, La Paz or many other cities and towns have a wealth of rivers there. While other European countries are quite remote-controlled areas where they own hydroelectricity and transport from renewable sources such as cities like Paris (the former port at Granada), China or Brazil, many European countries do not provide oil in any parts so many"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you need the potato line and then your tea will be well-masted. Then use in small amounts of honey or cinnamon.\nNow, don't worry about getting up on this! This means you can buy a gift card instead. So I like it so much more: I have made it out of regular coffee products such as pineapple."
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " s't need any actualization.\nNot sure what the answer is for you, but by testing the command in your check-out and making a request to review the program I have downloaded this code. Just write that here's some of the documentation at your own risk.\nThis example looks good news about working with Visual Media (CUFA"
+  }
+ ]
+}
