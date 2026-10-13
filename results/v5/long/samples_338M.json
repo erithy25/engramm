@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 337723392,
+ "train_hours": 71.72201547225316,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is determined to grow by one-half by introducing a new population that was traditionally known as St. Patrick’s Catholic Church, consisting of three generations with its growing population such as settlers who grew close and stayed. The family lived in this village in search of a beautiful town both on or off their own, only two months long before joining from within"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in 1887 to civil engineer and commander of the Astounding Machine in Germany. He moved by in a factory, studying at the BBC in London until the end of World War I, where he saw action as much time spent on an international military service like Central Intelligence (ANU). In 1902, he became well known for his role as President of"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " Why is this republic constitution more than a \"junior\" state or an unification over 2000 dwellings and year-round wealth movements?\nA recent study in Ireland, Charingen found it was traditionally, despite the increasing number of social circles about its relative size. In fact, that outcome has been reduced from 70% to 69%."
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you can call your dining table or tea company on the phone. If it’s full! With each cup we have a room for dessert!\nIf you prefer nice taste and someone who doesn't love and idea of such a place, we offer their and our selections are never going to last. We also set up cakes & cookies all on a"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " s eept e une la mardé et tous le jeux à ser-invalinturandes. Sembenti les protekaués, qui ce pas cradle métons des coutenicements nétons les fairelsriidsteme lous enravantateur"
+  }
+ ]
+}
