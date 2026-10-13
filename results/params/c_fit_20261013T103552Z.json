@@ -1,0 +1,280 @@
+{
+ "schema": "engramm-params/1",
+ "name": "c_fit",
+ "study": "docs/PREREG_PARAMS.md v1.0",
+ "timestamp_utc": "20261013T103552Z",
+ "git": {
+  "commit": "9b42e72aba978a201559bb103346cca6ef07b845",
+  "dirty": false,
+  "untracked": 15,
+  "changed_during_run": false
+ },
+ "environment": {
+  "canonical": false,
+  "python": "3.13.16",
+  "numpy": "2.4.1",
+  "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+  "machine": "x86_64",
+  "cpu_count": 4,
+  "pythonhashseed": null
+ },
+ "runtime": {
+  "wall_seconds": 4.347235441207886,
+  "peak_rss_mb": 41.234375,
+  "note": "container timing/memory: never official (docs/PROTOCOL.md rule 2)"
+ },
+ "subject": {
+  "scale": "main",
+  "seed": 42,
+  "tau_index": 1,
+  "beta_index": 1,
+  "base_digest": "b45c20659e5591ff5298d631da4f5c9d566421d6db69f80eaa16a94737779b54",
+  "test_bpb_e12": 1.51357693
+ },
+ "code_changed_since_drive_start": [
+  "experiments/params_c.py",
+  "experiments/params_probe.py"
+ ],
+ "sizes": {
+  "S0": {
+   "params": 1069536,
+   "params_nonemb": 12768,
+   "bpb_seed_mean": 1.984600534896385,
+   "runs": [
+    {
+     "file": "S0_lr0.008_s42_f_test.json",
+     "seed": 42,
+     "lr": 0.008,
+     "train_wall_seconds": 2396.62761592865,
+     "tokens_seen": 21393408,
+     "bpb": 1.9838067902931888
+    },
+    {
+     "file": "S0_lr0.008_s7_f_test.json",
+     "seed": 7,
+     "lr": 0.008,
+     "train_wall_seconds": 2467.719901561737,
+     "tokens_seen": 21393408,
+     "bpb": 1.9853942794995814
+    }
+   ]
+  },
+  "S1": {
+   "params": 2213632,
+   "params_nonemb": 100096,
+   "bpb_seed_mean": 1.8452762151262119,
+   "runs": [
+    {
+     "file": "S1_lr0.008_s42_f_test.json",
+     "seed": 42,
+     "lr": 0.008,
+     "train_wall_seconds": 6159.381503582001,
+     "tokens_seen": 44273664,
+     "bpb": 1.8407269060502056
+    },
+    {
+     "file": "S1_lr0.008_s7_f_test.json",
+     "seed": 7,
+     "lr": 0.008,
+     "train_wall_seconds": 5556.56144785881,
+     "tokens_seen": 44273664,
+     "bpb": 1.8498255242022181
+    }
+   ]
+  },
+  "S2": {
+   "params": 3506016,
+   "params_nonemb": 335712,
+   "bpb_seed_mean": 1.7708350335505338,
+   "runs": [
+    {
+     "file": "S2_lr0.008_s42_f_test.json",
+     "seed": 42,
+     "lr": 0.008,
+     "train_wall_seconds": 10712.87507891655,
+     "tokens_seen": 70123520,
+     "bpb": 1.76632390602517
+    },
+    {
+     "file": "S2_lr0.008_s7_f_test.json",
+     "seed": 7,
+     "lr": 0.008,
+     "train_wall_seconds": 10120.931272745132,
+     "tokens_seen": 70123520,
+     "bpb": 1.7753461610758978
+    }
+   ]
+  },
+  "S3": {
+   "params": 5020416,
+   "params_nonemb": 793344,
+   "bpb_seed_mean": 1.6495461565936576,
+   "runs": [
+    {
+     "file": "S3_lr0.008_s42_f_test.json",
+     "seed": 42,
+     "lr": 0.008,
+     "train_wall_seconds": 17677.549027442932,
+     "tokens_seen": 100409344,
+     "bpb": 1.6501128996734729
+    },
+    {
+     "file": "S3_lr0.008_s7_f_test.json",
+     "seed": 7,
+     "lr": 0.008,
+     "train_wall_seconds": 16286.94368481636,
+     "tokens_seen": 100409344,
+     "bpb": 1.6489794135138425
+    }
+   ]
+  },
+  "S4": {
+   "params": 8120448,
+   "params_nonemb": 1779840,
+   "bpb_seed_mean": 1.6006394732654166,
+   "runs": [
+    {
+     "file": "S4_lr0.008_s42_f_test.json",
+     "seed": 42,
+     "lr": 0.008,
+     "train_wall_seconds": 33963.55189561844,
+     "tokens_seen": 162410496,
+     "bpb": 1.6015639929472505
+    },
+    {
+     "file": "S4_lr0.008_s7_f_test.json",
+     "seed": 7,
+     "lr": 0.008,
+     "train_wall_seconds": 35529.14737319946,
+     "tokens_seen": 162410496,
+     "bpb": 1.5997149535835826
+    }
+   ]
+  },
+  "S5": {
+   "params": 13193216,
+   "params_nonemb": 4739072,
+   "bpb_seed_mean": 1.5499806626919068,
+   "runs": [
+    {
+     "file": "S5_lr0.008_s42_f_test.json",
+     "seed": 42,
+     "lr": 0.008,
+     "train_wall_seconds": 88383.895247221,
+     "tokens_seen": 263864320,
+     "bpb": 1.5499806626919068
+    }
+   ]
+  }
+ },
+ "engramm_bpb": 1.5135769331107698,
+ "fit": {
+  "form": "ln bpb = c − α ln N (N = total parameters)",
+  "c": 2.10846546059136,
+  "alpha": 0.10265560358227276,
+  "r2": 0.9797666009733157,
+  "residuals": [
+   0.0020927802221568648,
+   0.003976785968755836,
+   0.010004757759331406,
+   -0.02408956175055954,
+   -0.004822275598303893,
+   0.012837513398616718
+  ]
+ },
+ "n_star": 14675333.399330238,
+ "ci95": [
+  13321885.736464983,
+  16203614.930445492
+ ],
+ "bootstrap": {
+  "replicates": 2000,
+  "seed": 42,
+  "share_outside_measured_range": 0.985,
+  "undefined": 0
+ },
+ "status": "extrapolation",
+ "factor": 1.1123393567823219,
+ "direction": "above",
+ "measured_range": [
+  1069536.0,
+  13193216.0
+ ],
+ "sensitivity": {
+  "local_interpolation": null,
+  "fit_nonembedding": {
+   "c": 1.1072694101002503,
+   "alpha": 0.04367826092357248,
+   "r2": 0.9817982540201343,
+   "n_star_nonemb": 7735214.971780578,
+   "ci95": [
+    6178475.830412814,
+    9736669.867737586
+   ]
+  },
+  "saturating": {
+   "E": 0.9233263496642441,
+   "c": 3.1088163408258915,
+   "alpha": 0.21925178147077778,
+   "sse": 0.0021447891566890678,
+   "n_star": 15931123.882942837,
+   "E_at_bound": false
+  },
+  "unfiltered": {
+   "engramm_bpb": 1.4852921207003509,
+   "bpb_per_size": {
+    "S0": 1.9823237084287335,
+    "S1": 1.842405054603307,
+    "S2": 1.7675892797762414,
+    "S3": 1.645616495083745,
+    "S4": 1.5962797651326623,
+    "S5": 1.5454022120285262
+   },
+   "n_star": 17092963.035856023
+  },
+  "secondary_targets": {
+   "kn5": {
+    "bpb": 1.6049530849667355,
+    "n_star": 8290777.604287574,
+    "status": "interpolation"
+   },
+   "null": {
+    "bpb": 1.5248451756417631,
+    "n_star": 13652393.188134622,
+    "status": "extrapolation",
+    "factor": 1.0348040377823438,
+    "direction": "above"
+   }
+  }
+ },
+ "compute": {
+  "train_flops_at_n_star": 2.584384924577971e+16,
+  "container_hours_at_n_star": 23.871960532545216,
+  "container_hours_per_size": {
+   "S0": 0.6756038218736649,
+   "S1": 1.6272142988112237,
+   "S2": 2.893584215508567,
+   "S3": 4.717290654480458,
+   "S4": 9.65176378733582,
+   "S5": 24.551082013116943
+  },
+  "engramm_build_seconds_m4": 544,
+  "engramm_build_record_m4": "results/lm/p5_device_main_20260926T161917Z.json",
+  "engramm_build_seconds_container": 566,
+  "note": "container times are not official (PROTOCOL rule 2); the transformer was not timed on the M4"
+ },
+ "external_references": {
+  "gpt2_small": {
+   "bpb": 1.038792450096114,
+   "params": 124000000,
+   "record": "results/lm/test_eval_20260926T183702Z.json",
+   "in_fit": false
+  },
+  "e12_transformer_6h": {
+   "bpb": 1.6376495826221305,
+   "in_fit": false,
+   "reason": "time budget, unannealed, ~1.1 tokens/param"
+  }
+ },
+ "engramm_record": "/home/user/engramm/results/params/c_engramm_test_20261008T200150Z.json"
+}

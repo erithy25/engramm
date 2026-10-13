@@ -1,0 +1,6 @@
+{"time_utc": "2026-10-12T12:01:42Z", "run": "S5_lr0.008_s42_f", "event": "start", "fresh_probe_tps": 2435.8487026354956, "registered_probe_tps": 3523.4815524110163, "min_tps": 1826.8865269766216}
+{"time_utc": "2026-10-12T14:52:51Z", "run": "S0_lr0.008_s7_f", "event": "start", "fresh_probe_tps": 8751.98611761465, "registered_probe_tps": 9680.85273075691, "min_tps": 6563.989588210987}
+{"time_utc": "2026-10-12T15:36:30Z", "run": "S1_lr0.008_s7_f", "event": "start", "fresh_probe_tps": 8173.453489724995, "registered_probe_tps": 7943.928722453805, "min_tps": 6130.0901172937465}
+{"time_utc": "2026-10-12T17:11:54Z", "run": "S2_lr0.008_s7_f", "event": "start", "fresh_probe_tps": 7443.578943251355, "registered_probe_tps": 7022.638837184824, "min_tps": 5582.684207438516}
+{"time_utc": "2026-10-12T20:03:57Z", "run": "S3_lr0.008_s7_f", "event": "start", "fresh_probe_tps": 5780.167237135856, "registered_probe_tps": 6255.479936824085, "min_tps": 4335.125427851892}
+{"time_utc": "2026-10-13T00:38:53Z", "run": "S4_lr0.008_s7_f", "event": "start", "fresh_probe_tps": 5054.227584521599, "registered_probe_tps": 4952.130815956181, "min_tps": 3790.6706883911993}
