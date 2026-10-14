@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 465199104,
+ "train_hours": 101.71478965262573,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is difficult.\nOf course, it seems like a little bit late for us to experience exactly what we are supposed to be doing in an urban environment with our kids. At first we would think about their past plans and things that have changed since our planning was so unpredictable. It has been important not only because summer’s sleep is now parting"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in Edinburgh, Scotland on 18 November 1908. He was the grandson of King Arthur III's descendant Erwart before his death. As he was about to receive instructions from his mother's family after her father died in 1939, Albert moved towards joining the Royal Botanic Gardens at St Vincentet who had founded a movement and worked out in local"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " How can you decide how much territory is Germany.\nAnswer: Why do I speak up the European Union?\nHow are you in a country, what percentage of America has fully settled into English speaking countries on foreign countries? How does it fit an international economy.\nOverview: “I am not EU citizens,” ? ? Can these ideas"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " I’ve had two conversations with my dear friend and colleague. But when they came home that is about our family who are eating peanuts at the coffee table and actually can eat it? So then I knew him so deeply that we were talking all over again!\nI can't wait for him to share his thoughts on his journey; just do"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " dalerichhe wasige.\nHer hypersensitivity for a maximum of 35 to 43%. Bein empathics were not the best solution as well!\nBellevisions from Aldeard database help you to make the finalisation your own plan and check it out now that we have tried our hard, so come read the"
+  }
+ ]
+}
