@@ -17,6 +17,10 @@ The fast-v1 recipe of experiments/v5_fast.py, scaled up and made restartable:
                over 200 steps)
     curve      every ``--eval-hours`` the bpb on the first 150 val-A documents (window 1024,
                stride 512, as GPT-2 was scored) goes to results/v5/long/curve.jsonl
+    extension  ``--run <name> --branch-from <state> --branch-lr <lr>``: continue from a saved state of a
+               run (its data position and, from a full state, its optimiser moments) at a constant learning
+               rate, then decay linearly to 0 over the last ``--decay-frac`` of ``--total-tokens``; context
+               fixed at ``--ctx-max``; the run has its own directories (PLAN §10, Nachtrag 14 Oct)
 
     env PYTHONPATH=/dev/shm/engramm/pt311:. .venv/bin/python -u -m experiments.v5_long train --threads 4
     env PYTHONPATH=/dev/shm/engramm/pt311:. .venv/bin/python -u -m experiments.v5_long eval --ckpt models/lm/v5/long_latest.pt
@@ -320,14 +324,19 @@ def atomic_save(obj, path: Path) -> None:
     os.replace(tmp, path)
 
 
-def save_state(model, opts, meta: dict) -> None:
-    SHM.mkdir(parents=True, exist_ok=True)
+def run_paths(run: str) -> tuple[Path, Path, Path]:
+    """RAM-disk directory, disk checkpoint and results directory of a run ("long" = the main run)."""
+    return SHM.parent / run, DISK / f"{run}_latest.pt", OUT.parent / run
+
+
+def save_state(model, opts, meta: dict, run: str = "long") -> None:
+    shm, path, _ = run_paths(run)
+    shm.mkdir(parents=True, exist_ok=True)
     atomic_save({"model": model.state_dict(), "dense": opts[0].state_dict(),
-                 "sparse": opts[1].state_dict() if opts[1] is not None else None, "meta": meta}, SHM / "state.pt")
+                 "sparse": opts[1].state_dict() if opts[1] is not None else None, "meta": meta}, shm / "state.pt")
     # The disk copy only guards against a container restart. On a nearly full root disk (the atomic
     # write needs the file's size again, ~200 MB) a failed write must neither stop the training nor
     # leave a partial temporary file behind: the full state is already on the RAM disk.
-    path = DISK / "long_latest.pt"
     try:
         DISK.mkdir(parents=True, exist_ok=True)
         atomic_save({"model": {k: v.to(torch.bfloat16) for k, v in model.state_dict().items()}, "meta": meta}, path)
@@ -352,14 +361,15 @@ def make_optimizers(model: LongGPT, lr, beta2, wd):
 def train(args) -> None:
     torch.set_num_threads(args.threads)
     torch.manual_seed(args.seed)
-    OUT.mkdir(parents=True, exist_ok=True)
+    shm, disk_ck, out = run_paths(args.run)
+    out.mkdir(parents=True, exist_ok=True)
     model = LongGPT(args.d, args.layers, args.heads, args.ctx_max, args.bigram_rows)
     opts = make_optimizers(model, args.lr, args.beta2, args.wd)
     meta = {"tokens": 0, "step": 0, "epoch": 0, "pos": 0, "train_seconds": 0.0, "args": vars(args),
             "restarts": 0, "next_eval_h": args.eval_hours}
     warm_from = 0
-    if (SHM / "state.pt").exists():
-        st = torch.load(SHM / "state.pt", map_location="cpu", weights_only=False)
+    if (shm / "state.pt").exists():
+        st = torch.load(shm / "state.pt", map_location="cpu", weights_only=False)
         model.load_state_dict(st["model"])
         opts[0].load_state_dict(st["dense"])
         if opts[1] is not None and st["sparse"] is not None:
@@ -367,16 +377,44 @@ def train(args) -> None:
         meta = st["meta"]
         print(f"resumed full state at {meta['tokens'] / 1e6:.1f} M tokens", flush=True)
         warm_from = meta.get("warm_from", meta["step"] - args.warmup)  # continue a warmup in progress
-    elif (DISK / "long_latest.pt").exists():
-        st = torch.load(DISK / "long_latest.pt", map_location="cpu", weights_only=False)
+    elif disk_ck.exists():
+        st = torch.load(disk_ck, map_location="cpu", weights_only=False)
         model.load_state_dict({k: v.float() for k, v in st["model"].items()})
         meta = st["meta"]
         meta["restarts"] += 1
         warm_from = meta["step"]                                     # fresh optimiser: warm up again
         meta["warm_from"] = warm_from
         print(f"resumed bf16 weights at {meta['tokens'] / 1e6:.1f} M tokens (optimiser re-warmed)", flush=True)
+    elif args.branch_from:
+        # Extension of a finished run (PLAN §10, Nachtrag 14 Oct): start from a saved state of another
+        # run, keep its data position, and train at the constant rate --branch-lr, then decay linearly
+        # to 0 over the last --decay-frac of --total-tokens; the context stays at --ctx-max.
+        if args.branch_lr <= 0:
+            raise SystemExit("--branch-from needs --branch-lr > 0")
+        st = torch.load(args.branch_from, map_location="cpu", weights_only=False)
+        old = st["meta"]
+        for k in ("d", "layers", "heads", "ctx_max", "bigram_rows"):
+            if old["args"][k] != getattr(args, k):
+                raise SystemExit(f"branch state has {k} = {old['args'][k]}, not {getattr(args, k)}")
+        if old["tokens"] >= args.total_tokens:
+            raise SystemExit(f"branch state is at {old['tokens'] / 1e6:.1f} M tokens, not below --total-tokens")
+        model.load_state_dict({k: v.float() for k, v in st["model"].items()})
+        full = "dense" in st
+        if full:                                                     # optimiser moments carried over
+            opts[0].load_state_dict(st["dense"])
+            if opts[1] is not None and st["sparse"] is not None:
+                opts[1].load_state_dict(st["sparse"])
+        meta = {k: old[k] for k in ("tokens", "step", "epoch", "pos", "train_seconds", "restarts", "next_eval_h")}
+        warm_from = old.get("warm_from", old["step"] - args.warmup) if full else old["step"]
+        meta.update({"args": vars(args), "warm_from": warm_from,
+                     "branch": {"from": str(args.branch_from), "tokens": old["tokens"], "step": old["step"],
+                                "lr": args.branch_lr, "optimizer": full, "args": old["args"]}})
+        print(f"branched from {args.branch_from} at {old['tokens'] / 1e6:.1f} M tokens "
+              f"({'full state' if full else 'weights only, optimiser re-warmed'}), lr {args.branch_lr}", flush=True)
     if meta["args"]["d"] != args.d or meta["args"]["layers"] != args.layers:
         raise SystemExit("checkpoint has a different model shape")
+    branch = meta.get("branch")
+    peak = branch["lr"] if branch else args.lr
     use_bf16 = bool(args.bf16) and bf16_hardware()
     print(f"bf16 matmuls: {use_bf16} (requested {bool(args.bf16)}, hardware {bf16_hardware()})", flush=True)
     data = TrainStream(args.seed, meta["epoch"], meta["pos"])
@@ -384,7 +422,7 @@ def train(args) -> None:
     total = args.total_tokens
     dense, sparse = opts
     params = [p for n, p in model.named_parameters() if not n.startswith("bigram")]
-    log = open(OUT / "train_log.jsonl", "a")
+    log = open(out / "train_log.jsonl", "a")
     t_session = time.time()
     t_ck = time.time()
     tok_t, tok_n = time.time(), meta["tokens"]
@@ -392,8 +430,8 @@ def train(args) -> None:
         if args.session_hours and time.time() - t_session > args.session_hours * 3600:
             break
         frac = meta["tokens"] / total
-        T = ctx_at(frac, args.ctx_max)
-        lr = lr_at(frac, meta["step"] - warm_from, args.lr, args.warmup, args.decay_frac)
+        T = args.ctx_max if branch else ctx_at(frac, args.ctx_max)
+        lr = lr_at(frac, meta["step"] - warm_from, peak, args.warmup, args.decay_frac)
         for g in dense.param_groups:
             g["lr"] = lr
         if sparse is not None:
@@ -437,24 +475,24 @@ def train(args) -> None:
             # A process whose memory keeps growing (allocator fragmentation, measured on 11 Oct with
             # jemalloc oversize_threshold:1 and no decay under bf16) is replaced by a fresh one: the
             # full state goes to the RAM disk, the supervisor restarts and resumes without re-warming.
-            save_state(model, opts, meta)
+            save_state(model, opts, meta, args.run)
             print(f"memory guard: rss {rss:.0f} MB > {args.max_rss_gb} GB at step {meta['step']}; "
                   f"state saved, exiting for a fresh process", flush=True)
             raise SystemExit(MEMORY_EXIT)
         if time.time() - t_ck > args.ckpt_minutes * 60:
-            save_state(model, opts, meta)
+            save_state(model, opts, meta, args.run)
             t_ck = time.time()
         if meta["train_seconds"] / 3600 >= meta["next_eval_h"]:
             res = eval_bpb(model, "val_a", 1024, 512, max_docs=150)
             res.pop("per_doc_bits")
             rec = {"train_hours": meta["train_seconds"] / 3600, "tokens": meta["tokens"], **res}
-            with open(OUT / "curve.jsonl", "a") as f:
+            with open(out / "curve.jsonl", "a") as f:
                 f.write(json.dumps(rec) + "\n")
             print("curve", rec, flush=True)
             meta["next_eval_h"] += args.eval_hours
-    save_state(model, opts, meta)
+    save_state(model, opts, meta, args.run)
     if meta["tokens"] >= total:
-        (OUT / "done.json").write_text(json.dumps({k: meta[k] for k in ("tokens", "step", "train_seconds", "restarts")}) + "\n")
+        (out / "done.json").write_text(json.dumps({k: meta[k] for k in ("tokens", "step", "train_seconds", "restarts")}) + "\n")
         print("finished", flush=True)
 
 
@@ -500,7 +538,8 @@ def evaluate(args) -> None:
     a = st["meta"]["args"]
     model = LongGPT(a["d"], a["layers"], a["heads"], a["ctx_max"], a["bigram_rows"])
     model.load_state_dict({k: v.float() for k, v in st["model"].items()})
-    OUT.mkdir(parents=True, exist_ok=True)
+    out = run_paths(args.run)[2]
+    out.mkdir(parents=True, exist_ok=True)
     res = {"tokens": st["meta"]["tokens"], "train_hours": st["meta"]["train_seconds"] / 3600, "body_params": body_params(model),
            "window": args.window, "stride": args.stride, "max_docs": args.max_docs, "torch": torch.__version__}
     splits = args.splits.split(",")
@@ -517,7 +556,7 @@ def evaluate(args) -> None:
             if not np.allclose(check, bits, rtol=1e-4, atol=1e-2):    # per-token and per-document paths agree
                 raise SystemExit(f"{split}: per-token log-probabilities do not add up to the document bits")
         perdoc[f"{split}_net_alone"] = bits
-        np.save(OUT / f"perdoc_{split}_{args.window}.npy", bits)
+        np.save(out / f"perdoc_{split}_{args.window}.npy", bits)
         r["eval_seconds"] = time.time() - t0
         res[split] = r
     if mix:
@@ -534,8 +573,8 @@ def evaluate(args) -> None:
                                  f"bpb <= {STAGE1_BPB} (PLAN §10)",
                          "bpb": res["test"]["bpb"], "reached": bool(res["test"]["bpb"] <= STAGE1_BPB),
                          "gap": res["test"]["bpb"] - STAGE1_BPB}
-    np.savez_compressed(OUT / f"perdoc_{args.tag}.npz", **perdoc)
-    (OUT / f"eval_{args.tag}.json").write_text(json.dumps(res, indent=1) + "\n")
+    np.savez_compressed(out / f"perdoc_{args.tag}.npz", **perdoc)
+    (out / f"eval_{args.tag}.json").write_text(json.dumps(res, indent=1) + "\n")
     print(json.dumps(res, indent=1), flush=True)
 
 
@@ -563,6 +602,9 @@ def main() -> None:
     t.add_argument("--session-hours", type=float, default=0, help="stop after this wall-clock time (0 = run to the end)")
     t.add_argument("--max-rss-gb", type=float, default=9.0,
                    help="save the full state and exit (code 75) when resident memory exceeds this (0 = off)")
+    t.add_argument("--run", default="long", help="run name: /dev/shm/engramm/<run>, models/lm/v5/<run>_latest.pt, results/v5/<run>")
+    t.add_argument("--branch-from", default="", help="extension: start from this state of another run (used only when the run has no state yet)")
+    t.add_argument("--branch-lr", type=float, default=0.0, help="extension: constant learning rate before the decay")
     e = sub.add_parser("eval")
     e.add_argument("--ckpt", required=True)
     e.add_argument("--splits", default="val_a,test")
@@ -572,6 +614,7 @@ def main() -> None:
     e.add_argument("--threads", type=int, default=4)
     e.add_argument("--tag", default="final")
     e.add_argument("--mix", type=int, default=1, help="also the mixtures with the counting models (needs val_a and test)")
+    e.add_argument("--run", default="long", help="results go to results/v5/<run>")
     bn = sub.add_parser("bench")
     bn.add_argument("--d", type=int, required=True)
     bn.add_argument("--layers", type=int, default=12)

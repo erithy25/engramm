@@ -309,6 +309,25 @@ Rechenleistung pro Stunde (§9).
   werden nur auf gefiltertem val-A angepasst. Dazu ein gepaarter Dokument-Bootstrap gegen GPT-2 small auf denselben
   gefilterten Test-Dokumenten (`models/lm/gpt2/eval_test.json`, Bytes je Dokument geprüft) für das Netz allein und
   die beste Mischung. Vorher fehlte beides im Code; gemessen hatte die Endmessung nur das Netz allein.
+- **Nachtrag 14. Oktober, vor dem Ergebnis bei 600 Mio. Token (Verlängerung festgelegt):**
+  - **Lücke:** Die Regel oben verlängert „ab dem letzten konstanten Stand“. Diesen Stand (420 Mio. Token, Beginn der
+    Abnahme) hat `v5_long.py` nicht gesichert, es hielt nur den jeweils letzten Stand. Er ist überschrieben.
+  - **Ersatz:** Abzweig bei 470,5 Mio. Token, am 14. Oktober um 16:37 UTC als voller fp32-Stand (Gewichte,
+    AdamW-Momente, Datenposition) auf die RAM-Disk kopiert. Die Lernrate lag dort bei 8,63·10⁻⁴, 72 % des Höchstwerts.
+  - **Verlängerung**, nur wenn Stufe 1 bei 600 Mio. verfehlt ist (`experiments/v5_long_ext_run.sh`, Parameter fest in
+    `results/v5/long_ext1/config.json`, startet über `experiments/v5_long_resume.sh` nach der Endmessung):
+    - ab dem Abzweig konstante Lernrate 8,63·10⁻⁴ bis 798 Mio. Token, dann linear auf 0 bis 1,14 Mrd. Token;
+      Kontext durchgehend 1.024, gleiche Datenreihenfolge;
+    - 1,14 Mrd. Token sind 4 Epochen der 285 Mio. Train-Token. Darüber bringen wiederholte Token deutlich weniger als
+      neue (Muennighoff et al. 2023);
+    - Messung und Regel wie oben: Test, gefiltert, Netz allein ≤ 1,04; dazu Mischungen und Bootstrap gegen GPT-2;
+    - Dauer bei 3,9 Mio. Token/h: rund 170 h, also gut 7 Tage;
+    - geht der RAM-Abzweig vor dem ersten Speicherstand der Verlängerung verloren (Container-Neustart), startet sie
+      von den Endgewichten bei 600 Mio. Token (Optimierer über 300 Schritte neu aufgewärmt), sonst unverändert.
+  - **Erwartung, vorab:** In der konstanten Phase sank val-A je Verdopplung der Token um etwa 0,05 bpb (1,439 bei
+    175 Mio. → 1,377 bei 416 Mio.). 1,14 statt 0,6 Mrd. Token sind das 1,9-Fache, also etwa −0,045 gegenüber dem
+    Ergebnis bei 600 Mio. Stufe 1 erreicht die Verlängerung damit nur, wenn der Testwert bei 600 Mio. höchstens etwa
+    1,09 beträgt. Sonst bleibt für Stufe 1 der H100-Lauf (§11).
 
 **Verlauf des Langlaufs (Stand 14. Oktober, 15:35 UTC).**
 
