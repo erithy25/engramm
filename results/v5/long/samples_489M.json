@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 488718336,
+ "train_hours": 107.71648816645146,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " has gained various celebrity lately, and it continues to grow in popularity across Europe.\nOur founder Tony Ramoro wrote that he was responsible for a number of critical, political interventions including handshots about developing countries; Portuguese police officers and security personnel around European countries; Irish army commanders and military experts on whose behalf any action or human rights can ever be"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in Dignity, New York, on May 23, 1969 and grew up as a son of Alfred Einstein. He moved to his home town after the death of Michael Einstein (born April 8), who opened a beauty shop called the \"Khan Mountain\" for him during the late 1950s.\nAnnie Einstein has lived on four acres"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " If you have any questions about how to be a conference, what if your organisation has developed applications for specific businesses in Europe and some other countries are not working. A basic registration fee applies if there are more than 6 categories when it does so that each page gets updated again.\nWhat will these requirements apply if everything else depends on whether something you think"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you need the bananas and then add everything on your coffee. The only way to cut through half?\nI would like to reduce that in my personal preference: pour 2 cups of milk over 10-15 minutes. Does this help with my sleep monitor?\nNext: Set aside the crust in the fridge for about 20 seconds before cooking dinner at"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " degl sceiw wowecw free wowe.\nHoorgah beribpur, and amawwwiwowheiwawhbabih are basing waterways of rainwater into parts of the park. Though not to mention, Pujai is studying various water routes which offer"
+  }
+ ]
+}
