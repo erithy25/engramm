@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 440991744,
+ "train_hours": 95.70983636491829,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is verified in electronic signed by a specialty photographer.\nAll photos were shot over and submitted as expected at 30,000 locations during Friday's shootings, with pictures being handled on time from 9am until 3pm (13:35 am). In that process, after 90 minutes, many members left to take inside their apartments or walk away under cars"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in Cambridge and raised as a child of his father, who was the third son of several-wheeler pioneer botanists. But now he's been called up by his parents and teachers to help him take some unusual stepmothers at age thirty and beyond.\nDavid has never married an electrician either since 1819 but is later elected lieutenant"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " How about Here, Plato and Paula Pomp.\nQ: Do I Need to Show in Europe? If so, are you supposed to be on a foreign island already? Or should I be allowed to visit Blois Island from where this part wasn’t up for rental or maintenance costs during my trip?” You might see it later down!"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you can’t put it together. Why? Because you don’t have the cake right now or should we wait for some photos later!\nIf you wish, remember that this isn’t something I had done before and do so well – like!! You aren’t sure what? Just because you saw your children going through my head-"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " splalia’.\nIn the fighter mode, nobody wants to kill. Just like someone else it will fight with us! My nose peeks are my head when you touch your nose or tip that I call attention to any other part of the world!!! But don’t hesitate and be brave…. Everyone knows what they mean!! The time starts for"
+  }
+ ]
+}
