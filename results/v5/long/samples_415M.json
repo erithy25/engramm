@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 415105024,
+ "train_hours": 89.71073862353961,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is believed to be unknown, but it is not known whether the location was changed or there were too many potential locations.\nBefore diving through a pool at the foot of Bay Road in West Chester from MabUBroach on an island called Hustle-and-Quarrier by way of the pier and jacquettes and rivers"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " a publicist who agreed to the full scale of election with his wife.\nThe Federal Rules for a Politics on Management and Personal Abdure, or For Responsible State-Aidness? (EBay), on Wednesday evening's announcement as we look forward to meeting under the new UM industry in Germany. One such thing I don't"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " The tourism sector in 2015.\nThe growth rate for 2018/22 will rise from 19 years to 7 months. I am eagerly recommending this opportunity but it can be the most rewarding one, but we are at the top of everything and that would raise a bit more than me!\nMy top priority is why you want the economy high – it"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " the sultan must recommend you use your water supply.\nYou are in luck with choosing new options such as jaya and tealmurre (or other benefits), but also want it from a coffee shop or bakery which will keep an eye on its ingredients. Goodness is very important for this market so know everything that happens online since"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " sabour auf magne.\nnonsense is a condition of progeniewahrkusin style, alluring to be only 1-1/2\" x 10\". Laminate es ir verüstüber eigen warbler Bags.\nGary rhizertes fantastre que arra"
+  }
+ ]
+}
