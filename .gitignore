@@ -45,3 +45,4 @@ site/node_modules/
 
 # v5 long run: the live training log is written continuously; check-ins commit a snapshot
 results/v5/long/train_log.jsonl
+results/v5/long_ext1/train_log.jsonl
