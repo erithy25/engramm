@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 541163520,
+ "train_hours": 119.71150363498263,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is brought to an end. The Galini Strait, on the banks of the Shannon Coast of our state, is surrounded by a bay in which one-third world. All that remains was lost here: the Valley of Cambridgeshire and all about it.\nJagged as ‘Ecclesiastical at the Estadio ‘eux"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in 1900. He served as a writer and editor for the Los Angeles Times, editor of Saturday Night Magazine (and later president of USA Weekly), publisher of the News Bulletin (the New York-New York, William Zimmerman) and bestselling author of The Scientific Counts: Symbolism Index (edged at 1758)."
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " The Chancellor “qualified for a position that could be established in its own right” as Chancellor after sitting amid some less than perfect line of thinking. But what are the ‘classical institutions’ to administer? Not just our finance but our money (now solely on economic and private investment). At present, we refer to economics far from universal interest because"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you can extract it from your blender and consume it in the morning. Then add the vegetable sugar by hand or just whisk it out for 5 minutes. Then add extra virginia and lemon juice (it’s right now.\nWhen you use something rich, like white wine, this is so good). You could also freeze them into 2 teas that"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " secałecchon.\nIs it possible to get out of the pie until there is an online fast and easy way for you? In some cases, a mobile phone will not have sufficient information about whether you can use that phone at all times when they are in nature or if somebody needs help with you. Fortunately, this can come just"
+  }
+ ]
+}
