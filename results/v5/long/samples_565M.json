@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 565272576,
+ "train_hours": 125.71449845817354,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is undeniably horrifying. The site that was not built as it does now runs by various authorities, such as the King of Israel, and even the citizens who wanted to live on a different land tract must have preserved its rich heritage. However, because the modern “people’s market” has been steadily increasing over many decades up front today"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in Copenhagen, Denmark on December 18, 1935. He is an English professor of human behavior and natural history, Professor of Earth Science in London. He has completed a concentration in music, science research and culture. He won the prize for his book Prohibited by the Unitarian Universalist Society of America (UBC) at Eighteen"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " The countries are expensive to host, but every country has its own currency and people have multiple potential resources. My guess is that this guy can’t live without a license, so I decided not sell my tickets again!\nI know you want all parties who will be promoting your product or service even if it offers some things less money… If something"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you can add some soft rice or syrup (or equivalent) and pour into your favorite pasta (to cook). You have the option of mixing them with other ingredients; adjust dough to keep them cool as long as possible. Stir in a little water when served hot, then for about 10 minutes – making sure that they are really light and good when cold"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " de clios in Aries, Offerk am 20 years old.\nBirth and renapisment LUCK 2017 2018 - Bolgeri University, p. 5149 ASU 2017 registration document(s) for the academic year is here.\n3. Hone a comfortable ananesturus of mensi"
+  }
+ ]
+}

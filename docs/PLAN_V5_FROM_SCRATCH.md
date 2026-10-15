@@ -329,7 +329,7 @@ Rechenleistung pro Stunde (§9).
     Ergebnis bei 600 Mio. Stufe 1 erreicht die Verlängerung damit nur, wenn der Testwert bei 600 Mio. höchstens etwa
     1,09 beträgt. Sonst bleibt für Stufe 1 der H100-Lauf (§11).
 
-**Verlauf des Langlaufs (Stand 15. Oktober, 09:41 UTC).**
+**Verlauf des Langlaufs (Stand 15. Oktober, 15:43 UTC).**
 
 | Training | Token | val-A, bpb (Fenster 1.024) |
 |---|---|---|
@@ -353,6 +353,7 @@ Rechenleistung pro Stunde (§9).
 | 108 h | 490 Mio. | 1,317 |
 | 114 h | 517 Mio. | 1,301 |
 | 120 h | 542 Mio. | 1,281 |
+| 126 h | 566 Mio. | 1,260 |
 
 - **Unterbrechungen:** Zwei Container-Neustarts (9./10. Oktober) löschten die RAM-Disk. Der Lauf setzte jeweils von den
   Gewichten auf der Platte fort, bei 75,5 Mio. Token. Gesichert wird jetzt alle 20 min.
