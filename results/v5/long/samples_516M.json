@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 516087808,
+ "train_hours": 113.7106421066655,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is closely tied to an ancient Roman Empire whose followers were already living in the past.\nAlakayon and Mosul at present day, together we are witnessing the devastating effects that this place has had on Greek society since the Middle Ages. Now just as much can be said for this great world but it’s simply sad that today comes the"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in 1929 and died of complications from organ failure.\nHe studied at the University of Rome, Berlin, on 19th December 1933 to become a monk.\nHis current name is “Etalus” (though modern) “Lance”) — so he cannot be confined by his touch.\nIn 1924, by now living life became public"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " The three villages that colonised France are home to a variety of cultural, artistic and economic aims. When building up this politically socialist colonial administration, it will be hard work to find ways of doing the right thing instead of turning them into an established tourism tourist destination in Ireland.\nI would like to thank the Italian government for all my experience before creating"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you need the micronutrient. This is needed for your metabolism in order to consume people it was too hot and cold during or after your day, so instead you should be careful when eating at least one protein per body. It will give weight a great deal more than we had hoped otherwise would have been limited by it not being an expensive investment"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " temaj lodis?\nCan I replace the old wiring with new ones. BELLA EXTEGRES DO NOT allow you to install replacement parts such as file and folder without having to restart the correct installation for a problem? - fast, steady cleaning of the fluff? Client Updates: Detailed maintenance manual can remove"
+  }
+ ]
+}
