@@ -329,7 +329,7 @@ Rechenleistung pro Stunde (§9).
     Ergebnis bei 600 Mio. Stufe 1 erreicht die Verlängerung damit nur, wenn der Testwert bei 600 Mio. höchstens etwa
     1,09 beträgt. Sonst bleibt für Stufe 1 der H100-Lauf (§11).
 
-**Verlauf des Langlaufs (Stand 15. Oktober, 21:45 UTC).**
+**Verlauf des Langlaufs (Stand 16. Oktober, 00:00 UTC; bei 600 Mio. Token beendet, Endmessung unten).**
 
 | Training | Token | val-A, bpb (Fenster 1.024) |
 |---|---|---|
@@ -420,6 +420,44 @@ Rechenleistung pro Stunde (§9).
   101–104 Mio. Token: englische Sätze mit plausibler Form und frei erfundenem Inhalt; die Wissensfrage wird nicht
   beantwortet, Deutsch ergibt Buchstabensalat (Korpus englisch). Die App nutzt das Netz nicht; für Nutzer ändert der
   Lauf erst mit einem Einbau (Phase R4) etwas.
+
+**Ergebnis bei 600 Mio. Token (Endmessung, 15. Oktober 23:54 UTC, `results/v5/long/eval_final.json`).**
+Modell mit 59,0 Mio. Parametern im Rumpf (d = 640, 12 Schichten), 600,0 Mio. Token (2,1 Epochen der Train-Daten),
+133,8 h Training auf 4 CPU-Kernen, 8 Neustarts ohne Verlust des Fortschritts. Fenster 1.024, Schritt 512.
+
+| Messung, bpb | val-A (767 Dok.) | Test (1.137 Dok.) |
+|---|---|---|
+| **Netz allein, gefiltert** | 1,1353 | **1,1413** |
+| Netz allein, ungefiltert | 1,1287 | 1,1343 |
+| Zähler „main“ allein (285 Mio. Token) | 1,5165 | 1,5296 |
+| Netz + Zähler „main“, λ global (0,092) | 1,1187 | 1,1254 |
+| Netz + Zähler „main“, λ je Bucket | 1,1143 | 1,1220 |
+| Netz + Zähler „pilot“, λ je Bucket | 1,1310 | 1,1367 |
+
+Gegen GPT-2 small auf denselben 1.092 gefilterten Test-Dokumenten (gepaarter Bootstrap, 95-%-Intervalle):
+
+| Variante | bpb | GPT-2 small | Verhältnis |
+|---|---|---|---|
+| Netz allein | 1,141 [1,124; 1,159] | 1,039 [1,021; 1,057] | 1,099 [1,089; 1,109] |
+| Netz + Zähler „main“ (je Bucket) | 1,122 [1,105; 1,140] | 1,039 [1,021; 1,057] | 1,080 [1,069; 1,091] |
+
+- **Stufe 1: verfehlt.** 1,1413 gegen die Schwelle 1,04, Abstand 0,101 bpb. Das Intervall des Verhältnisses schließt
+  1 deutlich aus. Auch die beste Mischung (1,122) liegt klar darüber; Stufe 1 entscheidet ohnehin das Netz allein.
+- **Einordnung:** GPT-2 small hat 124 Mio. Parameter und lernte aus 40 GB Text (WebText). Dieses Netz hat 59 Mio.
+  Parameter im Rumpf und lernte aus 1,28 GB Text auf einem 4-Kern-Rechner. Der Abstand beträgt 10 %. Das kleine
+  Transformer-Modell der LM-Studie (23 Mio. Parameter, 6 h CPU) lag bei 1,638, ENGRAMM-LM bei 1,514.
+- **Kurve gegen Endmessung:** Die Kurvenpunkte (erste 150 val-A-Dokumente) lagen zuletzt bei 1,243, das volle val-A
+  liegt bei 1,135. Die ersten 150 Dokumente sind schwerer als der Durchschnitt. Die Kurve zeigte den Verlauf, nicht
+  die Höhe. Meine Erwartung vor dem Ergebnis (1,15–1,30, §11) war damit etwas zu pessimistisch.
+- **Zähler:** Mit dem fertigen Netz bringt die Mischung mit dem vollen Zählmodell noch 0,019 bpb auf Test (λ global
+  0,09), der Pilot-Zähler 0,005.
+- **Textproben** bei 600 Mio. Token (`results/v5/long/samples_600M.json`): flüssiges, meist grammatisches Englisch mit
+  erfundenen Fakten („Albert Einstein was born in 1984, and currently lives in … New York City“). Die Wissensfrage
+  wird nicht beantwortet, Deutsch bleibt Wortsalat (Korpus englisch).
+- **Nach der Regel:** Die Verlängerung `long_ext1` (Nachtrag 14. Oktober) läuft seit 15. Oktober 23:55 UTC. Abzweig
+  aus dem vollen Stand bei 470,5 Mio. Token, Lernrate 8,63·10⁻⁴ konstant bis 798 Mio., dann linear auf 0 bis
+  1,14 Mrd. Token, rund 7 Tage. Vorab-Erwartung: etwa −0,045, also Test um 1,10. Stufe 1 ist damit nicht zu erwarten,
+  denn eine Chance bestand nur bei höchstens etwa 1,09 bei 600 Mio. Stufe 1 bleibt Aufgabe des H100-Laufs (§11).
 
 ## 11. Stufe 1 auf einer gemieteten H100 (vor dem Lauf festgelegt, 12. Oktober)
 

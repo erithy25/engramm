@@ -157,6 +157,8 @@ of *France* other countries, those of *three* other numbers.
 | Exact null model: KN-5 + ∞-gram + cache, no HDC | 1.525 |
 | **ENGRAMM-LM** | **1.514** |
 | Small Transformer, 23 M parameters, 6 h CPU training | 1.638 |
+| From-scratch network v5, 59 M parameters, 0.6 B tokens, 134 h CPU training ([`docs/PLAN_V5_FROM_SCRATCH.md`](docs/PLAN_V5_FROM_SCRATCH.md) §10) | 1.141 |
+| v5 network + exact counting model, mixed per history bucket | 1.122 |
 | GPT-2 small (reference only: 124 M parameters, 40 GB of text) | 1.039 |
 
 | Registered criterion | Result |
