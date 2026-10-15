@@ -19,3 +19,4 @@
 {"train_hours": 114.00065091649691, "tokens": 517382144, "split": "val_a", "window": 1024, "stride": 512, "docs": 150, "bpb": 1.3010056401271886, "bpb_unfiltered": 1.2999607886785474}
 {"train_hours": 120.00072685572836, "tokens": 542359552, "split": "val_a", "window": 1024, "stride": 512, "docs": 150, "bpb": 1.280814403383175, "bpb_unfiltered": 1.2792874694791094}
 {"train_hours": 126.0011720385154, "tokens": 566444032, "split": "val_a", "window": 1024, "stride": 512, "docs": 150, "bpb": 1.2599549446663343, "bpb_unfiltered": 1.2583613682168384}
+{"train_hours": 132.00102423416243, "tokens": 591626240, "split": "val_a", "window": 1024, "stride": 512, "docs": 150, "bpb": 1.2430406971816617, "bpb_unfiltered": 1.24129021808515}

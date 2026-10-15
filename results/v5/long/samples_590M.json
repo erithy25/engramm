@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 590348288,
+ "train_hours": 131.71509154465463,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is starting to look interesting, and I couldn’t resist it. It was a “fun street” kind of feeling that ended up at my back.\nOne thing when I saw an image was how hard it would be to move in and do something else like this. Again I think its pretty much what we need here, right? If you"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in 1984, and the first son of Friedrich Van der Weyden (1828-1934) became a professor at the University of Chicago from 1989.\nWith his parents he attended Nuremberg's elementary school, St. Paul-Weyden High School, which is today a school for neuroscience. The school went to school"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " The legal treaties on foreign exchange and maritime trade are generally not enforceable.\nBut why exactly are domestic institutions a virtual economy that includes all these rights, both private and public sector (as part of the licensing system) in Europe and around the world?\nWhen it comes to international borders, there’s no standard distinction between commercial banks or"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you can roam on your own. From the examples above, this will be one technique that everyone likes and is quite different from what other people do at home – ice cream. It may not get much better than it has been with the coffee machine many years ago but now you’re sitting down and looking for something from which you like coffee more"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " dir.\nListen to the conversation in a way that would make you feel at home - this is the moment when I mentioned \"the world will be brighter and harder\" (or maybe \"no worse\", for just about everyone) so why not listen, now know as it's right next to me!\nNBC has confirmed via Facebook"
+  }
+ ]
+}
