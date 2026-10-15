@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 600006656,
+ "train_hours": 133.8294177379211,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is both early and sparsely populated. They are among the most significant places in the city by day, to a small number of great names. The area has numerous good towns such as Dukum, Ictiteya, Nabali, Alyalu, Kanakawa, Shrine, Saipan, Kishiwaki"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in 1984, and currently lives in Dufue, New York City. He attended MF State University and studied at the Children’s Hospital School of New York until his graduation. He went to London Heathrow Airport as a passenger driver when he began working with the construction company, which opened on 19 October 2018. He completed work early but not"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " The phrase \"golden age\" comes from a dear friend, which was always the thing when he married. When a woman started speaking on his own deathbed about it on her wedding day she decided that because one had reached her death and now has children and grandchildren; but today she does not even know what to do. So I will start off"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you can use it with the cup. This is necessary for making coffee or tea. If you plan on using a cup of tea and have your own recipe, use a spatula. It's like having a mass in hand. If you want it out, try setting it up in a tin container.\nCombine eggs into small flakes then"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " deak web miogem. dir, oder sei bien seki belsbergeh.\nAmu konat all-encompassing knowledge on the science and technology of outer space. He has written extensively in exhibitions and symposia for a number of years now.\nToday's exhibition explores \"p"
+  }
+ ]
+}
