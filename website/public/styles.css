@@ -205,6 +205,10 @@ html.is-grabbing, html.is-grabbing * { cursor: grabbing !important; -webkit-user
 .hero.is-in .hero__side > * { opacity: 1; transform: none; }
 .hero.is-in .hero__side > :nth-child(1) { transition-delay: 0.9s; }
 .hero.is-in .hero__side > :nth-child(2) { transition-delay: 1.05s; }
+.hero.is-in .hero__side > :nth-child(3) { transition-delay: 1.2s; }
+/* the news line above the lead: what is being built next */
+.hero__news { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 18px; padding: 7px 14px 7px 12px; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; background: rgba(255, 255, 255, 0.05); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); font-family: var(--mono); font-size: 11px; line-height: 1.4; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255, 255, 255, 0.72); }
+.hero__news b { font-weight: 500; color: #fff; }
 .hero__scroll { position: absolute; right: 28px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.55); }
 .hero__scroll i { width: 1px; height: 36px; background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.8)); animation: drip 2.2s var(--ease-io) infinite; transform-origin: top; }
 @keyframes drip { 0% { transform: scaleY(0); opacity: 1; } 60% { transform: scaleY(1); opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
