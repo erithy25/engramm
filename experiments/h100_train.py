@@ -128,6 +128,7 @@ FLEX_MIN_TORCH = (2, 6)
 REFIT_BELOW, REFIT_FRAC_MAX = 0.65, 0.68              # re-fit of the token budget only well before the decay
 REFIT_MIN_CHANGE = 0.01                                # ... and only when it moves the budget by more than 1 %
 RATE_RESTART_STEPS = 10                                # after a slowdown the throughput is measured anew from here
+REFIT_MIN_WINDOW_S = 300.0                             # ... and a re-fit needs at least this long a measurement
 FLEX_MIN_GAIN = 0.10                                   # flex only if a training micro-step is ≥ 10 % faster
 
 
@@ -633,6 +634,7 @@ def run(args, device) -> dict:
                 torch.cuda.empty_cache()
                 if fused:                                      # the (N, V) loss is the largest buffer: drop it first
                     fused = False
+                    slowed_down()
                     log("CUDA out of memory: switching to the chunked loss")
                     continue
                 if micro <= 4:
@@ -716,10 +718,13 @@ def run(args, device) -> dict:
             meta["next_eval"] += args.eval_every
         if time.time() - t_ck > args.ckpt_minutes * 60:
             frac_now = meta["tokens"] / meta["total_tokens"]
-            if end_by and checked and rate_restart is None and frac_now < REFIT_BELOW and time.time() > t_rate:
+            rate = (meta["tokens"] - tok_rate) / max(1e-9, time.time() - t_rate)
+            if (end_by and checked and rate_restart is None and frac_now < REFIT_BELOW and rate > 0
+                    and time.time() - t_rate >= REFIT_MIN_WINDOW_S):
                 # re-fit the token budget to the throughput measured so far (incl. curve evaluations), while the
-                # rate is still constant: a slowdown found here no longer cuts the decay short at the deadline
-                rate = (meta["tokens"] - tok_rate) / max(1e-9, time.time() - t_rate)
+                # rate is still constant: a slowdown found here no longer cuts the decay short at the deadline.
+                # Never on a short window (e.g. a checkpoint right after a restart of the measurement): a rate
+                # near 0 would cut the budget to the end of the constant phase for good
                 fit = int(meta["tokens"] + rate * max(0.0, end_by - time.time()) * 0.95)
                 if fit > cap:                                  # what was asked for bounds the budget
                     fit = cap
@@ -899,9 +904,11 @@ def cmd_smoke(args) -> None:
         else:
             raise SystemExit(f"smoke test: expected a refusal ({msg})")
     # periodic re-fit of the token budget in the constant phase (deadline, a checkpoint after every step; the
-    # 1 % threshold is lifted here so that the measured-rate noise of a CPU run triggers it)
-    global REFIT_MIN_CHANGE
+    # 1 % threshold is lifted here so that the measured-rate noise of a CPU run triggers it, and the minimum
+    # measurement window fits the few-second steps of the CPU test; restored at the end)
+    global REFIT_MIN_CHANGE, REFIT_MIN_WINDOW_S
     keep_min, REFIT_MIN_CHANGE = REFIT_MIN_CHANGE, 0.0
+    keep_win, REFIT_MIN_WINDOW_S = REFIT_MIN_WINDOW_S, 1.0
     try:
         t_dl = time.time() + 120
         cmd_train(argparse.Namespace(**{**common, **more, "tag": "refit", "lr": lr2, "total_tokens": 300_000,
@@ -965,9 +972,15 @@ def cmd_smoke(args) -> None:
         ap.write_text("{\"decision\": \"fl")
         if read_attention(ap) != {}:
             raise SystemExit("smoke test: a truncated attention.json was not ignored")
-        write_attention(ap, {"decision": "dense", "torch": "x"})
-        if read_attention(ap) != {"decision": "dense", "torch": "x"} or ap.with_suffix(".json.tmp").exists():
-            raise SystemExit("smoke test: attention.json was not written atomically")
+        calls, real_replace = [], os.replace
+        os.replace = lambda a, b: (calls.append((str(a), str(b))), real_replace(a, b))[1]
+        try:
+            write_attention(ap, {"decision": "dense", "torch": "x"})
+        finally:
+            os.replace = real_replace
+        if (read_attention(ap) != {"decision": "dense", "torch": "x"} or ap.with_suffix(".json.tmp").exists()
+                or calls != [(str(ap.with_suffix(".json.tmp")), str(ap))]):
+            raise SystemExit(f"smoke test: attention.json was not written atomically (renames {calls})")
         ap.unlink()
         # ... and training through it, plus the fallback to the dense path after a failure (CPU test mode)
         os.environ["H100_FLEX_CPU"] = "1"
@@ -993,12 +1006,33 @@ def cmd_smoke(args) -> None:
                                      f"{(mm.get('rate_check') or {}).get('from_step')} (expected {want_from})")
             if json.loads((out / "attention.json").read_text())["decision"] != "dense":
                 raise SystemExit("smoke test: the flex failure was not recorded in attention.json")
+            # a checkpoint on the very step the measurement restarts (a zero-length window) must not re-fit: the
+            # rate would read 0 and cut the budget to the end of the constant phase for good
+            _ATTN.clear()
+            (out / "attention.json").unlink(missing_ok=True)
+            os.environ["H100_FLEX_FAIL_STEP"] = "6"
+            REFIT_MIN_CHANGE = 0.0
+            try:
+                cmd_train(argparse.Namespace(**{**common, **more, "tag": "flexwin", "lr": 1e-3, "total_tokens": 60_000,
+                                                "bf16": False, "loss": "chunked", "compile": False,
+                                                "deadline": time.time() + 900, "budget_steps": "2,4",
+                                                "ckpt_minutes": 1e-5}))
+            finally:
+                REFIT_MIN_CHANGE = keep_min
+            mw = torch.load(Path(common["ckpt_dir"]) / "model_flexwin.pt", map_location="cpu", weights_only=False)["meta"]
+            restarts = [r["step"] for r in mw.get("rate_restarts", [])]
+            if not (restarts == [6 + RATE_RESTART_STEPS] and mw["tokens"] >= 60_000
+                    and all(r["tok_per_s"] > 0 for r in mw.get("refits", []))):
+                raise SystemExit(f"smoke test: re-fit around the restart of the measurement went wrong (restarts "
+                                 f"{restarts}, tokens {mw['tokens']}, re-fits {mw.get('refits')})")
+            log(f"no re-fit on a zero-length window: restart at step {restarts}, {mw['tokens']} tokens")
         finally:
             os.environ.pop("H100_FLEX_CPU", None)
             os.environ.pop("H100_FLEX_FAIL_STEP", None)
             _ATTN.clear()
     else:
         log(f"flex attention not checked: torch {torch.__version__} < {FLEX_MIN_TORCH}")
+    REFIT_MIN_WINDOW_S = keep_win
     log("smoke test passed")
 
 
