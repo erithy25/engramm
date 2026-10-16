@@ -75,21 +75,36 @@ Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet 
 
 1. Beim Pod auf **Connect** → **Jupyter Lab** (öffnet sich im Browser) → oben *File → New → Terminal*.
 2. Einfügen im Terminal: **Windows/Linux: Strg+Shift+V** (oder Rechtsklick → Paste), **Mac: Cmd+V**. Nach jedem Befehl Enter.
+   **Windows:** Befehle am besten mit dem Kopier-Symbol rechts oben im grauen Befehlskasten kopieren (nicht mit der Maus
+   markieren). **Im Terminal nie Strg+C zum Kopieren drücken** – das bricht dort den laufenden Befehl ab; zum Kopieren
+   aus dem Terminal markieren und Strg+Shift+C (oder Rechtsklick → Copy). Einfügen geht auch mit Umschalt+Einfg.
+   Der Browser (Chrome/Edge/Firefox) ist egal; der Windows-Rechner darf nach dem Start aus sein – alles läuft auf dem Pod.
+   Klappt Jupyter Lab nicht: *Connect* → *Start Web Terminal* → *Connect to Web Terminal* (gleiche Befehle).
+   **Befehl 0** (optional, 5 Sekunden) – welche GPU und welche PyTorch-Version:
+
+   ```bash
+   python3 -c "import torch; print('torch', torch.__version__, '| GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'KEINE')"
+   ```
+
+   „GPU: NVIDIA H100 80GB HBM3“ = H100 SXM (Befehl 2b weglassen); „H100 NVL“ oder „H100 PCIe“ = Befehl 2b nötig;
+   „KEINE“ = Pod beenden und neu mieten. torch 2.6 oder neuer ist ideal; 2.4/2.5 laufen auch, nur mit weniger Token.
 3. **Befehl 1** – Programm holen (den genauen, geprüften Stand):
 
    ```bash
    cd /workspace && git clone -q -b claude/optimistic-cannon-i0u0ap https://github.com/erithy25/engramm.git && cd engramm && git checkout -q eb2e002afc323f982cac5077e0016a2d5ca55f8c && echo "OK: Programm geladen"
    ```
 
-   Es muss „OK: Programm geladen“ erscheinen.
+   Es muss „OK: Programm geladen“ erscheinen. Kommt stattdessen „already exists“ (Befehl 1 lief schon einmal), diesen
+   Befehl nehmen: `cd /workspace/engramm && git fetch -q origin && git checkout -q eb2e002afc323f982cac5077e0016a2d5ca55f8c && echo "OK: Programm geladen"`
 4. **Befehl 2** – GitHub-Schlüssel (beim Einfügen wird **nichts angezeigt** – das ist richtig): Befehl einfügen, Enter,
    dann den Schlüssel einfügen, Enter:
 
    ```bash
-   read -s -p "GitHub-Schlüssel einfügen, dann Enter: " GH_TOKEN; export GH_TOKEN; echo; echo "Schlüssel gesetzt (${#GH_TOKEN} Zeichen)"
+   read -s -p "GitHub-Schlüssel einfügen, dann Enter: " GH_TOKEN; GH_TOKEN=$(printf %s "$GH_TOKEN" | tr -d "[:space:]"); export GH_TOKEN; echo; echo "Schlüssel gesetzt (${#GH_TOKEN} Zeichen)"
    ```
 
-   Es muss „Schlüssel gesetzt (93 Zeichen)“ o. ä. erscheinen. **Steht dort 0 Zeichen: Befehl 2 einfach noch einmal.**
+   Es muss „Schlüssel gesetzt (93 Zeichen)“ o. ä. erscheinen (Leerzeichen und ein unter Windows mitkopiertes
+   Zeilenende werden automatisch entfernt). **Steht dort 0 Zeichen: Befehl 2 einfach noch einmal.**
    Den Schlüssel nie direkt an der normalen Eingabe einfügen.
 
    **Befehl 2b – nur bei H100 NVL oder H100 PCIe** (bei H100 SXM weglassen):
