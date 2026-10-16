@@ -1,6 +1,6 @@
 # Anleitung: ENGRAMM auf einer gemieteten H100 bis GPT-2-Niveau trainieren
 
-Stand 12. Oktober 2026. Ziel (Stufe 1, PLAN §6/§11): Test-Satz ≤ 1,04 Bits pro Byte, das Niveau von GPT-2 small.
+Stand 16. Oktober 2026. Ziel (Stufe 1, PLAN §6/§11): Test-Satz ≤ 1,04 Bits pro Byte, das Niveau von GPT-2 small.
 Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet auf den tatsächlich trainierten Text
 (PLAN §11). Der Wert mit der alten Filterliste wird zusätzlich berichtet.
 
@@ -8,12 +8,12 @@ Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet 
 
 | | |
 |---|---|
-| Was du tust | Konto anlegen, Guthaben aufladen, GitHub-Schlüssel anlegen, eine GPU mieten, **drei Befehle** einfügen, am Ende kurz kontrollieren |
+| Was du tust | Konto anlegen, Guthaben aufladen, GitHub-Schlüssel anlegen, eine GPU mieten, **drei Befehle** einfügen (bei H100 NVL/PCIe einen vierten), am Ende kurz kontrollieren |
 | Was automatisch passiert | Daten laden und prüfen, Lernrate suchen, trainieren **so lange das Budget reicht**, messen, Ergebnisse, Modell und Fortsetzungs-Stand auf GitHub sichern, dann löscht sich der Pod selbst |
-| Dauer | ca. 6 Stunden, davon ~20 Minuten mit dir |
+| Dauer | ca. 6 Stunden (H100 SXM; NVL/PCIe ≈ 7,5–8,5 h, siehe Befehl 2b), davon ~20 Minuten mit dir |
 | Kosten | **höchstens 25 $** (feste Kostenbremse, gemessen ab dem Mieten). Bei 30 $ Guthaben bleiben 5 $ Puffer – RunPod darf nie auf 0 $ fallen |
 | Ergebnis | Messwerte im Repository (Branch `h100-results-…`); als **privater** Entwurf unter „Releases“ (nur für dich sichtbar): das fertige Modell (≈ 0,5 GB) und der **Fortsetzungs-Stand** (≈ 1,6 GB) zum späteren Weitertrainieren |
-| Ehrlich | Mit 25 $ bleiben ~4–4,5 h echtes Training (statt 5,5 h). GPT-2-Niveau ist damit offen – etwa Münzwurf. Reicht es nicht, kann vom Fortsetzungs-Stand aus weitertrainiert werden: eigener Rechner mit NVIDIA-GPU ab 16 GB, ≥ 32 GB Arbeitsspeicher und ≥ 45 GB freiem Platz – oder ein paar Dollar mehr auf RunPod |
+| Ehrlich | Mit 25 $ bleiben ~4–4,5 h echtes Training. Prognose nach den Verbesserungen vom 16. Oktober (PLAN §11): Median ≈ 1,03 bpb, Chance auf GPT-2-Niveau ≈ 60 % – eine Schätzung, keine Zusage. Reicht es nicht, kann vom Fortsetzungs-Stand aus weitertrainiert werden: eigener Rechner mit NVIDIA-GPU ab 16 GB, ≥ 32 GB Arbeitsspeicher und ≥ 45 GB freiem Platz – oder ein paar Dollar mehr auf RunPod |
 
 ## Was die Skripte absichern
 
@@ -22,15 +22,18 @@ Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet 
 | Falsche oder kaputte Daten | Jede Quelldatei per SHA-256 festgelegt; die nachgebauten Prüfdaten müssen **bitgleich** zum CPU-Rechner sein, sonst Abbruch vor dem Training |
 | Testdaten im Training (geschönte Werte) | Zusatztext nur aus dem Trainings-Bereich der Hash-Aufteilung; Prüfung aller 13-Token-Fenster der Test-Dokumente im gesamten Trainingstext; Beinahe-Duplikate zählen nicht |
 | GitHub-Schlüssel falsch oder ohne Schreibrecht | Wird **in der ersten Minute** geprüft, nicht erst nach 7 Stunden |
-| Falsche Lernrate | Kurze Suche über drei Werte vor dem Hauptlauf |
-| GPU langsamer oder schneller als gedacht | Die Tokenzahl richtet sich nach dem gemessenen Tempo und der restlichen Budgetzeit |
+| Falsche Lernrate | Kurze Suche über drei Werte vor dem Hauptlauf; für den ~20-mal längeren Hauptlauf wird der Gewinner halbiert (zwischen 0,001 und 0,002) |
+| GPU langsamer oder schneller als gedacht | Die Tokenzahl richtet sich nach dem gemessenen Tempo und der restlichen Budgetzeit und wird bis kurz vor der Abnahmephase alle 30 min nachgeführt |
+| Neue, schnellere Attention rechnet falsch oder versagt | Wird beim Start gegen die bewährte Rechnung geprüft (Ergebnis und Gradienten) und nur genommen, wenn gleich und mindestens 10 % schneller; bei jedem Fehler geht es mit der bewährten Rechnung weiter (`results/v5/h100/attention.json`). Gemessen wird immer mit der bewährten Rechnung |
+| Anderer GPU-Typ, falscher Preis | Preis und Budget werden beim Start gemerkt (gelten auch nach einem Neustart); ein Preis unter dem Listenpreis der erkannten Karte (SXM 4,01 · NVL 3,21 · PCIe 2,91 $/h) und unplausible Eingaben (z. B. Komma statt Punkt) brechen vor dem Training mit FEHLER ab |
 | GPU-Speicher reicht nicht / Beschleunigung versagt | automatischer Rückfall auf die sparsame, auf der CPU getestete Variante |
 | Training „explodiert“ | Erkennung; weiter ab dem letzten Speicherstand (≤ 30 min alt) mit halber Lernrate – kein teurer Neubeginn |
-| Kosten laufen aus dem Ruder | **Kostenbremse:** ein Zähler misst die bezahlte Pod-Zeit (auch über Neustarts); bei **25 $** stoppt sich der Pod selbst. Das Training plant sein Ende so, dass Messung und Hochladen vorher fertig sind; Uploads werden nie in den Stopp hinein begonnen. Startet RunPod den Pod unbemerkt neu, schaltet spätestens der nächste Status-Aufruf die Bremse wieder ein (sie rechnet die Zeit seit dem Neustart mit) – deshalb die **Pflicht-Kontrolle spätestens 7 h nach dem Mieten** |
+| Kosten laufen aus dem Ruder | **Kostenbremse:** ein Zähler misst die bezahlte Pod-Zeit (auch über Neustarts); bei **25 $** stoppt sich der Pod selbst. Das Training plant sein Ende so, dass Messung und Hochladen vorher fertig sind; Uploads werden nie in den Stopp hinein begonnen. Startet RunPod den Pod unbemerkt neu, schaltet spätestens der nächste Status-Aufruf die Bremse wieder ein (sie rechnet die Zeit seit dem Neustart mit) – deshalb die **Pflicht-Kontrolle spätestens 7 h nach dem Mieten** (NVL/PCIe: zusätzlich eine zweite, siehe Befehl 2b) |
 | Budget reicht nicht bis GPT-2-Niveau | Der letzte Stand vor dem Absinken der Lernrate wird als Fortsetzungs-Stand gesichert: von dort kann man später nahtlos weitertrainieren |
 | Pod startet neu | Zustand alle 30 min gesichert; derselbe Startbefehl setzt fort; Pakete werden bei jedem Start geprüft. Ein Pod ohne laufendes Training stoppt sich nach 30 min selbst, sobald Status oder Befehl 3 einmal aufgerufen wurde |
 | Doppelter Start | Ein zweiter Start erkennt den laufenden und beendet sich sofort |
 | Lauf hängt, ohne abzubrechen | Status zeigt „Letzte Aktivität vor … min“ und warnt ab 60 min Stille; spätestens die Kostenbremse stoppt den Pod |
+| Training stürzt mitten im Lauf ab (z. B. GPU-Fehler) | Bis zu zwei automatische Neustarts ab dem letzten Speicherstand (≤ 30 min alt), nur wenn die GPU noch antwortet; Frist und Kostenbremse bleiben dieselben. Sonst FEHLER und Selbst-Stopp nach 30 min |
 | Fehler, während du nicht schaust | Pod **stoppt sich nach 30 min selbst** (GPU kostet nichts mehr, Daten bleiben; nur die 100 GB Speicher kosten weiter ≈ 0,70 $/Tag) |
 | Pod läuft nach dem Ende weiter | Pod löscht sich selbst — **nur** nachdem Ergebnisse und Modell nachweislich auf GitHub liegen |
 
@@ -58,13 +61,15 @@ Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet 
 
 1. Links **Pods** → **Deploy**.
 2. Falls angeboten: **Secure Cloud** (nicht Community – zuverlässiger). Bei H100 SXM erkennbar am Preis von ~3,99 $/h.
-3. GPU: **H100 SXM** (80 GB), Anzahl **1**. Falls nicht verfügbar: **H100 NVL** oder **H100 PCIe** (geht auch, etwas langsamer).
-4. Template (Vorlage): **Runpod PyTorch**, neueste Version. Falls es einen Filter *CUDA Version* gibt: die zur Vorlage
-   passende Version (oder neuer) wählen.
+3. GPU: **H100 SXM** (80 GB), Anzahl **1**. Nur falls nicht verfügbar: **H100 NVL** oder **H100 PCIe** (geht auch,
+   etwas langsamer) – dann in Schritt 3 zusätzlich **Befehl 2b** (Preis eingeben). Den angezeigten Stundenpreis notieren.
+4. Template (Vorlage): **Runpod PyTorch**, neueste Version – möglichst **PyTorch 2.6 oder neuer** (nur dann kann die
+   schnellere Attention genutzt werden; ab 2.4 läuft es auch, nur mit weniger Token). Falls es einen Filter
+   *CUDA Version* gibt: die zur Vorlage passende Version (oder neuer) wählen.
 5. Speicher (*Edit Template* / Storage): **Container Disk 50 GB**, **Volume Disk 100 GB** (Pfad `/workspace`).
 6. **Deploy On-Demand** (nicht „Spot“/„Interruptible“ – die können mitten im Lauf weggenommen werden).
 7. Warten, bis der Pod **Running** zeigt (1–3 Minuten; nach 10 Minuten noch nicht → siehe Tabelle unten). Ab jetzt läuft
-   die Uhr (4,01 $/h) – und die Kostenbremse rechnet diese Zeit mit. Also gleich mit Schritt 3 weitermachen.
+   die Uhr (H100 SXM ≈ 4 $/h) – und die Kostenbremse rechnet diese Zeit mit. Also gleich mit Schritt 3 weitermachen.
 
 ## Schritt 3 – Training starten (5 Minuten)
 
@@ -73,7 +78,7 @@ Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet 
 3. **Befehl 1** – Programm holen (den genauen, geprüften Stand):
 
    ```bash
-   cd /workspace && git clone -q -b claude/optimistic-cannon-i0u0ap https://github.com/erithy25/engramm.git && cd engramm && git checkout -q c12149aa49c5d6b42944908bab0daa094a473a90 && echo "OK: Programm geladen"
+   cd /workspace && git clone -q -b claude/optimistic-cannon-i0u0ap https://github.com/erithy25/engramm.git && cd engramm && git checkout -q eb2e002afc323f982cac5077e0016a2d5ca55f8c && echo "OK: Programm geladen"
    ```
 
    Es muss „OK: Programm geladen“ erscheinen.
@@ -86,6 +91,22 @@ Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet 
 
    Es muss „Schlüssel gesetzt (93 Zeichen)“ o. ä. erscheinen. **Steht dort 0 Zeichen: Befehl 2 einfach noch einmal.**
    Den Schlüssel nie direkt an der normalen Eingabe einfügen.
+
+   **Befehl 2b – nur bei H100 NVL oder H100 PCIe** (bei H100 SXM weglassen):
+
+   ```bash
+   export H100_PRICE=3.21 H100_BUDGET_HOURS=9
+   ```
+
+   Statt `3.21` den Stundenpreis aus Schritt 2 **plus 0.02** für den Speicher eintragen, mit Punkt (NVL ≈ 3.21,
+   PCIe ≈ 2.91). **Nie weniger eintragen, als RunPod berechnet** – sonst rechnet die Kostenbremse zu wenig. Ein Preis
+   unter Secure-Listenpreis + 0.02 der erkannten Karte (SXM 4.01 · NVL 3.21 · PCIe 2.91) wird mit FEHLER „… kleiner als
+   der Preis dieser GPU“ abgelehnt: dann den dort genannten Preis eintragen (`export H100_PRICE=…`) und Befehl 3
+   wiederholen – kein neuer Schlüssel nötig (in einem neuen Terminal vorher Befehl 2). Die 9 h sorgen dafür, dass
+   allein die 25-$-Grenze das Ende bestimmt. Bei einem späteren Neustart nicht nötig (wird gemerkt).
+   **Mit Befehl 2b dauert der Lauf länger** (NVL ≈ 7,5 h, PCIe ≈ 8,5 h): Die Pflicht-Kontrolle nach 7 h bleibt, dazu
+   eine **zweite Pflicht-Kontrolle spätestens 28 ÷ eingegebener Preis Stunden nach dem Mieten** (3.21 → 8,5 h,
+   2.91 → 9,5 h; danach wäre das Guthaben bei einem unbemerkten Neustart bald aufgebraucht).
 5. **Befehl 3** – Start:
 
    ```bash
@@ -122,11 +143,11 @@ Live-Protokoll (Strg+C beendet nur die Anzeige): `tail -f /workspace/h100/run.lo
 | Zusammenführen und Kontaminationsprüfung | 5–15 min |
 | **Haupttraining** (so viele Token, wie das Budget erlaubt) | **≈ 4–4,5 h** |
 | Endmessung, Textproben, Hochladen | 10–20 min |
-| **Gesamt** | **≈ 6 h (≤ 25 $)** |
+| **Gesamt** | **≈ 6 h auf H100 SXM (NVL/PCIe ≈ 7,5–8,5 h; immer ≤ 25 $)** |
 
-## Schritt 5 – Am Ende (nach ca. 6–6,5 Stunden nachsehen – **spätestens 7 Stunden nach dem Mieten, das ist Pflicht**)
+## Schritt 5 – Am Ende (nach ca. 6–6,5 Stunden nachsehen – **spätestens 7 Stunden nach dem Mieten, das ist Pflicht**; NVL/PCIe: zweite Pflicht-Kontrolle siehe Befehl 2b)
 
-Warum Pflicht: 30 $ reichen für 7,5 Stunden Pod-Zeit. Hat RunPod den Pod zwischendurch unbemerkt neu gestartet, läuft
+Warum Pflicht: 30 $ reichen auf H100 SXM für 7,5 Stunden Pod-Zeit. Hat RunPod den Pod zwischendurch unbemerkt neu gestartet, läuft
 die Kostenbremse erst nach dem nächsten Status-Aufruf wieder – dieser Aufruf stoppt einen zu teuren Pod dann sofort.
 
 **Fertig erkennst du daran:** Auf <https://github.com/erithy25/engramm/branches> gibt es einen Branch
@@ -173,11 +194,11 @@ sind alle Daten noch da: Pod → **Start** → Jupyter Lab → Terminal → **zu
 |---|---|
 | Status zeigt „FEHLER: …“ oder „Lauf aktiv: NEIN“ (ohne „Lauf beendet“) | Zeilen an mich schicken. Neustart setzt fort: neues Terminal → **Befehl 2** (Schlüssel) → **Befehl 3** |
 | Pod wurde neu gestartet / war gestoppt | Pod starten → Jupyter Lab → Terminal → **Befehl 2** → **Befehl 3** (Befehl 1 nicht nötig; Befehl 3 schaltet auch den Kostenschutz ein) |
-| Ein **frisch gemieteter** Pod (Befehl 3 noch nie gelaufen) ist nach 10 Minuten nicht „Running“ / meldet „keine GPU“ | Pod beenden, neu mieten: CUDA-Filter passend zur Vorlage oder eine Vorlage mit älterem CUDA (z. B. PyTorch 2.4 / CUDA 12.4) |
+| Ein **frisch gemieteter** Pod (Befehl 3 noch nie gelaufen) ist nach 10 Minuten nicht „Running“ / meldet „keine GPU“ | Pod beenden, neu mieten: CUDA-Filter passend zur Vorlage oder eine Vorlage mit älterem CUDA (z. B. PyTorch 2.4 / CUDA 12.4; dann ohne die schnellere Attention, etwas weniger Token) |
 | Ein **gestoppter** Pod (Lauf hatte schon begonnen) startet nicht oder ohne GPU | **Nie Terminate.** Siehe Hinweis unter Schritt 5b (ohne GPU starten, herunterladen, mir schreiben) |
 | „torch zu alt“ | Pod beenden, neu mieten mit neuerer *Runpod PyTorch*-Vorlage |
 | „zu wenig Platz“ beim **ersten** Start | Pod beenden, neu mieten mit Volume Disk 100 GB. Mitten im Lauf nicht beenden, sondern mir schreiben |
-| H100 SXM nicht verfügbar | H100 NVL oder H100 PCIe nehmen; die Zeitgrenze kürzt notfalls die Tokenzahl |
+| H100 SXM nicht verfügbar | H100 NVL oder H100 PCIe nehmen und vor Befehl 3 **Befehl 2b** eingeben (Preis + 9 h) |
 | Guthaben wird knapp | Pod-Zeit ist auf 25 $ (+ höchstens 30 min zum Sichern ≈ 2 $) begrenzt. Danach nur noch Speicher ≈ 0,70 $/Tag, solange der Pod gestoppt herumsteht → bald **Terminate** |
 | Du willst abbrechen | Erst Status: „Auf GitHub gesichert“? Sonst Schritt 5b. Dann Stop → Terminate |
 
@@ -186,18 +207,24 @@ sind alle Daten noch da: Pod → **Start** → Jupyter Lab → Terminal → **zu
 - Skripte: `experiments/h100_run.sh` (Ablauf), `experiments/h100_data.py` (Daten), `experiments/h100_train.py`
   (Training, Endmessung), `experiments/h100_status.sh` (Status). Tests auf der CPU: `h100_train smoke` (mit/ohne
   torch.compile, bf16, beide Verlust-Varianten, Fortsetzen, Fortsetzen mit halber Lernrate, Kürzen auf die Zeitgrenze,
-  keine Fortsetzung nach abgelaufener Zeit; schlägt fehl, wenn der Lauf still auf die Ersatz-Variante ausweicht oder das
-  gespeicherte Modell nicht fp32 ist), `h100_data check-dedup` (reproduziert dedup.json exakt),
+  keine Fortsetzung nach abgelaufener Zeit, Nachführen der Tokenzahl, Abgleich der schnelleren Attention mit
+  Dokumentgrenzen, Rückfall nach eingespeistem Fehler; schlägt fehl, wenn der Lauf still auf die Ersatz-Variante
+  ausweicht oder das gespeicherte Modell nicht fp32 ist), `h100_data check-dedup` (reproduziert dedup.json exakt),
   echter Download + Tokenisierung + Zusammenführung + Kontaminationsprüfung von C4-Teil 1, Ablaufskript im Testmodus.
 - Modell: Rezept fast-v1 aus dem CPU-Lauf, Größe GPT-2 small (d = 768, 12 Schichten, 12 Köpfe), Kontext 1.024,
   bf16, 524.288 Token je Schritt, AdamW (β₂ 0,95), WSD (300 Aufwärmschritte, Abnahme in den letzten 30 %).
-- Daten: Basis (C4-Teil 0 + WikiText-103, 285 Mio. Token, bitgleich) + C4-Teile 1–36 (nur Trainings-Hash-Bereich),
-  zusammen ≈ 6,4 Mrd. Token; trainiert wird, so viel das Budget erlaubt.
+  Lernrate des Hauptlaufs = Gewinner der Suche × 0,5, begrenzt auf [0,001, 0,002]. Training mit FlexAttention
+  (Block-Maske „kausal und gleiches Dokument“), wenn sie beim Start gleich rechnet und ≥ 10 % schneller ist, sonst
+  wie bisher dicht; die Messung rechnet immer dicht.
+- Daten: Basis (C4-Teil 0 + WikiText-103, 285 Mio. Token, bitgleich) + C4-Teile 1–36 (nur Trainings-Hash-Bereich)
+  + die WikiText-103-Trainingsdokumente der Basis dreimal zusätzlich (je 113 Mio. Token; PLAN §11, Nachtrag
+  16. Oktober), zusammen ≈ 6,8 Mrd. Token, in jeder Epoche dokumentweise neu gemischt; trainiert wird, so viel das
+  Budget erlaubt.
 - Kostenbremse (`experiments/h100_meter.sh`, gestartet von `h100_run.sh` und `h100_status.sh`): zählt die Laufzeit jeder
   Pod-Sitzung (ab Container-Start) in `/workspace/h100/meter/`; bei `H100_MAX_USD` / `H100_PRICE` Stunden stoppt sie den
   Pod (runpodctl, ersatzweise die RunPod-API) und versucht es jede Minute erneut, bis er aus ist. Nach der Grenze gibt es
   insgesamt höchstens 30 min zum Sichern. Das Haupttraining bekommt als Frist „Grenze minus bisherige Laufzeit minus 30 min“ und
-  setzt seine Tokenzahl nach gemessenem Durchsatz darauf (Obergrenze `H100_TOKENS`, 10 Mrd.; über 6,4 Mrd. hinaus
+  setzt seine Tokenzahl nach gemessenem Durchsatz darauf (Obergrenze `H100_TOKENS`, 10 Mrd.; über ≈ 6,8 Mrd. hinaus
   wird der Text ein zweites Mal, neu gemischt, gelesen).
 - Fortsetzungs-Stand: `state_main_predecay.pt` (im Release `fortsetzen_main_….pt`, auf dem Pod `FORTSETZEN.pt`) =
   Gewichte + Optimierer + Datenposition beim Übergang in die Abnahmephase der Lernrate (WSD); endete das Training wegen
@@ -211,12 +238,16 @@ sind alle Daten noch da: Pod → **Start** → Jupyter Lab → Terminal → **zu
      `python3 -m experiments.h100_data base && python3 -m experiments.h100_data extra --shards 36 && python3 -m experiments.h100_data merge --shards 36 && python3 -m experiments.h100_data contamination`
   2. Die Datei als `<ordner>/state_main.pt` ablegen (umbenennen).
   3. `python3 -m experiments.h100_train train --ckpt-dir <ordner> --tag main --extend-to <Token gesamt> --budget-hours 0 --lr $(python3 -c "import torch;print(torch.load('<ordner>/state_main.pt',map_location='cpu',weights_only=False)['meta']['args']['lr'])")`
-     (Lernrate immer aus der Datei, nie `--allow-lr-change`). Im Protokoll muss „resumed main at … M tokens“ stehen,
+     (Lernrate immer aus der Datei, nie `--allow-lr-change`). Auf einer GPU mit weniger als 40 GB zusätzlich
+     `--micro-batch 8` anhängen (gleiche Token je Schritt, gleiche Rechnung – nur dann passt auch der Abgleich der
+     schnelleren Attention in den Speicher). Im Protokoll muss „resumed main at … M tokens“ stehen,
      sonst sofort abbrechen. `<Token gesamt>` muss deutlich über dem bisherigen Stand liegen (der steht im Protokoll).
      Die Lernrate bleibt bis 70 % des neuen Ziels konstant, danach folgt die Abnahme – praktisch wie ein von Anfang an
      längerer Lauf; bei 70 % entsteht ein neuer Fortsetzungs-Stand. Die Zeile „Stage 1 …: test … bpb (extended
      (contamination.json); …)“ muss diesen Filter nennen – nur dieser Wert zählt.
   4. Auf einem gemieteten Pod gibt es dabei **keine** Kostenbremse – dort `--deadline <Unix-Zeit>` setzen oder mich fragen.
-- Einstellungen per Umgebungsvariable: `H100_MAX_USD` (25), `H100_PRICE` (4.01), `H100_BUDGET_HOURS` (5.5), `H100_SHARDS` (36), `H100_TOKENS` (10000000000),
+- Einstellungen per Umgebungsvariable (die ersten drei werden in `/workspace/h100/settings.env` für Neustarts gemerkt;
+  ein neues `export` gilt vor dem gemerkten Wert): `H100_MAX_USD` (25), `H100_PRICE` (4.01 = abgerechneter Preis
+  inkl. Speicher), `H100_BUDGET_HOURS` (5.5), `H100_SHARDS` (36), `H100_TOKENS` (10000000000),
   `H100_AUTO_END` (`terminate` | `stop` | `none`), `export H100_NO_GITHUB=1` vor Befehl 3 (bewusst ohne Schlüssel), `touch /workspace/h100/KEEP`
   (setzt die 30-min-Stopps – nach FEHLER/fehlgeschlagenem Hochladen und im Leerlauf – für diese Pod-Sitzung aus, **nie** die 25-$-Bremse).
