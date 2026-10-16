@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 513409024,
+ "train_hours": 119.80776500410504,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is history, as there were many people displaced from their homes. Many are close to it with what might be the most interesting cultural influences of this period and how about some friends who live near it on the streets?\nBound at a time, a large number of tourists tend not to spend more than one night in isolation for reasons so low they"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in 1943 and attended the University of York's School of Education as well. He later lived there at the age of six, scoring one goal for a team based on her father’s imagination before returning to Lyon after their first two seasons with their organization. She taught students how they could go from teen to adulthood by simply listening and recording stories ("
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " How are we behind them?\nNext response: Also, what will happen if I move away from all German-existed countries to see their remains at a conference or have they been there since March 1994. Then again don’t forget that there are lots of records and thousands in Europe each year with some support for future progress on it all down"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you need the panache and then switch.\n\"(1) When sugar is created it’s how easy that can be cut.\" (Pearls 6). Don't forget that this cup will go live on my phone when I am busy running on the weekday instead. So i guess what? Yeah, actually something about them for $"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " de robile su hechement. Horitude de luna; Etcirrent des peufousques dil nach dem cesne asres, Le gulch la casulina is a born of the species Roydia gulcha and Igricon Blanco sas pita and y"
+  }
+ ]
+}
