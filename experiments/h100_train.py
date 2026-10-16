@@ -167,24 +167,29 @@ def flex_hidden(model, idx: torch.Tensor, block_mask) -> torch.Tensor:
     return Fm.rms(x)
 
 
-def flex_attention_matches(inp: torch.Tensor, heads: int, hd: int, compile_mask: bool, flex_fn=None) -> dict:
+def flex_attention_matches(inp: torch.Tensor, heads: int, hd: int, compile_mask: bool, flex_fn=None,
+                           grads: bool = True) -> dict:
     """Dense SDPA with doc_mask against flex_attention with the block mask, on random fp32 q, k, v of the run's own
     shapes and documents: outputs and gradients, largest deviation over all positions (a mask error at a single
     document boundary shows up as an O(0.1-1) deviation there). At initialisation the attention output does not
-    reach the loss (the output projections start at zero), so the attention itself is compared."""
+    reach the loss (the output projections start at zero), so the attention itself is compared. ``grads=False``:
+    outputs only (FlexAttention has no backward on the CPU; on the GPU the start-up check compares gradients too)."""
     from torch.nn.attention.flex_attention import flex_attention
     flex_fn = flex_fn or flex_attention
     B, T = inp.shape
     g = torch.Generator(device="cpu").manual_seed(0)
     q, k, v, w = (torch.randn(B, heads, T, hd, generator=g).to(inp.device) for _ in range(4))
-    q, k, v = (t.requires_grad_() for t in (q, k, v))
+    if grads:
+        q, k, v = (t.requires_grad_() for t in (q, k, v))
     yd = F.scaled_dot_product_attention(q, k, v, attn_mask=doc_mask(inp))
-    gd = torch.autograd.grad((yd * w).sum(), (q, k, v))
     yf = flex_fn(q, k, v, block_mask=flex_block_mask(inp, compile_mask))
-    gf = torch.autograd.grad((yf * w).sum(), (q, k, v))
     tol = 1e-2 if inp.device.type == "cuda" else 1e-4     # CUDA: TF32 matmuls in both kernels
     out_err = float((yd - yf).abs().max())
-    grad_err = max(float((a - b).abs().max()) / max(1e-6, float(a.abs().max())) for a, b in zip(gd, gf))
+    grad_err = 0.0
+    if grads:
+        gd = torch.autograd.grad((yd * w).sum(), (q, k, v))
+        gf = torch.autograd.grad((yf * w).sum(), (q, k, v))
+        grad_err = max(float((a - b).abs().max()) / max(1e-6, float(a.abs().max())) for a, b in zip(gd, gf))
     return {"ok": bool(out_err <= tol and grad_err <= tol), "out_err": out_err, "grad_rel_err": grad_err, "tol": tol}
 
 
@@ -216,9 +221,9 @@ def choose_attention(model, args, device, inp, run_step, out: Path) -> dict:
     if not getattr(args, "flex", 1):
         rec["reason"] = "disabled (--flex 0)"
     elif cpu_test:                                     # smoke test: the flex path on the CPU, eager, no timing
-        rec["match"] = flex_attention_matches(inp, args.heads, args.d // args.heads, compile_mask=False)
+        rec["match"] = flex_attention_matches(inp, args.heads, args.d // args.heads, compile_mask=False, grads=False)
         rec["decision"] = "flex" if rec["match"]["ok"] else "dense"
-        rec["reason"] = "CPU test mode (H100_FLEX_CPU=1)"
+        rec["reason"] = "CPU test mode (H100_FLEX_CPU=1): outputs compared, training through a stand-in"
     elif device.type != "cuda" or not args.compile:
         rec["reason"] = "flex attention only on CUDA with torch.compile"
     elif torch_version() < FLEX_MIN_TORCH:
@@ -515,7 +520,10 @@ def run(args, device) -> dict:
         def flex_fwd(idx, block_mask):
             return flex_hidden(model, idx, block_mask)
 
-        fwd_flex = torch.compile(flex_fwd, dynamic=False) if cuda else flex_fwd
+        def stand_in(idx, block_mask):                  # CPU test mode: FlexAttention has no backward on the CPU;
+            return model.hidden(idx, doc_mask(idx))     # this exercises the switching and fallback logic only
+
+        fwd_flex = torch.compile(flex_fwd, dynamic=False) if cuda else stand_in
         probe = data.peek(micro, args.ctx).to(device)
         p_inp, p_tgt = probe[:, :-1], probe[:, 1:]
 
@@ -874,7 +882,7 @@ def cmd_smoke(args) -> None:
             return x
         for B_, T_, cuts in ((4, 128, ([0, 37], [90], [1, 2, 127], [64])),             # one 128-block
                              (2, 384, ([50, 127, 128, 333], [0, 255, 256, 257]))):       # several, across blocks
-            m = flex_attention_matches(with_boundaries(B_, T_, cuts), 2, 32, compile_mask=False)
+            m = flex_attention_matches(with_boundaries(B_, T_, cuts), 2, 32, compile_mask=False, grads=False)
             if not m["ok"]:
                 raise SystemExit(f"smoke test: flex attention differs from the dense attention ({B_}x{T_}): {m}")
         inp = with_boundaries(4, 128, ([0, 37], [90], [1, 2, 127], [64]))
@@ -883,17 +891,14 @@ def cmd_smoke(args) -> None:
         with torch.no_grad():
             for prm in tiny.parameters():                  # also the zero-initialised projections and head
                 prm.normal_(0.0, 0.05)
-        w = torch.randn(4, 128, 64)
-        hd = tiny.hidden(inp, doc_mask(inp))
-        gd = torch.autograd.grad((hd * w).sum(), list(tiny.parameters()))
-        hf = flex_hidden(tiny, inp, flex_block_mask(inp, False))
-        gf = torch.autograd.grad((hf * w).sum(), list(tiny.parameters()))
+        with torch.no_grad():                               # forward only: no FlexAttention backward on the CPU
+            hd = tiny.hidden(inp, doc_mask(inp))
+            hf = flex_hidden(tiny, inp, flex_block_mask(inp, False))
         err = float((hd - hf).abs().max())
-        gerr = max(float((a - b).abs().max()) / max(1e-6, float(a.abs().max())) for a, b in zip(gd, gf))
-        if err > 1e-4 or gerr > 1e-4:
-            raise SystemExit(f"smoke test: flex_hidden differs from LongGPT.hidden (out {err:.2e}, grad {gerr:.2e})")
-        log(f"flex attention matches: attention out {m['out_err']:.1e}, grad {m['grad_rel_err']:.1e}; "
-            f"model out {err:.1e}, grad {gerr:.1e}")
+        if err > 1e-4:
+            raise SystemExit(f"smoke test: flex_hidden differs from LongGPT.hidden (out {err:.2e})")
+        log(f"flex attention matches (forward; gradients are compared on the GPU at start-up): attention "
+            f"{m['out_err']:.1e}, model {err:.1e}")
         # ... and training through it, plus the fallback to the dense path after a failure (CPU test mode)
         os.environ["H100_FLEX_CPU"] = "1"
         try:
