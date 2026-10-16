@@ -465,6 +465,18 @@ Gegen GPT-2 small auf denselben 1.092 gefilterten Test-Dokumenten (gepaarter Boo
 - **Neustart während der Verlängerung (16. Oktober, 02:02 UTC):** Die RAM-Disk war leer. `v5_long_resume.sh` lief
   beim Containerstart von selbst, installierte Torch neu und setzte die Verlängerung von ihrem Plattenstand (01:56,
   479,7 Mio. Token, Optimierer neu aufgewärmt) fort. Verloren gingen rund 6 min Training.
+- **Prüfung und Absicherung des Verlängerungs-Codes (16. Oktober, vor dem Ergebnis):** Drei unabhängige Prüfer
+  (Zeitplan und Fortsetzen, Supervisor-Skripte, Endmessung), jeder Befund von drei Gegenprüfern angegriffen.
+  Bestätigt (3 von 3) ist eine unwahrscheinliche, aber schwere Lücke. Scheitert die Plattensicherung wegen
+  vollen Platzes, bleibt das nur im RAM-Log sichtbar. Wird dann die RAM-Disk nach dem Trainingsende, aber vor
+  der Endmessung geleert, hätte die Endmessung einen veralteten Plattenstand stumm als Ergebnis eingetragen.
+  Behoben in `v5_long.py`, gilt ab dem nächsten Prozessstart (der laufende Prozess bleibt unberührt):
+  - Scheitert die atomare Plattensicherung, wird die vorhandene Datei an Ort und Stelle überschrieben (braucht
+    keinen zusätzlichen Platz). Jede Abweichung steht dauerhaft in `results/v5/<Lauf>/disk_checkpoint.log`.
+  - `done.json` vermerkt, ob die letzte Plattensicherung gelungen ist.
+  - Die Endmessung (`--tag final`) bricht ab, wenn der geladene Stand weniger Token hat als `done.json`, und
+    schreibt Datei und Genauigkeit des geladenen Stands in das Ergebnis.
+  Messung, Regel und Zeitplan der Verlängerung bleiben unverändert.
 
 ## 11. Stufe 1 auf einer gemieteten H100 (vor dem Lauf festgelegt, 12. Oktober)
 

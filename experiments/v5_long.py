@@ -329,20 +329,45 @@ def run_paths(run: str) -> tuple[Path, Path, Path]:
     return SHM.parent / run, DISK / f"{run}_latest.pt", OUT.parent / run
 
 
-def save_state(model, opts, meta: dict, run: str = "long") -> None:
-    shm, path, _ = run_paths(run)
+def save_state(model, opts, meta: dict, run: str = "long") -> bool:
+    """Full state to the RAM disk, bf16 weights to disk; True when the disk copy holds this state."""
+    shm, path, out = run_paths(run)
     shm.mkdir(parents=True, exist_ok=True)
     atomic_save({"model": model.state_dict(), "dense": opts[0].state_dict(),
                  "sparse": opts[1].state_dict() if opts[1] is not None else None, "meta": meta}, shm / "state.pt")
     # The disk copy only guards against a container restart. On a nearly full root disk (the atomic
     # write needs the file's size again, ~200 MB) a failed write must neither stop the training nor
-    # leave a partial temporary file behind: the full state is already on the RAM disk.
+    # leave a partial temporary file behind: the full state is already on the RAM disk. If the atomic
+    # write fails, the existing file is overwritten in place (needs no extra space); a stale disk copy
+    # would otherwise cost all training since its last write at the next restart that empties the RAM disk.
+    disk = {"model": {k: v.to(torch.bfloat16) for k, v in model.state_dict().items()}, "meta": meta}
     try:
         DISK.mkdir(parents=True, exist_ok=True)
-        atomic_save({"model": {k: v.to(torch.bfloat16) for k, v in model.state_dict().items()}, "meta": meta}, path)
+        atomic_save(disk, path)
+        return True
     except (OSError, RuntimeError) as e:          # torch.save reports a full disk as RuntimeError
         path.with_suffix(path.suffix + ".tmp").unlink(missing_ok=True)
-        print(f"disk checkpoint skipped at {meta['tokens'] / 1e6:.1f} M tokens: {e}", flush=True)
+        first = e
+    note = {"time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "tokens": meta["tokens"],
+            "atomic_error": str(first)[:200]}
+    ok = False
+    if path.exists():
+        try:
+            torch.save(disk, path)
+            ok, note["mode"] = True, "in_place"
+        except (OSError, RuntimeError) as e:
+            path.unlink(missing_ok=True)          # a half-written file would break the next resume
+            note["mode"], note["in_place_error"] = "failed, disk copy removed", str(e)[:200]
+    else:
+        note["mode"] = "failed"
+    print(f"disk checkpoint at {meta['tokens'] / 1e6:.1f} M tokens: {note['mode']} ({first})", flush=True)
+    try:                                           # lasting trace on disk (the RAM-disk log goes with a restart)
+        out.mkdir(parents=True, exist_ok=True)
+        with open(out / "disk_checkpoint.log", "a") as f:
+            f.write(json.dumps(note) + "\n")
+    except OSError:
+        pass
+    return ok
 
 
 def make_optimizers(model: LongGPT, lr, beta2, wd):
@@ -490,9 +515,10 @@ def train(args) -> None:
                 f.write(json.dumps(rec) + "\n")
             print("curve", rec, flush=True)
             meta["next_eval_h"] += args.eval_hours
-    save_state(model, opts, meta, args.run)
+    disk_ok = save_state(model, opts, meta, args.run)
     if meta["tokens"] >= total:
-        (out / "done.json").write_text(json.dumps({k: meta[k] for k in ("tokens", "step", "train_seconds", "restarts")}) + "\n")
+        (out / "done.json").write_text(json.dumps({**{k: meta[k] for k in ("tokens", "step", "train_seconds", "restarts")},
+                                                   "disk_checkpoint": disk_ok}) + "\n")
         print("finished", flush=True)
 
 
@@ -535,13 +561,19 @@ def bench(args) -> None:
 def evaluate(args) -> None:
     torch.set_num_threads(args.threads)
     st = torch.load(args.ckpt, map_location="cpu", weights_only=False)
+    out = run_paths(args.run)[2]
+    done = out / "done.json"
+    if args.tag == "final" and done.exists() and st["meta"]["tokens"] < json.loads(done.read_text())["tokens"]:
+        # e.g. the RAM disk was emptied after training ended and the disk copy is older than the end state
+        raise SystemExit(f"{args.ckpt} holds {st['meta']['tokens']} tokens, the finished run "
+                         f"{json.loads(done.read_text())['tokens']}: an older state is not reported as final")
     a = st["meta"]["args"]
     model = LongGPT(a["d"], a["layers"], a["heads"], a["ctx_max"], a["bigram_rows"])
     model.load_state_dict({k: v.float() for k, v in st["model"].items()})
-    out = run_paths(args.run)[2]
     out.mkdir(parents=True, exist_ok=True)
     res = {"tokens": st["meta"]["tokens"], "train_hours": st["meta"]["train_seconds"] / 3600, "body_params": body_params(model),
-           "window": args.window, "stride": args.stride, "max_docs": args.max_docs, "torch": torch.__version__}
+           "window": args.window, "stride": args.stride, "max_docs": args.max_docs, "torch": torch.__version__,
+           "ckpt": str(args.ckpt), "weights": str(next(iter(st["model"].values())).dtype)}
     splits = args.splits.split(",")
     mix = bool(args.mix) and {"val_a", "test"} <= set(splits)
     lp, docs_n, perdoc = {}, {}, {}
