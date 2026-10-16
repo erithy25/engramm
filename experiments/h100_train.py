@@ -116,6 +116,160 @@ def fused_loss(h, W, tgt, bf16: bool):
 
 
 # ---------------------------------------------------------------------------
+# block-sparse training attention (PLAN §11, Nachtrag 16. Oktober). The dense (B, 1, T, T) mask above makes
+# SDPA use its memory-efficient kernel over all T² positions; as a FlexAttention block mask (causal AND same
+# document) the fully masked 128×128 blocks are skipped. Same weights, same maths (flex_hidden mirrors
+# experiments.v5_long.Block / LongGPT.hidden, which stay untouched: the CPU long run imports them). Used only on
+# CUDA with torch ≥ 2.6, and only after it matched the dense attention and was faster on the run's own shapes;
+# any failure later switches back to the dense path for the rest of the run. Evaluation always uses the dense path.
+# ---------------------------------------------------------------------------
+
+FLEX_MIN_TORCH = (2, 6)
+REFIT_BELOW, REFIT_FRAC_MAX = 0.65, 0.68              # re-fit of the token budget only well before the decay
+FLEX_MIN_GAIN = 0.10                                   # flex only if a training micro-step is ≥ 10 % faster
+
+
+def torch_version() -> tuple[int, int]:
+    return tuple(int(x) for x in torch.__version__.split("+")[0].split(".")[:2])
+
+
+def doc_ids(inp: torch.Tensor) -> torch.Tensor:
+    """(B, T) document number of every position (an EOS opens a document), as in doc_mask."""
+    return torch.cumsum((inp == 0).to(torch.int32), dim=1)
+
+
+def flex_block_mask(inp: torch.Tensor, compile_mask: bool):
+    import warnings
+    from torch.nn.attention.flex_attention import create_block_mask
+    warnings.filterwarnings("ignore", message="_compile flag on create_block_mask")   # still works (torch 2.14)
+    doc = doc_ids(inp)
+
+    def causal_same_doc(b, h, q, kv):
+        return (doc[b, q] == doc[b, kv]) & (q >= kv)
+
+    B, T = inp.shape
+    return create_block_mask(causal_same_doc, B, None, T, T, device=inp.device, _compile=compile_mask)
+
+
+def flex_hidden(model, idx: torch.Tensor, block_mask) -> torch.Tensor:
+    """LongGPT.hidden (no bigram table) with every block's attention through flex_attention."""
+    from torch.nn.attention.flex_attention import flex_attention
+    x = model.emb(idx)
+    for blk in model.blocks:
+        B, T, _ = x.shape
+        q, k, v = blk.qkv(Fm.rms(x)).split(blk.d, dim=2)
+        q, k, v = (t.view(B, T, blk.heads, blk.hd).transpose(1, 2) for t in (q, k, v))
+        q, k = Fm.rope(Fm.rms(q), model.cos, model.sin), Fm.rope(Fm.rms(k), model.cos, model.sin)
+        y = flex_attention(q, k, v, block_mask=block_mask)
+        x = x + blk.proj(y.transpose(1, 2).reshape(B, T, blk.d))
+        x = x + blk.fc2(F.relu(blk.fc1(Fm.rms(x))).square())
+    return Fm.rms(x)
+
+
+def flex_attention_matches(inp: torch.Tensor, heads: int, hd: int, compile_mask: bool, flex_fn=None) -> dict:
+    """Dense SDPA with doc_mask against flex_attention with the block mask, on random fp32 q, k, v of the run's own
+    shapes and documents: outputs and gradients, largest deviation over all positions (a mask error at a single
+    document boundary shows up as an O(0.1-1) deviation there). At initialisation the attention output does not
+    reach the loss (the output projections start at zero), so the attention itself is compared."""
+    from torch.nn.attention.flex_attention import flex_attention
+    flex_fn = flex_fn or flex_attention
+    B, T = inp.shape
+    g = torch.Generator(device="cpu").manual_seed(0)
+    q, k, v, w = (torch.randn(B, heads, T, hd, generator=g).to(inp.device) for _ in range(4))
+    q, k, v = (t.requires_grad_() for t in (q, k, v))
+    yd = F.scaled_dot_product_attention(q, k, v, attn_mask=doc_mask(inp))
+    gd = torch.autograd.grad((yd * w).sum(), (q, k, v))
+    yf = flex_fn(q, k, v, block_mask=flex_block_mask(inp, compile_mask))
+    gf = torch.autograd.grad((yf * w).sum(), (q, k, v))
+    tol = 1e-2 if inp.device.type == "cuda" else 1e-4     # CUDA: TF32 matmuls in both kernels
+    out_err = float((yd - yf).abs().max())
+    grad_err = max(float((a - b).abs().max()) / max(1e-6, float(a.abs().max())) for a, b in zip(gd, gf))
+    return {"ok": bool(out_err <= tol and grad_err <= tol), "out_err": out_err, "grad_rel_err": grad_err, "tol": tol}
+
+
+_ATTN: dict = {}                                       # this process's decision (the sweep's runs share it)
+
+
+def time_microstep(step, n: int = 6, warm: int = 2) -> float:
+    """Seconds per call of ``step`` (forward + backward of one micro-batch) on the GPU."""
+    for _ in range(warm):
+        step()
+    torch.cuda.synchronize()
+    t0 = time.time()
+    for _ in range(n):
+        step()
+    torch.cuda.synchronize()
+    return (time.time() - t0) / n
+
+
+def choose_attention(model, args, device, inp, run_step, out: Path) -> dict:
+    """{'decision': 'flex' | 'dense', ...}: flex only on CUDA, compiled, torch ≥ FLEX_MIN_TORCH, when it matches the
+    dense attention and a training micro-step is at least FLEX_MIN_GAIN faster. ``run_step(kind)`` runs one
+    forward + backward with 'dense' or 'flex'. Decided once per process; kept in out/attention.json for later starts."""
+    if "decision" in _ATTN:
+        return _ATTN
+    shape = [int(inp.shape[0]), int(inp.shape[1]), args.d, args.heads]
+    rec = {"decision": "dense", "torch": torch.__version__, "shape": shape}
+    path = out / "attention.json"
+    cpu_test = device.type == "cpu" and os.environ.get("H100_FLEX_CPU") == "1"
+    if not getattr(args, "flex", 1):
+        rec["reason"] = "disabled (--flex 0)"
+    elif cpu_test:                                     # smoke test: the flex path on the CPU, eager, no timing
+        rec["match"] = flex_attention_matches(inp, args.heads, args.d // args.heads, compile_mask=False)
+        rec["decision"] = "flex" if rec["match"]["ok"] else "dense"
+        rec["reason"] = "CPU test mode (H100_FLEX_CPU=1)"
+    elif device.type != "cuda" or not args.compile:
+        rec["reason"] = "flex attention only on CUDA with torch.compile"
+    elif torch_version() < FLEX_MIN_TORCH:
+        rec["reason"] = f"torch {torch.__version__} < {FLEX_MIN_TORCH[0]}.{FLEX_MIN_TORCH[1]}"
+    else:
+        old = json.loads(path.read_text()) if path.exists() else {}
+        if old.get("torch") == rec["torch"] and old.get("shape") == shape and old.get("decision") in ("flex", "dense"):
+            _ATTN.update(old)
+            log(f"attention: {old['decision']} (decided earlier: {old.get('reason', '')})")
+            return _ATTN
+        try:
+            from torch.nn.attention.flex_attention import flex_attention
+            rec["match"] = flex_attention_matches(inp, args.heads, args.d // args.heads, compile_mask=True,
+                                                  flex_fn=torch.compile(flex_attention, dynamic=False))
+            if not rec["match"]["ok"]:
+                rec["reason"] = "flex attention differs from the dense attention"
+            else:
+                rec["s_per_microstep_dense"] = time_microstep(lambda: run_step("dense"))
+                rec["s_per_microstep_flex"] = time_microstep(lambda: run_step("flex"))
+                gain = 1 - rec["s_per_microstep_flex"] / rec["s_per_microstep_dense"]
+                rec["gain"] = gain
+                if gain >= FLEX_MIN_GAIN:
+                    rec["decision"], rec["reason"] = "flex", f"matches the dense attention, {gain:.0%} faster"
+                else:
+                    rec["reason"] = f"only {gain:.0%} faster (needs {FLEX_MIN_GAIN:.0%})"
+        except Exception as e:                         # any problem with the new path: stay on the reviewed one
+            rec["decision"], rec["reason"] = "dense", f"flex check failed: {type(e).__name__}: {e}"[:400]
+        finally:
+            model.zero_grad(set_to_none=True)
+            torch.cuda.empty_cache()
+    _ATTN.update(rec)
+    try:
+        out.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(rec, indent=1) + "\n")
+    except OSError:
+        pass
+    log(f"attention: {rec['decision']} ({rec.get('reason', '')})")
+    return _ATTN
+
+
+def disable_flex(meta: dict, out: Path, why: str) -> None:
+    """After a failure of the flex path: dense attention for the rest of this run and for later starts."""
+    meta["attention"] = {"flex_disabled": why[:400], "at_step": meta["step"]}
+    _ATTN.update({"decision": "dense", "reason": f"flex failed during training: {why}"[:400]})
+    try:
+        (out / "attention.json").write_text(json.dumps({k: v for k, v in _ATTN.items()}, indent=1) + "\n")
+    except OSError:
+        pass
+    log(f"flex attention failed ({why[:200]}): continuing with the dense attention")
+
+
+# ---------------------------------------------------------------------------
 # data: documents of a token stream shuffled per epoch and packed (as v5_long.TrainStream, any file)
 # ---------------------------------------------------------------------------
 
@@ -144,6 +298,14 @@ class Stream:
         out[p] = 0
         self.stream = out
         self.pos = 0
+
+    def peek(self, B: int, T: int) -> torch.Tensor:
+        """The next batch without consuming it (checks must not shift the training data)."""
+        s = self.stream[self.pos:self.pos + B * T + 1]
+        if len(s) < B * T + 1:
+            s = self.stream[:B * T + 1]
+        x = np.lib.stride_tricks.sliding_window_view(s, T + 1)[::T][:B]
+        return torch.from_numpy(x.astype(np.int64))
 
     def batch(self, B: int, T: int) -> torch.Tensor:
         if self.pos + B * T + 1 > len(self.stream):
@@ -344,6 +506,30 @@ def run(args, device) -> dict:
     fused = args.loss == "fused"
     loss_fn = (torch.compile(fused_loss) if compiled else fused_loss) if fused else None
     micro = args.micro_batch
+    attn, fwd_flex = "dense", None
+    flex_cpu_test = not cuda and os.environ.get("H100_FLEX_CPU") == "1"
+    fail_step = int(os.environ.get("H100_FLEX_FAIL_STEP", "-1"))   # smoke test: an injected failure of the flex path
+    if (((cuda and compiled) or flex_cpu_test) and getattr(args, "flex", 1) and model.bigram is None
+            and not (meta.get("attention") or {}).get("flex_disabled")):
+        def flex_fwd(idx, block_mask):
+            return flex_hidden(model, idx, block_mask)
+
+        fwd_flex = torch.compile(flex_fwd, dynamic=False) if cuda else flex_fwd
+        probe = data.peek(micro, args.ctx).to(device)
+        p_inp, p_tgt = probe[:, :-1], probe[:, 1:]
+
+        def run_step(kind):
+            with torch.autocast(device.type, dtype=torch.bfloat16, enabled=args.bf16):
+                hh = fwd_flex(p_inp, flex_block_mask(p_inp, cuda)) if kind == "flex" else fwd(p_inp, doc_mask(p_inp))
+            ll = loss_fn(hh, model.head.weight, p_tgt, args.bf16) if fused else \
+                chunked_loss(hh, model.head.weight, p_tgt, bf16=args.bf16)
+            ll.backward()
+
+        if choose_attention(model, args, device, p_inp, run_step, Path(args.out))["decision"] == "flex":
+            attn = "flex"
+        else:
+            fwd_flex = None
+        probe = p_inp = p_tgt = None
     start_step = meta["step"]
     Path(args.out).mkdir(parents=True, exist_ok=True)
     logf = open(Path(args.out) / f"train_log_{args.tag}.jsonl", "a")
@@ -377,20 +563,26 @@ def run(args, device) -> dict:
             try:
                 dense.zero_grad(set_to_none=True)
                 n_micro = max(1, args.batch_tokens // (micro * args.ctx))
-                loss_sum = 0.0
-                for _ in range(n_micro):
+                loss_acc = torch.zeros((), dtype=torch.float32, device=device)   # summed on the device:
+                for _ in range(n_micro):                                        # no host sync per micro-batch
                     batch = data.batch(micro, args.ctx)
                     if cuda:
                         batch = batch.pin_memory().to(device, non_blocking=True)
                     inp, tgt = batch[:, :-1], batch[:, 1:]
                     with torch.autocast(device.type, dtype=torch.bfloat16, enabled=args.bf16):
-                        h = fwd(inp, doc_mask(inp))
+                        if attn == "flex":
+                            if meta["step"] == fail_step:
+                                raise RuntimeError("injected failure of the flex path (H100_FLEX_FAIL_STEP)")
+                            h = fwd_flex(inp, flex_block_mask(inp, cuda))
+                        else:
+                            h = fwd(inp, doc_mask(inp))
                     if fused:
                         loss = loss_fn(h, model.head.weight, tgt, args.bf16) / n_micro
                     else:
                         loss = chunked_loss(h, model.head.weight, tgt, bf16=args.bf16) / n_micro
                     loss.backward()
-                    loss_sum += float(loss.detach())
+                    loss_acc += loss.detach().float()
+                loss_sum = float(loss_acc)
                 break
             except OOM:
                 h = loss = batch = inp = tgt = None            # release the failed attempt's graph first
@@ -407,12 +599,21 @@ def run(args, device) -> dict:
             except Exception as e:                             # compilation / fused-loss problems in the first steps
                 h = loss = batch = inp = tgt = None
                 dense.zero_grad(set_to_none=True)
+                if attn == "flex":                             # the new attention path first: back to the dense one
+                    attn, fwd_flex = "dense", None
+                    disable_flex(meta, Path(args.out), f"{type(e).__name__}: {e}")
+                    continue
                 if meta["step"] > start_step + 3 or not (compiled or fused):
                     raise
                 log(f"step failed with compilation/fused loss ({type(e).__name__}: {e}); "
                     f"continuing eagerly with the chunked loss")
                 compiled, fused, fwd = False, False, model.hidden
         gn = float(torch.nn.utils.clip_grad_norm_(params, 1.0))
+        if not (math.isfinite(loss_sum) and math.isfinite(gn)) and attn == "flex":
+            dense.zero_grad(set_to_none=True)                  # skip the update, repeat the step on the dense path
+            attn, fwd_flex = "dense", None
+            disable_flex(meta, Path(args.out), f"non-finite loss/gradient at step {meta['step']}")
+            continue
         if not (math.isfinite(loss_sum) and math.isfinite(gn)):
             meta["bad"] += 1
             dense.zero_grad(set_to_none=True)                  # skip the update
@@ -463,6 +664,20 @@ def run(args, device) -> dict:
             log(f"curve {rec}")
             meta["next_eval"] += args.eval_every
         if time.time() - t_ck > args.ckpt_minutes * 60:
+            frac_now = meta["tokens"] / meta["total_tokens"]
+            if end_by and checked and frac_now < REFIT_BELOW and time.time() > t_rate:
+                # re-fit the token budget to the throughput measured so far (incl. curve evaluations), while the
+                # rate is still constant: a slowdown found here no longer cuts the decay short at the deadline
+                rate = (meta["tokens"] - tok_rate) / max(1e-9, time.time() - t_rate)
+                fit = int(meta["tokens"] + rate * max(0.0, end_by - time.time()) * 0.95)
+                fit = min(fit, int(args.total_tokens if not extend else max(args.total_tokens, extend)))
+                fit = max(fit, int(meta["tokens"] / REFIT_FRAC_MAX) + 1)        # stays in the constant phase
+                if abs(fit - meta["total_tokens"]) > 0.01 * meta["total_tokens"]:
+                    log(f"token budget re-fitted at {meta['tokens'] / 1e9:.3f} B ({rate / 1e3:.0f} k tok/s so far): "
+                        f"{meta['total_tokens'] / 1e9:.3f} B -> {fit / 1e9:.3f} B")
+                    meta.setdefault("refits", []).append({"tokens": meta["tokens"], "from": meta["total_tokens"], "to": fit,
+                                                          "tok_per_s": rate})
+                    meta["total_tokens"] = fit
             atomic_save({"model": model.state_dict(), "opt": dense.state_dict(), "meta": meta}, state_path)
             t_ck = time.time()
     logf.close()
@@ -472,6 +687,7 @@ def run(args, device) -> dict:
         log(f"training ended before the decay: continuable state saved: {predecay}")
     if meta["step"] > start_step or "loss_used" not in meta:   # what actually ran, after any fallback
         meta["loss_used"], meta["compiled_used"] = ("fused" if fused else "chunked"), compiled
+        meta["attention_used"] = attn
     atomic_save({"model": model.state_dict(), "opt": dense.state_dict(), "meta": meta}, state_path)
     # fp32 like the in-memory weights the final evaluation measures: the uploaded file reproduces the reported numbers
     atomic_save({"model": {k: v.detach().float().cpu() for k, v in model.state_dict().items()}, "meta": meta, "cfg": cfg},
@@ -629,6 +845,65 @@ def cmd_smoke(args) -> None:
                 raise
         else:
             raise SystemExit(f"smoke test: expected a refusal ({msg})")
+    # periodic re-fit of the token budget in the constant phase (deadline, a checkpoint after every step)
+    cmd_train(argparse.Namespace(**{**common, **more, "tag": "refit", "lr": lr2, "total_tokens": 300_000,
+                                    "deadline": time.time() + 8, "budget_steps": "2,4", "ckpt_minutes": 1e-5}))
+    mr = torch.load(Path(common["ckpt_dir"]) / "state_refit.pt", map_location="cpu", weights_only=False)["meta"]
+    if not (mr["tokens"] >= mr["total_tokens"] and mr["total_tokens"] <= 300_000):
+        raise SystemExit(f"smoke test: re-fit run ended at {mr['tokens']} of {mr['total_tokens']} tokens")
+    for r in mr.get("refits", []):
+        if not (r["to"] <= 300_000 and r["tokens"] / r["to"] < REFIT_FRAC_MAX and r["tokens"] / r["from"] < REFIT_BELOW):
+            raise SystemExit(f"smoke test: a re-fit broke its limits: {r}")
+    log(f"re-fit run: {len(mr.get('refits', []))} re-fits, {mr['tokens']} tokens")
+    # block-sparse flex attention (PLAN §11, Nachtrag 16. Oktober): the maths on the CPU (eager) ...
+    if torch_version() >= FLEX_MIN_TORCH:
+        for B_, T_ in ((4, 128), (2, 384)):                 # one block and several (block size 128)
+            chk = Stream(Path(common["data"]), seed=1, limit=common["data_limit"]).batch(B_, T_)[:, :-1]
+            if not ((chk == 0).sum(dim=1) >= 1).all():
+                raise SystemExit("smoke test: the flex check batch has no document boundary in some row")
+            m = flex_attention_matches(chk, 2, 32, compile_mask=False)
+            if not m["ok"]:
+                raise SystemExit(f"smoke test: flex attention differs from the dense attention ({B_}x{T_}): {m}")
+        inp = Stream(Path(common["data"]), seed=1, limit=common["data_limit"]).batch(4, 128)[:, :-1]
+        torch.manual_seed(0)
+        tiny = L.LongGPT(64, 2, 2, 128, 0)
+        with torch.no_grad():
+            for prm in tiny.parameters():                  # also the zero-initialised projections and head
+                prm.normal_(0.0, 0.05)
+        w = torch.randn(4, 128, 64)
+        hd = tiny.hidden(inp, doc_mask(inp))
+        gd = torch.autograd.grad((hd * w).sum(), list(tiny.parameters()))
+        hf = flex_hidden(tiny, inp, flex_block_mask(inp, False))
+        gf = torch.autograd.grad((hf * w).sum(), list(tiny.parameters()))
+        err = float((hd - hf).abs().max())
+        gerr = max(float((a - b).abs().max()) / max(1e-6, float(a.abs().max())) for a, b in zip(gd, gf))
+        if err > 1e-4 or gerr > 1e-4:
+            raise SystemExit(f"smoke test: flex_hidden differs from LongGPT.hidden (out {err:.2e}, grad {gerr:.2e})")
+        log(f"flex attention matches: attention out {m['out_err']:.1e}, grad {m['grad_rel_err']:.1e}; "
+            f"model out {err:.1e}, grad {gerr:.1e}")
+        # ... and training through it, plus the fallback to the dense path after a failure (CPU test mode)
+        os.environ["H100_FLEX_CPU"] = "1"
+        try:
+            for tag, fail in (("flexrun", "-1"), ("flexfail", "6")):
+                _ATTN.clear()
+                (out / "attention.json").unlink(missing_ok=True)
+                os.environ["H100_FLEX_FAIL_STEP"] = fail
+                cmd_train(argparse.Namespace(**{**common, **more, "tag": tag, "lr": 1e-3, "total_tokens": 40_000,
+                                                "bf16": False, "loss": "chunked", "compile": False}))
+                mm = torch.load(Path(common["ckpt_dir"]) / f"model_{tag}.pt", map_location="cpu", weights_only=False)["meta"]
+                want = "flex" if fail == "-1" else "dense"
+                disabled = (mm.get("attention") or {}).get("flex_disabled")
+                if mm["attention_used"] != want or bool(disabled) != (fail != "-1") or mm["tokens"] < 40_000:
+                    raise SystemExit(f"smoke test: flex run '{tag}' used {mm['attention_used']} (expected {want}), "
+                                     f"disabled={disabled}, tokens {mm['tokens']}")
+            if json.loads((out / "attention.json").read_text())["decision"] != "dense":
+                raise SystemExit("smoke test: the flex failure was not recorded in attention.json")
+        finally:
+            os.environ.pop("H100_FLEX_CPU", None)
+            os.environ.pop("H100_FLEX_FAIL_STEP", None)
+            _ATTN.clear()
+    else:
+        log(f"flex attention not checked: torch {torch.__version__} < {FLEX_MIN_TORCH}")
     log("smoke test passed")
 
 
@@ -656,6 +931,7 @@ def add_common(p) -> None:
     p.add_argument("--out", default=str(RESULTS))
     p.add_argument("--data-limit", type=int, default=0, help="use only the first documents up to this many tokens")
     p.add_argument("--budget-steps", default="40,100", help="throughput measured between these steps of a start")
+    p.add_argument("--flex", type=int, default=1, help="1: block-sparse flex attention for training if it checks out")
 
 
 def main() -> None:

@@ -206,8 +206,11 @@ if ! done_ sweep || ! done_ extra; then
   fi
 fi
 rm -f "$W"/ckpt/state_sweep_lr*.pt                         # sweep results live in sweep*.json; frees ~5 GB
-LR=$(python3 -c "import json;print(json.load(open('results/v5/h100/sweep.json'))['lr'])") || fail "sweep.json fehlt"
-say "gewählte Lernrate: $LR"
+LRW=$(python3 -c "import json;print(json.load(open('results/v5/h100/sweep.json'))['lr'])") || fail "sweep.json fehlt"
+# PLAN §11, Nachtrag 16. Oktober: the sweep runs 200 M tokens, the main run ~20× longer; the best rate falls with the
+# horizon (Bjorck et al. 2024), so the main run uses half the sweep's choice, kept within [1e-3, 2e-3]
+LR=$(python3 -c "print(min(2e-3, max(1e-3, $LRW * 0.5)))") || fail "Lernrate nicht berechenbar"
+say "Lernrate: Suche wählte $LRW, für den langen Lauf ×0,5 in [1e-3, 2e-3]: $LR"
 
 # --- 4. merge -------------------------------------------------------------------------------------------------
 if ! done_ merge; then

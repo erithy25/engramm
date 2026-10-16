@@ -3,6 +3,7 @@
     python -m experiments.h100_data base                  # rebuild the LM-study splits, SHA-256 of every file
     python -m experiments.h100_data extra --shards 36     # further C4-en shards as training text
     python -m experiments.h100_data merge                 # one training stream: base train + extra shards
+                                                          # + 3 more copies of the base WikiText documents
     python -m experiments.h100_data contamination         # 13-token overlap of every val/test document with it
     python -m experiments.h100_data check-dedup           # the overlap code reproduces results/lm/dedup.json
 
@@ -44,6 +45,10 @@ RESULTS = REPO / "results" / "v5" / "h100"
 EVAL_SPLITS = ("val_a", "val_b", "test", "wt103_test")
 WIDTH, THRESHOLD = 13, 0.20                       # experiments/lm_suffix.py
 EOS = 0
+#: PLAN §11, Nachtrag 16. Oktober: val/test are ~40 % WikiText by bytes by design (val-A 37.5 %), the stream with
+#: 36 C4 shards only 1.75 %; the base WikiText documents go into it this many more times (≈ 4 passes in the run).
+WIKI_REPEATS = 3
+WIKI_DOCS, WIKI_TOKENS = 29_245, 113_064_374      # in base train (token_version 1), incl. each document's EOS
 
 #: SHA-256 of the token files as built on the CPU machine (data/cache/lm/tokens, token_version 1).
 BASE_SHA256 = {
@@ -247,25 +252,54 @@ def cmd_extra(args) -> None:
 # merged training stream
 # ---------------------------------------------------------------------------
 
+def wiki_copy(tokens: np.ndarray, starts: np.ndarray, nbytes: np.ndarray):
+    """The WikiText documents of base train as a stream [EOS] d [EOS] d … [EOS], with their starts and bytes."""
+    keys = [json.loads(line)[0] for line in open(TOK / "train.keys.jsonl", encoding="utf-8")]
+    if len(keys) != len(starts):
+        raise SystemExit(f"train.keys.jsonl has {len(keys)} entries for {len(starts)} documents")
+    idx = np.flatnonzero(np.array([k == "wiki" for k in keys]))
+    ends = np.append(starts[1:] - 1, len(tokens) - 1)                  # the EOS after each document
+    lens = ends[idx] - starts[idx] + 1
+    if len(idx) != WIKI_DOCS or int(lens.sum()) != WIKI_TOKENS:
+        raise SystemExit(f"WikiText in base train: {len(idx)} documents, {int(lens.sum())} tokens "
+                         f"(expected {WIKI_DOCS}, {WIKI_TOKENS})")
+    out = np.empty(1 + int(lens.sum()), dtype=np.uint16)
+    out[0] = EOS
+    new_starts = 1 + np.concatenate(([0], np.cumsum(lens)[:-1]))
+    for s, e, ns in zip(starts[idx], ends[idx], new_starts):
+        out[ns:ns + (e - s + 1)] = tokens[s:e + 1]
+    return out, new_starts.astype(np.int64), nbytes[idx]
+
+
 def cmd_merge(args) -> None:
-    """train_all = base train, then every extra shard, as one stream [EOS] d [EOS] d … [EOS]."""
+    """train_all = base train, then every extra shard, then WIKI_REPEATS more copies of the base WikiText
+    documents, as one stream [EOS] d [EOS] d … [EOS] (training shuffles the documents per epoch)."""
     H100.mkdir(parents=True, exist_ok=True)
-    parts = [("base", TOK / "train")] + [(shard_name(k), EXTRA / shard_name(k)) for k in range(1, args.shards + 1)]
-    for label, stem in parts:
+    files = [("base", TOK / "train")] + [(shard_name(k), EXTRA / shard_name(k)) for k in range(1, args.shards + 1)]
+    for label, stem in files:
         if not Path(f"{stem}.u16").exists():
             raise SystemExit(f"missing {stem}.u16 — run the base/extra steps first")
+    if not (TOK / "train.keys.jsonl").exists():
+        raise SystemExit(f"missing {TOK / 'train.keys.jsonl'} — run the base step first")
+
+    def load(stem):
+        return (np.fromfile(f"{stem}.u16", dtype=np.uint16), np.load(f"{stem}.starts.npy").astype(np.int64),
+                np.load(f"{stem}.bytes.npy").astype(np.int64))
+
+    wiki = None
+    parts = [(label, (lambda s=stem: load(s))) for label, stem in files]
+    parts += [(f"wiki_repeat_{r}", (lambda: wiki)) for r in range(1, WIKI_REPEATS + 1)]
     out = H100 / "train_all.u16"
     starts_all, bytes_all, manifest = [], [], []
     pos = 0
     with open(out.with_suffix(".u16.part"), "wb") as f:
-        for i, (label, stem) in enumerate(parts):
-            tokens = np.fromfile(f"{stem}.u16", dtype=np.uint16)
-            starts = np.load(f"{stem}.starts.npy").astype(np.int64)
-            nbytes = np.load(f"{stem}.bytes.npy").astype(np.int64)
+        for i, (label, get) in enumerate(parts):
+            tokens, starts, nbytes = get()
             if tokens[0] != EOS or tokens[-1] != EOS or (tokens[starts - 1] != EOS).any():
-                raise SystemExit(f"{stem}: stream is not [EOS] d [EOS] …")
+                raise SystemExit(f"{label}: stream is not [EOS] d [EOS] …")
             if i == 0:
                 body, shift = tokens, pos
+                wiki = wiki_copy(tokens, starts, nbytes)                # from the verified base files
             else:                                   # the previous part already ends with EOS
                 body, shift = tokens[1:], pos - 1
             body.tofile(f)
@@ -282,7 +316,8 @@ def cmd_merge(args) -> None:
     if len(tokens) != pos or tokens[0] != EOS or tokens[-1] != EOS or (tokens[starts - 1] != EOS).any() \
             or (np.diff(starts) <= 0).any():
         raise SystemExit("merged stream failed its structure check")
-    info = {"tokens": int(pos), "docs": int(len(starts)), "base_tokens": manifest[0]["tokens"], "parts": manifest}
+    info = {"tokens": int(pos), "docs": int(len(starts)), "base_tokens": manifest[0]["tokens"],
+            "wiki_repeats": WIKI_REPEATS, "parts": manifest}
     (H100 / "train_all.json").write_text(json.dumps(info, indent=1) + "\n")
     log(f"train_all: {info['docs']} docs, {pos / 1e9:.3f} B tokens")
 
