@@ -7,9 +7,12 @@
   <link rel="stylesheet" href="setup.css">
 </head>
 <body>
+  <div class="aura" aria-hidden="true"></div>
   <main class="card">
-    <img src="logo.svg" alt="" width="72" height="72" class="logo">
-    <h1>ENGRAMM</h1>
+    <h1 class="brand" aria-label="ENGRAMM">
+      <svg class="mark" viewBox="300 220 460 620" aria-hidden="true"><path d="M 704 332 C 632 252 408 246 396 372 C 388 446 444 484 530 486 C 604 488 648 470 640 448 C 632 426 568 424 530 454 C 500 478 474 500 434 516 C 354 548 324 612 332 680 C 346 800 598 818 728 708"/></svg>
+      <span aria-hidden="true">engramm</span>
+    </h1>
     <p class="muted" id="lead">Checking your knowledge pack …</p>
 
     <section id="error" class="box error" hidden>
@@ -19,17 +22,20 @@
     </section>
 
     <section id="ready" class="box" hidden>
+      <h2>In use</h2>
       <p id="packLine"></p>
+      <p class="small muted" id="switchNote" hidden></p>
       <button type="button" id="start" class="primary">Start chatting</button>
       <p class="small muted" id="starting" hidden>Starting ENGRAMM … the first start can take up to a minute.</p>
     </section>
 
     <section id="install" class="box" hidden>
-      <h2>Install a knowledge pack</h2>
-      <p class="muted">ENGRAMM answers from a knowledge pack on this computer (Wikipedia text, facts from
+      <h2 id="installTitle">Install a knowledge pack</h2>
+      <p class="muted" id="installIntro">ENGRAMM answers from a knowledge pack on this computer (Wikipedia text, facts from
         Wikidata and DBpedia, its conversation bank). After installing it, ENGRAMM needs no internet.</p>
       <div id="catalog"></div>
       <p class="small muted" id="noCatalog" hidden>This build has no download address. Use a pack folder instead.</p>
+      <p class="small muted" id="packsNote" hidden>What ENGRAMM learned about you and your conversations stay the same when you switch packs.</p>
       <hr>
       <p class="muted">Already have a pack folder (for example from a USB stick)?</p>
       <button type="button" id="folder">Use a pack folder …</button>

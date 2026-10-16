@@ -31,6 +31,8 @@ from pathlib import Path
 
 import numpy as np
 
+from engramm.web.clean import SENTENCE
+
 MAGIC = b"EGB1"
 SHELF_HOSTS = ("github.com", "githubusercontent.com")
 _STOP = frozenset("""a an the of in on at to for from by with and or but is are was were be been being it its this that
@@ -334,12 +336,11 @@ class ShelfClient:
             return got
         order = missing + self.decoy_buckets(seed, set(missing))
         order.sort(key=lambda b: hashlib.shake_256(f"{seed}|order|{self.n}|{b}".encode()).digest(4))
-        tor = bool(self.egress.settings["channels"]["shelf"].get("tor"))     # optional: the host sees no IP
         for b in order:
             name, off = self.m.locate(b)
             res = self.egress.fetch(Request("shelf", self.base + name, f"bucket {b}", self.allow_hosts,
                                             range=(off, off + self.m.bucket_bytes - 1),
-                                            max_bytes=self.m.bucket_bytes, tor=tor,
+                                            max_bytes=self.m.bucket_bytes,
                                             allow_loopback=self.allow_loopback))
             if not res.ok or len(res.body) != self.m.bucket_bytes:
                 continue
@@ -376,7 +377,7 @@ class ShelfClient:
 # sentences for the answer extraction
 # ---------------------------------------------------------------------------
 
-_SENT = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9\"“(])")
+_SENT = SENTENCE                     # an initial, a short form or a German date ends no sentence
 MIN_RELATIVE = 0.4           # a fetched article scores at least this share of the best one
 
 

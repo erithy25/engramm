@@ -1,5 +1,7 @@
 /** Interface texts. English first; German can be switched on. The conversation itself is English. */
 
+import type { SearchEngine } from "./types";
+
 export type Lang = "en" | "de";
 
 interface Suggestion {
@@ -15,6 +17,11 @@ export interface Texts {
   history: string;
   memory: string;
   about: string;
+  pack: string;
+  packTitle: string;
+  openPacks: string;
+  loadErrorTitle: string;
+  loadErrorHint: string;
   otherLanguage: string;
   darkMode: string;
   lightMode: string;
@@ -86,22 +93,30 @@ export interface Texts {
   shelfDesc: string;
   shelfInfo: (docs: string, date: string) => string;
   shelfMissing: string;
-  shelfTor: string;
   feedsTitle: string;
   feedsDesc: string;
   feedsItems: (n: number) => string;
   refreshFeeds: string;
   refreshing: string;
   feedFailed: string;
-  messengerTitle: string;
-  messengerDesc: string;
-  messengerTor: string;
-  messengerDirect: string;
-  torState: (state: string) => string;
+  searchTitle: string;
+  searchDesc: string;
+  searchPrivacy: string;
+  searchEngine: string;
+  searchEngines: Record<SearchEngine, string>;
+  braveKey: string;
+  braveKeyHint: string;
+  braveKeySet: string;
+  braveKeySave: string;
+  braveKeyRemove: string;
+  braveMissing: string;
+  searching: string;
+  reading: string;
+  composing: string;
   netLog: string;
   netLogEmpty: string;
   netLogHead: [string, string, string, string, string];
-  channelNames: Record<"shelf" | "feeds" | "messenger", string>;
+  channelNames: Record<"shelf" | "feeds" | "search", string>;
   via: Record<"shelf" | "feed" | "web", string>;
   asOf: string;
   news: string;
@@ -115,6 +130,11 @@ const en: Texts = {
   history: "History",
   memory: "What ENGRAMM knows",
   about: "About ENGRAMM",
+  pack: "Knowledge pack",
+  packTitle: "Download, switch or delete knowledge packs (lite, standard)",
+  openPacks: "Open knowledge packs",
+  loadErrorTitle: "ENGRAMM could not load its knowledge pack.",
+  loadErrorHint: "Switch to another pack or download this one again. What ENGRAMM learned about you stays.",
   otherLanguage: "Deutsch",
   darkMode: "Dark mode",
   lightMode: "Light mode",
@@ -136,8 +156,9 @@ const en: Texts = {
   about3: "Small talk, jokes, explanations (“Tell me about volcanoes”), e-mails and letters, calculations.",
   about4: "Runs entirely on your computer. Same question, same answer.",
   aboutLimits:
-    "Limits: English first (German basics), weaker at long creative writing. Offline unless you switch on internet " +
-    "access — and even then your questions stay on this computer. When unsure, ENGRAMM says so.",
+    "Limits: English first (German basics), weaker at long creative writing. It thinks on your computer; when it " +
+    "doesn't know something, it searches the web — then your question goes to the search engine (one switch under " +
+    "“Internet access” turns that off). When unsure, ENGRAMM says so.",
   today: "Today",
   earlier: "Earlier",
   untitled: "New chat",
@@ -187,9 +208,10 @@ const en: Texts = {
   netOn: "on",
   netOff: "off",
   netIntro:
-    "ENGRAMM works offline. Each channel below can be switched on by itself. Your questions never leave this " +
-    "computer: ENGRAMM fetches whole shelf buckets, news feeds on a schedule or single pages — and answers here. " +
-    "Every fetch is listed in the network log.",
+    "ENGRAMM answers from its own knowledge first. When it doesn't know, the web search (on from the start) asks a " +
+    "search engine — the only channel that sends your question out. The shelf and the news feeds never do; switch " +
+    "them on as you like. With the web search off, “google …” in the chat still searches once. Every fetch is " +
+    "listed in the network log.",
   netUnavailable: "Internet access is not available in this version.",
   netLoading: "loading …",
   shelfTitle: "Full Wikipedia articles (shelf)",
@@ -198,7 +220,6 @@ const en: Texts = {
     "unrelated articles — plus two random decoy buckets. The host only sees bucket numbers.",
   shelfInfo: (docs, date) => `${docs} articles, as of ${date}`,
   shelfMissing: "This knowledge pack has no shelf index yet.",
-  shelfTor: "over Tor (the host does not see your IP address)",
   feedsTitle: "News feeds",
   feedsDesc:
     "Fetches the feeds you pick every few hours at random times, independent of your questions. " +
@@ -207,27 +228,33 @@ const en: Texts = {
   refreshFeeds: "Fetch now",
   refreshing: "fetching …",
   feedFailed: "failed",
-  messengerTitle: "Messenger (web pages over Tor)",
-  messengerDesc:
-    "For questions nothing else answers: fetches the official website or the live Wikipedia article and reads " +
-    "it on your computer. The site sees an anonymous visit to that page, never your question.",
-  messengerTor: "over Tor (recommended)",
-  messengerDirect: "Without Tor the website sees your IP address.",
-  torState: (s) =>
-    s === "ready"
-      ? "Tor: connected"
-      : s === "starting"
-        ? "Tor: connecting … (up to a minute)"
-        : s === "unavailable"
-          ? "Tor is not part of this build."
-          : s.startsWith("failed")
-            ? `Tor: ${s}`
-            : "Tor: not started",
+  searchTitle: "Web search",
+  searchDesc:
+    "On from the start: when ENGRAMM cannot answer a question offline (or it is about the present), it asks a " +
+    "search engine, reads the best pages on your computer and answers with the sources. Personal questions never " +
+    "go out. Off: it offers to search, and “google …” always works.",
+  searchPrivacy: "The question goes to the search engine, which sees it together with your IP address.",
+  searchEngine: "Search engine",
+  searchEngines: {
+    auto: "Automatic (DuckDuckGo, then Bing)",
+    bing: "Bing only",
+    duckduckgo: "DuckDuckGo only",
+    brave: "Brave Search API (needs a key)",
+  },
+  braveKey: "Brave Search API key (optional)",
+  braveKeyHint: "More reliable than reading result pages. Keys at api.search.brave.com. Stored only on this computer.",
+  braveKeySet: "Key stored",
+  braveKeySave: "Save key",
+  braveKeyRemove: "Remove key",
+  braveMissing: "Brave needs an API key.",
+  searching: "Searching the web for “{q}” …",
+  reading: "Reading {sites} …",
+  composing: "Writing the answer …",
   netLog: "Network log",
   netLogEmpty: "Nothing fetched yet.",
   netLogHead: ["Time", "Channel", "Host", "What", "Size"],
-  channelNames: { shelf: "shelf", feeds: "feeds", messenger: "messenger" },
-  via: { shelf: "via shelf", feed: "via news feed", web: "via messenger" },
+  channelNames: { shelf: "shelf", feeds: "feeds", search: "web search" },
+  via: { shelf: "via shelf", feed: "via news feed", web: "via web search" },
   asOf: "as of ",
   news: "News · ",
 };
@@ -241,6 +268,11 @@ const de: Texts = {
   history: "Verlauf",
   memory: "Was ENGRAMM weiß",
   about: "Über ENGRAMM",
+  pack: "Wissenspaket",
+  packTitle: "Wissenspakete laden, wechseln oder löschen (Lite, Standard)",
+  openPacks: "Wissenspakete öffnen",
+  loadErrorTitle: "ENGRAMM konnte sein Wissenspaket nicht laden.",
+  loadErrorHint: "Wechsle zu einem anderen Paket oder lade dieses neu herunter. Was ENGRAMM über dich gelernt hat, bleibt erhalten.",
   otherLanguage: "English",
   darkMode: "Dunkles Design",
   lightMode: "Helles Design",
@@ -262,9 +294,9 @@ const de: Texts = {
   about3: "Smalltalk, Witze, Erklärungen („Tell me about volcanoes“), E-Mails und Briefe, Rechnen.",
   about4: "Läuft komplett auf deinem Rechner. Gleiche Frage – gleiche Antwort.",
   aboutLimits:
-    "Grenzen: vor allem Englisch (Deutsch in Grundzügen), schwächer bei langen kreativen Texten. Offline, solange du " +
-    "den Internetzugang nicht einschaltest – und selbst dann bleiben deine Fragen auf diesem Rechner. Bei " +
-    "Unsicherheit sagt ENGRAMM das.",
+    "Grenzen: vor allem Englisch (Deutsch in Grundzügen), schwächer bei langen kreativen Texten. Es denkt auf " +
+    "deinem Rechner; weiß es etwas nicht, sucht es im Web – dann geht deine Frage an die Suchmaschine (ein Schalter " +
+    "unter „Internetzugang“ schaltet das ab). Bei Unsicherheit sagt ENGRAMM das.",
   today: "Heute",
   earlier: "Früher",
   untitled: "Neuer Chat",
@@ -312,9 +344,10 @@ const de: Texts = {
   netOn: "an",
   netOff: "aus",
   netIntro:
-    "ENGRAMM arbeitet offline. Jeder Kanal unten lässt sich einzeln einschalten. Deine Fragen verlassen nie " +
-    "diesen Rechner: ENGRAMM lädt ganze Regal-Fächer, Nachrichten-Feeds nach Zeitplan oder einzelne Seiten – und " +
-    "antwortet hier. Jeder Abruf steht im Netzprotokoll.",
+    "ENGRAMM antwortet zuerst aus eigenem Wissen. Weiß es etwas nicht, fragt die Websuche (ab Werk an) eine " +
+    "Suchmaschine – der einzige Kanal, der deine Frage hinausschickt. Regal und Nachrichten-Feeds tun das nie; " +
+    "schalte sie ein, wie du willst. Ist die Websuche aus, sucht „google …“ im Chat trotzdem einmal. Jeder Abruf " +
+    "steht im Netzprotokoll.",
   netUnavailable: "Internetzugang ist in dieser Version nicht verfügbar.",
   netLoading: "lädt …",
   shelfTitle: "Vollständige Wikipedia-Artikel (Regal)",
@@ -323,7 +356,6 @@ const de: Texts = {
     "unabhängige Artikel – plus zwei zufällige Tarn-Fächer. Der Host sieht nur Fach-Nummern.",
   shelfInfo: (docs, date) => `${docs} Artikel, Stand ${date}`,
   shelfMissing: "Dieses Wissenspaket hat noch keinen Regal-Index.",
-  shelfTor: "über Tor (der Host sieht deine IP-Adresse nicht)",
   feedsTitle: "Nachrichten-Feeds",
   feedsDesc:
     "Lädt die gewählten Feeds alle paar Stunden zu zufälligen Zeiten, unabhängig von deinen Fragen. " +
@@ -332,27 +364,33 @@ const de: Texts = {
   refreshFeeds: "Jetzt abrufen",
   refreshing: "ruft ab …",
   feedFailed: "fehlgeschlagen",
-  messengerTitle: "Bote (Webseiten über Tor)",
-  messengerDesc:
-    "Für Fragen, die sonst nichts beantwortet: lädt die offizielle Website oder den aktuellen Wikipedia-Artikel " +
-    "und liest ihn auf deinem Rechner. Die Seite sieht einen anonymen Besuch dieser Seite, nie deine Frage.",
-  messengerTor: "über Tor (empfohlen)",
-  messengerDirect: "Ohne Tor sieht die Website deine IP-Adresse.",
-  torState: (s) =>
-    s === "ready"
-      ? "Tor: verbunden"
-      : s === "starting"
-        ? "Tor: verbindet … (bis zu einer Minute)"
-        : s === "unavailable"
-          ? "Tor ist in dieser Version nicht enthalten."
-          : s.startsWith("failed")
-            ? `Tor: ${s}`
-            : "Tor: nicht gestartet",
+  searchTitle: "Websuche",
+  searchDesc:
+    "Ab Werk an: Kann ENGRAMM eine Frage offline nicht beantworten (oder geht es um Aktuelles), fragt es eine " +
+    "Suchmaschine, liest die besten Seiten auf deinem Rechner und antwortet mit Quellen. Persönliche Fragen gehen " +
+    "nie hinaus. Aus: Es bietet die Suche an, und „google …“ funktioniert immer.",
+  searchPrivacy: "Die Frage geht an die Suchmaschine, die sie zusammen mit deiner IP-Adresse sieht.",
+  searchEngine: "Suchmaschine",
+  searchEngines: {
+    auto: "Automatisch (DuckDuckGo, dann Bing)",
+    bing: "Nur Bing",
+    duckduckgo: "Nur DuckDuckGo",
+    brave: "Brave-Search-API (braucht einen Schlüssel)",
+  },
+  braveKey: "Brave-Search-API-Schlüssel (optional)",
+  braveKeyHint: "Zuverlässiger als das Lesen von Trefferseiten. Schlüssel gibt es unter api.search.brave.com. Wird nur auf diesem Rechner gespeichert.",
+  braveKeySet: "Schlüssel gespeichert",
+  braveKeySave: "Schlüssel speichern",
+  braveKeyRemove: "Schlüssel entfernen",
+  braveMissing: "Brave braucht einen API-Schlüssel.",
+  searching: "Suche im Web nach „{q}“ …",
+  reading: "Lese {sites} …",
+  composing: "Schreibe die Antwort …",
   netLog: "Netzprotokoll",
   netLogEmpty: "Noch nichts abgerufen.",
   netLogHead: ["Zeit", "Kanal", "Host", "Was", "Größe"],
-  channelNames: { shelf: "Regal", feeds: "Feeds", messenger: "Bote" },
-  via: { shelf: "über das Regal", feed: "über einen Feed", web: "über den Boten" },
+  channelNames: { shelf: "Regal", feeds: "Feeds", search: "Websuche" },
+  via: { shelf: "über das Regal", feed: "über einen Feed", web: "über die Websuche" },
   asOf: "Stand ",
   news: "Nachrichten · ",
 };

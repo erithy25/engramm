@@ -720,7 +720,7 @@ def test_privacy_and_network_answers_are_accurate(chat):
 def test_german_privacy_and_no_english_in_german(chat):
     a, st = chat
     r = a.turn(st, "bist du mit dem internet verbunden")
-    assert "offline" in r.text and "Internetzugang" in r.text, r.text
+    assert "Suchmaschine" in r.text and "Internetzugang" in r.text and "abschalten" in r.text, r.text
     r = a.turn(st, "was ist tor")
     assert "Stationen" in r.text, r.text
     a.turn(st, "wer ist zorblax quux")

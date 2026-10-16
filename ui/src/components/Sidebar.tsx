@@ -1,6 +1,6 @@
 import type { Texts } from "../i18n";
 import type { Conversation } from "../types";
-import { GlobeIcon, InfoIcon, ListIcon, MoonIcon, NetworkIcon, PlusIcon } from "./Icons";
+import { GlobeIcon, InfoIcon, ListIcon, Mark, MoonIcon, NetworkIcon, PackIcon, PlusIcon } from "./Icons";
 
 interface Props {
   t: Texts;
@@ -17,9 +17,18 @@ interface Props {
   netLabel: string | null;
   netOn: boolean;
   onNetwork: () => void;
+  /** desktop app: the pack's name ("" while unknown); null hides the entry (website version) */
+  packLabel: string | null;
   onAbout: () => void;
   onTheme: () => void;
   onLanguage: () => void;
+}
+
+/** The desktop app shows its pack page instead of this address (runtime/app/src-tauri/src/lib.rs). */
+export const PACKS_LINK = "/__engramm/packs";
+
+export function packName(name: string): string {
+  return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
 export function Sidebar(p: Props) {
@@ -31,8 +40,8 @@ export function Sidebar(p: Props) {
   return (
     <aside className={"sidebar" + (p.open ? " open" : "")} id="sidebar" aria-label={p.t.conversations}>
       <div className="brand">
-        <img src="./logo.svg" alt="" className="brand-logo" width={28} height={28} />
-        <span className="brand-name">ENGRAMM</span>
+        <Mark />
+        <span className="brand-name">engramm</span>
         <button className="icon-btn only-mobile" id="closeSidebar" type="button" aria-label={p.t.closeSidebar}
                 onClick={p.onClose}>
           ✕
@@ -78,6 +87,16 @@ export function Sidebar(p: Props) {
         )}
       </nav>
       <div className="sidebar-foot">
+        {p.packLabel !== null && (
+          // the desktop app turns this link into its pack page (download standard, switch, delete)
+          <a className="side-link" id="openPacks" href={PACKS_LINK} title={p.t.packTitle}>
+            <PackIcon />
+            <span>
+              {p.t.pack}
+              {p.packLabel && <span className="muted"> · {p.packLabel}</span>}
+            </span>
+          </a>
+        )}
         <button className="side-link" id="openMemory" type="button" onClick={p.onMemory}>
           <ListIcon />
           <span>{p.t.memory}</span>

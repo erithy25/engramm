@@ -15,8 +15,11 @@ everything you told the earlier app (``user.log``).
 API (JSON):
 
 * ``GET  /api/health``           → {"ready": bool, "error": str|None, "mode": "full"|"quick"|None,
-                                    "sentences": int|None}
+                                    "sentences": int|None, "pack": {"name", "version", "bytes"}|None}
 * ``POST /api/chat``             {"conversation": str, "message": str} → reply
+* ``GET  /api/progress?conversation=…`` → what the reply being written does now, for the page's status
+                                    line while it waits: {"stage": "search", "query": str} |
+                                    {"stage": "read", "sites": [str]} | {"stage": "write"} | {}
 * ``GET  /api/memory``           → {"items": [{"source", "preview", "tokens"}]}
 * ``POST /api/memory/forget``    {"source": str} → {"forgot": str}
 * ``POST /api/open``             {"url": str} → {"opened": str}   (desktop app only: opens a source
@@ -46,6 +49,7 @@ from pathlib import Path
 WEB = Path(__file__).resolve().parent / "web"
 mimetypes.add_type("application/manifest+json", ".webmanifest")
 mimetypes.add_type("text/javascript", ".js")
+mimetypes.add_type("font/woff2", ".woff2")      # the bundled fonts; Windows may map it otherwise
 DEFAULT_MODEL = Path(__file__).resolve().parents[2] / "models" / "lm" / "main" / "model"
 MAX_MESSAGE = 12000
 MAX_CONVERSATIONS = 500
@@ -87,7 +91,7 @@ def source_view(src: dict | None) -> dict | None:
         title = src.get("title") or key
         return {"kind": "shelf", "title": title, "as_of": src.get("as_of") or None,
                 "url": "https://en.wikipedia.org/wiki/" + urllib.parse.quote(title.replace(" ", "_"))}
-    if src.get("kind") in ("feed", "web"):         # Atlas: a news feed item or a page the messenger read
+    if src.get("kind") in ("feed", "web"):         # Atlas: a news feed item or a page the web search read
         url = key if key.startswith("https://") else None
         return {"kind": src["kind"], "title": src.get("title") or key, "site": origin, "url": url,
                 "as_of": src.get("as_of") or None}
@@ -101,6 +105,21 @@ def source_view(src: dict | None) -> dict | None:
         url = key if key.startswith("http") else None
         return {"kind": "web", "title": urllib.parse.urlparse(key).netloc or key, "url": url}
     return {"kind": origin or "text", "title": key, "url": None}
+
+
+def link_view(link: dict) -> dict | None:
+    """A web search result for the page: https links only, text cut to size."""
+    if not isinstance(link, dict):
+        return None
+    url = str(link.get("url") or "")
+    try:
+        u = urllib.parse.urlsplit(url)
+    except ValueError:
+        return None
+    if u.scheme != "https" or not u.hostname or u.username or u.password or len(url) > 2000:
+        return None
+    return {"title": str(link.get("title") or u.hostname)[:200], "url": url, "site": str(link.get("site") or u.hostname)[:100],
+            "snippet": str(link.get("snippet") or "")[:400], "engine": str(link.get("engine") or "")[:40]}
 
 
 class ChatService:
@@ -123,6 +142,8 @@ class ChatService:
         self.egress = None
         self.atlas = None
         self.shown_urls: set[str] = set()          # links this server put into replies (may be opened)
+        self._pack_info: dict | None = None
+        self.progress: dict[str, dict] = {}        # conversation → what its reply in the making does now
 
     # -- loading -----------------------------------------------------------------------------
 
@@ -175,6 +196,7 @@ class ChatService:
                 self.egress = Egress.beside(Path(mem_file) if mem_file else None)
                 self.atlas = Atlas(self.egress, self.pack, Path(mem_file).parent if mem_file else None)
                 assistant.atlas = self.atlas
+                assistant.progress = self._on_progress
             except Exception:                        # the offline chat works without it
                 traceback.print_exc()
                 self.egress = self.atlas = None
@@ -203,11 +225,33 @@ class ChatService:
             lr.state.reset()
         return self.learning()
 
+    def pack_info(self) -> dict | None:
+        """Name, version and size of the knowledge pack (from its manifest), also when loading failed:
+        the desktop app shows it and offers the other packs."""
+        if self.pack is None:
+            return None
+        if self._pack_info is None:
+            try:
+                m = json.loads((self.pack / "manifest.json").read_text(encoding="utf-8"))
+                self._pack_info = {"name": str(m.get("pack") or ""), "version": str(m.get("version") or ""),
+                                   "bytes": int(m.get("bytes") or 0)}
+            except (OSError, ValueError, TypeError):
+                return None
+        return self._pack_info
+
     def health(self) -> dict:
         return {"ready": self.assistant is not None, "error": self.error, "mode": self.mode,
-                "sentences": None if self.bot is None else int(self.bot.c.index.n)}
+                "sentences": None if self.bot is None else int(self.bot.c.index.n), "pack": self.pack_info()}
 
     # -- chat --------------------------------------------------------------------------------
+
+    def _on_progress(self, conversation: str, info: dict) -> None:
+        self.progress[conversation] = {k: v for k, v in info.items() if k in ("stage", "query", "sites")}
+
+    def progress_of(self, conversation: str) -> dict:
+        """What the reply in the making for a conversation does now (read without the chat lock:
+        the chat holds it while it works)."""
+        return dict(self.progress.get((conversation or "default")[:100]) or {})
 
     def chat(self, conversation: str, message: str) -> dict:
         from engramm.chat.dialog import DialogState
@@ -222,7 +266,13 @@ class ChatService:
         with self.lock:
             st = self.states.pop(conversation, None) or DialogState(conversation=conversation)
             t0 = time.time()
-            r = self.assistant.turn(st, message)
+            if getattr(self.assistant, "progress", None) is None:
+                self.assistant.progress = self._on_progress   # the page's status line hears the web search
+            self.progress.pop(conversation, None)
+            try:
+                r = self.assistant.turn(st, message)
+            finally:
+                self.progress.pop(conversation, None)
             self.states[conversation] = st              # most recently used last
             while len(self.states) > MAX_CONVERSATIONS:
                 self.states.pop(next(iter(self.states)))
@@ -230,11 +280,15 @@ class ChatService:
         for src in [d.get("source")] + [a.get("source") for a in (d.get("alternatives") or [])]:
             if src and str(src.get("key", "")).startswith("https://"):
                 self.shown_urls.add(src["key"])
+        links = [link_view(x) for x in (d.get("links") or [])]
+        links = [x for x in links if x is not None][:8]
+        self.shown_urls.update(x["url"] for x in links)
         return {"kind": d["kind"], "text": d["text"], "answer": d["answer"], "guess": d["guess"],
                 "evidence": d["evidence"], "source": source_view(d["source"]), "confidence": d["confidence"],
                 "via": d["via"], "resolved": d["resolved"] if d["resolved"] != message else None,
                 "alternatives": [{"text": a.get("text"), "source": source_view(a.get("source"))}
                                  for a in (d.get("alternatives") or [])][:3],
+                "links": links,
                 "seconds": round(time.time() - t0, 3)}
 
     # -- network (Atlas) ---------------------------------------------------------------------
@@ -248,10 +302,11 @@ class ChatService:
         if self.atlas is None:
             raise RuntimeError("The network channels are not available.")
         channel = str(data.get("channel", ""))
-        unknown = sorted(set(data) - {"channel", "enabled", "tor", "feeds"})
+        keys = ("enabled", "feeds", "engine", "brave_key")
+        unknown = sorted(set(data) - {"channel", *keys})
         if unknown:
             raise ValueError(f"Unknown setting: {unknown[0]}")
-        conf = {k: data[k] for k in ("enabled", "tor", "feeds") if k in data}
+        conf = {k: data[k] for k in keys if k in data}
         if not conf:
             raise ValueError("Nothing to change.")
         if "feeds" in conf:
@@ -325,6 +380,9 @@ def make_handler(service: ChatService, desktop: bool = False):
                 return self._json(200, service.network())
             if path == "/api/learning":
                 return self._json(200, service.learning())
+            if path == "/api/progress":
+                query = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+                return self._json(200, service.progress_of((query.get("conversation") or [""])[0]))
             name = "index.html" if path in ("/", "/index.html") else path.lstrip("/")
             f = (WEB / name).resolve()
             if WEB.resolve() not in f.parents or not f.is_file():
@@ -412,7 +470,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--desktop", action="store_true",
                     help="desktop-app mode: print ENGRAMM_URL=…, allow /api/open, exit when stdin closes")
+    ap.add_argument("--tls-check", action="store_true",
+                    help="print how many certificate authorities Python's TLS trusts here and exit (smoke test)")
     args = ap.parse_args(argv)
+    if args.tls_check:
+        import ssl
+
+        from engramm.web.egress import tls_context
+        n = tls_context().cert_store_stats().get("x509_ca", 0)
+        print(json.dumps({"x509_ca": n, "openssl": ssl.OPENSSL_VERSION}), flush=True)
+        return 0 if n > 0 else 1
     service = ChatService(args.model, args.index, pack=args.pack, memory_path=args.memory)
     server = serve(service, host=args.host, port=args.port, desktop=args.desktop)
     threading.Thread(target=service.load, daemon=True).start()

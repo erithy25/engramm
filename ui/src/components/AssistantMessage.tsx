@@ -1,12 +1,25 @@
 import { type ReactElement, useEffect, useRef, useState } from "react";
 import type { Texts } from "../i18n";
-import { isError, type StoredReply } from "../types";
+import { isError, type Progress, type StoredReply } from "../types";
+import { GlobeIcon, Mark } from "./Icons";
 
 interface Props {
   reply: StoredReply | null; // null while waiting
   animate: boolean;
   t: Texts;
   onTyped?: () => void;
+  progress?: Progress | null; // while waiting: what the reply in the making does now
+}
+
+/** "Searching the web for “…”", "Reading en.wikipedia.org, …", "Writing the answer …". */
+function progressLine(p: Progress, t: Texts): string | null {
+  if (p.stage === "search") {
+    const q = (p.query ?? "").trim();
+    return t.searching.replace("{q}", q.length > 70 ? `${q.slice(0, 67)}…` : q);
+  }
+  if (p.stage === "read") return t.reading.replace("{sites}", (p.sites ?? []).slice(0, 3).join(", "));
+  if (p.stage === "write") return t.composing;
+  return null;
 }
 
 function Chip(props: { text: string; cls?: string; href?: string | null; title?: string }) {
@@ -68,23 +81,33 @@ function useTypedText(full: string, animate: boolean, onTyped?: () => void): [st
   return [shown, done];
 }
 
-export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
+export function AssistantMessage({ reply, animate, t, onTyped, progress }: Props) {
   const [showEvidence, setShowEvidence] = useState(false);
   const [copyLabel, setCopyLabel] = useState<string | null>(null);
   const full = reply && !isError(reply) ? reply.text : "";
   const [shown, done] = useTypedText(full, animate && reply !== null && !isError(reply), onTyped);
 
   if (reply === null) {
+    const line = progress ? progressLine(progress, t) : null;
     return (
       <article className="msg assistant">
-        <img src="./logo.svg" alt="" className="avatar" width={28} height={28} />
+        <span className="avatar" aria-hidden="true">
+          <Mark />
+        </span>
         <div className="bubble">
           <div className="text">
-            <span className="typing">
-              <i />
-              <i />
-              <i />
-            </span>
+            {line ? (
+              <span className="searching" data-stage={progress?.stage} role="status" aria-live="polite">
+                <GlobeIcon />
+                <span className="searching-text">{line}</span>
+              </span>
+            ) : (
+              <span className="typing">
+                <i />
+                <i />
+                <i />
+              </span>
+            )}
           </div>
         </div>
       </article>
@@ -93,7 +116,9 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
   if (isError(reply)) {
     return (
       <article className="msg assistant">
-        <img src="./logo.svg" alt="" className="avatar" width={28} height={28} />
+        <span className="avatar" aria-hidden="true">
+          <Mark />
+        </span>
         <div className="bubble">
           <div className="text" data-done="1">
             <span className="error-text">{reply.error}</span>
@@ -135,13 +160,14 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
   }
   if (reply.resolved) chips.push(<Chip key="r" text={t.understoodAs + reply.resolved} />);
   if (typeof reply.seconds === "number") {
-    chips.push(<Chip key="sec" text={`${reply.seconds.toFixed(2)} s`} title={t.seconds} />);
+    chips.push(<Chip key="sec" text={`${reply.seconds.toFixed(2)} s`} cls="sec" title={t.seconds} />);
   }
   const hasEvidence = Boolean(reply.evidence) && k !== "about";
 
   const copy = async () => {
+    const withSource = reply.source?.url ? `${full}\n\n${reply.source.url}` : full;
     try {
-      await navigator.clipboard.writeText(full);
+      await navigator.clipboard.writeText(withSource);
       setCopyLabel(t.copied);
     } catch {
       setCopyLabel(t.copyFailed);
@@ -151,7 +177,9 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
 
   return (
     <article className="msg assistant">
-      <img src="./logo.svg" alt="" className="avatar" width={28} height={28} />
+      <span className="avatar" aria-hidden="true">
+        <Mark />
+      </span>
       <div className="bubble">
         <div className="text" {...(done ? { "data-done": "1" } : {})}>
           {shown}

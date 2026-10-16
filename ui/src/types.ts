@@ -30,6 +30,15 @@ export interface Alternative {
   source: SourceView | null;
 }
 
+/** One result of a web search (engramm/web/search.py), shown under the reply. */
+export interface WebLink {
+  title: string;
+  url: string;
+  site: string;
+  snippet: string;
+  engine: string;
+}
+
 export interface Reply {
   kind: ReplyKind;
   text: string;
@@ -41,7 +50,16 @@ export interface Reply {
   via: string;
   resolved: string | null;
   alternatives: Alternative[];
+  /** web search results of older versions (stored replies may still have them; not shown any more) */
+  links?: WebLink[];
   seconds: number;
+}
+
+/** What a reply in the making does now (``GET /api/progress``), for the status line while waiting. */
+export interface Progress {
+  stage?: "search" | "read" | "write";
+  query?: string;
+  sites?: string[];
 }
 
 /** What the page stores for a failed request instead of a reply. */
@@ -56,6 +74,8 @@ export interface Health {
   error: string | null;
   mode: "full" | "quick" | null;
   sentences: number | null;
+  /** the knowledge pack the server runs on (desktop app); also set when loading failed */
+  pack?: { name: string; version: string; bytes: number } | null;
 }
 
 export interface MemoryItem {
@@ -79,14 +99,18 @@ export function isError(r: StoredReply): r is ErrorReply {
   return (r as ErrorReply).error !== undefined;
 }
 
-/** One network channel's settings (engramm/web/egress.py DEFAULT_SETTINGS). */
+export type SearchEngine = "auto" | "bing" | "duckduckgo" | "brave";
+export const SEARCH_ENGINES: readonly SearchEngine[] = ["auto", "duckduckgo", "bing", "brave"];
+
+/** One network channel's settings (engramm/web/egress.py DEFAULT_SETTINGS; the API key never comes back). */
 export interface ChannelSettings {
   enabled: boolean;
-  tor?: boolean;
   feeds?: string[];
+  engine?: SearchEngine;
+  brave_key_set?: boolean;
 }
 
-export type ChannelName = "shelf" | "feeds" | "messenger";
+export type ChannelName = "shelf" | "feeds" | "search";
 
 export interface FeedInfo {
   id: string;
@@ -126,20 +150,20 @@ export type NetworkStatus =
       available: true;
       backend: string | null;
       channels: Record<ChannelName, ChannelSettings>;
-      tor: string;
       feeds: FeedInfo[];
       feed_items: number;
       feed_state: Record<string, FeedState>;
       shelf: ShelfInfo | null;
-      wayfinder: boolean;
       log: NetworkLogEntry[];
     };
 
 export interface ChannelChange {
   channel: ChannelName;
   enabled?: boolean;
-  tor?: boolean;
   feeds?: string[];
+  engine?: SearchEngine;
+  /** a Brave Search API key; "" removes it */
+  brave_key?: string;
 }
 
 /** What ENGRAMM learned locally (engramm/learn): counts, taught words and style wishes. */

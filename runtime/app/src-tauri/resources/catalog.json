@@ -1,4 +1,23 @@
 {
-  "comment": "Knowledge packs this build may download (only after the user agrees). manifest_sha256 pins the exact pack; experiments/pack_release.py writes an entry.",
-  "packs": []
+  "comment": "Knowledge packs this build may download (only after the user agrees). manifest_sha256 pins the exact pack; experiments/pack_release.py writes an entry. The entries here are the published packs, so builds from any branch can download them; a release build replaces the file with its own catalog.",
+  "packs": [
+    {
+      "name": "lite",
+      "title": "Lite",
+      "version": "3.1.0-beta.1",
+      "bytes": 1248102226,
+      "base_url": "https://github.com/erithy25/engramm/releases/download/v3.2.0-beta.6/",
+      "manifest_sha256": "90687f5b5c1d3229b1bd1ee132f3940c8d5cbc5c833b1f5bbcddc47ab4a1fac3",
+      "description": "Lead sections of 400 000 Wikipedia articles, 150 000-entity fact bank, shelf index"
+    },
+    {
+      "name": "standard",
+      "title": "Standard",
+      "version": "3.1.0-beta.1",
+      "bytes": 2728718774,
+      "base_url": "https://github.com/erithy25/engramm/releases/download/pack-standard-v3.1.0-beta.1/",
+      "manifest_sha256": "0c6f5c7a08ed0d9f8c377aa6d7587d72c26daa6751ee946da40d4a64c12313b7",
+      "description": "1.5 million article leads, 1 million-entity fact bank, full shelf index – more answers, about 1 GB of memory"
+    }
+  ]
 }

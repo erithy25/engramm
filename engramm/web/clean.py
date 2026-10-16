@@ -141,7 +141,70 @@ def page_title(page: str) -> str:
 # the reference zone at the end of a Wikipedia article's plain text
 # ---------------------------------------------------------------------------
 
-SENTENCE = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9\"“(])")
+_BREAK = re.compile(r"(?<=[.!?])\s+(?=[A-ZÀ-ÖØ-Þ0-9\"“„(\[])")
+# titles: always a name after them
+_TITLES = frozenset("mr mrs ms messrs dr prof st mt ft jr sr capt col lt sgt cmdr adm rev hon gen gov sen rep".split())
+# short forms whose full stop ends no sentence unless a sentence starts after it, English and German (lower case)
+_SHORT = frozenset("""vs etc inc ltd co corp bros no nos vol vols pp ca approx est fig figs dept univ jan feb mar apr jun jul aug
+sep sept oct nov dec al bzw ggf inkl max min mio mrd nr str tsd usw vgl sog evtl chr jh jhd hl abs bspw geb gest verh ehem
+insb zzgl mind gegr okt dez sek std bd hrsg aufl ff dgl ebd lat griech engl franz ital span""".split())
+# the words a sentence starts with — after "SpaceX and X." or "… usw." one does
+_STARTERS = frozenset("""the a an he she it they we i you his her its their our this that these those there here in on at by
+for from with after before during since until when while although though however but and or so as if because today many
+most some all each both other another such according der die das den dem des ein eine einer eines er sie es wir ich man
+sein seine ihr ihre dies diese dieser dieses im am vom zum zur auf aus bei mit nach seit von vor während als wenn weil da
+doch aber und oder auch heute damit dort hier später danach zudem außerdem jedoch allerdings""".split())
+# what a German ordinal stands before ("am 6. März 1902", "im 20. Jahrhundert", "1. FC Köln")
+_ORDINAL_NOUN = re.compile(r"(?:januar|jänner|februar|märz|april|mai|juni|juli|august|september|oktober|november|dezember|"
+                           r"jahrhunderts?|jahrtausends?|fc|liga|bundesliga|platz|klasse|mal|weltkrieg|staffel|folge|band|"
+                           r"kapitel|auflage|runde|spieltag|rang|armee|division|sinfonie|symphonie)\b", re.I)
+
+
+def split_sentences(text: str) -> list[str]:
+    """The sentences of a text. A full stop ends none after an initial ("J. K. Rowling", "z. B.",
+    "U.S."), a title or short form ("Dr.", "Mio.", "bzw.") or a German ordinal ("am 6. März 1902",
+    "im 20. Jahrhundert"): a sentence cut there ("… written by British author J.", "Mai 1949 wurde
+    das Grundgesetz verkündet.") answers nothing. After a single letter or a short form a sentence
+    still ends when the next word starts one ("… SpaceX and X. He has been …")."""
+    out, start = [], 0
+    for m in _BREAK.finditer(text):
+        before = text[start:m.start()].split()
+        if before and before[-1].endswith(".") and _no_end(before, text[m.end():m.end() + 24]):
+            continue
+        out.append(text[start:m.start()])
+        start = m.end()
+    out.append(text[start:])
+    return out
+
+
+def _no_end(before: list[str], after: str) -> bool:
+    """The full stop of the last word of ``before`` (followed by ``after``) ends no sentence."""
+    core = before[-1].rstrip(".").lstrip("([\"'“„‚*")
+    if not core:
+        return False
+    nxt = re.match(r"[\"'“„(\[]*([^\W\d_]+)", after)
+    starts = bool(nxt) and nxt.group(1).lower() in _STARTERS
+    if len(core) == 1 and core.isalpha():                       # an initial: "J.", "z.", "B."
+        # "… X. He …" ends a sentence; "z. B. Die …" does not (an abbreviation of initials)
+        return not starts or (len(before) > 1 and re.fullmatch(r"[^\W\d_]\.", before[-2]) is not None)
+    if "." in core and all(0 < len(p) <= 2 and p.isalpha() for p in core.split(".")):
+        return not starts                                       # "U.S.", "e.g.", "z.B.", "Ph.D."
+    if core.lower() in _TITLES:
+        return True
+    if core.lower() in _SHORT:
+        return not starts
+    return core.isdigit() and len(core) <= 2 and bool(_ORDINAL_NOUN.match(after))
+
+
+class _Sentences:
+    """``SENTENCE.split(text)``, as with the regular expression this replaces."""
+
+    @staticmethod
+    def split(text: str) -> list[str]:
+        return split_sentences(text)
+
+
+SENTENCE = _Sentences()
 _REF = re.compile(
     r"\bRetrieved\b|\bArchived from\b|\(PDF\)|\bISBN\b|\bISSN\b|\bOCLC\b|\bdoi:|\bS2CID\b|\bPMID\b|"
     r"^\W*[\"“][^\"”]{2,300}[\"”]\.?\s*(?:\([^)]{1,40}\)\.?)?\s*$|"      # "Title". / "Title" (in German).

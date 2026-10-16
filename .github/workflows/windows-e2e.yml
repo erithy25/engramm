@@ -1,0 +1,68 @@
+# The desktop app's server on real Windows with the real knowledge packs (runtime/sidecar/e2e_packs.py):
+# frozen as for the installer, both packs downloaded with the app's own download code from the catalog
+# the installers carry, then lite → standard → lite with one memory, as a pack switch in the app does.
+# It catches what the smoke test cannot: loading a pack (3.2.0-beta.6 stopped with "error while
+# loading" on Windows, cp1252) and switching packs.
+name: Windows end to end
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "engramm/**"
+      - "runtime/sidecar/**"
+      - "runtime/core/**"
+      - "runtime/app/src-tauri/resources/catalog.json"
+      - ".github/workflows/windows-e2e.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: windows-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: runtime/sidecar/requirements.txt
+
+      - name: Freeze the server (PyInstaller), as for the installer
+        shell: bash
+        run: |
+          pip install -r runtime/sidecar/requirements.txt
+          pyinstaller --noconfirm --log-level WARN --distpath build/sidecar --workpath build/pyi runtime/sidecar/engramm-server.spec
+
+      - name: Smoke test of the frozen server (every data file bundled)
+        shell: bash
+        run: python runtime/sidecar/smoke_test.py build/sidecar/engramm-server
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: runtime/core
+
+      - name: The app's download code (engramm-core fetch)
+        working-directory: runtime/core
+        run: cargo build --release --features fetch
+
+      - name: Download lite and standard from the catalog (about 4 GB, every file checked)
+        shell: bash
+        run: >
+          python runtime/sidecar/e2e_packs.py download --catalog runtime/app/src-tauri/resources/catalog.json
+          --core runtime/core/target/release/engramm-core.exe --dest "$RUNNER_TEMP/packs"
+
+      - name: Chat on lite, standard and lite again with one memory
+        shell: bash
+        run: >
+          python runtime/sidecar/e2e_packs.py chat --server build/sidecar/engramm-server/engramm-server.exe
+          --packs "$RUNNER_TEMP/packs" --data "$RUNNER_TEMP/data"

@@ -118,7 +118,7 @@ def save(d: Path, ix: SentenceIndex, dptr, dpost, sent_doc, info: dict) -> None:
     np.save(d / "doc_ptr.npy", dptr)
     np.save(d / "doc_post.npy", dpost)
     np.save(d / "sent_doc.npy", sent_doc)
-    (d / "info.json").write_text(json.dumps(info, indent=2) + "\n")
+    (d / "info.json").write_text(json.dumps(info, indent=2) + "\n", encoding="utf-8")
 
 
 def load_docs(d: Path, mmap: bool = True):

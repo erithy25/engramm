@@ -1,9 +1,13 @@
-// First-run and start page of the ENGRAMM desktop app (runs inside the app window only).
+// First-run, start and pack page of the ENGRAMM desktop app (runs inside the app window only).
+// With a pack installed it also lists every pack: download another (lite → standard), switch,
+// delete one that is not in use. The chat page opens it with ?manage=1.
 "use strict";
 
 const tauri = window.__TAURI__;
 const $ = (id) => document.getElementById(id);
 const sections = ["error", "ready", "install", "progress"];
+const params = new URLSearchParams(window.location.search);
+const TITLES = { lite: "Lite", standard: "Standard" };
 
 function show(...ids) {
   for (const s of sections) $(s).hidden = !ids.includes(s);
@@ -11,6 +15,10 @@ function show(...ids) {
 
 function gb(bytes) {
   return bytes >= 1e9 ? `${(bytes / 1e9).toFixed(2)} GB` : `${Math.max(1, Math.round(bytes / 1e6))} MB`;
+}
+
+function packTitle(p) {
+  return p.title || TITLES[p.name] || p.name;
 }
 
 function showError(message) {
@@ -24,35 +32,76 @@ async function invoke(cmd, args) {
   return tauri.core.invoke(cmd, args);
 }
 
-function renderCatalog(catalog) {
+function button(label, onClick, primary = false) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.textContent = label;
+  if (primary) b.className = "primary";
+  b.addEventListener("click", onClick);
+  return b;
+}
+
+function badge(text) {
+  const s = document.createElement("span");
+  s.className = "badge";
+  s.textContent = text;
+  return s;
+}
+
+function row(title, desc, actions) {
+  const r = document.createElement("div");
+  r.className = "pack";
+  const info = document.createElement("div");
+  const t = document.createElement("b");
+  t.textContent = title;
+  const d = document.createElement("span");
+  d.className = "small muted";
+  d.textContent = desc;
+  info.append(t, d);
+  const a = document.createElement("div");
+  a.className = "actions";
+  a.append(...actions);
+  r.append(info, a);
+  return r;
+}
+
+// One row per pack: the catalog's (download, or switch to / delete the installed copy) and any
+// other complete pack on this computer (for example a folder from a USB stick).
+function renderPacks(st) {
   const box = $("catalog");
   box.textContent = "";
-  $("noCatalog").hidden = catalog.length > 0;
-  for (const entry of catalog) {
-    const row = document.createElement("div");
-    row.className = "pack";
-    const info = document.createElement("div");
-    const title = document.createElement("b");
-    title.textContent = `${entry.title} (${gb(entry.bytes)})`;
-    const desc = document.createElement("span");
-    desc.className = "small muted";
-    desc.textContent = entry.description || `Version ${entry.version}`;
-    info.append(title, desc);
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "primary";
-    btn.textContent = "Download";
-    btn.title = `Downloads ${gb(entry.bytes)} from ${new URL(entry.base_url).host}`;
-    btn.addEventListener("click", () => startDownload(entry));
-    row.append(info, btn);
-    box.append(row);
+  const installed = st.installed || [];
+  const has = st.pack !== null && st.pack !== undefined;
+  $("noCatalog").hidden = st.catalog.length > 0 || installed.length > 0;
+  const matched = new Set();
+  for (const entry of st.catalog) {
+    const inst = installed.find((i) => i.name === entry.name && i.version === entry.version);
+    const older = installed.find((i) => i.name === entry.name && i.version !== entry.version);
+    const actions = [];
+    if (inst) {
+      matched.add(inst.dir);
+      if (inst.current) actions.push(badge("In use"));
+      else actions.push(button("Use", () => usePack(inst)));
+      if (inst.removable) actions.push(button("Delete", () => removePack(inst)));
+    } else {
+      actions.push(button(older ? "Update" : "Download", () => startDownload(entry, st.pack), !has));
+    }
+    box.append(row(`${packTitle(entry)} (${gb(entry.bytes)})`, entry.description || `Version ${entry.version}`, actions));
+  }
+  for (const inst of installed) {
+    if (matched.has(inst.dir)) continue;
+    const actions = [];
+    if (inst.current) actions.push(badge("In use"));
+    else actions.push(button("Use", () => usePack(inst)));
+    if (inst.removable) actions.push(button("Delete", () => removePack(inst)));
+    box.append(row(`${packTitle(inst)} ${inst.version} (${gb(inst.bytes)})`, inst.dir, actions));
   }
 }
 
 async function refresh() {
-  const params = new URLSearchParams(window.location.search);
   const error = params.get("error");
   if (error) {
+    params.delete("error");
     history.replaceState(null, "", window.location.pathname);
     showError(error);
     return;
@@ -64,15 +113,25 @@ async function refresh() {
       show("progress");
       return;
     }
+    renderPacks(st);
     if (st.pack) {
-      $("lead").textContent = "Your assistant is ready.";
-      $("packLine").textContent =
-        `Knowledge pack “${st.pack.name}” ${st.pack.version} · ${gb(st.pack.bytes)} · ${st.pack.files} files`;
-      show("ready");
+      const p = st.pack;
+      $("lead").textContent = params.has("manage") ? "Knowledge packs" : "Your assistant is ready.";
+      $("packLine").textContent = `${packTitle(p)} ${p.version} · ${gb(p.bytes)} · ${p.files} files`;
+      const switching = st.running && st.running !== p.dir;
+      $("switchNote").hidden = !switching;
+      $("switchNote").textContent = switching ? `ENGRAMM restarts with the ${packTitle(p)} pack.` : "";
+      $("start").textContent = st.running && !switching ? "Back to chat" : "Start chatting";
+      $("installTitle").textContent = "Knowledge packs";
+      $("installIntro").hidden = true;
+      $("packsNote").hidden = false;
+      show("ready", "install");
       return;
     }
     $("lead").textContent = st.problem || "Welcome! One more step before the first chat.";
-    renderCatalog(st.catalog);
+    $("installTitle").textContent = "Install a knowledge pack";
+    $("installIntro").hidden = false;
+    $("packsNote").hidden = true;
     show("install");
   } catch (e) {
     showError(String(e));
@@ -91,10 +150,11 @@ async function startChat() {
   }
 }
 
-async function startDownload(entry) {
+async function startDownload(entry, current) {
+  const keep = current ? `\n\nENGRAMM keeps using “${packTitle(current)}” until the download is complete; you can go on chatting meanwhile.` : "";
   const ok = window.confirm(
-    `Download the knowledge pack “${entry.title}” (${gb(entry.bytes)}) from ${new URL(entry.base_url).host}?\n\n` +
-    "Every file is checked (SHA-256) before ENGRAMM uses it. An interrupted download continues where it stopped.");
+    `Download the knowledge pack “${packTitle(entry)}” (${gb(entry.bytes)}) from ${new URL(entry.base_url).host}?\n\n` +
+    "Every file is checked (SHA-256) before ENGRAMM uses it. An interrupted download continues where it stopped." + keep);
   if (!ok) return;
   $("lead").textContent = "";
   $("barFill").style.width = "0";
@@ -102,6 +162,28 @@ async function startDownload(entry) {
   show("progress");
   try {
     await invoke("download", { name: entry.name });
+  } catch (e) {
+    showError(String(e));
+  }
+}
+
+async function usePack(inst) {
+  try {
+    await invoke("use_pack", { dir: inst.dir });
+    await refresh();
+  } catch (e) {
+    showError(String(e));
+  }
+}
+
+async function removePack(inst) {
+  const ok = window.confirm(
+    `Delete the knowledge pack “${packTitle(inst)}” (${gb(inst.bytes)}) from this computer?\n\n` +
+    "You can download it again later. What ENGRAMM learned about you is not affected.");
+  if (!ok) return;
+  try {
+    await invoke("remove_pack", { dir: inst.dir });
+    await refresh();
   } catch (e) {
     showError(String(e));
   }

@@ -1,14 +1,19 @@
-# SPEC — ENGRAMM Atlas: privates Webwissen ohne neuronales Netz, ohne Server (Stand 2026-10-01)
+# SPEC — ENGRAMM Atlas: Webwissen ohne neuronales Netz, ohne eigene Server (Stand 2026-10-10)
 
 Plan: `/root/.claude/plans/zippy-nibbling-feigenbaum.md`. Messung: `docs/PREREG_SEARCH_V0.md`, Ergebnisse in `docs/EXPECTATIONS.md`.
 
 ## Grundsatz
 
-**Das Gehirn bleibt lokal, das Internet ist nur eine stumme Festplatte.**
-- ENGRAMM sucht ausschließlich auf dem eigenen Rechner.
-- Ins Netz gehen nur Abrufe, aus denen niemand die Frage ablesen kann.
-- Eine Suchmaschine oder KI-API wird nie kontaktiert.
-- Standard ist **offline**: Alle drei Kanäle sind aus, bis der Nutzer sie einzeln einschaltet.
+**Das Gehirn bleibt lokal.** Lesen, Auswählen und Antworten geschieht auf dem eigenen Rechner, ohne KI-API.
+- Regal und Abo schicken nie eine Frage hinaus: Niemand kann sie aus ihren Abrufen ablesen.
+- **Die Websuche (seit 3.2) ist die eine Ausnahme:** Sie schickt die Frage an eine Suchmaschine (DuckDuckGo,
+  Bing, auf Wunsch die Brave-Search-API) und liest die besten Treffer hier; DuckDuckGos Faktenbox bekommt nur
+  den Namen des Gefragten („Siemens“), nicht die Frage.
+- **Standard (seit 3.2.0-beta.8, Entscheidung des Eigentümers am 10.10.2026):** Die Websuche ist ab Werk
+  **an**. ENGRAMM sucht von selbst, wenn es offline keine Antwort hat oder die Frage nach Aktuellem fragt;
+  persönliche Fragen nie. Ein Schalter schaltet sie ab; dann bietet ENGRAMM die Suche an („ja“ sucht), und
+  „google …“ sucht trotzdem einmal. Regal und Abo sind aus, bis der Nutzer sie einschaltet.
+- Der Tor-Bote von 3.1 ist entfernt (jeder Abruf scheiterte, „no HTTP header“; Arti fiel aus dem Build).
 
 ## Die drei Kanäle
 
@@ -16,26 +21,37 @@ Plan: `/root/.claude/plans/zippy-nibbling-feigenbaum.md`. Messung: `docs/PREREG_
 |---|---|---|---|---|
 | K1 Regal | `shelf` | HTTP-Range-Abruf eines Fachs fester Größe aus einem Volume, dazu 2 Tarn-Fächer | Host: IP (ohne Tor) und Fach-Nummern; jedes Fach mischt ~1.000 per Hash verteilte, thematisch unverbundene Artikel | statische Release-Dateien (GitHub, Spiegel) |
 | K2 Abo | `feeds` | zeitgesteuerter Abruf ausgewählter RSS/Atom-Feeds, unabhängig von Fragen | Feed-Betreiber: „dieser Rechner liest Feed X“ | Feeds der Verlage |
-| K3 Bote | `messenger` | GET einer vom lokalen Wegweiser gewählten Seite, standardmäßig über Tor | Zielseite: ein anonymer Besuch ohne Suchbegriff; Tor-Ausgang: die Zielseite | keiner |
+| K3 Websuche | `search` | die Frage als Suchanfrage an eine Suchmaschine, dann bis zu 3 Trefferseiten | Suchmaschine: Frage und IP; Trefferseiten: ein Besuch ohne Suchbegriff | keiner (Suchmaschinen Dritter) |
 
 ## Netz-Tor (`egress`)
 
 - **Ein einziger Weg nach draußen:** `engramm/web/egress.py` mit zwei Backends.
   - **Rust** (`engramm-core egress`, mit dem Sidecar ausgeliefert): ein Dienst über stdin/stdout mit JSON-Zeilen. In der App öffnet Python selbst keine Sockets.
-  - **Python** (`urllib`): Entwicklungsbetrieb und Tests; gleiche Regeln, kein Tor.
+  - **Python** (`urllib`): Entwicklungsbetrieb und Tests; gleiche Regeln.
 - **Regeln für jeden Abruf:**
   - nur `https` (Loopback nur in Tests, wenn ausdrücklich erlaubt);
   - nur `GET`, keine Cookies, keine Weiterleitung zu einem Host außerhalb der Kanal-Liste;
-  - fester User-Agent `ENGRAMM/3.1 (+offline assistant)`, Größen- und Zeitlimit.
-  - **Bote:** keine IP-Literale aus privaten Netzen und keine Hostnamen `localhost` oder `*.local` (kein Zugriff aufs Heimnetz).
+  - fester User-Agent `ENGRAMM/3.1 (+offline assistant)`, Größen- und Zeitlimit; für die Websuche der eines
+    Browsers (Suchmaschinen und viele Seiten weisen andere Clients ab);
+  - zusätzliche Header nur `Accept`, `Accept-Language` und `X-Subscription-Token` (Brave-Schlüssel), ohne
+    Steuerzeichen;
+  - **Websuche:** keine IP-Literale aus privaten Netzen und keine Hostnamen `localhost` oder `*.local` (kein
+    Zugriff aufs Heimnetz). Ein ausgeschalteter Kanal lässt nur eine ausdrücklich verlangte Suche durch
+    (`explicit`).
 - **Netzprotokoll:** jeder Abruf als JSON-Zeile in `network.log` neben dem Gedächtnis-Log.
-  - Felder: `ts`, `channel`, `host`, `what`, `bytes`, `status`, `via` (direct oder tor), `ok`.
-  - `what` beschreibt nur, was geholt wurde (z. B. `bucket 1834`, `feed bbc-world`, `page`), nie den Fragetext.
+  - Felder: `ts`, `channel`, `host`, `what`, `bytes`, `status`, `via`, `ok`.
+  - `what` beschreibt nur, was geholt wurde (z. B. `bucket 1834`, `feed bbc-world`, `search:bing`, `page`), nie den
+    Fragetext; Fehlertexte verlieren ihre URL (sie trüge bei der Websuche die Frage).
   - Die Oberfläche zeigt das Protokoll an (`GET /api/network`).
 - **Einstellungen:** `network.json` neben dem Gedächtnis-Log. Format:
   ```json
-  {"version": 1, "channels": {"shelf": {"enabled": false, "tor": false},
-   "feeds": {"enabled": false, "feeds": ["bbc-world"]}, "messenger": {"enabled": false, "tor": true}}}
+  {"version": 2, "channels": {"shelf": {"enabled": false},
+   "feeds": {"enabled": false, "feeds": ["bbc-world"]},
+   "search": {"enabled": true, "engine": "auto", "brave_key": ""}}}
+  ```
+  Einstellungen von 3.1 gelten weiter; der Bote entfällt, die Websuche bekommt ihren Standard (an), solange
+  der Nutzer sie nicht abschaltet. Den Brave-Schlüssel gibt der Server nie zurück, nur `brave_key_set`.
+  ```
   ```
 
 ### Protokoll `engramm-core egress`
@@ -45,14 +61,22 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
 ```
 → {"id": 7, "channel": "shelf", "url": "https://…/shelf-0.bin", "range": [1048576, 2097151],
    "max_bytes": 1100000, "what": "bucket 1", "allow_hosts": ["github.com", "objects.githubusercontent.com"],
-   "tor": false}
+   "headers": [], "timeout": 30}
 ← {"id": 7, "ok": true, "status": 206, "bytes": 1048576, "body_b64": "…", "via": "direct", "final_host": "…"}
 ← {"id": 8, "ok": false, "error": "host not allowed: example.org"}
 ```
 
 - Den Start ruft `engramm-core egress --log PATH` auf.
 - Der Dienst endet, wenn stdin geschlossen wird.
-- Tor (`"tor": true`) braucht das Feature `tor` (Arti). Ohne dieses Feature antwortet der Dienst mit `ok: false, error: "tor unavailable"`, und der Bote bleibt aus.
+- Ein Dienst beantwortet eine Anfrage nach der anderen; für die Trefferseiten einer Suche startet `Egress`
+  bis zu 4 Dienste und lädt parallel (`fetch_many`).
+- Bekannte Grenze: ureq 2.12 schreibt hinter einem HTTP-Proxy (`HTTPS_PROXY`) die absolute URL in die
+  Anfragezeile, auch im CONNECT-Tunnel; DuckDuckGo antwortet darauf mit 400. Ohne Proxy (Normalfall) nicht
+  betroffen; mit Proxy bleiben Bing, Wikipedia und die Faktenbox. Abhilfe: ureq 3.
+- Formulare (seit beta.9): Die Websuche darf ein Suchformular per POST schicken (`"form": [[k, v], …]`,
+  höchstens 8 Felder, je ≤ 600 Zeichen; nur Kanal `search`), mit `Referer`/`Origin` wie das Suchfeld der
+  Maschine. Nach einer Weiterleitung holt der Dienst die Antwort per GET. `"plain_agent": true` schickt auch
+  auf dem Suchkanal ENGRAMMs eigenen User-Agent (Wikipedia und DuckDuckGos API wünschen das).
 
 ## Regal (K1)
 
@@ -90,7 +114,7 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
   1. Artikel wählen: Namensformen aus der Frage (auch Weiterleitungen wie „xHCI“) zählen stark, dazu
      Schlüsselterme; nur Artikel mit ≥ 40 % des besten Treffers;
   2. deren Fächer plus 2 Tarn-Fächer (aus einem Geheimnis je Installation und einem Zähler, nie aus der
-     Frage) in zufälliger Reihenfolge laden, optional über Tor;
+     Frage) in zufälliger Reihenfolge laden;
   3. jede SHA-256 prüfen, Fehlschläge verwerfen;
   4. alles im LRU-Cache `shelf_cache/` behalten (Standard 500 MB).
 - **Signatur:** Ed25519 (RFC 8032, `engramm/web/ed25519.py`, reines Python) über die kanonische JSON-Form
@@ -121,18 +145,187 @@ Eine Zeile pro Anfrage auf stdin, eine Zeile pro Antwort auf stdout (UTF-8 JSON)
   - Alter fließt als Abschlag in den Rang (Halbwertszeit 3 Tage). Einträge älter als 30 Tage werden gelöscht.
 - **Antwort:** „Laut <Feed>, <Datum>: …“ mit Link.
 
-## Wegweiser und Bote (K3)
+## Websuche (K3, `engramm/web/search.py`, `engramm/web/wiki.py`)
 
-- **Wegweiser** (im Paket, `wayfinder.sqlite`): Entität → offizielle Website (Wikidata P856, DBpedia homepage) sowie Belegadressen aus Wikipedia.
-- **Bote:**
-  1. 1–3 Seiten über Tor laden, höchstens 2 MB, nur `text/html`;
-  2. regelbasierte Textbereinigung (`engramm/web/clean.py`, jusText-Ansatz: Absatzlänge, Linkdichte, Stoppwortanteil);
-  3. Sätze in die bestehende Antwortextraktion geben.
+- **Antwortkette (seit beta.11, Nutzerbericht 11.10.2026: „er findet immer noch nichts, zu den einfachsten
+  Sachen“ – „When was real madrid founded?“ endete mit „No page I read answers it…“).** Ursache: DuckDuckGo
+  sperrte (202), Bing antwortete ohne Cookies auf das erste Wort („real“ → realtor.com, realapp.com,
+  Merriam-Webster), keine der gelesenen Seiten trug Text. Die Suchmaschinen sind ohne Schlüssel das schwache
+  Glied; deshalb laufen parallel zur Suche Quellen mit offizieller API:
+  1. **Wikidata-Aussage** (`WikiKnowledge.answer`): Die Frage wird in Relation + Gegenstand zerlegt (40 Relationen
+     EN/DE: gegründet, CEO, Präsident, Kanzler, Hauptstadt, Einwohner, Höhe, Länge, Autor, Trainer, Geburt …;
+     Demonyme „German chancellor“ → Deutschland; „Bundeskanzler“ ohne Land → Deutschland). Der Gegenstand wird
+     über `wbsearchentities` gefunden (nur Treffer, deren Name/Alias der gefragte ist; keine
+     Begriffsklärungen), die Eigenschaft auf den ersten Treffern, die sie haben (`wbgetclaims`), die Namen in
+     einem Aufruf (`wbgetentities`). „Aktuell“-Relationen nehmen die Aussage ohne Ende und mit begonnenem Start
+     (bevorzugter Rang zuerst, Neuestes zuerst): Merz (seit 6.5.2025, Scholz endete am selben Tag), Kompany
+     (seit 1.7.2024). Antwort als Satz („Real Madrid was founded on 6 March 1902.“), Quelle: der
+     Wikipedia-Artikel.
+  2. **Wikipedia-Zusammenfassung** für „What/Who is X“ / „Was/Wer ist X“ (REST `page/summary`, erste zwei Sätze).
+  3. **Abstimmung** über Treffer und gelesene Seiten (`short_answer`, unten), dazu immer der zur Frage passende
+     Wikipedia-Artikel als weitere Seite (Suche + Klartext-Extrakt).
+  4. **Bester Abschnitt** einer Seite (Satz + Folgesatz) mit „According to <Seite>:“, sonst das beste Snippet.
+  5. Nur wenn alles scheitert: „I couldn't find an answer online just now (DuckDuckGo: blocked; …)“.
+  Keine Trefferliste und keine Fußzeile mehr; eine Quelle (Chip mit Link). Gemessen gegen echte, langsam
+  aufgezeichnete Wikidata-Antworten (11.10.2026): Format, aktuelle Aussagen und Treffer stimmen; live prüft
+  `scripts/answer_smoke.py` in CI 16 Fragen.
+- **Ende-zu-Ende-Live-Check (`scripts/chat_smoke.py`, CI, 11.10.2026):** 28 Alltagsfragen EN/DE durch den
+  ganzen Chat-Pfad: **21/28** vor den folgenden Korrekturen. Die Fehler und was dagegen steht:
+  - „**Q3052772** is the president of France“, „Steve Wozniak, **Q332591** and Steve Jobs founded Apple“: Wikidata
+    führt Namen, die in allen Sprachen gleich sind, seit 2024 als Label `mul` statt `en`/`de` (Personen). Die
+    Namen werden jetzt in `<Sprache>|mul|en` geholt; ein Wert ohne Namen ist keine Antwort (nie eine ID im Satz).
+  - „A spider has **50,000** legs“ (Zahl der Arten): Eine Zählantwort muss am Gezählten stehen („eight legs“,
+    „8 legs“, „eight-legged“; Zahlwörter EN/DE bis 20 und Zehner); Einwohner zählen wie bisher im Umfeld von
+    „population/inhabitants/Einwohner“.
+  - „Mount Everest – **Wikidata id: Q513**.“ auf „Wie hoch …“: Faktenbox-Zeilen mit Kennungen, Aliasen, Links fallen weg.
+  - „Who won the 2022 FIFA World Cup?“ (Satz über Regenbogenflaggen) und „What is the boiling point of water?“
+    (Bildunterschrift): neue Relationen **Sieger** (P1346, „Argentina won the 2022 FIFA World Cup.“; „last/letzte“
+    bleibt draußen, das ändert sich jährlich), **Siede-/Schmelzpunkt** (P2102/P2101, °C/°F/K).
+  - „What does GDP mean?“ wurde als BIP von „mean“ gelesen: „what does X mean / stand for“, „wofür steht X“,
+    „was bedeutet X“ sind Definitionsfragen.
+  - **Satzgrenzen** (alle Web-Texte, Zusammenfassung, Regal): „… written by British author **J.**“, „**Mai 1949**
+    wurde das Grundgesetz …“, Goethes Zusammenfassung brach nach „(* 28.“ ab. `split_sentences`
+    (`engramm/web/clean.py`) trennt nicht nach Initialen („J. K.“, „z. B.“, „U.S.“), Titeln („Dr.“, „St.“),
+    Kurzformen („Mio.“, „bzw.“ – außer ein Satz beginnt danach: „… usw. Die …“) und deutschen Ordnungszahlen vor
+    Monat, Jahrhundert, Liga („am 6. März“, „1. FC Köln“); nach „SpaceX and X. He …“ trennt er.
+  - **Relationswort-Pflicht:** Fragt die Frage eine Relation („When was Real Madrid founded?“), muss der
+    Antwortsatz sie nennen (Relationswörter EN+DE, Antwortwörter wie „metres“ für „how tall“); sonst gewann ein
+    Satz mit dem Gegenstand und irgendeiner Jahreszahl („… title Real was bestowed in 1920“). Sagt keine Seite
+    es: „I couldn't find that online — none of the pages I found says it.“ statt einer falschen Antwort.
+  - **Nach diesen Korrekturen: 26/28** (CI, 0,3–1,5 s je Frage); DuckDuckGo antwortete über den urllib-Weg
+    („→ duckduckgo in 1.2 s“). Die zwei übrigen: „What does DNA stand for?“ bekam Little Mix' Album „DNA“
+    (Wikidatas erster Treffer), „What is the speed of light?“ eine Zusammenfassung ohne Zahl. Seitdem kommt für
+    „Was/Wer ist X“ zuerst der Wikipedia-Artikel genau dieses Titels (Wikipedias Hauptbedeutung; kleingeschrieben
+    auch „Elon Musk“ für „elon musk“), erst dann der erste Wikidata-Treffer. Deutsche Sätze aus Vorlagen
+    nehmen den Artikel der Frage mit („Das Telefon wurde von … erfunden.“).
+  - **urllib im ausgelieferten Server:** dessen OpenSSL sucht Zertifikate im Ordner der Build-Maschine (macOS:
+    python.org, Linux: Debian) — auf einem Mac oder unter Fedora leer. `tls_context()` lädt dann das Bündel des
+    Systems (`/etc/ssl/cert.pem` auf macOS, Debian-, Fedora-, openSUSE-Pfade; Windows lädt seinen Speicher
+    selbst). `engramm-server --tls-check` gibt die Zahl der geladenen Zertifizierungsstellen aus; der
+    Smoke-Test jedes Desktop-Builds verlangt mehr als null.
+- **Nachfragen (seit beta.12; Nutzerbericht 11.10.2026: „And, Barcelona?“ nach „When was Real Madrid founded?“
+  beschrieb die Stadt Barcelona).** Nach einer Web-Antwort merkt sich der Dialog die Frage, den Gegenstand (wie
+  getippt, Name, Wikidata-Item), die Relation, die Antwort mit ihren Items und ob sie eine Person oder ein Ort
+  ist (`st.uses["web_last"]`). Die nächsten drei Nachrichten werden zuerst als Nachfrage gelesen
+  (`engramm/web/followup.py`, vor dem Offline-Teil):
+  - **anderer Gegenstand** („And, Barcelona?“, „Und Österreich?“, „What about Bayern?“, „Barcelona?“): dieselbe Frage
+    zum neuen Namen. Gemeint ist dieselbe Art Ding: Wikidatas Volltextsuche innerhalb der Klassen (P31) des
+    vorigen Gegenstands (`Barcelona haswbstatement:P31=Q476028` → FC Barcelona, nicht die Stadt; „Bayern“ nach
+    einem Verein → FC Bayern, nicht der Freistaat). Die Antwort nennt den gewählten Namen („FC Barcelona was
+    founded on 29 November 1899.“);
+  - **Pronomen** („How old is he?“, „Wann wurde es gegründet?“, „How many people live there?“): he/she/er = die
+    Person der Antwort (sonst der Gegenstand, wenn er eine Person ist), it/es = der Gegenstand, there/dort = der
+    Ort der Antwort; mit dem Wikidata-Item festgenagelt, kein Namensvetter;
+  - **andere Relation** zum selben Gegenstand („And the population?“, „Und der Trainer?“, „Und seine Frau?“ – die
+    Frau des eben Genannten, nicht des Landes).
+  Umgeschrieben wird nur, wenn `wiki.parse` die neue Frage als Frage über den eingesetzten Namen liest („Is it
+  raining?“, „Und jetzt?“, „How about pizza?“ bleiben unberührt); der Chip „I read this as …“ zeigt die ganze
+  Frage. Der Offline-Teil erkennt „and, X?“ jetzt auch mit Komma, und die Websuche nach einer offline
+  aufgelösten Nachfrage sucht die aufgelöste Frage. Live-Prüfung: Gespräche in `scripts/chat_smoke.py`.
+- **Wikimedia-Regeln (2026):** 200 Anfragen/Minute für Clients mit User-Agent samt Kontakt-URL, 10 ohne.
+  ENGRAMMs User-Agent war „ENGRAMM/3.1 (+offline assistant)“ (ohne Kontakt → 10/min, daher die häufigen 429
+  der Wikipedia-Ausweichsuche); jetzt „ENGRAMM/3.2 (https://engramm.vercel.app; https://github.com/erithy25/engramm)
+  offline-assistant“ (Python und Rust gleich). Höchstens zwei gleichzeitige Wikimedia-Anfragen (erlaubt: drei);
+  nach 429/503 eine Minute Pause. Hinaus gehen der Name des Gegenstands (Wikidata, Zusammenfassung) und die
+  Stichwörter der Frage (Wikipedia-Suche); das Netzwerkprotokoll hält nur den Host.
+- **Anzeige beim Warten:** `GET /api/progress?conversation=…` meldet die Stufe (search mit Frage, read mit den
+  Seiten, write); die Seite fragt alle 350 ms und zeigt „Searching the web for “…” …“ / „Reading en.wikipedia.org,
+  … …“ / „Writing the answer …“ (DE: „Suche im Web nach „…“ …“) mit Schimmer-Animation statt der Tipp-Punkte.
+- **Lesen nach Passung (seit beta.11):** Die Treffer, die die Wörter der Frage nennen, werden zuerst gelesen (nicht
+  realtor.com für „real madrid founded“), bei gleicher Passung Wikipedia zuerst, eine Seite mehr als nötig.
+
+- **Wann:** ab Werk von selbst, wenn offline keine Antwort kommt oder die Frage nach Aktuellem fragt;
+  „google …“, „search the web for …“, „such im Internet nach …“, „kannst du das googeln?“ immer (auch mit
+  ausgeschaltetem Kanal); mit ausgeschaltetem Kanal „ja“ auf „Soll ich im Web danach suchen?“, das ENGRAMM
+  nach einem „weiß ich nicht“ anbietet. Persönliche Fragen (ich/mein/du …) nie.
+- **Suchmaschinen** („auto“, seit beta.9): Brave-Search-API (nur mit Schlüssel) → DuckDuckGo (HTML, dann
+  lite) → Bing → Wikipedia-Suche. Je Maschine zwei Formen: die Frage wie getippt, dann Stichwörter mit dem
+  Gefragten zuerst; **Bing bekommt die Stichwörter zuerst**: Einem Client ohne Cookies antwortet es nur
+  auf das erste Wort („How tall is the Zugspitze“ → Wörterbuchseiten zu „tall“).
+  Als „keine Antwort“ gelten eine Bot-Prüfung (Captcha, HTTP 202/403/429) und **Treffer, die nicht zur Frage
+  passen**: Misstraut eine Maschine dem Client, liefert sie fremde Seiten („bitcoin kurs“ → ein Download,
+  „who is the CEO of Siemens“ → nur Siemens-Startseiten). Bing muss streng passen (zwei Treffer, einer mit
+  allen Wörtern); DuckDuckGo, Brave und Wikipedia antworten jedem Client gleich: ein passender Treffer
+  genügt, und ein Tippfehler im Namen zählt als Treffer (ähnliche Schreibung ≥ 0,75: „Chatbt“ → ChatGPT).
+- **Befund vom 10.10.2026 (Nutzerbericht, beta.8 auf Windows):** Jede Suche endete mit „no usable results“.
+  Ursachen: DuckDuckGo beantwortet ein GET der Ergebnisseite seit 2026 mit HTTP 202 (Bot-Prüfung), das
+  POST des Formulars (wie sein Suchfeld) mit den Treffern; Bings Ergebnisliste trug zusätzliche Klassen
+  (`b_algo b_vtl_…`), die der Leser übersah; der Relevanztest verwarf richtige Treffer bei Tippfehlern.
+  Alle drei behoben; live aus dem Rechenzentrum danach: OpenAI-CEO (mit Tippfehler „Chatbt“), Siemens-CEO,
+  Zugspitze, Bitcoin-Kurs, Louvre-Öffnungszeiten, Champions-League-Sieger richtig beantwortet.
+  Andere Maschinen ohne Schlüssel (Mojeek, Brave-HTML, Startpage, Ecosia, Yahoo) sperrten im Test alle
+  Rechenzentrums-Adressen (403/429/JS-Prüfung) und sind keine Ausweichmöglichkeit.
+- **Faktenbox:** Parallel zur Suche fragt ENGRAMM DuckDuckGos Instant-Answer-API (offiziell, ohne
+  Schlüssel) nach dem Gefragten (`subject_phrase`: die zusammenhängenden Namenswörter, „Bayern München“).
+  Zusammenfassung und Infobox („Siemens – Key people: Roland Busch (CEO)…“) gehen als Satzquelle in die
+  Auswahl; scheitern alle Suchmaschinen, kann die Faktenbox allein antworten.
+- **Lesen:** die ersten 3 lesbaren Treffer parallel (je 8 s, 2 MB; keine Videos, PDFs, sozialen Netze),
+  Haupttext per `engramm/web/clean.py` (jusText-Ansatz, Stoppwörter Englisch und Deutsch).
+- **Kurzantwort (seit beta.10, Nutzerbericht 10.10.2026: „er sucht nur Quellen, ich muss selbst lesen“):**
+  ENGRAMM antwortet zuerst mit der Antwort als Satz, dann mit dem Satz, aus dem sie stammt, und der Quelle;
+  die Trefferliste liegt eingeklappt dahinter („Web results (6)“) und ist nur offen, wenn es keine Antwort gibt.
+  Ohne neuronales Netz, `short_answer` in `engramm/web/search.py`:
+  - **Fragetyp** aus dem Wortlaut: Person (who/wer), Ort (where/Hauptstadt), Datum (when/wann), Maß (how
+    tall/wie hoch), Anzahl (how many/Einwohner), Preis, Öffnungszeiten; sonst keine Kurzantwort („why …“).
+  - **Kandidaten** dieses Typs aus bis zu 60 Sätzen (12 je Seite): Namen = Folgen großgeschriebener Wörter,
+    an Titeln und Fragewörtern getrennt („President Donald Trump“ → „Donald Trump“); Zahlen mit Einheit, Daten.
+  - **Abstimmung:** jeder Satz gibt seinem Kandidaten sein Gewicht (relativ zum besten Satz), mehr wenn der
+    Kandidat im selben Satzteil wie ein Fragewort steht, je weitere Seite +40 %. Gegenwartsfragen („who is“,
+    „currently“, „aktuell“) heben Sätze mit „current/incumbent/seit“ und senken „former/served from … to“.
+  - **Schutz vor falschen Antworten** (gemessen an den Fallen des Live-Tests): Gewinner braucht 2 Sätze (oder
+    eine Faktenbox-Zeile mit passendem Etikett) und das Doppelte des Zweiten (oder das 1,5-Fache bei dreimal so
+    vielen Sätzen); eine Person ist ein voller Name (Varianten „Trump“, „Donald John Trump“ zählen für „Donald
+    Trump“); kein Name ist, was die Seiten auch kleingeschrieben verwenden („cup“, „territory“), Institutionen
+    („Cup“, „Amendment“), deutsche Substantivendungen, Teile des gefragten Namens („UEFA Europa League“), der
+    gefragte Gegenstand selbst („ChatGPT“ für „Chatbt“). „Who won …“ ohne Jahr stimmt nicht ab: der meistgenannte
+    Sieger ist der der Geschichte (Real Madrid), nicht der letzte. Anzahlen werden gerundet und datiert
+    („About 3.5 million people live in Berlin (as of 2015).“), Zahlen innerhalb ±6 % sind eine Antwort.
+  - **Satz zur Antwort:** englisch über `answer_sentence` („Donald Trump is currently the president of the
+    USA.“), deutsch über Muster („Der aktuelle Bundeskanzler ist Friedrich Merz.“); ein Tippfehler der Frage
+    wird so geschrieben, wie ihn die Seiten schreiben („… CEO of ChatGPT“).
+  - **Live-Messung 10./11.10.2026** (14 Fragen, aus dem Rechenzentrum, Suchmaschinen zeitweise gesperrt):
+    Kurzantwort richtig bei Präsident der USA, CEO Siemens, CEO „Chatbt“, Bundeskanzler, Hauptstadt
+    Australiens, Zugspitze, Gründung Siemens, Faust, Rhein, Louvre-Öffnungszeiten, Bayern-Trainer (je nach
+    Lauf 9–12 von 13 Sachfragen); ehrliche Enthaltung (Satz statt Kurzantwort) bei den übrigen; nach den
+    Schutzregeln 0 falsche Kurzantworten im letzten Lauf (vorher: „European Cup“, „UEFA Europa“, „Real Madrid“
+    als Champions-League-Sieger, „4,1 Mio.“ Berliner (Ballungsraum) — jeweils die Regel dagegen oben).
+- **Fußzeile (beta.10, in beta.11 entfernt):** nannte eine ausgefallene Maschine; die Antwort soll ohne
+  Verfahrenshinweise auskommen, das Netzwerkprotokoll zeigt jeden Abruf.
+- **DuckDuckGo-Probe (CI, 11.10.2026):** Erster Lauf (Python stets zuerst): beide Clients HTTP 202 –
+  scheinbar eine Sperre nach Adresse. **Zweiter Lauf mit wechselnder Reihenfolge** (`scripts/ddg_probe.py`):
+  Python-urllib bekam auf HTML- und Lite-Seite 200 mit 10 Treffern, der Rust-Kern 202 ohne Treffer – auch
+  wenn er zuerst fragte. DuckDuckGo unterscheidet also die Clients, nicht nur die Adresse; das erklärt, warum
+  die Suche in der App (alle Abrufe laufen über den Kern) leer blieb, während derselbe Abruf aus Python ging.
+  Erster Verdacht: der TLS-Handshake (rustls gegen OpenSSL). **Seit beta.11 spricht der Kern TLS über das
+  Betriebssystem** (ureq mit `native-tls`: SChannel unter Windows, Security.framework unter macOS, OpenSSL 3
+  unter Linux; rustls nur noch als Rückfall, wenn die System-Bibliothek nicht lädt; Zertifikate aus dem
+  System-Speicher, eine Firmen-CA gilt ohne Zutun; das Linux-Paket verlangt `libssl3 | libssl3t64` (deb) bzw.
+  `libssl.so.3()(64bit)` (rpm)). **Dritter Lauf (CI, mit OpenSSL im Kern): unverändert** – Python 200, Kern
+  202. Der Handshake allein ist es also nicht; die Anfragen unterscheiden sich auch sonst (lokal mitgeschnitten:
+  Python sendet `Connection: close` und eine andere Header-Reihenfolge, setzt ALPN `http/1.1` und eine eigene
+  Cipher-Liste). **Folge (beta.11):** DuckDuckGos zwei Ergebnisseiten-Hosts (`html.`/`lite.duckduckgo.com`,
+  `PYTHON_HOSTS` in `engramm/web/egress.py`) gehen über Pythons urllib – mit denselben Regeln, in Python vor dem
+  Senden geprüft (`check`: Kanal, Host-Liste, private Adressen, Header-Whitelist, Größe, Zeit), und im selben
+  Netzwerkprotokoll. Alles andere (Bing, Brave, DuckDuckGos Faktenbox-API, Wikimedia, Seiten) bleibt im Kern.
+  `scripts/ddg_probe.py` misst weiter den nackten Kern gegen urllib.
+- **Satzantwort (ohne Kurzantwort):** der Satz aus Snippets und Seiten, der die Frage am besten trifft, mit Quelle; eine zweite
+  Quelle nur, wenn sie dasselbe sagt (gleiche Zahl oder gleicher Name). Regeln: Fragewörter zählen nach
+  Seltenheit, Antwortwörter („how tall“ → „metres“) halb; der Name aus der Frage muss im Satz stehen; eine
+  Zahl, die mehrere Seiten nennen, zählt mehr; Mengen- und Zeitfragen brauchen eine Zahl bzw. Uhrzeit; ein
+  abgeschnittenes Snippet zählt weniger; „why“-Fragen heben Sätze mit einem Grund („because“, „weil“).
+  Darunter die Treffer als Links. Die Antwortextraktion des Offline-Teils bleibt draußen (auf Lexikonsätze
+  geeicht, griff im Test daneben: „Australian Capital Territory“); die Kurzantwort oben ist eine eigene,
+  abstimmende Extraktion.
+- Offline-Abgleich an 8 echten Fragen (Treffer und Seiten gespeichert): 6 richtige Antwortsätze, 2 ehrliche
+  Enthaltungen (Louvre-Öffnungszeiten stehen nur in Tabellen; Siemens-Startseiten nennen den CEO nicht),
+  0 falsche.
+- Der Wegweiser (`wayfinder.sqlite`) liegt noch in den Paketen, die App liest ihn nicht mehr.
 
 ## Antworten (A4)
 
-- **Eskalation:** lokal (Faktenbank, Artikelanfänge) → Feeds → Regal → Bote. Fragen nach Aktuellem
-  (current/latest/now/today/2023+) gehen zuerst an die Kanäle; persönliche Fragen (I/me/my) nie.
+- **Eskalation:** lokal (Faktenbank, Artikelanfänge) → Feeds → Regal → Websuche. Fragen nach Aktuellem
+  (current/latest/now/today/2023+, aktuell/derzeit/heute …) gehen zuerst an die Kanäle; persönliche Fragen
+  (I/me/my) nie.
 - Die Sätze der Kanäle laufen als zusätzliche Kandidaten durch `ChatBot._lookup` (`extra_rows`), mit
   denselben Merkmalen wie lokale Sätze: Abdeckung (der Artikeltitel gilt in jedem seiner Sätze als genannt),
   Phrasen, Nähe, Titel als Schlüsselwörter, Dokument- und Kontextabdeckung (zwei Sätze davor). Fragewörter
@@ -263,10 +456,12 @@ ungesehen EN 33→0/48, DE 28→0/41, Umformulierung 19/49 und 12/42 → 0; 45 D
 ## Bedrohungsmodell und ehrliche Restrisiken
 
 - **Geschützt:**
-  - Fragetexte: Sie verlassen den Rechner nie.
+  - Fragetexte: Sie verlassen den Rechner nur über die Websuche (ab Werk an, abschaltbar); persönliche
+    Fragen nie.
   - Gesprächsinhalte und Gedächtnis: Sie bleiben lokal.
   - Profilbildung durch einen Vermittler: Es gibt keinen.
 - **Nicht geschützt:**
   - Regal ohne Tor: Der Host sieht die IP und die Fach-Nummern. Über viele Fragen hinweg sind Schnittmengen-Angriffe denkbar; Tarn-Fächer und der Cache erschweren sie.
   - Abo: Feed-Betreiber sehen die IP.
-  - Bote: Der Tor-Ausgang sieht die Zielseite.
+  - Websuche: Die Suchmaschine sieht Frage und IP und kann über viele Fragen ein Profil bilden; die
+    Trefferseiten sehen einen Besuch. Kein Tor mehr.

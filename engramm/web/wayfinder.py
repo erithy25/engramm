@@ -1,7 +1,8 @@
 """The wayfinder (Atlas channel K3, docs/SPEC_ATLAS.md): which web page to read about a named
 thing, decided on this computer. ``wayfinder.sqlite`` (in a knowledge pack) maps titles and their
-name forms to official websites (DBpedia foaf:homepage, Wikidata P856). The messenger then fetches
-such a page over Tor and the cleaner keeps its main text — no search engine ever sees a question.
+name forms to official websites (DBpedia foaf:homepage, Wikidata P856). It served the Tor messenger
+of 3.1, which the web search replaced (engramm/web/search.py); the packs still carry the table, the
+app no longer reads it.
 """
 
 from __future__ import annotations

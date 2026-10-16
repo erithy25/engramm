@@ -212,11 +212,11 @@ class HDCLanguageModel:
     @classmethod
     def load(cls, directory: Path, tok: LMTokenizer | None = None) -> HDCLanguageModel:
         directory = Path(directory)
-        meta = json.loads((directory / "meta.json").read_text())
+        meta = json.loads((directory / "meta.json").read_text(encoding="utf-8"))
         return cls(TokenSplit.load(directory, "train", mmap=False), KNModel.load(directory / "kn5"),
                    np.load(directory / "sa.npy"), Codebook.load(directory / "codebook.npz"),
                    np.load(directory / "knn_pos.npy"), np.load(directory / "segsig.npy"),
-                   MixtureSpec.from_json((directory / "mixture.json").read_text()), int(meta["seed"]), tok,
+                   MixtureSpec.from_json((directory / "mixture.json").read_text(encoding="utf-8")), int(meta["seed"]), tok,
                    int(meta["epoch"]))
 
     # -- state ---------------------------------------------------------------------------

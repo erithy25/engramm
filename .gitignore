@@ -41,4 +41,4 @@ ui/node_modules/
 ui/dist/
 runtime/target/
 runtime/app/src-tauri/target/
-site/node_modules/
+.vercel/

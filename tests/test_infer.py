@@ -55,6 +55,9 @@ def test_contradictions_are_asked_about(lang, turns, want):
     ("en", ["how many cats do i have?"]),
     ("en", ["which one is cheaper?"]),
     ("en", ["i have two kids", "how many kids do i have?"]),     # a plain count is the memory's answer
+    ("en", ["What is my sister's name?"]),                       # a question word is not a name ("called What")
+    ("en", ["Who is my boss?"]),
+    ("de", ["Wie heißt meine Schwester?"]),
 ])
 def test_no_answer_without_the_facts(lang, turns):
     _, out = _run(lang, turns)
