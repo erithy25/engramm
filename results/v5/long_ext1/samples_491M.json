@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 491388928,
+ "train_hours": 107.71421169115438,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is really fresh, year-round. Since my first visit to Port Arthur in 1985, I can hardly remember why not visiting it any better than a good day of days through the years when you see that way? It seems like such a thing! At least one might have intended to make you sick and tired full time there to be by far off"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in 1980. He worked as a contractor of the U.S., until he created early lives to fund and raise money for victims from all over Europe, helping prevent massive refugee crisis which resulted in the spread of refugees; his parents had been raised around $200 million by Nazi Germany. Since then, he has become chiefly concerned about social injustice"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " How do you like and what does it mean if you are not certain that you will visit them anyway, or have just visited them? How do I see your favorite places on the planet for inspiration/secretisation ?\nWhat’s the point in Your view about the massive population of Algerians who live there? Let us know as many ("
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you need raw rice, and then some others.\nTo get it right we have 2! To begin with a joint venture or partnership, which is what I really wanted—and provided that there was something at the heart of our community in South Africa's Zimbabwe. By this time, the tenderness of our connections had dropped - even before, if"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " khambaren \"Fried\" Öungen den die erfrage.\nAlde geiff bhck es imt eine sindig beton? Moree de reinerment la tanttergli voor ogen 12:2-8; the father of full counting which is 10 mm (159),"
+  }
+ ]
+}
