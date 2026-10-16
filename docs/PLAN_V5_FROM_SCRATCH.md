@@ -460,8 +460,11 @@ Gegen GPT-2 small auf denselben 1.092 gefilterten Test-Dokumenten (gepaarter Boo
   denn eine Chance bestand nur bei höchstens etwa 1,09 bei 600 Mio. Stufe 1 bleibt Aufgabe des H100-Laufs (§11).
 - **Gewichte des 600-Mio.-Stands:** Nach dem ersten Plattenstand der Verlängerung (16. Oktober, 00:15 UTC) habe ich
   die bf16-Gewichte des Endstands von der Platte gelöscht. Neben dem Stand der Verlängerung samt Temporärdatei
-  war kein Platz mehr. Die Messwerte und Textproben stehen im Repo. Der fp32-Stand liegt bis zum nächsten
-  Container-Neustart, der die RAM-Disk leert, noch dort.
+  war kein Platz mehr. Die Messwerte und Textproben stehen im Repo. Der fp32-Stand auf der RAM-Disk ging beim
+  Container-Neustart am 16. Oktober um 02:02 UTC verloren.
+- **Neustart während der Verlängerung (16. Oktober, 02:02 UTC):** Die RAM-Disk war leer. `v5_long_resume.sh` lief
+  beim Containerstart von selbst, installierte Torch neu und setzte die Verlängerung von ihrem Plattenstand (01:56,
+  479,7 Mio. Token, Optimierer neu aufgewärmt) fort. Verloren gingen rund 6 min Training.
 
 ## 11. Stufe 1 auf einer gemieteten H100 (vor dem Lauf festgelegt, 12. Oktober)
 
