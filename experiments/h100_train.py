@@ -276,6 +276,10 @@ def choose_attention(model, args, device, inp, run_step, out: Path) -> dict:
                     rec["decision"], rec["reason"] = "flex", f"matches the dense attention, {gain:.0%} faster"
                 else:
                     rec["reason"] = f"only {gain:.0%} faster (needs {FLEX_MIN_GAIN:.0%})"
+        except OOM:                                    # too little GPU memory for the check at this micro-batch
+            rec["decision"], rec["keep"] = "dense", False  # (e.g. a continuation on a 16-24 GB card): dense now,
+            rec["reason"] = (f"flex check out of memory at micro-batch {shape[0]}; not kept, a start with a "
+                             f"smaller --micro-batch checks again")       # but not kept for later starts
         except Exception as e:                         # any problem with the new path: stay on the reviewed one
             rec["decision"], rec["reason"] = "dense", f"flex check failed: {type(e).__name__}: {e}"[:400]
         finally:
@@ -284,8 +288,9 @@ def choose_attention(model, args, device, inp, run_step, out: Path) -> dict:
                 torch.cuda.empty_cache()
             except Exception:                          # a broken CUDA context: the record below is written anyway
                 pass
+    keep = rec.pop("keep", True)
     _ATTN.update(rec)
-    write_attention(path, rec)
+    write_attention(path, rec if keep else {**rec, "decision": "unchecked"})     # 'unchecked' is checked again
     log(f"attention: {rec['decision']} ({rec.get('reason', '')})")
     return _ATTN
 
