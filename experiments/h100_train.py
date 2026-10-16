@@ -721,7 +721,9 @@ def run(args, device) -> dict:
                 # rate is still constant: a slowdown found here no longer cuts the decay short at the deadline
                 rate = (meta["tokens"] - tok_rate) / max(1e-9, time.time() - t_rate)
                 fit = int(meta["tokens"] + rate * max(0.0, end_by - time.time()) * 0.95)
-                fit = min(fit, cap)
+                if fit > cap:                                  # what was asked for bounds the budget
+                    fit = cap
+                    meta["refit_capped"] = meta.get("refit_capped", 0) + 1
                 fit = max(fit, int(meta["tokens"] / REFIT_FRAC_MAX) + 1)        # stays in the constant phase
                 if abs(fit - meta["total_tokens"]) > REFIT_MIN_CHANGE * meta["total_tokens"]:
                     log(f"token budget re-fitted at {meta['tokens'] / 1e9:.3f} B ({rate / 1e3:.0f} k tok/s so far): "
@@ -919,15 +921,17 @@ def cmd_smoke(args) -> None:
     pre_r = Path(common["ckpt_dir"]) / "state_refit_predecay.pt"
     shutil.copyfile(pre_r, Path(common["ckpt_dir"]) / "state_refitx.pt")
     pm = torch.load(pre_r, map_location="cpu", weights_only=False)["meta"]
-    target = int(pm["tokens"] / 0.55)                     # frac 0.55 at the start: re-fits are allowed
+    target = int(pm["tokens"] / 0.4)                      # frac 0.4 at the start: several re-fits before 0.65
     cmd_train(argparse.Namespace(**{**common, **more, "tag": "refitx", "lr": lr2, "total_tokens": 10_000_000_000,
                                     "extend_to": target, "deadline": time.time() + 900, "budget_steps": "2,4",
                                     "ckpt_minutes": 1e-5}))
     mx = torch.load(Path(common["ckpt_dir"]) / "state_refitx.pt", map_location="cpu", weights_only=False)["meta"]
     if not (mx["total_tokens"] <= target <= mx["tokens"] < target + 2048 * 2
-            and all(r["to"] <= target for r in mx.get("refits", []))):
-        raise SystemExit(f"smoke test: the continuation went past its --extend-to target {target} "
-                         f"(budget {mx['total_tokens']}, tokens {mx['tokens']}, re-fits {mx.get('refits')})")
+            and mx.get("refit_capped", 0) > pm.get("refit_capped", 0)
+            and all(r["to"] <= target for r in mx.get("refits", [])[len(pm.get("refits", [])):])):
+        raise SystemExit(f"smoke test: the continuation went past its --extend-to target {target}, or the cap was "
+                         f"never exercised (budget {mx['total_tokens']}, tokens {mx['tokens']}, "
+                         f"capped {mx.get('refit_capped', 0)}x, re-fits {mx.get('refits')})")
     log(f"continuation re-fit capped at its target: {mx['tokens']} of {target} tokens")
     # block-sparse flex attention (PLAN §11, Nachtrag 16. Oktober): the maths on the CPU (eager) ...
     if torch_version() >= FLEX_MIN_TORCH:
