@@ -126,6 +126,7 @@ def fused_loss(h, W, tgt, bf16: bool):
 
 FLEX_MIN_TORCH = (2, 6)
 REFIT_BELOW, REFIT_FRAC_MAX = 0.65, 0.68              # re-fit of the token budget only well before the decay
+REFIT_MIN_CHANGE = 0.01                                # ... and only when it moves the budget by more than 1 %
 FLEX_MIN_GAIN = 0.10                                   # flex only if a training micro-step is ≥ 10 % faster
 
 
@@ -672,7 +673,7 @@ def run(args, device) -> dict:
                 fit = int(meta["tokens"] + rate * max(0.0, end_by - time.time()) * 0.95)
                 fit = min(fit, int(args.total_tokens if not extend else max(args.total_tokens, extend)))
                 fit = max(fit, int(meta["tokens"] / REFIT_FRAC_MAX) + 1)        # stays in the constant phase
-                if abs(fit - meta["total_tokens"]) > 0.01 * meta["total_tokens"]:
+                if abs(fit - meta["total_tokens"]) > REFIT_MIN_CHANGE * meta["total_tokens"]:
                     log(f"token budget re-fitted at {meta['tokens'] / 1e9:.3f} B ({rate / 1e3:.0f} k tok/s so far): "
                         f"{meta['total_tokens'] / 1e9:.3f} B -> {fit / 1e9:.3f} B")
                     meta.setdefault("refits", []).append({"tokens": meta["tokens"], "from": meta["total_tokens"], "to": fit,
@@ -845,26 +846,38 @@ def cmd_smoke(args) -> None:
                 raise
         else:
             raise SystemExit(f"smoke test: expected a refusal ({msg})")
-    # periodic re-fit of the token budget in the constant phase (deadline, a checkpoint after every step)
-    cmd_train(argparse.Namespace(**{**common, **more, "tag": "refit", "lr": lr2, "total_tokens": 300_000,
-                                    "deadline": time.time() + 8, "budget_steps": "2,4", "ckpt_minutes": 1e-5}))
+    # periodic re-fit of the token budget in the constant phase (deadline, a checkpoint after every step; the
+    # 1 % threshold is lifted here so that the measured-rate noise of a CPU run triggers it)
+    global REFIT_MIN_CHANGE
+    keep_min, REFIT_MIN_CHANGE = REFIT_MIN_CHANGE, 0.0
+    try:
+        t_dl = time.time() + 120
+        cmd_train(argparse.Namespace(**{**common, **more, "tag": "refit", "lr": lr2, "total_tokens": 300_000,
+                                        "deadline": t_dl, "budget_steps": "2,4", "ckpt_minutes": 1e-5}))
+    finally:
+        REFIT_MIN_CHANGE = keep_min
     mr = torch.load(Path(common["ckpt_dir"]) / "state_refit.pt", map_location="cpu", weights_only=False)["meta"]
-    if not (mr["tokens"] >= mr["total_tokens"] and mr["total_tokens"] <= 300_000):
-        raise SystemExit(f"smoke test: re-fit run ended at {mr['tokens']} of {mr['total_tokens']} tokens")
+    if not (mr["tokens"] >= mr["total_tokens"] and mr["total_tokens"] <= 300_000 and mr.get("refits")):
+        raise SystemExit(f"smoke test: re-fit run ended at {mr['tokens']} of {mr['total_tokens']} tokens, "
+                         f"{len(mr.get('refits', []))} re-fits")
     for r in mr.get("refits", []):
         if not (r["to"] <= 300_000 and r["tokens"] / r["to"] < REFIT_FRAC_MAX and r["tokens"] / r["from"] < REFIT_BELOW):
             raise SystemExit(f"smoke test: a re-fit broke its limits: {r}")
     log(f"re-fit run: {len(mr.get('refits', []))} re-fits, {mr['tokens']} tokens")
     # block-sparse flex attention (PLAN §11, Nachtrag 16. Oktober): the maths on the CPU (eager) ...
     if torch_version() >= FLEX_MIN_TORCH:
-        for B_, T_ in ((4, 128), (2, 384)):                 # one block and several (block size 128)
-            chk = Stream(Path(common["data"]), seed=1, limit=common["data_limit"]).batch(B_, T_)[:, :-1]
-            if not ((chk == 0).sum(dim=1) >= 1).all():
-                raise SystemExit("smoke test: the flex check batch has no document boundary in some row")
-            m = flex_attention_matches(chk, 2, 32, compile_mask=False)
+        def with_boundaries(B_, T_, cuts):                  # real tokens, document starts (EOS) at given places
+            x = Stream(Path(common["data"]), seed=1, limit=common["data_limit"]).batch(B_, T_)[:, :-1].clone()
+            x[x == 0] = 1
+            for row, cs in enumerate(cuts):
+                x[row, cs] = 0
+            return x
+        for B_, T_, cuts in ((4, 128, ([0, 37], [90], [1, 2, 127], [64])),             # one 128-block
+                             (2, 384, ([50, 127, 128, 333], [0, 255, 256, 257]))):       # several, across blocks
+            m = flex_attention_matches(with_boundaries(B_, T_, cuts), 2, 32, compile_mask=False)
             if not m["ok"]:
                 raise SystemExit(f"smoke test: flex attention differs from the dense attention ({B_}x{T_}): {m}")
-        inp = Stream(Path(common["data"]), seed=1, limit=common["data_limit"]).batch(4, 128)[:, :-1]
+        inp = with_boundaries(4, 128, ([0, 37], [90], [1, 2, 127], [64]))
         torch.manual_seed(0)
         tiny = L.LongGPT(64, 2, 2, 128, 0)
         with torch.no_grad():
