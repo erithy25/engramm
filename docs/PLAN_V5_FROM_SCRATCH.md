@@ -558,16 +558,20 @@ startete viermal neu. Eine H100 (~4 $/h) rechnet etwa 300-mal schneller. Ablauf 
   rechnet immer dicht, wie bisher.
 - Betriebssicherheit (ändert nichts am Training, wenn nichts schiefgeht):
   - Preis, Budget und Kostengrenze werden beim Start in `settings.env` gemerkt; ein Neustart ohne `export` (z. B. nach
-    einem Pod-Neustart auf NVL/PCIe) fällt nicht mehr auf 4,01 $/h und 5,5 h zurück. Unplausible Werte → FEHLER vor
-    dem Start.
+    einem Pod-Neustart auf NVL/PCIe) fällt nicht mehr auf 4,01 $/h und 5,5 h zurück. Unplausible Werte und Preise
+    unter dem Secure-Cloud-Listenpreis der erkannten Karte (SXM 4,01, NVL 3,21, PCIe 2,91 $/h inkl. Speicher) →
+    FEHLER vor dem Training (sonst griffe die 25-$-Bremse zu spät, z. B. beim NVL-Beispiel auf einer SXM erst bei ~31 $).
   - Ein unerwartetes Ende des Haupttrainings (z. B. ein abgestürzter GPU-Kern) wird ohne Zutun ab dem letzten Stand
-    (≤ 30 min alt) mit derselben Frist neu gestartet: höchstens zweimal, und nur nach einem Versuch, der ≥ 10 min
-    trainiert hat; die Lernraten-Suche einmal. Divergenz behält ihre eigene Regel.
+    (≤ 30 min alt) mit derselben Frist neu gestartet: höchstens zweimal, nur wenn die GPU binnen 180 s antwortet, nur
+    nach einem Versuch, der ≥ 10 min trainiert hat (oder im Flex-Abgleich abstürzte), und ein zweites Mal nur, wenn
+    der vorige Versuch einen Stand gesichert hat; die Lernraten-Suche einmal. Divergenz behält ihre eigene Regel.
   - `attention.json` wird atomar geschrieben, enthält die GPU-Bezeichnung im Schlüssel und bekommt vor dem GPU-Abgleich
     einen vorläufigen Eintrag „dicht“: Stürzt der Abgleich den Prozess ab, trainiert der nächste Start dicht, statt den
     Abgleich zu wiederholen.
-  - Nach einem Wechsel auf die dichte Attention (oder einen kleineren Teil-Batch) misst das Nachführen der Tokenzahl
-    den Durchsatz neu ab 10 Schritten danach; bei einer Fortsetzung mit `--extend-to` führt es nie über dieses Ziel.
+  - Nach einem Wechsel auf die dichte Attention (oder einen kleineren Teil-Batch, den geteilten Verlust) misst das
+    Nachführen der Tokenzahl den Durchsatz neu ab 10 Schritten danach und rechnet nie auf einem Messfenster unter
+    300 s (ein Fenster der Länge 0 hätte den Durchsatz 0 gelesen und das Budget dauerhaft gekürzt; Befund der zweiten
+    Prüfrunde); bei einer Fortsetzung mit `--extend-to` führt es nie über dieses Ziel.
 - Nicht übernommen: Community Cloud (≈ −0,015, aber ohne Ausfallschutz und mit neuer Kostenbremse auf einem Ersatz-Pod;
   Entscheidung des Auftraggebers), halbe Batchgröße, Muon, Verdichten der Leerlaufzeiten (mehr neue Fehlerwege für
   wenig Gewinn).
@@ -575,6 +579,8 @@ startete viermal neu. Eine H100 (~4 $/h) rechnet etwa 300-mal schneller. Ablauf 
 - Prüfung vor dem Lauf: CPU-Kleintest `h100_train smoke` mit neuen Fällen (Nachführen der Tokenzahl, auch bei einer
   Fortsetzung, Flex-Abgleich mit Dokumentgrenzen über Blockgrenzen, Rückfall nach eingespeistem Flex-Fehler samt neuem
   Messfenster, `attention.json` beschädigt/atomar), Test des Zusammenführens auf kleinen Daten, Ablaufskript im
-  Testmodus (Lernraten-Regel, Divergenz, automatischer Neustart, gemerkte Einstellungen). Unabhängige Prüfung durch
-  Prüfer und Gegenprüfer: ein bestätigter Befund (Obergrenze bei `--extend-to`, behoben). Der GPU-Pfad selbst lässt
+  Testmodus (Lernraten-Regel, Divergenz, automatische Neustarts, gemerkte Einstellungen, Preisuntergrenze). Zwei
+  unabhängige Prüfrunden (Prüfer, je drei Gegenprüfer, Vollständigkeits-Kritiker): je ein bestätigter Befund
+  (Obergrenze bei `--extend-to`; Nachführen auf leerem Messfenster), beide behoben und per Mutationstest belegt
+  (der jeweilige Kleintest schlägt mit dem alten Code fehl). Der GPU-Pfad selbst lässt
   sich hier nicht ausführen; dafür sind Abgleich und Rückfall da.
