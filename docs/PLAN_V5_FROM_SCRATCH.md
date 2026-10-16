@@ -563,7 +563,8 @@ startete viermal neu. Eine H100 (~4 $/h) rechnet etwa 300-mal schneller. Ablauf 
     FEHLER vor dem Training (sonst griffe die 25-$-Bremse zu spät, z. B. beim NVL-Beispiel auf einer SXM erst bei ~31 $).
   - Ein unerwartetes Ende des Haupttrainings (z. B. ein abgestürzter GPU-Kern) wird ohne Zutun ab dem letzten Stand
     (≤ 30 min alt) mit derselben Frist neu gestartet: höchstens zweimal, nur wenn die GPU binnen 180 s antwortet, nur
-    nach einem Versuch, der ≥ 10 min trainiert hat (oder dessen Flex-Abgleich abbrach), und ein zweites Mal nur, wenn
+    nach einem Versuch, der ≥ 10 min trainiert hat (oder wenn `attention.json` einen abgebrochenen oder
+    fehlgeschlagenen Flex-Abgleich vermerkt – das gilt dann für den ganzen Lauf), und ein zweites Mal nur, wenn
     der vorige Versuch einen Stand gesichert hat; die Lernraten-Suche einmal. Divergenz behält ihre eigene Regel.
   - `attention.json` wird atomar geschrieben, enthält die GPU-Bezeichnung im Schlüssel und bekommt vor dem GPU-Abgleich
     einen vorläufigen Eintrag „dicht“: Stürzt der Abgleich den Prozess ab, trainiert der nächste Start dicht, statt den
@@ -580,11 +581,15 @@ startete viermal neu. Eine H100 (~4 $/h) rechnet etwa 300-mal schneller. Ablauf 
 - Prüfung vor dem Lauf: CPU-Kleintest `h100_train smoke` mit neuen Fällen (Nachführen der Tokenzahl, auch bei einer
   Fortsetzung, Flex-Abgleich mit Dokumentgrenzen über Blockgrenzen, Rückfall nach eingespeistem Flex-Fehler samt neuem
   Messfenster, `attention.json` beschädigt/atomar), Test des Zusammenführens auf kleinen Daten, Ablaufskript im
-  Testmodus (Lernraten-Regel, Divergenz, automatische Neustarts, gemerkte Einstellungen, Preisuntergrenze). Zwei
-  unabhängige Prüfrunden (Prüfer, je drei Gegenprüfer; in der zweiten zusätzlich ein Vollständigkeits-Kritiker):
-  Runde 1 8 Befunde, 1 bestätigt (Obergrenze bei `--extend-to`); Runde 2 12 Befunde, 3 bestätigt (Nachführen auf
-  leerem Messfenster; Speichermangel im Abgleich dauerhaft als „dicht“ gespeichert; ein Absturz im Abgleich wurde
-  erst nach einem Neustart von Hand abgefangen). Alle behoben; die beiden Fehler im Nachführen per Mutationstest
-  belegt (der jeweilige Kleintest schlägt mit dem alten Code fehl). Abgelehnte, aber billig abzusichernde Grenzfälle
-  sind mit abgedeckt (u. a. GPU-Prüfung vor Neustarts, Preisuntergrenze, Fortschrittsregel). Der GPU-Pfad selbst lässt
-  sich hier nicht ausführen; dafür sind Abgleich und Rückfall da.
+  Testmodus (Lernraten-Regel, Divergenz, automatische Neustarts, gemerkte Einstellungen); die Preisuntergrenze separat
+  mit nachgebildeten GPU-Namen (der Testmodus überspringt die GPU-Prüfungen). Drei unabhängige Prüfrunden (Prüfer, je
+  drei Gegenprüfer; in der zweiten zusätzlich ein Vollständigkeits-Kritiker):
+  - Runde 1: 8 Befunde, 1 bestätigt (Obergrenze bei `--extend-to`).
+  - Runde 2: 12 Befunde, 3 bestätigt (Nachführen auf leerem Messfenster; Speichermangel im Abgleich dauerhaft als
+    „dicht“ gespeichert; ein Absturz im Abgleich wurde erst nach einem Neustart von Hand abgefangen).
+  - Runde 3 (nur die Änderungen danach): 6 Befunde, 1 bestätigt (die Anleitung nannte für NVL/PCIe keine spätere
+    Pflicht-Kontrolle, obwohl der Lauf dort länger als 7 h dauert).
+  - Alle behoben; die beiden Fehler im Nachführen per Mutationstest belegt (der jeweilige Kleintest schlägt mit dem
+    alten Code fehl). Abgelehnte, aber billig abzusichernde Grenzfälle sind mit abgedeckt (u. a. GPU-Prüfung vor
+    Neustarts, Preisuntergrenze, Fortschrittsregel). Der GPU-Pfad selbst lässt sich hier nicht ausführen; dafür sind
+    Abgleich und Rückfall da.
