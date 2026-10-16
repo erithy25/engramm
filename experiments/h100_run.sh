@@ -203,14 +203,15 @@ if ! done_ base; then
 fi
 
 # Unattended restarts (sweep, main training): only when the GPU still answers (a hung or broken GPU goes to FEHLER
-# and the 30-min stop instead of burning the budget), and right away when a process died inside the start-up check
-# of the flex attention (its provisional record makes the next start use the reviewed dense attention).
+# and the 30-min stop instead of burning the budget), and right away when the start-up check of the flex attention
+# died or failed (a kernel fault there can also break the step after it; the next start uses the reviewed dense
+# attention from attention.json). The restart limits above still apply.
 gpu_ok() {
   [ "${H100_TEST_SKIP_GPU:-0}" = 1 ] && return 0
   timeout 180 python3 -c "import torch; x = torch.ones(1, device='cuda'); torch.cuda.synchronize(); assert float(x.sum()) == 1.0" \
     >/dev/null 2>&1
 }
-check_crashed() { grep -q "check started but not finished" results/v5/h100/attention.json 2>/dev/null; }
+check_crashed() { grep -qE "check started but not finished|flex check failed" results/v5/h100/attention.json 2>/dev/null; }
 
 # --- 3. sweep (GPU) while the extra text is prepared (CPU) ------------------------------------------------------
 if ! done_ sweep || ! done_ extra; then
