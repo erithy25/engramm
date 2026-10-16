@@ -127,6 +127,7 @@ def fused_loss(h, W, tgt, bf16: bool):
 FLEX_MIN_TORCH = (2, 6)
 REFIT_BELOW, REFIT_FRAC_MAX = 0.65, 0.68              # re-fit of the token budget only well before the decay
 REFIT_MIN_CHANGE = 0.01                                # ... and only when it moves the budget by more than 1 %
+RATE_RESTART_STEPS = 10                                # after a slowdown the throughput is measured anew from here
 FLEX_MIN_GAIN = 0.10                                   # flex only if a training micro-step is ≥ 10 % faster
 
 
@@ -196,6 +197,26 @@ def flex_attention_matches(inp: torch.Tensor, heads: int, hd: int, compile_mask:
 _ATTN: dict = {}                                       # this process's decision (the sweep's runs share it)
 
 
+def write_attention(path: Path, rec: dict) -> None:
+    """attention.json, written atomically (a kill or full disk never leaves a half-written file)."""
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(rec, indent=1) + "\n")
+        os.replace(tmp, path)
+    except OSError:
+        pass
+
+
+def read_attention(path: Path) -> dict:
+    """The decision of an earlier start, {} when there is none or the file is unreadable."""
+    try:
+        old = json.loads(path.read_text())
+        return old if isinstance(old, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
 def time_microstep(step, n: int = 6, warm: int = 2) -> float:
     """Seconds per call of ``step`` (forward + backward of one micro-batch) on the GPU."""
     for _ in range(warm):
@@ -215,7 +236,8 @@ def choose_attention(model, args, device, inp, run_step, out: Path) -> dict:
     if "decision" in _ATTN:
         return _ATTN
     shape = [int(inp.shape[0]), int(inp.shape[1]), args.d, args.heads]
-    rec = {"decision": "dense", "torch": torch.__version__, "shape": shape}
+    gpu = torch.cuda.get_device_name(device) if device.type == "cuda" else device.type
+    rec = {"decision": "dense", "torch": torch.__version__, "shape": shape, "device": gpu}
     path = out / "attention.json"
     cpu_test = device.type == "cpu" and os.environ.get("H100_FLEX_CPU") == "1"
     if not getattr(args, "flex", 1):
@@ -229,11 +251,15 @@ def choose_attention(model, args, device, inp, run_step, out: Path) -> dict:
     elif torch_version() < FLEX_MIN_TORCH:
         rec["reason"] = f"torch {torch.__version__} < {FLEX_MIN_TORCH[0]}.{FLEX_MIN_TORCH[1]}"
     else:
-        old = json.loads(path.read_text()) if path.exists() else {}
-        if old.get("torch") == rec["torch"] and old.get("shape") == shape and old.get("decision") in ("flex", "dense"):
+        old = read_attention(path)
+        if (old.get("torch") == rec["torch"] and old.get("shape") == shape and old.get("device") == gpu
+                and old.get("decision") in ("flex", "dense")):
             _ATTN.update(old)
             log(f"attention: {old['decision']} (decided earlier: {old.get('reason', '')})")
             return _ATTN
+        # provisional record: should the check crash the process (a fault in a compiled kernel), the next start
+        # trains with the reviewed dense attention instead of repeating the check
+        write_attention(path, {**rec, "reason": "check started but not finished (process ended during the check)"})
         try:
             from torch.nn.attention.flex_attention import flex_attention
             rec["match"] = flex_attention_matches(inp, args.heads, args.d // args.heads, compile_mask=True,
@@ -253,13 +279,12 @@ def choose_attention(model, args, device, inp, run_step, out: Path) -> dict:
             rec["decision"], rec["reason"] = "dense", f"flex check failed: {type(e).__name__}: {e}"[:400]
         finally:
             model.zero_grad(set_to_none=True)
-            torch.cuda.empty_cache()
+            try:
+                torch.cuda.empty_cache()
+            except Exception:                          # a broken CUDA context: the record below is written anyway
+                pass
     _ATTN.update(rec)
-    try:
-        out.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(rec, indent=1) + "\n")
-    except OSError:
-        pass
+    write_attention(path, rec)
     log(f"attention: {rec['decision']} ({rec.get('reason', '')})")
     return _ATTN
 
@@ -268,10 +293,7 @@ def disable_flex(meta: dict, out: Path, why: str) -> None:
     """After a failure of the flex path: dense attention for the rest of this run and for later starts."""
     meta["attention"] = {"flex_disabled": why[:400], "at_step": meta["step"]}
     _ATTN.update({"decision": "dense", "reason": f"flex failed during training: {why}"[:400]})
-    try:
-        (out / "attention.json").write_text(json.dumps({k: v for k, v in _ATTN.items()}, indent=1) + "\n")
-    except OSError:
-        pass
+    write_attention(out / "attention.json", dict(_ATTN))
     log(f"flex attention failed ({why[:200]}): continuing with the dense attention")
 
 
@@ -544,11 +566,23 @@ def run(args, device) -> dict:
     logf = open(Path(args.out) / f"train_log_{args.tag}.jsonl", "a")
     curve = Path(args.out) / f"curve_{args.tag}.jsonl"
     t_ck, t_rate, tok_rate = time.time(), time.time(), meta["tokens"]
+    # the token budget never goes above what was asked for: --total-tokens, or the --extend-to target of a continuation
+    cap = int(meta["total_tokens"]) if extend else int(args.total_tokens)
     # time budget of this start: the earlier of --deadline and --budget-hours from now (checked on every start)
     ends = [x for x in (getattr(args, "deadline", 0) or 0,
                         time.time() + args.budget_hours * 3600 if args.budget_hours else 0) if x]
     end_by = min(ends) if ends else 0.0
     rate_from, rate_at = (int(x) for x in str(getattr(args, "budget_steps", "40,100")).split(","))
+    rate_t0_step, check_step = start_step + rate_from, start_step + rate_at
+    rate_restart = None                                # step from which the throughput is measured anew (slowdown)
+
+    def slowed_down():                                 # flex switched off or a smaller micro-batch: the rate so far
+        nonlocal rate_restart, rate_t0_step, check_step    # no longer predicts the rest of the run
+        rate_restart = meta["step"] + RATE_RESTART_STEPS
+        if not checked:
+            rate_t0_step = max(rate_t0_step, rate_restart)
+            check_step = max(check_step, rate_t0_step + rate_at - rate_from)
+
     checked = not end_by
     if end_by and time.time() >= end_by:
         if meta["tokens"] == 0:
@@ -604,6 +638,7 @@ def run(args, device) -> dict:
                 if micro <= 4:
                     raise
                 micro //= 2
+                slowed_down()
                 log(f"CUDA out of memory: micro-batch halved to {micro} sequences (same tokens per step)")
             except Exception as e:                             # compilation / fused-loss problems in the first steps
                 h = loss = batch = inp = tgt = None
@@ -611,6 +646,7 @@ def run(args, device) -> dict:
                 if attn == "flex":                             # the new attention path first: back to the dense one
                     attn, fwd_flex = "dense", None
                     disable_flex(meta, Path(args.out), f"{type(e).__name__}: {e}")
+                    slowed_down()
                     continue
                 if meta["step"] > start_step + 3 or not (compiled or fused):
                     raise
@@ -622,6 +658,7 @@ def run(args, device) -> dict:
             dense.zero_grad(set_to_none=True)                  # skip the update, repeat the step on the dense path
             attn, fwd_flex = "dense", None
             disable_flex(meta, Path(args.out), f"non-finite loss/gradient at step {meta['step']}")
+            slowed_down()
             continue
         if not (math.isfinite(loss_sum) and math.isfinite(gn)):
             meta["bad"] += 1
@@ -638,13 +675,14 @@ def run(args, device) -> dict:
         meta["epoch"], meta["pos"] = data.epoch, data.pos
         meta["train_seconds"] += time.time() - t0
         if not checked:
-            if meta["step"] == start_step + rate_from:         # after compilation and warm-up of the kernels
+            if meta["step"] == rate_t0_step:                   # after compilation and warm-up of the kernels
                 t_rate, tok_rate = time.time(), meta["tokens"]
-            elif meta["step"] >= start_step + rate_at:
+            elif meta["step"] >= check_step:
                 checked = True
                 rate = (meta["tokens"] - tok_rate) / max(1e-9, time.time() - t_rate)
                 left = max(0.0, end_by - time.time())
                 fit = int(meta["tokens"] + rate * left * 0.95)
+                meta["rate_check"] = {"from_step": rate_t0_step, "at_step": meta["step"], "tok_per_s": rate}
                 if fit < meta["total_tokens"]:
                     log(f"throughput {rate / 1e3:.0f} k tok/s, {left / 3600:.2f} h of time budget left: "
                         f"token budget cut from {meta['total_tokens'] / 1e9:.3f} B to {fit / 1e9:.3f} B")
@@ -652,6 +690,10 @@ def run(args, device) -> dict:
                 else:
                     log(f"throughput {rate / 1e3:.0f} k tok/s: the remaining {(meta['total_tokens'] - meta['tokens']) / 1e9:.3f} "
                         f"B tokens fit into the {left / 3600:.2f} h of time budget left")
+                rate_restart = None                            # the window above already started after it
+        elif rate_restart is not None and meta["step"] >= rate_restart:
+            t_rate, tok_rate, rate_restart = time.time(), meta["tokens"], None
+            meta.setdefault("rate_restarts", []).append({"step": meta["step"], "tokens": meta["tokens"]})
         if end_by and time.time() > end_by + 900 and meta["total_tokens"] > meta["tokens"]:
             log("time budget exceeded by 15 min: training stops here, final evaluation follows")   # cost guard
             meta["total_tokens"] = meta["tokens"]
@@ -674,12 +716,12 @@ def run(args, device) -> dict:
             meta["next_eval"] += args.eval_every
         if time.time() - t_ck > args.ckpt_minutes * 60:
             frac_now = meta["tokens"] / meta["total_tokens"]
-            if end_by and checked and frac_now < REFIT_BELOW and time.time() > t_rate:
+            if end_by and checked and rate_restart is None and frac_now < REFIT_BELOW and time.time() > t_rate:
                 # re-fit the token budget to the throughput measured so far (incl. curve evaluations), while the
                 # rate is still constant: a slowdown found here no longer cuts the decay short at the deadline
                 rate = (meta["tokens"] - tok_rate) / max(1e-9, time.time() - t_rate)
                 fit = int(meta["tokens"] + rate * max(0.0, end_by - time.time()) * 0.95)
-                fit = min(fit, int(args.total_tokens if not extend else max(args.total_tokens, extend)))
+                fit = min(fit, cap)
                 fit = max(fit, int(meta["tokens"] / REFIT_FRAC_MAX) + 1)        # stays in the constant phase
                 if abs(fit - meta["total_tokens"]) > REFIT_MIN_CHANGE * meta["total_tokens"]:
                     log(f"token budget re-fitted at {meta['tokens'] / 1e9:.3f} B ({rate / 1e3:.0f} k tok/s so far): "
@@ -872,6 +914,21 @@ def cmd_smoke(args) -> None:
         if not (r["to"] <= 300_000 and r["tokens"] / r["to"] < REFIT_FRAC_MAX and r["tokens"] / r["from"] < REFIT_BELOW):
             raise SystemExit(f"smoke test: a re-fit broke its limits: {r}")
     log(f"re-fit run: {len(mr.get('refits', []))} re-fits, {mr['tokens']} tokens")
+    # ... and a continuation (--extend-to, --total-tokens left at its large default, a deadline with plenty of slack)
+    # re-fits at most up to its --extend-to target, never up to --total-tokens
+    pre_r = Path(common["ckpt_dir"]) / "state_refit_predecay.pt"
+    shutil.copyfile(pre_r, Path(common["ckpt_dir"]) / "state_refitx.pt")
+    pm = torch.load(pre_r, map_location="cpu", weights_only=False)["meta"]
+    target = int(pm["tokens"] / 0.55)                     # frac 0.55 at the start: re-fits are allowed
+    cmd_train(argparse.Namespace(**{**common, **more, "tag": "refitx", "lr": lr2, "total_tokens": 10_000_000_000,
+                                    "extend_to": target, "deadline": time.time() + 900, "budget_steps": "2,4",
+                                    "ckpt_minutes": 1e-5}))
+    mx = torch.load(Path(common["ckpt_dir"]) / "state_refitx.pt", map_location="cpu", weights_only=False)["meta"]
+    if not (mx["total_tokens"] <= target <= mx["tokens"] < target + 2048 * 2
+            and all(r["to"] <= target for r in mx.get("refits", []))):
+        raise SystemExit(f"smoke test: the continuation went past its --extend-to target {target} "
+                         f"(budget {mx['total_tokens']}, tokens {mx['tokens']}, re-fits {mx.get('refits')})")
+    log(f"continuation re-fit capped at its target: {mx['tokens']} of {target} tokens")
     # block-sparse flex attention (PLAN §11, Nachtrag 16. Oktober): the maths on the CPU (eager) ...
     if torch_version() >= FLEX_MIN_TORCH:
         def with_boundaries(B_, T_, cuts):                  # real tokens, document starts (EOS) at given places
@@ -899,6 +956,15 @@ def cmd_smoke(args) -> None:
             raise SystemExit(f"smoke test: flex_hidden differs from LongGPT.hidden (out {err:.2e})")
         log(f"flex attention matches (forward; gradients are compared on the GPU at start-up): attention "
             f"{m['out_err']:.1e}, model {err:.1e}")
+        # ... a half-written or foreign attention.json counts as no decision; writes replace the file atomically
+        ap = out / "attention_probe.json"
+        ap.write_text("{\"decision\": \"fl")
+        if read_attention(ap) != {}:
+            raise SystemExit("smoke test: a truncated attention.json was not ignored")
+        write_attention(ap, {"decision": "dense", "torch": "x"})
+        if read_attention(ap) != {"decision": "dense", "torch": "x"} or ap.with_suffix(".json.tmp").exists():
+            raise SystemExit("smoke test: attention.json was not written atomically")
+        ap.unlink()
         # ... and training through it, plus the fallback to the dense path after a failure (CPU test mode)
         os.environ["H100_FLEX_CPU"] = "1"
         try:
@@ -906,14 +972,21 @@ def cmd_smoke(args) -> None:
                 _ATTN.clear()
                 (out / "attention.json").unlink(missing_ok=True)
                 os.environ["H100_FLEX_FAIL_STEP"] = fail
-                cmd_train(argparse.Namespace(**{**common, **more, "tag": tag, "lr": 1e-3, "total_tokens": 40_000,
-                                                "bf16": False, "loss": "chunked", "compile": False}))
+                cmd_train(argparse.Namespace(**{**common, **more, "tag": tag, "lr": 1e-3, "total_tokens": 60_000,
+                                                "bf16": False, "loss": "chunked", "compile": False,
+                                                "deadline": time.time() + 900, "budget_steps": "4,8"}))
                 mm = torch.load(Path(common["ckpt_dir"]) / f"model_{tag}.pt", map_location="cpu", weights_only=False)["meta"]
                 want = "flex" if fail == "-1" else "dense"
                 disabled = (mm.get("attention") or {}).get("flex_disabled")
-                if mm["attention_used"] != want or bool(disabled) != (fail != "-1") or mm["tokens"] < 40_000:
+                if mm["attention_used"] != want or bool(disabled) != (fail != "-1") or mm["tokens"] < 60_000:
                     raise SystemExit(f"smoke test: flex run '{tag}' used {mm['attention_used']} (expected {want}), "
                                      f"disabled={disabled}, tokens {mm['tokens']}")
+                # the throughput behind the token budget is measured from step 4, after the failure at step 6 only
+                # from step 16 (RATE_RESTART_STEPS later): the faster flex steps no longer count
+                want_from = 4 if fail == "-1" else 6 + RATE_RESTART_STEPS
+                if (mm.get("rate_check") or {}).get("from_step") != want_from:
+                    raise SystemExit(f"smoke test: flex run '{tag}' measured its throughput from step "
+                                     f"{(mm.get('rate_check') or {}).get('from_step')} (expected {want_from})")
             if json.loads((out / "attention.json").read_text())["decision"] != "dense":
                 raise SystemExit("smoke test: the flex failure was not recorded in attention.json")
         finally:

@@ -198,7 +198,17 @@ if ! done_ sweep || ! done_ extra; then
   say "== 3. Lernraten-Suche auf der GPU, parallel: $SHARDS zusätzliche C4-Teile auf der CPU"
   spid=""
   if ! done_ sweep; then
-    python3 -m experiments.h100_train sweep > "$W/sweep.log" 2>&1 &
+    # one unattended restart after an unexpected end that came after ≥ 10 min (it resumes from its state files)
+    ( t0=$(date +%s)
+      python3 -m experiments.h100_train sweep > "$W/sweep.log" 2>&1
+      rc=$?
+      if [ $rc != 0 ] && [ $(( $(date +%s) - t0 )) -ge "${H100_RESTART_MIN_S:-600}" ]; then
+        echo "[$(date -u +%H:%M:%S) UTC] Lernraten-Suche unerwartet beendet (Code $rc) – ein automatischer Neustart" >> "$W/sweep.log"
+        sleep 20
+        python3 -m experiments.h100_train sweep >> "$W/sweep.log" 2>&1
+        rc=$?
+      fi
+      exit $rc ) &
     spid=$!
   fi
   if ! done_ extra; then
@@ -249,17 +259,36 @@ if ! done_ main; then
   heavy main
   DEADLINE=$(( $(date +%s) + $(limit_s) - $(billed_s) - RESERVE_S ))   # training ends in time for the dollar limit
   say "== 6. Haupttraining (bis $TOKENS Token, höchstens $BUDGET h; wegen der Kostenbremse spätestens bis $(date -u -d "@$DEADLINE" +%H:%M) UTC) und Endmessung"
+  # an unexpected end (e.g. a crashed GPU kernel) is restarted unattended from the last state (≤ 30 min old), with
+  # the same deadline: at most twice per run, and only after an attempt that trained ≥ 10 min (a problem at start-up
+  # repeats at once and goes to FEHLER as before); exit code 3 (divergence) has its own rule below
+  train_main() {  # lr allow-lr-change
+    local t0 rc n
+    while true; do
+      t0=$(date +%s)
+      python3 -m experiments.h100_train train --lr "$1" --tag main --total-tokens "$TOKENS" --budget-hours "$BUDGET" \
+        --deadline "$DEADLINE" --allow-lr-change "$2"
+      rc=$?
+      [ $rc = 0 ] || [ $rc = 3 ] && return $rc
+      n=$(cat "$W/stages/main_restarts" 2>/dev/null || echo 0); [[ "$n" =~ ^[0-9]+$ ]] || n=0
+      if [ "$n" -ge 2 ] || [ $(( $(date +%s) - t0 )) -lt "${H100_RESTART_MIN_S:-600}" ] \
+         || [ $(( DEADLINE - $(date +%s) )) -lt 900 ]; then
+        return $rc
+      fi
+      echo $(( n + 1 )) > "$W/stages/main_restarts"
+      say "Haupttraining unerwartet beendet (Code $rc) – automatischer Neustart $(( n + 1 ))/2 ab dem letzten Speicherstand"
+      sleep 20
+    done
+  }
   LRUSE=$LR; ALLOW=0
   if [ -f "$W/stages/main_diverged" ]; then LRUSE=$(head -1 "$W/stages/main_diverged"); ALLOW=1; fi
-  python3 -m experiments.h100_train train --lr "$LRUSE" --tag main --total-tokens "$TOKENS" --budget-hours "$BUDGET" \
-    --deadline "$DEADLINE" --allow-lr-change "$ALLOW"
+  train_main "$LRUSE" "$ALLOW"
   rc=$?
   if [ $rc = 3 ] && [ ! -f "$W/stages/main_diverged" ]; then
     LR2=$(python3 -c "print($LR / 2)")
     echo "$LR2" > "$W/stages/main_diverged"
     say "Training divergiert – weiter ab dem letzten Speicherstand mit halber Lernrate $LR2 (kein Neubeginn)"
-    python3 -m experiments.h100_train train --lr "$LR2" --tag main --total-tokens "$TOKENS" --budget-hours "$BUDGET" \
-      --deadline "$DEADLINE" --allow-lr-change 1
+    train_main "$LR2" 1
     rc=$?
   fi
   if [ $rc = 3 ]; then

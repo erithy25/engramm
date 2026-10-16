@@ -549,17 +549,32 @@ startete viermal neu. Eine H100 (~4 $/h) rechnet etwa 300-mal schneller. Ablauf 
 | Verlust auf der GPU summiert, einmal je Schritt gelesen | bisher ein Warten der GPU nach jedem der 16 Teil-Batches; rechnerisch identisch | +1–3 % Token |
 | Tokenzahl an jedem Speicherpunkt nachgeführt, solange frac < 0,65 (neu frac < 0,68, nie über der Obergrenze) | eine spätere Verlangsamung (z. B. Rückfall auf die dichte Attention) schneidet die Abnahme-Phase nicht mehr ab | schützt das ≈ 2-%-Risiko einer gekappten Abnahme |
 | Lernrate Hauptlauf = Gewinner der Suche × 0,5, begrenzt auf [1·10⁻³, 2·10⁻³] (4e-3 → 2e-3, 2e-3 → 1e-3, 1e-3 → 1e-3); der Divergenz-Rückfall halbiert diesen Wert | die Suche läuft 200 Mio. Token, der Hauptlauf ≈ 20-mal länger; die beste Rate sinkt mit dem Horizont (Bjorck et al. 2024, arXiv 2409.19913; Referenz modded-nanogpt AdamW: 1,8·10⁻³ bei ≈ 5 Mrd. Token). Die Suche selbst bleibt unverändert | ≈ −0,001, weniger Divergenz-Risiko |
-| WikiText-103-Trainingsdokumente der Basis dreimal zusätzlich im Strom (×4; je Kopie 29.245 Dokumente, 113.064.374 Token, ausgewählt über `train.keys.jsonl`, Anzahl geprüft) | die Messsätze sind nach Aufbau gemischt (val-A 37,5 % der Bytes aus WikiText; Basis-Training 40 %), der H100-Strom hätte nur 1,75 %; jetzt ≈ 6,7 %, bei 4,6 Mrd. Token ≈ 2,8 Durchgänge – im fast verlustfreien Bereich (Muennighoff et al. 2023, arXiv 2305.16264). Kontaminationsprüfung unberührt (derselbe Text wie in der Basis) | ≈ −0,004 |
+| WikiText-103-Trainingsdokumente der Basis dreimal zusätzlich im Strom (×4; je Kopie 29.245 Dokumente, 113.064.374 Token, ausgewählt über `train.keys.jsonl`, Anzahl geprüft) | die Messsätze sind nach Aufbau gemischt (val-A 37,5 % der Bytes aus WikiText; Basis-Training 40 %), der H100-Strom hätte nur 1,75 %; jetzt ≈ 6,7 %, bei 4,6 Mrd. Token ≈ 2,8 Durchgänge – im fast verlustfreien Bereich (Muennighoff et al. 2023, arXiv 2305.16264). Der Strom wächst von ≈ 6,44 auf ≈ 6,78 Mrd. Token (jede Epoche dokumentweise neu gemischt). Kontaminationsprüfung unberührt (derselbe Text wie in der Basis) | ≈ −0,004 |
 
 - Schutz der Attention-Änderung: nur mit CUDA, torch.compile und torch ≥ 2.6. Beim Start Abgleich mit dem dichten Pfad
   (Ausgaben und Gradienten in fp32, Toleranz 1·10⁻²) und Zeitmessung; Flex nur, wenn gleich und ≥ 10 % schneller.
   Die Entscheidung steht in `results/v5/h100/attention.json`. Jede Ausnahme und jeder nicht-endliche Verlust im
   Flex-Pfad schaltet für den Rest des Laufs auf den dichten Pfad (vermerkt in `meta["attention"]`). Die Endmessung
   rechnet immer dicht, wie bisher.
+- Betriebssicherheit (ändert nichts am Training, wenn nichts schiefgeht):
+  - Preis, Budget und Kostengrenze werden beim Start in `settings.env` gemerkt; ein Neustart ohne `export` (z. B. nach
+    einem Pod-Neustart auf NVL/PCIe) fällt nicht mehr auf 4,01 $/h und 5,5 h zurück. Unplausible Werte → FEHLER vor
+    dem Start.
+  - Ein unerwartetes Ende des Haupttrainings (z. B. ein abgestürzter GPU-Kern) wird ohne Zutun ab dem letzten Stand
+    (≤ 30 min alt) mit derselben Frist neu gestartet: höchstens zweimal, und nur nach einem Versuch, der ≥ 10 min
+    trainiert hat; die Lernraten-Suche einmal. Divergenz behält ihre eigene Regel.
+  - `attention.json` wird atomar geschrieben, enthält die GPU-Bezeichnung im Schlüssel und bekommt vor dem GPU-Abgleich
+    einen vorläufigen Eintrag „dicht“: Stürzt der Abgleich den Prozess ab, trainiert der nächste Start dicht, statt den
+    Abgleich zu wiederholen.
+  - Nach einem Wechsel auf die dichte Attention (oder einen kleineren Teil-Batch) misst das Nachführen der Tokenzahl
+    den Durchsatz neu ab 10 Schritten danach; bei einer Fortsetzung mit `--extend-to` führt es nie über dieses Ziel.
 - Nicht übernommen: Community Cloud (≈ −0,015, aber ohne Ausfallschutz und mit neuer Kostenbremse auf einem Ersatz-Pod;
   Entscheidung des Auftraggebers), halbe Batchgröße, Muon, Verdichten der Leerlaufzeiten (mehr neue Fehlerwege für
   wenig Gewinn).
 - Unverändert: Modell, Batch, Lernraten-Suche, Daten-Prüfsummen, Filter, Stufe-1-Schwelle und Messregel.
-- Prüfung vor dem Lauf: CPU-Kleintest `h100_train smoke` mit neuen Fällen (Nachführen der Tokenzahl, Flex-Abgleich mit
-  Dokumentgrenzen über Blockgrenzen, Rückfall nach eingespeistem Flex-Fehler), Test des Zusammenführens auf kleinen
-  Daten. Der GPU-Pfad selbst lässt sich hier nicht ausführen; dafür sind Abgleich und Rückfall da.
+- Prüfung vor dem Lauf: CPU-Kleintest `h100_train smoke` mit neuen Fällen (Nachführen der Tokenzahl, auch bei einer
+  Fortsetzung, Flex-Abgleich mit Dokumentgrenzen über Blockgrenzen, Rückfall nach eingespeistem Flex-Fehler samt neuem
+  Messfenster, `attention.json` beschädigt/atomar), Test des Zusammenführens auf kleinen Daten, Ablaufskript im
+  Testmodus (Lernraten-Regel, Divergenz, automatischer Neustart, gemerkte Einstellungen). Unabhängige Prüfung durch
+  Prüfer und Gegenprüfer: ein bestätigter Befund (Obergrenze bei `--extend-to`, behoben). Der GPU-Pfad selbst lässt
+  sich hier nicht ausführen; dafür sind Abgleich und Rückfall da.
