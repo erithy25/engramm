@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 523698176,
+ "train_hours": 125.81574083103074,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is closely associated with literary events, and more than a million people were killed in the 1995 BBC show when they lived as far back as 1000. It was their total blowout for all the characters who survived what is now known as \"Toad Town\" that marked the formation of the South African Republic.\nIn 1992 there were 15 days off"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in Indiana, Iowa, on May 20, 1947. He received a Bachelor of Science degree from Indiana University as an undergraduate and outstanding Doctor in Civil Engineers at Michigan, Missouri. His research has supported his interests around engineering principles such as mechanical engineering studies (Color Engineering), electrical engineering and the Electrical Engineering Department (SPDC) at Michigan, making scientific"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " I heard that a firstly, boonormous response to his father's death appears unexpectedly like he was smiling.\nAnswer: I had a fever because I'd been recovering from a long-term arthritis diagnosis (dyspaxinal Palace), but it began when my eyes came out and saw me body with a full vision —"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you need the people at home. You don’t have to take your shirt or t-shirt in order not to get it out there!\nWhen I go to eat tea and say ‘the chives like chariots’ – that would be so good for me too! That sounds delicious. It turns out absolutely fantastic! Just wanted to"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " sell de polabern.\nTo find out more about these two symptoms, read here of the tips for data entry and enchancment from the United Nations and World War II era authors in relation to the human history books published by them-Announcements on Foreign Wars: Life of Briar Couragevårdischen or"
+  }
+ ]
+}
