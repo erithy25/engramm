@@ -14,7 +14,8 @@
 #          30 min for results/download). The main training ends early enough to stay below the limit. After a FEHLER,
 #          or when the uploads failed, the pod stops itself after 30 min. A stopped pod keeps /workspace with all
 #          data; `touch /workspace/h100/KEEP` suspends the 30-min stops of this session (never the dollar limit).
-# Settings (environment): H100_MAX_USD (25), H100_PRICE (4.01), H100_BUDGET_HOURS (main training, default 5.5),
+# Settings (environment; the first three are kept in $W/settings.env for restarts): H100_MAX_USD (25), H100_PRICE
+#          (4.01, the billed $/h incl. storage), H100_BUDGET_HOURS (main training, default 5.5),
 #          H100_SHARDS (36), H100_TOKENS (10000000000: an upper bound; the dollar limit decides the actual number),
 #          H100_AUTO_END = terminate | stop | none (default terminate), H100_NO_GITHUB=1 (run without a GitHub key).
 # Results: model_main.pt (final, fp32) and state_main_predecay.pt (last state before the learning-rate decay: training
@@ -33,9 +34,17 @@ rm -f /tmp/engramm_idle_stop                                # a run in this sess
 export H100_CKPT_DIR="$W/ckpt"
 LOG="$W/run.log"
 exec > >(tee -a "$LOG") 2>&1
-BUDGET=${H100_BUDGET_HOURS:-5.5}
-PRICE=${H100_PRICE:-4.01}
-MAX_USD=${H100_MAX_USD:-25}
+# Price and limits given at a start are kept in $W/settings.env: a restart after a pod restart (Befehl 2 + 3, often
+# without the exports) must not fall back to the defaults (a wrong price would move the dollar limit). An explicit
+# export always wins and is saved again.
+setting() {  # name default
+  local v="${!1:-}"
+  [ -z "$v" ] && [ -f "$W/settings.env" ] && v=$(sed -n "s/^$1=//p" "$W/settings.env" | tail -1)
+  echo "${v:-$2}"
+}
+BUDGET=$(setting H100_BUDGET_HOURS 5.5)
+PRICE=$(setting H100_PRICE 4.01)
+MAX_USD=$(setting H100_MAX_USD 25)
 RESERVE_S=1800                                              # final evaluation, samples, upload, self-termination
 SHARDS=${H100_SHARDS:-36}
 TOKENS=${H100_TOKENS:-10000000000}
@@ -86,6 +95,12 @@ fail() {
   exit 1
 }
 rm -f "$W/FAILED" "$W/NOT_UPLOADED" "$W/KEEP"             # KEEP holds for one session only
+num_ok() { python3 -c "import sys; v = float(sys.argv[1]); sys.exit(0 if $2 else 1)" "$1" 2>/dev/null; }
+num_ok "$PRICE" "1.5 <= v <= 20" || fail "H100_PRICE=$PRICE ist kein plausibler Stundenpreis in \$ (1.5–20, Punkt statt Komma). Neu: export H100_PRICE=…"
+num_ok "$MAX_USD" "0 < v <= 1000" || fail "H100_MAX_USD=$MAX_USD ist keine plausible Grenze in \$"
+num_ok "$BUDGET" "0 < v <= 48" || fail "H100_BUDGET_HOURS=$BUDGET ist keine plausible Stundenzahl"
+printf 'H100_BUDGET_HOURS=%s\nH100_PRICE=%s\nH100_MAX_USD=%s\n' "$BUDGET" "$PRICE" "$MAX_USD" > "$W/settings.env.tmp" \
+  && mv -f "$W/settings.env.tmp" "$W/settings.env"
 [ -f "$W/started" ] || date -u +%s > "$W/started"
 
 # --- cost meter (experiments/h100_meter.sh): billed pod time over all sessions; stops the pod at the dollar limit ------
