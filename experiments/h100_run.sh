@@ -147,6 +147,16 @@ ram = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES") / 2**30
 assert ram >= 48, f"nur {ram:.0f} GB Arbeitsspeicher: mindestens 48 GB nötig"
 print(f"OK: Python {sys.version.split()[0]}, torch {torch.__version__}, {name} {mem:.0f} GB, {free:.0f} GB frei, {ram:.0f} GB RAM")
 EOF
+# the entered price must not be below the Secure Cloud price of this card (incl. ~0.02 $/h storage): too low a price
+# lets the cost brake act too late (e.g. the NVL/PCIe example of Befehl 2b pasted on an H100 SXM)
+GPU_NAME=$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | head -1)
+case "$GPU_NAME" in
+  *H100*NVL*) MINP=3.21 ;;
+  *H100*PCIe*) MINP=2.91 ;;
+  *H100*) MINP=4.01 ;;                                      # H100 SXM ("NVIDIA H100 80GB HBM3")
+  *) MINP=1.5 ;;
+esac
+num_ok "$PRICE" "v >= $MINP" || fail "H100_PRICE=$PRICE ist kleiner als der Preis dieser GPU ($GPU_NAME: mindestens $MINP \$/h inkl. Speicher) – die Kostenbremse würde zu spät greifen. Neu eingeben: export H100_PRICE=$MINP  dann Befehl 3"
 fi
 [ -f models/lm/gpt2/eval_test.json ] || fail "GPT-2-Referenz models/lm/gpt2/eval_test.json fehlt im Checkout"
 if [ -n "${RUNPOD_POD_ID:-}" ] && ! command -v runpodctl >/dev/null && [ -z "${RUNPOD_API_KEY:-}" ]; then
@@ -192,6 +202,16 @@ if ! done_ base; then
   mark base
 fi
 
+# Unattended restarts (sweep, main training): only when the GPU still answers (a hung or broken GPU goes to FEHLER
+# and the 30-min stop instead of burning the budget), and right away when a process died inside the start-up check
+# of the flex attention (its provisional record makes the next start use the reviewed dense attention).
+gpu_ok() {
+  [ "${H100_TEST_SKIP_GPU:-0}" = 1 ] && return 0
+  timeout 180 python3 -c "import torch; x = torch.ones(1, device='cuda'); torch.cuda.synchronize(); assert float(x.sum()) == 1.0" \
+    >/dev/null 2>&1
+}
+check_crashed() { grep -q "check started but not finished" results/v5/h100/attention.json 2>/dev/null; }
+
 # --- 3. sweep (GPU) while the extra text is prepared (CPU) ------------------------------------------------------
 if ! done_ sweep || ! done_ extra; then
   heavy sweep/extra
@@ -202,7 +222,7 @@ if ! done_ sweep || ! done_ extra; then
     ( t0=$(date +%s)
       python3 -m experiments.h100_train sweep > "$W/sweep.log" 2>&1
       rc=$?
-      if [ $rc != 0 ] && [ $(( $(date +%s) - t0 )) -ge "${H100_RESTART_MIN_S:-600}" ]; then
+      if [ $rc != 0 ] && { [ $(( $(date +%s) - t0 )) -ge "${H100_RESTART_MIN_S:-600}" ] || check_crashed; } && gpu_ok; then
         echo "[$(date -u +%H:%M:%S) UTC] Lernraten-Suche unerwartet beendet (Code $rc) – ein automatischer Neustart" >> "$W/sweep.log"
         sleep 20
         python3 -m experiments.h100_train sweep >> "$W/sweep.log" 2>&1
@@ -271,8 +291,10 @@ if ! done_ main; then
       rc=$?
       [ $rc = 0 ] || [ $rc = 3 ] && return $rc
       n=$(cat "$W/stages/main_restarts" 2>/dev/null || echo 0); [[ "$n" =~ ^[0-9]+$ ]] || n=0
-      if [ "$n" -ge 2 ] || [ $(( $(date +%s) - t0 )) -lt "${H100_RESTART_MIN_S:-600}" ] \
-         || [ $(( DEADLINE - $(date +%s) )) -lt 900 ]; then
+      if [ "$n" -ge 2 ] || [ $(( DEADLINE - $(date +%s) )) -lt 900 ] \
+         || { [ $(( $(date +%s) - t0 )) -lt "${H100_RESTART_MIN_S:-600}" ] && ! check_crashed; } \
+         || { [ "$n" -ge 1 ] && [ "$(stat -c %Y "$W/ckpt/state_main.pt" 2>/dev/null || echo 0)" -lt "$t0" ]; } \
+         || ! gpu_ok; then
         return $rc
       fi
       echo $(( n + 1 )) > "$W/stages/main_restarts"
