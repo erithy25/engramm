@@ -458,6 +458,10 @@ Gegen GPT-2 small auf denselben 1.092 gefilterten Test-Dokumenten (gepaarter Boo
   aus dem vollen Stand bei 470,5 Mio. Token, Lernrate 8,63·10⁻⁴ konstant bis 798 Mio., dann linear auf 0 bis
   1,14 Mrd. Token, rund 7 Tage. Vorab-Erwartung: etwa −0,045, also Test um 1,10. Stufe 1 ist damit nicht zu erwarten,
   denn eine Chance bestand nur bei höchstens etwa 1,09 bei 600 Mio. Stufe 1 bleibt Aufgabe des H100-Laufs (§11).
+- **Gewichte des 600-Mio.-Stands:** Nach dem ersten Plattenstand der Verlängerung (16. Oktober, 00:15 UTC) habe ich
+  die bf16-Gewichte des Endstands von der Platte gelöscht. Neben dem Stand der Verlängerung samt Temporärdatei
+  war kein Platz mehr. Die Messwerte und Textproben stehen im Repo. Der fp32-Stand liegt bis zum nächsten
+  Container-Neustart, der die RAM-Disk leert, noch dort.
 
 ## 11. Stufe 1 auf einer gemieteten H100 (vor dem Lauf festgelegt, 12. Oktober)
 
