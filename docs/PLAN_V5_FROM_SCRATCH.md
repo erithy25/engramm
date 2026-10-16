@@ -466,13 +466,20 @@ Gegen GPT-2 small auf denselben 1.092 gefilterten Test-Dokumenten (gepaarter Boo
   beim Containerstart von selbst, installierte Torch neu und setzte die Verlängerung von ihrem Plattenstand (01:56,
   479,7 Mio. Token, Optimierer neu aufgewärmt) fort. Verloren gingen rund 6 min Training.
 - **Verlauf der Verlängerung** (val-A, erste 150 Dokumente, Fenster 1.024, wie die Kurve des Hauptlaufs;
-  `results/v5/long_ext1/curve.jsonl`; Stand 16. Oktober, 05:04 UTC). Zum Vergleich der Hauptlauf beim gleichen
+  `results/v5/long_ext1/curve.jsonl`; Stand 16. Oktober, 11:31 UTC). Zum Vergleich der Hauptlauf beim gleichen
   Trainingsstand, dort schon mit abnehmender Lernrate:
 
   | Training | Token | Lernrate | val-A, bpb | Hauptlauf |
   |---|---|---|---|---|
   | 108 h | 493 Mio. | 8,63·10⁻⁴ (konstant) | 1,336 | 1,317 (490 Mio., 7,4·10⁻⁴) |
+  | 114 h | 506 Mio. | 8,63·10⁻⁴ (konstant) | 1,330 | 1,301 (517 Mio., 5,5·10⁻⁴) |
 
+- **Weiterer Neustart und Rechnerwechsel (16. Oktober, 07:06 UTC):** Die RAM-Disk war wieder leer. Die Verlängerung
+  lief vom Plattenstand bei 499,4 Mio. Token weiter (Optimierer neu aufgewärmt, rund 20 min verloren). Der neue Rechner
+  (Xeon @ 2,8 GHz, 4 Kerne) hat weder AMX noch AVX512-BF16. Gerechnet wird in fp32 mit 1,55–1,59 Mio. Token/h statt
+  4,5–5,0 Mio. Der Speicher bleibt bei 6,35 GB. Bleibt dieser Rechner, dauert der Rest bis 1,14 Mrd. Token rund
+  17 Tage statt 6. Ein bf16-Rechner nach einem späteren Neustart verkürzt das wieder. Regel und Zeitplan in Token
+  bleiben unverändert.
 - **Prüfung und Absicherung des Verlängerungs-Codes (16. Oktober, vor dem Ergebnis):** Drei unabhängige Prüfer
   (Zeitplan und Fortsetzen, Supervisor-Skripte, Endmessung), jeder Befund von drei Gegenprüfern angegriffen.
   Bestätigt (3 von 3) ist eine unwahrscheinliche, aber schwere Lücke. Scheitert die Plattensicherung wegen

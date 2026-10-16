@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 505757696,
+ "train_hours": 113.73405596852302,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is becoming increasingly complex and with a strong link to the cities, communities are already moving towards every region. How do we know where you are going? Here's what we're doing!\nWhat’s been more important than that?\""
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in 1948 and moved to the United States in April 1950. He became a professor at their Academy of Science Education program, which aimed out his research for the duration of life as an Assistant Professor by early 1945. He finished his bachelor's degree through graduate training on 1953-15, but with degrees from 1946-50. After graduating this study himself"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " How long are you in Paris and what am I doing for the economy, money, growth/efficiency, education, co-kere, economic activity etc..\nFor example: how do France scale their assets (like a large company) through market carbonisation. This puts it on different levels of development(s) where there might be significant"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you need the thermometer and then mix it with your smartphone. Next, click on “XRUSPROJECT” button for an additional step by adding them into this page! This guide allows us to provide power equipment in our home using our devices so that we can solve any problems (and bother) they may not even know how!\n"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " giver na!\nLuxury's tyrannical patriculation, rich and attractive for families who are looking to inject or treat their hair. Designed by renowned artist Allan Judd at his best stages of finding a good shampoo product on time — from pre-recorded oils to stress-free products......!! - the man wearing that"
+  }
+ ]
+}
