@@ -5,6 +5,8 @@
 # Build 2 (17 Oct 2026, the installers end in _Sela-1_v2): fixes "error while loading" on Windows (the server read the
 # pack in the code page instead of UTF-8) and shows load errors in the chat. Before packaging, the frozen server loads
 # the real lite pack and answers (runtime/sidecar/pack_check.py), which build 1 never did.
+# Build 3 (same day, _Sela-1_v3): the frozen server also carries the language data of engramm/understand and
+# engramm/know (lexicons, frame model, how-to index), which every earlier build left out.
 name: Desktop with Sela-1 for Windows (private)
 
 on:
@@ -135,7 +137,7 @@ jobs:
           for f in "$b"/msi/*.msi "$b"/nsis/*.exe; do
             [ -f "$f" ] || { echo "missing installer: $f"; exit 1; }
             ext="${f##*.}"
-            name="$(basename "$f" ".$ext")_Sela-1_v2.$ext"
+            name="$(basename "$f" ".$ext")_Sela-1_v3.$ext"
             bytes=$(stat -c %s "$f")
             sha256sum "$f"
             resp=$(curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: application/octet-stream" \
@@ -165,6 +167,11 @@ jobs:
                  'Windows-Dateien ohne _v2 nicht mehr verwenden.')
           if 'Build 2 (17. Okt.)' not in b:
               b += fix
+          fix3 = ('\n\nWindows, Build 3 (17. Okt.): die Dateien mit _Sela-1_v3 nehmen. Zusätzlich zu Build 2 sind die '
+                  'Sprachdaten dabei (Wortschatz, Satzverständnis, Anleitungen), die allen früheren Builds fehlten; ohne '
+                  'sie fragt ENGRAMM z. B. bei \"My laptop is broken.\" zurück, was ein Laptop ist.')
+          if 'Build 3 (17. Okt.)' not in b:
+              b += fix3
           print(json.dumps({'body': b}))
           ")
           curl -fsS -X PATCH -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
