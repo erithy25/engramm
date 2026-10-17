@@ -15,6 +15,19 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
+def connect_readonly(path: Path | str) -> sqlite3.Connection:
+    """A read-only connection to a database in a knowledge pack. The URI comes from ``Path.as_uri()``, so a space,
+    "#", "%" or a non-ASCII letter in the folder (a Windows user name, say) is escaped and a drive letter stays a
+    drive. A folder SQLite will not take as a URI (a network share) is opened by its plain path instead."""
+    p = Path(path).resolve()
+    try:
+        return sqlite3.connect(p.as_uri() + "?mode=ro&immutable=1", uri=True, check_same_thread=False)
+    except (ValueError, sqlite3.OperationalError):
+        con = sqlite3.connect(str(p), check_same_thread=False)
+        con.execute("PRAGMA query_only=1")
+        return con
+
+
 @dataclass(frozen=True)
 class Entity:
     id: int
@@ -47,7 +60,7 @@ class FactBank:
     def db(self) -> sqlite3.Connection:
         con = getattr(self._local, "con", None)
         if con is None:
-            con = sqlite3.connect(f"file:{self.path}?mode=ro&immutable=1", uri=True, check_same_thread=False)
+            con = connect_readonly(self.path)
             con.execute("PRAGMA query_only=1")
             self._local.con = con
         return con

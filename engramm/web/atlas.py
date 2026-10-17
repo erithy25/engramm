@@ -110,12 +110,12 @@ class Atlas:
         if self._seed is None:
             p = (self.state / "atlas_seed") if self.state else None
             if p is not None and p.exists():
-                self._seed = p.read_text().strip()
+                self._seed = p.read_text(encoding="utf-8").strip()
             else:
                 self._seed = hashlib.sha256(f"{time.time_ns()}|{id(self)}".encode()).hexdigest()
                 if p is not None:
                     p.parent.mkdir(parents=True, exist_ok=True)
-                    p.write_text(self._seed)
+                    p.write_text(self._seed, encoding="utf-8")
         return self._seed
 
     def any_on(self) -> bool:

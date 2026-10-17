@@ -11,6 +11,8 @@ import sqlite3
 import threading
 from pathlib import Path
 
+from engramm.kb.store import connect_readonly
+
 
 def name_key(s: str) -> str:
     s = re.sub(r"\s*\([^)]*\)$", "", s.strip())
@@ -26,7 +28,7 @@ class Wayfinder:
     def db(self) -> sqlite3.Connection:
         con = getattr(self._local, "con", None)
         if con is None:
-            con = sqlite3.connect(f"file:{self.path}?mode=ro&immutable=1", uri=True, check_same_thread=False)
+            con = connect_readonly(self.path)
             self._local.con = con
         return con
 

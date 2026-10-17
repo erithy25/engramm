@@ -205,19 +205,19 @@ class HDCLanguageModel:
         self.cb.save(directory / "codebook.npz")
         np.save(directory / "knn_pos.npy", self.pos)
         np.save(directory / "segsig.npy", self.segsig)
-        (directory / "mixture.json").write_text(self.mix.to_json())
-        (directory / "meta.json").write_text(json.dumps({"seed": self.seed, "epoch": self.epoch}))
+        (directory / "mixture.json").write_text(self.mix.to_json(), encoding="utf-8")
+        (directory / "meta.json").write_text(json.dumps({"seed": self.seed, "epoch": self.epoch}), encoding="utf-8")
         self.train.save(directory, "train")
 
     @classmethod
     def load(cls, directory: Path, tok: LMTokenizer | None = None) -> HDCLanguageModel:
         directory = Path(directory)
-        meta = json.loads((directory / "meta.json").read_text())
+        meta = json.loads((directory / "meta.json").read_text(encoding="utf-8"))
         return cls(TokenSplit.load(directory, "train", mmap=False), KNModel.load(directory / "kn5"),
                    np.load(directory / "sa.npy"), Codebook.load(directory / "codebook.npz"),
                    np.load(directory / "knn_pos.npy"), np.load(directory / "segsig.npy"),
-                   MixtureSpec.from_json((directory / "mixture.json").read_text()), int(meta["seed"]), tok,
-                   int(meta["epoch"]))
+                   MixtureSpec.from_json((directory / "mixture.json").read_text(encoding="utf-8")), int(meta["seed"]),
+                   tok, int(meta["epoch"]))
 
     # -- state ---------------------------------------------------------------------------
 

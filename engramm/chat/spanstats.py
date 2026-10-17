@@ -245,11 +245,11 @@ class SpanStats:
     def save(self, path: Path) -> None:
         Path(path).write_text(json.dumps({"n_pos": self.n_pos, "n_neg": self.n_neg, "alpha": self.alpha,
                                           "pos": dict(sorted(self.pos.items())),
-                                          "neg": dict(sorted(self.neg.items()))}, ensure_ascii=False))
+                                          "neg": dict(sorted(self.neg.items()))}, ensure_ascii=False), encoding="utf-8")
 
     @classmethod
     def load(cls, path: Path) -> SpanStats:
-        d = json.loads(Path(path).read_text())
+        d = json.loads(Path(path).read_text(encoding="utf-8"))
         return cls(d["pos"], d["neg"], d["n_pos"], d["n_neg"], d["alpha"])
 
 
@@ -301,12 +301,12 @@ class SpanPerceptron:
         Path(path).write_text(json.dumps({"extended": self.extended, "domain": self.domain,
                                           "max_chunk": self.max_chunk,
                                           "w": {k: round(v, 6) for k, v in sorted(self.w.items()) if v != 0}},
-                                         ensure_ascii=False))
+                                         ensure_ascii=False), encoding="utf-8")
 
     @classmethod
     def load(cls, path: Path, compact: bool = False) -> SpanPerceptron:
         """``compact``: the weights as a CompactWeights table (read-only, ~6x less memory; the app)."""
-        d = json.loads(Path(path).read_text())
+        d = json.loads(Path(path).read_text(encoding="utf-8"))
         meta = (d.get("extended", True), d.get("domain", False), d.get("max_chunk", 5))
         w = CompactWeights(d.pop("w")) if compact else d["w"]
         return cls(w, *meta)

@@ -37,5 +37,8 @@ a = Analysis(
     noarchive=False,
 )
 pyz = PYZ(a.pure)
-exe = EXE(pyz, a.scripts, [], exclude_binaries=True, name="engramm-server", console=True, strip=False, upx=False)
+# UTF-8 mode: open() and the standard streams use UTF-8 on every system. A frozen app ignores PYTHONUTF8 and, on Windows,
+# would otherwise read text in the code page (cp1252), which broke loading the lite pack (17 Oct 2026).
+options = [("X utf8", None, "OPTION")]
+exe = EXE(pyz, a.scripts, options, exclude_binaries=True, name="engramm-server", console=True, strip=False, upx=False)
 coll = COLLECT(exe, a.binaries, a.datas, strip=False, upx=False, name="engramm-server")
