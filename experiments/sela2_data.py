@@ -675,6 +675,11 @@ MAGPIE_MAX_CHARS = 2400                            # ≈ 500 tokens per assistan
 THINK = re.compile(r"^\s*<think>.*?</think>\s*", re.S)
 
 
+def with_reasoning(sub: str) -> bool:
+    """A subset whose answers start with <think>…</think> ("…_think"; "…_no_think" ends the same way but has none)."""
+    return sub.endswith("_think") and not sub.endswith("_no_think")
+
+
 def iter_smoltalk(work: Path, only_lang: str | None = None):
     """(messages, lang, subset) of the smoltalk2 SFT subsets; German only from the multilingual subset."""
     subsets = (SMOLTALK_EN if only_lang in (None, "en") else []) + (SMOLTALK_DE if only_lang in (None, "de") else [])
@@ -686,7 +691,7 @@ def iter_smoltalk(work: Path, only_lang: str | None = None):
                         if m.get("role") in ("system", "user", "assistant") and isinstance(m.get("content"), str)]
                 if not msgs:
                     continue
-                if sub.endswith("_think"):                 # the answer without the reasoning; none left: skip
+                if with_reasoning(sub):                    # the answer without the reasoning; none left: skip
                     if any(m.role == "assistant" and "</think>" not in m.text for m in msgs):
                         continue
                     msgs = [Message(m.role, THINK.sub("", m.text).strip()) if m.role == "assistant" else m for m in msgs]
@@ -694,7 +699,7 @@ def iter_smoltalk(work: Path, only_lang: str | None = None):
                 sysmsg = (kw.get("custom_instructions") or "").strip()
                 if sysmsg and msgs[0].role != "system":
                     msgs = [Message("system", sysmsg)] + msgs
-                if (("magpie" in sub or sub.endswith("_think"))
+                if (("magpie" in sub or with_reasoning(sub))
                         and max((len(m.text) for m in msgs if m.role == "assistant"), default=0) > MAGPIE_MAX_CHARS):
                     continue                       # long essays: slow in the app and drift in a small model
                 lang = "en"
@@ -1120,6 +1125,9 @@ def cmd_selftest(args) -> None:
     assert all(g is None or g[0][-1].text == NO_ANSWER["en"] for g in (hotpot_example(random.Random(k), bad) for k in range(20)))
     for lang in ("en", "de"):
         assert all(qs and ans for qs, ans in IDENTITY[lang])
+    assert with_reasoning("smoltalk_systemchats_Qwen3_32B_think")
+    assert not with_reasoning("smoltalk_smollm3_smol_magpie_ultra_no_think")
+    assert all(not with_reasoning(x) for x in SMOLTALK_EN if "no_think" in x)
     assert prepare([Message("user", "Who are you?"), Message("assistant", "I am ChatGPT.")], "en", rng) is None
     print("selftest ok")
 
