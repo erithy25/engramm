@@ -1,0 +1,21 @@
+{
+ "decision": "flex",
+ "torch": "2.8.0+cu128",
+ "shape": [
+  32,
+  1024,
+  768,
+  12
+ ],
+ "device": "NVIDIA H100 80GB HBM3",
+ "match": {
+  "ok": true,
+  "out_err": 0.003902435302734375,
+  "grad_rel_err": 0.001737207937740444,
+  "tol": 0.01
+ },
+ "s_per_microstep_dense": 0.09594949086507161,
+ "s_per_microstep_flex": 0.062113682428995766,
+ "gain": 0.3526418757516624,
+ "reason": "matches the dense attention, 35% faster"
+}
