@@ -1,0 +1,32 @@
+{
+ "tokens": 5757206528,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is similar to that of other cities in Latin America. The city began its existence as a means for bringing communities together and quickly spread throughout Central and South American countries. It also became a symbol of a prosperous, flourishing community. Today it is often referred to as the “City of Peace” due to its name.\nLike most European countries there"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born on September 15, 1900 in Los Angeles, California. He became famous because of his beautiful children, Victor (1916-1972) and Charles (1842-1939). His life was filled with uncertainty about the future. After being placed in a poor state of mental health, he ended up pursuing a Bachelor’s degree from U"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " The residence in the right column.\nWherever you are, this question helps you as a resident to assess what exactly you want and when. It is also one that gets answered frequently in our own country. To be helpful, please do not give them any answers of your own, but we can help you discover which articles and books can fit all"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you need the water. When you boil it, it will be thick enough to hold in liquid form; when the leaves are white and yellow (they will turn bitter) add some water, if necessary, about 1-2 teaspoons. Stir gently until everything is well mixed. If too much, wait for as long as possible before removing it from"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " dir ?\nSometimes, it is about the unity of the individual and all that happens during it. My work consists in getting to know my customers' needs before they think I'm trying to take over their lives or work. In other words, after an event, I check for continuity within my client's process. Each client is able to solve"
+  }
+ ]
+}

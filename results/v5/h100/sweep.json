@@ -1,0 +1,11 @@
+{
+ "bpb_by_lr": {
+  "0.001": 1.6267812261552967,
+  "0.002": 1.7491558787807915,
+  "0.004": 1.9161956897041474
+ },
+ "best": 0.001,
+ "lr": 0.001,
+ "rule": "lowest val-A bpb; among rates within 0.003 of it the smallest",
+ "tokens_each": 200000000
+}

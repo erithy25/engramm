@@ -1,0 +1,96 @@
+{
+ "tag": "main",
+ "tokens": 5757206528,
+ "train_hours": 3.271879488494661,
+ "params": 135266316,
+ "body_params": 84934656,
+ "window": 1024,
+ "stride": 512,
+ "max_docs": 0,
+ "torch": "2.8.0+cu128",
+ "device": "NVIDIA H100 80GB HBM3",
+ "val_a": {
+  "split": "val_a",
+  "window": 1024,
+  "stride": 512,
+  "docs": 767,
+  "bpb": 0.9773094466515342,
+  "bpb_unfiltered": 0.968183995230364,
+  "eval_seconds": 9.601156949996948,
+  "bpb_extended_filter": 0.9811696187385307,
+  "docs_extended_filter": 694
+ },
+ "test": {
+  "split": "test",
+  "window": 1024,
+  "stride": 512,
+  "docs": 1137,
+  "bpb": 0.987663002461947,
+  "bpb_unfiltered": 0.9798787413857762,
+  "eval_seconds": 14.901499271392822,
+  "bpb_extended_filter": 0.9893843654935018,
+  "docs_extended_filter": 1023
+ },
+ "vs_gpt2": [
+  {
+   "filter": "original (results/lm/dedup.json)",
+   "bpb": {
+    "bpb": 0.987663002461947,
+    "ci95": [
+     0.9732962201774717,
+     1.0023275416825708
+    ],
+    "docs": 1092,
+    "bytes": 3629462
+   },
+   "gpt2_bpb": {
+    "bpb": 1.038792450096114,
+    "ci95": [
+     1.0210110137179012,
+     1.0568143910835104
+    ],
+    "docs": 1092,
+    "bytes": 3629462
+   },
+   "ratio_to_gpt2": 0.9507799198680774,
+   "ratio_ci95": [
+    0.9425446588935356,
+    0.9584649083218556
+   ]
+  },
+  {
+   "filter": "extended (+ contamination.json)",
+   "bpb": {
+    "bpb": 0.9893843654935018,
+    "ci95": [
+     0.974503594697442,
+     1.0047918097727537
+    ],
+    "docs": 1023,
+    "bytes": 3541007
+   },
+   "gpt2_bpb": {
+    "bpb": 1.035966614218736,
+    "ci95": [
+     1.019025449659834,
+     1.0546636927335766
+    ],
+    "docs": 1023,
+    "bytes": 3541007
+   },
+   "ratio_to_gpt2": 0.9550349904274051,
+   "ratio_ci95": [
+    0.9474880347585833,
+    0.9622582682796518
+   ]
+  }
+ ],
+ "stage1": {
+  "rule": "test, documents with >= 20 % of their 13-token windows in the training text excluded (rule of results/lm/dedup.json applied to the text trained on), network alone, window 1024 / stride 512: bpb <= 1.04 (PLAN \u00a710/\u00a711)",
+  "filter": "extended (contamination.json)",
+  "bpb": 0.9893843654935018,
+  "bpb_original_filter": 0.987663002461947,
+  "reached": true,
+  "gap": -0.0506156345064982
+ }
+}

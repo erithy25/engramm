@@ -1,0 +1,172 @@
+{
+ "tag": "main",
+ "docs": {
+  "val_a": 767,
+  "test": 1137
+ },
+ "network_alone": {
+  "test": {
+   "split": "test",
+   "window": 1024,
+   "stride": 512,
+   "docs": 1137,
+   "bpb": 0.987663002461947,
+   "bpb_unfiltered": 0.9798787413857762,
+   "eval_seconds": 14.901499271392822,
+   "bpb_extended_filter": 0.9893843654935018,
+   "docs_extended_filter": 1023
+  },
+  "val_a": {
+   "split": "val_a",
+   "window": 1024,
+   "stride": 512,
+   "docs": 767,
+   "bpb": 0.9773094466515342,
+   "bpb_unfiltered": 0.968183995230364,
+   "eval_seconds": 9.601156949996948,
+   "bpb_extended_filter": 0.9811696187385307,
+   "docs_extended_filter": 694
+  },
+  "stage1": {
+   "rule": "test, documents with >= 20 % of their 13-token windows in the training text excluded (rule of results/lm/dedup.json applied to the text trained on), network alone, window 1024 / stride 512: bpb <= 1.04 (PLAN \u00a710/\u00a711)",
+   "filter": "extended (contamination.json)",
+   "bpb": 0.9893843654935018,
+   "bpb_original_filter": 0.987663002461947,
+   "reached": true,
+   "gap": -0.0506156345064982
+  }
+ },
+ "counters": {
+  "main": {
+   "original (dedup.json)": {
+    "counter_weights_kn_inf_cache": [
+     0.7795186337765545,
+     0.10258671744092086,
+     0.11789464878252608
+    ],
+    "lambda": 0.0292300811753884,
+    "val_a": {
+     "bpb_counter_alone": 1.5164909942393163,
+     "bpb_counter_alone_unfiltered": 1.4989213845084606,
+     "bpb_mix": 0.9729345521438237,
+     "bpb_mix_unfiltered": 0.963045196445132,
+     "bpb_bucket_mix": 0.9686818312869915,
+     "bpb_bucket_mix_unfiltered": 0.9579952138004039
+    },
+    "test": {
+     "bpb_counter_alone": 1.5295567296277364,
+     "bpb_counter_alone_unfiltered": 1.506051409065901,
+     "bpb_mix": 0.9834321545486426,
+     "bpb_mix_unfiltered": 0.9737330417588664,
+     "bpb_bucket_mix": 0.9803342573429239,
+     "bpb_bucket_mix_unfiltered": 0.9674569931220113
+    }
+   },
+   "extended (contamination.json)": {
+    "counter_weights_kn_inf_cache": [
+     0.7846347830090207,
+     0.09750380628596926,
+     0.11786141070499717
+    ],
+    "lambda": 0.02771719232675196,
+    "val_a": {
+     "bpb_counter_alone": 1.5200786830545414,
+     "bpb_counter_alone_unfiltered": 1.4990147710399766,
+     "bpb_mix": 0.9771678441235694,
+     "bpb_mix_unfiltered": 0.9631497043632509,
+     "bpb_bucket_mix": 0.9733276295901259,
+     "bpb_bucket_mix_unfiltered": 0.9581963326691338
+    },
+    "test": {
+     "bpb_counter_alone": 1.530371584361599,
+     "bpb_counter_alone_unfiltered": 1.5061164812449404,
+     "bpb_mix": 0.9853111987837867,
+     "bpb_mix_unfiltered": 0.9738537235617638,
+     "bpb_bucket_mix": 0.9823248970017622,
+     "bpb_bucket_mix_unfiltered": 0.9676248885275927
+    }
+   }
+  },
+  "pilot": {
+   "original (dedup.json)": {
+    "counter_weights_kn_inf_cache": [
+     0.7694188364854179,
+     0.07791093207783406,
+     0.15267023143675687
+    ],
+    "lambda": 0.005629730523610782,
+    "val_a": {
+     "bpb_counter_alone": 1.6648158773212571,
+     "bpb_counter_alone_unfiltered": 1.657064992999952,
+     "bpb_mix": 0.9768206974386233,
+     "bpb_mix_unfiltered": 0.967695098190619,
+     "bpb_bucket_mix": 0.9764985896256411,
+     "bpb_bucket_mix_unfiltered": 0.9674404222775548
+    },
+    "test": {
+     "bpb_counter_alone": 1.674072976786703,
+     "bpb_counter_alone_unfiltered": 1.6635384232620247,
+     "bpb_mix": 0.9870376183607563,
+     "bpb_mix_unfiltered": 0.9791176554154283,
+     "bpb_bucket_mix": 0.9866289818928509,
+     "bpb_bucket_mix_unfiltered": 0.978336820092473
+    }
+   },
+   "extended (contamination.json)": {
+    "counter_weights_kn_inf_cache": [
+     0.772048497695278,
+     0.07625053224987167,
+     0.151700970054868
+    ],
+    "lambda": 0.005572724680737694,
+    "val_a": {
+     "bpb_counter_alone": 1.6643986876159607,
+     "bpb_counter_alone_unfiltered": 1.6570801290085555,
+     "bpb_mix": 0.980694632172482,
+     "bpb_mix_unfiltered": 0.9676988714504088,
+     "bpb_bucket_mix": 0.9803580669056299,
+     "bpb_bucket_mix_unfiltered": 0.9674533233990001
+    },
+    "test": {
+     "bpb_counter_alone": 1.6724330572296808,
+     "bpb_counter_alone_unfiltered": 1.6635706875956977,
+     "bpb_mix": 0.9887570450148017,
+     "bpb_mix_unfiltered": 0.9791247115315694,
+     "bpb_bucket_mix": 0.9883324319294834,
+     "bpb_bucket_mix_unfiltered": 0.9783420044726302
+    }
+   }
+  }
+ },
+ "best_mix": {
+  "counter": "main",
+  "filter": "extended (contamination.json)",
+  "test_bpb": 0.9823248970017622,
+  "vs_gpt2": {
+   "filter": "extended (contamination.json), main counter, bucket mix",
+   "bpb": {
+    "bpb": 0.9823248970017622,
+    "ci95": [
+     0.9678252996680975,
+     0.9978941456678232
+    ],
+    "docs": 1023,
+    "bytes": 3541007
+   },
+   "gpt2_bpb": {
+    "bpb": 1.035966614218736,
+    "ci95": [
+     1.019025449659834,
+     1.0546636927335766
+    ],
+    "docs": 1023,
+    "bytes": 3541007
+   },
+   "ratio_to_gpt2": 0.9482206120537704,
+   "ratio_ci95": [
+    0.9401046036151636,
+    0.9557101075954236
+   ]
+  }
+ }
+}
