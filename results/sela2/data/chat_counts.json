@@ -15,8 +15,8 @@
  },
  "smoltalk_smollm3_systemchats_30k_no_think": {
   "in": 33997,
-  "kept": 33663,
-  "foreign_or_bad": 251,
+  "kept": 33662,
+  "foreign_or_bad": 252,
   "too_long": 55,
   "contaminated": 28
  },
@@ -50,9 +50,9 @@
  },
  "oasst2": {
   "in": 5979,
-  "kept": 5864,
-  "foreign_or_bad": 89,
-  "too_long": 19,
+  "kept": 5754,
+  "foreign_or_bad": 200,
+  "too_long": 18,
   "contaminated": 7
  },
  "dolly_grounded": {
@@ -71,17 +71,17 @@
  },
  "squad_v2": {
   "in": 130230,
-  "kept": 128994,
-  "foreign_or_bad": 21,
+  "kept": 128978,
+  "foreign_or_bad": 30,
   "too_long": 0,
-  "contaminated": 1215
+  "contaminated": 1222
  },
  "hotpotqa": {
-  "in": 90447,
-  "kept": 37959,
-  "foreign_or_bad": 27,
-  "too_long": 5,
-  "contaminated": 52456
+  "in": 87917,
+  "kept": 87665,
+  "foreign_or_bad": 19,
+  "too_long": 52,
+  "contaminated": 181
  },
  "germanrag": {
   "in": 3362,
