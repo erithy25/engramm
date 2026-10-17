@@ -410,3 +410,39 @@ def test_last_model_is_kept_beside_the_memory(tmp_path):
     assert again.models()["last"] == "engramm"
     (tmp_path / "app_settings.json").write_text("{broken")
     assert ChatService("unused", memory_path=mem).last_model == "engramm"
+
+
+def test_failed_load_names_its_place_and_can_be_tried_again(tmp_path):
+    import time
+    svc = ChatService("unused", pack=tmp_path / "nopack", memory_path=tmp_path / "chat_memory.log")
+    svc.load()
+    assert svc.error.startswith("FileNotFoundError: No knowledge pack") and "(app/server.py:" in svc.error
+    assert svc.loading is False
+    srv = serve(svc, port=0)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        started = threading.Event()
+        release = threading.Event()
+
+        def slow_load():                       # stands in for the real load: fails again after a moment
+            started.set()
+            release.wait(10)
+            svc.error = "OSError: still broken"
+            svc.loading = False
+        svc.load = slow_load
+        code, _, body = _call(base, "/api/reload", {})
+        assert code == 200 and json.loads(body)["error"] is None and json.loads(body)["ready"] is False
+        assert started.wait(5) and svc.loading is True
+        assert svc.start_loading() is False    # one load at a time
+        release.set()
+        for _ in range(100):
+            if not svc.loading:
+                break
+            time.sleep(0.05)
+        assert json.loads(_call(base, "/api/health")[2])["error"] == "OSError: still broken"
+        svc.assistant = object()
+        assert svc.start_loading() is False    # loaded: nothing to do
+    finally:
+        srv.shutdown()
+        srv.server_close()

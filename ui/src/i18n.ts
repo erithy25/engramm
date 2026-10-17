@@ -69,6 +69,12 @@ export interface Texts {
   loading: string;
   ready: string;
   loadError: string;
+  loadErrorTitle: string;
+  loadErrorHelp: string;
+  loadErrorSela: string;
+  retry: string;
+  retrying: string;
+  copyError: string;
   offline: string;
   sentences: (millions: string) => string;
   quick: string;
@@ -214,6 +220,13 @@ const en: Texts = {
   loading: "loading its knowledge … (about a minute)",
   ready: "ready",
   loadError: "error while loading",
+  loadErrorTitle: "ENGRAMM could not load its knowledge pack",
+  loadErrorHelp:
+    "Try again, or restart the app. If the error stays, copy the text below and send it to the developers.",
+  loadErrorSela: "Sela can still write: choose it next to the send button.",
+  retry: "Try again",
+  retrying: "Loading …",
+  copyError: "Copy error text",
   offline: "no connection",
   sentences: (n) => ` · ${n} million sentences read`,
   quick: " · quick mode",
@@ -385,6 +398,14 @@ const de: Texts = {
   loading: "lädt sein Wissen … (etwa eine Minute)",
   ready: "bereit",
   loadError: "Fehler beim Laden",
+  loadErrorTitle: "ENGRAMM konnte sein Wissenspaket nicht laden",
+  loadErrorHelp:
+    "Versuche es erneut oder starte die App neu. Bleibt der Fehler, kopiere den Text unten und schicke ihn an die " +
+    "Entwickler.",
+  loadErrorSela: "Sela kann trotzdem schreiben: neben dem Senden-Knopf auswählen.",
+  retry: "Erneut versuchen",
+  retrying: "Lädt …",
+  copyError: "Fehlertext kopieren",
   offline: "keine Verbindung",
   sentences: (n) => ` · ${n} Mio. Sätze gelesen`,
   quick: " · Schnellmodus",

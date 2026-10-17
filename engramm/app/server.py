@@ -16,6 +16,7 @@ API (JSON):
 
 * ``GET  /api/health``           → {"ready": bool, "error": str|None, "mode": "full"|"quick"|None,
                                     "sentences": int|None}
+* ``POST /api/reload``           {} → health (after a failed load: loads the pack again; the page's "Try again")
 * ``POST /api/chat``             {"conversation": str, "message": str, "model"?: "engramm"|"sela-1"|"sela-2",
                                     "max_tokens"?: int} → reply (model "sela-1": text continued by the local
                                     Sela-1 network, kind "generated", nothing checked against sources; model
@@ -130,6 +131,24 @@ _MONTHS = ("January", "February", "March", "April", "May", "June", "July", "Augu
            "December")
 
 
+def _where(e: BaseException) -> str:
+    """Where a load error happened, for the message on the page: the innermost ENGRAMM file and line."""
+    frames = traceback.extract_tb(e.__traceback__)
+    ours = [f for f in frames if "engramm" in Path(f.filename).parts and "site-packages" not in Path(f.filename).parts]
+    f = (ours or frames or [None])[-1]
+    return f" ({Path(f.filename).parent.name}/{Path(f.filename).name}:{f.lineno})" if f is not None else ""
+
+
+def utf8_output() -> None:
+    """Standard output and error in UTF-8 whatever the console or pipe says (a Windows pipe defaults to the code
+    page, where printing a reply with a curly quote or an emoji would raise)."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="backslashreplace")
+        except (AttributeError, ValueError, OSError):
+            pass
+
+
 def reading_as_of(idx: Path) -> str | None:
     """The date of the pack's reading text ("DBpedia 2022.12 abstracts" → "December 2022"), or None."""
     try:
@@ -183,6 +202,7 @@ class ChatService:
         self.assistant = None
         self.memory = None
         self.error: str | None = None
+        self.loading = False
         self.states: dict = {}
         self.egress = None
         self.atlas = None
@@ -226,7 +246,17 @@ class ChatService:
 
     # -- loading -----------------------------------------------------------------------------
 
+    def start_loading(self) -> bool:
+        """Load in the background: at start, and again when the page asks after a failed load."""
+        with self.lock:
+            if self.assistant is not None or self.loading:
+                return False
+            self.loading, self.error = True, None
+        threading.Thread(target=self.load, daemon=True).start()
+        return True
+
     def load(self) -> None:
+        self.loading = True
         try:
             from engramm.chat.bot import ChatBot
             from engramm.chat.config import QUICK_INDEX, config_for
@@ -281,8 +311,10 @@ class ChatService:
             with self.lock:
                 self.memory, self.bot, self.assistant = memory, bot, assistant
         except Exception as e:  # shown on the page instead of a silent hang
-            self.error = f"{type(e).__name__}: {e}"
+            self.error = f"{type(e).__name__}: {e}{_where(e)}"
             traceback.print_exc()
+        finally:
+            self.loading = False
 
     def learning(self) -> dict:
         """What ENGRAMM learned on this computer (engramm/learn): counts and the taught words, never anything sent."""
@@ -597,6 +629,9 @@ def make_handler(service: ChatService, desktop: bool = False):
                         raise ValueError("max_tokens must be a whole number.")
                     return self._json(200, service.chat(str(data.get("conversation", "")), str(data.get("message", "")),
                                                         str(data.get("model", "engramm")), mt))
+                if path == "/api/reload":
+                    service.start_loading()
+                    return self._json(200, service.health())
                 if path == "/api/memory/forget":
                     return self._json(200, service.forget(str(data.get("source", ""))))
                 if path == "/api/network":
@@ -687,18 +722,21 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--check-sela2", action="store_true",
                     help="load Sela-2 (weights + tokenizer, as the app does), write one short reply, print JSON, exit")
     args = ap.parse_args(argv)
+    utf8_output()
     if args.check_sela2:
         return check_sela2(args.sela2)
     service = ChatService(args.model, args.index, pack=args.pack, memory_path=args.memory, sela=args.sela,
                           sela2=args.sela2)
     server = serve(service, host=args.host, port=args.port, desktop=args.desktop)
-    threading.Thread(target=service.load, daemon=True).start()
+    service.start_loading()
     url = f"http://127.0.0.1:{server.server_address[1]}"
     if args.desktop:
         print(f"ENGRAMM_URL={url}", flush=True)
         args.no_browser = True
         threading.Thread(target=_exit_with_parent, args=(server,), daemon=True).start()
     print(f"ENGRAMM is running: {url}  (loading in the background; stop with Ctrl+C)", flush=True)
+    print(f"python {sys.version.split()[0]} on {sys.platform}, utf8_mode={sys.flags.utf8_mode}, "
+          f"frozen={getattr(sys, 'frozen', False)}", file=sys.stderr, flush=True)
     if os.environ.get("ENGRAMM_NO_BROWSER"):
         args.no_browser = True
     if not args.no_browser:

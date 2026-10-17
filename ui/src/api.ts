@@ -33,6 +33,8 @@ async function call<T>(path: string, body?: unknown): Promise<T> {
 
 export const api = {
   health: () => call<Health>("/api/health"),
+  /** After a failed load: load the knowledge pack again (the reply is the new health). */
+  reload: () => call<Health>("/api/reload", {}),
   chat: (conversation: string, message: string, model: ModelId = "engramm") =>
     call<Reply>("/api/chat", { conversation, message, model }),
   /** ENGRAMM and, when its weights ship with the app, the Sela-1 network. */

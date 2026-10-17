@@ -42,6 +42,9 @@ export function App() {
   const [model, setModel] = useState<ModelId | null>(() =>
     load(MODEL, null as ModelId | null, (v): v is ModelId | null => v === null || isModelId(v)));
   const [models, setModels] = useState<ModelInfo[] | null>(null);
+  const [pollRound, setPollRound] = useState(0);                     // a new round of health polling (after "Try again")
+  const [retrying, setRetrying] = useState(false);
+  const [copied, setCopied] = useState(false);
   const threadRef = useRef<HTMLElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const t = TEXTS[lang];
@@ -106,7 +109,29 @@ export function App() {
       stop = true;
       window.clearTimeout(timer);
     };
-  }, []);
+  }, [pollRound]);
+
+  const loadError = status.kind === "health" ? status.health.error : null;
+  const retryLoad = async () => {
+    setRetrying(true);
+    try {
+      setStatus({ kind: "health", health: await api.reload() });
+    } catch {
+      // the next health poll shows what is wrong
+    }
+    setRetrying(false);
+    setCopied(false);
+    setPollRound((n) => n + 1);
+  };
+  const copyError = async () => {
+    if (!loadError) return;
+    try {
+      await navigator.clipboard.writeText(loadError);
+      setCopied(true);
+    } catch {
+      // no clipboard (an old webview): the text is selectable
+    }
+  };
 
   // network channels: shown in the sidebar once the server is ready (hidden when it has none)
   useEffect(() => {
@@ -270,6 +295,24 @@ export function App() {
         </header>
 
         <section className="thread" id="thread" aria-live="polite" ref={threadRef}>
+          {loadError && !sela && !sela2 && (
+            <div className="load-error" id="loadError" role="alert">
+              <b>{t.loadErrorTitle}</b>
+              <p className="muted">
+                {t.loadErrorHelp}
+                {(selaAvailable || sela2Available) && <> {t.loadErrorSela}</>}
+              </p>
+              <pre id="loadErrorText">{loadError}</pre>
+              <div className="load-error-actions">
+                <button type="button" className="btn" id="retryLoad" disabled={retrying} onClick={() => void retryLoad()}>
+                  {retrying ? t.retrying : t.retry}
+                </button>
+                <button type="button" className="btn ghost" id="copyError" onClick={() => void copyError()}>
+                  {copied ? t.copied : t.copyError}
+                </button>
+              </div>
+            </div>
+          )}
           {messages.length === 0 && pending === null && (
             <div className="empty" id="empty">
               <img src="./logo.svg" alt="" className="empty-logo" width={72} height={72} />

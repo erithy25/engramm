@@ -146,6 +146,23 @@ a.chip:hover { outline: 1px solid var(--accent); }
 .typing i:nth-child(3) { animation-delay: .3s; }
 @keyframes blink { 50% { opacity: .25; transform: translateY(-2px); } }
 .error-text { color: var(--bad); }
+.load-error {
+  max-width: 720px; margin: 24px auto 0; padding: 16px 18px; border: 1px solid var(--bad); border-radius: 12px;
+  background: color-mix(in srgb, var(--bad) 7%, var(--bg)); display: flex; flex-direction: column; gap: 8px;
+}
+.load-error b { color: var(--bad); }
+.load-error p { margin: 0; font-size: 14px; }
+.load-error pre {
+  margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--panel); border: 1px solid var(--line);
+  font-size: 12.5px; white-space: pre-wrap; word-break: break-word; user-select: text; max-height: 180px; overflow: auto;
+}
+.load-error-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.load-error .btn {
+  font: inherit; font-size: 14px; padding: 7px 14px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+}
+.load-error .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.load-error .btn:disabled { opacity: .6; cursor: default; }
 
 /* composer ---------------------------------------------------------------------------- */
 .composer-wrap { padding: 8px 16px 14px; }
