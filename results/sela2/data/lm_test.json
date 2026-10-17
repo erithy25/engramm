@@ -1,0 +1,8 @@
+{
+ "name": "lm_test",
+ "tokens": 823188,
+ "docs": 1137,
+ "sha256": "4422c890a641117e3122a69c2aacac85273ec8b8af59b93ad0c0a6c3d1824ec6",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "split": "test"
+}

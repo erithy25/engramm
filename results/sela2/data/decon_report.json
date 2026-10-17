@@ -1,0 +1,68 @@
+{
+ "hellaswag": {
+  "texts": 10042,
+  "windows": 1317293
+ },
+ "arc_easy": {
+  "texts": 2376,
+  "windows": 53840
+ },
+ "arc_challenge": {
+  "texts": 1172,
+  "windows": 36379
+ },
+ "lambada": {
+  "texts": 5153,
+  "windows": 254584
+ },
+ "winogrande": {
+  "texts": 1267,
+  "windows": 11826
+ },
+ "openbookqa": {
+  "texts": 500,
+  "windows": 5479
+ },
+ "mmlu": {
+  "texts": 14042,
+  "windows": 884188
+ },
+ "squad_v2_dev": {
+  "texts": 13077,
+  "windows": 149901
+ },
+ "hotpotqa_dev": {
+  "texts": 74014,
+  "windows": 5161720
+ },
+ "xquad_de": {
+  "texts": 1430,
+  "windows": 27535
+ },
+ "ifeval": {
+  "texts": 541,
+  "windows": 13627
+ },
+ "piqa": {
+  "texts": 1838,
+  "windows": 60387
+ },
+ "lm_val_a": {
+  "texts": 767,
+  "windows": 396554
+ },
+ "lm_val_b": {
+  "texts": 772,
+  "windows": 414260
+ },
+ "lm_test": {
+  "texts": 1137,
+  "windows": 621198
+ },
+ "lm_wt103_test": {
+  "texts": 62,
+  "windows": 205736
+ },
+ "_unique_windows": 9406177,
+ "_wikitext_titles": 243
+}
