@@ -1,6 +1,6 @@
 # Datenregister – was ENGRAMM Chat v3 nutzt, ausliefert und meidet
 
-Stand: 2026-10-05 (Verstehen v3.2 ergänzt: Situations-Lexikon, Anleitungs-Index, Rahmen-Klassifikator). Jede Datei eines Wissenspakets gehört genau einer Zeile dieser Tabelle an.
+Stand: 2026-10-17 (Sela-2-Trainingsdaten ergänzt; davor 2026-10-05: Verstehen v3.2). Jede Datei eines Wissenspakets gehört genau einer Zeile dieser Tabelle an.
 Ihre Lizenz steht zusätzlich in `manifest.json` → `licenses`.
 
 ## Ausgeliefert (im Wissenspaket oder im Programm)
@@ -29,6 +29,35 @@ Ihre Lizenz steht zusätzlich in `manifest.json` → `licenses`.
 | Lernstand des Nutzers | entsteht auf dem Rechner des Nutzers (`learn.json` neben dem Chat-Gedächtnis) | gehört dem Nutzer | nicht ausgeliefert, nie übertragen | exakt vergessbar („vergiss das“, Zurücksetzen in der App) |
 | Nachrichten-Feeds | die Verlage der gewählten Feeds | jeweiliges Recht des Verlags | nicht ausgeliefert: nur auf dem Rechner des Nutzers geladen, wenn er den Kanal einschaltet (`engramm/web/feeds.json` enthält nur die Feed-Adressen) | Anzeige mit Quelle und Link; kein Weiterverteilen |
 
+## Sela-2: Trainingsdaten (nicht ausgeliefert; ausgeliefert werden nur die Gewichte)
+
+Stand 17. Oktober 2026, vor dem GPU-Lauf (`experiments/sela2_data.py`). Die Daten liegen nur im privaten
+Release-Entwurf „ENGRAMM Sela-2 Trainingsdaten (privat)“. Vor jeder Weitergabe der Gewichte gelten die Pflichten
+der rechten Spalte.
+
+| Daten | Quelle | Lizenz | Verwendung | Pflichten bei Weitergabe der Gewichte |
+|---|---|---|---|---|
+| FineWeb-Edu (+ Hoch-Qualitäts-Teil) | HuggingFaceFW/fineweb-edu, sample/10BT | ODC-By 1.0 (Common-Crawl-Bedingungen) | Vortraining EN | Namensnennung der Quelle |
+| DCLM | HuggingFaceFW/dclm_100BT | ODC-By 1.0 | Vortraining EN | Namensnennung |
+| C4 | allenai/c4 (en) | ODC-By 1.0 | Vortraining EN | Namensnennung |
+| Cosmopedia v2 | HuggingFaceTB/smollm-corpus | ODC-By 1.0 (erzeugt mit Mixtral-8x7B-Instruct, Apache 2.0) | Vortraining EN | Namensnennung |
+| Wikipedia EN/DE (20231101) | wikimedia/wikipedia | CC BY-SA 3.0 / GFDL | Vortraining | Namensnennung; ob Gewichte unter Share-Alike fallen, ist rechtlich offen |
+| PG-19 | emozilla/pg19 (Project Gutenberg vor 1919) | gemeinfreie Texte | Vortraining EN | – |
+| FineWeb2-HQ Deutsch | epfml/FineWeb2-HQ (deu_Latn) | ODC-By 1.0 | Vortraining DE | Namensnennung |
+| SmolTalk: smol-magpie-ultra, everyday-conversations | HuggingFaceTB/smoltalk2 (SFT, aus SmolTalk) | Apache 2.0; **erzeugt mit Llama 3.1** | Chat (Abklingen + Feinabstimmung) | Llama-3.1-Lizenz: ein weitergegebenes Modell, das mit Llama-Ausgaben trainiert wurde, muss „Llama“ am Namensanfang tragen, dazu „Built with Llama“. **Entscheidung vor einer Veröffentlichung nötig** (umbenennen oder Chat-Teil ohne diese Daten neu trainieren; HuggingFace hat SmolLM2 mit denselben Daten unter eigenem Namen veröffentlicht) |
+| SmolTalk: smol-rewrite, smol-summarize | HuggingFaceTB/smoltalk2 | Apache 2.0 | Chat | Namensnennung |
+| SmolTalk2: systemchats, multilingual8 (nur Deutsch), jeweils Qwen3-32B | HuggingFaceTB/smoltalk2 | Apache 2.0 (Antworten von Qwen3-32B, Apache 2.0; das „Nachdenken“ entfernt) | Chat EN/DE | Namensnennung |
+| OpenAssistant oasst2 (EN/DE) | OpenAssistant/oasst2 | Apache 2.0 | Chat | Namensnennung |
+| Dolly 15k | databricks/databricks-dolly-15k | CC BY-SA 3.0 | Chat, Quellen-QA | Namensnennung; Share-Alike-Frage wie Wikipedia |
+| SQuAD v2 (train) | rajpurkar/squad_v2 | CC BY-SA 4.0 | Quellen-QA | wie Dolly |
+| HotpotQA (train) | hotpotqa/hotpot_qa | CC BY-SA 4.0 | Quellen-QA | wie Dolly |
+| GermanRAG | DiscoResearch/germanrag | CC BY 4.0 | Quellen-QA DE | Namensnennung |
+| Identität („Ich bin Sela …“) | selbst geschrieben (`experiments/sela2_data.py`) | Projektlizenz | Chat | – |
+
+**Nicht verwendet:** Explore-Instruct-Rewriting (CC BY-NC 4.0, nur nicht-kommerziell), SystemChat-2.0 (keine
+Lizenz), SmolTalk2 multilingual lang_5 (keine Lizenz angegeben), Magpie-Qwen2.5-Pro (Antworten zu lang für den
+Zweck). Alle Testsätze der Messung wurden vor dem Training herausgefiltert (13-Wort-Fenster).
+
 ## Nur zum Messen, nicht ausgeliefert
 
 | Daten | Lizenz | Zweck |
@@ -38,6 +67,8 @@ Ihre Lizenz steht zusätzlich in `manifest.json` → `licenses`.
 | Gesprächsproben, versiegelte Sätze, Schlussfolgerungs- und Rahmen-Sätze (`experiments/probes/`) | Projektlizenz (von getrennten Agenten geschrieben) | Messung „Verstehen“ v3.2 (PREREG_UNDERSTAND_V0) |
 | SQuAD, Natural Questions (frühere Runden) | CC BY-SA 4.0 / CC BY-SA 3.0 | QA-Messungen E14–E27 |
 | ChatBench-Prompts | von Schreibern unter CC BY 4.0 eingereicht (Briefing) | Phase 1/8 |
+| Sela-2-Benchmarks: HellaSwag, PIQA, ARC, WinoGrande, OpenBookQA, LAMBADA, MMLU, IFEval, SQuAD v2 dev | jeweilige Lizenz (MIT, Apache 2.0, CC BY-SA 4.0 u. a.) | Messung M3/M6/M7 (`docs/PREREG_SELA2.md`) |
+| Sela-2-Chat-Prompts (`data/sela2/chat_eval_prompts.json`) | Projektlizenz (selbst geschrieben) | Messung M5 |
 
 ## Gemieden
 

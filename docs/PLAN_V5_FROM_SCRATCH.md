@@ -784,8 +784,14 @@ Deutsch ist ein Versuch ohne Zielwert.
 ### 12.5 Lizenzen
 
 - Gewichte vorsichtshalber unter CC BY-SA 4.0, wegen Wikipedia, SQuAD, HotpotQA und Dolly.
-- smoltalk2 enthält Smol-Magpie-Ultra-Gespräche von Llama-3.1-405B. Die Llama-3.1-Lizenz verlangt bei Weitergabe
-  „Llama“ im Modellnamen. Solange Sela-2 nur privat in der App läuft, ist das offen.
+- smoltalk2 enthält Smol-Magpie-Ultra- und Everyday-Gespräche von Llama 3.1. Die Llama-3.1-Lizenz verlangt bei
+  Weitergabe „Llama“ am Anfang des Modellnamens und „Built with Llama“. Solange Sela-2 nur privat läuft, ist das
+  offen.
+- Vor dem Lauf entfernt (Prüfung am 17. Oktober): Explore-Instruct-Rewriting (CC BY-NC 4.0, nicht kommerziell),
+  SystemChat-2.0 und smoltalk2-multilingual lang_5 (keine Lizenz angegeben); ersetzt durch die Qwen3-32B-Fassungen
+  aus smoltalk2 (Apache 2.0). Register: `docs/DATA_LICENSES.md`.
 - Vor einer Veröffentlichung entscheidet der Auftraggeber:
   - umbenennen;
-  - oder mit dem strengen Datenpool ohne die Llama-Gespräche neu feinabstimmen (`python -m experiments.sela2_data chat --strict`; ≈ 1 $ GPU).
+  - oder ohne die Llama-Gespräche nachtrainieren (`python -m experiments.sela2_data chat --strict`). Sie stecken
+    auch im Abklingen des Vortrainings; sauber ist daher: ab dem Fortsetzungs-Stand (`fortsetzen_vor_abklingen.pt`)
+    Abklingen und Feinabstimmung neu, ≈ 30 % der Laufzeit (≈ 8 $ GPU).

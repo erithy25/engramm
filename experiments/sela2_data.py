@@ -660,12 +660,19 @@ def is_german(text: str) -> bool:
     return de / len(w) > 0.08 and de > 2 * other
 
 
+# Licences (docs/DATA_LICENSES.md, Sela-2): smol-magpie-ultra, everyday-conversations, smol-rewrite and
+# smol-summarize are Apache 2.0 (SmolTalk; the first two were generated with Llama 3.1, whose licence asks that a
+# distributed model trained on its outputs carries "Llama" in its name); the *_Qwen3_32B_think subsets are
+# Apache 2.0 (SmolTalk2, answers by Qwen3-32B, the reasoning removed). Not used: explore-instruct-rewriting
+# (CC BY-NC 4.0: non-commercial), systemchats-30k (SystemChat-2.0, no licence), multilingual lang_5 (no licence
+# declared).
 SMOLTALK_EN = ["smoltalk_smollm3_smol_magpie_ultra_no_think", "smoltalk_smollm3_everyday_conversations_no_think",
-               "smoltalk_smollm3_systemchats_30k_no_think", "smoltalk_smollm3_smol_rewrite_no_think",
-               "smoltalk_smollm3_smol_summarize_no_think", "smoltalk_smollm3_explore_instruct_rewriting_no_think"]
-SMOLTALK_DE = ["smoltalk_multilingual_8languages_lang_5_no_think"]
+               "smoltalk_smollm3_smol_rewrite_no_think", "smoltalk_smollm3_smol_summarize_no_think",
+               "smoltalk_systemchats_Qwen3_32B_think"]
+SMOLTALK_DE = ["smoltalk_multilingual8_Qwen3_32B_think"]
 LLAMA_SUBSETS = ("smoltalk_smollm3_smol_magpie_ultra_no_think", "smoltalk_smollm3_everyday_conversations_no_think")
 MAGPIE_MAX_CHARS = 2400                            # ≈ 500 tokens per assistant turn at most
+THINK = re.compile(r"^\s*<think>.*?</think>\s*", re.S)
 
 
 def iter_smoltalk(work: Path, only_lang: str | None = None):
@@ -679,11 +686,16 @@ def iter_smoltalk(work: Path, only_lang: str | None = None):
                         if m.get("role") in ("system", "user", "assistant") and isinstance(m.get("content"), str)]
                 if not msgs:
                     continue
+                if sub.endswith("_think"):                 # the answer without the reasoning; none left: skip
+                    if any(m.role == "assistant" and "</think>" not in m.text for m in msgs):
+                        continue
+                    msgs = [Message(m.role, THINK.sub("", m.text).strip()) if m.role == "assistant" else m for m in msgs]
                 kw = r.get("chat_template_kwargs") or {}
                 sysmsg = (kw.get("custom_instructions") or "").strip()
                 if sysmsg and msgs[0].role != "system":
                     msgs = [Message("system", sysmsg)] + msgs
-                if "magpie" in sub and max(len(m.text) for m in msgs if m.role == "assistant") > MAGPIE_MAX_CHARS:
+                if (("magpie" in sub or sub.endswith("_think"))
+                        and max((len(m.text) for m in msgs if m.role == "assistant"), default=0) > MAGPIE_MAX_CHARS):
                     continue                       # long essays: slow in the app and drift in a small model
                 lang = "en"
                 if sub in SMOLTALK_DE:
@@ -1141,7 +1153,7 @@ def main() -> None:
         if name == "chat":
             p.add_argument("--limit", type=int, default=0)
             p.add_argument("--strict", action="store_true",
-                           help="licence-strict pool: without the Llama-3.1-generated smoltalk subsets")
+                           help="also without the Llama-3.1-generated smoltalk subsets (see SMOLTALK_EN)")
         p.set_defaults(func=fn)
     p = sub.add_parser("selftest")
     p.set_defaults(func=cmd_selftest)
