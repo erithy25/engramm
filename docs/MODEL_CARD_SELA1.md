@@ -171,6 +171,22 @@ the project's CPU machine exactly (`results/v5/h100/bench_gpt2_local/`).
 - **Mixture is not the Stage-1 number.** Stage 1 is decided by the network alone. The mixture with the counting model
   (0.982) is reported separately.
 
+## In the desktop app
+
+The ENGRAMM chat app can run Sela-1 on the user's computer (NumPy only, no torch: `engramm/lm/sela.py`). A selector in
+the chat field switches between ENGRAMM (answers with sources) and Sela-1 (continues a text; a question gets a one-line
+answer). Sela-1 replies carry the chip "Sela-1 · invented", and the header and hint say that it is a neural network
+that invents facts.
+
+- **Weights in the app:** `sela1-135m.npz`, the checkpoint exported to fp16 (270.5 MB, SHA-256 `6692e66d…44272`).
+  On the real weights the NumPy port differs from torch by at most 0.008 in the logits, and it picks the same most
+  likely token on the check prompts.
+- **Builds:** the macOS builds with Sela-1 come from `.github/workflows/desktop_sela.yml` and go only into a private
+  draft release ("ENGRAMM 3.2 mit Sela-1 – privater Test-Build 1": DMGs for Apple Silicon and Intel, 327/318 MB). The
+  public installers ship without the weights and show Sela-1 as not installed.
+- **Speed:** about 36–38 tokens per second on a GitHub Ubuntu runner, measured with the exported file. The signed
+  Apple Silicon app wrote its first 6 tokens in 0.47 s during the build's smoke test.
+
 ## Limitations and intended use
 
 Sela-1 is a research artefact that shows how far a small from-scratch model gets with an efficient recipe and about

@@ -671,6 +671,15 @@ Pod automatisch hochgeladen (Branch `h100-results-20261017-0317`, Commit `219df1
 
   - Außerhalb der eigenen Daten liegt Sela-1 damit etwa auf GPT-2-small-Niveau: zweimal besser, einmal gleich, bei
     LAMBADA (letzte Wörter aus Romanen, langer Kontext; Sela-1 las keine Bücher) klar schlechter.
+- **In der Desktop-App (17. Oktober, auf Wunsch des Auftraggebers).**
+  - Sela-1 läuft im Sidecar ohne torch, mit dem NumPy-Port `engramm/lm/sela.py`. Im Chatfeld wählt man zwischen
+    ENGRAMM und Sela-1.
+  - Der private macOS-Bau `.github/workflows/desktop_sela.yml` exportiert den Checkpoint nach fp16 (270,5 MB) und
+    prüft NumPy gegen torch auf den echten Gewichten: größte Logit-Abweichung 0,008, gleiche wahrscheinlichste Token.
+  - Die DMGs für Apple Silicon und Intel liegen nur im privaten Entwurf „ENGRAMM 3.2 mit Sela-1 – privater
+    Test-Build 1“. Die öffentlichen Installer enthalten keine Gewichte.
+  - Vor dem Bau haben drei Prüfer mit Gegenprüfung den Code durchgesehen; 6 Befunde wurden behoben, darunter eine
+    float64-Rechnung, die Sela-1 ≈ 6,5-mal langsamer gemacht hätte.
 - **Name.** Das Netz heißt **ENGRAMM Sela-1 135M** (Familie Sela, erste Generation, 135 Mio. Parameter). Das
   CPU-Netz aus §10 kann als „Sela-0 100M“ geführt werden.
 - **Folge für §10.** Die CPU-Verlängerung `long_ext1` wird für Stufe 1 nicht mehr gebraucht. Sie läuft als reiner
