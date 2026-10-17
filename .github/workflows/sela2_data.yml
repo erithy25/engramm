@@ -5,7 +5,8 @@
 # committed to the branch at the end so that the GPU run and the documentation can pin them.
 # A push of this file rebuilds only the chat / grounded-QA streams with the tokenizer and decontamination table
 # already in the release (the pretraining streams stay as they are); workflow_dispatch can rebuild anything.
-# Chat pool: only sources with a licence that allows it (docs/DATA_LICENSES.md, Sela-2 section).
+# Chat pool: only sources with a licence that allows it (docs/DATA_LICENSES.md, Sela-2 section); the SmolTalk
+# subsets with reasoning ("…_think", not "…_no_think") lose their <think> part.
 name: Sela-2 training data (private draft release)
 
 on:
