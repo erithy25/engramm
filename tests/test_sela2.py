@@ -15,9 +15,9 @@ from experiments.sela2_model import (Sela2, Sela2Config, chunked_loss, export_np
                                      npz_arrays)
 
 
-def _tiny(seed: int = 0, ve_tables: int = 1, layers: int = 4) -> Sela2:
+def _tiny(seed: int = 0, ve_tables: int = 1, layers: int = 4, vocab: int = 300) -> Sela2:
     torch.manual_seed(seed)
-    cfg = Sela2Config(d=64, layers=layers, heads=2, ctx=96, vocab=300, ve_tables=ve_tables)
+    cfg = Sela2Config(d=64, layers=layers, heads=2, ctx=96, vocab=vocab, ve_tables=ve_tables)
     m = Sela2(cfg)
     with torch.no_grad():                    # leave the zero / neutral initialisation: every path must carry signal
         for name, p in m.named_parameters():
@@ -312,3 +312,76 @@ def test_plan_weights_respects_what_sources_hold():
         assert need <= avail[g] * 0.99 + 1e-6, (g, need)
     assert abs(sum(s.values()) - 1) < 1e-9 and abs(sum(d.values()) - 1) < 1e-9
     assert group_of("fwe_2") == "fwe" and group_of("dclm_0_1") == "dclm" and group_of("chat_en_decay") == "chat_en_decay"
+
+
+def test_bench_wrapper_scores_like_the_forward_pass(tmp_path):
+    """experiments/sela2_bench.py scores the bf16 file of the pod exactly like the model's own forward pass
+    (batched, right-padded with <|eos|>, which opens a new document and so never leaks into earlier positions)."""
+    from tokenizers import Tokenizer, decoders, models, pre_tokenizers, trainers
+
+    from engramm.lm.chat_format import SPECIAL_TOKENS
+    from engramm.lm.tokenizer import file_sha256
+    from experiments.sela1_bench import score_requests
+    from experiments.sela2_bench import Sela2 as Bench
+    tk = Tokenizer(models.BPE())
+    tk.pre_tokenizer = pre_tokenizers.ByteLevel(add_prefix_space=False, use_regex=True)
+    tk.decoder = decoders.ByteLevel()
+    tk.train_from_iterator(["The cat sat on the mat. A dog ran in the park."] * 40,
+                           trainers.BpeTrainer(vocab_size=300, special_tokens=SPECIAL_TOKENS, show_progress=False,
+                                               initial_alphabet=pre_tokenizers.ByteLevel.alphabet()))
+    tk.save(str(tmp_path / "tok.json"))
+    m = _tiny(vocab=tk.get_vocab_size())
+    ck = tmp_path / "chat_bf16.pt"
+    torch.save({"model": {k: v.to(torch.bfloat16) for k, v in m.state_dict().items()}, "cfg": m.cfg.to_dict(),
+                "meta": {"pretrain": {"tokens": 123, "tokenizer_sha256": file_sha256(tmp_path / "tok.json")},
+                         "sft_steps": 5}}, ck)
+    b = Bench(ck, "sela2-chat", tokenizer=tmp_path / "tok.json")
+    assert b.info["tokens_trained"] == 123 and b.info["sft_steps"] == 5 and b.bos == 0
+    reqs = [(b.encode("The cat sat on"), b.encode(" the mat.")), (b.encode("A dog"), b.encode(" ran in the park."))]
+    got = score_requests(b, reqs, batch_tokens=64)
+    for (ctx, cont), (lp, _) in zip(reqs, got):
+        full = torch.tensor([[0] + ctx + cont])
+        with torch.no_grad():
+            ref = torch.log_softmax(b.model(full)[0].float(), dim=-1)
+        want = sum(float(ref[len(ctx) + j, cont[j]]) for j in range(len(cont)))
+        assert abs(lp - want) < 1e-4, (lp, want)
+    with pytest.raises(RuntimeError):                  # a different tokenizer than the one of training is refused
+        tk2 = Tokenizer.from_file(str(tmp_path / "tok.json"))
+        tk2.add_tokens(["zzzz"])
+        tk2.save(str(tmp_path / "tok2.json"))
+        Bench(ck, "sela2-chat", tokenizer=tmp_path / "tok2.json")
+
+
+def test_bench_tasks_and_pooled_stage(tmp_path):
+    """experiments/sela2_bench.py: item building of the added tasks (WinoGrande partial scoring), and the pooled
+    stage rule of PREREG_SELA2 on synthetic shard files."""
+    import json
+
+    from experiments import sela2_bench as SB
+    wg = SB.items_from_rows("winogrande", [{"sentence": "Ann beat Bo so _ won the prize.", "option1": "Ann",
+                                            "option2": "Bo", "answer": "1"}])
+    assert wg == [{"requests": [("Ann beat Bo so Ann", " won the prize."), ("Ann beat Bo so Bo", " won the prize.")],
+                   "gold": 0}]
+    mm = SB.items_from_rows("mmlu", [{"question": " 2+2? ", "choices": ["3", "4", "5", "6"], "answer": 1, "subject": "x"}])
+    assert mm[0]["requests"][1] == ("Question: 2+2?\nAnswer:", " 4") and mm[0]["gold"] == 1
+    ob = SB.items_from_rows("openbookqa", [{"id": "1", "question_stem": "Sun is a", "answerKey": "B",
+                                            "choices": {"label": ["A", "B"], "text": ["moon", "star"]}}])
+    assert ob[0]["requests"] == [("Sun is a", " moon"), ("Sun is a", " star")] and ob[0]["gold"] == 1
+    rng = np.random.default_rng(0)
+    for model, p in (("sela2-base", 0.62), ("gpt2", 0.50), ("pythia-160m", 0.55)):
+        for task in SB.POOLED:
+            n = SB.EXPECTED_ITEMS[task]
+            for shard in range(2):
+                items = list(range(shard, n, 2))
+                c = [int(x) for x in rng.random(len(items)) < p]
+                rec = {"task": task, "model": model, "model_info": {"model": model}, "shard": shard, "shards": 2,
+                       "limit": 0, "items": items, "correct": c, "correct_norm": c, "ll": [0.0] * len(items),
+                       "greedy": c, "seconds": 1.0, "torch": "x", "source": {}}
+                (tmp_path / f"bench_{model}_{task}_{shard}of2.json").write_text(json.dumps(rec))
+    res = SB.collect(tmp_path)
+    assert not res["incomplete"] and set(res["pooled"]) == {"sela2-base", "gpt2", "pythia-160m"}
+    st = res["stage_gpt3_small"]
+    assert st["reached"] is True and st["ci95"][0] > 0 and abs(st["sela2_minus_gpt2"] - 0.12) < 0.03
+    (tmp_path / "bench_pythia-160m_piqa_1of2.json").unlink()        # a missing shard: never a partial score
+    res = SB.collect(tmp_path)
+    assert res["stage_gpt3_small"]["reached"] is None and res["incomplete"][0]["task"] == "piqa"

@@ -66,6 +66,7 @@ DECAY_MIX = {"fwe": 0.10, "fwehq": 0.20, "dclm": 0.14, "c4": 0.05, "cosmo": 0.05
              "identity_decay": 0.01}
 SFT_MIX = {"chat_en_sft": 1, "chat_de_sft": 1, "grounded_sft": 1, "identity_sft": 3}     # passes over each stream
 CHAT_VAL = ("chat_en_val", "chat_de_val", "grounded_val")
+EVAL_MAX_TOKENS = 8192                             # held-out documents count with at most this many tokens
 PROMPTS_CHAT = [("en", "Hi! Who are you?"), ("en", "Explain in two sentences why the sky is blue."),
                 ("en", "Write a short, friendly email inviting my team to a lunch on Friday."),
                 ("en", "Give me three tips for sleeping better."),
@@ -486,10 +487,35 @@ def logprobs_packed(model: Sela2, seqs: list[np.ndarray], device, rows: int = 8)
     return out
 
 
+_BYTE_LEN: dict[str, np.ndarray] = {}
+
+
+def token_byte_lengths(tokenizer: Path | str = TOKENIZER_FILE) -> np.ndarray | None:
+    """UTF-8 bytes of every token id (byte-level BPE: one vocabulary character per byte; special tokens 0), so that
+    the bytes of any token span are exact without decoding."""
+    key = str(tokenizer)
+    if key not in _BYTE_LEN:
+        try:
+            spec = json.loads(Path(tokenizer).read_text(encoding="utf-8"))
+            vocab = spec["model"]["vocab"]
+            lens = np.zeros(max(vocab.values()) + 1, dtype=np.int64)
+            for t, i in vocab.items():
+                lens[i] = len(t)
+            for a in spec.get("added_tokens", []):
+                lens[a["id"]] = 0
+            _BYTE_LEN[key] = lens
+        except (OSError, ValueError, KeyError):
+            return None
+    return _BYTE_LEN[key]
+
+
 @torch.no_grad()
-def eval_stream(model: Sela2, rec: dict, device, max_docs: int = 0) -> dict:
+def eval_stream(model: Sela2, rec: dict, device, max_docs: int = 0, max_tokens: int = 0,
+                byte_len: np.ndarray | None = None) -> dict:
     """Bits per byte of a validation stream (NAME.starts.npy / NAME.bytes.npy beside it): each document's tokens and
-    its end marker (the next <|eos|>), bytes + 1. Documents longer than the context: windows of ctx, stride ctx/2."""
+    its end marker (the next <|eos|>), bytes + 1. Documents longer than the context: windows of ctx, stride ctx/2.
+    ``max_tokens`` (with ``byte_len``): a longer document (a book) counts with its first max_tokens tokens only,
+    their exact bytes from the token lengths, no end marker — the evaluation stays minutes, not a quarter hour."""
     path = Path(rec["path"])
     toks = np.fromfile(path, dtype=np.uint16)
     starts = np.load(str(path).replace(".u16", ".starts.npy")).astype(np.int64)
@@ -497,6 +523,14 @@ def eval_stream(model: Sela2, rec: dict, device, max_docs: int = 0) -> dict:
     ends = np.append(starts[1:] - 1, len(toks) - 1)                    # index of the end marker
     if max_docs:
         starts, ends, nbytes = starts[:max_docs], ends[:max_docs], nbytes[:max_docs]
+    truncated = 0
+    if max_tokens and byte_len is not None:
+        ends, nbytes = ends.copy(), nbytes.copy()
+        for d in range(len(starts)):
+            if ends[d] - starts[d] > max_tokens:
+                ends[d] = starts[d] + max_tokens                       # the predicted span ends before ends[d]
+                nbytes[d] = float(byte_len[toks[starts[d]:ends[d] + 1].astype(np.int64)].sum())
+                truncated += 1
     T = model.cfg.ctx
     was = model.training
     model.eval()
@@ -519,7 +553,8 @@ def eval_stream(model: Sela2, rec: dict, device, max_docs: int = 0) -> dict:
             done = a + W
             a += T // 2
     model.train(was)
-    return {"docs": int(len(starts)), "bpb": float(bits.sum() / nbytes.sum()), "per_doc_bits": bits}
+    return {"docs": int(len(starts)), "bpb": float(bits.sum() / nbytes.sum()), "per_doc_bits": bits,
+            "truncated_docs": truncated, "max_tokens": max_tokens}
 
 
 @torch.no_grad()
@@ -774,8 +809,9 @@ def pretrain(args, device) -> dict:
             logf.flush()
             print(rec, flush=True)
         if meta["tokens"] >= meta["next_eval"]:
-            ev = {n: eval_stream(model, r, device, args.eval_docs)["bpb"] for n, r in val_streams(Path(args.data)).items()
-                  if n.startswith("val_")}
+            bl = token_byte_lengths()
+            ev = {n: eval_stream(model, r, device, args.eval_docs, max_tokens=EVAL_MAX_TOKENS, byte_len=bl)["bpb"]
+                  for n, r in val_streams(Path(args.data)).items() if n.startswith("val_")}
             row = {"tokens": meta["tokens"], "train_hours": meta["train_seconds"] / 3600, "bpb": ev}
             with open(curve, "a") as f:
                 f.write(json.dumps(row) + "\n")
@@ -957,7 +993,11 @@ def cmd_evaluate(args) -> None:
     streams = scan(Path(args.data))
     for name, rec in val_streams(Path(args.data)).items():
         t0 = time.time()
-        r = eval_stream(model, rec, device, args.final_docs if name.startswith("val_") else 0)
+        if name.startswith("val_"):                # held-out sets: documents capped (books); LM-study sets: in full
+            r = eval_stream(model, rec, device, args.final_docs, max_tokens=EVAL_MAX_TOKENS,
+                            byte_len=token_byte_lengths(args.tokenizer))
+        else:
+            r = eval_stream(model, rec, device, 0)
         np.save(out / f"perdoc_{args.tag}_{name}.npy", r.pop("per_doc_bits").astype(np.float32))
         r["seconds"] = round(time.time() - t0, 1)
         res["bpb"][name] = r

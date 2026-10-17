@@ -43,7 +43,7 @@ jobs:
       - name: torch 2.8.0 (the GPU pod's version, CPU build) and the pinned tokenizer
         run: |
           pip install "torch==2.8.0" --index-url https://download.pytorch.org/whl/cpu
-          pip install "numpy==2.2.6" "tokenizers==0.23.2" pytest
+          pip install "numpy==2.4.1" "numba==0.67.0" "tokenizers==0.23.2" "pydivsufsort==0.0.20" pyyaml "pytest==9.1.1"
           python -c "import torch, numpy, tokenizers; print('torch', torch.__version__, 'numpy', numpy.__version__, 'tokenizers', tokenizers.__version__)"
       - name: Unit tests
         run: python -m pytest -q tests/test_sela2.py tests/test_sela2_app.py tests/test_sela_numpy.py tests/test_chat_app.py
@@ -79,7 +79,7 @@ jobs:
       - if: steps.have.outputs.ok == '1'
         run: |
           pip install "torch==2.8.0" --index-url https://download.pytorch.org/whl/cpu
-          pip install "numpy==2.2.6" "tokenizers==0.23.2"
+          pip install "numpy==2.4.1" "tokenizers==0.23.2"
       - name: Pod script, test mode, real data, tiny model (vocabulary 49,152)
         if: steps.have.outputs.ok == '1'
         env:
