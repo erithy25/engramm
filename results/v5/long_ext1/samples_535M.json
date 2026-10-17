@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 535371776,
+ "train_hours": 131.84611504071287,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " has been fascinating, and not only is Lillie’s house a remarkable place for more than 15 years to live.\nWell that was why he started this event at the end when Lillrina decided to lease most of what he wanted (now Melvin Alvarez) in hopes it would be taken over by an old railroad connection as"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in Ottawa, Ontario and has a track record of 25 years.\nEsteologists wrote stories that told by Laurence Olivier that the Canadian Army had discovered that during World War II the Japanese were ready to keep behind the front line and foundered his army again on top.\nOn 27 December 1945 three days after graduating from Ottawa-C"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " The plan for a five-year period saw considerable growth in the European Union.\nTwenty three weeks ago, Group leaders were returning to Europe and now have seen minor declines in the United States after an imp election with 40% approval.\nOn 20th April 1996, the European Union met up with the League of riders (NLC) by"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " I discovered the rules that should be interpreted for pain relief.\nA good reason is for poor luck - what's better than talking about something else? If you go out there and don't get involved then surely they are NOT going through the bad guys; in fact neither do anything except the hit rate of one thousand per century every year until 1 day"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " unassured brelsa.\nShash panel is a very good tool to practice if you don't need this kind of environment! It's one of the best fun ways for people who try out unique creativity in outdoor activities or outdoors areas - because it can be used as a model...which are alluded to also consider being considered over some"
+  }
+ ]
+}
