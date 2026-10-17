@@ -27,7 +27,10 @@ import urllib.request
 from pathlib import Path
 
 QUESTIONS = ["Hello!", "What is the capital of France?", "Who was Ada Lovelace?",
-             "Hallo, wie geht es dir?", "Erzähl mir etwas über München."]
+             "Hallo, wie geht es dir?", "Erzähl mir etwas über München.", "My laptop is broken.",
+             "Mein Fahrrad ist kaputt."]
+# replies that show the frozen server lost its language data (lexicons of engramm/understand): every noun is unknown
+WRONG = ("Quick question — what's a", "Kurze Frage: Was ist")
 FOLDER = "ENGRAMM Prüfung Jörg Müller"        # a space, umlauts and a non-ASCII user name
 
 
@@ -126,7 +129,7 @@ def run(pack: Path, cmd: list[str], cwd: Path | None, expect_utf8: bool, timeout
             t1 = time.time()
             code, reply = _post(base, "/api/chat", {"conversation": "check", "message": q}, timeout=300)
             text = str(reply.get("text") or reply.get("error") or "")
-            good = code == 200 and bool(text.strip())
+            good = code == 200 and bool(text.strip()) and not any(w in text for w in WRONG)
             ok &= good
             out["answers"].append({"q": q, "code": code, "kind": reply.get("kind"), "text": text[:240],
                                    "seconds": round(time.time() - t1, 2), "ok": good})

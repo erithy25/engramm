@@ -18,12 +18,30 @@ import urllib.request
 from pathlib import Path
 
 
+def package_data(root: Path) -> list[Path]:
+    """Every file of the engramm package that is not code, relative to the repository."""
+    return sorted(f.relative_to(root) for f in (root / "engramm").rglob("*")
+                  if f.is_file() and f.suffix not in (".py", ".pyc") and "__pycache__" not in f.parts
+                  and f.name != ".DS_Store")
+
+
+def check_package_data(dist: Path, root: Path = Path(__file__).resolve().parents[2]) -> None:
+    """Every data file of the engramm package is in the frozen server, at its place (PyInstaller puts them under
+    _internal/). The code finds them next to itself, and a missing one fails silently: without the lexicons the app
+    asked "what's a laptop?" (builds up to 17 Oct 2026)."""
+    data = package_data(root)
+    for rel in ("engramm/understand/data/lex_en.tsv.gz", "engramm/understand/data/frame_model.json.gz",
+                "engramm/know/data/howto.json.gz", "engramm/chat/conv_bank.json"):
+        assert Path(rel) in data, rel
+    frozen = {p.relative_to(dist).parts[-len(rel.parts):] for rel in data for p in dist.rglob(rel.name)}
+    missing = [rel.as_posix() for rel in data if rel.parts not in frozen]
+    assert not missing, f"package data missing from the frozen server: {missing}"
+
+
 def main() -> int:
     dist = Path(sys.argv[1])
     exe = dist / ("engramm-server.exe" if sys.platform == "win32" else "engramm-server")
-    # data files the conversation layer needs at run time (PyInstaller puts them under _internal/)
-    for name in ("conv_bank.json", "letters.json", "feeds.json"):
-        assert any(dist.rglob(name)), f"{name} missing from the frozen server"
+    check_package_data(dist)
     # the network core beside the server (desktop builds): it must answer and have Tor
     core = dist / ("engramm-core.exe" if sys.platform == "win32" else "engramm-core")
     if core.exists():

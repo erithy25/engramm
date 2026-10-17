@@ -7,22 +7,22 @@ from PyInstaller.utils.hooks import collect_submodules
 
 ROOT = Path(SPECPATH).resolve().parents[1]
 
-# engramm is a namespace package, so its data files are listed here: the conversation bank, the
-# realizer's verb list and the built chat page
-datas = [(str(ROOT / "engramm" / "chat" / "conv_bank.json"), "engramm/chat"),
-         (str(ROOT / "engramm" / "chat" / "letters.json"), "engramm/chat"),
-         (str(ROOT / "engramm" / "web" / "feeds.json"), "engramm/web"),
-         (str(ROOT / "engramm" / "chat" / "data"), "engramm/chat/data"),
-         (str(ROOT / "engramm" / "app" / "web"), "engramm/app/web"),
-         # the tokenizers of the Sela-1 and Sela-2 networks (engramm/lm/sela.py; the weights ship beside the server,
-         # in models/; a Sela-2 weights file names its tokenizer by file name and SHA-256)
-         (str(ROOT / "data" / "lm_tokenizer.json"), "data")]
+# engramm is a namespace package, so PyInstaller collects none of its data files by itself. Every file in the
+# package that is not code goes in, at the same place: the conversation bank, the letters, the realizer's verbs, the
+# lexicons and the frame model of engramm/understand, the how-to index of engramm/know, the feeds, the release keys
+# and the built chat page. Code finds them next to itself (Path(__file__).parent / ...); a file left out does not
+# fail loudly — the frozen app then answered "My laptop is broken." with "what's a laptop?" (builds up to 17 Oct 2026).
+PACKAGE_DATA = sorted(f for f in (ROOT / "engramm").rglob("*")
+                      if f.is_file() and f.suffix not in (".py", ".pyc") and "__pycache__" not in f.parts
+                      and f.name != ".DS_Store")
+datas = [(str(f), str(f.parent.relative_to(ROOT))) for f in PACKAGE_DATA]
+# the tokenizers of the Sela-1 and Sela-2 networks (engramm/lm/sela.py; the weights ship beside the server, in models/;
+# a Sela-2 weights file names its tokenizer by file name and SHA-256)
+datas.append((str(ROOT / "data" / "lm_tokenizer.json"), "data"))
 if (ROOT / "data" / "lm2_tokenizer.json").exists():
     datas.append((str(ROOT / "data" / "lm2_tokenizer.json"), "data"))
-# the confidence model for answers from the network channels (experiments/atlas_calib.py)
-if (ROOT / "engramm" / "web" / "atlas_calib.json").exists():
-    datas.append((str(ROOT / "engramm" / "web" / "atlas_calib.json"), "engramm/web"))
 hidden = (collect_submodules("engramm.chat") + collect_submodules("engramm.kb") + collect_submodules("engramm.nlp")
+          + collect_submodules("engramm.understand") + collect_submodules("engramm.know") + collect_submodules("engramm.learn")
           + collect_submodules("engramm.app") + collect_submodules("engramm.web") + ["engramm.lm.chat", "engramm.lm.semantic", "engramm.lm.stream",
                                                  "engramm.lm.tokenizer", "engramm.lm.dashboard", "engramm.lm.sela",
                                                  "engramm.lm.sela_chat", "engramm.lm.chat_format"])

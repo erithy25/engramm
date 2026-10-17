@@ -47,3 +47,22 @@ def test_pinned_tokenizers_keep_their_bytes_on_windows_checkouts():
                          encoding="utf-8", check=True).stdout
     converted = [ln for ln in out.splitlines() if not ln.endswith(": text: unset")]
     assert not converted, "add these to .gitattributes with -text (their SHA-256 is pinned):\n" + "\n".join(converted)
+
+
+def test_frozen_server_check_finds_missing_package_data(tmp_path):
+    import shutil as sh
+    import sys
+    sys.path.insert(0, str(ROOT / "runtime" / "sidecar"))
+    try:
+        from smoke_test import check_package_data, package_data
+    finally:
+        sys.path.pop(0)
+    data = package_data(ROOT)
+    dist = tmp_path / "engramm-server"
+    for rel in data:                          # the layout of a PyInstaller one-folder build
+        (dist / "_internal" / rel).parent.mkdir(parents=True, exist_ok=True)
+        sh.copyfile(ROOT / rel, dist / "_internal" / rel)
+    check_package_data(dist, ROOT)
+    (dist / "_internal" / "engramm" / "understand" / "data" / "lex_en.tsv.gz").unlink()
+    with pytest.raises(AssertionError, match="lex_en.tsv.gz"):
+        check_package_data(dist, ROOT)
