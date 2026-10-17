@@ -130,7 +130,7 @@ class Block(nn.Module):
         v = self.v(h).view(B, T, c.heads, c.hd)
         if ve is not None:
             gate = 3 * torch.sigmoid(self.ve_gate(h[..., :c.ve_gate_ch]))             # (B, T, H)
-            v = v + gate.unsqueeze(-1) * ve.view(B, T, c.heads, c.hd)
+            v = v + (gate.unsqueeze(-1) * ve.view(B, T, c.heads, c.hd)).to(v.dtype)   # bf16 under autocast (flex)
         q, k, v = (t.transpose(1, 2) for t in (q, k, v))                             # (B, H, T, hd)
         q = rope(rms(q), cos, sin) * c.qk_gain
         k = rope(rms(k), cos, sin) * c.qk_gain

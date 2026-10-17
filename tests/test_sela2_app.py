@@ -111,12 +111,42 @@ def test_free_chat_keeps_its_turns_per_conversation(svc2, monkeypatch):
 
 def test_sela2_while_engramm_loads_and_when_missing(svc2):
     base, svc = svc2
-    svc.assistant = None
+    assistant = svc.assistant
+    svc.assistant = None                      # no memory and no safety layer yet: Sela-2 does not answer alone
     code, r = _chat(base, "hello")
-    assert code == 200 and r["kind"] == "sela_chat"
+    assert code == 503 and "loading" in r["error"] and svc.sela2.calls == []
+    svc.assistant = assistant
     svc.sela2_path = None
     code, r = _chat(base, "hello")
     assert code == 503 and "not installed" in r["error"]
+
+
+@pytest.mark.parametrize("kind", ["safety", "tool", "memory", "clarify"])
+def test_safety_tool_and_clarifying_replies_stay_engramms(svc2, kind):
+    base, svc = svc2
+
+    class _K(_Assistant):
+        def turn(self, state, message):
+            r = super().turn(state, message)
+            r.kind = kind
+            r.evidence = None
+            return r
+    svc.assistant = _K(svc.bot)
+    code, r = _chat(base, "I want to kill myself" if kind == "safety" else "17*23")
+    assert code == 200 and r["model"] == "engramm" and r["kind"] == kind and svc.sela2.calls == []
+
+
+def test_unknown_with_a_guess_is_not_upgraded(svc2):
+    base, svc = svc2
+
+    class _U(_Assistant):
+        def turn(self, state, message):
+            r = super().turn(state, message)
+            r.kind = "unknown"
+            return r                              # keeps the best-guess evidence
+    svc.assistant = _U(svc.bot)
+    code, r = _chat(base, "who was Ada Lovelace?")
+    assert code == 200 and r["model"] == "engramm" and r["kind"] == "unknown" and svc.sela2.calls == []
 
 
 def test_max_tokens_bounds(svc2):
@@ -139,6 +169,13 @@ def test_verify_rules():
     ok, issues = verify("It was measured by Tenzing [1].", src)
     assert not ok and any("Tenzing" in i for i in issues)
     assert verify("Der Berg ist 8,848.86 m hoch [1].", src)[0]               # German nouns: only numbers checked
+    assert not verify("Paris [1].", [("Madrid", "Madrid is the capital of Spain.")])[0]      # first word checked
+    assert not verify("Yes, it was 1880 [1].", [("E", "He was born in 1879.")], "Was he born in 1880?")[0]
+    assert not verify("It has 37 million people [1].", [("X", "Sie hat 3,7 Millionen Einwohner.")])[0]
+    assert not verify("It took six years [1].", [("X", "It took four years.")])[0]
+    assert not verify("Kurt Gödel was born in Vienna [1].", [("Kurt Gödel", "Gödel was born in Brünn.")])[0]
+    assert verify("Earth's orbit is long [1].", [("Earth", "The orbit of Earth is long.")])[0]
+    assert verify("Rolls-Royce built it [1].", [("Engine", "It was built by Rolls-Royce.")])[0]
 
 
 def test_sampler_penalises_only_the_reply_and_stops_loops():
@@ -151,11 +188,14 @@ def test_sampler_penalises_only_the_reply_and_stops_loops():
     assert sample(z2, [20], rng, 0.0, 0.9, 2.0) == 21                         # 20 already in the reply
     assert sample(z2, [2, 2], rng, 0.0, 0.9, 2.0) == 20                       # special ids are never penalised
     assert looping([7, 8, 9, 10] * 3) and not looping([7, 8, 9, 10] * 2 + [1, 2, 3, 4])
+    assert looping([5] * 12) and not looping([5] * 11)                      # at least 12 repeated tokens
+    assert not looping([1, 2, 3, 40, 41, 1, 2, 3, 42, 43, 1, 2, 3, 44])      # list lines with the same start
     assert cut_sentence("One two three four five. Six seven") == "One two three four five."
     assert cut_sentence("One. Two three four five six") == "One. Two three four five six …"
     assert cut_sentence("Fine [1].") == "Fine [1]."
     assert language_of("Kannst du mir helfen?") == "de" and language_of("Can you help me?") == "en"
     assert language_of("It was measured by him.") == "en" and language_of("Was ist das?") == "de"
+    assert language_of("Who was Kurt Gödel?") == "en" and language_of("Wo liegt Zürich?") == "de"
     assert sources_from_reply({"evidence": "A.", "source": {"kind": "user"}, "alternatives": [{"text": "B.", "source": None}]}) \
         == [("You told me", "A."), ("", "B.")]
 
@@ -191,3 +231,39 @@ def test_real_numpy_model_end_to_end(tmp_path):
     assert isinstance(out["text"], str) and out["tokens"] <= 12 and len(st.turns) == 1
     ids = svc.sela2.build(st, "and you?", reply_room=20)
     assert ids[0] == 0 and ids[-1] != 2                                    # ends with the open assistant turn
+
+
+def test_chat_eval_runs_all_prompts_with_a_real_model(tmp_path, monkeypatch):
+    """experiments/sela2_chat_eval.py (M5): the 100 fixed prompts run through SelaChat; the counts and the role-leak
+    rule behave as registered."""
+    torch = pytest.importorskip("torch")
+    import sys
+
+    from tokenizers import Tokenizer, decoders, models, pre_tokenizers, trainers
+
+    from engramm.lm.chat_format import SPECIAL_TOKENS
+    from experiments import sela2_chat_eval as CE
+    from experiments.sela2_model import Sela2, Sela2Config, export_npz
+    assert CE.role_leak("Sure.\nUser: and then?") and CE.role_leak("ok\nassistant\nhi") and CE.role_leak("a <|im_end|>")
+    assert not CE.role_leak("The user manual says so.") and not CE.role_leak("Assistants help people.")
+    tk = Tokenizer(models.BPE())
+    tk.pre_tokenizer = pre_tokenizers.ByteLevel(add_prefix_space=False, use_regex=True)
+    tk.decoder = decoders.ByteLevel()
+    tk.train_from_iterator(["Hello, how are you? Wie geht es dir? The Danube is long."] * 50,
+                           trainers.BpeTrainer(vocab_size=400, special_tokens=SPECIAL_TOKENS, show_progress=False,
+                                               initial_alphabet=pre_tokenizers.ByteLevel.alphabet()))
+    tk.save(str(tmp_path / "tok.json"))
+    torch.manual_seed(0)
+    m = Sela2(Sela2Config(d=32, layers=2, heads=2, ctx=2048, vocab=tk.get_vocab_size(), ve_tables=1))
+    w = export_npz(m, tmp_path / "chat.npz")
+    out = tmp_path / "eval.json"
+    monkeypatch.setattr(sys, "argv", ["x", "--weights", str(w), "--tokenizer", str(tmp_path / "tok.json"),
+                                      "--out", str(out), "--md", str(tmp_path / "eval.md")])
+    CE.main()
+    r = json.loads(out.read_text())
+    s = r["summary"]
+    assert s["all"]["prompts"] == 100 and s["en"]["prompts"] == 60 and s["de"]["prompts"] == 40
+    assert s["grounded"]["answerable"] == 13 and s["grounded"]["no_answer"] == 4
+    assert sum(s["all"]["stop_reasons"].values()) == s["all"]["replies"] > 100     # multi-turn prompts add replies
+    assert set(s["criteria"]) == set(CE.CRITERIA) and isinstance(s["criteria_met"], bool)
+    assert "## Alle Antworten" in (tmp_path / "eval.md").read_text()

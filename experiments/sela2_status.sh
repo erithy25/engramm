@@ -60,7 +60,8 @@ if max_usd:
     print(f"Kosten bisher ≈ {billed / 3600 * price:.2f} $ von höchstens {max_usd:g} $ (Kostenbremse, {price:g} $/h)")
     over = billed - max_usd / price * 3600
     if over >= 0:
-        print(f"Grenze erreicht: noch höchstens {max(0, 600 - over) / 60:.0f} min zum Sichern, dann stoppt der Pod")
+        print("Grenze erreicht: der Pod stoppt sich (nach einem Neustart bleiben insgesamt höchstens "
+              f"{max(0, 600 - over) / 60:.0f} min zum Sichern)")
 if (W / "COST_LIMIT_REACHED").exists():
     print("KOSTENBREMSE hat gegriffen: der Pod stoppt sich. Diese Ausgabe an Claude schicken.")
 gh = W / "github_check"
@@ -97,9 +98,14 @@ if f.exists() and "sft" not in done:
         r = rows[-1]
         print(f"Feinabstimmung: Schritt {r['step']} von {r['of']}, Verlust {r['loss']:.3f}")
 up = W / "up"
-for n, label in (("fortsetzen", "Fortsetzungs-Stand"), ("basis", "Basismodell"), ("chat", "Chat-Modell")):
+if (W / "stages" / "sft").exists() and (W / "stages" / "sft").read_text().strip() == "skipped":
+    print("Chat-Feinabstimmung übersprungen (zu wenig Zeit bis zur Kostenbremse) – an Claude schicken")
+for n, label in (("fortsetzen", "Fortsetzungs-Stand"), ("basis", "Basismodell"), ("chat", "Chat-Modell"),
+                 ("ergebnisse", "Messwerte (Archiv im Release)")):
     if (up / f"{n}.ok").exists():
         print(f"Auf GitHub gesichert: {label}")
+    elif (up / f"{n}.lock").exists() and (up / f"{n}.log").exists() and alive:
+        print(f"Wird hochgeladen: {label}")
 if (W / "SUMMARY.txt").exists():
     print("\n" + (W / "SUMMARY.txt").read_text().rstrip())
 if finished:

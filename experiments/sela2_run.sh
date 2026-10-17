@@ -27,7 +27,7 @@ if ! flock -n 9; then
 fi
 export SELA2_CKPT_DIR="$W/ckpt" TORCHINDUCTOR_CACHE_DIR="$W/inductor" METER_GRACE_S=600
 LOG="$W/run.log"
-exec > >(tee -a "$LOG") 2>&1
+exec > >(exec 9>&-; tee -a "$LOG") 2>&1
 setting() {  # name default — kept in $W/settings.env across restarts; an explicit export wins and is saved again
   local v="${!1:-}"
   [ -z "$v" ] && [ -f "$W/settings.env" ] && v=$(sed -n "s/^$1=//p" "$W/settings.env" | tail -1)
@@ -38,7 +38,7 @@ SPENT_USD=$(setting SELA2_SPENT_USD 0)
 PRICE_MIN=$(setting SELA2_PRICE 4.01)
 RESERVE_PRE_S=2700                                          # after pretraining: SFT 20 + eval 7 + uploads 10 + margin 8 min
 RESERVE_SFT_S=1080                                          # after fine-tuning: eval 7 + uploads 8 + margin 3 min
-AUTO_END=${SELA2_AUTO_END:-terminate}
+AUTO_END=$(setting SELA2_AUTO_END terminate)
 RESTART="setsid nohup bash /workspace/engramm/experiments/sela2_run.sh > /workspace/sela2_console.log 2>&1 &"
 CRED='!f() { echo username=x-access-token; echo "password=$GH_TOKEN"; }; f'
 GHREPO=https://github.com/erithy25/engramm.git
@@ -53,21 +53,30 @@ try:
     if q != 'max':
         n = min(n, max(1, int(q) // int(p)))
 except Exception:
-    pass
-print(n)" 2>/dev/null || nproc)
+    try:
+        q = int(open('/sys/fs/cgroup/cpu/cpu.cfs_quota_us').read())
+        p = int(open('/sys/fs/cgroup/cpu/cpu.cfs_period_us').read())
+        if q > 0 and p > 0:
+            n = min(n, max(1, q // p))
+    except Exception:
+        pass
+print(min(n, 64))" 2>/dev/null || nproc)
 export OMP_NUM_THREADS=$NCPU MKL_NUM_THREADS=$NCPU             # CPU work never oversubscribes the pod's quota
 say() { echo "[$(date -u +%H:%M:%S) UTC] $*"; }
 done_() { [ -f "$W/stages/$1" ]; }
 mark() { date -u > "$W/stages/$1"; }
 test_mode() { [ "${SELA2_TEST:-0}" = 1 ]; }
-autostop_later() {  # seconds marker-file
-  [ -n "${RUNPOD_POD_ID:-}" ] && [ "$AUTO_END" != none ] || return 0
+autostop_later() {  # seconds marker-file — stops (never deletes) the pod unless a new run started or KEEP exists
+  [ -n "${RUNPOD_POD_ID:-}" ] || return 0
   local id; id=$(head -1 "$2" 2>/dev/null)
   ( exec 9>&-; sleep "$1"
-    [ -f "$W/KEEP" ] && exit 0
-    [ "$(head -1 "$2" 2>/dev/null)" = "$id" ] || exit 0
-    flock -n /tmp/engramm_sela2.lock true || exit 0
-    stop_pod ) >/dev/null 2>&1 &
+    for try in $(seq 1 30); do                       # a failed API call is retried every minute for 30 min
+      [ -f "$W/KEEP" ] && exit 0
+      [ "$(head -1 "$2" 2>/dev/null)" = "$id" ] || exit 0
+      flock -n /tmp/engramm_sela2.lock true || exit 0
+      stop_pod && exit 0
+      sleep 60
+    done ) >/dev/null 2>&1 &
 }
 fail() {
   say "FEHLER: $*"
@@ -85,6 +94,7 @@ num_ok() { python3 -c "import sys; v = float(sys.argv[1]); sys.exit(0 if $2 else
 num_ok "$MAX_USD" "0 < v <= 100" || fail "SELA2_MAX_USD=$MAX_USD ist keine plausible Grenze in \$ (Punkt statt Komma)"
 num_ok "$SPENT_USD" "0 <= v < 100" || fail "SELA2_SPENT_USD=$SPENT_USD ist kein plausibler Betrag"
 num_ok "$PRICE_MIN" "1.0 <= v <= 20" || fail "SELA2_PRICE=$PRICE_MIN ist kein plausibler Stundenpreis"
+case "$AUTO_END" in terminate|stop|none) ;; *) fail "SELA2_AUTO_END=$AUTO_END: erlaubt sind terminate, stop, none" ;; esac
 
 # --- price: what RunPod bills this pod (+ storage), never below SELA2_PRICE -------------------------------------------
 PRICE=$PRICE_MIN
@@ -102,7 +112,7 @@ if [ -n "${RUNPOD_API_KEY:-}" ] && [ -n "${RUNPOD_POD_ID:-}" ]; then
 fi
 LIMIT_USD=$(python3 -c "print(round($MAX_USD - $SPENT_USD, 2))")
 num_ok "$LIMIT_USD" "v >= 8" || fail "Nach Abzug von SELA2_SPENT_USD bleiben nur $LIMIT_USD \$ – zu wenig für einen Lauf"
-printf 'SELA2_MAX_USD=%s\nSELA2_SPENT_USD=%s\nSELA2_PRICE=%s\n' "$MAX_USD" "$SPENT_USD" "$PRICE_MIN" > "$W/settings.env.tmp" \
+printf 'SELA2_MAX_USD=%s\nSELA2_SPENT_USD=%s\nSELA2_PRICE=%s\nSELA2_AUTO_END=%s\n' "$MAX_USD" "$SPENT_USD" "$PRICE_MIN" "$AUTO_END" > "$W/settings.env.tmp" \
   && mv -f "$W/settings.env.tmp" "$W/settings.env"
 [ -f "$W/started" ] || date -u +%s > "$W/started"
 mkdir -p "$W/meter"
@@ -120,8 +130,8 @@ say "=== ENGRAMM Sela-2, Arbeitsordner $W, $NCPU CPUs ==="
 say "== 0. Prüfungen"
 if test_mode; then
   say "TEST-MODUS: GPU-Prüfungen übersprungen"
-elif done_ finished; then
-  say "Lauf bereits fertig: nur noch Ergebnisse/Upload"
+elif done_ finished || done_ eval; then
+  say "Training und Messung fertig: nur noch Ergebnisse/Upload (keine GPU nötig)"
 else
   command -v nvidia-smi >/dev/null || fail "nvidia-smi fehlt – das ist kein GPU-Rechner"
   nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader || fail "nvidia-smi meldet keine GPU"
@@ -144,8 +154,13 @@ assert ram >= 40, f"nur {ram:.0f} GB Arbeitsspeicher: mindestens 40 GB nötig"
 print(f"OK: Python {sys.version.split()[0]}, torch {torch.__version__}, {name} {mem:.0f} GB, {free:.0f} GB frei, {ram:.0f} GB RAM")
 EOF
 fi
-if [ -n "${RUNPOD_POD_ID:-}" ] && ! command -v runpodctl >/dev/null && [ -z "${RUNPOD_API_KEY:-}" ]; then
-  fail "Weder runpodctl noch RUNPOD_API_KEY vorhanden – der Pod könnte sich nicht selbst stoppen (Kostenbremse)"
+if [ -n "${RUNPOD_POD_ID:-}" ] && ! test_mode; then          # the brake needs a working stop: one harmless API call
+  api_ok=0
+  [ -n "${API_P:-}" ] && num_ok "$API_P" "0.2 <= v <= 20" && api_ok=1
+  if [ $api_ok = 0 ] && command -v runpodctl >/dev/null; then
+    { timeout 60 runpodctl get pod "$RUNPOD_POD_ID" || timeout 60 runpodctl pod get "$RUNPOD_POD_ID"; } >/dev/null 2>&1 && api_ok=1
+  fi
+  [ $api_ok = 1 ] || fail "Weder runpodctl noch die RunPod-API antworten – der Pod könnte sich nicht selbst stoppen (Kostenbremse). Pod beenden, neu mieten."
 fi
 REL=$(python3 -c "import json; print(json.load(open('results/sela2/data/manifest.json'))['release_id'])" 2>/dev/null)
 TOKSHA=$(sha256sum data/lm2_tokenizer.json 2>/dev/null | cut -d' ' -f1)
@@ -157,10 +172,16 @@ if [ -n "${GH_TOKEN:-}" ]; then
   python3 -m experiments.gh_release list --release "$REL" > "$W/release_assets.txt" 2>"$W/gh_check.err" \
     || { echo "NEIN (kann die privaten Daten nicht lesen)" > "$W/github_check"
          fail "GitHub-Schlüssel kann die privaten Trainingsdaten nicht lesen ($(tail -c 300 "$W/gh_check.err")) – Schlüssel mit 'Contents: Read and write' für erithy25/engramm anlegen, Befehl 2, dann Befehl 3"; }
-  GIT_TERMINAL_PROMPT=0 timeout 90 git -c credential.helper= -c credential.helper="$CRED" \
-    push --dry-run -q "$GHREPO" HEAD:refs/heads/sela2-token-check >/dev/null 2>&1 \
-    || { echo "NEIN (ohne Schreibrecht)" > "$W/github_check"
-         fail "GitHub-Schlüssel ohne Schreibrecht (bei 'Contents' muss 'Read and write' stehen) – neuen Schlüssel anlegen, Befehl 2, dann Befehl 3"; }
+  if [ ! -f "$W/stages/push_ok" ]; then              # a real push of this commit to a throwaway branch (GitHub
+    TB="sela2-token-check-$(date -u +%Y%m%d%H%M%S)"   # checks branch rules and the Workflows right only then)
+    GIT_TERMINAL_PROMPT=0 timeout 120 git -c credential.helper= -c credential.helper="$CRED" \
+      push -q "$GHREPO" "HEAD:refs/heads/$TB" > "$W/push_check.log" 2>&1 \
+      || { echo "NEIN (Push abgelehnt)" > "$W/github_check"
+           fail "GitHub-Schlüssel darf nicht pushen ($(tail -c 300 "$W/push_check.log")) – Schlüssel braucht 'Contents' UND 'Workflows' jeweils 'Read and write'; neuen Schlüssel anlegen, Befehl 2, dann Befehl 3"; }
+    GIT_TERMINAL_PROMPT=0 timeout 120 git -c credential.helper= -c credential.helper="$CRED" \
+      push -q "$GHREPO" --delete "$TB" >/dev/null 2>&1 || say "Hinweis: Test-Branch $TB bitte später löschen"
+    mark push_ok
+  fi
   echo "ja (Lesen und Schreiben bestätigt, $(date -u +%H:%M) UTC)" > "$W/github_check"
   say "GitHub-Schlüssel: Lesen der privaten Daten und Schreiben bestätigt ($(wc -l < "$W/release_assets.txt") Dateien im Daten-Entwurf)"
 elif [ "${SELA2_NO_GITHUB:-0}" != 1 ]; then
@@ -250,7 +271,7 @@ if ! done_ probe; then
   if [ -n "${GH_TOKEN:-}" ] && ! test_mode; then        # an upload into the results release really works
     RID=$(cat "$W/stages/release_id" 2>/dev/null)
     if [ -z "$RID" ]; then
-      RID=$(python3 -m experiments.gh_release find-or-create --name "ENGRAMM Sela-2 Modell $(date -u +%Y%m%d) (privat)" \
+      RID=$(python3 -m experiments.gh_release find-or-create --name "ENGRAMM Sela-2 Modell $(date -u -d "@$(cat "$W/started")" +%Y%m%d-%H%M) (privat)" \
             --body "Sela-2: Chat-Modell, Basismodell und Fortsetzungs-Stand. Privater Entwurf – nicht veröffentlichen.") \
         || fail "Ergebnis-Release konnte nicht angelegt werden"
       echo "$RID" > "$W/stages/release_id"
@@ -269,6 +290,9 @@ EOF
   python3 -c "
 import json; r = json.load(open('$P/out/eval_probe.json'))
 print('Probe OK:', {k: round(v['bpb'], 2) for k, v in list(r['bpb'].items())[:4]})"
+  python3 -c "
+import json; a = json.load(open('$P/out/attention.json'))
+print('Attention der Probe:', a.get('decision'), '–', a.get('reason', ''))" 2>/dev/null || true
   rm -rf "$P/ckpt"
   mark probe
 fi
@@ -278,25 +302,48 @@ gpu_ok() {
   timeout 180 python3 -c "import torch; x = torch.ones(1, device='cuda'); torch.cuda.synchronize(); assert float(x.sum()) == 1.0" >/dev/null 2>&1
 }
 
-# background uploads: a file into the results release, recorded in $W/up/<name>.ok once verified
-bg_upload() {  # file name
-  [ -n "${GH_TOKEN:-}" ] || return 0
-  local f=$1 n=$2 rid; rid=$(cat "$W/stages/release_id" 2>/dev/null); [ -n "$rid" ] || return 0
+# uploads into the results release, recorded in $W/up/<name>.ok once GitHub reports the same SHA-256; one uploader
+# per file at a time ($W/up/<name>.lock), so restarts and the end stage never fight over an asset
+upload_now() {  # file name — foreground, under the file's lock; 0 when verified (or done before)
+  [ -n "${GH_TOKEN:-}" ] || return 1
+  local f=$1 n=$2 rid; rid=$(cat "$W/stages/release_id" 2>/dev/null); [ -n "$rid" ] || return 1
   [ -f "$W/up/$n.ok" ] && return 0
-  ( exec 9>&-
+  [ -f "$f" ] || return 1
+  ( exec 8>"$W/up/$n.lock"; flock -n 8 || exit 2
     python3 -m experiments.gh_release upload --release "$rid" "$f" >> "$W/up/$n.log" 2>&1 \
-      && date -u > "$W/up/$n.ok" ) </dev/null >/dev/null 2>&1 &
-  echo $! > "$W/up/$n.pid"
+      && date -u > "$W/up/$n.ok" )
 }
-predecay_watch() {  # upload the continuation state as soon as it exists (Sela-1 lost its own)
+bg_upload() {  # file name — in the background
+  [ -f "$W/up/$2.ok" ] && return 0
+  ( exec 9>&-; upload_now "$1" "$2" ) </dev/null >/dev/null 2>&1 &
+}
+uploading() { ! flock -n "$W/up/$1.lock" true 2>/dev/null; }   # name — an uploader holds the lock
+copy_atomic() {  # src dst — a complete copy or none (never a cut-off file after a stop)
+  [ -f "$2" ] && [ "$(stat -c %s "$1")" = "$(stat -c %s "$2")" ] && cmp -s "$1" "$2" && return 0
+  cp "$1" "$2.tmp" && mv -f "$2.tmp" "$2"
+}
+to_bf16() {  # src dst — the weights in bf16 (≈ 1 GB), written atomically
+  python3 -c "
+import os, sys, torch
+st = torch.load(sys.argv[1], map_location='cpu', weights_only=False)
+st['model'] = {k: v.to(torch.bfloat16) for k, v in st['model'].items()}
+torch.save(st, sys.argv[2] + '.tmp')
+os.replace(sys.argv[2] + '.tmp', sys.argv[2])" "$1" "$2"
+}
+predecay_watch() {  # upload the continuation state as soon as it exists (Sela-1 lost its own); retried until it works
   ( exec 9>&-
     while ! [ -f "$W/ckpt/state_pre_predecay.pt" ]; do sleep 60; flock -n /tmp/engramm_sela2.lock true && exit 0; done
     sleep 30
-    rid=$(cat "$W/stages/release_id" 2>/dev/null); [ -n "$rid" ] && [ -n "${GH_TOKEN:-}" ] || exit 0
-    [ -f "$W/up/fortsetzen.ok" ] && exit 0
-    cp "$W/ckpt/state_pre_predecay.pt" "$W/up/fortsetzen_vor_abklingen.pt"
-    python3 -m experiments.gh_release upload --release "$rid" "$W/up/fortsetzen_vor_abklingen.pt" >> "$W/up/fortsetzen.log" 2>&1 \
-      && date -u > "$W/up/fortsetzen.ok" && rm -f "$W/up/fortsetzen_vor_abklingen.pt" ) </dev/null >/dev/null 2>&1 &
+    while [ ! -f "$W/up/fortsetzen.ok" ]; do
+      [ -n "$(cat "$W/stages/release_id" 2>/dev/null)" ] && [ -n "${GH_TOKEN:-}" ] || exit 0
+      if ! uploading fortsetzen; then
+        copy_atomic "$W/ckpt/state_pre_predecay.pt" "$W/up/fortsetzen_vor_abklingen.pt" \
+          && upload_now "$W/up/fortsetzen_vor_abklingen.pt" fortsetzen && rm -f "$W/up/fortsetzen_vor_abklingen.pt"
+      fi
+      [ -f "$W/up/fortsetzen.ok" ] && break
+      flock -n /tmp/engramm_sela2.lock true && exit 0     # the run is gone: stage 8 of the next start takes over
+      sleep 300
+    done ) </dev/null >/dev/null 2>&1 &
 }
 
 # --- 4. pretraining --------------------------------------------------------------------------------------------------
@@ -326,7 +373,12 @@ if ! done_ pretrain; then
       say "Verlust sank nicht wie erwartet – Neubeginn mit halber Lernrate"
       continue
     fi
-    if [ "$restarts" -ge 2 ] || [ $(( DEADLINE - $(date +%s) )) -lt 900 ] || [ $(( $(date +%s) - t0 )) -lt 300 ] || ! gpu_ok; then
+    if [ $(( DEADLINE - $(date +%s) )) -lt 900 ] && [ -f "$W/ckpt/state_pre.pt" ] && gpu_ok; then
+      say "Vortraining kurz vor der Frist beendet (Code $rc) – der letzte Speicherstand wird als Basismodell übernommen"
+      DEADLINE=$(date +%s); pre && break
+      fail "Vortraining: Übernahme des letzten Speicherstands fehlgeschlagen"
+    fi
+    if [ "$restarts" -ge 2 ] || [ $(( $(date +%s) - t0 )) -lt 300 ] || ! gpu_ok; then
       fail "Vortraining mit Code $rc beendet (Neustart setzt am letzten Stand fort)"
     fi
     restarts=$(( restarts + 1 )); echo "$restarts" > "$W/stages/pretrain_restarts"
@@ -338,15 +390,15 @@ fi
 cp "$OUT/pretrain_meta.json" "$W/up/" 2>/dev/null
 
 # --- 5. base model to GitHub in the background (bf16, ≈ 1 GB) --------------------------------------------------------
-if [ ! -f "$W/up/basis.ok" ] && [ -f "$W/ckpt/model_base.pt" ]; then
-  python3 -c "
-import torch
-st = torch.load('$W/ckpt/model_base.pt', map_location='cpu', weights_only=False)
-st['model'] = {k: v.to(torch.bfloat16) for k, v in st['model'].items()}
-torch.save(st, '$W/up/sela2_basis_bf16.pt')" && bg_upload "$W/up/sela2_basis_bf16.pt" basis
+if [ ! -f "$W/up/basis.ok" ] && [ -f "$W/ckpt/model_base.pt" ] && ! uploading basis; then
+  to_bf16 "$W/ckpt/model_base.pt" "$W/up/sela2_basis_bf16.pt" && bg_upload "$W/up/sela2_basis_bf16.pt" basis
 fi
 
 # --- 6. chat fine-tuning ---------------------------------------------------------------------------------------------
+if ! done_ sft && [ "$(time_left)" -lt $(( RESERVE_SFT_S + 480 )) ]; then
+  say "== 6. Chat-Feinabstimmung übersprungen: nur noch $(( $(time_left) / 60 )) min bis zur Kostenbremse – erst sichern"
+  echo skipped > "$W/stages/sft"
+fi
 if ! done_ sft; then
   DL=$(( $(date +%s) + $(limit_s) - $(billed_s) - RESERVE_SFT_S ))
   say "== 6. Chat-Feinabstimmung (Ende spätestens $(date -u -d "@$DL" +%H:%M) UTC)"
@@ -360,16 +412,26 @@ if ! done_ sft; then
   mark sft
 fi
 
-# --- 7. evaluation on the GPU ----------------------------------------------------------------------------------------
+# --- 6b. chat model to GitHub in the background (bf16), before the evaluation --------------------------------------
+if [ -f "$W/ckpt/model_chat.pt" ] && [ ! -f "$W/up/chat.ok" ] && ! uploading chat; then
+  to_bf16 "$W/ckpt/model_chat.pt" "$W/up/sela2_chat_bf16.pt" && bg_upload "$W/up/sela2_chat_bf16.pt" chat
+fi
+
+# --- 7. evaluation on the GPU (bounded by the time left; uploads and the push keep 10 min) --------------------------
 if ! done_ eval; then
   say "== 7. Auswertung"
   EV=(--data "$W/data" --out "$OUT")
   FD=600; FB=300
   test_mode && { EV+=(--cpu --samples 0); FD=${SELA2_TEST_EVAL_DOCS:-50}; FB=$FD; }
-  python3 -m experiments.sela2_train evaluate "${EV[@]}" --model "$W/ckpt/model_chat.pt" --tag chat --final-docs "$FD" \
-    || say "Auswertung des Chat-Modells unvollständig (Modell ist trotzdem gesichert)"
-  python3 -m experiments.sela2_train evaluate "${EV[@]}" --model "$W/ckpt/model_base.pt" --tag base --final-docs "$FB" \
-    || say "Auswertung des Basismodells unvollständig"
+  for tag in chat base; do
+    m="$W/ckpt/model_$tag.pt"; [ -f "$m" ] || continue
+    budget=$(( $(time_left) - 600 ))
+    if [ "$budget" -lt 180 ]; then say "Auswertung $tag übersprungen (zu wenig Zeit bis zur Kostenbremse)"; continue; fi
+    [ "$budget" -gt 5400 ] && budget=5400
+    nd=$FD; [ "$tag" = base ] && nd=$FB
+    timeout "$budget" python3 -m experiments.sela2_train evaluate "${EV[@]}" --model "$m" --tag "$tag" --final-docs "$nd" \
+      || say "Auswertung $tag unvollständig (Teilergebnis in eval_$tag.partial.json; das Modell ist trotzdem gesichert)"
+  done
   mark eval
 fi
 
@@ -382,10 +444,13 @@ from pathlib import Path
 R = Path(sys.argv[1])
 for tag in ("chat", "base"):
     f = R / f"eval_{tag}.json"
+    part = not f.exists()
+    if part:
+        f = R / f"eval_{tag}.partial.json"
     if not f.exists():
         continue
     r = json.loads(f.read_text())
-    print(f"{'Chat-Modell' if tag == 'chat' else 'Basismodell'}:")
+    print(f"{'Chat-Modell' if tag == 'chat' else 'Basismodell'}:" + (" (Messung unvollständig)" if part else ""))
     for k, v in sorted(r["bpb"].items()):
         print(f"  {k:16s} {v['bpb']:.4f} bpb")
     for k, v in r.get("chat_val", {}).items():
@@ -399,37 +464,42 @@ if s.exists():
     ss = json.loads(s.read_text())
     print(f"Feinabstimmung: {ss['sft_steps']} Schritte, {ss['sft_assistant_tokens'] / 1e6:.1f} Mio. Antwort-Token")
 EOF
-if [ -f "$W/ckpt/model_chat.pt" ] && [ ! -f "$W/up/sela2_chat_bf16.pt" ]; then
-  python3 -c "
-import torch
-st = torch.load('$W/ckpt/model_chat.pt', map_location='cpu', weights_only=False)
-st['model'] = {k: v.to(torch.bfloat16) for k, v in st['model'].items()}
-torch.save(st, '$W/up/sela2_chat_bf16.pt')"
-fi
 uploaded=0
+sft_skipped=0; [ "$(cat "$W/stages/sft" 2>/dev/null)" = skipped ] && sft_skipped=1
 if [ -f "$W/stages/uploaded" ]; then
   uploaded=1
 elif [ -n "${GH_TOKEN:-}" ] && ! test_mode; then
   RID=$(cat "$W/stages/release_id" 2>/dev/null)
   ok_all=1
-  [ -f "$W/up/chat.ok" ] || { python3 -m experiments.gh_release upload --release "$RID" "$W/up/sela2_chat_bf16.pt" \
-                                 >> "$W/up/chat.log" 2>&1 && date -u > "$W/up/chat.ok"; } || ok_all=0
-  for n in basis fortsetzen; do                              # the background uploads: wait (bounded by the meter)
-    while [ ! -f "$W/up/$n.ok" ] && [ "$(time_left)" -gt 240 ]; do
-      p=$(cat "$W/up/$n.pid" 2>/dev/null)
-      if [ "$n" = basis ] && ! { [[ "$p" =~ ^[0-9]+$ ]] && kill -0 "$p" 2>/dev/null; }; then
-        bg_upload "$W/up/sela2_basis_bf16.pt" basis      # not running (e.g. after a restart): start it again
+  # what must be on GitHub: name, local source, its upload copy
+  want=()
+  [ -f "$W/ckpt/model_chat.pt" ] && want+=(chat)
+  [ -f "$W/ckpt/model_base.pt" ] && want+=(basis)
+  [ -f "$W/ckpt/state_pre_predecay.pt" ] && want+=(fortsetzen)
+  t_wait=$(date +%s)
+  for n in "${want[@]}"; do                                  # finish (or restart) every upload, bounded by the brake
+    while [ ! -f "$W/up/$n.ok" ] && [ "$(time_left)" -gt 240 ] && [ $(( $(date +%s) - t_wait )) -lt 5400 ]; do
+      if ! uploading "$n"; then
+        case $n in
+          chat) [ -f "$W/up/sela2_chat_bf16.pt" ] || to_bf16 "$W/ckpt/model_chat.pt" "$W/up/sela2_chat_bf16.pt"
+                upload_now "$W/up/sela2_chat_bf16.pt" chat ;;
+          basis) [ -f "$W/up/sela2_basis_bf16.pt" ] || to_bf16 "$W/ckpt/model_base.pt" "$W/up/sela2_basis_bf16.pt"
+                 upload_now "$W/up/sela2_basis_bf16.pt" basis ;;
+          fortsetzen) copy_atomic "$W/ckpt/state_pre_predecay.pt" "$W/up/fortsetzen_vor_abklingen.pt" \
+                        && upload_now "$W/up/fortsetzen_vor_abklingen.pt" fortsetzen ;;
+        esac
       fi
-      if [ "$n" = fortsetzen ] && ! pgrep -f "fortsetzen_vor_abklingen" >/dev/null; then
-        [ -f "$W/ckpt/state_pre_predecay.pt" ] || break
-        cp -n "$W/ckpt/state_pre_predecay.pt" "$W/up/fortsetzen_vor_abklingen.pt"
-        python3 -m experiments.gh_release upload --release "$RID" "$W/up/fortsetzen_vor_abklingen.pt" >> "$W/up/fortsetzen.log" 2>&1 \
-          && date -u > "$W/up/fortsetzen.ok"
-      fi
-      sleep 20
+      [ -f "$W/up/$n.ok" ] || sleep 20
     done
-    [ -f "$W/up/$n.ok" ] || ok_all=0
+    if [ -f "$W/up/$n.ok" ]; then say "Auf GitHub gesichert: $n"; else say "NICHT gesichert: $n"; ok_all=0; fi
   done
+  [ $sft_skipped = 1 ] && { say "Chat-Modell fehlt (Feinabstimmung übersprungen)"; ok_all=0; }
+  cp "$W/run.log" "$OUT/run.log" 2>/dev/null
+  # the measurements: a branch, and the same files as a tarball in the release (the fallback if the push fails)
+  tar czf "$W/up/sela2_ergebnisse.tar.gz.tmp" -C "$(dirname "$OUT")" "$(basename "$OUT")" 2>/dev/null \
+    && mv -f "$W/up/sela2_ergebnisse.tar.gz.tmp" "$W/up/sela2_ergebnisse.tar.gz"
+  rm -f "$W/up/ergebnisse.ok"                                # the measurements may have grown since an earlier try
+  upload_now "$W/up/sela2_ergebnisse.tar.gz" ergebnisse || true
   BR=$(cat "$W/stages/branch" 2>/dev/null || echo "sela2-results-$(date -u +%Y%m%d-%H%M)")
   echo "$BR" > "$W/stages/branch"
   git config user.email "sela2-run@users.noreply.github.com"
@@ -444,21 +514,25 @@ elif [ -n "${GH_TOKEN:-}" ] && ! test_mode; then
       && { pushed=1; break; }
     sleep 30
   done
-  [ $pushed = 1 ] && say "Ergebnisse auf GitHub: Branch $BR" || { say "Push der Messwerte fehlgeschlagen"; ok_all=0; }
+  if [ $pushed = 1 ]; then say "Ergebnisse auf GitHub: Branch $BR"
+  elif [ -f "$W/up/ergebnisse.ok" ]; then say "Push der Messwerte fehlgeschlagen – sie liegen als sela2_ergebnisse.tar.gz im privaten Release"
+  else say "Messwerte weder gepusht noch im Release"; ok_all=0; fi
   if [ $ok_all = 1 ]; then uploaded=1; echo "$BR" > "$W/stages/uploaded"; fi
 fi
 mark finished
 
 if [ "$uploaded" = 1 ] && [ -n "${RUNPOD_POD_ID:-}" ] && [ "$AUTO_END" != none ]; then
-  say "FERTIG. Chat-Modell, Basismodell, Fortsetzungs-Stand und Messwerte sind auf GitHub gesichert. Der Pod beendet sich in 2 Minuten selbst."
-  sleep 120
+  wait_s=120; [ "$(time_left)" -gt 300 ] || wait_s=5
+  say "FERTIG. Chat-Modell, Basismodell, Fortsetzungs-Stand und Messwerte sind auf GitHub gesichert. Der Pod beendet sich in $wait_s s selbst."
+  sleep "$wait_s"
   ended=0
   if [ "$AUTO_END" = terminate ]; then
-    runpodctl remove pod "$RUNPOD_POD_ID" 2>/dev/null || runpodctl pod delete "$RUNPOD_POD_ID" 2>/dev/null && ended=1
+    { runpodctl remove pod "$RUNPOD_POD_ID" || runpodctl pod delete "$RUNPOD_POD_ID"; } >/dev/null 2>&1 && ended=1
     if [ $ended = 0 ] && [ -n "${RUNPOD_API_KEY:-}" ]; then
-      curl -s --max-time 60 -H "Content-Type: application/json" \
+      r=$(curl -s --max-time 60 -H "Content-Type: application/json" \
         -d "{\"query\": \"mutation { podTerminate(input: {podId: \\\"$RUNPOD_POD_ID\\\"}) }\"}" \
-        "https://api.runpod.io/graphql?api_key=$RUNPOD_API_KEY" >/dev/null 2>&1 && ended=1
+        "https://api.runpod.io/graphql?api_key=$RUNPOD_API_KEY" 2>/dev/null)
+      [ -n "$r" ] && ! printf %s "$r" | grep -q '"errors"' && ended=1
     fi
   fi
   [ $ended = 1 ] || stop_pod
@@ -466,6 +540,8 @@ if [ "$uploaded" = 1 ] && [ -n "${RUNPOD_POD_ID:-}" ] && [ "$AUTO_END" != none ]
   say "Selbstbeendigung hat nicht geklappt – bitte den Pod in der RunPod-Konsole beenden (Stop, dann Terminate). Alles ist gesichert."
 elif [ "$uploaded" = 1 ]; then
   say "FERTIG. Alles ist auf GitHub gesichert. Den Pod jetzt beenden (Stop, dann Terminate)."
+elif test_mode; then
+  say "FERTIG (Testmodus: nichts hochgeladen)."
 else
   say "FERTIG – aber NICHT alles auf GitHub gesichert. Status zeigt, was fehlt; diese Ausgabe an Claude schicken."
   say "Kostenschutz: der Pod stoppt sich in 30 Minuten selbst (Daten in /workspace bleiben). Aussetzen: touch $W/KEEP"

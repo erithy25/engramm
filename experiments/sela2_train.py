@@ -344,14 +344,15 @@ class Stepper:
             from torch.nn.attention.flex_attention import flex_attention
 
             def flex(idx, bm):
-                return model.hidden(idx, lambda q, k, v: flex_attention(q, k, v, block_mask=bm))
+                return model.hidden(idx, lambda q, k, v: flex_attention(q, k, v.to(q.dtype), block_mask=bm))
             self.f_flex = torch.compile(flex, dynamic=False)
 
     def choose(self, probe: torch.Tensor, args) -> None:
         if self.f_flex is None:
             return
         from experiments.h100_train import choose_attention
-        inp, tgt = probe[:, :-1].to(self.device), probe[:, 1:].to(self.device)
+        probe = probe.to(self.device)
+        inp, tgt = probe[:, :-1], probe[:, 1:]
         ns = argparse.Namespace(d=self.model.cfg.d, heads=self.model.cfg.heads, flex=1, compile=True)
 
         def run_step(kind):
@@ -669,8 +670,7 @@ def pretrain(args, device) -> dict:
     T, micro = cfg["ctx"], args.micro_batch
     data.plan(meta["total_tokens"], args.decay_data_at)
     stepper = Stepper(model, args, device, out, meta)
-    if meta["step"] == 0 or "attention_used" not in meta:
-        stepper.choose(_peek(data, micro, T), args)
+    stepper.choose(_peek(data, micro, T), args)       # cached in attention.json: cheap on a restart
     saver = AsyncSaver()
     logf = open(out / "train_log.jsonl", "a")
     curve = out / "curve.jsonl"
@@ -686,18 +686,32 @@ def pretrain(args, device) -> dict:
         meta["total_tokens"] = meta["tokens"]
     t_ck = time.time()
     loss_ema = None
+    tick = [time.time()]
+
+    def refit_wd() -> None:
+        """nanochat's Muon weight decay scales with the planned tokens: follow the fitted target (before the decay)."""
+        if args.recipe == "sela2" and "decay_tok0" not in meta:
+            meta["wd0"] = O.muon_weight_decay(args.batch_tokens, meta["total_tokens"])
+
     def progress() -> float:
         """Token fraction; inside the decay with a deadline: the larger of the token progress and the elapsed share
-        of the time to the deadline, so the learning rate always reaches its final value in time."""
+        of the decay's time (seconds spent in training sessions since the decay began, against those plus the time
+        left to the deadline), so the learning rate always reaches its final value in time and a stopped pod's
+        downtime does not count."""
         total = meta["total_tokens"]
         frac = meta["tokens"] / total
         d0 = 1 - args.warmdown
-        if frac >= d0 and "decay_t0" not in meta:
-            meta["decay_t0"], meta["decay_tok0"] = time.time(), meta["tokens"]
-        if not end_by or "decay_t0" not in meta:
+        now = time.time()
+        if frac >= d0 and "decay_tok0" not in meta:
+            meta["decay_tok0"], meta["decay_elapsed"] = meta["tokens"], 0.0
+        elif "decay_tok0" in meta:
+            meta["decay_elapsed"] = meta.get("decay_elapsed", 0.0) + (now - tick[0])
+        tick[0] = now
+        if not end_by or "decay_tok0" not in meta:
             return frac
         tok_p = (meta["tokens"] - meta["decay_tok0"]) / max(1, total - meta["decay_tok0"])
-        time_p = (time.time() - meta["decay_t0"]) / max(1.0, end_by - meta["decay_t0"])
+        el = meta["decay_elapsed"]
+        time_p = el / max(1.0, el + max(0.0, end_by - now))
         return d0 + (1 - d0) * min(1.0, max(tok_p, time_p, 0.0))
 
     while meta["tokens"] < meta["total_tokens"]:
@@ -711,8 +725,9 @@ def pretrain(args, device) -> dict:
             break
         if meta["tokens"] > 0 and frac >= 1 - args.warmdown and not predecay.exists():
             saver.wait()
+            pm = {k: v for k, v in meta.items() if k not in ("decay_tok0", "decay_elapsed")}
             atomic_save(to_cpu({"model": model.state_dict(), "opt": opt.state_dict(),
-                                "meta": {**meta, "data": data.state(), "predecay": True}}), predecay)
+                                "meta": {**pm, "data": data.state(), "predecay": True}}), predecay)
             log(f"pre-decay state saved at {meta['tokens'] / 1e9:.3f} B tokens")
         lr_f = O.set_schedule(opt, frac, meta["step"], meta["wd0"], warmdown=args.warmdown, lr_scale=meta["lr_scale"])
         decay_phase = frac >= args.decay_data_at
@@ -796,6 +811,7 @@ def pretrain(args, device) -> dict:
                 else:
                     log(f"throughput {rate / 1e3:.0f} k tok/s: {(meta['total_tokens'] - meta['tokens']) / 1e9:.3f} B "
                         f"tokens fit into the {left / 3600:.2f} h left")
+                refit_wd()
         if end_by and time.time() > end_by + 600 and meta["total_tokens"] > meta["tokens"]:
             log("deadline exceeded by 10 min: training stops here")
             meta["total_tokens"] = meta["tokens"]
@@ -828,6 +844,7 @@ def pretrain(args, device) -> dict:
                         f"{meta['total_tokens'] / 1e9:.3f} B -> {fit / 1e9:.3f} B")
                     meta.setdefault("refits", []).append({"tokens": meta["tokens"], "to": fit, "tok_per_s": rate})
                     meta["total_tokens"] = fit
+                    refit_wd()
             meta["data"] = data.state()
             meta["attention_used"] = stepper.attn
             saver.save({"model": model.state_dict(), "opt": opt.state_dict(), "meta": meta}, state_path)
@@ -892,9 +909,13 @@ def sft(args, device) -> dict:
     data = SFTData(Path(args.data), T, seed=args.seed)
     rows_per_step = max(1, args.sft_batch_tokens // (T + 1))
     n_micro = max(1, rows_per_step // micro)
-    est_steps = max(1, math.ceil(data.tokens_total / (n_micro * micro * (T + 1) * 0.92)))
+    est_steps = max(1, math.ceil(data.tokens_total / (n_micro * micro * (T + 1) * 0.99)))   # best-fit packing
     total_steps = est_steps
     stepper = Stepper(model, args, device, out, {"step": 0})
+    pos, buf = data.pos, list(data.buf)
+    probe_inp, _, _ = data.batch(micro)
+    data.pos, data.buf = pos, buf
+    stepper.choose(torch.cat([probe_inp, probe_inp[:, -1:]], dim=1), args)   # the pretraining decision (cached)
     logf = open(out / "sft_log.jsonl", "a")
     end_by = float(args.deadline or 0)
     t_start, step, trained = time.time(), 0, 0
@@ -915,6 +936,8 @@ def sft(args, device) -> dict:
                 n_tgt = 0
                 for _ in range(n_micro):
                     inp, tgt, nt = data.batch(micro)
+                    if nt == 0:                    # only padding (the data ran out): nothing to learn, no NaN
+                        continue
                     n_tgt += nt
                     inp, tgt = inp.to(device), tgt.to(device)
                     loss = stepper.loss(inp, tgt) / n_micro
@@ -938,14 +961,18 @@ def sft(args, device) -> dict:
                     raise
                 log(f"fine-tuning step failed – {what}")
         loss_v = float(acc)
+        if n_tgt == 0:
+            break
         if not math.isfinite(loss_v):
             log(f"non-finite fine-tuning loss at step {step}: stopping with the last good weights")
             break
         opt.step()
         step += 1
         trained += n_tgt
-        if step == 20 and end_by:                  # fit the number of steps to the deadline
-            rate = 20 / max(1e-9, time.time() - t_start)
+        if step == 5:
+            t_rate = time.time()
+        if step == 25 and end_by:                  # fit the number of steps to the deadline (step 1 compiles)
+            rate = 20 / max(1e-9, time.time() - t_rate)
             fit = int(step + rate * max(0.0, end_by - time.time()) * 0.95)
             if fit < total_steps:
                 log(f"fine-tuning steps fitted to the deadline: {total_steps} -> {fit}")
@@ -983,8 +1010,9 @@ def load_model_file(path: Path, device) -> tuple[Sela2, dict]:
 
 def cmd_evaluate(args) -> None:
     device = pick_device(args.cpu)
-    if device.type == "cuda":
-        torch.backends.cuda.matmul.allow_tf32 = False
+    if device.type == "cuda":                      # TF32 matmuls: ≈ 1e-4 bpb from exact fp32, several times faster
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
     model, meta = load_model_file(Path(args.model), device)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -1002,6 +1030,7 @@ def cmd_evaluate(args) -> None:
         r["seconds"] = round(time.time() - t0, 1)
         res["bpb"][name] = r
         log(f"{name}: {r['bpb']:.4f} bpb ({r['docs']} documents)")
+        (out / f"eval_{args.tag}.partial.json").write_text(json.dumps(res, indent=1, default=str) + "\n")
     for name in CHAT_VAL:
         if name in streams:
             res["chat_val"][name] = chat_val_loss(model, streams[name], device)

@@ -14,14 +14,18 @@ datas = [(str(ROOT / "engramm" / "chat" / "conv_bank.json"), "engramm/chat"),
          (str(ROOT / "engramm" / "web" / "feeds.json"), "engramm/web"),
          (str(ROOT / "engramm" / "chat" / "data"), "engramm/chat/data"),
          (str(ROOT / "engramm" / "app" / "web"), "engramm/app/web"),
-         # the tokenizer of the Sela-1 network (engramm/lm/sela.py; the weights ship beside the server, in models/)
+         # the tokenizers of the Sela-1 and Sela-2 networks (engramm/lm/sela.py; the weights ship beside the server,
+         # in models/; a Sela-2 weights file names its tokenizer by file name and SHA-256)
          (str(ROOT / "data" / "lm_tokenizer.json"), "data")]
+if (ROOT / "data" / "lm2_tokenizer.json").exists():
+    datas.append((str(ROOT / "data" / "lm2_tokenizer.json"), "data"))
 # the confidence model for answers from the network channels (experiments/atlas_calib.py)
 if (ROOT / "engramm" / "web" / "atlas_calib.json").exists():
     datas.append((str(ROOT / "engramm" / "web" / "atlas_calib.json"), "engramm/web"))
 hidden = (collect_submodules("engramm.chat") + collect_submodules("engramm.kb") + collect_submodules("engramm.nlp")
           + collect_submodules("engramm.app") + collect_submodules("engramm.web") + ["engramm.lm.chat", "engramm.lm.semantic", "engramm.lm.stream",
-                                                 "engramm.lm.tokenizer", "engramm.lm.dashboard", "engramm.lm.sela"])
+                                                 "engramm.lm.tokenizer", "engramm.lm.dashboard", "engramm.lm.sela",
+                                                 "engramm.lm.sela_chat", "engramm.lm.chat_format"])
 
 a = Analysis(
     [str(ROOT / "runtime" / "sidecar" / "engramm_server.py")],

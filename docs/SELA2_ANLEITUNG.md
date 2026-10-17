@@ -11,22 +11,23 @@ allein.
 | Was du tust | Alten Pod löschen, Guthaben auf 30 $ bringen, GitHub-Schlüssel anlegen, eine H100 mieten, **drei Befehle** einfügen, zweimal kurz nachsehen |
 | Was automatisch passiert | Trainingsdaten (≈ 15 GB, fertig vorbereitet im privaten Entwurf) laden und per SHA-256 prüfen; **Vorab-Probe** (3 min: ein winziges Modell einmal durch den ganzen Ablauf, inkl. Hochladen); Vortraining bis zur Frist; Chat-Feinabstimmung; Messung; Chat-Modell, Basismodell und Fortsetzungs-Stand auf GitHub sichern; dann löscht sich der Pod selbst |
 | Dauer | ≈ 6,3 Stunden, davon ~15 Minuten mit dir |
-| Kosten | **höchstens 25 $** (Kostenbremse ab dem Mieten), danach höchstens 10 Minuten zum Sichern (≈ 0,70 $). Harte Grenze: **30 $ Guthaben, automatisches Aufladen aus** |
-| Ergebnis | Messwerte im Repository (Branch `sela2-results-…`); privat unter „Releases“ (nur für dich): `sela2_chat_bf16.pt` (≈ 1 GB, das Chat-Modell), `sela2_basis_bf16.pt` (Basismodell), `fortsetzen_vor_abklingen.pt` (≈ 4,8 GB in 3 Teilen, zum späteren Weitertrainieren). Die App-Datei baue ich danach kostenlos auf GitHub |
+| Kosten | **höchstens 25 $** (Kostenbremse ab dem Mieten). Nur falls der Pod nach der Bremse neu gestartet wird, bleiben insgesamt höchstens 10 Minuten zum Sichern (≈ 0,70 $). Harte Grenze: **30 $ Guthaben, automatisches Aufladen aus** |
+| Ergebnis | Messwerte im Repository (Branch `sela2-results-…`, zusätzlich als `sela2_ergebnisse.tar.gz` im Release); privat unter „Releases“ im Entwurf „ENGRAMM Sela-2 Modell …“ (nur für dich): `sela2_chat_bf16.pt` (≈ 1 GB, das Chat-Modell), `sela2_basis_bf16.pt` (Basismodell), `fortsetzen_vor_abklingen.pt` (≈ 4,8 GB in 3 Teilen, zum späteren Weitertrainieren). Die App-Datei baue ich danach kostenlos auf GitHub |
 | Ehrlich | Sela-2 hat die Größe von GPT-3 Medium, aber ~1 % von dessen Rechenzeit. Erwartung: Benchmarks zwischen GPT-2 small und medium, flüssiger kurzer Chat, Fakten aus ENGRAMMs Quellen mit Zitaten (in der App geprüft). Ohne Quellen erfindet es Fakten. Deutsch ist ein Versuch |
 
 ## Was die Skripte absichern
 
 | Risiko | Schutz |
 |---|---|
-| Kosten laufen aus dem Ruder | Kostenzähler über alle Pod-Sitzungen; bei **25 $** stoppt sich der Pod, mit höchstens 10 min Nachlauf. Den Preis liest das Skript bei RunPod selbst ab (nie niedriger als 4,01 $/h). Dazu die harte Grenze 30 $ Guthaben |
+| Kosten laufen aus dem Ruder | Kostenzähler über alle Pod-Sitzungen; bei **25 $** stoppt sich der Pod (nur nach einem Neustart noch höchstens 10 min Nachlauf zum Sichern). Den Preis liest das Skript bei RunPod selbst ab (nie niedriger als 4,01 $/h); in der ersten Minute prüft es, dass der Pod sich wirklich selbst stoppen kann. Dazu die harte Grenze 30 $ Guthaben |
 | Fehler erst nach Stunden | Die **Vorab-Probe** prüft in den ersten Minuten alles: Kompilieren, schnelle Attention, Feinabstimmung, Messen und Hochladen. Ein Problem kostet dann < 1 $ |
 | Daten falsch oder beschädigt | Jede Datei per SHA-256 geprüft; alle mit demselben Tokenizer gebaut wie im Repository; Testsätze vorher herausgefiltert |
-| GitHub-Schlüssel falsch | In der ersten Minute geprüft (Daten lesen + Schreibrecht) |
+| GitHub-Schlüssel falsch | In der ersten Minute geprüft: Daten lesen und ein echter Test-Push (danach gelöscht) |
 | GPU langsamer als gedacht | Tokenzahl richtet sich nach dem gemessenen Tempo; das Abklingen der Lernrate endet sicher vor der Frist |
 | Training „explodiert“ oder lernt nicht | Automatisch: weiter vom letzten Stand mit halber Lernrate bzw. einmal Neubeginn mit halber Lernrate |
-| Pod startet neu / Absturz | Zustand alle 20 min gesichert, bis zu zwei automatische Neustarts; derselbe Startbefehl setzt fort |
-| Ergebnisse gehen verloren | Basismodell und Fortsetzungs-Stand werden schon **während** der Feinabstimmung hochgeladen; große Dateien geteilt; der Pod löscht sich nur, wenn alles nachweislich auf GitHub liegt |
+| Training bricht ab | Zustand alle 20 min gesichert; stürzt das Training ab, startet das Skript es bis zu zweimal selbst neu (kurz vor der Frist wird stattdessen der letzte Stand übernommen) |
+| Pod startet neu | Nach einem Neustart des ganzen Pods läuft nichts von selbst weiter: Befehl 2 und 3 setzen am letzten Stand fort |
+| Ergebnisse gehen verloren | Fortsetzungs-Stand, Basismodell und Chat-Modell werden hochgeladen, sobald es sie gibt (das Chat-Modell **vor** der Messung); jede Datei per SHA-256 mit GitHub abgeglichen; jeder Lauf hat einen eigenen Release-Entwurf; der Pod löscht sich nur, wenn alles nachweislich auf GitHub liegt |
 | Fehler, während du nicht schaust | Vor dem Training stoppt sich der Pod nach 10 min selbst, danach nach 30 min (Daten bleiben) |
 
 ---
@@ -41,14 +42,17 @@ allein.
    <https://github.com/settings/personal-access-tokens/new>
    - *Token name:* `engramm-sela2` · *Expiration:* **7 days**
    - *Repository access:* **Only select repositories** → `erithy25/engramm`
-   - *Permissions* → *Repository permissions* → **Contents: Read and write**
+   - *Permissions* → *Repository permissions* → **Contents: Read and write** und **Workflows: Read and write**
+     (Letzteres braucht GitHub, damit der Ergebnis-Branch angelegt werden darf)
    - *Generate token* → Schlüssel (`github_pat_…`) kopieren und kurz in einer Notiz ablegen.
 
 ## Schritt 2 – GPU mieten (5 Minuten)
 
 1. *Pods* → **Deploy**.
 2. **H100 SXM** (80 GB), Anzahl **1**. Secure Cloud (≈ 3,99 $/h) ist der Normalfall. Gibt es eine H100 SXM in der
-   Community Cloud billiger: geht auch, das Skript liest den echten Preis selbst ab.
+   Community Cloud billiger: geht auch, das Skript liest den echten Preis selbst ab. **Preis merken:** Steht beim
+   Mieten mehr als 4,00 $/h, vor Befehl 3 zusätzlich `export SELA2_PRICE=…` mit dem Preis + 0.03 eingeben
+   (z. B. `export SELA2_PRICE=4.52`), sonst rechnet die Bremse zu niedrig, falls RunPod den Preis nicht verrät.
 3. Vorlage (Template): **Runpod PyTorch 2.8** (oder neuer; mindestens 2.6).
 4. Speicher (*Edit Template*): **Container Disk 50 GB**, **Volume Disk 100 GB** (Pfad `/workspace`).
 5. **Deploy On-Demand** (nicht Spot/Interruptible).
@@ -94,7 +98,8 @@ bash /workspace/engramm/experiments/sela2_status.sh
 ```
 
 Es muss stehen: **„Lauf aktiv: ja“**, **„GitHub-Schlüssel geprüft: ja“**, **[x] Trainingsdaten**, **[x] Vorab-Probe**
-und eine Zeile „Vortraining: … Token/s“. Dann kannst du den Browser schließen.
+und eine Zeile „Vortraining: … Token/s“. Fehlt nur die Vortrainings-Zeile (Laden, Probe und Kompilieren dauern
+15–25 min): nach 10 min noch einmal nachsehen. Dann kannst du den Browser schließen.
 
 **Nach ~6,5 Stunden** (Pflicht, spätestens 7 h nach dem Mieten): Ist der Pod aus der Liste verschwunden und gibt es
 unter <https://github.com/erithy25/engramm/branches> einen Branch `sela2-results-…`, ist alles fertig → mir schreiben:
@@ -106,6 +111,7 @@ unter <https://github.com/erithy25/engramm/branches> einen Branch `sela2-results
 | „Alles auf GitHub gesichert“ | Pod → **Stop** → **Terminate** (die Selbstlöschung hat nicht geklappt) |
 | „NICHT alles auf GitHub gesichert“ oder „FEHLER: …“ | Ausgabe an mich schicken, Pod **nicht** löschen |
 | „KOSTENBREMSE hat gegriffen“ | Ausgabe an mich; der Pod stoppt sich (Daten bleiben) |
+| Pod steht auf **Exited** (gestoppt) | Nur starten, wenn du gleich danach im Terminal den Status aufrufst oder Befehl 2 + 3 eingibst – ein gestarteter Pod kostet, und erst diese Befehle schalten Zähler und Selbststopp wieder ein. Zeigt der Status „Alles auf GitHub gesichert“: Stop → Terminate. Sonst: Ausgabe an mich |
 
 | Phase | Dauer |
 |---|---|
@@ -123,7 +129,7 @@ unter <https://github.com/erithy25/engramm/branches> einen Branch `sela2-results
 | Pod wurde neu gestartet / war gestoppt | Pod starten → Jupyter Lab → Terminal → sofort **Befehl 2** und **Befehl 3** (schaltet auch die Kostenbremse wieder ein) |
 | Frisch gemieteter Pod nach 10 min nicht „Running“ / keine GPU | Pod beenden, neu mieten |
 | H100 SXM nicht verfügbar | Später erneut versuchen (H100 NVL/PCIe gehen auch, sind aber langsamer: weniger Token fürs gleiche Geld) |
-| Du musstest einen **zweiten** Pod mieten | Vor Befehl 3 auf dem neuen Pod: `export SELA2_SPENT_USD=…` (was der erste Pod laut *Billing* gekostet hat) – damit bleibt es insgesamt bei 25 $ |
+| Du musstest einen **zweiten** Pod mieten | Den ersten Pod zuerst **Terminate** (sein Speicher geht mit). Vor Befehl 3 auf dem neuen Pod: `export SELA2_SPENT_USD=…` (was der erste Pod laut *Billing* gekostet hat) – damit bleibt es insgesamt bei 25 $. Der neue Lauf legt einen eigenen Release-Entwurf an |
 | Du willst abbrechen | Erst Status: was ist gesichert? Dann Stop → Terminate |
 
 ## Technische Details
@@ -139,6 +145,7 @@ unter <https://github.com/erithy25/engramm/branches> einen Branch `sela2-results
   - `SELA2_MAX_USD` (25);
   - `SELA2_SPENT_USD` (0);
   - `SELA2_PRICE` (4.01 = Mindestpreis für die Bremse);
-  - `SELA2_AUTO_END` (`terminate` | `stop` | `none`).
+  - `SELA2_AUTO_END` (`terminate` | `stop` | `none`; was am Ende passiert, wenn alles gesichert ist. Nach einem
+    FEHLER stoppt sich der Pod in jedem Fall nach 10 bzw. 30 min, gelöscht wird er dann nie).
 - Fortsetzungs-Stand: Gewichte, Optimierer und Datenposition beim Übergang ins Abklingen. Von dort kann man später mit
   mehr Token weitertrainieren.

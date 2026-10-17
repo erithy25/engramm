@@ -64,7 +64,12 @@ SELA_TOKENS, SELA_MAX_TOKENS = 120, 200
 SELA2_ID = "sela-2"
 SELA2_FILE = "sela2-chat.npz"
 SELA2_TOKENS, SELA2_MAX_TOKENS = 160, 400
-ENGRAMM_ONLY = ("learned", "forgot", "known", "nothing")      # memory commands: never rephrased by a network
+# Sela-2 routing by ENGRAMM's reply kind: memory commands, safety replies, tools (calculator, translation), memory
+# questions and clarifying questions stay ENGRAMM's; answers with sources are rewritten from those sources and
+# checked; small talk, empathy, writing and open questions without any evidence go to Sela-2's free chat
+ENGRAMM_ONLY = ("learned", "forgot", "known", "nothing", "safety", "tool", "memory", "clarify")
+SELA2_GROUNDED = ("answer", "about", "explain")
+SELA2_FREE = ("smalltalk", "empathy", "writing")
 MODEL_IDS = ("engramm", SELA_ID, SELA2_ID)
 OPEN_HOSTS = re.compile(r"^([a-z]{2,3}(-[a-z]+)?\.)?(m\.)?wikipedia\.org$|^www\.wikidata\.org$")
 
@@ -189,6 +194,7 @@ class ChatService:
         self.sela2_path = find_sela2(sela2, self.memory_path.parent if self.memory_path else None)
         self.sela2 = None                          # loaded on the first Sela-2 request (about 1.7 GB of memory)
         self.sela2_error: str | None = None
+        self.sela2_error_path: Path | None = None
         self.sela2_lock = threading.Lock()
         self.sela2_states: dict = {}               # conversation → the turns Sela-2 saw (engramm.lm.sela_chat)
         self.settings_path = self.memory_path.parent / "app_settings.json" if self.memory_path else None
@@ -355,68 +361,91 @@ class ChatService:
                 "via": d["via"], "resolved": d["resolved"] if d["resolved"] != message else None,
                 "alternatives": [{"text": a.get("text"), "source": source_view(a.get("source"))}
                                  for a in (d.get("alternatives") or [])][:3],
-                "seconds": round(time.time() - t0, 3), "_raw": d}
+                "seconds": round(time.time() - t0, 3), "_raw": d,
+                "_asks": bool(st.pending and st.pending.get("turn") == st.turn)}   # ENGRAMM asked something back
+
+    def _sela_replaced(self, conversation: str, text: str) -> None:
+        """ENGRAMM's reply was not shown: its offer ('Want a joke?') and its own last reply leave the dialog state."""
+        with self.lock:
+            st = self.states.get((conversation or "default")[:100])
+            if st is not None:
+                st.offer = None
+                st.last_reply = text
 
     def _load_sela2(self):
         if self.sela2_path is None:
             raise RuntimeError("Sela-2 is not installed in this app.")
         if self.sela2 is None:
+            if self.sela2_error and self.sela2_error_path == self.sela2_path:   # a failed load is not retried per
+                raise RuntimeError(f"Sela-2 could not be loaded ({self.sela2_error}).")   # request (1.7 GB)
             try:
                 from engramm.lm.sela_chat import SelaChat
                 self.sela2 = SelaChat(self.sela2_path)
                 self.sela2_error = None
             except Exception as e:
                 self.sela2_error = f"{type(e).__name__}: {e}"
+                self.sela2_error_path = self.sela2_path
                 traceback.print_exc()
                 raise RuntimeError(f"Sela-2 could not be loaded ({self.sela2_error}).") from e
         return self.sela2
 
     def chat2(self, conversation: str, message: str, max_tokens: int | None = None) -> dict:
-        """Sela-2: ENGRAMM handles the turn first (memory, retrieval, dialog state). A memory command is answered by
-        ENGRAMM alone; a reply with sources is rewritten by Sela-2 from those sources (cited, then checked by
-        engramm.lm.sela_chat.verify; a failed check or an abstention keeps ENGRAMM's answer); anything else
-        (small talk, writing, open questions without sources) is Sela-2's free reply, labelled as not checked."""
-        from engramm.lm.sela_chat import ChatState, sources_from_reply
+        """Sela-2: ENGRAMM handles the turn first (memory, safety, tools, retrieval, dialog state). Its memory, safety,
+        tool and clarifying replies are shown as they are; an answer with sources is rewritten by Sela-2 from those
+        sources (cited, then checked by engramm.lm.sela_chat.verify; a failed check or an abstention keeps ENGRAMM's
+        answer); small talk, empathy, writing and open questions without evidence get Sela-2's free reply, labelled
+        as not checked. While ENGRAMM is still loading, Sela-2 does not answer (no memory, no safety layer yet)."""
+        from engramm.lm.sela_chat import ChatState, Turn, sources_from_reply
         n = SELA2_TOKENS if max_tokens is None else int(max_tokens)
         if not 1 <= n <= SELA2_MAX_TOKENS:
             raise ValueError(f"max_tokens must be between 1 and {SELA2_MAX_TOKENS}.")
         if self.sela2_path is None:
             raise RuntimeError("Sela-2 is not installed in this app.")
         conv = (conversation or "default")[:100]
-        base = None
-        raw = None
-        if self.assistant is not None:
-            base = self._engramm_turn(conv, message)
-            raw = base.pop("_raw", None)
-        if base is not None and base["kind"] in ENGRAMM_ONLY:
+        base = self._engramm_turn(conv, message)            # raises "still loading" until ENGRAMM is ready
+        raw = base.pop("_raw", None) or {}
+        asks = base.pop("_asks", False)
+        kind = base["kind"]
+        free = kind in SELA2_FREE or (kind == "unknown" and not raw.get("evidence"))
+        srcs = sources_from_reply(raw) if kind in SELA2_GROUNDED else []
+        if kind in ENGRAMM_ONLY or asks or not (srcs or free):
             return {**base, "model": "engramm", "sela_checked": None}
-        srcs = sources_from_reply(raw or {}) if base is not None else []
         with self.sela2_lock:
             sela = self._load_sela2()
             t0 = time.time()
-            if srcs:
-                g = sela.grounded(message, srcs, max_tokens=min(n, 120))
-                if g["verified"]:
+            st = self.sela2_states.pop(conv, None) or ChatState()
+            try:
+                if srcs:
+                    question = base.get("resolved") or message
+                    g = sela.grounded(question, srcs, max_tokens=min(n, 120))
+                    if not g["verified"]:
+                        return {**base, "model": "engramm", "sela_checked": False,
+                                "sela_note": "abstained" if g["abstained"] else "; ".join(g["issues"][:3])}
+                    st.turns.append(Turn(message, g["text"]))   # follow-ups ("tell me more") see the answer
+                    del st.turns[:-8]
                     cited = [srcs[c - 1] for c in g["cited"]] or srcs[:1]
                     by_text = {raw.get("evidence"): raw.get("source")}
                     by_text.update({a.get("text"): a.get("source") for a in (raw.get("alternatives") or [])})
                     first = cited[0]
-                    return {"kind": "sela_grounded", "text": g["text"], "answer": None, "guess": None,
-                            "evidence": first[1], "source": source_view(by_text.get(first[1])), "confidence": 1.0,
-                            "via": SELA2_ID, "resolved": base.get("resolved"),
-                            "alternatives": [{"text": t, "source": source_view(by_text.get(t))} for _, t in cited[1:3]],
-                            "seconds": round(time.time() - t0 + base.get("seconds", 0), 3), "model": SELA2_ID,
-                            "tokens": g["tokens"], "sela_checked": True}
-                return {**base, "model": "engramm", "sela_checked": False,
-                        "sela_note": "abstained" if g["abstained"] else "; ".join(g["issues"][:3])}
-            st = self.sela2_states.pop(conv, None) or ChatState()
-            r = sela.chat(st, message, max_tokens=n)
-            self.sela2_states[conv] = st
-            while len(self.sela2_states) > MAX_CONVERSATIONS:
-                self.sela2_states.pop(next(iter(self.sela2_states)))
-        return {"kind": "sela_chat", "text": r["text"], "answer": None, "guess": None, "evidence": None, "source": None,
-                "confidence": 0.0, "via": SELA2_ID, "resolved": None, "alternatives": [],
-                "seconds": r["seconds"], "model": SELA2_ID, "tokens": r["tokens"], "sela_checked": None}
+                    out = {"kind": "sela_grounded", "text": g["text"], "answer": None, "guess": None,
+                           "evidence": first[1], "source": source_view(by_text.get(first[1])),
+                           "confidence": float(base.get("confidence") or 0.0), "via": SELA2_ID,
+                           "resolved": base.get("resolved"),
+                           "alternatives": [{"text": t, "source": source_view(by_text.get(t))} for _, t in cited[1:3]],
+                           "seconds": round(time.time() - t0 + base.get("seconds", 0), 3), "model": SELA2_ID,
+                           "tokens": g["tokens"], "sela_checked": True}
+                else:
+                    r = sela.chat(st, message, max_tokens=n)
+                    out = {"kind": "sela_chat", "text": r["text"], "answer": None, "guess": None, "evidence": None,
+                           "source": None, "confidence": 0.0, "via": SELA2_ID, "resolved": None, "alternatives": [],
+                           "seconds": round(r["seconds"] + base.get("seconds", 0), 3), "model": SELA2_ID,
+                           "tokens": r["tokens"], "sela_checked": None}
+            finally:
+                self.sela2_states[conv] = st
+                while len(self.sela2_states) > MAX_CONVERSATIONS:
+                    self.sela2_states.pop(next(iter(self.sela2_states)))
+        self._sela_replaced(conv, out["text"])
+        return out
 
     def generate(self, message: str, max_tokens: int | None = None) -> dict:
         """Sela-1 continues the message (a question gets a one-line answer). Nothing is checked against sources,
