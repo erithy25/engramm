@@ -1,6 +1,7 @@
 # ENGRAMM Sela-1 135M — model card
 
-**Sela-1 135M** is the first model of the *Sela* family in the ENGRAMM project. It is a decoder-only transformer with
+**Sela-1 135M** is the first GPU-trained model of the *Sela* family in the ENGRAMM project (the earlier CPU-only network
+can be listed as Sela-0 100M). It is a decoder-only transformer with
 135.3 M parameters, trained **from scratch**: own tokenizer, random initialisation, no pretrained weights and no
 distillation. Training ran on one rented NVIDIA H100 for 3.27 hours.
 
@@ -14,9 +15,9 @@ come from the same sources Sela-1 was trained on.
 | | |
 |---|---|
 | Name | ENGRAMM Sela-1 135M (family *Sela*, generation 1, 135 M parameters) |
-| Status | research model, trained 17 Oct 2026; base model only (no instruction tuning, no safety tuning) |
+| Status | research model, trained 16–17 Oct 2026 (UTC); base model only (no instruction tuning, no safety tuning) |
 | Language | English |
-| Weights | not public. Private draft release `h100-results-20261017-0317` of this repository, asset `model_main_20261017031737.pt` (541,082,912 bytes, fp32). The continuation state from before the learning-rate decay was not uploaded: the cost brake was reached first. It is only on the stopped rental machine. |
+| Weights | not public. Private draft release `h100-results-20261017-0317` of this repository, asset `model_main_20261017031737.pt` (541,082,912 bytes, fp32). The continuation state from before the learning-rate decay (at 4.03 B tokens) was not uploaded, probably because the 25 $ cost brake was only minutes away; the cause is not logged. It exists only on the stopped rental machine. |
 | Results | `results/v5/h100/` (evaluation, curve, logs, token log-probabilities, samples, verification) |
 | Plan and rules | `docs/PLAN_V5_FROM_SCRATCH.md` §10–§11; run procedure `docs/H100_ANLEITUNG.md` |
 | Code | `experiments/h100_data.py`, `experiments/h100_train.py`, `experiments/h100_run.sh` (commit `eb2e002`); model class `LongGPT` in `experiments/v5_long.py` |
@@ -42,7 +43,7 @@ The training stream `train_all` holds 6.802 billion tokens:
 - **Base training text of the LM study** (284.7 M tokens; SHA-256 pinned in `experiments/h100_data.py`). It consists
   of C4-en shard 0 and WikiText-103 training articles, split by a hash of URL or title.
 - **The WikiText-103 part of the base text three more times** (29,245 documents, 113 M tokens per copy; 4 copies in
-  total). The base C4 part appears once. The reason: the evaluation sets are 37.5 % WikiText by bytes, and without the
+  total). The base C4 part appears once. The reason: by bytes, val-A is 37.5 % and test 41.8 % WikiText, and without the
   repeats the stream would have only 1.75 % Wikipedia.
 - **C4-en shards 1–36**, keeping only documents whose URL hash falls in the training range. The same hash rule keeps
   every validation and test URL out. The SHA-256 of every shard is pinned in `experiments/h100_data.py`.
@@ -59,19 +60,20 @@ document was seen twice, apart from the deliberate WikiText copies.
 | Learning rate | peak 1e-3 with 300 warm-up steps, constant, then linear decay to 0 over the last 30 % |
 | How the rate was chosen | three 200 M-token runs on the base text (val-A, 150 documents: 1e-3 → 1.627, 2e-3 → 1.749, 4e-3 → 1.916 bpb), winner × 0.5 clipped to [1e-3, 2e-3] — a rule fixed before the run |
 | Precision | bf16 autocast, fp32 weights and optimiser state |
-| Attention in training | FlexAttention with a "causal AND same document" block mask. It was chosen at start-up because it matched the dense attention (max. deviation 0.004 in outputs, 0.002 relative in gradients) and was 35 % faster. The evaluation always uses the plain dense causal attention. |
+| Attention in training | FlexAttention with a "causal AND same document" block mask. It was chosen at start-up because it matched the dense attention (max. deviation 0.004 in outputs, 0.002 relative in gradients) and needed 35 % less time per micro-step (1.54× the speed). The evaluation always uses the plain dense causal attention. |
 | Token budget | fitted to the time limit set by the 25 $ cost brake: 10 B → 5.583 B at step 100, then re-fitted to 5.675 B and 5.757 B |
-| Hardware and speed | 1 × NVIDIA H100 80GB HBM3 (SXM), about 489 k tokens/s, 3.27 h of training, 16.4 GB GPU memory |
+| Hardware and speed | 1 × NVIDIA H100 80GB HBM3 (SXM), about 489 k tokens/s, 3.27 h of training, peak tensor memory 16.4 GiB |
 | Cost | about 25 $ of rented time at 4.01 $/h, for the whole run (data preparation, learning-rate search, training, evaluation, upload) |
-| Incidents | none: no restart, no out-of-memory, no divergence, no fallback from FlexAttention |
+| Incidents | none in training: no resume, no out-of-memory, no divergence, no fallback from FlexAttention. The run script was started three times; the first two starts stopped before any work because of an invalid GitHub key. |
 
 ## Evaluation
 
 **Rule, fixed before the run** (`docs/PLAN_V5_FROM_SCRATCH.md` §11):
 - test split of the LM study, network alone, sliding window 1,024 with stride 512;
 - bits per byte = bits of all target tokens / (UTF-8 bytes + 1 end-of-document token per document);
-- test documents with ≥ 20 % of their 13-token windows anywhere in the text actually trained on are excluded
-  (the extended filter, `results/v5/h100/contamination.json`);
+- test documents with ≥ 20 % of their 13-token windows anywhere in the training stream are excluded (the extended
+  filter, `results/v5/h100/contamination.json`). The scan covers all 6.802 B tokens of the stream, a superset of the
+  5.757 B trained on;
 - Stage 1 is reached at ≤ 1.04.
 
 | Measurement | Sela-1 135M | GPT-2 small (zero-shot, same documents) | Ratio (95 % CI, paired document bootstrap) |
@@ -83,12 +85,13 @@ document was seen twice, apart from the deliberate WikiText copies.
 | Test, extended filter, Wikipedia documents (42 % of bytes) | 0.961 | 0.991 | 0.970 |
 | Test, strict subset: extended filter and no 13-gram overlap at all with the base text (909 docs) | 1.006 (0.986–1.025) | 1.057 | 0.952 (0.945–0.959) |
 | val-A, original filter (735 docs) | 0.977 | — | — |
-| Sela-1 mixed with the exact counting model (weights fitted on val-A), test, extended filter | 0.982 | 1.036 | 0.948 (0.940–0.956) |
+| Sela-1 mixed with the exact counting model (one λ per history bucket, fitted on val-A), test, extended filter | 0.982 | 1.036 | 0.948 (0.940–0.956) |
 
-Sela-1 beats GPT-2 small on 87 % of the scored test documents; the median per-document ratio is 0.93.
+On these 1,023 held-out documents from its own training sources, with GPT-2 small scored zero-shot, Sela-1 needs fewer
+bits than GPT-2 small on 87 % of the documents; the median per-document ratio is 0.93.
 
-The earlier CPU-only network of the same project (100.9 M parameters, 0.59 B tokens, 134 h on 4 CPU cores) scored
-1.141 on the same test split.
+The earlier CPU-only network of the same project (100.9 M parameters, 59.0 M of them in the blocks; 0.60 B tokens,
+134 h on 4 CPU cores) scored 1.141 on the same test split (original filter; Sela-1: 0.988).
 
 **Learning curve** (val-A, first 150 documents, all of them C4 — harder than the full val-A):
 
@@ -110,15 +113,20 @@ read-only, and three of them used separate lenses:
   identical denominators and windowing: 10 documents re-scored with GPT-2 matched to 4·10⁻⁴ bits. The split files
   carry the pinned SHA-256 hashes, and the training stream never reads them. The final weights were evaluated in fp32
   in the same process right after training; there was no averaging and no reload.
-- **Recomputation.** Every reported number comes out the same from the saved per-token log-probabilities (to about
-  10⁻¹⁴): no gaps, no positive values, no NaN.
+- **Recomputation.** The six final values (test and val-A, three filters each) come out the same from the saved
+  per-token log-probabilities (to about 10⁻¹⁴), per-document bits to 4·10⁻⁹; the arrays have no gaps, no positive
+  values and no NaN. The learning curve and the learning-rate search were measured on intermediate weights and cannot
+  be recomputed this way.
 - **Contamination.** The base-text overlap was recomputed with a different hash and reproduces the excluded documents
-  and mean overlaps exactly. Sela-1's advantage over GPT-2 does not grow with overlap (Spearman ρ = 0.00). The excluded
-  documents show memorisation (ratio 0.72), which is what the filter is for.
+  and mean overlaps exactly. Among kept documents of at least 500 bytes, the per-document ratio to GPT-2 has no rank
+  correlation with base-text overlap (Spearman ρ = 0.00); the small group with 5–20 % overlap (22 documents) does
+  score better (0.903 against 0.952 at zero overlap). The excluded documents show memorisation (ratio 0.72 for the 45
+  excluded through the base text, 0.80 for the 69 excluded only through the C4 text), which is what the filter is for.
 - **Adversarial judge.** Verdict: Stage 1 reached, with caveats. Partial overlap with the base text below the threshold
-  is worth about 0.004 bpb. Stress tests on the saved probabilities put any remaining memorisation of the extra C4 text
-  at about 0.01 bpb at most. The harshest test gives 1.002, still below 1.04. Three small templated web pages remain
-  in the test set with clear memorisation; together they move the result by 0.0002.
+  is worth about 0.004 bpb. Stress tests on the saved probabilities put the plausible effect of remaining memorisation
+  of the extra C4 text at about 0.01 bpb; that is an estimate, not a bound. The harshest stress test gives 1.002
+  (+0.013), still below 1.04. Three small templated web pages remain in the test set with clear memorisation; together
+  they move the result by 0.0002.
 
 ## Caveats
 
@@ -126,9 +134,10 @@ read-only, and three of them used separate lenses:
   WikiText-103), and the training mix was matched to the evaluation mix. GPT-2 small sees this text zero-shot. The
   ratio 0.955 does not show that Sela-1 is a better general language model than GPT-2 small.
 - **Partial overlap.** Test documents below the 20 % overlap threshold can still share passages with the training text.
-  Overlap with the extra C4 text below 20 % could not be recomputed here, because that text stayed on the rental
-  machine; the stress tests above bound its plausible effect.
-- **No re-run of the network.** Every number comes from the token log-probabilities saved during the run. The weights
+  Overlap with the extra C4 text below 20 % could not be recomputed on the checking machine. The C4 shards are public
+  and pinned by SHA-256 (`experiments/h100_data.py`), so the check can be repeated elsewhere; the stress tests above
+  estimate its plausible effect.
+- **No re-run of the network.** The final numbers come from the token log-probabilities saved during the run. The weights
   were not available on the verification machine, so the network could not be run again there. Uncommitted code edits
   on the rental machine cannot be excluded either: the results commit `219df1d` sits directly on `eb2e002`, and the
   audited files are unchanged.
@@ -156,5 +165,6 @@ The second sample is fluent and entirely wrong, which is typical at this size.
 
 ## Licence and data
 
-The weights are not released. The training text is C4-en (ODC-BY) and WikiText-103 (CC BY-SA, from Wikipedia); see
-`docs/DATA_LICENSES.md` before any release.
+The weights are not released. The training text is C4-en and WikiText-103 (from Wikipedia). Their licences (to my
+knowledge ODC-BY for C4 and CC BY-SA for WikiText-103) are not yet recorded in `docs/DATA_LICENSES.md`; check them
+before any release.
