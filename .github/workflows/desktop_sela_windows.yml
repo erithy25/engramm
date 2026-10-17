@@ -1,0 +1,156 @@
+# ENGRAMM desktop app for Windows WITH the Sela-1 network (requested by the repository owner on 17 Oct 2026).
+# Adds the Windows installers to the private draft release of the first private build (desktop_sela.yml, run 1):
+# it reuses the converted weights already in that draft (sela1-135m.npz, checked against torch there) and uploads the
+# .msi and the setup .exe into the same draft. As in desktop_sela.yml, no artifact and no cache holds the model.
+name: Desktop with Sela-1 for Windows (private)
+
+on:
+  push:
+    branches: ["claude/optimistic-cannon-i0u0ap"]
+    paths: [".github/workflows/desktop_sela_windows.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write                        # read the private draft and upload into it
+
+concurrency:
+  group: desktop-sela-windows-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  RELEASE_ID: "415723401"                # "ENGRAMM 3.2 mit Sela-1 – privater Test-Build 1" (private draft)
+  NPZ_ASSET_ID: "650137331"              # sela1-135m.npz in that draft
+  NPZ_BYTES: "270545611"
+  NPZ_SHA256: "6692e66d4346732c917da39beec9a50956ea59f656b1a91004d609de45d44272"
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    env:
+      PYTHONUTF8: "1"                    # JSON with umlauts through pipes: UTF-8, not the Windows code page
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false     # the write token is used only for the release API calls below
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Freeze the server (PyInstaller)
+        run: |
+          pip install -r runtime/sidecar/requirements.txt
+          pyinstaller --noconfirm --log-level WARN --distpath build/sidecar --workpath build/pyi runtime/sidecar/engramm-server.spec
+          mkdir -p runtime/app/src-tauri/resources/sidecar
+          cp -R build/sidecar/engramm-server/. runtime/app/src-tauri/resources/sidecar/
+
+      - name: Sela-1 weights beside the frozen server (from the private draft)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          d=runtime/app/src-tauri/resources/sidecar/models
+          mkdir -p "$d"
+          curl -fsSL --retry 5 --retry-delay 10 -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/octet-stream" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/assets/$NPZ_ASSET_ID" -o "$d/sela1-135m.npz"
+          test "$(stat -c %s "$d/sela1-135m.npz")" = "$NPZ_BYTES"
+          echo "$NPZ_SHA256  $d/sela1-135m.npz" | sha256sum -c -
+
+      - name: Tokenizer bytes unchanged by the checkout (its SHA-256 is pinned)
+        run: python -c "from engramm.lm.tokenizer import LMTokenizer; print('tokenizer ok', LMTokenizer().sha256[:12])"
+
+      - name: Smoke test of the frozen server (Sela-1 writes a few tokens)
+        run: python runtime/sidecar/smoke_test.py runtime/app/src-tauri/resources/sidecar
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Chat page
+        working-directory: ui
+        run: |
+          npm ci
+          npm run build
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Network core (engramm-core with Tor) next to the frozen server
+        working-directory: runtime/core
+        run: |
+          cargo build --release --features tor --target x86_64-pc-windows-msvc
+          cp target/x86_64-pc-windows-msvc/release/engramm-core.exe ../app/src-tauri/resources/sidecar/
+          echo '{"op":"status","id":1}' | ../app/src-tauri/resources/sidecar/engramm-core.exe egress | tee status.json
+          grep -q '"tor":true' status.json
+
+      - name: Icons
+        working-directory: runtime/app
+        run: |
+          npm install
+          npx tauri icon ../../desktop/build/icon.png
+
+      - name: Pack catalog (the public lite knowledge pack, so the app can download it on first start)
+        run: |
+          curl -fsSL --retry 5 -o "$RUNNER_TEMP/manifest.json" \
+            "https://github.com/${{ github.repository }}/releases/download/v3.2.0-beta.12/manifest.json"
+          python - <<'EOF'
+          import hashlib, json, os
+          from experiments.pack_release import TITLES
+          raw = open(os.path.join(os.environ["RUNNER_TEMP"], "manifest.json"), "rb").read()
+          m = json.loads(raw)
+          entry = {"name": m["pack"], "title": TITLES.get(m["pack"], m["pack"].title()), "version": m["version"],
+                   "bytes": m["bytes"], "base_url": "https://github.com/${{ github.repository }}/releases/download/v3.2.0-beta.12/",
+                   "manifest_sha256": hashlib.sha256(raw).hexdigest(), "description": m.get("info", {}).get("reading", "")}
+          path = "runtime/app/src-tauri/resources/catalog.json"
+          cat = json.load(open(path))
+          cat["packs"] = [entry]
+          open(path, "w").write(json.dumps(cat, indent=2) + "\n")
+          print(json.dumps(entry, indent=1))
+          EOF
+
+      - name: Installers (.msi and setup .exe)
+        working-directory: runtime/app
+        run: npx tauri build --target x86_64-pc-windows-msvc
+
+      - name: Upload the installers to the private draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          b=runtime/app/src-tauri/target/x86_64-pc-windows-msvc/release/bundle
+          for f in "$b"/msi/*.msi "$b"/nsis/*.exe; do
+            [ -f "$f" ] || { echo "missing installer: $f"; exit 1; }
+            ext="${f##*.}"
+            name="$(basename "$f" ".$ext")_Sela-1.$ext"
+            bytes=$(stat -c %s "$f")
+            sha256sum "$f"
+            resp=$(curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: application/octet-stream" \
+              --data-binary @"$f" \
+              "https://uploads.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID/assets?name=$name")
+            printf '%s' "$resp" | python -c "import json,sys; r=json.load(sys.stdin); assert r['size'] == $bytes, r; print('uploaded', r['name'], r['size'])"
+          done
+
+      - name: Windows notes in the draft's description
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          rel=$(curl -fsS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID")
+          body=$(printf '%s' "$rel" | python -c "
+          import json, sys
+          r = json.load(sys.stdin)
+          assert r['draft'] is True, 'the release must stay a private draft'
+          b = r.get('body') or ''
+          note = ('\n\nWindows (10/11, 64 Bit): die Datei mit -setup_Sela-1.exe ausführen (oder die .msi). Windows SmartScreen '
+                  'warnt einmal (nicht signiert): \"Weitere Informationen\" → \"Trotzdem ausführen\". Danach wie am Mac: '
+                  'Modell unten im Chatfeld wählen.')
+          if 'Windows (10/11' not in b:
+              b += note
+          print(json.dumps({'body': b}))
+          ")
+          curl -fsS -X PATCH -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID" -d "$body" \
+            | python -c "import json,sys; r=json.load(sys.stdin); assert r['draft'] is True; print('draft updated:', [a['name'] for a in r['assets']])"
