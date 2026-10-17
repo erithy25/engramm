@@ -305,3 +305,89 @@ def test_open_allows_links_shown_in_replies(monkeypatch):
         srv.shutdown()
         srv.server_close()
     assert opened == [url]
+
+
+class _Sela:
+    """Stands in for engramm.lm.sela.SelaGenerator: records prompts, returns a fixed continuation."""
+
+    def __init__(self, text=" the river, which runs through the town. It is long and", finished=False):
+        self.prompts, self.text, self.finished = [], text, finished
+
+    def generate(self, prompt, max_tokens, stop_at_newline=False):
+        self.prompts.append((prompt, max_tokens, stop_at_newline))
+        text = " Paris.\nQuestion: next" if stop_at_newline else self.text
+        if stop_at_newline:
+            return " Paris.", 3, True
+        return text, 12, self.finished
+
+
+def test_models_lists_engramm_and_sela(running, tmp_path):
+    base, svc = running
+    m = {x["id"]: x for x in json.loads(_call(base, "/api/models")[2])["models"]}
+    assert m["engramm"]["ready"] is True and m["engramm"]["available"] is True
+    assert m["sela-1"]["available"] is (svc.sela_path is not None)
+    svc.sela_path = tmp_path / "sela1-135m.npz"
+    m = {x["id"]: x for x in json.loads(_call(base, "/api/models")[2])["models"]}
+    assert m["sela-1"]["available"] is True and m["sela-1"]["ready"] is False
+
+
+def test_sela_continues_text_and_stays_out_of_the_dialog(running, tmp_path):
+    base, svc = running
+    svc.sela_path, svc.sela = tmp_path / "sela1-135m.npz", _Sela()
+    ask = lambda body: _call(base, "/api/chat", body)
+    code, _, raw = ask({"conversation": "s", "message": "The town lies on ", "model": "sela-1", "max_tokens": 40})
+    r = json.loads(raw)
+    assert code == 200 and r["kind"] == "generated" and r["model"] == "sela-1" and r["source"] is None
+    assert r["text"] == "… the river, which runs through the town."      # cut at the last full sentence
+    assert svc.sela.prompts[-1] == ("The town lies on", 40, False)
+    assert "s" not in svc.states                                           # ENGRAMM's dialog state untouched
+    code, _, raw = ask({"conversation": "s", "message": "What is the capital of France?", "model": "sela-1"})
+    r = json.loads(raw)
+    assert r["text"] == "Paris." and svc.sela.prompts[-1][0] == "Question: What is the capital of France?\nAnswer:"
+    assert svc.sela.prompts[-1][1:] == (120, True)
+    # the default model is still ENGRAMM
+    assert json.loads(ask({"conversation": "s", "message": "hello"})[2])["text"] == "prev=None"
+
+
+def test_sela_errors(running, tmp_path):
+    base, svc = running
+    svc.sela_path = None
+    code, _, raw = _call(base, "/api/chat", {"conversation": "x", "message": "Hi there", "model": "sela-1"})
+    assert code == 503 and "not installed" in json.loads(raw)["error"]
+    code, _, raw = _call(base, "/api/chat", {"conversation": "x", "message": "Hi", "model": "gpt-9"})
+    assert code == 400 and "Unknown model" in json.loads(raw)["error"]
+    svc.sela_path, svc.sela = tmp_path / "w.npz", _Sela()
+    for bad in (0, 201, "40", True):
+        code, _, _ = _call(base, "/api/chat", {"conversation": "x", "message": "Hi", "model": "sela-1",
+                                               "max_tokens": bad})
+        assert code == 400, bad
+    svc.sela, svc.sela_path = None, tmp_path / "missing.npz"               # loading fails: 503 with the reason
+    code, _, raw = _call(base, "/api/chat", {"conversation": "x", "message": "Hi", "model": "sela-1"})
+    assert code == 503 and "could not be loaded" in json.loads(raw)["error"]
+    m = {x["id"]: x for x in json.loads(_call(base, "/api/models")[2])["models"]}
+    assert m["sela-1"]["error"]
+
+
+def test_sela_with_real_numpy_model(running, tmp_path):
+    """End to end with a tiny random Sela weights file and the real tokenizer."""
+    import numpy as np
+    from engramm.lm.sela import FORMAT
+    from engramm.lm.tokenizer import LMTokenizer
+    tok = LMTokenizer()
+    d, layers, V = 16, 1, tok.vocab_size
+    rng = np.random.default_rng(0)
+    w = {"emb": rng.normal(0, 0.5, (V, d)), "head_t": rng.normal(0, 0.5, (d, V)),
+         "b0.qkv_t": rng.normal(0, 0.2, (d, 3 * d)), "b0.proj_t": rng.normal(0, 0.2, (d, d)),
+         "b0.fc1_t": rng.normal(0, 0.2, (d, 4 * d)), "b0.fc2_t": rng.normal(0, 0.2, (4 * d, d))}
+    header = {"format": FORMAT, "cfg": {"d": d, "layers": layers, "heads": 2, "ctx_max": 64, "vocab": V}, "meta": {}}
+    path = tmp_path / "sela1-135m.npz"
+    np.savez(path, header=np.frombuffer(json.dumps(header).encode(), dtype=np.uint8),
+             **{k: v.astype(np.float16) for k, v in w.items()})
+    base, svc = running
+    svc.sela_path, svc.sela = path, None
+    code, _, raw = _call(base, "/api/chat", {"conversation": "z", "message": "Once upon a time", "model": "sela-1",
+                                             "max_tokens": 8})
+    r = json.loads(raw)
+    assert code == 200 and r["kind"] == "generated" and 1 <= r["tokens"] <= 8 and r["text"]
+    m = {x["id"]: x for x in json.loads(_call(base, "/api/models")[2])["models"]}
+    assert m["sela-1"]["ready"] is True and m["sela-1"]["error"] is None

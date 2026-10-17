@@ -61,9 +61,9 @@ def test_sampling_respects_top_p_and_eos():
     eos_first = np.full((1, m.cfg.vocab), -30.0, dtype=np.float32)
     eos_first[0, 0] = 30.0                                          # <|eos|> certain: generation ends at once
 
-    def fake_forward(ids, cache):
+    def fake_forward(ids, cache, last_only=False):
         cache.n += len(ids)
-        return np.repeat(eos_first, len(ids), axis=0)
+        return eos_first if last_only else np.repeat(eos_first, len(ids), axis=0)
 
     m.forward = fake_forward
     assert list(stream(m, [0, 4], 5, seed=1)) == []

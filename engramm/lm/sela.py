@@ -106,8 +106,9 @@ class SelaModel:
         out[..., 1::2] = x1 * s + x2 * c
         return out
 
-    def forward(self, ids: list[int], cache: KVCache) -> np.ndarray:
-        """Logits (T, V) for ``ids`` appended after the cached positions; the cache is extended."""
+    def forward(self, ids: list[int], cache: KVCache, last_only: bool = False) -> np.ndarray:
+        """Logits (T, V) for ``ids`` appended after the cached positions (``last_only``: only the last row, (1, V));
+        the cache is extended."""
         c = self.cfg
         T = len(ids)
         p0 = cache.n
@@ -137,6 +138,8 @@ class SelaModel:
             h = np.maximum(_rms(x) @ b["fc1_t"], 0.0)
             x = x + (h * h) @ b["fc2_t"]
         cache.n = p0 + T
+        if last_only:
+            x = x[-1:]
         z = _rms(x) @ self.head_t
         return SOFTCAP * np.tanh(z / SOFTCAP)
 
@@ -172,7 +175,7 @@ def stream(model: SelaModel, ids: list[int], n: int, top_p: float = 0.9, tempera
     for _ in range(n):
         if cache.n + len(pending) > ctx:
             cache, pending = KVCache(model.cfg), list(out[-(ctx // 2):])
-        logits = model.forward(pending, cache)[-1]
+        logits = model.forward(pending, cache, last_only=True)[-1]
         nxt = sample_next(logits, out[-ctx:], top_p, temperature, rep_penalty, rng)
         if nxt == EOS:
             return
@@ -202,6 +205,7 @@ class SelaGenerator:
         intact (a piece is emitted only once it decodes cleanly)."""
         new: list[int] = []
         shown = ""
+        prompt = prompt.rstrip()
         for t in stream(self.model, self.prompt_ids(prompt), max_tokens, top_p, temperature, rep_penalty, seed):
             new.append(t)
             text = self.tok.decode(new)
@@ -216,3 +220,19 @@ class SelaGenerator:
 
     def complete(self, prompt: str, **kw) -> str:
         return "".join(self.stream_text(prompt, **kw))
+
+    def generate(self, prompt: str, max_tokens: int = 120, stop_at_newline: bool = False, top_p: float = 0.9,
+                 temperature: float = 0.9, rep_penalty: float = 1.15, seed: int | None = None) -> tuple[str, int, bool]:
+        """(continuation text, tokens generated, finished): ``finished`` is True when the model ended the text itself
+        (<|eos|>) or, with ``stop_at_newline``, when a line was complete (the text is cut before the line break)."""
+        new: list[int] = []
+        prompt = prompt.rstrip()                   # a trailing space would end the context on a lone space token
+        for t in stream(self.model, self.prompt_ids(prompt), max_tokens, top_p, temperature, rep_penalty, seed):
+            new.append(t)
+            if stop_at_newline:
+                text = self.tok.decode(new)
+                if "\n" in text.lstrip("\n"):
+                    head = text.lstrip("\n")
+                    return head[:head.index("\n")], len(new), True
+        text = self.tok.decode(new)
+        return (text.strip("\n") if stop_at_newline else text), len(new), len(new) < max_tokens

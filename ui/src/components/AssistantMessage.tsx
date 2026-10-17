@@ -114,6 +114,7 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
   if (k === "tool") chips.push(<Chip key="t" text={t.tool} cls="sure" />);
   if (k === "safety") chips.push(<Chip key="h" text={t.safety} cls="unsure" />);
   if (k === "writing") chips.push(<Chip key="w" text={t.writing} cls="memory" />);
+  if (k === "generated") chips.push(<Chip key="g" text={t.selaChip} cls="unsure" title={t.selaChipTitle} />);
   const src = reply.source;
   if (src?.kind === "user") {
     chips.push(<Chip key="src" text={t.toldMe} cls="memory" />);

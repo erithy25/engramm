@@ -7,16 +7,18 @@ import { MenuIcon, SendIcon } from "./components/Icons";
 import { Sidebar } from "./components/Sidebar";
 import { isLang, type Lang, TEXTS } from "./i18n";
 import { load, save, uid } from "./storage";
-import type { Conversation, Health, Message, NetworkStatus, StoredReply } from "./types";
+import type { Conversation, Health, Message, ModelId, ModelInfo, NetworkStatus, StoredReply } from "./types";
 
 const STORE = "engramm.conversations.v1";
 const THEME = "engramm.theme";
 const LANG = "engramm.lang";
+const MODEL = "engramm.model";
 const MAX_MESSAGE = 12000;
 
 const isConversations = (v: unknown): v is Conversation[] =>
   Array.isArray(v) && v.every((c) => typeof c === "object" && c !== null && "id" in c && "messages" in c);
 const isTheme = (v: unknown): v is "light" | "dark" => v === "light" || v === "dark";
+const isModelId = (v: unknown): v is ModelId => v === "engramm" || v === "sela-1";
 
 type Status = { kind: "connecting" } | { kind: "offline" } | { kind: "health"; health: Health };
 
@@ -36,6 +38,8 @@ export function App() {
   const [aboutOpen, setAboutOpen] = useState(false);
   const [networkOpen, setNetworkOpen] = useState(false);
   const [network, setNetwork] = useState<NetworkStatus | null>(null);
+  const [model, setModel] = useState<ModelId>(() => load(MODEL, "engramm", isModelId));
+  const [models, setModels] = useState<ModelInfo[] | null>(null);
   const threadRef = useRef<HTMLElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const t = TEXTS[lang];
@@ -43,9 +47,21 @@ export function App() {
   const systemDark = typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches;
   const dark = theme ? theme === "dark" : systemDark;
   const ready = status.kind === "health" && status.health.ready;
+  const serverUp = status.kind === "health";
+  const selaAvailable = models?.find((m) => m.id === "sela-1")?.available === true;
+  // the chosen model; Sela-1 only where the app ships it (a saved choice survives builds without it)
+  const activeModel: ModelId = model === "sela-1" && selaAvailable ? "sela-1" : "engramm";
+  const sela = activeModel === "sela-1";
+  const canSend = sela ? serverUp : ready;
   const active = useMemo(() => conversations.find((c) => c.id === activeId) ?? null, [conversations, activeId]);
 
   useEffect(() => save(STORE, conversations.slice(0, 200)), [conversations]);
+  useEffect(() => save(MODEL, model), [model]);
+  // which models this server offers (an older server without /api/models: ENGRAMM only)
+  useEffect(() => {
+    if (!serverUp) return;
+    api.models().then(setModels, () => setModels([]));
+  }, [serverUp, ready]);
   useEffect(() => {
     document.documentElement.lang = lang;
     save(LANG, lang);
@@ -116,7 +132,8 @@ export function App() {
 
   const send = async (raw: string) => {
     const text = raw.trim();
-    if (!text || !ready || busy) return;
+    if (!text || !canSend || busy) return;
+    const used = activeModel;
     let conv = active;
     const now = Date.now();
     if (!conv) {
@@ -134,14 +151,14 @@ export function App() {
     setAnimateLast(true);
     let reply: StoredReply;
     try {
-      reply = await api.chat(convId, text);
+      reply = await api.chat(convId, text, used);
     } catch (e) {
       reply = { error: e instanceof Error ? e.message : t.connectionLost };
     }
     setConversations((cur) =>
       cur.map((c) =>
         c.id === convId
-          ? { ...c, updated: Date.now(), messages: [...c.messages, { role: "assistant", reply }] }
+          ? { ...c, updated: Date.now(), messages: [...c.messages, { role: "assistant", reply, model: used }] }
           : c,
       ),
     );
@@ -225,8 +242,8 @@ export function App() {
                   onClick={() => setSidebarOpen(true)}>
             <MenuIcon />
           </button>
-          <div className="model-pill" title={t.pillTitle}>
-            ENGRAMM <span className="muted">{t.pill}</span>
+          <div className="model-pill" id="modelPill" title={sela ? t.pillSelaTitle : t.pillTitle}>
+            {sela ? "Sela-1 135M" : "ENGRAMM"} <span className="muted">{sela ? t.pillSela : t.pill}</span>
           </div>
           <div className={statusView.cls} id="status" title={statusView.title}>
             <span className="dot" />
@@ -244,7 +261,7 @@ export function App() {
               <h1>{t.emptyTitle}</h1>
               <p className="muted">{t.emptySub}</p>
               <div className="suggestions" id="suggestions">
-                {t.suggestions.map((s) => (
+                {(sela ? t.suggestionsSela : t.suggestions).map((s) => (
                   <button key={s.title} className="suggestion" type="button" onClick={() => void send(s.title)}>
                     <b>{s.title}</b>
                     <span>{s.sub}</span>
@@ -285,7 +302,7 @@ export function App() {
               id="input"
               ref={inputRef}
               rows={1}
-              placeholder={t.placeholder}
+              placeholder={sela ? t.placeholderSela : t.placeholder}
               aria-label={t.message}
               maxLength={MAX_MESSAGE}
               value={input}
@@ -301,12 +318,30 @@ export function App() {
                 }
               }}
             />
+            <select
+              id="model"
+              className="model-select"
+              aria-label={t.modelLabel}
+              title={t.modelLabel}
+              value={activeModel}
+              disabled={busy}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (isModelId(v)) setModel(v);
+                inputRef.current?.focus();
+              }}
+            >
+              <option value="engramm">{t.modelEngramm}</option>
+              <option value="sela-1" disabled={!selaAvailable}>
+                {selaAvailable ? t.modelSela : t.modelSelaMissing}
+              </option>
+            </select>
             <button type="submit" className="send" id="send" aria-label={t.send}
-                    disabled={!ready || busy || !input.trim()}>
+                    disabled={!canSend || busy || !input.trim()}>
               <SendIcon />
             </button>
           </form>
-          <p className="hint muted">{t.hint}</p>
+          <p className="hint muted" id="hint">{sela ? t.hintSela : t.hint}</p>
         </footer>
       </main>
 

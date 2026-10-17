@@ -1,4 +1,4 @@
-import type { ChannelChange, Health, MemoryItem, NetworkStatus, Reply, Learning } from "./types";
+import type { ChannelChange, Health, MemoryItem, ModelId, ModelInfo, NetworkStatus, Reply, Learning } from "./types";
 
 export class ApiError extends Error {
   readonly status: number;
@@ -33,7 +33,10 @@ async function call<T>(path: string, body?: unknown): Promise<T> {
 
 export const api = {
   health: () => call<Health>("/api/health"),
-  chat: (conversation: string, message: string) => call<Reply>("/api/chat", { conversation, message }),
+  chat: (conversation: string, message: string, model: ModelId = "engramm") =>
+    call<Reply>("/api/chat", { conversation, message, model }),
+  /** ENGRAMM and, when its weights ship with the app, the Sela-1 network. */
+  models: async () => (await call<{ models: ModelInfo[] }>("/api/models")).models,
   memory: async () => (await call<{ items: MemoryItem[] }>("/api/memory")).items,
   forget: (source: string) => call<{ forgot: string }>("/api/memory/forget", { source }),
   /** What ENGRAMM learned on this computer (corrections, taught words, style) and the reset. */

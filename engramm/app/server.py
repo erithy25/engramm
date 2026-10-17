@@ -16,7 +16,10 @@ API (JSON):
 
 * ``GET  /api/health``           → {"ready": bool, "error": str|None, "mode": "full"|"quick"|None,
                                     "sentences": int|None}
-* ``POST /api/chat``             {"conversation": str, "message": str} → reply
+* ``POST /api/chat``             {"conversation": str, "message": str, "model"?: "engramm"|"sela-1",
+                                    "max_tokens"?: int} → reply (model "sela-1": text continued by the local
+                                    Sela-1 network, kind "generated", nothing checked against sources)
+* ``GET  /api/models``           → {"models": [{"id", "name", "available", "ready", "error"}]}
 * ``GET  /api/memory``           → {"items": [{"source", "preview", "tokens"}]}
 * ``POST /api/memory/forget``    {"source": str} → {"forgot": str}
 * ``POST /api/open``             {"url": str} → {"opened": str}   (desktop app only: opens a source
@@ -49,7 +52,34 @@ mimetypes.add_type("text/javascript", ".js")
 DEFAULT_MODEL = Path(__file__).resolve().parents[2] / "models" / "lm" / "main" / "model"
 MAX_MESSAGE = 12000
 MAX_CONVERSATIONS = 500
+SELA_ID = "sela-1"
+SELA_FILE = "sela1-135m.npz"
+SELA_TOKENS, SELA_MAX_TOKENS = 120, 200
+MODEL_IDS = ("engramm", SELA_ID)
 OPEN_HOSTS = re.compile(r"^([a-z]{2,3}(-[a-z]+)?\.)?(m\.)?wikipedia\.org$|^www\.wikidata\.org$")
+
+
+def find_sela(explicit: Path | None = None, data_dir: Path | None = None) -> Path | None:
+    """The Sela-1 weights (engramm/lm/sela.py): --sela or ENGRAMM_SELA, then models/ next to the frozen server (the
+    desktop app ships it there), the app's data folder, and the repository (models/lm/sela1/)."""
+    cands = [Path(explicit)] if explicit else []
+    if os.environ.get("ENGRAMM_SELA"):
+        cands.append(Path(os.environ["ENGRAMM_SELA"]))
+    if getattr(sys, "frozen", False):
+        cands.append(Path(sys.executable).resolve().parent / "models" / SELA_FILE)
+    if data_dir is not None:
+        cands.append(Path(data_dir) / "models" / SELA_FILE)
+    cands.append(Path(__file__).resolve().parents[2] / "models" / "lm" / "sela1" / SELA_FILE)
+    return next((c for c in cands if c.is_file()), None)
+
+
+def sela_prompt(message: str) -> tuple[str, bool]:
+    """A question becomes "Question: …\nAnswer:" (the answer ends at the first line break); anything else is a text
+    for Sela-1 to continue."""
+    m = message.strip()
+    if m.endswith("?"):
+        return f"Question: {m}\nAnswer:", True
+    return m, False
 
 
 def openable(url: str) -> bool:
@@ -108,7 +138,7 @@ class ChatService:
     at a time touches the bot (it is not thread-safe); the lock also orders learn / forget."""
 
     def __init__(self, model_dir: Path, index: str | None = None, pack: Path | None = None,
-                 memory_path: Path | None = None):
+                 memory_path: Path | None = None, sela: Path | None = None):
         self.model_dir = Path(model_dir)
         self.index = index
         self.pack = Path(pack) if pack else None
@@ -123,6 +153,10 @@ class ChatService:
         self.egress = None
         self.atlas = None
         self.shown_urls: set[str] = set()          # links this server put into replies (may be opened)
+        self.sela_path = find_sela(sela, self.memory_path.parent if self.memory_path else None)
+        self.sela = None                           # loaded on the first Sela-1 request (about 540 MB of memory)
+        self.sela_error: str | None = None
+        self.sela_lock = threading.Lock()          # one generation at a time; never holds the bot's lock
 
     # -- loading -----------------------------------------------------------------------------
 
@@ -207,15 +241,28 @@ class ChatService:
         return {"ready": self.assistant is not None, "error": self.error, "mode": self.mode,
                 "sentences": None if self.bot is None else int(self.bot.c.index.n)}
 
+    def models(self) -> dict:
+        """The models the chat can use: ENGRAMM (answers with sources) and, when its weights ship with the app,
+        Sela-1 (a small neural network that continues text)."""
+        return {"models": [
+            {"id": "engramm", "name": "ENGRAMM", "available": True, "ready": self.assistant is not None,
+             "error": self.error},
+            {"id": SELA_ID, "name": "Sela-1 135M", "available": self.sela_path is not None,
+             "ready": self.sela is not None, "error": self.sela_error}]}
+
     # -- chat --------------------------------------------------------------------------------
 
-    def chat(self, conversation: str, message: str) -> dict:
+    def chat(self, conversation: str, message: str, model: str = "engramm", max_tokens: int | None = None) -> dict:
         from engramm.chat.dialog import DialogState
         message = message.strip()
         if not message:
             raise ValueError("Empty message.")
         if len(message) > MAX_MESSAGE:
             raise ValueError(f"Message too long (at most {MAX_MESSAGE} characters).")
+        if model not in MODEL_IDS:
+            raise ValueError(f"Unknown model: {model}")
+        if model == SELA_ID:
+            return self.generate(message, max_tokens)
         if self.assistant is None:
             raise RuntimeError(self.error or "ENGRAMM is still loading.")
         conversation = (conversation or "default")[:100]
@@ -236,6 +283,40 @@ class ChatService:
                 "alternatives": [{"text": a.get("text"), "source": source_view(a.get("source"))}
                                  for a in (d.get("alternatives") or [])][:3],
                 "seconds": round(time.time() - t0, 3)}
+
+    def generate(self, message: str, max_tokens: int | None = None) -> dict:
+        """Sela-1 continues the message (a question gets a one-line answer). Nothing is checked against sources,
+        and the turn stays out of ENGRAMM's dialog state and memory."""
+        if self.sela_path is None:
+            raise RuntimeError("Sela-1 is not installed in this app.")
+        n = SELA_TOKENS if max_tokens is None else int(max_tokens)
+        if not 1 <= n <= SELA_MAX_TOKENS:
+            raise ValueError(f"max_tokens must be between 1 and {SELA_MAX_TOKENS}.")
+        prompt, question = sela_prompt(message)
+        with self.sela_lock:
+            if self.sela is None:
+                try:
+                    from engramm.lm.sela import SelaGenerator
+                    self.sela = SelaGenerator(self.sela_path)
+                    self.sela_error = None
+                except Exception as e:
+                    self.sela_error = f"{type(e).__name__}: {e}"
+                    traceback.print_exc()
+                    raise RuntimeError(f"Sela-1 could not be loaded ({self.sela_error}).") from e
+            t0 = time.time()
+            text, tokens, finished = self.sela.generate(prompt, n, stop_at_newline=question)
+        body = text.strip()
+        if not finished and not question and not body.endswith((".", "!", "?")):
+            cut = max(body.rfind(". "), body.rfind("! "), body.rfind("? "), body.rfind(".\n"))
+            if cut >= len(body) // 3:                # cut at the last full sentence, if there is a long enough one
+                body = body[:cut + 1]
+        if not body:
+            body = "…"
+        elif not question:                           # a continuation: show where the user's text left off
+            body = "…" + (" " if text[:1].isspace() else "") + body
+        return {"kind": "generated", "text": body, "answer": None, "guess": None, "evidence": None, "source": None,
+                "confidence": 0.0, "via": SELA_ID, "resolved": None, "alternatives": [],
+                "seconds": round(time.time() - t0, 3), "model": SELA_ID, "tokens": tokens}
 
     # -- network (Atlas) ---------------------------------------------------------------------
 
@@ -325,6 +406,8 @@ def make_handler(service: ChatService, desktop: bool = False):
                 return self._json(200, service.network())
             if path == "/api/learning":
                 return self._json(200, service.learning())
+            if path == "/api/models":
+                return self._json(200, service.models())
             name = "index.html" if path in ("/", "/index.html") else path.lstrip("/")
             f = (WEB / name).resolve()
             if WEB.resolve() not in f.parents or not f.is_file():
@@ -346,7 +429,11 @@ def make_handler(service: ChatService, desktop: bool = False):
                     return self._json(415, {"error": "Expected application/json."})
                 data = json.loads(self.rfile.read(n) or b"{}")
                 if path == "/api/chat":
-                    return self._json(200, service.chat(str(data.get("conversation", "")), str(data.get("message", ""))))
+                    mt = data.get("max_tokens")
+                    if mt is not None and (isinstance(mt, bool) or not isinstance(mt, int)):
+                        raise ValueError("max_tokens must be a whole number.")
+                    return self._json(200, service.chat(str(data.get("conversation", "")), str(data.get("message", "")),
+                                                        str(data.get("model", "engramm")), mt))
                 if path == "/api/memory/forget":
                     return self._json(200, service.forget(str(data.get("source", ""))))
                 if path == "/api/network":
@@ -410,10 +497,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--pack", type=Path, default=None, help="run on a knowledge pack folder (desktop app)")
     ap.add_argument("--memory", type=Path, default=None, help="where to keep what you tell ENGRAMM")
     ap.add_argument("--host", default="127.0.0.1")
+    ap.add_argument("--sela", type=Path, default=None, help="Sela-1 weights file (default: found next to the app)")
     ap.add_argument("--desktop", action="store_true",
                     help="desktop-app mode: print ENGRAMM_URL=…, allow /api/open, exit when stdin closes")
     args = ap.parse_args(argv)
-    service = ChatService(args.model, args.index, pack=args.pack, memory_path=args.memory)
+    service = ChatService(args.model, args.index, pack=args.pack, memory_path=args.memory, sela=args.sela)
     server = serve(service, host=args.host, port=args.port, desktop=args.desktop)
     threading.Thread(target=service.load, daemon=True).start()
     url = f"http://127.0.0.1:{server.server_address[1]}"

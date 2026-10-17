@@ -26,6 +26,17 @@ export interface Texts {
   message: string;
   send: string;
   hint: string;
+  modelLabel: string;
+  modelEngramm: string;
+  modelSela: string;
+  modelSelaMissing: string;
+  pillSela: string;
+  pillSelaTitle: string;
+  placeholderSela: string;
+  hintSela: string;
+  selaChip: string;
+  selaChipTitle: string;
+  suggestionsSela: Suggestion[];
   close: string;
   memorySub: string;
   aboutIntroBefore: string;
@@ -126,6 +137,24 @@ const en: Texts = {
   message: "Message",
   send: "Send",
   hint: "ENGRAMM works without a neural network and shows its sources — it can still be wrong. Check the source.",
+  modelLabel: "Model",
+  modelEngramm: "ENGRAMM · with sources",
+  modelSela: "Sela-1 · free text",
+  modelSelaMissing: "Sela-1 · not installed",
+  pillSela: "· neural network, 135 M parameters",
+  pillSelaTitle: "Sela-1 135M: a small transformer trained from scratch, running on this computer",
+  placeholderSela: "Start a text in English — Sela-1 continues it …",
+  hintSela:
+    "Sela-1 is a small neural network (135 M parameters) on this computer. It continues your text and invents facts — " +
+    "nothing it writes is checked.",
+  selaChip: "Sela-1 · invented",
+  selaChipTitle: "Written by the Sela-1 network on this computer; not checked against any source",
+  suggestionsSela: [
+    { title: "Once upon a time, in a small village by the sea,", sub: "Sela-1 continues the story" },
+    { title: "The history of the city", sub: "An encyclopedia-style text" },
+    { title: "How to make a cup of tea: First,", sub: "Instructions" },
+    { title: "What is the capital of France?", sub: "A question — the answer may be wrong" },
+  ],
   close: "Close",
   memorySub: "What you told ENGRAMM. “Forget” deletes it for real — not just hidden.",
   aboutIntroBefore: "ENGRAMM is a chat assistant that works ",
@@ -252,6 +281,24 @@ const de: Texts = {
   message: "Nachricht",
   send: "Senden",
   hint: "ENGRAMM arbeitet ohne neuronales Netz und zeigt seine Quellen – und kann sich trotzdem irren. Prüfe die Quelle.",
+  modelLabel: "Modell",
+  modelEngramm: "ENGRAMM · mit Quellen",
+  modelSela: "Sela-1 · freier Text",
+  modelSelaMissing: "Sela-1 · nicht installiert",
+  pillSela: "· neuronales Netz, 135 Mio. Parameter",
+  pillSelaTitle: "Sela-1 135M: ein kleiner, von Grund auf trainierter Transformer, läuft auf diesem Computer",
+  placeholderSela: "Beginne einen Text auf Englisch – Sela-1 schreibt weiter …",
+  hintSela:
+    "Sela-1 ist ein kleines neuronales Netz (135 Mio. Parameter) auf diesem Computer. Es schreibt deinen Text weiter " +
+    "und erfindet Fakten – nichts davon ist geprüft.",
+  selaChip: "Sela-1 · frei erfunden",
+  selaChipTitle: "Vom Sela-1-Netz auf diesem Computer geschrieben; mit keiner Quelle abgeglichen",
+  suggestionsSela: [
+    { title: "Once upon a time, in a small village by the sea,", sub: "Sela-1 erzählt weiter" },
+    { title: "The history of the city", sub: "Ein Text wie im Lexikon" },
+    { title: "How to make a cup of tea: First,", sub: "Eine Anleitung" },
+    { title: "What is the capital of France?", sub: "Eine Frage – die Antwort kann falsch sein" },
+  ],
   close: "Schließen",
   memorySub: "Was du ENGRAMM erzählt hast. „Vergessen“ löscht es wirklich – nicht nur versteckt.",
   aboutIntroBefore: "ENGRAMM ist ein Chat, der ",

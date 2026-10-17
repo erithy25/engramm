@@ -13,7 +13,19 @@ export type ReplyKind =
   | "tool"
   | "memory"
   | "safety"
-  | "writing";
+  | "writing"
+  | "generated";
+
+/** The models the chat can use (GET /api/models). */
+export type ModelId = "engramm" | "sela-1";
+
+export interface ModelInfo {
+  id: string;
+  name: string;
+  available: boolean;
+  ready: boolean;
+  error: string | null;
+}
 
 export interface SourceView {
   kind: string;
@@ -42,6 +54,9 @@ export interface Reply {
   resolved: string | null;
   alternatives: Alternative[];
   seconds: number;
+  /** Sela-1 replies: the model and the number of tokens it wrote. */
+  model?: string;
+  tokens?: number;
 }
 
 /** What the page stores for a failed request instead of a reply. */
@@ -66,7 +81,7 @@ export interface MemoryItem {
 
 export type Message =
   | { role: "user"; text: string }
-  | { role: "assistant"; reply: StoredReply };
+  | { role: "assistant"; reply: StoredReply; model?: ModelId };
 
 export interface Conversation {
   id: string;
