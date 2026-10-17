@@ -1024,8 +1024,8 @@ def cmd_evaluate(args) -> None:
         if name.startswith("val_"):                # held-out sets: documents capped (books); LM-study sets: in full
             r = eval_stream(model, rec, device, args.final_docs, max_tokens=EVAL_MAX_TOKENS,
                             byte_len=token_byte_lengths(args.tokenizer))
-        else:
-            r = eval_stream(model, rec, device, 0)
+        else:                                      # LM-study sets in full (tests: --lm-docs caps them)
+            r = eval_stream(model, rec, device, getattr(args, "lm_docs", 0))
         np.save(out / f"perdoc_{args.tag}_{name}.npy", r.pop("per_doc_bits").astype(np.float32))
         r["seconds"] = round(time.time() - t0, 1)
         res["bpb"][name] = r
@@ -1248,6 +1248,7 @@ def main() -> None:
     p = sub.add_parser("evaluate")
     p.add_argument("--data", default="/workspace/sela2/data")
     p.add_argument("--model", required=True)
+    p.add_argument("--lm-docs", type=int, default=0, help="tests only: at most N documents of each LM-study set")
     p.add_argument("--out", default=str(REPO / "results" / "sela2"))
     p.add_argument("--tag", required=True)
     p.add_argument("--cpu", action="store_true")

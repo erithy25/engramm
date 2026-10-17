@@ -268,7 +268,7 @@ if ! done_ probe; then
   python3 -m experiments.sela2_train sft "${PROBE[@]}" "${PSFT[@]}" --sft-batch-tokens $(( PB + PB / 256 )) \
       --deadline $(( $(date +%s) + 120 )) > "$P/sft.log" 2>&1 || { tail -30 "$P/sft.log"; fail "Vorab-Probe: Feinabstimmung fehlgeschlagen"; }
   EVP=(--data "$W/data" --model "$P/ckpt/model_chat.pt" --out "$P/out" --tag probe --final-docs 5)
-  test_mode && EVP+=(--cpu --samples 0)
+  test_mode && EVP+=(--cpu --samples 0 --lm-docs 5)
   python3 -m experiments.sela2_train evaluate "${EVP[@]}" > "$P/eval.log" 2>&1 || { tail -30 "$P/eval.log"; fail "Vorab-Probe: Auswertung fehlgeschlagen"; }
   if [ -n "${GH_TOKEN:-}" ] && github_on; then         # an upload into the results release really works
     RID=$(cat "$W/stages/release_id" 2>/dev/null)
@@ -424,7 +424,7 @@ if ! done_ eval; then
   say "== 7. Auswertung"
   EV=(--data "$W/data" --out "$OUT")
   FD=600; FB=300
-  test_mode && { EV+=(--cpu --samples 0); FD=${SELA2_TEST_EVAL_DOCS:-50}; FB=$FD; }
+  test_mode && { FD=${SELA2_TEST_EVAL_DOCS:-50}; FB=$FD; EV+=(--cpu --samples 0 --lm-docs "$FD"); }
   for tag in chat base; do
     m="$W/ckpt/model_$tag.pt"; [ -f "$m" ] || continue
     budget=$(( $(time_left) - 600 ))
