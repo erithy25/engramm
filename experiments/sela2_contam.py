@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -76,10 +77,14 @@ def cmd_items(args) -> None:
     print(f"{len(H)} windows of {len(keys)} items -> {args.out}")
 
 
+def group_of(name: str) -> str:
+    """Source group of a stream file name, as experiments/sela2_train.py has it (no torch needed here)."""
+    return re.sub(r"(_\d+)+$", "", name)
+
+
 def trained_ranges(manifest: dict, meta: dict) -> list[tuple[str, int]]:
     """(stream name, tokens used from its start) for every stream the pretraining read, from the data manifest
     (results/sela2/data/manifest.json: tokens per stream) and the run's data report (tokens used per source)."""
-    from experiments.sela2_train import group_of
     rep = meta.get("data_report") or {}
     files: dict[str, list[tuple[str, int]]] = {}
     for st in sorted(manifest["streams"], key=lambda r: r["name"]):
