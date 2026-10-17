@@ -1,0 +1,180 @@
+# ENGRAMM desktop app for macOS WITH Sela-2 (chat) and Sela-1 (docs/MODEL_CARD_SELA2.md). Started by committing
+# results/sela2/app_request.json ({"release_id": <results release of the Sela-2 run>}) after the evaluation workflow
+# has put sela2-chat.npz into that release. The weights stay private: they come from private draft releases, and the
+# finished DMGs go into a NEW PRIVATE DRAFT release (visible only to people with write access). No artifact and no
+# cache ever holds a model. The normal desktop.yml keeps building the public installers without the networks.
+name: Desktop with Sela-2 (private)
+
+on:
+  push:
+    branches: ["claude/optimistic-cannon-i0u0ap"]
+    paths: ["results/sela2/app_request.json"]
+
+permissions:
+  contents: write                        # read the drafts with the weights, create the private draft, upload to it
+
+concurrency:
+  group: desktop-sela2-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  SELA1_NPZ_ASSET_ID: "650137331"        # sela1-135m.npz (see desktop_sela_windows.yml)
+  SELA1_NPZ_BYTES: "270545611"
+  SELA1_NPZ_SHA256: "6692e66d4346732c917da39beec9a50956ea59f656b1a91004d609de45d44272"
+
+jobs:
+  prep:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    outputs:
+      release_id: ${{ steps.release.outputs.id }}
+      rid: ${{ steps.req.outputs.rid }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy==2.4.1 tokenizers==0.23.2
+      - id: req
+        run: |
+          rid=$(python -c "import json; print(int(json.load(open('results/sela2/app_request.json'))['release_id']))")
+          echo "rid=$rid" >> "$GITHUB_OUTPUT"
+      - name: The app file loads and answers (NumPy only, as in the app)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -m experiments.gh_release download --release ${{ steps.req.outputs.rid }} --dest "$RUNNER_TEMP/m" --match '^sela2-chat\.npz$'
+          python -m engramm.app --check-sela2 --sela2 "$RUNNER_TEMP/m/sela2-chat.npz"
+      - name: Private draft release for this build
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_NUMBER: ${{ github.run_number }}
+          SHA: ${{ github.sha }}
+        run: |
+          body=$(python - <<'EOF'
+          import json, os
+          n = os.environ["RUN_NUMBER"]
+          text = (
+              "Privater Test-Build: ENGRAMM 3.2 mit Sela-2 (Chat) und Sela-1 (nur für Personen mit Schreibrecht sichtbar).\n\n"
+              "- Apple Silicon (M1–M4): die Datei mit aarch64 im Namen; Intel-Mac: x64.\n"
+              "- Erster Start: Systemeinstellungen → Datenschutz & Sicherheit → \"Trotzdem öffnen\" (ad hoc signiert).\n"
+              "- Unten im Chatfeld neben dem Senden-Knopf: Modell wählen (ENGRAMM, Sela-1 oder Sela-2).\n"
+              "- Sela-2 chattet frei (ungeprüft) und schreibt Antworten aus ENGRAMMs Quellen (mit [n], vor der Anzeige geprüft).\n"
+              "- Beim ersten Start bietet die App das Wissenspaket \"Lite\" an; ohne Paket startet der Server nicht.\n\n"
+              f"Workflow .github/workflows/desktop_sela2.yml, Lauf {n}, Commit {os.environ['SHA']}."
+          )
+          print(json.dumps({"tag_name": f"sela2-app-{n}", "target_commitish": os.environ["SHA"],
+                            "name": f"ENGRAMM 3.2 mit Sela-2 – privater Test-Build {n}", "body": text,
+                            "draft": True, "prerelease": True}))
+          EOF
+          )
+          resp=$(curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/releases" -d "$body")
+          id=$(printf '%s' "$resp" | python -c "import json,sys; r=json.load(sys.stdin); assert r['draft'] is True; print(r['id'])")
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+  mac:
+    needs: prep
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            target: aarch64-apple-darwin
+          - os: macos-15-intel
+            target: x86_64-apple-darwin
+            requirements: runtime/sidecar/requirements-macos-x64.txt
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Freeze the server (PyInstaller)
+        run: |
+          pip install -r "${{ matrix.requirements || 'runtime/sidecar/requirements.txt' }}"
+          pyinstaller --noconfirm --log-level WARN --distpath build/sidecar --workpath build/pyi runtime/sidecar/engramm-server.spec
+          mkdir -p runtime/app/src-tauri/resources/sidecar
+          cp -R build/sidecar/engramm-server/. runtime/app/src-tauri/resources/sidecar/
+      - name: Sela-2 and Sela-1 weights beside the frozen server (from the private drafts)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          d=runtime/app/src-tauri/resources/sidecar/models
+          mkdir -p "$d"
+          python -m experiments.gh_release download --release ${{ needs.prep.outputs.rid }} --dest "$d" --match '^sela2-chat\.npz$'
+          curl -fsSL --retry 5 --retry-delay 10 -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/octet-stream" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/assets/$SELA1_NPZ_ASSET_ID" -o "$d/sela1-135m.npz"
+          test "$(stat -f %z "$d/sela1-135m.npz")" = "$SELA1_NPZ_BYTES"
+          echo "$SELA1_NPZ_SHA256  $d/sela1-135m.npz" | shasum -a 256 -c -
+          ls -la "$d"
+      - name: Smoke test of the frozen server (Sela-1 writes, Sela-2 answers via --check-sela2)
+        run: python runtime/sidecar/smoke_test.py runtime/app/src-tauri/resources/sidecar
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Chat page
+        working-directory: ui
+        run: |
+          npm ci
+          npm run build
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - name: Network core (engramm-core with Tor) next to the frozen server
+        working-directory: runtime/core
+        run: |
+          cargo build --release --features tor --target ${{ matrix.target }}
+          cp "target/${{ matrix.target }}/release/engramm-core" ../app/src-tauri/resources/sidecar/
+          echo '{"op":"status","id":1}' | ../app/src-tauri/resources/sidecar/engramm-core egress | tee status.json
+          grep -q '"tor":true' status.json
+      - name: Icons
+        working-directory: runtime/app
+        run: |
+          npm install
+          npx tauri icon ../../desktop/build/icon.png
+      - name: Pack catalog (the public lite knowledge pack, so the app can download it on first start)
+        run: |
+          curl -fsSL --retry 5 -o "$RUNNER_TEMP/manifest.json" \
+            "https://github.com/${{ github.repository }}/releases/download/v3.2.0-beta.12/manifest.json"
+          python - <<'EOF'
+          import hashlib, json, os
+          from experiments.pack_release import TITLES
+          raw = open(os.path.join(os.environ["RUNNER_TEMP"], "manifest.json"), "rb").read()
+          m = json.loads(raw)
+          entry = {"name": m["pack"], "title": TITLES.get(m["pack"], m["pack"].title()), "version": m["version"],
+                   "bytes": m["bytes"], "base_url": "https://github.com/${{ github.repository }}/releases/download/v3.2.0-beta.12/",
+                   "manifest_sha256": hashlib.sha256(raw).hexdigest(), "description": m.get("info", {}).get("reading", "")}
+          path = "runtime/app/src-tauri/resources/catalog.json"
+          cat = json.load(open(path))
+          cat["packs"] = [entry]
+          open(path, "w").write(json.dumps(cat, indent=2) + "\n")
+          EOF
+      - name: Installer (DMG)
+        working-directory: runtime/app
+        run: npx tauri build --target ${{ matrix.target }}
+      - name: Signature check and smoke test from inside the signed app
+        run: |
+          app="runtime/app/src-tauri/target/${{ matrix.target }}/release/bundle/macos/ENGRAMM.app"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          test -f "$app/Contents/Resources/sidecar/models/sela2-chat.npz"
+          test -f "$app/Contents/Resources/sidecar/models/sela1-135m.npz"
+          python runtime/sidecar/smoke_test.py "$app/Contents/Resources/sidecar"
+      - name: Upload the DMG to the private draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          dmg=$(ls runtime/app/src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg | head -n 1)
+          name="$(basename "$dmg" .dmg)_Sela-2.dmg"
+          bytes=$(stat -f %z "$dmg")
+          shasum -a 256 "$dmg"
+          resp=$(curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: application/octet-stream" \
+            --data-binary @"$dmg" \
+            "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.prep.outputs.release_id }}/assets?name=$name")
+          printf '%s' "$resp" | python -c "import json,sys; r=json.load(sys.stdin); assert r['size'] == $bytes, r; print('uploaded', r['name'], r['size'])"

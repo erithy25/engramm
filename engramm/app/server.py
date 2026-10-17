@@ -650,6 +650,26 @@ def _exit_with_parent(server: ThreadingHTTPServer) -> None:
     threading.Thread(target=server.shutdown, daemon=True).start()
 
 
+def check_sela2(explicit: Path | None = None) -> int:
+    """Self-test of a (frozen) server: the Sela-2 file next to it loads with its pinned tokenizer and answers."""
+    from engramm.lm.sela_chat import ChatState, SelaChat
+    path = find_sela2(explicit)
+    out: dict = {"ok": False, "weights": str(path) if path else None}
+    try:
+        if path is None:
+            raise FileNotFoundError(f"{SELA2_FILE} not found")
+        t0 = time.time()
+        sc = SelaChat(path)
+        out["load_seconds"] = round(time.time() - t0, 1)
+        r = sc.chat(ChatState(), "Hello! Who are you?", max_tokens=8, seed=0)
+        out.update({"ok": r["tokens"] >= 1, "tokens": r["tokens"], "text": r["text"], "stop": r.get("stop"),
+                    "reply_seconds": r["seconds"], "tokenizer_sha256": sc.tok.sha256, "vocab": sc.model.cfg.vocab})
+    except Exception as e:
+        out["error"] = f"{type(e).__name__}: {e}"
+    print(json.dumps(out), flush=True)
+    return 0 if out["ok"] else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m engramm.app", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -664,7 +684,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--sela2", type=Path, default=None, help="Sela-2 weights file (default: found next to the app)")
     ap.add_argument("--desktop", action="store_true",
                     help="desktop-app mode: print ENGRAMM_URL=…, allow /api/open, exit when stdin closes")
+    ap.add_argument("--check-sela2", action="store_true",
+                    help="load Sela-2 (weights + tokenizer, as the app does), write one short reply, print JSON, exit")
     args = ap.parse_args(argv)
+    if args.check_sela2:
+        return check_sela2(args.sela2)
     service = ChatService(args.model, args.index, pack=args.pack, memory_path=args.memory, sela=args.sela,
                           sela2=args.sela2)
     server = serve(service, host=args.host, port=args.port, desktop=args.desktop)
