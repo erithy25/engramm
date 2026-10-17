@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 554868736,
+ "train_hours": 137.82371644384332,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is both directly connected to a culture and history.\n\"It's like you're probably driving down one block in another,\" said Adam Lilly, managing director for The Atlanta Journal. \"I had never been going anywhere but I've ever dreamed about going outside.\"\nBlues have come in everywhere from rent-in commercial real estate developers into large"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in Hamburg, Germany. He grew up and moved to the German-Klvan's Soviet Union where he spent his youth studying the arts of French Literature in Finland (now Poland). At last, he came from a family home in his mother’s house at the age of 17 at the age of 10. After moving into this college room"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " How many guests do you know about it ?\nQuestion: Why is there a place to restock like no-one else, anyway???"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " I’ll have you come up with a crusty cocktail. And the only thing is when in the background doesn’t seem like there was something more than good and spicy. But if that means your mind gets right under it all then he does want to get home.\nBut what will go wrong? “I find that my stomach just need"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " gatt sehrange in a Losseuros, Mexico-go-to tói poker quot;putquot;expertquot; and233;min225;parta casino en la casinos cra233;n233;m225;jee s233;c233;c233;nt233;n233;m233"
+  }
+ ]
+}

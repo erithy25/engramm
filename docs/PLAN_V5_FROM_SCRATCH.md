@@ -466,7 +466,7 @@ Gegen GPT-2 small auf denselben 1.092 gefilterten Test-Dokumenten (gepaarter Boo
   beim Containerstart von selbst, installierte Torch neu und setzte die Verlängerung von ihrem Plattenstand (01:56,
   479,7 Mio. Token, Optimierer neu aufgewärmt) fort. Verloren gingen rund 6 min Training.
 - **Verlauf der Verlängerung** (val-A, erste 150 Dokumente, Fenster 1.024, wie die Kurve des Hauptlaufs;
-  `results/v5/long_ext1/curve.jsonl`; Stand 17. Oktober, 06:00 UTC). Zum Vergleich der Hauptlauf beim gleichen
+  `results/v5/long_ext1/curve.jsonl`; Stand 17. Oktober, 12:00 UTC). Zum Vergleich der Hauptlauf beim gleichen
   Trainingsstand, dort schon mit abnehmender Lernrate:
 
   | Training | Token | Lernrate | val-A, bpb | Hauptlauf |
@@ -476,6 +476,7 @@ Gegen GPT-2 small auf denselben 1.092 gefilterten Test-Dokumenten (gepaarter Boo
   | 120 h | 514 Mio. | 8,63·10⁻⁴ (konstant) | 1,328 | 1,281 (542 Mio., 3,9·10⁻⁴) |
   | 126 h | 524 Mio. | 8,63·10⁻⁴ (konstant) | 1,331 | 1,260 (566 Mio., 2,3·10⁻⁴) |
   | 132 h | 536 Mio. | 8,63·10⁻⁴ (konstant) | 1,332 | 1,243 (592 Mio., 5,7·10⁻⁵) |
+  | 138 h | 556 Mio. | 8,63·10⁻⁴ (konstant) | 1,329 | – (Hauptlauf endete bei 133,8 h) |
 
 - **Weiterer Neustart und Rechnerwechsel (16. Oktober, 07:06 UTC):** Die RAM-Disk war wieder leer. Die Verlängerung
   lief vom Plattenstand bei 499,4 Mio. Token weiter (Optimierer neu aufgewärmt, rund 20 min verloren). Der neue Rechner
