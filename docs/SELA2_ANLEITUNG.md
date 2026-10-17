@@ -140,7 +140,12 @@ unter <https://github.com/erithy25/engramm/branches> einen Branch `sela2-results
 - Geprüft vor dem Mieten (`.github/workflows/sela2_check.yml`, torch 2.8 wie auf dem Pod):
   - Unit-Tests;
   - CPU-Lauf mit simuliertem Abbruch (bitgleiche Fortsetzung) und künstlicher Verlangsamung (Abklingen vor der Frist);
-  - das Pod-Skript im Testmodus auf den echten Daten mit einem winzigen Modell.
+  - das Pod-Skript im Testmodus, einmal mit Stellvertretern für GitHub (Uploads, Archiv, Ergebnis-Branch);
+  - das Pod-Skript im Testmodus auf den echten Daten (15 GB) mit einem winzigen Modell;
+  - Chat-Tempo des App-Modells (volle Größe) auf einem 4-Kern-Rechner.
+- Unabhängig geprüft (drei Prüfungen vor dem Lauf: Trainer, Pod-Skript, Daten/App); alle Befunde behoben.
+- Nach dem Lauf, kostenlos auf GitHub (`.github/workflows/sela2_eval.yml`): App-Datei, Benchmarks gegen GPT-2 und
+  Pythia, Chat-Messung, IFEval, SQuAD, int8-Prüfung, Kontaminationsprüfung.
 - Einstellungen (vor Befehl 3, werden für Neustarts gemerkt):
   - `SELA2_MAX_USD` (25);
   - `SELA2_SPENT_USD` (0);
