@@ -595,3 +595,56 @@ startete viermal neu. Eine H100 (~4 $/h) rechnet etwa 300-mal schneller. Ablauf 
     alten Code fehl). Abgelehnte, aber billig abzusichernde Grenzfälle sind mit abgedeckt (u. a. GPU-Prüfung vor
     Neustarts, Preisuntergrenze, Fortschrittsregel). Der GPU-Pfad selbst lässt sich hier nicht ausführen; dafür sind
     Abgleich und Rückfall da.
+
+**Ergebnis 17. Oktober: Stufe 1 erreicht – Modell „Sela-1 135M“** (Modellkarte: `docs/MODEL_CARD_SELA1.md`).
+Der Lauf startete am 16. Oktober um 21:14 UTC auf einer H100 SXM (4,01 $/h), Code `eb2e002`. Die Messregel oben war
+seit 16:13 UTC festgeschrieben. Ergebnisse in `results/v5/h100/`, vom Pod automatisch hochgeladen (Branch
+`h100-results-20261017-0317`, Commit `219df1d`).
+
+| Größe | Wert |
+|---|---|
+| **Test, erweiterter Filter, Netz allein, Fenster 1.024 / Schritt 512 (Stufe-1-Regel)** | **0,989 bpb** (1.023 Dokumente; 95-%-KI 0,975–1,005) → **Stufe 1 erreicht**, Abstand 0,051 |
+| Test, alte Filterliste (`results/lm/dedup.json`) | 0,988 (1.092 Dokumente) |
+| GPT-2 small auf denselben Dokumenten | 1,036 / 1,039; Verhältnis 0,955 (KI 0,947–0,962) / 0,951 (KI 0,943–0,958) |
+| val-A (alte Filterliste) | 0,977 |
+| Mischung mit dem exakten Zählmodell (λ 0,028, nur auf val-A angepasst) | 0,982 (erweiterter Filter); bringt dem Netz nur noch 0,007 |
+| Training | 5,757 Mrd. Token in 3,27 h (≈ 489 k Token/s), 10.981 Schritte, Lernrate 1·10⁻³ (Suche: 1e-3 vor 2e-3 und 4e-3) |
+| Verlauf | Flex-Attention gewählt (35 % schneller, Abgleich bestanden); keine Divergenz, kein Neustart, kein Speichermangel |
+| Kosten | ≈ 25 $ Pod-Zeit für alles (Daten, Suche, Training, Messung, Hochladen) |
+
+- **Prognose gegen Messung.** Prognostiziert war ein Median von 1,030 bei ≈ 4,6 Mrd. Token (vor den Änderungen 1,041,
+  p10 1,008). Gemessen: 0,989 bei 5,76 Mrd. Token; der Durchsatz lag bei 489 k statt ≈ 300 k Token/s. Mit der
+  Faustregel der Prognose (−0,003 je +10 % Token) ergäbe der höhere Durchsatz ≈ 1,022. Gemessen wurde ≈ 0,03 weniger:
+  Die Prognose war zu vorsichtig.
+- **Korrektur zur Beschreibung des Stroms.** Der Strom `train_all` hat 6,802 Mrd. Token: Basis-Training einmal, ihr
+  WikiText-Teil insgesamt viermal (der C4-Teil einmal), dazu C4-en-Teile 1–36 aus dem Trainings-Hash-Bereich.
+  Trainiert wurden davon 5,757 Mrd. Token, also 0,85 eines Durchgangs. Die Prüfsummen der C4-Teile stehen in
+  `experiments/h100_data.py` (`C4_SHARDS`).
+- **Unabhängige Prüfung** (vier Agenten, nur lesend; `results/v5/h100/verify_20261017.json`):
+  - **Messpfad.** Die Endmessung rechnet dicht und kausal; Flex läuft nur im Training. Jedes Ziel-Token wird genau
+    einmal bewertet, nur mit linkem Kontext aus dem eigenen Dokument. Die Byte-Nenner sind identisch zu GPT-2:
+    10 Dokumente mit GPT-2 neu bewertet, Abweichung 4·10⁻⁴ Bits. Die Prüfsätze tragen die festgelegten SHA-256-Werte
+    und kommen im Trainingsstrom nicht vor.
+  - **Nachrechnung.** Alle Werte ergeben sich exakt aus den gespeicherten Token-Wahrscheinlichkeiten.
+  - **Kontamination.** Die Basis-Überlappung, mit anderem Hash neu gerechnet, reproduziert die ausgeschlossenen
+    Dokumente exakt. Der Vorsprung vor GPT-2 wächst nicht mit der Überlappung (Spearman ρ = 0,00). Strengste
+    Teilmenge (erweiterter Filter und null Basis-Überlappung, 909 Dokumente): 1,006 bpb gegen GPT-2 1,057
+    (Verhältnis 0,952).
+  - **Gegenprüfer.** Urteil: „erreicht, mit Einschränkungen“. Teil-Überlappung unter der 20-%-Schwelle ≈ 0,004
+    (Basis) bzw. plausibel ≤ 0,01 (C4). Härtester Belastungstest 1,002, weiterhin unter 1,04.
+- **Einschränkungen.**
+  - Der Vergleich mit GPT-2 ist in-domain gegen zero-shot: Die Test-Dokumente stammen aus denselben Quellen wie das
+    Training, und die Mischung war auf die Messsätze abgestimmt. Pro Quelle beträgt das Verhältnis 0,945 bei C4 und
+    0,970 bei Wikipedia. Sela-1 ist damit nicht allgemein besser als GPT-2 small.
+  - Die Gewichte waren auf dem Prüfrechner nicht verfügbar, das Netz wurde dort nicht neu ausgeführt.
+  - Die C4-Überlappung unter 20 % lässt sich nur auf dem GPU-Rechner neu rechnen.
+- **Was übrig ist.**
+  - Das Modell liegt im privaten Entwurf-Release (541 MB).
+  - Den Fortsetzungs-Stand (≈ 1,6 GB) hat das Ablaufskript nicht mehr hochgeladen. Wahrscheinliche Ursache: die nahe
+    Kostenbremse (`upload_asset` lädt nicht, wenn weniger als 5 min bleiben; nach ≈ 6,1 h × 4,01 $/h ≈ 24,5 $ blieben
+    bis zur 25-$-Grenze nur noch wenige Minuten). Der Log-Teil nach dem Commit der Ergebnisse liegt nur auf dem Pod. Der Stand ist nur dort gespeichert.
+  - Weitertrainieren geht auch ab dem fertigen Modell mit neuer Aufwärm- und Abnahme-Phase.
+- **Name.** Das Netz heißt **ENGRAMM Sela-1 135M** (Familie Sela, erste Generation, 135 Mio. Parameter). Das
+  CPU-Netz aus §10 kann als „Sela-0 100M“ geführt werden.
+- **Folge für §10.** Die CPU-Verlängerung `long_ext1` wird für Stufe 1 nicht mehr gebraucht. Sie läuft als reiner
+  CPU-Vergleich weiter (kostet nichts, blockiert nichts) und wird mit ihrem Endwert berichtet.

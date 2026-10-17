@@ -1,0 +1,294 @@
+{
+ "what": "Independent verification of results/v5/h100/eval_main.json (Sela-1 135M, H100 run of 17 Oct 2026): three verifiers with separate lenses (eval code path, numeric recomputation from the saved arrays, train/test contamination) and one adversarial judge. Read-only on the repository; the model weights were not available on the verification machine.",
+ "date": "2026-10-17",
+ "run_commit": "219df1dd9204f6bc3bd16c79e991b57d2ebf7086",
+ "code_commit": "eb2e002afc323f982cac5077e0016a2d5ca55f8c",
+ "reports": [
+  {
+   "lens": "eval-code",
+   "verdict": "confirmed_with_caveats",
+   "findings": [
+    {
+     "severity": "info",
+     "claim": "Evaluation runs a plain causal forward. FlexAttention and the compiled forward are used only for training, and a token's own value is never visible to its prediction.",
+     "evidence": "h100_train.py:382 calls model(win[:, :-1]) eagerly. That reaches LongGPT.forward (v5_long.py:147-148), then hidden(idx) with mask=None (v5_long.py:135-142), then SDPA is_causal=True (v5_long.py:100-101). fwd/fwd_flex (h100_train.py:539, 554) appear only in the training step (h100_train.py:621-627). torch.compile wraps without patching the model. Numerical check on a tiny random LongGPT (all weights nonzero): changing token t changed logits at positions < t by exactly 0.000e+00 (min change at positions >= t: 5.8). On a one-document window, hidden(mask=None) and hidden(doc_mask) were identical (diff 0.0).",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "The window/stride bookkeeping scores every target token exactly once, using only its left context within its own document.",
+     "evidence": "I ran h100_train.eval_bpb itself (window clamped to ctx_max 32, stride 16) on the first 8 val_a docs. I compared it with a brute force that feeds each target only seq[a:j], where a = 16*ceil((j-32)/16). Result: 5653 targets, each covered once; lp max abs diff 3.8e-06 nats; per-doc bits diff 6.4e-05. v5_long.eval_bpb agrees within 9.2e-05 bits. The real run was not clamped: eval_main.json records window 1024 / stride 512 for each split, and ctx_max is 1024.",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "The saved arrays fully reproduce the reported numbers, and lp is aligned to the evaluated token files.",
+     "evidence": "lp_test and lp_val_a have lengths equal to the u16 files (828908 / 530316). lp[0]=0. There are no zeros, positives or NaNs in lp[1:]. Per-doc bits rebuilt from lp match perdoc_final.npz (rel diff <= 1.1e-14). Recomputed bpb matches eval_main.json to 6 decimals: test 0.987663 / 0.979879 / 0.989384, val_a 0.977309 / 0.968184 / 0.981170. Correlation of lp with the LM study's KN-5 per-token log p is 0.690 at shift 0 against 0.011 / -0.073 at shift +-1 (val_a 0.695 vs 0.021 / -0.064).",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "Byte denominators are correct and identical for our model and GPT-2.",
+     "evidence": "bytes.npy holds len(text.encode('utf-8')) per document (engramm/lm/stream.py:104). For all 1137 test and 767 val_a docs, bytes.npy equals the UTF-8 length of the corpus text (0 mismatches). The tokens decode losslessly to that text (0 mismatches; tokenizer normalizer None, ByteLevel). The +1 per document is added at h100_train.py:366/412/441 and at lm_gpt2_ref.py:69. GPT-2 doc_bytes equals test.bytes+1 element-wise. Each document's targets are its content tokens plus the closing EOS (verified for every doc: count = ends-starts+1).",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "Filter semantics are correct: keep=True means the document is scored.",
+     "evidence": "R.keep_docs (v5_residual.py:109-114) sets the excluded indices to False. extended_keep (h100_train.py:396-404) additionally sets excluded_all to False. bpb = bits[keep].sum()/nbytes[keep].sum() (h100_train.py:392, 442). Kept docs: test 1092 (original) / 1023 (extended); val_a 735 / 694. excluded_base is a subset of excluded_all, and per contamination.json the base list equals dedup.json for all splits.",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "The evaluated files are the real held-out LM-study splits, and the training stream reads none of them.",
+     "evidence": "The SHA-256 of val_a/test .u16/.starts/.bytes all match BASE_SHA256 (h100_data.py:52-68); run.log line 70 shows the pod rebuilt identical files. Training reads only args.data (Stream, h100_train.py:535): default TOK/h100/train_all for train (:1094) and TOK/train for the sweep (:1079); h100_run.sh never passes --data. train_all = base train + C4 shards 1-36, each document kept only if split_of(...)=='train' (h100_data.py:225-228), + 3 more copies of the base-train WikiText docs (WIKI_REPEATS=3, :47; merge :268-310). Correction to the task context: only the 29,245 base WikiText docs appear 4x, not the whole base text. The stream is 6.802 B tokens, of which 5.757 B were consumed. Val/test docs come from C4 shard 0 and WikiText-103 train articles via hash split (data/lm_corpus.py:143-166). The tokenizer was trained on train text only (lm_prepare.py:69-75).",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "The GPT-2 reference was computed with the same windowing (1024/512, per document, leading and closing EOT, closing EOT scored).",
+     "evidence": "lm_gpt2_ref.py:28, 61-70 (unchanged since 50e32f6). I re-scored 10 test docs offline with the cached GPT-2 at revision 607a30d (the revision recorded in the json) using that logic. Max diff from eval_test.json per_doc_bits was 3.7e-04 bits. These include 4 docs of 1120-2562 GPT-2 tokens, where window 1024 / stride 1024 would have given +1.9% to +2.6% more bits (e.g. doc 61: 12607.89 vs 12863.70). json keys and order equal test.keys.jsonl. Recomputed: GPT-2 1.038792 / 1.035967; ratio 0.950780 [0.9425, 0.9585] / 0.955035 [0.9475, 0.9623].",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "The final evaluation measured the in-memory final weights in fp32, in the same process right after training. There is no EMA or weight averaging and no checkpoint reload.",
+     "evidence": "cmd_train (h100_train.py:813-817) runs run() then final_eval(meta['model']). run() returns the live model after its last optimizer step (:758). grep finds no ema/swa/averaging. final_eval turns TF32 off (:422-424), eval_bpb is not under autocast, and the weights are fp32. run.log: last curve at 02:42:49, then val_a/test/Stage-1 lines at 02:51:48-02:52:03, with no 'resumed', OOM, non-finite or flex-failure lines. train_log_main.jsonl: steps 20..10980 in increments of 20, tokens = step*524288, micro always 32. Final tokens 5,757,206,528 = 10981*524288. The pod's results commit 219df1d has parent eb2e002. All audited files are unchanged between eb2e002 and HEAD, and results/v5/h100 at HEAD equals 219df1d apart from the added mix_main.json. Not verifiable: whether the pod's working tree had uncommitted code edits.",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "The drop from 1.068 (curve) to 0.977 (final val_a) is mostly a subset-composition effect, not an anomaly.",
+     "evidence": "The curve subset (first 150 val_a docs) holds 0.0% WikiText bytes, against 37.5% for all of val_a. Final weights on the first 150 docs give 1.0634 filtered, vs 1.0678 at 5.50 B, so the last 4.5% of the decay gained 0.0044. Final val_a by source: wiki 0.9274 (60 docs), C4 1.0067 (675 docs). Curve points used TF32 (pick_device, h100_train.py:766-767); the final evaluation used strict fp32.",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "Training loss agrees with the evaluation level.",
+     "evidence": "The mean of the last 50 logged training losses is 3.1875 nats/token. That is about 1.022 bpb using base-train tokens/byte 0.2221 (approximate for the C4-heavy mix). The C4 part of the eval scores 1.0099 (test, extended filter) and 1.0067 (val_a, filtered); eval windows have >= 512 tokens of context after the first. Bits per token on test is 3.070 nats; share of targets with p>0.99 is 3.95% (val_a 4.29%), which does not look like a leak.",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "minor",
+     "claim": "A few documents that pass the extended filter score far below GPT-2, which suggests partial memorization under the 20% threshold. The effect on the reported number is negligible.",
+     "evidence": "Per-doc ratio ours/GPT-2 (extended filter): quantiles 1%=0.674, 25%=0.883, median 0.927, 75%=0.971. Four kept docs have ratio < 0.6, e.g. doc 604 (247 bytes) at 0.144 bpb vs GPT-2 1.172, and doc 8 (125 bytes) at 0.387 vs 1.499; together 1,411 bytes. Dropping them moves test bpb from 0.98938 to 0.9896 and GPT-2 from 1.03597 to 1.0360. The extended 13-gram scan itself could not be re-run here because the extra C4 shards and train_all are not on this machine; contamination.json gives a mean overlap of 0.0615 for test.",
+     "could_bias_bpb_down": true,
+     "estimated_effect_bpb": "about -0.0002 (from the 4 docs found); not quantifiable here for sub-threshold overlap in general"
+    },
+    {
+     "severity": "minor",
+     "claim": "Interpretation caveat, not a code bug: the GPT-2 ratio compares an in-domain model with an out-of-domain one.",
+     "evidence": "Sela-1 was trained on C4-en train shards and WikiText-103 train articles, and the test docs come from the same two sources (data/lm_corpus.py:155-166). GPT-2 small was not trained on this corpus. Per source (extended filter): C4 docs (58.0% of bytes) ours 1.0099 vs GPT-2 1.0689 (ratio 0.945); wiki docs (42.0%) 0.9611 vs 0.9905 (ratio 0.970). The advantage is broad, not concentrated in a few documents.",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "Process note: one check exceeded the requested memory budget.",
+     "evidence": "The offline GPT-2 re-scoring (.venv_b1, 1 thread, nice 19) peaked at 1697.8 MB RSS, above the 1.5 GB limit. The other checks peaked at 284-288 MB. Afterwards the training process PID 454 was still running (state Rl, RSS 6,762,492 kB, unchanged). No repository files were written. Scratch scripts are in /dev/shm/engramm/verify/codepath/.",
+     "could_bias_bpb_down": false
+    }
+   ],
+   "numbers": "test bpb original filter (recomputed from perdoc_final): 0.987663 (json 0.987663), 1092 docs\ntest bpb extended filter (recomputed): 0.989384 (json 0.989384), 1023 docs\ntest bpb unfiltered (recomputed): 0.979879\nval_a bpb original / extended / unfiltered (recomputed): 0.977309 / 0.981170 / 0.968184 (735 / 694 / 767 docs)\nGPT-2 test bpb original / extended / unfiltered (recomputed): 1.038792 / 1.035967 / 1.038422\nratio original: 0.950780, CI 0.9425-0.9585\nratio extended: 0.955035, CI 0.9475-0.9623\nlp vs perdoc_final max rel diff: 1.1e-14 (test), 5.0e-15 (val_a)\nzeros / positives / NaN in lp[1:]: 0 / 0 / 0 (both splits)\ncorr(lp, log p_KN5) test at shift -1/0/+1: 0.011 / 0.690 / -0.073\ncorr(lp, log p_KN5) val_a at shift -1/0/+1: 0.021 / 0.695 / -0.064\ncausality test, max logit change at positions < t: 0.000e+00\neval_bpb vs brute-force left-context-only lp: max diff 3.8e-06 nats over 5653 targets, each covered once\nGPT-2 rescore vs eval_test.json (10 docs, 4 longer than 1024 tokens): max diff 3.7e-04 bits\nGPT-2 doc 61 with stride 512 vs stride 1024: 12607.89 vs 12863.70 bits\nbytes.npy vs UTF-8 length of corpus text, mismatches: 0 (test), 0 (val_a)\ndecode(tokens) vs corpus text, mismatches: 0 (test), 0 (val_a)\nSHA-256 of val_a/test files vs BASE_SHA256: all 6 match\nfirst 150 val_a docs, final weights, filtered: 1.063359 (curve at 5.50 B: 1.067828)\nWikiText byte share in first 150 val_a docs / all val_a: 0.000 / 0.375\nval_a wiki / C4 filtered bpb: 0.9274 / 1.0067\ntest wiki / C4 bpb, extended filter (ours vs GPT-2): 0.9611 vs 0.9905 / 1.0099 vs 1.0689\nmean of last 50 logged training losses: 3.1875 nats/token (about 1.022 bpb)\nshare of test targets with p>0.99: 0.0395\nper-doc ratio ours/GPT-2 (extended), median and IQR: 0.927 (0.883-0.971)\nkept test docs with ratio < 0.6: 4 docs, 1411 bytes; test bpb without them 0.9896\nparams / body_params: 135,266,316 / 84,934,656 (matches d768 L12 V32768 untied)\nfinal tokens: 5,757,206,528 = 10981 steps x 524288\npeak RSS of my checks: 288 MB (arrays), 284 MB (forward), 1698 MB (GPT-2 rescore)",
+   "summary": "I found nothing in the code path that could push the reported bpb artificially low. Every reported number reproduces from the saved arrays: test 0.9877 / 0.9894, val_a 0.9773, GPT-2 1.0388 / 1.0360, ratio 0.951 / 0.955 with matching CIs.\n\n- **Target visibility:** evaluation calls the model eagerly. That is a plain causal SDPA forward (v5_long.py:100-101, 147-148); FlexAttention and the compiled forward run only in training. I tested h100_train.eval_bpb itself on a tiny random LongGPT. A change at token t never alters logits before t, and each of 5653 targets is scored exactly once with left context only (matches brute force to 4e-6 nats). The real run used window 1024 / stride 512 with no clamping.\n- **Byte denominators:** the bytes are the UTF-8 lengths of the exact corpus text, and the tokens decode back to it losslessly (0 mismatches). Both our model and GPT-2 add +1 per document, the GPT-2 byte array is identical, and the closing EOS is a scored target.\n- **Filters:** keep=True means the document is scored. The extended list contains the original list.\n- **Splits:** the evaluated files have the pinned SHA-256 hashes, and lp is aligned to them (correlation with the KN-5 file is 0.69 at shift 0, about 0 at shift ±1). Training reads only train_all: base train, C4 shards filtered to the train hash bucket, and 3 more copies of the base WikiText docs. Only the WikiText part appears 4x, not the whole base text.\n- **GPT-2 reference:** re-scoring 10 test docs with the cached GPT-2 reproduces eval_test.json to 4e-4 bits. For long docs, stride 1024 would differ by about 2%, so the reference used stride 512.\n- **Checkpoint and process:** the final evaluation measured the in-memory final weights in fp32 (TF32 off, no EMA), in the same process right after training. run.log and the training log are continuous. The pod's commit 219df1d sits on eb2e002, and the audited code has not changed since then.\n- **Curve vs final:** the curve's first 150 val_a docs contain no WikiText. On those docs the final weights give 1.0634 against the curve's 1.0678, so the jump to 0.977 comes from subset composition.\n\nCaveats:\n- I could not re-run the extended contamination scan, because the extra C4 shards and train_all are not on this machine.\n- Four kept test docs look partly memorized (for example 0.144 vs 1.172 bpb), but removing them changes the test bpb by only about 0.0002.\n- The GPT-2 comparison sets an in-domain model against an out-of-domain one. Our ratio is 0.945 on the C4 docs and 0.970 on the wiki docs.\n- My GPT-2 check peaked at 1.70 GB RSS, over the 1.5 GB limit. Training process 454 was unaffected.\n- Scratch scripts are in /dev/shm/engramm/verify/codepath/ (check_arrays.py, check_forward.py, check_gpt2.py)."
+  },
+  {
+   "lens": "recompute",
+   "verdict": "confirmed_with_caveats",
+   "findings": [
+    {
+     "severity": "info",
+     "claim": "(a) Per-document bits recomputed from lp_<split>.npy match perdoc_final.npz almost exactly.",
+     "evidence": "My bits = -sum(lp[starts[d]..ends[d]])/ln2, with ends[d] = starts[d+1]-1 (the doc's closing EOS is included) and the last doc ending at N-1. Max abs difference: val_a 2.28e-9 bits (doc 713, relative 1.3e-11), test 4.22e-9 bits (doc 1136, relative 1.1e-11). Saving lp as float32 loses nothing: the values were float32 to begin with (log_softmax of .float(), h100_train.py:382), so the only difference left is summation order.",
+     "could_bias_bpb_down": false,
+     "estimated_effect_bpb": "0"
+    },
+    {
+     "severity": "info",
+     "claim": "(b) All six reported bpb values come out the same from my own numpy.",
+     "evidence": "nbytes = bytes.npy + 1. keep = dedup.json excluded; ext = keep AND not in contamination.json excluded_all. test: filtered 0.987663002461942, unfiltered 0.9798787413857701, extended 0.989384365493497 (1023 docs). val_a: 0.9773094466515316 / 0.9681839952303612 / 0.9811696187385277 (694 docs). All six differ from eval_main.json by at most 6.1e-15. The doc counts (1092 / 1023 test, 735 / 694 val_a) and byte totals (3,629,462 / 3,541,007) also match. In contamination.json, excluded_base equals dedup.json excluded and is a subset of excluded_all, for both splits.",
+     "could_bias_bpb_down": false,
+     "estimated_effect_bpb": "0"
+    },
+    {
+     "severity": "info",
+     "claim": "Denominator check: bytes.npy agrees exactly with the tokenizer's byte lengths, and the GPT-2 reference uses the same convention.",
+     "evidence": "I built the byte-level BPE decoding table myself from data/lm_tokenizer.json. Summing UTF-8 byte lengths over each doc's tokens matches bytes.npy for every document: val_a 2,398,272 and test 3,745,775 bytes, 0 mismatches. GPT-2 eval_test.json doc_bytes equal bytes+1 for all 1137 docs, and its keys equal test.keys.jsonl. GPT-2 was scored the same way: own-document context, closing <|endoftext|> scored, window 1024 / stride 512, +1 byte per doc (experiments/lm_gpt2_ref.py:6-8, :72).",
+     "could_bias_bpb_down": false,
+     "estimated_effect_bpb": "0"
+    },
+    {
+     "severity": "info",
+     "claim": "(c) Coverage is complete: every target position has exactly one finite, strictly negative lp, and the only non-target position is 0.",
+     "evidence": "Token layout is [EOS] doc0 [EOS] doc1 ... [EOS]. EOS id 0 occurs exactly docs+1 times, starts[0] = 1, and every starts-1 position holds 0. Position 0 has lp 0.0. Targets: val_a 530,315 and test 828,907, with NaN 0, inf 0, positive 0, exactly-zero 0. Max target lp is -2.50e-6 (val_a) and -3.34e-6 (test); min is -21.78 and -24.14. Replaying the eval_bpb window loop (h100_train.py:375-389) writes every target exactly once and position 0 never. Each window starts at the separator before its own document, so there is no context from other documents.",
+     "could_bias_bpb_down": false,
+     "estimated_effect_bpb": "0"
+    },
+    {
+     "severity": "info",
+     "claim": "(d) Most of the gap between the last curve point (1.068) and the final val_a (0.977) comes from which documents are evaluated, not from training. The CPU long run shows the same relation.",
+     "evidence": "Final model on the first 150 val_a docs (146 kept after the filter): 1.06336. The other 617 docs: 0.96209. All docs: 0.97731. So 1.0678 (curve, 5.50 B tokens) to 1.0634 (final, same docs) is -0.0045: the last 4.4 % of training plus TF32-on curve evaluation (h100_train.py:766-767) versus fp32 final evaluation (:423-424); I cannot separate the two without the weights. Going from 150 docs to all docs is -0.086. The log puts the last curve point at frac 0.956, with LR 1.46e-4 against a peak of 1e-3; the decay runs from frac 0.70 (decay_frac 0.3, v5_long.py:197-201). CPU long run (results/v5/long): first 150 filtered 1.24017, rest 1.11679, all 1.13533 (= eval_final.json), last curve point 1.24304 at 591.6 M tokens. The ratio all / first-150 is 0.9155 for the CPU run and 0.9191 for the H100 run.",
+     "could_bias_bpb_down": false,
+     "estimated_effect_bpb": "0"
+    },
+    {
+     "severity": "minor",
+     "claim": "(e) There is a memorisation signature, but only a few small documents show it and they do not carry the average. The extended filter removes the worst of them; three templated C4 pages remain.",
+     "evidence": "Original filter: 9 docs have ratio < 0.5. The lowest are doc 718 (506 B, ours 0.1146 vs GPT-2 0.9532, ratio 0.120), doc 604 (247 B, 0.1443 vs 1.1724, 0.123) and doc 48 (497 B, 0.1594 vs 1.0311, 0.155). Docs 718 and 48 are 'placeholder page' alumni templates and are in excluded_all. Under the extended filter 3 docs remain below 0.5: 604 (addresses.com white-pages template), 8 (125 B time.graphics template, 0.3872 vs 1.4993) and 6 (900 B wedding-image spam, 0.3646 vs 0.8956). Together they are 1272 bytes and 0.53 % of the total bits saved against GPT-2. Removing them: ours 0.98962, ratio 0.95526. With the original filter, removing all 9 gives 0.98878 and ratio 0.95195; those 9 carry 2.6 % of the saving.",
+     "could_bias_bpb_down": true,
+     "estimated_effect_bpb": "about -0.0002 (extended filter), -0.0011 (original filter)"
+    },
+    {
+     "severity": "info",
+     "claim": "(e) Per-document ratios against GPT-2 are spread broadly; the result does not rest on a few documents. My own bootstrap matches the reported CI.",
+     "evidence": "Extended filter, 1023 docs, ratio quantiles: min 0.1231, q01 0.6736, q05 0.7825, q10 0.8292, q25 0.8827, median 0.9275, q75 0.9710, q90 1.0060, q95 1.0211, q99 1.0736, max 1.1192. Ours is better on 87.4 % of docs; 129 docs are worse. Aggregate ratio 0.955035. Paired doc bootstrap (2000 resamples, seed 0): [0.94805, 0.96211]. With seed 42 I reproduce the eval_main CI exactly: [0.94749, 0.96226]. Original filter: ratio 0.950780, seed-0 CI [0.94228, 0.95811], median 0.9236, 87.9 % better. Our advantage is larger on short docs: ratio 0.889 in the shortest byte quartile vs 0.968 in the longest (extended).",
+     "could_bias_bpb_down": false,
+     "estimated_effect_bpb": "0"
+    },
+    {
+     "severity": "info",
+     "claim": "(g) Stage 1 (≤ 1.04) still holds after removing the 10 % of scored test docs where we look best against GPT-2, and also under a harsher removal.",
+     "evidence": "Extended filter, 102 docs with the lowest ratio removed (921 left): ours 0.99716, GPT-2 1.03514, ratio 0.96331. Original filter, 109 removed: ours 0.99595, GPT-2 1.03741. Removing the lowest 20 %: ours 0.99800 (extended). Extra stress test, removing the 10 % of docs with our lowest bpb: ours 1.01402 (extended). Those removed docs are 4.35 % of the bytes and carry 22.0 % of the bits saved. Upper end of our bpb bootstrap CI: 1.00335 (seed 0, extended).",
+     "could_bias_bpb_down": false,
+     "estimated_effect_bpb": "0"
+    },
+    {
+     "severity": "info",
+     "claim": "(f) Token-level distribution of the test targets.",
+     "evidence": "All 828,907 test targets: p > 0.99 for 3.954 %, p > 0.9 for 10.926 %, mean 3.0702 nats/token, 4.5203 bytes/token, EOS mean 2.141 nats. Scored targets under the extended filter (782,516): p > 0.99 3.632 %, p > 0.9 10.387 %, mean 3.1033 nats, 4.5252 bytes/token, which gives 0.9893843654935 bpb directly from lp. Median nats/token 2.269, q90 7.27. val_a: p > 0.99 4.29 %, p > 0.9 11.33 %, mean 3.0359 nats.",
+     "could_bias_bpb_down": false,
+     "estimated_effect_bpb": "0"
+    },
+    {
+     "severity": "info",
+     "claim": "What I could not check here.",
+     "evidence": "The model weights are not on this machine, so I cannot confirm that the lp values are the network's normalised output, measure the TF32 vs fp32 difference, or recompute any lp. The extra C4 training text is not here either, so I cannot recompute the 13-gram overlap of the remaining low-ratio docs 604, 8 and 6 (contamination.json stores no per-document overlap).",
+     "could_bias_bpb_down": false,
+     "estimated_effect_bpb": "unknown"
+    }
+   ],
+   "numbers": "perdoc maxabs |lp-sum vs npz| val_a: 2.28e-9 bits\nperdoc maxabs |lp-sum vs npz| test: 4.22e-9 bits\ntest bpb filtered (dedup): 0.987663002461942 (json 0.987663002461947)\ntest bpb unfiltered: 0.9798787413857701 (json 0.9798787413857762)\ntest bpb extended: 0.989384365493497 (json 0.9893843654935018), docs 1023, bytes 3541007\nval_a bpb filtered: 0.9773094466515316 (json 0.9773094466515342), docs 735\nval_a bpb unfiltered: 0.9681839952303612 (json 0.968183995230364)\nval_a bpb extended: 0.9811696187385277 (json 0.9811696187385307), docs 694\nbytes.npy vs tokenizer byte lengths: 0 mismatches (val_a 2398272, test 3745775)\ncoverage test: 828907 targets, NaN 0, inf 0, positive 0, zero 0, non-target pos0 = 0.0, simulated writes all exactly 1\ncoverage val_a: 530315 targets, NaN 0, inf 0, positive 0, zero 0\nmax target lp: val_a -2.50e-6, test -3.34e-6\nval_a final first-150 (146 kept) filtered: 1.06336; unfiltered 1.05727; remaining 617: 0.96209\nlast curve point: 1.06783 at 5.5003e9 tokens (frac 0.956, lr 1.46e-4, peak 1e-3, decay from frac 0.70)\nCPU long run: first-150 filtered 1.24017, all 1.13533, rest 1.11679, last curve 1.24304 at 591.6M\nall/first150 ratio: H100 0.9191, CPU long 0.9155\nGPT-2 test bpb original/extended: 1.038792 / 1.035967\nratio original: 0.950780, CI seed0 [0.94228, 0.95811], CI seed42 [0.94254, 0.95846]\nratio extended: 0.955035, CI seed0 [0.94805, 0.96211], CI seed42 [0.94749, 0.96226]\nour bpb CI seed0 extended: [0.97488, 1.00335]\nper-doc ratio extended quantiles: min 0.1231, q05 0.7825, q10 0.8292, q25 0.8827, median 0.9275, q75 0.9710, q90 1.0060, q99 1.0736, max 1.1192\nshare docs ours better: original 87.9 %, extended 87.4 %\ndocs ratio<0.5: original 9 (6563 B, 2.6 % of bit saving), extended 3 (1272 B, 0.53 %)\nlowest extended: doc604 247B 0.1443 vs 1.1724; doc8 125B 0.3872 vs 1.4993; doc6 900B 0.3646 vs 0.8956; doc922 139B 0.8437 vs 1.6284\ndrop lowest-10 % ratio, extended: ours 0.99716, GPT-2 1.03514, ratio 0.96331 (921 docs)\ndrop lowest-10 % ratio, original: ours 0.99595, GPT-2 1.03741\ndrop lowest-10 % by our bpb, extended (stress): ours 1.01402\nratio by size quartile, extended: 0.889 / 0.910 / 0.931 / 0.968\ntest p>0.99: 3.954 % all targets, 3.632 % scored-extended\ntest p>0.9: 10.926 % all, 10.387 % scored-extended\ntest mean nats/token: 3.0702 all, 3.1033 scored-extended\ntest bytes/token: 4.5203 all, 4.5252 scored-extended",
+   "summary": "I recomputed everything with my own numpy and got the same results as the reporting code. Per-document bits from lp_*.npy match perdoc_final.npz to within 4.2e-9 bits. All six bpb values in eval_main.json come out the same to about 1e-14: test 0.98766 filtered, 0.97988 unfiltered, 0.98938 extended; val_a 0.97731 / 0.96818 / 0.98117.\n\n- **Inputs:** the lp arrays are complete and clean, with exactly one finite negative value per target, nothing at position 0, and no NaN, inf or positive values. The byte counts match a tokenizer-based recount exactly. GPT-2 was scored the same way (EOS scored, window 1024 / stride 512, +1 byte per doc).\n- **Curve gap:** going from the last curve point (1.068) to the final val_a (0.977) is mostly a matter of which documents are evaluated. The final model scores 1.0634 on the curve's first 150 docs and 0.9621 on the remaining 617. The CPU long run shows the same all-vs-150 relation (0.9155 vs 0.9191 here).\n- **GPT-2 comparison:** the ratio is 0.9550 (extended filter); my seed-0 paired bootstrap gives [0.9481, 0.9621], and seed 42 reproduces the reported CI exactly. Ours is better on 87% of documents, with a median per-doc ratio of 0.93.\n- **Memorisation signature (caveat):** 9 docs under the original filter have ratio < 0.5, down to 0.12. The extended filter removes the two worst (placeholder alumni pages). Three small templated C4 pages remain (docs 604, 8, 6; ratios 0.12-0.41). They hold 0.5% of the bits saved against GPT-2 and move bpb by about 0.0002.\n- **Stage 1:** it still holds with the 10% lowest-ratio docs removed: 0.9972 vs GPT-2 1.0351. It also holds under a harsher cut that removes our 10% lowest-bpb docs: 1.0140.\n\nNot checkable here: whether the lp values really are the network's output (the weights are not on this machine), how much of the curve-to-final drop on the same docs (-0.0045) is TF32 vs fp32 evaluation, and the 13-gram overlap of the three remaining docs against the extra C4 text. My scripts are in /dev/shm/engramm/verify/recompute/ (main.py, gpt2.py, long.py, dec.py, x.py)."
+  },
+  {
+   "lens": "contamination",
+   "verdict": "confirmed_with_caveats",
+   "findings": [
+    {
+     "severity": "info",
+     "claim": "The method behind contamination.json is sound. It scans the whole merged training stream (base train + all 36 extra C4 shards + 3 WikiText repeats), uses 13-token windows and a 0.20 threshold, and covers every window, including those that cross the base/extra boundary.",
+     "evidence": "experiments/h100_data.py:46 sets WIDTH, THRESHOLD = 13, 0.20. :332-343 is the polynomial 64-bit window hash. :346-351 builds eval windows only inside [start, EOS). :384 scans windows starting in [0, base_tokens-12); :385-386 scans [base_tokens-12, total-12) over train_all.u16. :394-395 write excluded_base / excluded_all (frac >= 0.2). run.log:153-160: 'train_all: 13208511 docs, 6.802 B tokens', '2122322 distinct val/test windows; scanning 6.802 B training tokens', 'test: excluded base 45, with extra text 114 of 1137; base == dedup.json: True'. contamination.json: train_tokens 6801858640, base_tokens 284741161, base_matches_dedup_json all same=True. Training reads the same file: experiments/h100_train.py:1094 --data default TOK/h100/train_all, and h100_run.sh does not override it. The run consumed 5,757,206,528 tokens, about 84.6% of one shuffled pass, so the scan covers a superset of what was trained on (conservative). No test doc contains token 0 inside its content, so windows that cross document boundaries cannot match.",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "An independent recomputation here, with a different random-coefficient 64-bit hash, reproduces the published base-overlap results exactly.",
+     "evidence": "/dev/shm/engramm/verify/contamination/overlap.py streams data/cache/lm/tokens/train.u16 (284,741,161 tokens; SHA-256 0bb69de4... equals BASE_SHA256 at h100_data.py:54) in 10 M-window chunks. Peak RSS was 861 MB. test: 45 docs >= 0.2, identical set to excluded_base and to results/lm/dedup.json; mean fraction 0.025117403526207 equals mean_overlap_base 0.025117403526207. val_a: 32 docs, identical sets; mean 0.024759280125826 matches. Docs near the threshold: test 995 = 0.2000 (excluded), 30 = 0.1944 (kept). Base-excluded test docs have overlap between 0.200 and 0.943, none at 1.0. 0 test keys (source, URL/title) appear among the train keys.",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "The test split is 1056 C4 docs (shard 0, URL-hash bucket) plus 81 WikiText-103 train articles held out by title hash. Extra C4 docs are filtered with the same URL hash, so a test URL cannot re-enter. The C4 text did push test docs past 20%, but only C4-sourced ones: none of the 69 docs excluded only through the extra C4 text is a Wikipedia doc.",
+     "evidence": "data/lm_corpus.py:134-152: split = shake_256 hash of (source, key). :155-166: C4 keyed by URL, then WikiText-103 train articles keyed by title. h100_data.py:234: extra shards skip split_of('c4', url) != 'train'. test.keys.jsonl: c4 1056, wiki 81. Of the 69 excluded_all-minus-excluded_base docs, 0 are wiki and 44 have zero base overlap. The 5 base-excluded wiki docs (1064, 1106, 1112, 1119, 1131) overlap only with other WikiText train articles (frac_c4 = 0.000). Sub-threshold overlap between C4 and the wiki test docs cannot be measured here.",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "The advantage over GPT-2 does not concentrate in docs that overlap the base training text. On docs kept by the extended filter, the zero-overlap bin has ratio 0.952 against 0.955 for all kept docs. Only the small (0.05, 0.2) bin is clearly better.",
+     "evidence": "Kept by the extended filter (1023 docs): all 0.9894 vs GPT-2 1.0360, ratio 0.9550. frac==0: 909 docs, 2,096,634 B, ours 1.0061 vs GPT-2 1.0570, ratio 0.9519 (CI 0.9444-0.9594). (0, 0.05]: 92 docs, 1,244,608 B, 0.9713 vs 1.0021, ratio 0.9693 (CI 0.9555-0.9812). (0.05, 0.2): 22 docs, 199,765 B, 0.9265 vs 1.0264, ratio 0.9027 (CI 0.8482-0.9471). >= 0.2: 0 docs. For contrast, the 45 base-excluded docs have ratio 0.7199 and the 69 C4-only-excluded docs 0.7976, so overlap of 20% or more does help ours and excluding those docs was warranted. Spearman correlation of base overlap with per-doc ratio (kept docs >= 500 B, n=818): rho = -0.000, p = 0.997.",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "Strict subset (kept by the extended filter AND zero base overlap): 1.0061 bpb, which is <= 1.04 with the whole bootstrap CI below 1.04. Ratio to GPT-2 is 0.952. Its bpb is higher than the headline 0.989 because of composition: most wiki docs have a little overlap and drop out.",
+     "evidence": "909 docs, 2,096,634 bytes. Ours 1.0061 (doc bootstrap CI 0.9864-1.0252), GPT-2 1.0570, ratio 0.9519 (CI 0.9446-0.9593), margin to 1.04 = 0.034. Within the strict subset: C4 894 docs, 1.0135 vs 1.0709, ratio 0.9464; wiki 15 docs, 0.9507 vs 0.9531, ratio 0.9975 (CI 0.979-1.016).",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "minor",
+     "claim": "Remaining risk: the 20% rule keeps docs with partial overlap, and overlap with the extra C4 text below 20% cannot be recomputed here because the C4 text is not on this machine. Bounds from contamination.json allow the remaining overlap (base + C4) in kept docs to be up to about 10x the base-only level. The measured benefit from base-only partial overlap is small, about 0.004 bpb.",
+     "evidence": "contamination.json (test): mean_overlap_all 0.06150 vs mean_overlap_base 0.02512; excluded 114 (all) vs 45 (base). Sum of overlap fractions over all docs = 69.93; excluded docs account for >= 37.06; so the mean (base + C4) fraction over the 1023 kept docs is <= 0.0321, against a measured base-only mean of 0.0033. For the 909 strict docs it is <= 0.0324. Token level on kept docs: 1.90% of tokens lie in a base-matched window, at 3.484 bits/token against 4.496 for uncovered tokens. Charging covered tokens the uncovered rate gives 0.9936 instead of 0.9894, about 0.004 bpb. A rough extrapolation (gain about 1 bit per covered token, 0.221 tokens/byte) says about 23% of kept tokens would need full memorised benefit to erase the 0.05 margin. The data here cannot rule out an adversarial worst case: 164 longest kept docs at 0.2 would give a window-weighted fraction of 0.131.",
+     "estimated_effect_bpb": "base partial overlap about 0.004; C4 sub-threshold not measurable here, likely of similar order but no rigorous bound",
+     "could_bias_bpb_down": true
+    },
+    {
+     "severity": "minor",
+     "claim": "Correction to the task context: the stream does not repeat the whole base training text 4x. Only the WikiText part of base train appears 4 times (1 + 3 repeats); the base C4 part appears once. The run trained on about 84.6% of one shuffled pass.",
+     "evidence": "experiments/h100_data.py:47-51 (WIKI_REPEATS = 3, WIKI_DOCS 29,245, WIKI_TOKENS 113,064,374) and cmd_merge at :274ff. run.log:113-153: base 0.285 B, then 36 C4 shards to 6.463 B, then wiki_repeat_1..3 to 6.802 B. eval_main.json tokens 5,757,206,528 / 6,801,858,640 = 0.846.",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "The domain advantage from Wikipedia training (GPT-2's WebText excluded Wikipedia) does not explain the gap. On kept docs, ours beats GPT-2 by less on wiki docs than on C4 docs. A few templated-page outliers with very low ratios barely move the aggregate.",
+     "evidence": "Kept docs: wiki 76 docs, ratio 0.9703 (CI 0.956-0.982); C4 947 docs, ratio 0.9448 (CI 0.938-0.952). Lowest-ratio kept doc: 604 (addresses.com white pages, 247 B, ratio 0.123, base overlap 0.029). Dropping the 13 kept docs with per-doc ratio < 0.7 (8,010 B) gives 0.9900 bpb and ratio 0.9559; dropping the 61 docs < 0.8 gives 0.9941 and 0.9603.",
+     "could_bias_bpb_down": false
+    },
+    {
+     "severity": "info",
+     "claim": "The saved arrays reproduce eval_main.json exactly, and the GPT-2 reference is aligned document by document with the test split.",
+     "evidence": "From perdoc_final.npz + models/lm/gpt2/eval_test.json: original filter ours 0.987663, GPT-2 1.038792; extended filter ours 0.989384, GPT-2 1.035967, ratio 0.9550. All match eval_main.json. GPT-2 keys equal test.keys.jsonl (True), and doc_bytes equal test.bytes+1. Sums of lp_test.npy per doc reproduce per-doc bits (max abs difference 1.46e-11).",
+     "could_bias_bpb_down": false
+    }
+   ],
+   "numbers": "base train tokens (train.u16, SHA-256 matches BASE_SHA256): 284741161\ntrain_all tokens scanned for contamination: 6801858640 (13208511 docs)\ntokens trained: 5757206528 (0.846 of train_all, no second epoch)\ndistinct eval windows (contamination.json run, 4 splits): 2122322\nmy recompute, distinct test+val_a windows: 1316136; matched train windows 129419; distinct eval windows found 31700\nmy test docs >= 0.2 base overlap: 45 (== excluded_base == dedup.json)\nmy val_a docs >= 0.2 base overlap: 32 (== excluded_base == dedup.json)\nmy test mean base overlap: 0.025117403526207 (json 0.025117403526207)\nmy val_a mean base overlap: 0.024759280125826 (json 0.024759280125826)\ncontamination.json test: excluded_base 45, excluded_all 114, mean_overlap_base 0.02512, mean_overlap_all 0.06150\ncontamination.json val_a: 32 / 73, val_b: 46 / 83, wt103_test: 4 / 4\nC4-only excluded test docs: 69 (0 wiki, 44 with zero base overlap)\nkept docs, original filter / extended filter: 1092 / 1023\nkept-ext, all: ours 0.9894, GPT-2 1.0360, ratio 0.9550\nkept-ext, frac==0: 909 docs, ours 1.0061, GPT-2 1.0570, ratio 0.9519 (CI 0.9444-0.9594)\nkept-ext, (0,0.05]: 92 docs, ours 0.9713, GPT-2 1.0021, ratio 0.9693 (CI 0.9555-0.9812)\nkept-ext, (0.05,0.2): 22 docs, ours 0.9265, GPT-2 1.0264, ratio 0.9027 (CI 0.8482-0.9471)\nkept-ext, >=0.2: 0 docs\nall docs, >=0.2 base bin (45 docs): ours 0.7393, GPT-2 1.0270, ratio 0.7199\nC4-only excluded docs (69): ours 0.9188, GPT-2 1.1519, ratio 0.7976\nSTRICT (kept-ext & zero base overlap): 909 docs, 2096634 bytes, ours 1.0061 (CI 0.9864-1.0252), GPT-2 1.0570, ratio 0.9519 (CI 0.9446-0.9593), <=1.04: yes\nstrict C4 docs: 894, ours 1.0135, GPT-2 1.0709, ratio 0.9464\nstrict wiki docs: 15, ours 0.9507, GPT-2 0.9531, ratio 0.9975\nkept-ext wiki: 76 docs ratio 0.9703; kept-ext C4: 947 docs ratio 0.9448\nupper bound mean (base+C4) overlap fraction over kept-ext docs: <= 0.0321 (measured base-only 0.0033)\nupper bound mean (base+C4) overlap fraction over strict docs: <= 0.0324\nkept-ext token coverage by base-matched windows: 1.90%; bits/token covered 3.484 vs uncovered 4.496\nkept-ext bpb if covered tokens cost the uncovered rate: 0.9936 (actual 0.9894)\nSpearman(base overlap, per-doc ratio), kept-ext docs >=500 B: rho -0.000, p 0.997\nkept-ext without docs ratio<0.7 (13 docs): ours 0.9900, ratio 0.9559\npeak RSS of the overlap recompute: 861 MB",
+   "summary": "Verdict: the contamination audit holds up, with one caveat that can't be checked on this machine (overlap with the extra C4 text below 20%).\n\n**Method.** contamination.json comes from experiments/h100_data.py (`contamination`, lines 326-419). It hashes every 13-token window inside each val/test document's content, scans the whole merged stream train_all.u16 and excludes documents with at least 20% of their windows found. That stream is 6.802 B tokens: base train, all 36 extra C4 shards and the 3 WikiText repeats. Training read that same file (h100_train.py:1094) and consumed 5.757 B tokens, about 85% of one shuffled pass, so the scan covers a superset of what was trained on. One correction to the task context: only the WikiText part of base train is in the stream 4 times (h100_data.py:47-50); the base C4 part appears once.\n\nThe splits are drawn by hash of source plus URL or title (data/lm_corpus.py:134-166). Test is 1056 C4 shard-0 documents plus 81 WikiText-103 train articles. Extra C4 documents are filtered with the same URL hash (h100_data.py:234), so a test URL cannot come back in. The C4 text did add 69 exclusions, but none of them is a Wikipedia document, so there is no sign of Wikipedia mirrors at 20% or more.\n\n**Independent check.** I recomputed the base overlap here with a different hash, streaming the base train file (284.7 M tokens, SHA-256 matches the pinned value), peak memory 861 MB. It reproduces exactly:\n- test: the same 45 excluded documents as excluded_base and results/lm/dedup.json;\n- val_a: the same 32;\n- the mean overlap for both, to 15 digits.\n\n**By overlap bin** (1023 documents kept by the extended filter; ours / GPT-2 / ratio):\n\n| Base overlap | Docs | Ours | GPT-2 | Ratio |\n|---|---|---|---|---|\n| 0 | 909 | 1.0061 | 1.0570 | 0.952 |\n| (0, 0.05] | 92 | 0.9713 | 1.0021 | 0.969 |\n| (0.05, 0.2) | 22 | 0.9265 | 1.0264 | 0.903 |\n| ≥ 0.2 | 0 | – | – | – |\n\nThe advantage over GPT-2 does not concentrate in overlapping documents. Per-document ratio is uncorrelated with overlap (Spearman rho -0.000). The excluded documents do show memorisation: ratio 0.72 for the 45 base-excluded and 0.80 for the 69 excluded only through C4, so excluding them was right. Ours also beats GPT-2 by less on Wikipedia documents (0.970) than on C4 documents (0.945), so GPT-2 never having trained on Wikipedia doesn't explain the gap.\n\n**Strict subset** (kept by the extended filter and zero base overlap): 909 documents, ours 1.0061 bpb (CI 0.986-1.025), GPT-2 1.0570, ratio 0.952 (CI 0.945-0.959). That is ≤ 1.04, with the whole CI below 1.04.\n\n**What can't be checked here.** Per-document C4 overlap needs the C4 text, which stayed on the GPU machine. contamination.json gives a mean overlap of 0.0615 with C4 against 0.0251 base-only, and 114 against 45 exclusions. From those numbers, the remaining combined overlap in kept documents averages at most 0.032, against 0.0033 base-only. The base-only partial overlap is worth only about 0.004 bpb. Overlap with C4 below 20% is probably of a similar small order, but I can't bound it rigorously from what is here.\n\nThe saved arrays reproduce eval_main.json exactly, and the GPT-2 reference lines up with the test split document by document.\n\nScripts and logs are in /dev/shm/engramm/verify/contamination/: overlap.py, analyze.py, extra.py, overlap.log, analyze.log, overlap_test.npz, overlap_val_a.npz."
+  }
+ ],
+ "judge": {
+  "stage1_verdict": "reached_with_caveats",
+  "gpt2_claim": "\"Beats GPT-2 small\" holds only as an in-domain result and must be stated that way. On 1023 held-out test documents drawn from Sela-1's own training sources (C4-en and WikiText-103 training articles, extended filter), Sela-1 135M scores 0.989 bpb. GPT-2 small, evaluated zero-shot on the same documents with the same byte accounting, scores 1.036 bpb. The ratio is 0.955 (paired document bootstrap 95% CI 0.947-0.962); with the original filter it is 0.951 (0.943-0.958). The advantage is broad: Sela-1 is better on 87% of documents, the ratio is 0.945 on C4 documents and 0.970 on Wikipedia documents, and it holds when the 10% most favourable documents are removed (0.963). The training mixture was deliberately matched to the evaluation mixture (base WikiText repeated 4x, because val-A is 37.5% WikiText), so part of the gap is domain match. This is not evidence that Sela-1 is a better general language model than GPT-2 small. Not checked here: GPT-2's training-token count, and Sela-1 on any out-of-domain benchmark. The two models have about the same non-embedding size (about 85 M); Sela-1 has 135.3 M parameters with untied embeddings, GPT-2 small 124 M with tied ones. From memory, not measured here: nanoGPT reports GPT-2 124M at about 3.11 nats on OpenWebText zero-shot and about 2.85 after fine-tuning on it, so domain match alone can be worth more than the 4.5% seen here.",
+  "real_issues": [
+   {
+    "issue": "Partial overlap with the training text below the 20% threshold (base and extra C4). Flagged could_bias_bpb_down by the contamination verifier.",
+    "effect": "Real but small. Base-only partial overlap is about 0.004 bpb (verifier 3; I confirmed 1.90% of scored tokens are base-covered). The extra-C4 part cannot be recomputed here, so I ran three checks on the saved lp that do not need the C4 text. (1) Long verbatim-recall runs: p>0.5 for at least 8 consecutive targets, excluding n-grams copied from earlier in the same document. The detector fires on 12.7% of tokens in the 45 base-excluded docs and 4.7% in the 69 C4-only-excluded docs, but on only 0.40% in kept docs. Charging every flagged kept token 4.5 bits gives 0.9932 (+0.0038). (2) Comparison with the CPU long run, which never saw the extra C4. Per-document H100/CPU ratio: 0.848 on kept C4 docs vs 0.772 on C4-only-excluded docs, so memorisation is visible where it is expected. Flooring every kept doc's improvement at the kept p10 / p25 / median gives 0.9912 / 0.9945 / 1.0019. (3) The adversarial worst case (overlap just under 20% in the longest docs, window-weighted fraction up to 0.131) is contradicted by the data. The 164 longest kept docs (65% of kept tokens) have the lowest detector rate (0.33%) and the weakest ratio to GPT-2 (0.971); the per-length-quartile ratio is 0.893 / 0.907 / 0.930 / 0.968. Plausible effect at most about 0.01 bpb; harshest stress 1.0019, still below 1.04 by 0.038.",
+    "real": true
+   },
+   {
+    "issue": "Memorised templated pages kept by the extended filter (docs 604, 8, 6; per-doc ratios 0.12-0.39). Flagged could_bias_bpb_down by the eval-code and recompute verifiers.",
+    "effect": "Real but negligible: about -0.0002 bpb (0.98938 to 0.9896). Dropping all 28 kept docs whose detector rate is at least the C4-only-excluded rate gives 0.9909 (ratio 0.9557).",
+    "real": true
+   },
+   {
+    "issue": "The GPT-2 comparison sets a model trained in-domain (same sources, mixture matched to the eval mix) against GPT-2 zero-shot.",
+    "effect": "Does not affect Stage 1 (an absolute threshold). It limits what 'beats GPT-2 small' can mean: an in-distribution result only.",
+    "real": true
+   },
+   {
+    "issue": "The model weights are not on this machine, so lp cannot be confirmed as the network's own output by re-running it.",
+    "effect": "Cannot be checked here. Everything that can be checked is consistent. The final training loss (3.178 nats/token, mean of last 10 logs) is slightly above filtered C4 eval (val_a 3.150, test 3.128). That is expected from packed training rows cut mid-document: an eval document start costs about 27 nats above its average, about 0.026 nats/token per 1024-token row. The curve-to-final drop is a subset effect: the first 150 val_a docs (all C4) are intrinsically harder. The same pattern appears in the CPU run (first-150 C4 1.2402 vs rest 1.1781; H100 1.0634 vs 0.9889). Only one test evaluation is in run.log, there is one results branch (219df1d on eb2e002), and the rule was fixed in eb2e002 (16 Oct 16:13 UTC) before the run started (21:14 UTC).",
+    "real": true
+   },
+   {
+    "issue": "Task-context error: 'base training text repeated 4x'.",
+    "effect": "No effect on bpb, but a documentation error. Per h100_data.py:47-50 and run.log:113-153, only the base WikiText part (29,245 docs, 113 M tokens) appears 4x; the base C4 part appears once; 36 extra C4 shards make the stream 6.802 B tokens, of which 5.757 B (0.846 of one pass) were consumed.",
+    "real": true
+   },
+   {
+    "issue": "Procedure: the 16 Oct forecast used GPT-2 test scores, split by source, to estimate the filter effect (disclosed in PLAN §11).",
+    "effect": "Minor. The rule and threshold did not change; LR and mixture choices were based on val-A and composition, not test scores. No effect on the number.",
+    "real": true
+   },
+   {
+    "issue": "Verifier 1's GPT-2 rescoring peaked at 1.70 GB RSS, above the 1.5 GB limit.",
+    "effect": "Process issue only; PID 454 was unaffected (still running, RSS 6,762,492 kB at my check). No bearing on the claim.",
+    "real": true
+   }
+  ],
+  "caveats": [
+   "Stage 1 is measured on held-out documents from the same sources Sela-1 was trained on (C4-en and WikiText-103); GPT-2 small is evaluated zero-shot on text it was not trained for.",
+   "The comparison with GPT-2 small is in-domain against out-of-domain. It does not show that Sela-1 is a better general language model.",
+   "The training mix was matched to the evaluation mix: the base WikiText-103 training articles appear four times, while the C4 text appears once.",
+   "Test documents with at least 20% of their 13-token windows in the training text are excluded (114 of 1137). Documents below that threshold may still overlap partially.",
+   "Partial overlap with the base training text is worth about 0.004 bpb. Overlap with the extra C4 text below 20% could not be recomputed off the GPU machine. Stress tests on the saved token probabilities put its plausible effect at no more than about 0.01 bpb; the harshest test gives 1.002 bpb.",
+   "All numbers come from token log-probabilities saved during the run. The weights were not available for an independent re-evaluation.",
+   "Stage 1 is decided by the network alone. The mixture with count models (0.982 bpb) is reported separately and was fitted on val-A.",
+   "GPT-2 small was scored with the same byte accounting: UTF-8 bytes + 1 per document, closing end-of-text token scored, window 1024 / stride 512."
+  ],
+  "must_fix": [
+   "Describe the training stream correctly. It is base train once (the WikiText part 4x in total, the C4 part once) plus C4-en shards 1-36, filtered to the train hash bucket: 6.802 B tokens, of which 5.757 B (0.85 of one pass) were trained. Do not write 'base text repeated 4x'.",
+   "The headline Stage-1 number must be the pre-registered one: test, extended filter, network alone, window 1024 / stride 512 = 0.9894 bpb (1023 docs). Give the original-filter value 0.9877 only as secondary. Never headline the unfiltered 0.980 or the mixture 0.982.",
+   "Every 'beats GPT-2 small' statement must name the filter, give the ratio with its CI (0.955, 0.947-0.962), and say 'on held-out documents from its own training distribution; GPT-2 small zero-shot'.",
+   "State explicitly what was not independently verified: lp vs weights (no weights on the audit machine), extra-C4 overlap below 20%, and possible uncommitted edits on the pod. Say where the weights are, or that they are not archived, and record the SHA-256 list of the extra C4 shards so a re-check is possible."
+  ],
+  "reasoning": "I re-checked the pre-registered rule and its timing. PLAN §11 (docs/PLAN_V5_FROM_SCRATCH.md:518) reads: 'Stufe 1 erreicht: Test, erweiterter Filter, Netz allein, Fenster 1.024 / Schritt 512: bpb <= 1,04'. It was finalised in eb2e002 at 2026-10-16 16:13 UTC. The run started at 21:14 UTC and main training at 23:34. run.log contains exactly one test evaluation (lines 728-729), and there is a single results branch (219df1d). eval_main.json records window 1024 / stride 512 and extended-filter test 0.98938 over 1023 docs. The eval code (h100_train.py:358-392) scores only model outputs; no count model enters lp.\n\nEvery number in the three reports reproduces from the saved arrays. The only findings that could bias bpb downward are partial contamination and the memorised templated pages, so I attacked those with checks that do not need the extra C4 text. Scripts are in /dev/shm/engramm/verify/judge/; peak RSS was 45 MB.\n\n- **Recall-run detector.** It flags targets in runs of at least 8 consecutive tokens with p>0.5 that are not copied from earlier in the same document. It is validated on docs known to be contaminated: 12.7% of tokens flagged in base-excluded docs, 4.7% in C4-only-excluded docs, 0.40% in kept docs. Charging every flagged kept token 4.5 bits gives 0.9932. Variants: p>0.5 with runs of 12 or more gives 0.9909; p>0.8 with runs of 12 or more gives 0.9900.\n- **Comparison with the CPU long run.** That model trained only on base text, so it is untouched by the extra C4. Kept C4 docs improved by a factor of 0.848 from CPU to H100; C4-only-excluded docs improved by 0.772, so memorisation shows where expected. Flooring each kept doc's improvement at the kept median gives 1.0019 bpb. That is the harshest stress I ran, and it still passes 1.04 by 0.038.\n- **Worst case.** The verifier's adversarial case puts overlap just under 20% in the longest docs. The data contradict it: the 164 longest kept docs have the lowest detector rate (0.33%) and the weakest ratio to GPT-2 (0.971).\n- **Templated pages.** Removing them moves bpb by about 0.0002.\n\nConsistency checks I could make without the weights:\n- The final training loss (3.178 nats/token) is slightly above filtered C4 eval (3.13-3.15). That gap is expected because training rows are cut mid-document; the cost of an eval document start is about 27 nats above its average.\n- The curve-to-final drop is a subset effect. The same first-150-versus-rest gap appears in the CPU run (1.2402 vs 1.1781) as in the H100 run (1.0634 vs 0.9889).\n\nStage 1 is therefore reached under the pre-registered rule with a margin of 0.051, and it survives every stress I could construct. It remains conditional on the saved lp being genuine network output, which cannot be re-run here.\n\nThe GPT-2 claim is statistically solid: the CI excludes 1, the advantage holds on 87% of documents, and it survives removing the 10% most favourable documents. It is in-domain against zero-shot, with the training mix matched to the eval mix, so it must carry that qualifier. I did not edit, create or delete anything in the repository, and I did not touch PID 454."
+ }
+}

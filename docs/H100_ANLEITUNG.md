@@ -1,5 +1,10 @@
 # Anleitung: ENGRAMM auf einer gemieteten H100 bis GPT-2-Niveau trainieren
 
+> **Erledigt am 17. Oktober 2026:** Der Lauf ist durch, Stufe 1 ist erreicht (Test 0,989 bpb). Das Modell heißt
+> Sela-1 135M; Ergebnis in PLAN §11, Modellkarte `docs/MODEL_CARD_SELA1.md`. Danach noch zu tun: den gestoppten Pod in
+> der RunPod-Konsole löschen (Terminate) und die GitHub-Schlüssel des Laufs löschen. Die Anleitung bleibt als Vorlage
+> für weitere Läufe.
+
 Stand 16. Oktober 2026. Ziel (Stufe 1, PLAN §6/§11): Test-Satz ≤ 1,04 Bits pro Byte, das Niveau von GPT-2 small.
 Entscheidend ist der Test-Wert nach der Duplikatregel aus PLAN §10, angewendet auf den tatsächlich trainierten Text
 (PLAN §11). Der Wert mit der alten Filterliste wird zusätzlich berichtet.

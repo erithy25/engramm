@@ -6,6 +6,8 @@
 
 *Now also a language model that writes English by reading and counting — no neural network, no borrowed model, CPU only.*
 
+*And [Sela-1 135M](docs/MODEL_CARD_SELA1.md): a small network trained from scratch for about 25 $ that reaches GPT-2-small level on its own test set.*
+
 <img src="https://img.shields.io/badge/approach-Vector%20Symbolic%20Architectures-blue?style=flat-square" alt="Vector Symbolic Architectures" />
 <img src="https://img.shields.io/badge/stack-Python%20%2B%20NumPy-green?style=flat-square" alt="Python and NumPy" />
 <img src="https://img.shields.io/badge/status-rebuilt%20%26%20re--measured-yellow?style=flat-square" alt="Rebuilt and re-measured" />
@@ -104,6 +106,31 @@ before it ran; deviations from the record are in [`docs/DEVIATIONS.md`](docs/DEV
   the harness now contains a meter (RAPL / `powermetrics`) for the reference
   machine.
 
+## ENGRAMM Sela-1 135M — a network trained from scratch to GPT-2-small level on its test set
+
+**Sela-1 135M** is a 135 M-parameter transformer trained from scratch, with its own tokenizer, random
+initialisation and no borrowed weights. Training took 3.27 hours on one rented NVIDIA H100, about 25 $ of compute
+for the whole run. On the held-out test split of the language-model study it scores **0.989 bits per byte**,
+measured with the network alone under a rule fixed before the run. The target for *Stage 1 (GPT-2 level)* was ≤ 1.04.
+GPT-2 small, scored zero-shot on the same documents, gets 1.036.
+
+| | Sela-1 135M | GPT-2 small |
+|---|---|---|
+| Test, bits per byte (1,023 documents; documents with ≥ 20 % of their 13-token windows in the training text excluded) | **0.989** | 1.036 |
+| Ratio, paired document bootstrap | **0.955** (95 % CI 0.947–0.962) | 1 |
+| Strictest subset: no 13-token overlap at all with the base training text (909 documents) | 1.006 | 1.057 |
+| Parameters / training tokens | 135 M / 5.76 B | 124 M / about 40 GB of text |
+
+**Read this before quoting it.** This is an in-domain result. The test documents come from the same sources Sela-1
+was trained on (C4 web text and WikiText-103 articles), while GPT-2 small sees them zero-shot. Sela-1 is *not* a
+better general language model than GPT-2 small. It writes fluent paragraphs that drift in meaning and invents facts.
+
+Four independent agents checked the result. Every number reproduces from the token probabilities saved during the
+run. The evaluation never lets the model see the token it predicts. Partial overlap with the training text moves the
+score by about 0.01 at most. The network itself could not be re-run on the checking machine. Details, caveats and
+samples are in [`docs/MODEL_CARD_SELA1.md`](docs/MODEL_CARD_SELA1.md); the plan and the rule are in
+[`docs/PLAN_V5_FROM_SCRATCH.md`](docs/PLAN_V5_FROM_SCRATCH.md) §11. The weights are not public yet.
+
 ## ENGRAMM-LM — a language model built by counting
 
 ENGRAMM-LM reads 285 M tokens of general English (one C4 web shard and
@@ -159,6 +186,7 @@ of *France* other countries, those of *three* other numbers.
 | Small Transformer, 23 M parameters, 6 h CPU training | 1.638 |
 | From-scratch network v5, 59 M parameters, 0.6 B tokens, 134 h CPU training ([`docs/PLAN_V5_FROM_SCRATCH.md`](docs/PLAN_V5_FROM_SCRATCH.md) §10) | 1.141 |
 | v5 network + exact counting model, mixed per history bucket | 1.122 |
+| **Sela-1 135M**: from-scratch network, 135 M parameters, 5.76 B tokens, 3.3 h on one rented H100 ([`docs/MODEL_CARD_SELA1.md`](docs/MODEL_CARD_SELA1.md); 0.989 with the stricter filter that decides its Stage 1) | **0.988** |
 | GPT-2 small (reference only: 124 M parameters, 40 GB of text) | 1.039 |
 
 | Registered criterion | Result |
