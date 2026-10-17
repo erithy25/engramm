@@ -504,11 +504,10 @@ elif [ -n "${GH_TOKEN:-}" ] && github_on; then
   upload_now "$W/up/sela2_ergebnisse.tar.gz" ergebnisse || true
   BR=$(cat "$W/stages/branch" 2>/dev/null || echo "sela2-results-$(date -u +%Y%m%d-%H%M)")
   echo "$BR" > "$W/stages/branch"
-  git config user.email "sela2-run@users.noreply.github.com"
-  git config user.name "ENGRAMM Sela-2-Lauf"
   [ "$(git rev-parse --abbrev-ref HEAD)" = "$BR" ] || git checkout -q -B "$BR"
   git add -f results/sela2
-  git diff --cached --quiet || git commit -q -m "v5: Sela-2 Ergebnisse, automatisch vom GPU-Rechner"
+  git diff --cached --quiet || git -c user.email="sela2-run@users.noreply.github.com" -c user.name="ENGRAMM Sela-2-Lauf" \
+    commit -q -m "v5: Sela-2 Ergebnisse, automatisch vom GPU-Rechner"     # author only for this commit, no config change
   pushed=0
   for attempt in 1 2 3; do
     left=$(time_left); [ "$left" -gt 120 ] || break
