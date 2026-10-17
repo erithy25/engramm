@@ -1,6 +1,6 @@
 import { type ReactElement, useEffect, useRef, useState } from "react";
 import type { Texts } from "../i18n";
-import { isError, type StoredReply } from "../types";
+import { isError, type SourceView, type StoredReply } from "../types";
 
 interface Props {
   reply: StoredReply | null; // null while waiting
@@ -117,12 +117,13 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
   if (k === "generated") chips.push(<Chip key="g" text={t.selaChip} cls="unsure" title={t.selaChipTitle} />);
   if (k === "sela_chat") chips.push(<Chip key="g2" text={t.sela2Chip} cls="unsure" title={t.sela2ChipTitle} />);
   if (k === "sela_grounded") chips.push(<Chip key="s2" text={t.sela2Grounded} cls="sure" title={t.sela2GroundedTitle} />);
-  if (reply.sela_checked === false)
-    chips.push(<Chip key="f2" text={t.sela2Fallback} cls="memory" title={t.sela2FallbackTitle} />);
-  const src = reply.source;
-  if (src?.kind === "user") {
-    chips.push(<Chip key="src" text={t.toldMe} cls="memory" />);
-  } else if (src?.title) {
+  if (reply.sela_checked === false) {
+    const why = reply.sela_note ? ` (${reply.sela_note})` : "";
+    chips.push(<Chip key="f2" text={t.sela2Fallback} cls="memory" title={t.sela2FallbackTitle + why} />);
+  }
+  const sourceChip = (src: SourceView | null, key: string) => {
+    if (src?.kind === "user") return <Chip key={key} text={t.toldMe} cls="memory" />;
+    if (!src?.title) return null;
     const prefix =
       src.kind === "wikipedia" || src.kind === "shelf"
         ? t.wikipedia
@@ -133,10 +134,23 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
             : "";
     const name = src.kind === "web" && src.site ? `${src.title} (${src.site})` : src.title;
     const when = src.as_of ? ` · ${t.asOf}${src.as_of}` : "";
-    chips.push(<Chip key="src" text={prefix + name + when} href={src.url} title={t.openSource} />);
-    if (src.kind === "shelf" || src.kind === "feed" || src.kind === "web") {
-      chips.push(<Chip key="via" text={t.via[src.kind]} cls="net" />);
-    }
+    return <Chip key={key} text={prefix + name + when} href={src.url} title={t.openSource} />;
+  };
+  const src = reply.source;
+  const main = sourceChip(src, "src");
+  if (main) chips.push(main);
+  if (src && src.kind !== "user" && src.title && (src.kind === "shelf" || src.kind === "feed" || src.kind === "web")) {
+    chips.push(<Chip key="via" text={t.via[src.kind]} cls="net" />);
+  }
+  if (k === "sela_grounded") {
+    // every further source the answer cites (its [2], [3] …), once per title
+    const seen = new Set([src?.title ?? ""]);
+    (reply.alternatives ?? []).forEach((a, i) => {
+      if (!a.source?.title || seen.has(a.source.title)) return;
+      seen.add(a.source.title);
+      const c = sourceChip(a.source, `src${i}`);
+      if (c) chips.push(c);
+    });
   }
   if (reply.resolved) chips.push(<Chip key="r" text={t.understoodAs + reply.resolved} />);
   if (typeof reply.seconds === "number") {
