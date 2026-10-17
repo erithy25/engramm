@@ -1,0 +1,323 @@
+# Sela-2 after the GPU run (docs/PREREG_SELA2.md): the app file and every measurement that runs on free runners.
+# Started by committing results/sela2/eval_request.json ({"release_id": <results release of the run>}):
+#   prep      the chat and base models (bf16, from the private results release) → sela-npz-2 files (int8) for the
+#             app, uploaded into the same release
+#   bench     M3 zero-shot benchmarks: Sela-2 base/chat, Sela-1, GPT-2 small/medium, Pythia-160M/410M
+#   chat      M5 (100 fixed prompts, NumPy model as in the app), M10 (int8 vs fp32), app speed
+#   squad     M7 (SQuAD v2 dev, oracle paragraph, 1,000 questions)
+#   ifeval    M6 (IFEval, chat and base model)
+#   contam    token 13-gram audit of the benchmark items against the tokens the run trained on
+#   collect   summaries into results/sela2/ on this branch
+# Weights and training data stay in private draft releases; artifacts carry only the small result files.
+name: Sela-2 evaluation after the run
+
+on:
+  push:
+    branches: ["claude/optimistic-cannon-i0u0ap"]
+    paths: ["results/sela2/eval_request.json"]
+
+permissions:
+  contents: write                        # draft releases are readable only with write access; collect commits
+
+concurrency:
+  group: sela2-eval
+  cancel-in-progress: false
+
+env:
+  PYTHONUTF8: "1"
+  TORCH: "torch==2.8.0"
+  PIP_PACKAGES: "numpy==2.4.1 tokenizers==0.23.2 pyarrow==21.0.0"
+  SELA1_ASSET_ID: "649394285"            # Sela-1 model file (see sela1_bench.yml)
+  SELA1_ASSET_BYTES: "541082912"
+
+jobs:
+  prep:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      rid: ${{ steps.req.outputs.rid }}
+      bench: ${{ steps.plan.outputs.bench }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: |
+          pip install "$TORCH" --index-url https://download.pytorch.org/whl/cpu
+          pip install $PIP_PACKAGES
+      - id: req
+        run: |
+          rid=$(python -c "import json; print(int(json.load(open('results/sela2/eval_request.json'))['release_id']))")
+          echo "results release: $rid"; echo "rid=$rid" >> "$GITHUB_OUTPUT"
+      - name: Models from the private results release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -m experiments.gh_release download --release ${{ steps.req.outputs.rid }} --dest "$RUNNER_TEMP/m" \
+            --match '^sela2_(chat|basis)_bf16\.pt(\.part\d{3}|\.parts\.json)?$'
+          ls -la "$RUNNER_TEMP/m"
+      - name: App files (sela-npz-2, int8, tokenizer named by SHA-256)
+        run: |
+          python -m experiments.sela2_train export --model "$RUNNER_TEMP/m/sela2_chat_bf16.pt" --out "$RUNNER_TEMP/m/sela2-chat.npz" --quant int8
+          python -m experiments.sela2_train export --model "$RUNNER_TEMP/m/sela2_basis_bf16.pt" --out "$RUNNER_TEMP/m/sela2-basis.npz" --quant int8
+          ls -la "$RUNNER_TEMP/m"
+      - name: Into the results release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -m experiments.gh_release upload --release ${{ steps.req.outputs.rid }} "$RUNNER_TEMP/m/sela2-chat.npz" "$RUNNER_TEMP/m/sela2-basis.npz"
+      - id: plan
+        run: |
+          python - <<'EOF' >> "$GITHUB_OUTPUT"
+          import json
+          models = ["sela2-base", "sela2-chat", "sela1", "gpt2", "gpt2-medium", "pythia-160m", "pythia-410m"]
+          shards = {"hellaswag": 6, "mmlu": 6}
+          tasks = ["lambada", "hellaswag", "arc_easy", "arc_challenge", "piqa", "openbookqa", "winogrande", "mmlu"]
+          jobs = [{"model": m, "task": t, "shard": s, "shards": shards.get(t, 1)}
+                  for m in models for t in tasks for s in range(shards.get(t, 1))]
+          print("bench=" + json.dumps(jobs))
+          EOF
+
+  bench:
+    needs: prep
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        job: ${{ fromJSON(needs.prep.outputs.bench) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: |
+          pip install "$TORCH" --index-url https://download.pytorch.org/whl/cpu
+          pip install $PIP_PACKAGES
+      - if: startsWith(matrix.job.model, 'gpt2-') || startsWith(matrix.job.model, 'pythia')
+        run: pip install "transformers==4.57.6"
+      - name: Model file
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/m"
+          case "${{ matrix.job.model }}" in
+            sela2-base) python -m experiments.gh_release download --release ${{ needs.prep.outputs.rid }} --dest "$RUNNER_TEMP/m" \
+                          --match '^sela2_basis_bf16\.pt(\.part\d{3}|\.parts\.json)?$'; echo "CKPT=$RUNNER_TEMP/m/sela2_basis_bf16.pt" >> "$GITHUB_ENV" ;;
+            sela2-chat) python -m experiments.gh_release download --release ${{ needs.prep.outputs.rid }} --dest "$RUNNER_TEMP/m" \
+                          --match '^sela2_chat_bf16\.pt(\.part\d{3}|\.parts\.json)?$'; echo "CKPT=$RUNNER_TEMP/m/sela2_chat_bf16.pt" >> "$GITHUB_ENV" ;;
+            sela1) curl -fsSL --retry 5 --retry-delay 10 -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/octet-stream" \
+                     "https://api.github.com/repos/${{ github.repository }}/releases/assets/$SELA1_ASSET_ID" -o "$RUNNER_TEMP/m/sela1.pt"
+                   test "$(stat -c %s "$RUNNER_TEMP/m/sela1.pt")" = "$SELA1_ASSET_BYTES"; echo "CKPT=$RUNNER_TEMP/m/sela1.pt" >> "$GITHUB_ENV" ;;
+            *) echo "CKPT=" >> "$GITHUB_ENV" ;;
+          esac
+      - name: Benchmark
+        env:
+          SELA1_BENCH_CACHE: ${{ runner.temp }}/bench_cache
+        run: |
+          python -u -m experiments.sela2_bench bench --model ${{ matrix.job.model }} ${CKPT:+--ckpt "$CKPT"} \
+            --task ${{ matrix.job.task }} --shard ${{ matrix.job.shard }} --shards ${{ matrix.job.shards }} --out out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sela2-bench-${{ matrix.job.model }}-${{ matrix.job.task }}-${{ matrix.job.shard }}
+          path: out/*.json
+          retention-days: 30
+
+  chat:
+    needs: prep
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: |
+          pip install "$TORCH" --index-url https://download.pytorch.org/whl/cpu
+          pip install $PIP_PACKAGES
+      - name: App file, chat model and held-out documents
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -m experiments.gh_release download --release ${{ needs.prep.outputs.rid }} --dest "$RUNNER_TEMP/m" \
+            --match '^(sela2-chat\.npz|sela2_chat_bf16\.pt(\.part\d{3}|\.parts\.json)?)$'
+          drid=$(python -c "import json; print(json.load(open('results/sela2/data/manifest.json'))['release_id'])")
+          python -m experiments.gh_release download --release "$drid" --dest "$RUNNER_TEMP/d" \
+            --match '^val_(fwe|wiki_en|fw2_de)\.(u16|json|starts\.npy|bytes\.npy)$'
+      - name: M5 – 100 fixed prompts
+        run: |
+          mkdir -p out
+          python -u -m experiments.sela2_chat_eval --weights "$RUNNER_TEMP/m/sela2-chat.npz" --out out/chat_eval.json --md out/chat_eval.md
+      - name: M10 – int8 against fp32
+        run: python -u -m experiments.sela2_int8_check --ckpt "$RUNNER_TEMP/m/sela2_chat_bf16.pt" --data "$RUNNER_TEMP/d" --out out/int8.json
+      - name: App speed (this runner)
+        run: python -m experiments.sela2_speed --out out/app_speed.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sela2-chat-eval
+          path: out/*
+          retention-days: 30
+
+  squad:
+    needs: prep
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install $PIP_PACKAGES
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -m experiments.gh_release download --release ${{ needs.prep.outputs.rid }} --dest "$RUNNER_TEMP/m" --match '^sela2-chat\.npz$'
+      - env:
+          SELA1_BENCH_CACHE: ${{ runner.temp }}/bench_cache
+        run: python -u -m experiments.sela2_squad_eval run --weights "$RUNNER_TEMP/m/sela2-chat.npz" --shard ${{ matrix.shard }} --shards 6 --out out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sela2-squad-${{ matrix.shard }}
+          path: out/*.json
+          retention-days: 30
+
+  ifeval:
+    needs: prep
+    runs-on: ubuntu-24.04
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        tag: [chat, base]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install $PIP_PACKAGES
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          f=sela2-chat.npz; [ "${{ matrix.tag }}" = base ] && f=sela2-basis.npz
+          python -m experiments.gh_release download --release ${{ needs.prep.outputs.rid }} --dest "$RUNNER_TEMP/m" --match "^${f//./\\.}\$"
+          echo "W=$RUNNER_TEMP/m/$f" >> "$GITHUB_ENV"
+      - env:
+          SELA1_BENCH_CACHE: ${{ runner.temp }}/bench_cache
+        run: python -u -m experiments.sela2_ifeval run --weights "$W" --tag ${{ matrix.tag }} --shard ${{ matrix.shard }} --shards 8 --out out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sela2-ifeval-${{ matrix.tag }}-${{ matrix.shard }}
+          path: out/*.json
+          retention-days: 30
+
+  contam:
+    needs: prep
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install $PIP_PACKAGES
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL; df -h /
+      - name: The run's data report and this shard's training streams
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -m experiments.gh_release download --release ${{ needs.prep.outputs.rid }} --dest "$RUNNER_TEMP/r" --match '^sela2_ergebnisse\.tar\.gz$'
+          tar xzf "$RUNNER_TEMP/r/sela2_ergebnisse.tar.gz" -C "$RUNNER_TEMP/r"
+          meta=$(find "$RUNNER_TEMP/r" -name pretrain_meta.json | head -n 1); echo "META=$meta" >> "$GITHUB_ENV"
+          files=$(python -m experiments.sela2_contam files --meta "$meta" --shard ${{ matrix.shard }} --shards 6)
+          echo "streams: $files"
+          drid=$(python -c "import json; print(json.load(open('results/sela2/data/manifest.json'))['release_id'])")
+          [ -z "$files" ] || python -m experiments.gh_release download --release "$drid" --dest "$RUNNER_TEMP/d" --jobs 6 \
+            --match "^(${files//./\\.})(\\.part[0-9]{3}|\\.parts\\.json)?\$"
+      - env:
+          SELA1_BENCH_CACHE: ${{ runner.temp }}/bench_cache
+        run: |
+          python -u -m experiments.sela2_contam items --out "$RUNNER_TEMP/items.npz"
+          python -u -m experiments.sela2_contam scan --data "$RUNNER_TEMP/d" --meta "$META" --items "$RUNNER_TEMP/items.npz" \
+            --shard ${{ matrix.shard }} --shards 6 --out out/hits_${{ matrix.shard }}.npy
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sela2-contam-${{ matrix.shard }}
+          path: out/*.npy
+          retention-days: 30
+
+  collect:
+    needs: [prep, bench, chat, squad, ifeval, contam]
+    if: always() && needs.prep.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/optimistic-cannon-i0u0ap
+          fetch-depth: 30
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: |
+          pip install $PIP_PACKAGES
+          pip install --no-deps "lm_eval==0.4.11" "langdetect==1.0.9" "immutabledict==4.2.1" "nltk==3.9.1" \
+            "six==1.17.0" "regex==2025.9.18" "click==8.2.1" "joblib==1.5.2" "tqdm==4.67.1"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sela2-*
+          path: in
+      - name: Summaries
+        env:
+          SELA1_BENCH_CACHE: ${{ runner.temp }}/bench_cache
+        run: |
+          mkdir -p results/sela2
+          python -m experiments.sela2_contam items --out "$RUNNER_TEMP/items.npz" \
+            && python -m experiments.sela2_contam collect --items "$RUNNER_TEMP/items.npz" --hits in --out results/sela2/contamination.json || true
+          python -m experiments.sela2_bench collect --inputs in --out results/sela2/bench.json --contam results/sela2/contamination.json || true
+          python -m experiments.sela2_squad_eval collect --inputs in --out results/sela2/squad.json || true
+          python -m experiments.sela2_ifeval collect --inputs in --out results/sela2/ifeval.json || true
+          for f in chat_eval.json chat_eval.md int8.json app_speed.json; do
+            src=$(find in -name "$f" | head -n 1); [ -n "$src" ] && cp "$src" results/sela2/ || true
+          done
+          ls -la results/sela2
+      - name: Commit to the branch
+        run: |
+          git config user.name "ENGRAMM Sela-2 evaluation"
+          git config user.email "sela2-eval@users.noreply.github.com"
+          git add results/sela2/*.json results/sela2/*.md 2>/dev/null || true
+          git diff --cached --quiet && { echo "nothing to commit"; exit 0; }
+          git commit -q -F - <<EOF
+          v5: Sela-2 Auswertung nach dem Lauf (Benchmarks, Chat, IFEval, SQuAD, int8, Kontamination)
+
+          Automatisch vom Workflow .github/workflows/sela2_eval.yml (Lauf ${{ github.run_id }}, Commit ${{ github.sha }}).
+
+          Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+          Claude-Session: https://claude.ai/code/session_019SwnwJiHX6CTqX9UE2VxWF
+          EOF
+          for i in 1 2 3 4 5; do
+            git pull -q --rebase origin claude/optimistic-cannon-i0u0ap && git push -q origin HEAD:claude/optimistic-cannon-i0u0ap && exit 0
+            sleep $((i * 15))
+          done
+          exit 1

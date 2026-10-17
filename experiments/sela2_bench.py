@@ -270,7 +270,26 @@ def merge(parts: list[dict], task: str) -> tuple[dict | None, str | None]:
     return {k: np.asarray(v)[order] for k, v in m.items()}, None
 
 
-def collect(inputs: Path) -> dict:
+def clean_scores(res: dict, scores: dict, merged_items: dict, contam: dict) -> dict:
+    """Scores on the items the contamination audit (experiments/sela2_contam.py) did not flag."""
+    out = {}
+    for task, e in contam.get("tasks", {}).items():
+        bad = set(e.get("contaminated", []))
+        for model, s in scores.items():
+            if task not in s:
+                continue
+            keep = np.array([int(i) not in bad for i in merged_items[(model, task)]])
+            out.setdefault(task, {"contaminated": len(bad), "clean_items": int(keep.sum()), "results": {}})
+            out[task]["results"][model] = float(s[task][keep].mean()) if keep.any() else None
+    pooled = {}
+    for model in scores:
+        vals = [out[t]["results"].get(model) for t in POOLED if t in out]
+        if len(vals) == len(POOLED) and all(v is not None for v in vals):
+            pooled[model] = float(np.mean(vals))
+    return {"tasks": out, "pooled": pooled}
+
+
+def collect(inputs: Path, contam: Path | None = None) -> dict:
     runs: dict[tuple[str, str], list[dict]] = {}
     for p in sorted(inputs.rglob("bench_*.json")):
         r = json.loads(p.read_text())
@@ -279,6 +298,7 @@ def collect(inputs: Path) -> dict:
                          "(experiments/sela2_bench.py, scoring of experiments/sela1_bench.py).",
                  "metric": METRIC, "pooled_tasks": list(POOLED), "tasks": {}, "models": {}, "incomplete": []}
     scores: dict[str, dict[str, np.ndarray]] = {}
+    merged_items: dict[tuple[str, str], np.ndarray] = {}
     for (model, task), parts in sorted(runs.items()):
         m, problem = merge(parts, task)
         if problem:                                        # reported, never mixed into a partial score
@@ -288,6 +308,7 @@ def collect(inputs: Path) -> dict:
         n = len(m["items"])
         s = item_scores(task, m)
         scores.setdefault(model, {})[task] = s
+        merged_items[(model, task)] = m["items"]
         entry = {"metric": METRIC[task], "score": float(s.mean()), "se": float(s.std(ddof=0) / math.sqrt(n)),
                  "acc": float((m["greedy"] if task == "lambada" else m["correct"]).mean()), "items": n,
                  "seconds": sum(p["seconds"] for p in parts), "torch": parts[0]["torch"]}
@@ -314,6 +335,8 @@ def collect(inputs: Path) -> dict:
     hs = res["tasks"].get("hellaswag", {}).get("results", {})
     res["hellaswag_vs_gpt3_small"] = {"gpt3_small": GPT3_SMALL_HELLASWAG,
                                       **{k: v["score"] for k, v in hs.items() if k.startswith("sela2")}}
+    if contam and Path(contam).exists():
+        res["clean"] = clean_scores(res, scores, merged_items, json.loads(Path(contam).read_text()))
     if base and scores.get("sela2-chat"):
         chat = scores["sela2-chat"]
         res["chat_minus_base"] = {t: float(chat[t].mean() - base[t].mean()) for t in base if t in chat}
@@ -321,7 +344,7 @@ def collect(inputs: Path) -> dict:
 
 
 def cmd_collect(args) -> None:
-    res = collect(Path(args.inputs))
+    res = collect(Path(args.inputs), Path(args.contam) if args.contam else None)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(res, indent=1) + "\n")
@@ -350,6 +373,7 @@ def main() -> None:
     c = sub.add_parser("collect")
     c.add_argument("--inputs", required=True)
     c.add_argument("--out", required=True)
+    c.add_argument("--contam", default="", help="experiments/sela2_contam.py result: adds scores on clean items")
     args = ap.parse_args()
     if args.cmd == "bench" and not 0 <= args.shard < args.shards:
         raise SystemExit("--shard must be in [0, --shards)")
