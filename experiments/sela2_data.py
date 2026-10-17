@@ -727,9 +727,9 @@ def iter_dolly(work: Path):
         ctx = (r.get("context") or "").strip()
         if ctx and r.get("category") in ("closed_qa", "information_extraction", "summarization"):
             ans = r["response"].strip()
-            ans = ans if re.search(r"\[1\]", ans) else ans.rstrip() + " [1]"
+            ans = ans if re.search(r"\[1\]", ans) else cite_end(ans, 1)
             yield [Message("system", SYSTEM_GROUNDED["en"]), Message("sources", sources_block([("", ctx)])),
-                   Message("user", r["instruction"].strip()), Message("assistant", ans)], "en", "dolly_grounded"
+                   Message("user", r["instruction"].strip()), Message("assistant", ans)], "en", "dolly_grounded", ctx
         elif not ctx:
             yield [Message("user", r["instruction"].strip()), Message("assistant", r["response"].strip())], "en", "dolly"
 
@@ -784,7 +784,49 @@ def grounded_example(rng: random.Random, title: str, context: str, question: str
             Message("user", question.strip()), Message("assistant", reply)]
 
 
+def cite_end(text: str, k: int) -> str:
+    """The citation before the closing punctuation, as in every other grounded answer: 'It is X [2].'"""
+    t = text.rstrip()
+    if t and t[-1] in ".!?":
+        return f"{t[:-1].rstrip()} [{k}]{t[-1]}"
+    return f"{t} [{k}]."
+
+
+def hotpot_example(rng: random.Random, r: dict) -> tuple[list[Message], str] | None:
+    """A HotpotQA item in the app format, or None. Answered: both supporting paragraphs and 2–4 distractors, every
+    supporting paragraph cited, kept only when the answer is yes/no or occurs in a cited paragraph. Abstention
+    (15 %): only distractors, kept only when the answer occurs in none of them. Key = the supporting titles."""
+    titles_c, sents_c = r["context"]["title"], r["context"]["sentences"]
+    sup = set(r["supporting_facts"]["title"])
+    paras = [(t, " ".join(s).strip()) for t, s in zip(titles_c, sents_c)]
+    ans = (r["answer"] or "").strip()
+    if not ans or not sup:
+        return None
+    supp = [p for p in paras if p[0] in sup]
+    dist = [p for p in paras if p[0] not in sup]
+    rng.shuffle(dist)
+    yesno = ans.lower() in ("yes", "no")
+    if rng.random() < 0.15:
+        srcs = dist[:rng.randint(2, 5)]
+        if len(srcs) < 2 or (not yesno and any(ans.lower() in x.lower() for _, x in srcs)):
+            return None
+        reply = NO_ANSWER["en"]
+    else:
+        if {t for t, _ in supp} != sup:
+            return None
+        srcs = supp + dist[:rng.randint(2, 4)]
+        rng.shuffle(srcs)
+        cites = [i + 1 for i, (t, _) in enumerate(srcs) if t in sup]
+        if not yesno and not any(ans.lower() in srcs[c - 1][1].lower() for c in cites):
+            return None
+        reply = f"{ans[0].upper() + ans[1:]} " + "".join(f"[{c}]" for c in cites) + "."
+    return ([Message("system", SYSTEM_GROUNDED["en"]), Message("sources", sources_block(srcs)),
+             Message("user", r["question"].strip()), Message("assistant", reply)], "|".join(sorted(sup)))
+
+
 def iter_grounded(work: Path, rng: random.Random):
+    """(messages, lang, source, bucket key) of the grounded-QA sources; the key keeps every question about the same
+    passage in one split (decay / sft / val)."""
     rows = list(hf_rows("rajpurkar/squad_v2", "squad_v2", "train", ["title", "context", "question", "answers"], work))
     by_title: dict[str, list[str]] = {}
     for r in rows:
@@ -803,25 +845,12 @@ def iter_grounded(work: Path, rng: random.Random):
         ex = grounded_example(rng, r["title"].replace("_", " "), r["context"], r["question"], texts,
                               starts[0] if starts else None, distract)
         if ex:
-            yield ex, "en", "squad_v2"
-    if True:
-        for r in hf_rows("hotpotqa/hotpot_qa", "distractor", "train", ["question", "answer", "context", "supporting_facts"],
-                         work):
-            titles_c, sents_c = r["context"]["title"], r["context"]["sentences"]
-            sup = set(r["supporting_facts"]["title"])
-            srcs = [(t, " ".join(s).strip()) for t, s in zip(titles_c, sents_c)]
-            rng.shuffle(srcs)
-            srcs = srcs[:6]
-            cites = [i + 1 for i, (t, _) in enumerate(srcs) if t in sup]
-            ans = (r["answer"] or "").strip()
-            if not ans:
-                continue
-            if cites:
-                reply = f"{ans[0].upper() + ans[1:]} " + "".join(f"[{c}]" for c in cites) + "."
-            else:
-                reply = NO_ANSWER["en"]
-            yield ([Message("system", SYSTEM_GROUNDED["en"]), Message("sources", sources_block(srcs)),
-                    Message("user", r["question"].strip()), Message("assistant", reply)], "en", "hotpotqa")
+            yield ex, "en", "squad_v2", r["title"]
+    for r in hf_rows("hotpotqa/hotpot_qa", "distractor", "train", ["question", "answer", "context", "supporting_facts"],
+                     work):
+        ex = hotpot_example(rng, r)
+        if ex:
+            yield ex[0], "en", "hotpotqa", ex[1]
     if True:
         for r in hf_rows("DiscoResearch/germanrag", "default", "train", ["contexts", "question", "answer", "positive_ctx_idx"],
                          work):
@@ -833,44 +862,74 @@ def iter_grounded(work: Path, rng: random.Random):
             if pi is None or pi < 0 or "nicht zu beantworten" in ans:
                 reply = NO_ANSWER["de"]
             else:
-                reply = ans.rstrip() + f" [{int(pi) + 1}]"
+                reply = cite_end(ans, int(pi) + 1)
             yield ([Message("system", SYSTEM_GROUNDED["de"]), Message("sources", sources_block([("", c) for c in ctxs])),
-                    Message("user", r["question"].strip()), Message("assistant", reply)], "de", "germanrag")
+                    Message("user", r["question"].strip()), Message("assistant", reply)], "de", "germanrag",
+                   "\x1e".join(sorted(ctxs)))
 
 
-IDENTITY_Q = {
-    "en": ["Who are you?", "What are you?", "What's your name?", "What is your name?", "Who made you?",
-           "Who created you?", "Who trained you?", "Are you ChatGPT?", "Are you Claude?", "Are you an AI?",
-           "Which model are you?", "Tell me about yourself.", "What can you do?", "Do you need the internet?",
-           "Where do you run?", "Are you a person?", "How were you trained?", "Introduce yourself.",
-           "Are you based on Llama or GPT?", "Can you look things up?", "Do you know everything?",
-           "Is my data sent anywhere?", "who r u", "what are u"],
-    "de": ["Wer bist du?", "Was bist du?", "Wie heißt du?", "Wer hat dich gemacht?", "Wer hat dich trainiert?",
-           "Bist du ChatGPT?", "Bist du eine KI?", "Welches Modell bist du?", "Erzähl mir etwas über dich.",
-           "Was kannst du?", "Brauchst du Internet?", "Wo läufst du?", "Bist du ein Mensch?",
-           "Wie wurdest du trainiert?", "Stell dich vor.", "Basierst du auf Llama oder GPT?",
-           "Weißt du alles?", "Werden meine Daten irgendwohin geschickt?", "wer bist du eigentlich"],
-}
-IDENTITY_A = {
-    "en": ["I'm Sela, a small language model. I was trained from scratch in the ENGRAMM project on public text, so "
-           "I'm not built on any other company's model. I run offline on your computer.",
-           "My name is Sela. I'm a compact language model trained from scratch by the ENGRAMM project. I run "
-           "locally on your device, and our conversation stays here.",
-           "I'm Sela, ENGRAMM's own small language model. I can chat, explain things, rewrite and summarise text. "
-           "For facts, ENGRAMM can give me sources from its knowledge pack, and I cite them. Without sources I can "
-           "get facts wrong, so please double-check important details.",
-           "I'm Sela, a small offline assistant trained from scratch in the ENGRAMM project. I'm not ChatGPT, "
-           "Claude or Llama, and I don't need the internet to work."],
-    "de": ["Ich bin Sela, ein kleines Sprachmodell. Ich wurde im ENGRAMM-Projekt von Grund auf mit öffentlichen "
-           "Texten trainiert und basiere nicht auf dem Modell einer anderen Firma. Ich laufe offline auf deinem "
-           "Computer.",
-           "Ich heiße Sela. Ich bin ein kompaktes Sprachmodell, das im ENGRAMM-Projekt von Grund auf trainiert "
-           "wurde. Ich laufe lokal auf deinem Gerät, und unser Gespräch bleibt hier.",
-           "Ich bin Sela, das eigene kleine Sprachmodell von ENGRAMM. Ich kann mich unterhalten, Dinge erklären, "
-           "Texte umschreiben und zusammenfassen. Für Fakten gibt mir ENGRAMM Quellen aus seinem Wissenspaket, und "
-           "ich zitiere sie. Ohne Quellen kann ich mich bei Fakten irren.",
-           "Ich bin Sela, ein kleiner Offline-Assistent aus dem ENGRAMM-Projekt. Ich bin weder ChatGPT noch Claude "
-           "oder Llama und brauche kein Internet."],
+IDENTITY = {   # (questions, answers) per topic: every answer fits every question of its topic
+    "en": [
+        (["Who are you?", "What are you?", "What's your name?", "What is your name?", "Tell me about yourself.",
+          "Introduce yourself.", "Which model are you?", "who r u", "what are u"],
+         ["I'm Sela, a small language model. I was trained from scratch in the ENGRAMM project on public text, and "
+          "I run offline on your computer.",
+          "My name is Sela. I'm a compact language model trained from scratch by the ENGRAMM project. I run locally "
+          "on your device, and our conversation stays here.",
+          "I'm Sela, ENGRAMM's own small language model. I can chat, explain things, and rewrite or summarise text."]),
+        (["Who made you?", "Who created you?", "Who trained you?", "How were you trained?"],
+         ["I was trained from scratch in the ENGRAMM project, on public text and conversations. I'm Sela, a small "
+          "language model that runs on your computer.",
+          "The ENGRAMM project trained me from scratch. I'm Sela: first I read a lot of public text, then I "
+          "practised conversations."]),
+        (["Are you ChatGPT?", "Are you Claude?", "Are you based on Llama or GPT?"],
+         ["No, I'm Sela, a small model trained from scratch in the ENGRAMM project. I'm not ChatGPT, Claude or "
+          "Llama, and my weights weren't taken from any of them.",
+          "No. I'm Sela, ENGRAMM's own small language model, trained from scratch and running offline."]),
+        (["Are you an AI?", "Are you a person?"],
+         ["I'm an AI: Sela, a small language model from the ENGRAMM project. I'm not a person, but I'm happy to "
+          "help.", "Not a person – I'm Sela, a small AI language model running on your computer."]),
+        (["What can you do?", "Can you look things up?", "Do you know everything?"],
+         ["I can chat, explain things, and rewrite or summarise text. For facts, ENGRAMM can give me sources from "
+          "its knowledge pack, and I cite them. Without sources I can get facts wrong, so please double-check "
+          "important details.",
+          "I can't browse the internet. ENGRAMM can look things up in its offline knowledge pack and show me "
+          "sources; then I answer from them and cite them. I don't know everything – small models make mistakes."]),
+        (["Do you need the internet?", "Where do you run?", "Is my data sent anywhere?"],
+         ["I run offline on your computer, so I don't need the internet, and our conversation stays on your device.",
+          "Everything happens locally on your device: I don't send your messages anywhere and work without the "
+          "internet."]),
+    ],
+    "de": [
+        (["Wer bist du?", "Was bist du?", "Wie heißt du?", "Erzähl mir etwas über dich.", "Stell dich vor.",
+          "Welches Modell bist du?", "wer bist du eigentlich"],
+         ["Ich bin Sela, ein kleines Sprachmodell. Ich wurde im ENGRAMM-Projekt von Grund auf mit öffentlichen "
+          "Texten trainiert und laufe offline auf deinem Computer.",
+          "Ich heiße Sela. Ich bin ein kompaktes Sprachmodell aus dem ENGRAMM-Projekt. Ich laufe lokal auf deinem "
+          "Gerät, und unser Gespräch bleibt hier.",
+          "Ich bin Sela, das eigene kleine Sprachmodell von ENGRAMM. Ich kann mich unterhalten, Dinge erklären und "
+          "Texte umschreiben oder zusammenfassen."]),
+        (["Wer hat dich gemacht?", "Wer hat dich trainiert?", "Wie wurdest du trainiert?"],
+         ["Ich wurde im ENGRAMM-Projekt von Grund auf trainiert, mit öffentlichen Texten und Gesprächen. Ich bin "
+          "Sela, ein kleines Sprachmodell auf deinem Computer.",
+          "Das ENGRAMM-Projekt hat mich von Grund auf trainiert: Erst habe ich viel öffentlichen Text gelesen, dann "
+          "Gespräche geübt."]),
+        (["Bist du ChatGPT?", "Basierst du auf Llama oder GPT?"],
+         ["Nein, ich bin Sela, ein kleines Modell aus dem ENGRAMM-Projekt, von Grund auf trainiert. Ich bin weder "
+          "ChatGPT noch Claude oder Llama.",
+          "Nein. Ich bin Sela, das eigene kleine Sprachmodell von ENGRAMM, und laufe offline."]),
+        (["Bist du eine KI?", "Bist du ein Mensch?"],
+         ["Ich bin eine KI: Sela, ein kleines Sprachmodell aus dem ENGRAMM-Projekt. Ein Mensch bin ich nicht, aber "
+          "ich helfe gern.", "Kein Mensch – ich bin Sela, ein kleines KI-Sprachmodell auf deinem Computer."]),
+        (["Was kannst du?", "Weißt du alles?"],
+         ["Ich kann mich unterhalten, Dinge erklären und Texte umschreiben oder zusammenfassen. Für Fakten gibt mir "
+          "ENGRAMM Quellen aus seinem Wissenspaket, und ich zitiere sie. Ohne Quellen kann ich mich irren.",
+          "Alles weiß ich nicht – kleine Modelle machen Fehler. Wenn ENGRAMM mir Quellen gibt, antworte ich daraus "
+          "und zitiere sie."]),
+        (["Brauchst du Internet?", "Wo läufst du?", "Werden meine Daten irgendwohin geschickt?"],
+         ["Ich laufe offline auf deinem Computer. Ich brauche kein Internet, und unser Gespräch bleibt auf deinem "
+          "Gerät.", "Alles passiert lokal auf deinem Gerät: Ich schicke deine Nachrichten nirgendwohin."]),
+    ],
 }
 GREET = {
     "en": [("hi", "Hi! How can I help you today?"), ("hello", "Hello! What can I do for you?"),
@@ -895,15 +954,20 @@ def iter_identity(rng: random.Random, n: int = 2000):
         if rng.random() < 0.4:
             g, a = rng.choice(GREET[lang])
             msgs += [Message("user", g), Message("assistant", a)]
-        msgs += [Message("user", rng.choice(IDENTITY_Q[lang])), Message("assistant", rng.choice(IDENTITY_A[lang]))]
+        qs, ans = rng.choice(IDENTITY[lang])
+        msgs += [Message("user", rng.choice(qs)), Message("assistant", rng.choice(ans))]
         if rng.random() < 0.3:
             g, a = rng.choice(GREET[lang][-3:])
             msgs += [Message("user", g), Message("assistant", a)]
-        yield msgs, lang, "identity"
+        yield msgs, lang, "identity", f"identity-{i}"
 
 
-def bucket(msgs: list[Message]) -> str:
-    h = int(hashlib.md5("\x1e".join(m.text for m in msgs).encode("utf-8")).hexdigest()[:8], 16) % 100
+def bucket(msgs: list[Message], key: str | None = None) -> str:
+    """decay 60 % / sft 35 % / val 5 %, by a stable key: the passage of a grounded item, else the first user message
+    (so the same paragraph or the same opening never lands in two splits)."""
+    if key is None:
+        key = next((m.text for m in msgs if m.role == "user"), "")
+    h = int(hashlib.md5(key.encode("utf-8")).hexdigest()[:8], 16) % 100
     return "decay" if h < 60 else "sft" if h < 95 else "val"
 
 
@@ -926,6 +990,18 @@ def prepare(msgs: list[Message], lang: str, rng: random.Random) -> list[Message]
     return msgs
 
 
+def hotpot_decon_table(work: Path) -> np.ndarray | None:
+    """The decontamination table without the windows of HotpotQA-dev *paragraphs*: train and dev share Wikipedia
+    paragraphs (58 % of the training items were dropped for that alone), and no HotpotQA paragraph is scored.
+    The dev questions stay in the table."""
+    if _DECON is None:
+        return None
+    hp = list(hf_rows("hotpotqa/hotpot_qa", "distractor", "validation", ["context"], work))
+    par = [text_ngrams(" ".join(s)) for r in hp for s in r["context"]["sentences"]]
+    par = np.unique(np.concatenate(par)) if par else np.zeros(0, dtype=np.uint64)
+    return np.setdiff1d(_DECON, par, assume_unique=True)
+
+
 def cmd_chat(args) -> None:
     work, out = Path(args.work), Path(args.out)
     tok = load_tok(args.tok)
@@ -935,14 +1011,17 @@ def cmd_chat(args) -> None:
     groups: dict[str, dict[str, tuple[list, list]]] = {}
     counts: dict[str, dict[str, int]] = {}
 
-    def add(stream: str, msgs, lang, src):
+    hp_table = hotpot_decon_table(work)
+
+    def add(stream: str, msgs, lang, src, key=None):
         c = counts.setdefault(src, {"in": 0, "kept": 0, "foreign_or_bad": 0, "too_long": 0, "contaminated": 0})
         c["in"] += 1
         p = prepare(msgs, lang, rng) if src not in ("identity",) else msgs
         if p is None:
             c["foreign_or_bad"] += 1
             return
-        if src not in ("identity",) and hits("\n".join(m.text for m in p)) >= MIN_HITS:
+        table = hp_table if src == "hotpotqa" else None
+        if src not in ("identity",) and hits("\n".join(m.text for m in p), table) >= MIN_HITS:
             c["contaminated"] += 1
             return
         try:
@@ -951,7 +1030,7 @@ def cmd_chat(args) -> None:
             c["too_long"] += 1
             return
         c["kept"] += 1
-        b = bucket(p)
+        b = bucket(p, key)
         d = groups.setdefault(f"{stream}_{b}", {})
         d.setdefault("ids", []).append(np.asarray(ids, dtype=np.uint16))
         d.setdefault("mask", []).append(np.asarray(mask, dtype=np.uint8))
@@ -969,13 +1048,13 @@ def cmd_chat(args) -> None:
         add("chat_" + lang, msgs, lang, src)
     for msgs, lang, src in limited(iter_oasst(work)):
         add("chat_" + lang, msgs, lang, src)
-    for msgs, lang, src in limited(iter_dolly(work)):
-        add("grounded" if src.endswith("grounded") else "chat_en", msgs, lang, src)
-    for msgs, lang, src in limited(iter_grounded(work, rng)):
-        add("grounded", msgs, lang, src)
+    for msgs, lang, src, *key in limited(iter_dolly(work)):
+        add("grounded" if src.endswith("grounded") else "chat_en", msgs, lang, src, *key)
+    for msgs, lang, src, key in limited(iter_grounded(work, rng)):
+        add("grounded", msgs, lang, src, key)
     ident = list(iter_identity(rng))
-    for msgs, lang, src in ident:
-        add("identity", msgs, lang, src)
+    for msgs, lang, src, key in ident:
+        add("identity", msgs, lang, src, key)
     for name, d in sorted(groups.items()):
         order = list(range(len(d["ids"])))
         rng.shuffle(order)
@@ -1009,6 +1088,26 @@ def cmd_selftest(args) -> None:
     none = grounded_example(rng, "X", "Some text here. More text.", "What?", [], None, [("Y", "Other.")])
     assert none[-1].text == NO_ANSWER["en"]
     assert bucket([Message("user", "a"), Message("assistant", "b")]) in ("decay", "sft", "val")
+    assert bucket([Message("user", "q1")], key="Normandy") == bucket([Message("user", "q2")], key="Normandy")
+    assert cite_end("Er liegt in Bayern.", 2) == "Er liegt in Bayern [2]." and cite_end("Yes", 1) == "Yes [1]."
+    hp = {"question": "Which band did the singer of Y join?", "answer": "Band Z",
+          "supporting_facts": {"title": ["Singer", "Band Z"]},
+          "context": {"title": ["Singer", "Band Z", "D1", "D2", "D3", "D4"],
+                      "sentences": [["The singer of Y joined Band Z."], ["Band Z is a rock band."], ["Other a."],
+                                    ["Other b."], ["Other c."], ["Other d."]]}}
+    got = [hotpot_example(random.Random(k), hp) for k in range(40)]
+    ans = [g for g in got if g and g[0][-1].text != NO_ANSWER["en"]]
+    abst = [g for g in got if g and g[0][-1].text == NO_ANSWER["en"]]
+    assert ans and abst and all(g[1] == "Band Z|Singer" for g in ans + abst)
+    for g in ans:                                  # both supporting paragraphs present and cited
+        src, reply = g[0][1].text, g[0][-1].text
+        assert src.count("Singer") >= 1 and src.count("Band Z is a rock band.") == 1 and len(re.findall(r"\[\d\]", reply)) == 2
+    for g in abst:                                 # no supporting paragraph, the answer nowhere in the sources
+        assert "Band Z" not in g[0][1].text
+    bad = dict(hp, answer="Nowhere Band")          # the answer in no paragraph: never answered
+    assert all(g is None or g[0][-1].text == NO_ANSWER["en"] for g in (hotpot_example(random.Random(k), bad) for k in range(20)))
+    for lang in ("en", "de"):
+        assert all(qs and ans for qs, ans in IDENTITY[lang])
     assert prepare([Message("user", "Who are you?"), Message("assistant", "I am ChatGPT.")], "en", rng) is None
     print("selftest ok")
 

@@ -42,7 +42,8 @@ NO_ANSWER = {"en": "My sources don't say.", "de": "Meine Quellen sagen dazu nich
 # assistant turns that claim another model's identity are not trained on (identity comes from our own data)
 FOREIGN_IDENTITY = re.compile(
     r"\b(ChatGPT|GPT-[345]|OpenAI|Claude|Anthropic|Llama|LLaMA|Meta AI|Qwen|Alibaba Cloud|Tongyi|Gemini|Bard|"
-    r"Google DeepMind|DeepSeek|Mistral AI|SmolLM|Hugging ?Face|HuggingFace|Microsoft Copilot|Phi-[234])\b")
+    r"Google DeepMind|DeepSeek|Mistral AI|SmolLM|Hugging ?Face|HuggingFace|Microsoft Copilot|Phi-[234]|"
+    r"Open ?Assistant|LAION)\b")
 
 
 @dataclass

@@ -8,8 +8,9 @@
 The token comes from $GH_TOKEN (a fine-grained token with Contents read/write, or the workflow's GITHUB_TOKEN).
 GitHub refuses assets of 2 GiB or more, so a larger file is uploaded as NAME.part000, NAME.part001, … plus
 NAME.parts.json (sizes and SHA-256 of the parts and of the whole); ``download`` puts the parts back together and
-checks every digest. Every upload is verified by the size GitHub reports; an interrupted upload is retried under
-a fresh name and the broken asset deleted. Draft releases are visible only to people with write access.
+checks every digest. Every upload is verified by the size and SHA-256 digest GitHub reports (an existing asset of
+the same name is kept only when its digest matches); an interrupted upload is retried and the broken asset deleted.
+Draft releases are visible only to people with write access.
 """
 
 from __future__ import annotations
@@ -98,22 +99,41 @@ def find_or_create(name: str, body: str = "") -> int:
     return int(r["id"])
 
 
+def _range_sha256(path: Path, offset: int, size: int) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        f.seek(offset)
+        left = size
+        while left:
+            b = f.read(min(1 << 22, left))
+            if not b:
+                raise SystemExit(f"{path}: ends {left} bytes early (file changed while reading?)")
+            h.update(b)
+            left -= len(b)
+    return h.hexdigest()
+
+
 def _upload_bytes(release: int, name: str, path: Path, offset: int = 0, size: int | None = None,
                   tries: int = 4) -> dict:
+    """Upload bytes [offset, offset+size) of ``path`` as asset ``name``. An asset of that name counts as done only
+    when GitHub's SHA-256 digest equals the local one (same size is not enough: a rebuilt file can have it)."""
     size = path.stat().st_size - offset if size is None else size
+    want = "sha256:" + _range_sha256(path, offset, size)
     for attempt in range(tries):
         for a in assets(release):                      # a leftover of an interrupted attempt blocks the name
             if a["name"] == name:
-                if a.get("state") == "uploaded" and a["size"] == size:
+                if a.get("state") == "uploaded" and a["size"] == size and a.get("digest") == want:
                     return a
                 _req("DELETE", f"{API}/repos/{REPO}/releases/assets/{a['id']}")
         with open(path, "rb") as f:
             f.seek(offset)
             data = f.read(size)
+        if len(data) != size:
+            raise SystemExit(f"{path}: read {len(data)} of {size} bytes (file changed while uploading?)")
         try:
             r = _req("POST", f"{UPLOADS}/repos/{REPO}/releases/{release}/assets?name={name}", data=data,
-                     headers={"Content-Type": "application/octet-stream"}, timeout=3600, tries=1)
-            if isinstance(r, dict) and r.get("size") == size:
+                     headers={"Content-Type": "application/octet-stream"}, timeout=300, tries=1)
+            if isinstance(r, dict) and r.get("size") == size and r.get("digest", want) == want:
                 return r
         except SystemExit as e:
             print(f"upload {name} attempt {attempt + 1}: {e}", file=sys.stderr, flush=True)
@@ -131,17 +151,10 @@ def upload(release: int, path: Path, name: str | None = None) -> list[dict]:
     parts, recs = [], []
     for k, off in enumerate(range(0, size, PART)):
         n = min(PART, size - off)
-        h = hashlib.sha256()
-        with open(path, "rb") as f:
-            f.seek(off)
-            left = n
-            while left:
-                b = f.read(min(1 << 22, left))
-                h.update(b)
-                left -= len(b)
         pname = f"{name}.part{k:03d}"
         recs.append(_upload_bytes(release, pname, path, offset=off, size=n))
-        parts.append({"name": pname, "size": n, "sha256": h.hexdigest()})
+        parts.append({"name": pname, "size": n, "sha256": recs[-1].get("digest", "").removeprefix("sha256:")
+                      or _range_sha256(path, off, n)})
     man = {"name": name, "size": size, "sha256": sha256_file(path), "parts": parts}
     mpath = path.with_name(path.name + ".parts.json")
     mpath.write_text(json.dumps(man, indent=1) + "\n")
