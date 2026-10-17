@@ -466,7 +466,7 @@ Gegen GPT-2 small auf denselben 1.092 gefilterten Test-Dokumenten (gepaarter Boo
   beim Containerstart von selbst, installierte Torch neu und setzte die Verlängerung von ihrem Plattenstand (01:56,
   479,7 Mio. Token, Optimierer neu aufgewärmt) fort. Verloren gingen rund 6 min Training.
 - **Verlauf der Verlängerung** (val-A, erste 150 Dokumente, Fenster 1.024, wie die Kurve des Hauptlaufs;
-  `results/v5/long_ext1/curve.jsonl`; Stand 17. Oktober, 12:00 UTC). Zum Vergleich der Hauptlauf beim gleichen
+  `results/v5/long_ext1/curve.jsonl`; Stand 17. Oktober, 18:00 UTC). Zum Vergleich der Hauptlauf beim gleichen
   Trainingsstand, dort schon mit abnehmender Lernrate:
 
   | Training | Token | Lernrate | val-A, bpb | Hauptlauf |
@@ -477,6 +477,7 @@ Gegen GPT-2 small auf denselben 1.092 gefilterten Test-Dokumenten (gepaarter Boo
   | 126 h | 524 Mio. | 8,63·10⁻⁴ (konstant) | 1,331 | 1,260 (566 Mio., 2,3·10⁻⁴) |
   | 132 h | 536 Mio. | 8,63·10⁻⁴ (konstant) | 1,332 | 1,243 (592 Mio., 5,7·10⁻⁵) |
   | 138 h | 556 Mio. | 8,63·10⁻⁴ (konstant) | 1,329 | – (Hauptlauf endete bei 133,8 h) |
+  | 144 h | 578 Mio. | 8,63·10⁻⁴ (konstant) | 1,329 | – |
 
 - **Weiterer Neustart und Rechnerwechsel (16. Oktober, 07:06 UTC):** Die RAM-Disk war wieder leer. Die Verlängerung
   lief vom Plattenstand bei 499,4 Mio. Token weiter (Optimierer neu aufgewärmt, rund 20 min verloren). Der neue Rechner
@@ -496,6 +497,12 @@ Gegen GPT-2 small auf denselben 1.092 gefilterten Test-Dokumenten (gepaarter Boo
   - Die Endmessung (`--tag final`) bricht ab, wenn der geladene Stand weniger Token hat als `done.json`, und
     schreibt Datei und Genauigkeit des geladenen Stands in das Ergebnis.
   Messung, Regel und Zeitplan der Verlängerung bleiben unverändert.
+- **Platte voll (17. Oktober, 16:09 UTC):** Bei 570,5 Mio. Token schlug die atomare Plattensicherung mangels Platz
+  fehl. Die Datei wurde an Ort und Stelle überschrieben, wie im Nachtrag oben vorgesehen
+  (`disk_checkpoint.log`). Danach brach der Trainer beim Schreiben seines Protokolls ab (Errno 28). Der Wrapper
+  startete ihn nach 60 s vom vollen RAM-Stand neu (Schritt 69.650), verloren ist rund 1 min. Ursache waren
+  Arbeitsdateien einer parallelen App-Reparatur auf der fast vollen Root-Platte. Freigeräumt wurden npm- und
+  pip-Caches (rund 340 MB); seitdem gelingen die atomaren Sicherungen wieder (17:11 und 17:52 UTC).
 
 ## 11. Stufe 1 auf einer gemieteten H100 (vor dem Lauf festgelegt, 12. Oktober)
 

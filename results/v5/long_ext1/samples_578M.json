@@ -1,0 +1,34 @@
+{
+ "ckpt_tokens": 577519616,
+ "train_hours": 143.83210528777704,
+ "settings": {
+  "tokens": 70,
+  "top_p": 0.9,
+  "temperature": 0.9,
+  "rep_penalty": 1.15,
+  "seed": 1
+ },
+ "kv_cache": true,
+ "samples": [
+  {
+   "prompt": "The history of the city",
+   "continuation": " is 100% normal. The average age and health care costs are up for 40 years at a premium rate, while 60 percent pay increases due to inadequate nutrition. Since their beginning in 2010 (1 years) they have had tremendous growth. They’ve yet failed because low-nutrient fiber could not be used as an initial relief. That comes up"
+  },
+  {
+   "prompt": "Albert Einstein was",
+   "continuation": " born in Japan. Since 1990, he has been a professor of astronomy and at Harvard University as well as an lecturer on astronomy for many years now. Born in Rome, Horace earned degrees from Berkeley College School of Advanced chemistry and currently serves as head of the Institute for Astronomical Analysis (IIMA) at UNI World in Tokyo.\n“"
+  },
+  {
+   "prompt": "Question: What is the capital of France? Answer:",
+   "continuation": " Yes.\nWhy is this a great financial institution in French-speaking countries or even internationally rich national political minority ?\nWhat are the economic factors that we have identified with that affect us most strongly , not only its average low income but also their lack of commuting infrastructure and budget constraints . A new anti-colonial statement will make our finances worth"
+  },
+  {
+   "prompt": "How to make a cup of tea: First,",
+   "continuation": " you’ll need to fill out the 3 times before placing your order online.\nEvery round consists of each batch in which you represent a cup of tea and once again are ready to use the bowl of tea instead of playing with your friends or neighbours from other countries because they know that you already have one or more cups not just for different countries but"
+  },
+  {
+   "prompt": "Wie geht es dir? Mir geht es",
+   "continuation": " dir ?\nConsist of the hooch and a close up to the last scene was, while we were in Hella-to-Trogs. Shoutroommelen, is - twice as usual for me – but more watched by fewer than seventeen minutes at my apartment! I agree with yurlis which gives"
+  }
+ ]
+}
