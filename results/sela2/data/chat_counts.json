@@ -1,58 +1,23 @@
 {
- "smoltalk_smollm3_smol_magpie_ultra_no_think": {
-  "in": 207550,
-  "kept": 201984,
-  "foreign_or_bad": 196,
-  "too_long": 5145,
-  "contaminated": 225
- },
- "smoltalk_smollm3_everyday_conversations_no_think": {
-  "in": 2260,
-  "kept": 2258,
-  "foreign_or_bad": 2,
-  "too_long": 0,
+ "smoltalk_systemchats_Qwen3_32B_think": {
+  "in": 17341,
+  "kept": 17255,
+  "foreign_or_bad": 74,
+  "too_long": 12,
   "contaminated": 0
  },
- "smoltalk_smollm3_systemchats_30k_no_think": {
-  "in": 33997,
-  "kept": 33662,
-  "foreign_or_bad": 252,
-  "too_long": 55,
-  "contaminated": 28
- },
- "smoltalk_smollm3_smol_rewrite_no_think": {
-  "in": 53262,
-  "kept": 53254,
-  "foreign_or_bad": 8,
+ "smoltalk_multilingual8_Qwen3_32B_think": {
+  "in": 17794,
+  "kept": 17786,
+  "foreign_or_bad": 4,
   "too_long": 0,
-  "contaminated": 0
- },
- "smoltalk_smollm3_smol_summarize_no_think": {
-  "in": 96061,
-  "kept": 94863,
-  "foreign_or_bad": 47,
-  "too_long": 1144,
-  "contaminated": 7
- },
- "smoltalk_smollm3_explore_instruct_rewriting_no_think": {
-  "in": 30391,
-  "kept": 30372,
-  "foreign_or_bad": 17,
-  "too_long": 0,
-  "contaminated": 2
- },
- "smoltalk_multilingual_8languages_lang_5_no_think": {
-  "in": 52871,
-  "kept": 52812,
-  "foreign_or_bad": 43,
-  "too_long": 11,
-  "contaminated": 5
+  "contaminated": 4
  },
  "oasst2": {
   "in": 5979,
-  "kept": 5754,
+  "kept": 5755,
   "foreign_or_bad": 200,
-  "too_long": 18,
+  "too_long": 17,
   "contaminated": 7
  },
  "dolly_grounded": {
@@ -71,17 +36,17 @@
  },
  "squad_v2": {
   "in": 130230,
-  "kept": 128978,
-  "foreign_or_bad": 30,
+  "kept": 129024,
+  "foreign_or_bad": 21,
   "too_long": 0,
-  "contaminated": 1222
+  "contaminated": 1185
  },
  "hotpotqa": {
-  "in": 87917,
-  "kept": 87665,
-  "foreign_or_bad": 19,
-  "too_long": 52,
-  "contaminated": 181
+  "in": 87929,
+  "kept": 87694,
+  "foreign_or_bad": 24,
+  "too_long": 45,
+  "contaminated": 166
  },
  "germanrag": {
   "in": 3362,

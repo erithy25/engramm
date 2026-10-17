@@ -1,7 +1,7 @@
 {
  "release_id": 415806293,
  "assets": 139,
- "bytes": 15105186238,
+ "bytes": 14389649103,
  "streams": [
   {
    "name": "c4_0",
@@ -29,75 +29,75 @@
   },
   {
    "name": "chat_de_decay",
-   "tokens": 15753895,
-   "docs": 32097,
-   "sha256": "7bb51ff4a78ae65243eb3342b288f23c0ac9de7bbb4d4ecb4cbc0a49ebd67450",
+   "tokens": 5030789,
+   "docs": 10973,
+   "sha256": "d163eaa35eb3efb6ff1d7c37a88bc947a90cb61e35d864b276a70d5b9998b471",
    "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
    "source": null,
    "part": null,
    "lang": null,
    "dropped_contaminated": null,
-   "mask_tokens": 11685813
+   "mask_tokens": 3660556
   },
   {
    "name": "chat_de_sft",
-   "tokens": 9093990,
-   "docs": 18573,
-   "sha256": "db74e2d99d61f4c5036bf8043cc069762573f647c97dce56ee4bce5c8c7dd13e",
+   "tokens": 2919312,
+   "docs": 6422,
+   "sha256": "bd2d3748e215df36ad075fcd5878c9092bd255a1c4202541df462c82b9c6cc74",
    "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
    "source": null,
    "part": null,
    "lang": null,
    "dropped_contaminated": null,
-   "mask_tokens": 6751971
+   "mask_tokens": 2129598
   },
   {
    "name": "chat_de_val",
-   "tokens": 1333415,
-   "docs": 2698,
-   "sha256": "4d246ba8c40d5b8da2e146a062155dcb9cd36264d52d5b656f826a4411942299",
+   "tokens": 435339,
+   "docs": 947,
+   "sha256": "f2c39e790e0ef9553ed716a8c0c9a2f4eef8560f0e0ef9d19787d26ee546023e",
    "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
    "source": null,
    "part": null,
    "lang": null,
    "dropped_contaminated": null,
-   "mask_tokens": 994607
+   "mask_tokens": 316969
   },
   {
    "name": "chat_en_decay",
-   "tokens": 197641894,
-   "docs": 259983,
-   "sha256": "57401e7e7454ec2bce57c08e118d9302d6b29fd125271c941922893182dacfcd",
+   "tokens": 5782439,
+   "docs": 19977,
+   "sha256": "301ab7a5c570d22c1a40ac63e2b8ae21ba17184d65c9390bec2d1775d937ed24",
    "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
    "source": null,
    "part": null,
    "lang": null,
    "dropped_contaminated": null,
-   "mask_tokens": 138368812
+   "mask_tokens": 4603148
   },
   {
    "name": "chat_en_sft",
-   "tokens": 114835961,
-   "docs": 151113,
-   "sha256": "0735f0dfd2177e5ae7c035c22dadd73708759ceeda4178e9a3efa517c2c559b0",
+   "tokens": 3351070,
+   "docs": 11425,
+   "sha256": "e543ff911ef3dd2fc2719935b04228acca345be71c3e693b1608f3376813d244",
    "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
    "source": null,
    "part": null,
    "lang": null,
    "dropped_contaminated": null,
-   "mask_tokens": 80426583
+   "mask_tokens": 2672530
   },
   {
    "name": "chat_en_val",
-   "tokens": 16093238,
-   "docs": 21002,
-   "sha256": "22b8f83f43cf45c07aad0db185fa87467ce4dbdb863acb14bd18dbfad22c9ef9",
+   "tokens": 460459,
+   "docs": 1559,
+   "sha256": "a81c4c2a93db0d5cacc67a2570bc508b4e5548a221d9a3e81c44f76988732284",
    "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
    "source": null,
    "part": null,
    "lang": null,
    "dropped_contaminated": null,
-   "mask_tokens": 11260612
+   "mask_tokens": 365535
   },
   {
    "name": "cosmo_0",
@@ -281,75 +281,75 @@
   },
   {
    "name": "grounded_decay",
-   "tokens": 66699991,
-   "docs": 136834,
-   "sha256": "0dd795c82d4686ff08ed0124e9c34bd1a63e572869063b60d3a6dafdcc830588",
+   "tokens": 66818374,
+   "docs": 136876,
+   "sha256": "f0f7aa8acfb21dcc80eca33c0fa789d50101a3daaa172b7223c40afee853da9e",
    "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
    "source": null,
    "part": null,
    "lang": null,
    "dropped_contaminated": null,
-   "mask_tokens": 2222819
+   "mask_tokens": 2225941
   },
   {
    "name": "grounded_sft",
-   "tokens": 37486882,
-   "docs": 75039,
-   "sha256": "d326fff27fada358576dbb8f246ef224584bcdae9629c0490b3ba631a823e106",
+   "tokens": 37385797,
+   "docs": 75031,
+   "sha256": "9562627c5364f1420aae8d3877b6254980bb78fc30124fee49c4fd044b26ec1a",
    "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
    "source": null,
    "part": null,
    "lang": null,
    "dropped_contaminated": null,
-   "mask_tokens": 1182819
+   "mask_tokens": 1192551
   },
   {
    "name": "grounded_val",
-   "tokens": 5924016,
-   "docs": 12400,
-   "sha256": "938740d4c6128afe142ace2dc43dc6ee6f7e50615354baed2dafc532490296cb",
+   "tokens": 5956841,
+   "docs": 12441,
+   "sha256": "0177536cc46ceea50181869276a38129fad618f6726e1cddb80245009a22deaf",
    "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
    "source": null,
    "part": null,
    "lang": null,
    "dropped_contaminated": null,
-   "mask_tokens": 201021
+   "mask_tokens": 203841
   },
   {
    "name": "identity_decay",
-   "tokens": 102503,
+   "tokens": 101750,
    "docs": 1191,
-   "sha256": "c181b2f2e7b39bc7e6b73988f687f82be716a68205d193b30a0b9c4017a23644",
+   "sha256": "eaee4d84aa88d9849ef1fa0ee42f40f3cd4da24fb3542221e94f9819918e4206",
    "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
    "source": null,
    "part": null,
    "lang": null,
    "dropped_contaminated": null,
-   "mask_tokens": 45326
+   "mask_tokens": 45908
   },
   {
    "name": "identity_sft",
-   "tokens": 61669,
+   "tokens": 61398,
    "docs": 705,
-   "sha256": "0490d6e5d44ccc460f2cf3ae313150045872ac7c8f2d9dc2b150630a1ddc0377",
+   "sha256": "3aaea4f8274e321c09528ced9d6a31f90e8080e00bcded28822963a91aad491a",
    "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
    "source": null,
    "part": null,
    "lang": null,
    "dropped_contaminated": null,
-   "mask_tokens": 27216
+   "mask_tokens": 27448
   },
   {
    "name": "identity_val",
-   "tokens": 8654,
+   "tokens": 9552,
    "docs": 104,
-   "sha256": "b0ce3a53530dd1df2be6f998e54ea4915ad24b04bf9852f7f9ccf4219aeb4c2b",
+   "sha256": "ad28d2bd82babdd876ecaadbd4cea10f9744c3727430c577b049ae63f6d5ac4b",
    "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
    "source": null,
    "part": null,
    "lang": null,
    "dropped_contaminated": null,
-   "mask_tokens": 4007
+   "mask_tokens": 4267
   },
   {
    "name": "lm_test",
@@ -580,5 +580,5 @@
    "mask_tokens": null
   }
  ],
- "tokens_total": 7482129540
+ "tokens_total": 7145406552
 }

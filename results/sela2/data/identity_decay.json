@@ -1,10 +1,10 @@
 {
  "name": "identity_decay",
- "tokens": 102503,
+ "tokens": 101750,
  "docs": 1191,
- "sha256": "c181b2f2e7b39bc7e6b73988f687f82be716a68205d193b30a0b9c4017a23644",
+ "sha256": "eaee4d84aa88d9849ef1fa0ee42f40f3cd4da24fb3542221e94f9819918e4206",
  "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
  "kind": "chat",
- "mask_tokens": 45326,
- "mask_sha256": "64be61c9cec83e83cbd4f9eef3024a5494de0b170d05378422309a3e03605771"
+ "mask_tokens": 45908,
+ "mask_sha256": "b976f12383133acefd641423c61ce17dd7ab55ceaecf3dd82777fe9efd7a35da"
 }

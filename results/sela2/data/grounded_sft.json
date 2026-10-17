@@ -1,10 +1,10 @@
 {
  "name": "grounded_sft",
- "tokens": 37486882,
- "docs": 75039,
- "sha256": "d326fff27fada358576dbb8f246ef224584bcdae9629c0490b3ba631a823e106",
+ "tokens": 37385797,
+ "docs": 75031,
+ "sha256": "9562627c5364f1420aae8d3877b6254980bb78fc30124fee49c4fd044b26ec1a",
  "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
  "kind": "chat",
- "mask_tokens": 1182819,
- "mask_sha256": "dfa0b54294aae32fa4938d8ad2787ab5817e06fffe96b62e46143124e841815c"
+ "mask_tokens": 1192551,
+ "mask_sha256": "055c12a1636ee4ced51d78711a2523b193eeeb84d2ce806ceb7365c3046175f5"
 }

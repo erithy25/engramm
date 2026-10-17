@@ -1,10 +1,10 @@
 {
  "name": "chat_de_val",
- "tokens": 1333415,
- "docs": 2698,
- "sha256": "4d246ba8c40d5b8da2e146a062155dcb9cd36264d52d5b656f826a4411942299",
+ "tokens": 435339,
+ "docs": 947,
+ "sha256": "f2c39e790e0ef9553ed716a8c0c9a2f4eef8560f0e0ef9d19787d26ee546023e",
  "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
  "kind": "chat",
- "mask_tokens": 994607,
- "mask_sha256": "cbd0053dabe936177423745ef0709f844e7a6b67b63a80a73ebef871e3f1f67e"
+ "mask_tokens": 316969,
+ "mask_sha256": "d206bcc76e9236823477853514a57c364d4205d109b77415a82f77000ccf5b41"
 }

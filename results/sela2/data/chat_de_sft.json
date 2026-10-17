@@ -1,10 +1,10 @@
 {
  "name": "chat_de_sft",
- "tokens": 9093990,
- "docs": 18573,
- "sha256": "db74e2d99d61f4c5036bf8043cc069762573f647c97dce56ee4bce5c8c7dd13e",
+ "tokens": 2919312,
+ "docs": 6422,
+ "sha256": "bd2d3748e215df36ad075fcd5878c9092bd255a1c4202541df462c82b9c6cc74",
  "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
  "kind": "chat",
- "mask_tokens": 6751971,
- "mask_sha256": "b1590b26f6473d0c1692a1587ef28786a5cae298c8a3e27d0d9f8c372837ffc1"
+ "mask_tokens": 2129598,
+ "mask_sha256": "6bd6f3e34c015e38b922f1947d99b384d9ddaedd58f7de075fffe4b4ae1420a0"
 }
