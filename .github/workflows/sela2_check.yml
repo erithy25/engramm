@@ -57,6 +57,19 @@ jobs:
           SELA2_TEST=1 SELA2_WORK="$RUNNER_TEMP/run_fake" SELA2_OUT="$RUNNER_TEMP/out_fake" SELA2_TEST_DATA="$RUNNER_TEMP/fake" \
             bash experiments/sela2_run.sh
           test -f "$RUNNER_TEMP/run_fake/stages/finished"
+      - name: Pod script with GitHub stand-ins (uploads, archive, results branch, self-check of every upload)
+        run: |
+          git init -q --bare "$RUNNER_TEMP/remote.git"
+          git --git-dir="$RUNNER_TEMP/remote.git" config receive.shallowUpdate true
+          SELA2_TEST=1 SELA2_TEST_GITHUB=1 SELA2_ALLOW_GITHUB_OFFPOD=1 GH_TOKEN=stand-in \
+          SELA2_GH_RELEASE="python $GITHUB_WORKSPACE/tests/fake_gh_release.py" FAKE_RELEASE_DIR="$RUNNER_TEMP/rel" \
+          SELA2_GHREPO="$RUNNER_TEMP/remote.git" SELA2_WORK="$RUNNER_TEMP/run_gh" SELA2_TEST_DATA="$RUNNER_TEMP/fake" \
+            bash experiments/sela2_run.sh
+          for f in sela2_chat_bf16.pt sela2_basis_bf16.pt fortsetzen_vor_abklingen.pt sela2_ergebnisse.tar.gz; do
+            test -s "$RUNNER_TEMP/rel/1/$f" || { echo "missing in the stand-in release: $f"; exit 1; }
+          done
+          test -f "$RUNNER_TEMP/run_gh/stages/uploaded"
+          git --git-dir="$RUNNER_TEMP/remote.git" branch --format='%(refname:short)' | grep -q '^sela2-results-'
 
   real-data:
     needs: tests

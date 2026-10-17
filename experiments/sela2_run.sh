@@ -41,7 +41,8 @@ RESERVE_SFT_S=1080                                          # after fine-tuning:
 AUTO_END=$(setting SELA2_AUTO_END terminate)
 RESTART="setsid nohup bash /workspace/engramm/experiments/sela2_run.sh > /workspace/sela2_console.log 2>&1 &"
 CRED='!f() { echo username=x-access-token; echo "password=$GH_TOKEN"; }; f'
-GHREPO=https://github.com/erithy25/engramm.git
+GHREPO=${SELA2_GHREPO:-https://github.com/erithy25/engramm.git}
+GHR=${SELA2_GH_RELEASE:-python3 -m experiments.gh_release}   # tests: a stand-in release (tests/fake_gh_release.py)
 . "$REPO_DIR/experiments/h100_meter.sh"
 pod_env
 if [ -z "${RUNPOD_POD_ID:-}" ] && [ "${SELA2_ALLOW_GITHUB_OFFPOD:-0}" != 1 ]; then GH_TOKEN=""; SELA2_NO_GITHUB=1; fi
@@ -66,6 +67,7 @@ say() { echo "[$(date -u +%H:%M:%S) UTC] $*"; }
 done_() { [ -f "$W/stages/$1" ]; }
 mark() { date -u > "$W/stages/$1"; }
 test_mode() { [ "${SELA2_TEST:-0}" = 1 ]; }
+github_on() { ! test_mode || [ "${SELA2_TEST_GITHUB:-0}" = 1 ]; }   # tests: the GitHub steps against stand-ins
 autostop_later() {  # seconds marker-file — stops (never deletes) the pod unless a new run started or KEEP exists
   [ -n "${RUNPOD_POD_ID:-}" ] || return 0
   local id; id=$(head -1 "$2" 2>/dev/null)
@@ -169,7 +171,7 @@ if test_mode && [ -n "${SELA2_TEST_DATA:-}" ]; then REL=0; TOKSHA=fake; fi
 [ -n "$TOKSHA" ] || fail "data/lm2_tokenizer.json fehlt im Checkout"
 if [ -n "${GH_TOKEN:-}" ]; then
   export GH_TOKEN
-  python3 -m experiments.gh_release list --release "$REL" > "$W/release_assets.txt" 2>"$W/gh_check.err" \
+  $GHR list --release "$REL" > "$W/release_assets.txt" 2>"$W/gh_check.err" \
     || { echo "NEIN (kann die privaten Daten nicht lesen)" > "$W/github_check"
          fail "GitHub-Schlüssel kann die privaten Trainingsdaten nicht lesen ($(tail -c 300 "$W/gh_check.err")) – Schlüssel mit 'Contents: Read and write' für erithy25/engramm anlegen, Befehl 2, dann Befehl 3"; }
   if [ ! -f "$W/stages/push_ok" ]; then              # a real push of this commit to a throwaway branch (GitHub
@@ -206,7 +208,7 @@ if ! done_ data; then
     say "== 2. Trainingsdaten aus dem privaten Entwurf (≈ 15 GB)"
     ok=0
     for attempt in 1 2 3; do
-      python3 -m experiments.gh_release download --release "$REL" --dest "$W/data" --jobs 8 \
+      $GHR download --release "$REL" --dest "$W/data" --jobs 8 \
         --match '\.(u16|json|mask|npy)$|\.part\d{3}$|\.parts\.json$' > "$W/download.log" 2>&1 && { ok=1; break; }
       say "Download: Versuch $attempt fehlgeschlagen ($(tail -c 300 "$W/download.log")), neuer Versuch in 60 s"; sleep 60
     done
@@ -268,18 +270,18 @@ if ! done_ probe; then
   EVP=(--data "$W/data" --model "$P/ckpt/model_chat.pt" --out "$P/out" --tag probe --final-docs 5)
   test_mode && EVP+=(--cpu --samples 0)
   python3 -m experiments.sela2_train evaluate "${EVP[@]}" > "$P/eval.log" 2>&1 || { tail -30 "$P/eval.log"; fail "Vorab-Probe: Auswertung fehlgeschlagen"; }
-  if [ -n "${GH_TOKEN:-}" ] && ! test_mode; then        # an upload into the results release really works
+  if [ -n "${GH_TOKEN:-}" ] && github_on; then         # an upload into the results release really works
     RID=$(cat "$W/stages/release_id" 2>/dev/null)
     if [ -z "$RID" ]; then
-      RID=$(python3 -m experiments.gh_release find-or-create --name "ENGRAMM Sela-2 Modell $(date -u -d "@$(cat "$W/started")" +%Y%m%d-%H%M) (privat)" \
+      RID=$($GHR find-or-create --name "ENGRAMM Sela-2 Modell $(date -u -d "@$(cat "$W/started")" +%Y%m%d-%H%M) (privat)" \
             --body "Sela-2: Chat-Modell, Basismodell und Fortsetzungs-Stand. Privater Entwurf – nicht veröffentlichen.") \
         || fail "Ergebnis-Release konnte nicht angelegt werden"
       echo "$RID" > "$W/stages/release_id"
     fi
     head -c 2000000 /dev/urandom > "$P/upload_probe.bin"
-    python3 -m experiments.gh_release upload --release "$RID" "$P/upload_probe.bin" > "$P/upload.log" 2>&1 \
+    $GHR upload --release "$RID" "$P/upload_probe.bin" > "$P/upload.log" 2>&1 \
       || { cat "$P/upload.log"; fail "Vorab-Probe: Hochladen nach GitHub fehlgeschlagen"; }
-    python3 - "$RID" <<'EOF' || true
+    [ -n "${SELA2_GH_RELEASE:-}" ] || python3 - "$RID" <<'EOF' || true
 import sys
 from experiments.gh_release import API, REPO, _req, assets
 for a in assets(int(sys.argv[1])):
@@ -310,7 +312,7 @@ upload_now() {  # file name — foreground, under the file's lock; 0 when verifi
   [ -f "$W/up/$n.ok" ] && return 0
   [ -f "$f" ] || return 1
   ( exec 8>"$W/up/$n.lock"; flock -n 8 || exit 2
-    python3 -m experiments.gh_release upload --release "$rid" "$f" >> "$W/up/$n.log" 2>&1 \
+    $GHR upload --release "$rid" "$f" >> "$W/up/$n.log" 2>&1 \
       && date -u > "$W/up/$n.ok" )
 }
 bg_upload() {  # file name — in the background
@@ -468,7 +470,7 @@ uploaded=0
 sft_skipped=0; [ "$(cat "$W/stages/sft" 2>/dev/null)" = skipped ] && sft_skipped=1
 if [ -f "$W/stages/uploaded" ]; then
   uploaded=1
-elif [ -n "${GH_TOKEN:-}" ] && ! test_mode; then
+elif [ -n "${GH_TOKEN:-}" ] && github_on; then
   RID=$(cat "$W/stages/release_id" 2>/dev/null)
   ok_all=1
   # what must be on GitHub: name, local source, its upload copy

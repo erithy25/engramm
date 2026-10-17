@@ -1043,6 +1043,7 @@ def cmd_evaluate(args) -> None:
         except Exception as e:                       # samples are a bonus; never lose the numbers over them
             res["samples_error"] = f"{type(e).__name__}: {e}"
     (out / f"eval_{args.tag}.json").write_text(json.dumps(res, indent=1, ensure_ascii=False, default=str) + "\n")
+    (out / f"eval_{args.tag}.partial.json").unlink(missing_ok=True)   # complete: the partial file has done its job
 
 
 def cmd_export(args) -> None:
