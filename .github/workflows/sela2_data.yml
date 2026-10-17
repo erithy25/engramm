@@ -3,6 +3,8 @@
 # yardstick, built on free runners. The data go ONLY into a private draft release (visible to people with write
 # access); no artifact and no cache holds them. The small records (tokenizer, per-stream JSON, reports) are
 # committed to the branch at the end so that the GPU run and the documentation can pin them.
+# A push of this file rebuilds only the chat / grounded-QA streams with the tokenizer and decontamination table
+# already in the release (the pretraining streams stay as they are); workflow_dispatch can rebuild anything.
 name: Sela-2 training data (private draft release)
 
 on:
@@ -55,7 +57,7 @@ jobs:
 
   decon:
     needs: release
-    if: ${{ github.event.inputs.skip_base != '1' }}
+    if: ${{ github.event_name != 'push' && github.event.inputs.skip_base != '1' }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
     steps:
@@ -79,7 +81,7 @@ jobs:
 
   tokenizer:
     needs: release
-    if: ${{ github.event.inputs.skip_base != '1' }}
+    if: ${{ github.event_name != 'push' && github.event.inputs.skip_base != '1' }}
     runs-on: ubuntu-latest
     timeout-minutes: 240
     steps:
@@ -104,7 +106,7 @@ jobs:
 
   build:
     needs: [release, decon, tokenizer]
-    if: ${{ always() && needs.release.result == 'success' && (github.event.inputs.skip_base == '1' || (needs.decon.result == 'success' && needs.tokenizer.result == 'success')) }}
+    if: ${{ always() && needs.release.result == 'success' && (github.event_name == 'push' || github.event.inputs.skip_base == '1' || (needs.decon.result == 'success' && needs.tokenizer.result == 'success')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 300
     strategy:
@@ -135,7 +137,7 @@ jobs:
           - {name: val, kind: val}
           - {name: yardstick, kind: yardstick}
     env:
-      ONLY: ${{ github.event.inputs.only }}
+      ONLY: ${{ github.event_name == 'push' && 'chat' || github.event.inputs.only }}
     steps:
       - id: want
         run: |
