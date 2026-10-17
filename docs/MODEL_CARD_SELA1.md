@@ -181,9 +181,14 @@ that invents facts.
 - **Weights in the app:** `sela1-135m.npz`, the checkpoint exported to fp16 (270.5 MB, SHA-256 `6692e66d…44272`).
   On the real weights the NumPy port differs from torch by at most 0.008 in the logits, and it picks the same most
   likely token on the check prompts.
-- **Builds:** the macOS builds with Sela-1 come from `.github/workflows/desktop_sela.yml` and go only into a private
-  draft release ("ENGRAMM 3.2 mit Sela-1 – privater Test-Build 1": DMGs for Apple Silicon and Intel, 327/318 MB). The
-  public installers ship without the weights and show Sela-1 as not installed.
+- **Builds:** the builds with Sela-1 come from `.github/workflows/desktop_sela.yml` (macOS) and
+  `desktop_sela_windows.yml` (Windows). They go only into a private draft release, "ENGRAMM 3.2 mit Sela-1 – privater
+  Test-Build 1":
+  - DMGs for Apple Silicon and Intel (327 and 318 MB);
+  - a Windows setup .exe (302 MB) and an .msi (332 MB).
+
+  Every build passed a smoke test in which Sela-1 writes tokens. The public installers ship without the weights and
+  show Sela-1 as not installed.
 - **Speed:** about 36–38 tokens per second on a GitHub Ubuntu runner, measured with the exported file. The signed
   Apple Silicon app wrote its first 6 tokens in 0.47 s during the build's smoke test.
 
