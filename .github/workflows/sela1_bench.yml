@@ -1,0 +1,165 @@
+# Sela-1 135M (PLAN_V5_FROM_SCRATCH.md §11): the network re-run on a CPU against the numbers saved on the GPU machine,
+# and zero-shot benchmarks for Sela-1 and GPT-2 small in one harness (experiments/sela1_bench.py).
+# The model file comes from the private draft release of the H100 run; it never leaves the runner (no artifact holds
+# it). Only small JSON/NumPy result files are passed on, and the last job commits the summaries to the branch.
+# Approved by the repository owner on 17 Oct 2026.
+name: Sela-1 benchmarks
+
+on:
+  push:
+    branches: ["claude/optimistic-cannon-i0u0ap"]
+    paths: [".github/workflows/sela1_bench.yml", "experiments/sela1_bench.py"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sela1-bench-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  RELEASE_ASSET_ID: "649394285"          # model_main_20261017031737.pt in draft release h100-results-20261017-0317
+  RELEASE_ASSET_BYTES: "541082912"
+  PIP_PACKAGES: "numpy==2.4.1 tokenizers==0.23.2 pyarrow>=14"
+  TORCH: "torch==2.8.0"
+
+jobs:
+  bench:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    permissions:
+      contents: write                    # a draft release and its files are visible only with write access
+    strategy:
+      fail-fast: false
+      matrix:
+        model: [sela1, gpt2]
+        job:
+          - {task: lambada, shard: 0, shards: 1}
+          - {task: arc_easy, shard: 0, shards: 1}
+          - {task: piqa, shard: 0, shards: 1}
+          - {task: hellaswag, shard: 0, shards: 4}
+          - {task: hellaswag, shard: 1, shards: 4}
+          - {task: hellaswag, shard: 2, shards: 4}
+          - {task: hellaswag, shard: 3, shards: 4}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false     # the write token is used only to fetch the model file
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          pip install "$TORCH" --index-url https://download.pytorch.org/whl/cpu
+          pip install $PIP_PACKAGES
+      - name: Sela-1 model file (private draft release)
+        if: matrix.model == 'sela1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/sela1"
+          curl -fsSL --retry 5 --retry-delay 10 -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/octet-stream" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/assets/$RELEASE_ASSET_ID" -o "$RUNNER_TEMP/sela1/model.pt"
+          test "$(stat -c %s "$RUNNER_TEMP/sela1/model.pt")" = "$RELEASE_ASSET_BYTES"
+          sha256sum "$RUNNER_TEMP/sela1/model.pt"
+      - name: Benchmark
+        env:
+          SELA1_BENCH_CACHE: ${{ runner.temp }}/bench_cache
+        run: |
+          python -u -m experiments.sela1_bench bench --model ${{ matrix.model }} --ckpt "$RUNNER_TEMP/sela1/model.pt" \
+            --task ${{ matrix.job.task }} --shard ${{ matrix.job.shard }} --shards ${{ matrix.job.shards }} --out out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sela1-bench-${{ matrix.model }}-${{ matrix.job.task }}-${{ matrix.job.shard }}
+          path: out/*.json
+          retention-days: 14
+
+  recheck:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    permissions:
+      contents: write                    # draft release (see above)
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          pip install "$TORCH" --index-url https://download.pytorch.org/whl/cpu
+          pip install $PIP_PACKAGES
+      - name: Sela-1 model file (private draft release)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/sela1"
+          curl -fsSL --retry 5 --retry-delay 10 -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/octet-stream" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/assets/$RELEASE_ASSET_ID" -o "$RUNNER_TEMP/sela1/model.pt"
+          test "$(stat -c %s "$RUNNER_TEMP/sela1/model.pt")" = "$RELEASE_ASSET_BYTES"
+          sha256sum "$RUNNER_TEMP/sela1/model.pt"
+      - name: Base data (rebuilt, accepted only with the pinned SHA-256 of every split file)
+        run: python -u -m experiments.h100_data base
+      - name: Re-evaluate the network on the CPU (same code as the GPU machine's final evaluation, fp32)
+        run: |
+          mkdir -p out
+          cp results/v5/h100/contamination.json out/
+          python -u -m experiments.h100_train eval --cpu --ckpt "$RUNNER_TEMP/sela1/model.pt" --tag recheck_cpu --out out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sela1-recheck
+          path: |
+            out/eval_recheck_cpu.json
+            out/perdoc_final_recheck_cpu.npz
+            out/lp_val_a_recheck_cpu.npy
+            out/lp_test_recheck_cpu.npy
+            out/samples_recheck_cpu.json
+          retention-days: 14
+
+  collect:
+    needs: [bench, recheck]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write                    # commits the summaries to this branch
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 30                # room for a rebase if the branch moved during the run
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install numpy==2.4.1
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: sela1-*
+          path: in
+      - name: Summaries
+        run: |
+          python -u -m experiments.sela1_bench collect --inputs in --out results/v5/h100/bench_main.json
+          for f in eval_recheck_cpu.json samples_recheck_cpu.json; do
+            src=$(find in -name "$f" | head -n 1); [ -n "$src" ] && cp "$src" results/v5/h100/ || true
+          done
+      - name: Commit to the branch
+        run: |
+          git config user.name "ENGRAMM Sela-1 benchmarks"
+          git config user.email "sela1-bench@users.noreply.github.com"
+          git add results/v5/h100/bench_main.json
+          for f in eval_recheck_cpu.json samples_recheck_cpu.json; do [ -f "results/v5/h100/$f" ] && git add "results/v5/h100/$f"; done
+          git diff --cached --quiet && { echo "nothing to commit"; exit 0; }
+          git commit -q -F - <<EOF
+          v5/H100: Sela-1 auf der CPU neu ausgewertet und Zero-Shot-Benchmarks gegen GPT-2 small (GitHub Actions)
+
+          Automatisch vom Workflow .github/workflows/sela1_bench.yml (Lauf ${{ github.run_id }}, Commit ${{ github.sha }}).
+
+          Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+          Claude-Session: https://claude.ai/code/session_019SwnwJiHX6CTqX9UE2VxWF
+          EOF
+          for i in 1 2 3 4; do
+            git pull -q --rebase origin "${GITHUB_REF_NAME}" && git push -q origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            sleep $((i * 10))
+          done
+          exit 1
