@@ -1,0 +1,96 @@
+{
+ "tag": "recheck_cpu",
+ "tokens": 5757206528,
+ "train_hours": 3.271879488494661,
+ "params": 135266316,
+ "body_params": 84934656,
+ "window": 1024,
+ "stride": 512,
+ "max_docs": 0,
+ "torch": "2.8.0+cpu",
+ "device": "cpu",
+ "val_a": {
+  "split": "val_a",
+  "window": 1024,
+  "stride": 512,
+  "docs": 767,
+  "bpb": 0.9773078002040849,
+  "bpb_unfiltered": 0.9681823466444506,
+  "eval_seconds": 973.3772449493408,
+  "bpb_extended_filter": 0.9811679692107899,
+  "docs_extended_filter": 694
+ },
+ "test": {
+  "split": "test",
+  "window": 1024,
+  "stride": 512,
+  "docs": 1137,
+  "bpb": 0.9876613616358871,
+  "bpb_unfiltered": 0.9798770980443087,
+  "eval_seconds": 1514.2224102020264,
+  "bpb_extended_filter": 0.9893827252364994,
+  "docs_extended_filter": 1023
+ },
+ "vs_gpt2": [
+  {
+   "filter": "original (results/lm/dedup.json)",
+   "bpb": {
+    "bpb": 0.9876613616358871,
+    "ci95": [
+     0.9732945612711554,
+     1.002325897165941
+    ],
+    "docs": 1092,
+    "bytes": 3629462
+   },
+   "gpt2_bpb": {
+    "bpb": 1.038792450096114,
+    "ci95": [
+     1.0210110137179012,
+     1.0568143910835104
+    ],
+    "docs": 1092,
+    "bytes": 3629462
+   },
+   "ratio_to_gpt2": 0.9507783403166861,
+   "ratio_ci95": [
+    0.9425430801276098,
+    0.9584633401668248
+   ]
+  },
+  {
+   "filter": "extended (+ contamination.json)",
+   "bpb": {
+    "bpb": 0.9893827252364994,
+    "ci95": [
+     0.9745019553532054,
+     1.0047901706345423
+    ],
+    "docs": 1023,
+    "bytes": 3541007
+   },
+   "gpt2_bpb": {
+    "bpb": 1.035966614218736,
+    "ci95": [
+     1.019025449659834,
+     1.0546636927335766
+    ],
+    "docs": 1023,
+    "bytes": 3541007
+   },
+   "ratio_to_gpt2": 0.955033407116727,
+   "ratio_ci95": [
+    0.9474864164691034,
+    0.9622567018102653
+   ]
+  }
+ ],
+ "stage1": {
+  "rule": "test, documents with >= 20 % of their 13-token windows in the training text excluded (rule of results/lm/dedup.json applied to the text trained on), network alone, window 1024 / stride 512: bpb <= 1.04 (PLAN \u00a710/\u00a711)",
+  "filter": "extended (contamination.json)",
+  "bpb": 0.9893827252364994,
+  "bpb_original_filter": 0.9876613616358871,
+  "reached": true,
+  "gap": -0.05061727476350064
+ }
+}

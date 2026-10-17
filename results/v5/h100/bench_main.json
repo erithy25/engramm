@@ -1,0 +1,218 @@
+{
+ "what": "Zero-shot benchmarks, Sela-1 135M and GPT-2 small in the same harness (experiments/sela1_bench.py); scored like lm-evaluation-harness, every context starting with the model's end-of-text token.",
+ "tasks": {
+  "arc_easy": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/allenai/ai2_arc/parquet/ARC-Easy/test/0.parquet",
+      "sha256": "4160597d618ae851c7eb04e281574f3f654776216ac6b6641588d64527b47177",
+      "bytes": 346257
+     }
+    ]
+   },
+   "results": {
+    "gpt2": {
+     "acc": 0.43897306397306396,
+     "acc_se": 0.010180932884249245,
+     "acc_norm": 0.4048821548821549,
+     "acc_norm_se": 0.010070304119488175,
+     "items": 2376,
+     "seconds": 389.93265533447266,
+     "torch": "2.8.0+cpu"
+    },
+    "sela1": {
+     "acc": 0.44234006734006737,
+     "acc_se": 0.010189189577429751,
+     "acc_norm": 0.398989898989899,
+     "acc_norm_se": 0.010046125932500235,
+     "items": 2376,
+     "seconds": 386.9955093860626,
+     "torch": "2.8.0+cpu"
+    }
+   },
+   "sela1_minus_gpt2": {
+    "metric": "acc_norm",
+    "diff": -0.005892255892255893,
+    "ci95_paired_bootstrap": [
+     -0.022306397306397274,
+     0.010521885521885543
+    ]
+   }
+  },
+  "hellaswag": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/Rowan/hellaswag/parquet/default/validation/0.parquet",
+      "sha256": "899813071e1e95efafec90f856e1987d2150fa4d020fc005df6962c259f660cd",
+      "bytes": 6315951
+     }
+    ]
+   },
+   "results": {
+    "gpt2": {
+     "acc": 0.29047998406691894,
+     "acc_se": 0.004530335060692438,
+     "acc_norm": 0.31298546106353314,
+     "acc_norm_se": 0.0046273775732239885,
+     "items": 10042,
+     "seconds": 3554.7290399074554,
+     "torch": "2.8.0+cpu"
+    },
+    "sela1": {
+     "acc": 0.29715196176060543,
+     "acc_se": 0.0045604732309994025,
+     "acc_norm": 0.32732523401712804,
+     "acc_norm_se": 0.004682547624935057,
+     "items": 10042,
+     "seconds": 3741.8624625205994,
+     "torch": "2.8.0+cpu"
+    }
+   },
+   "sela1_minus_gpt2": {
+    "metric": "acc_norm",
+    "diff": 0.014339772953594898,
+    "ci95_paired_bootstrap": [
+     0.00796405098585936,
+     0.020812587134037053
+    ]
+   }
+  },
+  "lambada": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/EleutherAI/lambada_openai/parquet/default/test/0.parquet",
+      "sha256": "99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7",
+      "bytes": 1157764
+     }
+    ]
+   },
+   "results": {
+    "gpt2": {
+     "acc": 0.3368911313797788,
+     "acc_se": 0.006584262488130367,
+     "ppl": 35.10779149799876,
+     "items": 5153,
+     "seconds": 272.5604465007782,
+     "torch": "2.8.0+cpu"
+    },
+    "sela1": {
+     "acc": 0.27770230933436835,
+     "acc_se": 0.006239040252538672,
+     "ppl": 54.82769132580164,
+     "items": 5153,
+     "seconds": 488.7497527599335,
+     "torch": "2.8.0+cpu"
+    }
+   },
+   "sela1_minus_gpt2": {
+    "metric": "acc",
+    "diff": -0.05918882204541043,
+    "ci95_paired_bootstrap": [
+     -0.07083252474286822,
+     -0.04696293421307979
+    ]
+   }
+  },
+  "piqa": {
+   "source": {
+    "files": [
+     {
+      "url": "https://yonatanbisk.com/piqa/data/valid.jsonl",
+      "sha256": "93503cc97c679e459b065c3d13e848282e44b2a25213985bed3e5d458abef72d",
+      "bytes": 495929
+     },
+     {
+      "url": "https://yonatanbisk.com/piqa/data/valid-labels.lst",
+      "sha256": "b4192dc3a2a0363d9d60ccf79800cbbe2f32ebb17726efdde6970e0b8131bceb",
+      "bytes": 3676
+     }
+    ]
+   },
+   "results": {
+    "gpt2": {
+     "acc": 0.6305767138193689,
+     "acc_se": 0.011257924830765955,
+     "acc_norm": 0.6251360174102285,
+     "acc_norm_se": 0.011291492872408564,
+     "items": 1838,
+     "seconds": 218.60394716262817,
+     "torch": "2.8.0+cpu"
+    },
+    "sela1": {
+     "acc": 0.6507072905331882,
+     "acc_se": 0.011120257485319127,
+     "acc_norm": 0.64689880304679,
+     "acc_norm_se": 0.011147950075872028,
+     "items": 1838,
+     "seconds": 149.50767135620117,
+     "torch": "2.8.0+cpu"
+    }
+   },
+   "sela1_minus_gpt2": {
+    "metric": "acc_norm",
+    "diff": 0.021762785636561532,
+    "ci95_paired_bootstrap": [
+     0.004896626768226331,
+     0.03862894450489662
+    ]
+   }
+  }
+ },
+ "models": {
+  "gpt2": {
+   "model": "GPT-2 small",
+   "hf_repo": "openai-community/gpt2",
+   "revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+   "weights_sha256": "248dfc3911869ec493c76e65bf2fcf7f615828b0254c12b473182f0f81d3a707",
+   "params": 124439808
+  },
+  "sela1": {
+   "model": "Sela-1 135M",
+   "ckpt_sha256": "23f071256fb15d08bc6d57f83a52404024b3db30b66015759bde2552bb209535",
+   "ckpt_bytes": 541082912,
+   "tokens_trained": 5757206528,
+   "cfg": {
+    "d": 768,
+    "layers": 12,
+    "heads": 12,
+    "ctx_max": 1024,
+    "bigram_rows": 0
+   },
+   "params": 135266316,
+   "tokenizer_sha256": "637745134e61a6278b47667b3e1bc1fde418c314753ab8598773a6a27fca513d"
+  }
+ },
+ "incomplete": [],
+ "recheck_cpu": {
+  "test_bpb_extended_cpu": 0.9893827252364994,
+  "test_bpb_extended_gpu": 0.9893843654935018,
+  "test_bpb_original_cpu": 0.9876613616358871,
+  "test_bpb_original_gpu": 0.987663002461947,
+  "val_a_bpb_cpu": 0.9773078002040849,
+  "val_a_bpb_gpu": 0.9773094466515342,
+  "stage1_cpu": {
+   "rule": "test, documents with >= 20 % of their 13-token windows in the training text excluded (rule of results/lm/dedup.json applied to the text trained on), network alone, window 1024 / stride 512: bpb <= 1.04 (PLAN \u00a710/\u00a711)",
+   "filter": "extended (contamination.json)",
+   "bpb": 0.9893827252364994,
+   "bpb_original_filter": 0.9876613616358871,
+   "reached": true,
+   "gap": -0.05061727476350064
+  },
+  "device_cpu": "cpu",
+  "torch_cpu": "2.8.0+cpu",
+  "val_a_perdoc_max_abs_bits": 0.09275430900743231,
+  "val_a_perdoc_max_rel": 2.7816006371356777e-05,
+  "val_a_token_lp_max_abs": 5.817413330078125e-05,
+  "val_a_token_lp_mean_abs": 5.812623953496007e-06,
+  "test_perdoc_max_abs_bits": 0.16203203084296547,
+  "test_perdoc_max_rel": 5.179129953358032e-05,
+  "test_token_lp_max_abs": 5.221366882324219e-05,
+  "test_token_lp_mean_abs": 5.811960016577752e-06,
+  "perdoc_max_abs_bits": 0.16203203084296547,
+  "test_bpb_extended_abs_diff": 1.6402570024443008e-06,
+  "verdict": "reproduced (test bpb within 0.001)"
+ }
+}
