@@ -1,0 +1,232 @@
+# ENGRAMM desktop app for macOS WITH the Sela-1 network (docs/MODEL_CARD_SELA1.md; requested by the repository owner
+# on 17 Oct 2026). The weights stay private:
+# - they come from the private draft release of the H100 run (asset SOURCE_ASSET_ID);
+# - an Ubuntu runner converts them to the app's fp16 NumPy format and checks NumPy against torch on the real weights;
+# - the converted file and the finished DMGs go into a NEW PRIVATE DRAFT release (visible only to people with write
+#   access to the repository).
+# No artifact and no cache ever holds the model: artifacts of a public repository can be downloaded by anyone signed in
+# to GitHub. The normal desktop.yml keeps building the public installers without Sela-1.
+name: Desktop with Sela-1 (private)
+
+on:
+  push:
+    branches: ["claude/optimistic-cannon-i0u0ap"]
+    paths: [".github/workflows/desktop_sela.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write                        # read the draft with the checkpoint, create the private draft, upload to it
+
+concurrency:
+  group: desktop-sela-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  SOURCE_ASSET_ID: "649394285"           # model_main_20261017031737.pt (draft release h100-results-20261017-0317)
+  SOURCE_ASSET_BYTES: "541082912"
+
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    outputs:
+      release_id: ${{ steps.release.outputs.id }}
+      npz_asset_id: ${{ steps.upload.outputs.asset_id }}
+      npz_bytes: ${{ steps.upload.outputs.bytes }}
+      npz_sha256: ${{ steps.upload.outputs.sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
+          pip install numpy==2.4.1 tokenizers==0.23.2
+      - name: Sela-1 checkpoint (private draft release)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -fsSL --retry 5 --retry-delay 10 -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/octet-stream" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/assets/$SOURCE_ASSET_ID" -o "$RUNNER_TEMP/model.pt"
+          test "$(stat -c %s "$RUNNER_TEMP/model.pt")" = "$SOURCE_ASSET_BYTES"
+          sha256sum "$RUNNER_TEMP/model.pt"
+      - name: Export to the app format (fp16), NumPy checked against torch on the real weights
+        run: python -u -m experiments.sela1_export --ckpt "$RUNNER_TEMP/model.pt" --out "$RUNNER_TEMP/sela1-135m.npz" --check
+      - name: Text from the exported file, NumPy only (as in the app)
+        run: |
+          python -u - <<'EOF'
+          import os, time
+          from engramm.lm.sela import SelaGenerator
+          g = SelaGenerator(os.path.join(os.environ["RUNNER_TEMP"], "sela1-135m.npz"))
+          for p in ("The history of the city", "How to make a cup of tea: First,"):
+              t0 = time.time()
+              text, n, done = g.generate(p, 40, seed=1)
+              print(f"{p!r} -> {text!r} ({n} tokens, {n / (time.time() - t0):.1f} tokens/s)")
+          EOF
+      - name: Private draft release for this build
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_NUMBER: ${{ github.run_number }}
+          SHA: ${{ github.sha }}
+        run: |
+          body=$(python - <<'EOF'
+          import json, os
+          n = os.environ["RUN_NUMBER"]
+          text = (
+              "Privater Test-Build: ENGRAMM 3.2 mit dem Netz Sela-1 135M (nur für Personen mit Schreibrecht sichtbar).\n\n"
+              "- Apple Silicon (M1/M2/M3/M4): die Datei mit aarch64 im Namen; Intel-Mac: x64.\n"
+              "- Erster Start: Systemeinstellungen → Datenschutz & Sicherheit → \"Trotzdem öffnen\" (ad hoc signiert).\n"
+              "- Unten im Chatfeld neben dem Senden-Knopf: Modell wählen (ENGRAMM oder Sela-1).\n"
+              "- Sela-1 läuft auf dem Mac, schreibt Text weiter und erfindet Fakten; nichts davon ist geprüft.\n"
+              "- Beim ersten Start bietet die App das Wissenspaket \"Lite\" (1,25 GB) zum Herunterladen an; ohne Paket\n"
+              "  startet der Server nicht (auch nicht für Sela-1). Ein schon installiertes Paket wird weiter benutzt.\n\n"
+              f"Workflow .github/workflows/desktop_sela.yml, Lauf {n}, Commit {os.environ['SHA']}. "
+              "Die Modelldatei sela1-135m.npz liegt nur hier und in den DMGs."
+          )
+          print(json.dumps({"tag_name": f"sela1-app-{n}", "target_commitish": os.environ["SHA"],
+                            "name": f"ENGRAMM 3.2 mit Sela-1 – privater Test-Build {n}", "body": text,
+                            "draft": True, "prerelease": True}))
+          EOF
+          )
+          resp=$(curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/releases" -d "$body")
+          id=$(printf '%s' "$resp" | python -c "import json,sys; r=json.load(sys.stdin); assert r['draft'] is True; print(r['id'])")
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+          echo "private draft release $id"
+      - name: Upload the weights to the private draft
+        id: upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          f="$RUNNER_TEMP/sela1-135m.npz"
+          bytes=$(stat -c %s "$f"); sha=$(sha256sum "$f" | cut -d' ' -f1)
+          resp=$(curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: application/octet-stream" \
+            --data-binary @"$f" \
+            "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ steps.release.outputs.id }}/assets?name=sela1-135m.npz")
+          aid=$(printf '%s' "$resp" | python -c "import json,sys; r=json.load(sys.stdin); assert r['size'] == $bytes, r; print(r['id'])")
+          echo "asset_id=$aid" >> "$GITHUB_OUTPUT"
+          echo "bytes=$bytes" >> "$GITHUB_OUTPUT"
+          echo "sha256=$sha" >> "$GITHUB_OUTPUT"
+          echo "uploaded sela1-135m.npz: $bytes bytes, SHA-256 $sha, asset $aid"
+
+  mac:
+    needs: export
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            target: aarch64-apple-darwin
+          - os: macos-15-intel
+            target: x86_64-apple-darwin
+            requirements: runtime/sidecar/requirements-macos-x64.txt
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false     # the write token is used only for the release API calls below
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Freeze the server (PyInstaller)
+        run: |
+          pip install -r "${{ matrix.requirements || 'runtime/sidecar/requirements.txt' }}"
+          pyinstaller --noconfirm --log-level WARN --distpath build/sidecar --workpath build/pyi runtime/sidecar/engramm-server.spec
+          mkdir -p runtime/app/src-tauri/resources/sidecar
+          cp -R build/sidecar/engramm-server/. runtime/app/src-tauri/resources/sidecar/
+
+      - name: Sela-1 weights beside the frozen server (from the private draft)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          d=runtime/app/src-tauri/resources/sidecar/models
+          mkdir -p "$d"
+          curl -fsSL --retry 5 --retry-delay 10 -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/octet-stream" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/assets/${{ needs.export.outputs.npz_asset_id }}" \
+            -o "$d/sela1-135m.npz"
+          test "$(stat -f %z "$d/sela1-135m.npz")" = "${{ needs.export.outputs.npz_bytes }}"
+          echo "${{ needs.export.outputs.npz_sha256 }}  $d/sela1-135m.npz" | shasum -a 256 -c -
+
+      - name: Smoke test of the frozen server (Sela-1 writes a few tokens)
+        run: python runtime/sidecar/smoke_test.py runtime/app/src-tauri/resources/sidecar
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Chat page
+        working-directory: ui
+        run: |
+          npm ci
+          npm run build
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Network core (engramm-core with Tor) next to the frozen server
+        working-directory: runtime/core
+        run: |
+          cargo build --release --features tor --target ${{ matrix.target }}
+          cp "target/${{ matrix.target }}/release/engramm-core" ../app/src-tauri/resources/sidecar/
+          echo '{"op":"status","id":1}' | ../app/src-tauri/resources/sidecar/engramm-core egress | tee status.json
+          grep -q '"tor":true' status.json
+
+      - name: Icons
+        working-directory: runtime/app
+        run: |
+          npm install
+          npx tauri icon ../../desktop/build/icon.png
+
+      - name: Pack catalog (the public lite knowledge pack, so the app can download it on first start)
+        # the committed catalog is empty (release.yml fills it for public releases); without a pack the app never
+        # starts its server, so neither ENGRAMM nor Sela-1 could be used
+        run: |
+          curl -fsSL --retry 5 -o "$RUNNER_TEMP/manifest.json" \
+            "https://github.com/${{ github.repository }}/releases/download/v3.2.0-beta.12/manifest.json"
+          python - <<'EOF'
+          import hashlib, json, os
+          from experiments.pack_release import TITLES
+          raw = open(os.path.join(os.environ["RUNNER_TEMP"], "manifest.json"), "rb").read()
+          m = json.loads(raw)
+          entry = {"name": m["pack"], "title": TITLES.get(m["pack"], m["pack"].title()), "version": m["version"],
+                   "bytes": m["bytes"], "base_url": "https://github.com/${{ github.repository }}/releases/download/v3.2.0-beta.12/",
+                   "manifest_sha256": hashlib.sha256(raw).hexdigest(), "description": m.get("info", {}).get("reading", "")}
+          path = "runtime/app/src-tauri/resources/catalog.json"
+          cat = json.load(open(path))
+          cat["packs"] = [entry]
+          open(path, "w").write(json.dumps(cat, indent=2) + "\n")
+          print(json.dumps(entry, indent=1))
+          EOF
+
+      - name: Installer (DMG)
+        working-directory: runtime/app
+        run: npx tauri build --target ${{ matrix.target }}
+
+      - name: Signature check and smoke test from inside the signed app
+        run: |
+          app="runtime/app/src-tauri/target/${{ matrix.target }}/release/bundle/macos/ENGRAMM.app"
+          codesign --verify --deep --strict --verbose=2 "$app"
+          codesign -dv "$app" 2>&1 | grep -q "Sealed Resources"
+          test -f "$app/Contents/Resources/sidecar/models/sela1-135m.npz"
+          python runtime/sidecar/smoke_test.py "$app/Contents/Resources/sidecar"
+
+      - name: Upload the DMG to the private draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          dmg=$(ls runtime/app/src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg | head -n 1)
+          name="$(basename "$dmg" .dmg)_Sela-1.dmg"
+          bytes=$(stat -f %z "$dmg")
+          shasum -a 256 "$dmg"
+          resp=$(curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: application/octet-stream" \
+            --data-binary @"$dmg" \
+            "https://uploads.github.com/repos/${{ github.repository }}/releases/${{ needs.export.outputs.release_id }}/assets?name=$name")
+          printf '%s' "$resp" | python -c "import json,sys; r=json.load(sys.stdin); assert r['size'] == $bytes, r; print('uploaded', r['name'], r['size'])"

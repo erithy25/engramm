@@ -19,6 +19,12 @@ export type ReplyKind =
 /** The models the chat can use (GET /api/models). */
 export type ModelId = "engramm" | "sela-1";
 
+export interface ModelsReply {
+  models: ModelInfo[];
+  /** the model of the latest chat request on this computer (the desktop app gets fresh page storage per start) */
+  last?: string | null;
+}
+
 export interface ModelInfo {
   id: string;
   name: string;

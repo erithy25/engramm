@@ -391,3 +391,22 @@ def test_sela_with_real_numpy_model(running, tmp_path):
     assert code == 200 and r["kind"] == "generated" and 1 <= r["tokens"] <= 8 and r["text"]
     m = {x["id"]: x for x in json.loads(_call(base, "/api/models")[2])["models"]}
     assert m["sela-1"]["ready"] is True and m["sela-1"]["error"] is None
+
+
+def test_last_model_is_kept_beside_the_memory(tmp_path):
+    """The desktop app starts with empty page storage (new port each start); the server remembers the model."""
+    mem = tmp_path / "chat_memory.log"
+    svc = ChatService("unused", memory_path=mem)
+    svc.bot = _Bot()
+    svc.assistant = _Assistant(svc.bot)
+    svc.sela_path, svc.sela = tmp_path / "sela1-135m.npz", _Sela()
+    assert svc.models()["last"] == "engramm"
+    svc.chat("c", "Once upon a time", model="sela-1")
+    assert svc.models()["last"] == "sela-1"
+    again = ChatService("unused", memory_path=mem)
+    again.sela_path = tmp_path / "sela1-135m.npz"
+    assert again.models()["last"] == "sela-1"
+    again.sela_path = None                                          # a build without Sela-1 falls back to ENGRAMM
+    assert again.models()["last"] == "engramm"
+    (tmp_path / "app_settings.json").write_text("{broken")
+    assert ChatService("unused", memory_path=mem).last_model == "engramm"

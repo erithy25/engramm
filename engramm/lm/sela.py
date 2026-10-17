@@ -117,7 +117,7 @@ class SelaModel:
         if p0 + T > c.ctx_max:
             raise ValueError(f"context overflow: {p0} cached + {T} new > {c.ctx_max}")
         x = self.emb[np.asarray(ids, dtype=np.int64)]                       # (T, d)
-        scale = 1.0 / np.sqrt(c.hd)
+        scale = c.hd ** -0.5                 # a Python float: a NumPy float64 scalar would turn everything float64
         # causal mask of the new rows against all keys 0 .. p0 + T - 1
         mask = np.arange(p0 + T)[None, :] > (p0 + np.arange(T))[:, None]   # True = hidden
         for li, b in enumerate(self.blocks):
@@ -214,9 +214,20 @@ class SelaGenerator:
             if len(text) > len(shown) and text.startswith(shown):
                 yield text[len(shown):]
                 shown = text
-        text = self.tok.decode(new)
+        text = self._clean_decode(new)
         if len(text) > len(shown) and text.startswith(shown):
             yield text[len(shown):]
+
+    def _clean_decode(self, ids: list[int]) -> str:
+        """Decode, dropping a character cut in half at the end (a UTF-8 character spans up to 4 byte tokens)."""
+        full = self.tok.decode(ids)
+        if not full.endswith("\ufffd"):
+            return full
+        for k in range(len(ids) - 1, max(len(ids) - 4, 0), -1):     # drop up to 3 trailing byte tokens
+            text = self.tok.decode(ids[:k])
+            if not text.endswith("\ufffd"):
+                return text
+        return full.rstrip("\ufffd")
 
     def complete(self, prompt: str, **kw) -> str:
         return "".join(self.stream_text(prompt, **kw))
@@ -234,5 +245,6 @@ class SelaGenerator:
                 if "\n" in text.lstrip("\n"):
                     head = text.lstrip("\n")
                     return head[:head.index("\n")], len(new), True
-        text = self.tok.decode(new)
-        return (text.strip("\n") if stop_at_newline else text), len(new), len(new) < max_tokens
+        finished = len(new) < max_tokens
+        text = self.tok.decode(new) if finished else self._clean_decode(new)
+        return (text.strip("\n") if stop_at_newline else text), len(new), finished

@@ -36,6 +36,7 @@ def test_cache_equals_full_pass():
     assert cache.n == len(ids)
     assert np.abs(np.concatenate(parts) - full).max() < 1e-4
     assert np.all(np.abs(full) <= 30.0 + 1e-4)                    # soft cap
+    assert full.dtype == np.float32                                # float64 would be several times slower
 
 
 def test_context_overflow_is_refused():
@@ -105,3 +106,15 @@ def test_equals_torch_longgpt(tmp_path):
     got = nm.forward(ids, KVCache(nm.cfg))
     assert np.abs(got - ref).max() < 0.02
     assert (got.argmax(-1) == ref.argmax(-1)).all()
+
+
+def test_clean_decode_drops_a_half_character():
+    from engramm.lm.sela import SelaGenerator
+    from engramm.lm.tokenizer import LMTokenizer
+    tok = LMTokenizer()
+    g = SelaGenerator.__new__(SelaGenerator)                       # only the tokenizer is needed here
+    g.tok = tok
+    ids = [int(i) for i in tok.encode("Der Vogel 🦩")]
+    for cut in range(1, len(ids) + 1):
+        text = g._clean_decode(ids[:cut])
+        assert not text.endswith("�") and "Der Vogel 🦩".startswith(text.rstrip()), (cut, text)

@@ -38,7 +38,9 @@ export function App() {
   const [aboutOpen, setAboutOpen] = useState(false);
   const [networkOpen, setNetworkOpen] = useState(false);
   const [network, setNetwork] = useState<NetworkStatus | null>(null);
-  const [model, setModel] = useState<ModelId>(() => load(MODEL, "engramm", isModelId));
+  // null until known: the page's stored choice, else the server's (the desktop app starts with empty page storage)
+  const [model, setModel] = useState<ModelId | null>(() =>
+    load(MODEL, null as ModelId | null, (v): v is ModelId | null => v === null || isModelId(v)));
   const [models, setModels] = useState<ModelInfo[] | null>(null);
   const threadRef = useRef<HTMLElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -56,11 +58,19 @@ export function App() {
   const active = useMemo(() => conversations.find((c) => c.id === activeId) ?? null, [conversations, activeId]);
 
   useEffect(() => save(STORE, conversations.slice(0, 200)), [conversations]);
-  useEffect(() => save(MODEL, model), [model]);
+  useEffect(() => {
+    if (model !== null) save(MODEL, model);
+  }, [model]);
   // which models this server offers (an older server without /api/models: ENGRAMM only)
   useEffect(() => {
     if (!serverUp) return;
-    api.models().then(setModels, () => setModels([]));
+    api.models().then(
+      (r) => {
+        setModels(r.models);
+        setModel((m) => m ?? (isModelId(r.last) ? r.last : "engramm"));
+      },
+      () => setModels([]),
+    );
   }, [serverUp, ready]);
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -259,7 +269,7 @@ export function App() {
             <div className="empty" id="empty">
               <img src="./logo.svg" alt="" className="empty-logo" width={72} height={72} />
               <h1>{t.emptyTitle}</h1>
-              <p className="muted">{t.emptySub}</p>
+              <p className="muted">{sela ? t.emptySubSela : t.emptySub}</p>
               <div className="suggestions" id="suggestions">
                 {(sela ? t.suggestionsSela : t.suggestions).map((s) => (
                   <button key={s.title} className="suggestion" type="button" onClick={() => void send(s.title)}>

@@ -19,7 +19,9 @@ API (JSON):
 * ``POST /api/chat``             {"conversation": str, "message": str, "model"?: "engramm"|"sela-1",
                                     "max_tokens"?: int} → reply (model "sela-1": text continued by the local
                                     Sela-1 network, kind "generated", nothing checked against sources)
-* ``GET  /api/models``           → {"models": [{"id", "name", "available", "ready", "error"}]}
+* ``GET  /api/models``           → {"models": [{"id", "name", "available", "ready", "error"}], "last": id}
+                                    ("last": the model of the latest chat request, kept beside the memory file so
+                                    the desktop app, which gets a new port and page storage on every start, keeps it)
 * ``GET  /api/memory``           → {"items": [{"source", "preview", "tokens"}]}
 * ``POST /api/memory/forget``    {"source": str} → {"forgot": str}
 * ``POST /api/open``             {"url": str} → {"opened": str}   (desktop app only: opens a source
@@ -157,6 +159,32 @@ class ChatService:
         self.sela = None                           # loaded on the first Sela-1 request (about 540 MB of memory)
         self.sela_error: str | None = None
         self.sela_lock = threading.Lock()          # one generation at a time; never holds the bot's lock
+        self.settings_path = self.memory_path.parent / "app_settings.json" if self.memory_path else None
+        self.last_model = self._read_settings().get("model", "engramm")
+        if self.last_model not in MODEL_IDS:
+            self.last_model = "engramm"
+
+    def _read_settings(self) -> dict:
+        try:
+            data = json.loads(self.settings_path.read_text(encoding="utf-8")) if self.settings_path else {}
+            return data if isinstance(data, dict) else {}
+        except (OSError, ValueError):
+            return {}
+
+    def _remember_model(self, model: str) -> None:
+        if model == self.last_model:
+            return
+        self.last_model = model
+        if self.settings_path is None:
+            return
+        try:                                       # best effort: a read-only data folder must not break the chat
+            data = self._read_settings()
+            data["model"] = model
+            tmp = self.settings_path.with_suffix(".tmp")
+            tmp.write_text(json.dumps(data), encoding="utf-8")
+            tmp.replace(self.settings_path)
+        except OSError:
+            traceback.print_exc()
 
     # -- loading -----------------------------------------------------------------------------
 
@@ -248,7 +276,8 @@ class ChatService:
             {"id": "engramm", "name": "ENGRAMM", "available": True, "ready": self.assistant is not None,
              "error": self.error},
             {"id": SELA_ID, "name": "Sela-1 135M", "available": self.sela_path is not None,
-             "ready": self.sela is not None, "error": self.sela_error}]}
+             "ready": self.sela is not None, "error": self.sela_error}],
+            "last": self.last_model if self.last_model != SELA_ID or self.sela_path is not None else "engramm"}
 
     # -- chat --------------------------------------------------------------------------------
 
@@ -261,6 +290,7 @@ class ChatService:
             raise ValueError(f"Message too long (at most {MAX_MESSAGE} characters).")
         if model not in MODEL_IDS:
             raise ValueError(f"Unknown model: {model}")
+        self._remember_model(model)
         if model == SELA_ID:
             return self.generate(message, max_tokens)
         if self.assistant is None:

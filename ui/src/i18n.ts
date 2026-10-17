@@ -27,6 +27,7 @@ export interface Texts {
   send: string;
   hint: string;
   modelLabel: string;
+  emptySubSela: string;
   modelEngramm: string;
   modelSela: string;
   modelSelaMissing: string;
@@ -138,6 +139,7 @@ const en: Texts = {
   send: "Send",
   hint: "ENGRAMM works without a neural network and shows its sources — it can still be wrong. Check the source.",
   modelLabel: "Model",
+  emptySubSela: "Start a text in English and Sela-1 continues it. It invents facts; nothing it writes is checked.",
   modelEngramm: "ENGRAMM · with sources",
   modelSela: "Sela-1 · free text",
   modelSelaMissing: "Sela-1 · not installed",
@@ -282,6 +284,7 @@ const de: Texts = {
   send: "Senden",
   hint: "ENGRAMM arbeitet ohne neuronales Netz und zeigt seine Quellen – und kann sich trotzdem irren. Prüfe die Quelle.",
   modelLabel: "Modell",
+  emptySubSela: "Beginne einen Text auf Englisch, Sela-1 schreibt weiter. Es erfindet Fakten; nichts davon ist geprüft.",
   modelEngramm: "ENGRAMM · mit Quellen",
   modelSela: "Sela-1 · freier Text",
   modelSelaMissing: "Sela-1 · nicht installiert",
