@@ -685,3 +685,107 @@ Pod automatisch hochgeladen (Branch `h100-results-20261017-0317`, Commit `219df1
   CPU-Netz aus §10 kann als „Sela-0 100M“ geführt werden.
 - **Folge für §10.** Die CPU-Verlängerung `long_ext1` wird für Stufe 1 nicht mehr gebraucht. Sie läuft als reiner
   CPU-Vergleich weiter (kostet nichts, blockiert nichts) und wird mit ihrem Endwert berichtet.
+
+## 12. Sela-2: ein Chat-Modell von Grund auf für höchstens 30 $ (festgelegt vor dem Lauf, 17. Oktober)
+
+**Auftrag (17. Oktober).** Sela-2 entwickeln: mehr Parameter, besseres Training, so dass man ohne Probleme mit ihm
+chatten kann. Richtung GPT-3, aber für höchstens 30 $ GPU-Miete. Eigenes Modell ab Zufallsinitialisierung; öffentliche
+Datensätze, auch synthetische von offenen Modellen, sind erlaubt, soweit die Lizenz es zulässt.
+
+**Ehrliche Einordnung.**
+- 30 $ kaufen ≈ 6 H100-Stunden, also ≈ 7·10¹⁸ FLOP. GPT-3 175B brauchte ≈ 3·10²³ FLOP, rund 40 000-mal mehr.
+- GPT-3-Wissen passt deshalb nicht in die Gewichte. Was geht:
+  - die Größe von GPT-3 Medium (24 Schichten × 1 024);
+  - Benchmarks im Bereich GPT-2 small bis medium;
+  - flüssiger, kurzer Chat;
+  - Fakten aus ENGRAMMs Quellen statt aus dem Gedächtnis des Netzes.
+- Das Modell liest diese Quellen, zitiert sie mit [n], und jede Antwort wird vor dem Anzeigen geprüft. Retrieval statt
+  Parameter ist der einzige belegte Weg zu GPT-3-artigem Faktenwissen bei diesem Budget (RETRO, FiD, Atlas; Recherche
+  in `results/sela2/`).
+
+**Weg dorthin.**
+- Recherche: 5 Linsen (Trainingseffizienz, Chat, Daten, Retrieval, Rechenleistung pro Dollar).
+- Ein Entwurf, dann drei Gegenprüfer (Kosten, Qualität, Risiko). Alle drei urteilten „tragfähig mit Korrekturen“;
+  die Korrekturen sind unten eingearbeitet.
+
+### 12.1 Rezept
+
+| Baustein | Festlegung | Quelle / Beleg |
+|---|---|---|
+| Modell | 24 Schichten × 1 024, 8 Köpfe à 128, Kontext 2 048, ReLU², QK-Norm, RoPE; x0-Skip, Smear, 2 Value-Embedding-Tabellen, Backout, Softcap 15; 352 Mio. Parameter je Token (503 Mio. gespeichert) | nanochat `gpt.py` (Karpathy), bei dieser Größe auf einem Rechner validiert |
+| Optimierer | Muon (Polar Express, MuonEq, NorMuon, vorsichtiger Weight Decay) für Matrizen; AdamW für Einbettungen, Kopf, Skalare; Lernraten, Momentum- und WD-Pläne wie nanochat | `experiments/sela2_optim.py`; Golden-Test gleich nanochat (`tests/test_sela2.py`) |
+| Zeitplan | 40 Aufwärmschritte, konstant, lineares Abklingen über die letzten 65 % auf 5 %; das Abklingen endet sicher vor der Frist (Zeit- statt nur Token-Fortschritt) | nanochat `base_train.py` |
+| Tokenizer | eigener zweisprachiger Byte-BPE, 49 152 Tokens, mit ChatML-Tokens; gemessen 4,67 Bytes/Token Englisch (Sela-1: 4,51), 4,39 Deutsch (Sela-1: 2,68) | `data/lm2_tokenizer.json`, Bericht im Daten-Entwurf |
+| Vortraining | FineWeb-Edu 42 %, DCLM 24 %, C4 8 %, Cosmopedia 7 %, Wikipedia 6 %, PG-19 4 %, Deutsch 9 % (FineWeb2-HQ, Wikipedia); ab 70 % der Token: 29 % Chat-, Quellen-QA- und Identitätsgespräche | DataDecide, SmolLM2-Mix; C4 gegen den PIQA-Verlust (Qualitätsprüfer) |
+| Chat | Feinabstimmung mit Verlust nur auf den Antworten (smoltalk2, OASST2, Dolly, SQuAD v2, HotpotQA, germanrag, eigene Identitätsgespräche); kurze Antworten bevorzugt; Antworten aus Quellen zuerst als Spanne mit [n] | nanochat `chat_sft.py`; Qualitätsprüfer |
+| Dekontamination | jedes 13-Wort-Fenster aus 16 Testsätzen (HellaSwag, PIQA, ARC, LAMBADA, WinoGrande, OBQA, MMLU, SQuAD v2, HotpotQA, XQuAD-de, IFEval und die Prüfdokumente der LM-Studie); ≥ 3 Treffer → Dokument raus | `experiments/sela2_data.py` |
+| Datenbau | vollständig auf kostenlosen GitHub-Runnern, nur im privaten Entwurf-Release abgelegt | `.github/workflows/sela2_data.yml` |
+| GPU | 1 × H100 SXM, RunPod Secure (≈ 4,01 $/h inkl. Speicher); Community oder andere Preise werden aus der RunPod-API gelesen | Rechenleistungs-Linse |
+
+### 12.2 Geld
+
+| Posten | Zeit | Kosten |
+|---|---|---|
+| Einrichten, Daten laden (≈ 15 GB), Vorab-Probe | ≈ 0,25 h | ≈ 1,0 $ |
+| Vortraining (bis zur Frist) | ≈ 5,2 h | ≈ 20,9 $ |
+| Chat-Feinabstimmung, Auswertung, Uploads | ≈ 0,75 h | ≈ 3,0 $ |
+| **Kostenbremse** | | **25 $**, danach höchstens 10 min zum Sichern (≈ 0,7 $) |
+| Harte Grenze | | Guthaben 30 $, Auto-Aufladen aus: bei 0 $ stoppt RunPod alles |
+
+Erwartet werden ≈ 2,7–2,9 Mrd. Token Vortraining bei ≈ 150 000 Token/s. Das ist eine Schätzung aus nanochat d18/d20
+und Sela-1 (Kostenprüfer); die Frist passt die Tokenzahl an das gemessene Tempo an.
+
+### 12.3 Was vor dem Mieten geprüft ist
+
+- Torch gegen NumPy auf allen Bausteinen: Logits gleich bis 10⁻³; Cache-Dekodierung gleich dem vollen Durchlauf;
+  int8-Datei nahe fp32.
+- Muon und AdamW Schritt für Schritt gleich der nanochat-Referenz.
+- Trainer auf der CPU:
+  - simulierter Abbruch mitten im Lauf, dann Neustart: **bitgleiche** Gewichte;
+  - Frist mit eingebauter Verlangsamung: die Lernrate steigt nie und erreicht ihr Ende vor der Frist;
+  - Datenwechsel bei 70 %; SFT; Export.
+- Pod-Skript `experiments/sela2_run.sh` im Testmodus vollständig durchgelaufen (offline und auf GitHub Actions mit den
+  echten Daten und torch 2.8).
+- Kostenprüfer-Befunde umgesetzt:
+  - Nachlauf nach der Grenze 10 statt 30 min;
+  - kein CPU-Sampling auf dem Pod;
+  - Basismodell und Fortsetzungs-Stand werden im Hintergrund hochgeladen, sobald es sie gibt;
+  - Dateien über 1,9 GB werden geteilt (GitHub erlaubt < 2 GiB je Datei).
+- Risikoprüfer-Befunde umgesetzt:
+  - Neuanpassung der Tokenzahl nur vor dem Abklingen;
+  - automatische Wechsel bleiben über Neustarts erhalten (Lernraten-Faktor, Neustart nach Verlustprüfung);
+  - Tests laufen auf der Pod-Version torch 2.8.
+
+### 12.4 Erfolgskriterien
+
+Die Erfolgskriterien sind vorab festgelegt in `docs/PREREG_SELA2.md`. Kurz:
+- **Basismodell:** gepoolter Zero-Shot-Wert über HellaSwag, PIQA, ARC-E/C, WinoGrande und OBQA. Verglichen wird mit
+  GPT-2 small/medium und Pythia im selben Messcode.
+- **Chat:**
+  - Abbruch-, Schleifen- und Rollen-Fehlerraten auf 100 festen Prompts;
+  - IFEval des Chat-Modells minus Basis;
+  - Blindvergleich durch den Auftraggeber.
+- **Quellen-Antworten:**
+  - HasAns-F1 und NoAns-Treffer getrennt;
+  - Abdeckung und Richtigkeit gegen ENGRAMM auf denselben Fragen;
+  - 0 angezeigte Zahlen oder Namen ohne Quelle.
+
+Erwartung (Qualitätsprüfer, nach unten korrigiert):
+
+| Aufgabe | Erwartung | Bezugswerte |
+|---|---|---|
+| HellaSwag | ≈ 35 | GPT-2 small 31,3; Sela-1 32,7; GPT-3 Small 33,7 |
+| PIQA | ≈ 63,5 | Sela-1 64,7 |
+| ARC-E | ≈ 48 | GPT-2 small 40,5 |
+| LAMBADA | ≈ 30 | GPT-2 small 33,7 |
+
+Deutsch ist ein Versuch ohne Zielwert.
+
+### 12.5 Lizenzen
+
+- Gewichte vorsichtshalber unter CC BY-SA 4.0, wegen Wikipedia, SQuAD, HotpotQA und Dolly.
+- smoltalk2 enthält Smol-Magpie-Ultra-Gespräche von Llama-3.1-405B. Die Llama-3.1-Lizenz verlangt bei Weitergabe
+  „Llama“ im Modellnamen. Solange Sela-2 nur privat in der App läuft, ist das offen.
+- Vor einer Veröffentlichung entscheidet der Auftraggeber:
+  - umbenennen;
+  - oder mit dem strengen Datenpool ohne die Llama-Gespräche neu feinabstimmen (`python -m experiments.sela2_data chat --strict`; ≈ 1 $ GPU).

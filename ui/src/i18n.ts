@@ -38,6 +38,20 @@ export interface Texts {
   selaChip: string;
   selaChipTitle: string;
   suggestionsSela: Suggestion[];
+  modelSela2: string;
+  modelSela2Missing: string;
+  pillSela2: string;
+  pillSela2Title: string;
+  placeholderSela2: string;
+  hintSela2: string;
+  emptySubSela2: string;
+  suggestionsSela2: Suggestion[];
+  sela2Chip: string;
+  sela2ChipTitle: string;
+  sela2Grounded: string;
+  sela2GroundedTitle: string;
+  sela2Fallback: string;
+  sela2FallbackTitle: string;
   close: string;
   memorySub: string;
   aboutIntroBefore: string;
@@ -157,6 +171,30 @@ const en: Texts = {
     { title: "How to make a cup of tea: First,", sub: "Instructions" },
     { title: "What is the capital of France?", sub: "A question — the answer may be wrong" },
   ],
+  modelSela2: "Sela-2 · chat",
+  modelSela2Missing: "Sela-2 · not installed",
+  pillSela2: "· chat model, 350 M parameters, on this computer",
+  pillSela2Title:
+    "Sela-2: a chat model trained from scratch in the ENGRAMM project. It answers knowledge questions from ENGRAMM's " +
+    "sources and cites them; free replies are not checked",
+  placeholderSela2: "Chat with Sela-2 …",
+  hintSela2:
+    "Sela-2 runs on this computer. Knowledge answers come from ENGRAMM's sources and are checked before they are " +
+    "shown; everything else is written freely and can be wrong.",
+  emptySubSela2:
+    "Talk to Sela-2: ask, chat, let it rewrite or explain. Facts come from ENGRAMM's sources, with citations.",
+  suggestionsSela2: [
+    { title: "Hi! Who are you?", sub: "Sela-2 introduces itself" },
+    { title: "How high is Mount Everest?", sub: "Answered from sources, with citations" },
+    { title: "Write a short, friendly invitation to a team lunch on Friday.", sub: "Writing" },
+    { title: "Give me three tips for sleeping better.", sub: "Advice — not checked" },
+  ],
+  sela2Chip: "Sela-2 · free reply",
+  sela2ChipTitle: "Written freely by the Sela-2 network on this computer; not checked against any source",
+  sela2Grounded: "Sela-2 · from sources",
+  sela2GroundedTitle: "Sela-2 wrote this from the sources shown; every number and name was found in a cited source",
+  sela2Fallback: "ENGRAMM's answer",
+  sela2FallbackTitle: "Sela-2's version did not pass the source check, so ENGRAMM's own answer is shown",
   close: "Close",
   memorySub: "What you told ENGRAMM. “Forget” deletes it for real — not just hidden.",
   aboutIntroBefore: "ENGRAMM is a chat assistant that works ",
@@ -302,6 +340,31 @@ const de: Texts = {
     { title: "How to make a cup of tea: First,", sub: "Eine Anleitung" },
     { title: "What is the capital of France?", sub: "Eine Frage – die Antwort kann falsch sein" },
   ],
+  modelSela2: "Sela-2 · Chat",
+  modelSela2Missing: "Sela-2 · nicht installiert",
+  pillSela2: "· Chat-Modell, 350 Mio. Parameter, auf diesem Computer",
+  pillSela2Title:
+    "Sela-2: ein im ENGRAMM-Projekt von Grund auf trainiertes Chat-Modell. Wissensfragen beantwortet es aus " +
+    "ENGRAMMs Quellen und zitiert sie; freie Antworten sind nicht geprüft",
+  placeholderSela2: "Mit Sela-2 schreiben …",
+  hintSela2:
+    "Sela-2 läuft auf diesem Computer. Wissensantworten stammen aus ENGRAMMs Quellen und werden vor dem Anzeigen " +
+    "geprüft; alles andere ist frei formuliert und kann falsch sein.",
+  emptySubSela2:
+    "Unterhalte dich mit Sela-2: fragen, plaudern, umschreiben oder erklären lassen. Fakten kommen aus ENGRAMMs " +
+    "Quellen, mit Zitaten.",
+  suggestionsSela2: [
+    { title: "Hallo! Wer bist du?", sub: "Sela-2 stellt sich vor" },
+    { title: "How high is Mount Everest?", sub: "Aus Quellen beantwortet, mit Zitaten" },
+    { title: "Schreib eine kurze, freundliche Einladung zum Team-Mittagessen am Freitag.", sub: "Schreiben" },
+    { title: "Gib mir drei Tipps für besseren Schlaf.", sub: "Ratschlag – nicht geprüft" },
+  ],
+  sela2Chip: "Sela-2 · frei formuliert",
+  sela2ChipTitle: "Vom Sela-2-Netz auf diesem Computer frei geschrieben; mit keiner Quelle abgeglichen",
+  sela2Grounded: "Sela-2 · aus Quellen",
+  sela2GroundedTitle: "Sela-2 hat das aus den gezeigten Quellen geschrieben; jede Zahl und jeder Name steht in einer zitierten Quelle",
+  sela2Fallback: "ENGRAMMs Antwort",
+  sela2FallbackTitle: "Sela-2s Fassung hat die Quellenprüfung nicht bestanden, deshalb steht hier ENGRAMMs eigene Antwort",
   close: "Schließen",
   memorySub: "Was du ENGRAMM erzählt hast. „Vergessen“ löscht es wirklich – nicht nur versteckt.",
   aboutIntroBefore: "ENGRAMM ist ein Chat, der ",

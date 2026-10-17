@@ -14,12 +14,14 @@ import pytest
 
 from engramm.app.server import ChatService, serve
 from tests.test_chat_app import _Assistant, _Bot, _Sela
+from tests.test_sela2_app import _Sela2
 from tests.test_chat_ui import _node_playwright
 
 SCRIPT = r"""
 const { chromium } = require('playwright');
 (async () => {
   const url = process.argv[2], shot = process.argv[3], withSela = process.argv[4] === '1';
+  const withSela2 = process.argv[5] === '1';
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1200, height: 860 } });
   const errors = [];
@@ -39,7 +41,7 @@ const { chromium } = require('playwright');
   };
   await page.goto(url);
   await page.waitForFunction(() => document.querySelector('#status').classList.contains('ready'), null, { timeout: 30000 });
-  await page.waitForFunction(() => document.querySelectorAll('#model option').length === 2);
+  await page.waitForFunction(() => document.querySelectorAll('#model option').length === 3);
   const selaDisabled = await page.locator('#model option[value="sela-1"]').isDisabled();
   if (!withSela) {
     check('sela offered but disabled', selaDisabled, await page.locator('#model').innerText());
@@ -50,6 +52,8 @@ const { chromium } = require('playwright');
     return;
   }
   check('sela enabled', !selaDisabled);
+  const sela2Disabled = await page.locator('#model option[value="sela-2"]').isDisabled();
+  check('sela-2 offered', withSela2 ? !sela2Disabled : sela2Disabled);
   check('engramm by default', (await page.locator('#model').inputValue()) === 'engramm');
   let text = await say('hello');
   check('engramm answers', text.includes('prev=None'), text);
@@ -62,12 +66,19 @@ const { chromium } = require('playwright');
   check('sela question', text.includes('Paris.'), text);
   await page.screenshot({ path: shot, fullPage: false });
   await page.reload();
-  await page.waitForFunction(() => document.querySelectorAll('#model option').length === 2);
+  await page.waitForFunction(() => document.querySelectorAll('#model option').length === 3);
   await page.waitForFunction(() => document.querySelector('#model').value === 'sela-1', null, { timeout: 10000 });
   check('choice survives reload', (await page.locator('#model').inputValue()) === 'sela-1');
   await page.selectOption('#model', 'engramm');
   text = await say('again');
   check('back to engramm', text.includes('prev=') && !text.includes('Sela-1 · invented'), text);
+  if (withSela2) {
+    await page.selectOption('#model', 'sela-2');
+    check('pill shows sela-2', (await page.locator('#modelPill').innerText()).includes('Sela-2'));
+    text = await say('who was Ada Lovelace?');
+    check('sela-2 grounded', text.includes('E is the answer [1].') && text.includes('Sela-2 · from sources'), text);
+    await page.selectOption('#model', 'engramm');
+  }
   await page.click('#toggleLang');
   check('german label', (await page.locator('#model option[value="sela-1"]').innerText()).includes('freier Text'));
   check('no page errors', errors.length === 0, errors.join(' | '));
@@ -85,6 +96,8 @@ def _run(tmp_path, with_sela: bool):
     svc.assistant = _Assistant(svc.bot)
     svc.sela_path = (tmp_path / "sela1-135m.npz") if with_sela else None
     svc.sela = _Sela() if with_sela else None
+    svc.sela2_path = (tmp_path / "sela2-chat.npz") if with_sela else None
+    svc.sela2 = _Sela2() if with_sela else None
     server = serve(svc, port=0)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     script = tmp_path / "sela_ui.js"
@@ -92,7 +105,7 @@ def _run(tmp_path, with_sela: bool):
     shot = tmp_path / "sela.png"
     try:
         res = subprocess.run([node, str(script), f"http://127.0.0.1:{server.server_address[1]}/", str(shot),
-                              "1" if with_sela else "0"], env=env, capture_output=True, text=True, timeout=240)
+                              "1" if with_sela else "0", "1" if with_sela else "0"], env=env, capture_output=True, text=True, timeout=240)
     finally:
         server.shutdown()
         server.server_close()

@@ -14,10 +14,12 @@ export type ReplyKind =
   | "memory"
   | "safety"
   | "writing"
-  | "generated";
+  | "generated"
+  | "sela_chat"
+  | "sela_grounded";
 
 /** The models the chat can use (GET /api/models). */
-export type ModelId = "engramm" | "sela-1";
+export type ModelId = "engramm" | "sela-1" | "sela-2";
 
 export interface ModelsReply {
   models: ModelInfo[];
@@ -60,9 +62,13 @@ export interface Reply {
   resolved: string | null;
   alternatives: Alternative[];
   seconds: number;
-  /** Sela-1 replies: the model and the number of tokens it wrote. */
+  /** Sela replies: the model and the number of tokens it wrote. */
   model?: string;
   tokens?: number;
+  /** Sela-2: true = its grounded answer passed the source check; false = the check failed and this is ENGRAMM's
+   * own answer; null/absent = not a grounded answer. */
+  sela_checked?: boolean | null;
+  sela_note?: string;
 }
 
 /** What the page stores for a failed request instead of a reply. */

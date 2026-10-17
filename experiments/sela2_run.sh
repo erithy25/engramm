@@ -149,7 +149,7 @@ if [ -n "${RUNPOD_POD_ID:-}" ] && ! command -v runpodctl >/dev/null && [ -z "${R
 fi
 REL=$(python3 -c "import json; print(json.load(open('results/sela2/data/manifest.json'))['release_id'])" 2>/dev/null)
 TOKSHA=$(sha256sum data/lm2_tokenizer.json 2>/dev/null | cut -d' ' -f1)
-if test_mode; then REL=${REL:-0}; TOKSHA=fake; fi
+if test_mode && [ -n "${SELA2_TEST_DATA:-}" ]; then REL=0; TOKSHA=fake; fi
 [ -n "$REL" ] || fail "results/sela2/data/manifest.json fehlt im Checkout (falscher Stand? Befehl 1 prüfen)"
 [ -n "$TOKSHA" ] || fail "data/lm2_tokenizer.json fehlt im Checkout"
 if [ -n "${GH_TOKEN:-}" ]; then
@@ -179,7 +179,7 @@ mark packages
 
 # --- 2. data -------------------------------------------------------------------------------------------------------
 if ! done_ data; then
-  if test_mode && [ -n "${SELA2_TEST_DATA:-}" ]; then
+  if test_mode && [ -n "${SELA2_TEST_DATA:-}" ] && [ "$REL" = 0 ]; then
     rm -rf "$W/data"; cp -r "$SELA2_TEST_DATA" "$W/data"
   else
     say "== 2. Trainingsdaten aus dem privaten Entwurf (≈ 15 GB)"
@@ -227,7 +227,7 @@ if test_mode; then
   TRAIN=(--data "$W/data" --tokenizer-sha "" --out "$OUT" --size "${SELA2_TEST_SIZE:-tiny}" --vocab "${SELA2_TEST_VOCAB:-512}"
          --cpu --compile 0 --flex 0 --bf16 0 --micro-batch 4)
   PRE_EXTRA=(--total-tokens "${SELA2_TEST_TOKENS:-150000}" --batch-tokens 512 --eval-every 60000 --eval-docs 5 --ckpt-minutes 0.2)
-  SFT_EXTRA=(--sft-batch-tokens 516)
+  SFT_EXTRA=(--sft-batch-tokens 516 --sft-max-steps "${SELA2_TEST_SFT_STEPS:-60}")
 fi
 
 # --- 3. probe: the whole path with a tiny model on the GPU, before the expensive hours -------------------------------
@@ -241,12 +241,13 @@ if ! done_ probe; then
   else PROBE+=(--size probe --micro-batch 16); fi
   python3 -m experiments.sela2_train pretrain "${PROBE[@]}" --total-tokens $(( PB * 45 )) --batch-tokens "$PB" --eval-every $(( PB * 30 )) \
       --eval-docs 5 --ckpt-minutes 0.5 > "$P/pretrain.log" 2>&1 || { tail -30 "$P/pretrain.log"; fail "Vorab-Probe: Vortraining fehlgeschlagen"; }
-  python3 -m experiments.sela2_train sft "${PROBE[@]}" --sft-batch-tokens $(( PB + PB / 256 )) \
+  PSFT=(); test_mode && PSFT=(--sft-max-steps 10)
+  python3 -m experiments.sela2_train sft "${PROBE[@]}" "${PSFT[@]}" --sft-batch-tokens $(( PB + PB / 256 )) \
       --deadline $(( $(date +%s) + 120 )) > "$P/sft.log" 2>&1 || { tail -30 "$P/sft.log"; fail "Vorab-Probe: Feinabstimmung fehlgeschlagen"; }
   EVP=(--data "$W/data" --model "$P/ckpt/model_chat.pt" --out "$P/out" --tag probe --final-docs 5)
   test_mode && EVP+=(--cpu --samples 0)
   python3 -m experiments.sela2_train evaluate "${EVP[@]}" > "$P/eval.log" 2>&1 || { tail -30 "$P/eval.log"; fail "Vorab-Probe: Auswertung fehlgeschlagen"; }
-  if [ -n "${GH_TOKEN:-}" ]; then                        # an upload into the results release really works
+  if [ -n "${GH_TOKEN:-}" ] && ! test_mode; then        # an upload into the results release really works
     RID=$(cat "$W/stages/release_id" 2>/dev/null)
     if [ -z "$RID" ]; then
       RID=$(python3 -m experiments.gh_release find-or-create --name "ENGRAMM Sela-2 Modell $(date -u +%Y%m%d) (privat)" \
@@ -363,10 +364,11 @@ fi
 if ! done_ eval; then
   say "== 7. Auswertung"
   EV=(--data "$W/data" --out "$OUT")
-  test_mode && EV+=(--cpu --samples 0)
-  python3 -m experiments.sela2_train evaluate "${EV[@]}" --model "$W/ckpt/model_chat.pt" --tag chat --final-docs 600 \
+  FD=600; FB=300
+  test_mode && { EV+=(--cpu --samples 0); FD=${SELA2_TEST_EVAL_DOCS:-50}; FB=$FD; }
+  python3 -m experiments.sela2_train evaluate "${EV[@]}" --model "$W/ckpt/model_chat.pt" --tag chat --final-docs "$FD" \
     || say "Auswertung des Chat-Modells unvollständig (Modell ist trotzdem gesichert)"
-  python3 -m experiments.sela2_train evaluate "${EV[@]}" --model "$W/ckpt/model_base.pt" --tag base --final-docs 300 \
+  python3 -m experiments.sela2_train evaluate "${EV[@]}" --model "$W/ckpt/model_base.pt" --tag base --final-docs "$FB" \
     || say "Auswertung des Basismodells unvollständig"
   mark eval
 fi
@@ -407,7 +409,7 @@ fi
 uploaded=0
 if [ -f "$W/stages/uploaded" ]; then
   uploaded=1
-elif [ -n "${GH_TOKEN:-}" ]; then
+elif [ -n "${GH_TOKEN:-}" ] && ! test_mode; then
   RID=$(cat "$W/stages/release_id" 2>/dev/null)
   ok_all=1
   [ -f "$W/up/chat.ok" ] || { python3 -m experiments.gh_release upload --release "$RID" "$W/up/sela2_chat_bf16.pt" \

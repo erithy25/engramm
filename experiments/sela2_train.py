@@ -863,6 +863,8 @@ def sft(args, device) -> dict:
     end_by = float(args.deadline or 0)
     t_start, step, trained = time.time(), 0, 0
     log(f"fine-tuning: {data.tokens_total / 1e6:.0f} M tokens in {len(data.order)} conversations, ~{est_steps} steps")
+    if getattr(args, "sft_max_steps", 0):
+        total_steps = min(total_steps, args.sft_max_steps)
     while step < total_steps and not data.exhausted():
         frac = step / total_steps
         f = 1.0 if frac < 0.5 else max(0.0, (1 - frac) / 0.5)
@@ -1170,6 +1172,7 @@ def main() -> None:
     add_common(p)
     p.add_argument("--sft-lr-frac", type=float, default=0.8)
     p.add_argument("--sft-batch-tokens", type=int, default=262_144)
+    p.add_argument("--sft-max-steps", type=int, default=0, help="tests: stop after this many steps")
     p.add_argument("--adamw-lr", type=float, default=8e-4)
     p.set_defaults(func=cmd_sft)
     p = sub.add_parser("evaluate")

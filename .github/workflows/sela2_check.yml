@@ -1,0 +1,108 @@
+# Sela-2 checks before any GPU rental: the unit tests and the CPU smoke run with the GPU pod's torch version (2.8.0),
+# then the pod script itself (experiments/sela2_run.sh, test mode) on the REAL training data from the private draft
+# release with a tiny model: download + SHA-256 check, probe, pretraining with the data switch, fine-tuning,
+# evaluation. Nothing is uploaded or pushed (test mode); the data stay on the runner and are deleted with it.
+name: Sela-2 checks (torch 2.8, real data, tiny model)
+
+on:
+  push:
+    branches: ["claude/optimistic-cannon-i0u0ap"]
+    paths:
+      - ".github/workflows/sela2_check.yml"
+      - "experiments/sela2_*.py"
+      - "experiments/sela2_run.sh"
+      - "experiments/gh_release.py"
+      - "engramm/lm/sela.py"
+      - "engramm/lm/sela_chat.py"
+      - "engramm/lm/chat_format.py"
+      - "tests/test_sela2*.py"
+      - "results/sela2/data/manifest.json"
+  workflow_dispatch:
+
+permissions:
+  contents: write                        # reading assets of a draft release needs it; this workflow writes nothing
+
+concurrency:
+  group: sela2-check-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONUTF8: "1"
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: torch 2.8.0 (the GPU pod's version, CPU build) and the pinned tokenizer
+        run: |
+          pip install "torch==2.8.0" --index-url https://download.pytorch.org/whl/cpu
+          pip install "numpy==2.2.6" "tokenizers==0.23.2" pytest
+          python -c "import torch, numpy, tokenizers; print('torch', torch.__version__, 'numpy', numpy.__version__, 'tokenizers', tokenizers.__version__)"
+      - name: Unit tests
+        run: python -m pytest -q tests/test_sela2.py tests/test_sela2_app.py tests/test_sela_numpy.py tests/test_chat_app.py
+      - name: Trainer smoke run (pretraining, simulated kill + exact resume, deadline with a slowdown, SFT, export)
+        run: python -m experiments.sela2_train smoke --threads 4 --dir "$RUNNER_TEMP/smoke"
+      - name: Pod script in test mode on synthetic data
+        run: |
+          python -c "from pathlib import Path; from experiments.sela2_train import fake_data; fake_data(Path('$RUNNER_TEMP/fake'))"
+          SELA2_TEST=1 SELA2_WORK="$RUNNER_TEMP/run_fake" SELA2_OUT="$RUNNER_TEMP/out_fake" SELA2_TEST_DATA="$RUNNER_TEMP/fake" \
+            bash experiments/sela2_run.sh
+          test -f "$RUNNER_TEMP/run_fake/stages/finished"
+
+  real-data:
+    needs: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Training data recorded?
+        id: have
+        run: |
+          if [ -f results/sela2/data/manifest.json ] && [ -f data/lm2_tokenizer.json ]; then echo "ok=1" >> "$GITHUB_OUTPUT"
+          else echo "no data records yet (the data workflow commits them) – skipped"; fi
+      - uses: actions/setup-python@v5
+        if: steps.have.outputs.ok == '1'
+        with:
+          python-version: "3.11"
+      - name: Free disk space (the data are ≈ 15 GB)
+        if: steps.have.outputs.ok == '1'
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL; df -h /
+      - if: steps.have.outputs.ok == '1'
+        run: |
+          pip install "torch==2.8.0" --index-url https://download.pytorch.org/whl/cpu
+          pip install "numpy==2.2.6" "tokenizers==0.23.2"
+      - name: Pod script, test mode, real data, tiny model (vocabulary 49,152)
+        if: steps.have.outputs.ok == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SELA2_TEST=1 SELA2_TEST_SIZE=probe SELA2_TEST_VOCAB=49152 SELA2_TEST_TOKENS=300000 SELA2_TEST_SFT_STEPS=40 \
+          SELA2_TEST_EVAL_DOCS=40 SELA2_ALLOW_GITHUB_OFFPOD=1 SELA2_WORK="$RUNNER_TEMP/run" SELA2_OUT="$RUNNER_TEMP/out" \
+            bash experiments/sela2_run.sh
+          test -f "$RUNNER_TEMP/run/stages/finished"
+      - name: What it produced
+        if: always() && steps.have.outputs.ok == '1'
+        run: |
+          cat "$RUNNER_TEMP/run/SUMMARY.txt" 2>/dev/null || true
+          python - "$RUNNER_TEMP/out" <<'EOF'
+          import json, sys
+          from pathlib import Path
+          out = Path(sys.argv[1])
+          m = out / "pretrain_meta.json"
+          if m.exists():
+              r = json.loads(m.read_text())
+              print(json.dumps({"tokens": r["tokens"], "data_report": r.get("data_report")}, indent=1)[:4000])
+          for f in sorted(out.glob("eval_*.json")):
+              r = json.loads(f.read_text())
+              print(f.name, {k: round(v["bpb"], 3) for k, v in r["bpb"].items()}, {k: round(v["loss"], 3) for k, v in r.get("chat_val", {}).items()})
+          EOF
+          du -sh "$RUNNER_TEMP/run/data" || true

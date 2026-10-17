@@ -115,6 +115,10 @@ export function AssistantMessage({ reply, animate, t, onTyped }: Props) {
   if (k === "safety") chips.push(<Chip key="h" text={t.safety} cls="unsure" />);
   if (k === "writing") chips.push(<Chip key="w" text={t.writing} cls="memory" />);
   if (k === "generated") chips.push(<Chip key="g" text={t.selaChip} cls="unsure" title={t.selaChipTitle} />);
+  if (k === "sela_chat") chips.push(<Chip key="g2" text={t.sela2Chip} cls="unsure" title={t.sela2ChipTitle} />);
+  if (k === "sela_grounded") chips.push(<Chip key="s2" text={t.sela2Grounded} cls="sure" title={t.sela2GroundedTitle} />);
+  if (reply.sela_checked === false)
+    chips.push(<Chip key="f2" text={t.sela2Fallback} cls="memory" title={t.sela2FallbackTitle} />);
   const src = reply.source;
   if (src?.kind === "user") {
     chips.push(<Chip key="src" text={t.toldMe} cls="memory" />);

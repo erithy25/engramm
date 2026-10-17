@@ -664,6 +664,7 @@ SMOLTALK_EN = ["smoltalk_smollm3_smol_magpie_ultra_no_think", "smoltalk_smollm3_
                "smoltalk_smollm3_systemchats_30k_no_think", "smoltalk_smollm3_smol_rewrite_no_think",
                "smoltalk_smollm3_smol_summarize_no_think", "smoltalk_smollm3_explore_instruct_rewriting_no_think"]
 SMOLTALK_DE = ["smoltalk_multilingual_8languages_lang_5_no_think"]
+LLAMA_SUBSETS = ("smoltalk_smollm3_smol_magpie_ultra_no_think", "smoltalk_smollm3_everyday_conversations_no_think")
 MAGPIE_MAX_CHARS = 2400                            # ≈ 500 tokens per assistant turn at most
 
 
@@ -963,6 +964,8 @@ def cmd_chat(args) -> None:
                 yield item
 
     for msgs, lang, src in limited(iter_smoltalk(work)):
+        if args.strict and src in LLAMA_SUBSETS:  # licence-strict pool: no Llama-generated conversations
+            continue
         add("chat_" + lang, msgs, lang, src)
     for msgs, lang, src in limited(iter_oasst(work)):
         add("chat_" + lang, msgs, lang, src)
@@ -1038,6 +1041,8 @@ def main() -> None:
             p.add_argument("--docs", type=int, default=2000)
         if name == "chat":
             p.add_argument("--limit", type=int, default=0)
+            p.add_argument("--strict", action="store_true",
+                           help="licence-strict pool: without the Llama-3.1-generated smoltalk subsets")
         p.set_defaults(func=fn)
     p = sub.add_parser("selftest")
     p.set_defaults(func=cmd_selftest)

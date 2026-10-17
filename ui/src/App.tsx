@@ -18,7 +18,7 @@ const MAX_MESSAGE = 12000;
 const isConversations = (v: unknown): v is Conversation[] =>
   Array.isArray(v) && v.every((c) => typeof c === "object" && c !== null && "id" in c && "messages" in c);
 const isTheme = (v: unknown): v is "light" | "dark" => v === "light" || v === "dark";
-const isModelId = (v: unknown): v is ModelId => v === "engramm" || v === "sela-1";
+const isModelId = (v: unknown): v is ModelId => v === "engramm" || v === "sela-1" || v === "sela-2";
 
 type Status = { kind: "connecting" } | { kind: "offline" } | { kind: "health"; health: Health };
 
@@ -51,10 +51,14 @@ export function App() {
   const ready = status.kind === "health" && status.health.ready;
   const serverUp = status.kind === "health";
   const selaAvailable = models?.find((m) => m.id === "sela-1")?.available === true;
+  const sela2Available = models?.find((m) => m.id === "sela-2")?.available === true;
   // the chosen model; Sela-1 only where the app ships it (a saved choice survives builds without it)
-  const activeModel: ModelId = model === "sela-1" && selaAvailable ? "sela-1" : "engramm";
+  const activeModel: ModelId =
+    model === "sela-1" && selaAvailable ? "sela-1" : model === "sela-2" && sela2Available ? "sela-2" : "engramm";
   const sela = activeModel === "sela-1";
-  const canSend = sela ? serverUp : ready;
+  const sela2 = activeModel === "sela-2";
+  // Sela-1 and Sela-2 write while ENGRAMM's index is still loading (Sela-2 then chats without sources)
+  const canSend = sela || sela2 ? serverUp : ready;
   const active = useMemo(() => conversations.find((c) => c.id === activeId) ?? null, [conversations, activeId]);
 
   useEffect(() => save(STORE, conversations.slice(0, 200)), [conversations]);
@@ -252,8 +256,9 @@ export function App() {
                   onClick={() => setSidebarOpen(true)}>
             <MenuIcon />
           </button>
-          <div className="model-pill" id="modelPill" title={sela ? t.pillSelaTitle : t.pillTitle}>
-            {sela ? "Sela-1 135M" : "ENGRAMM"} <span className="muted">{sela ? t.pillSela : t.pill}</span>
+          <div className="model-pill" id="modelPill" title={sela ? t.pillSelaTitle : sela2 ? t.pillSela2Title : t.pillTitle}>
+            {sela ? "Sela-1 135M" : sela2 ? "Sela-2" : "ENGRAMM"}{" "}
+            <span className="muted">{sela ? t.pillSela : sela2 ? t.pillSela2 : t.pill}</span>
           </div>
           <div className={statusView.cls} id="status" title={statusView.title}>
             <span className="dot" />
@@ -269,9 +274,9 @@ export function App() {
             <div className="empty" id="empty">
               <img src="./logo.svg" alt="" className="empty-logo" width={72} height={72} />
               <h1>{t.emptyTitle}</h1>
-              <p className="muted">{sela ? t.emptySubSela : t.emptySub}</p>
+              <p className="muted">{sela ? t.emptySubSela : sela2 ? t.emptySubSela2 : t.emptySub}</p>
               <div className="suggestions" id="suggestions">
-                {(sela ? t.suggestionsSela : t.suggestions).map((s) => (
+                {(sela ? t.suggestionsSela : sela2 ? t.suggestionsSela2 : t.suggestions).map((s) => (
                   <button key={s.title} className="suggestion" type="button" onClick={() => void send(s.title)}>
                     <b>{s.title}</b>
                     <span>{s.sub}</span>
@@ -312,7 +317,7 @@ export function App() {
               id="input"
               ref={inputRef}
               rows={1}
-              placeholder={sela ? t.placeholderSela : t.placeholder}
+              placeholder={sela ? t.placeholderSela : sela2 ? t.placeholderSela2 : t.placeholder}
               aria-label={t.message}
               maxLength={MAX_MESSAGE}
               value={input}
@@ -345,13 +350,16 @@ export function App() {
               <option value="sela-1" disabled={!selaAvailable}>
                 {selaAvailable ? t.modelSela : t.modelSelaMissing}
               </option>
+              <option value="sela-2" disabled={!sela2Available}>
+                {sela2Available ? t.modelSela2 : t.modelSela2Missing}
+              </option>
             </select>
             <button type="submit" className="send" id="send" aria-label={t.send}
                     disabled={!canSend || busy || !input.trim()}>
               <SendIcon />
             </button>
           </form>
-          <p className="hint muted" id="hint">{sela ? t.hintSela : t.hint}</p>
+          <p className="hint muted" id="hint">{sela ? t.hintSela : sela2 ? t.hintSela2 : t.hint}</p>
         </footer>
       </main>
 
