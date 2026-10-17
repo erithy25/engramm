@@ -27,6 +27,10 @@ SYSTEM = {
     "de": "Du bist Sela, ein kleines Sprachmodell, das im ENGRAMM-Projekt von Grund auf trainiert wurde. Du läufst "
           "offline auf dem Computer der Nutzerin oder des Nutzers. Antworte hilfreich, klar und kurz.",
 }
+SYSTEM_BRIEF = {
+    "en": "You are Sela, a small offline assistant. Answer in one to three short sentences.",
+    "de": "Du bist Sela, ein kleiner Offline-Assistent. Antworte in ein bis drei kurzen Sätzen.",
+}
 SYSTEM_GROUNDED = {
     "en": "You are Sela. Answer only from the sources and cite them like [1]. If the sources do not contain the "
           "answer, say: \"My sources don't say.\"",

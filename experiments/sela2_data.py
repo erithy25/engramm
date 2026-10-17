@@ -14,6 +14,7 @@ Pretraining text (one pass, no document repeated; licences in docs/DATA_LICENSES
   cosmo        HuggingFaceTB/smollm-corpus cosmopedia-v2 (ODC-By)
   wiki_en      wikimedia/wikipedia 20231101.en (CC BY-SA 3.0), without the WikiText-103 val/test articles
   pg19         emozilla/pg19 (Project Gutenberg books before 1919, Apache-2.0 as deepmind/pg19)
+  c4           allenai/c4 en train files 1, 2, … (ODC-By; file 0 holds the LM study's val/test documents)
   fw2_de       epfml/FineWeb2-HQ deu_Latn (ODC-By)
   wiki_de      wikimedia/wikipedia 20231101.de (CC BY-SA 3.0)
 Chat and grounded question answering (``chat``): HuggingFaceTB/smoltalk2 SFT (no_think subsets, Apache-2.0; the
@@ -28,7 +29,7 @@ val, ARC-Easy/Challenge test, LAMBADA test, WinoGrande dev, OpenBookQA test, MML
 XQuAD-de, IFEval, and the val/test documents of the LM study (C4 + WikiText-103, the yardstick of Sela-1) — is
 hashed; a training document or conversation with ≥ 3 distinct such windows is dropped and counted.
 
-Output per stream: ``NAME.u16`` (each document as <|eos|> + its tokens), ``NAME.json`` (tokens, documents, SHA-256,
+Output per stream: ``NAME.u16`` (each document as <|eos|> + its tokens; one more <|eos|> at the end), ``NAME.json`` (tokens, documents, SHA-256,
 tokenizer SHA-256, what was dropped); chat streams also ``NAME.mask`` (np.packbits of the per-token fine-tuning mask).
 Validation sets additionally ``NAME.starts.npy`` (position of each document's first token) and ``NAME.bytes.npy``
 (UTF-8 bytes of each document's text) for bits per byte.
@@ -41,6 +42,7 @@ import gzip
 import hashlib
 import io
 import json
+import math
 import os
 import random
 import re
@@ -55,8 +57,8 @@ from pathlib import Path
 
 import numpy as np
 
-from engramm.lm.chat_format import (FOREIGN_IDENTITY, NO_ANSWER, SPECIAL_TOKENS, SYSTEM, SYSTEM_GROUNDED, Message,
-                                    render, sources_block)
+from engramm.lm.chat_format import (FOREIGN_IDENTITY, NO_ANSWER, SPECIAL_TOKENS, SYSTEM, SYSTEM_BRIEF, SYSTEM_GROUNDED,
+                                    Message, render, sources_block)
 
 REPO = Path(__file__).resolve().parents[1]
 HF = "https://huggingface.co"
@@ -75,9 +77,11 @@ SOURCES = {
     "pg19":    ("emozilla/pg19",                "data",                 r"train-\d{5}-of-\d{5}-\w+\.parquet$", "en"),
     "fw2_de":  ("epfml/FineWeb2-HQ",            "deu_Latn",             r"\d{3}_\d{5}\.parquet$",      "de"),
     "wiki_de": ("wikimedia/wikipedia",          "20231101.de",          r"train-\d{5}-of-\d{5}\.parquet$", "de"),
+    "c4":      ("allenai/c4",                   "en",                   r"c4-train\.\d{5}-of-01024\.json\.gz$", "en"),
 }
 # held-out files for the validation sets (never a training part)
-VAL_PART = {"fwe": 13, "dclm": 99, "cosmo": 103, "wiki_en": 40, "pg19": 22, "fw2_de": 569, "wiki_de": 19}
+VAL_PART = {"fwe": 13, "dclm": 99, "cosmo": 103, "wiki_en": 40, "pg19": 22, "fw2_de": 569, "wiki_de": 19, "c4": 1000}
+MAX_STREAM_TOKENS = 900_000_000                    # one output file stays below GitHub's 2 GiB per asset
 MIN_CHARS = 200
 
 
@@ -132,6 +136,10 @@ def download(url: str, dest: Path, size: int = 0, tries: int = 8) -> Path:
 
 def source_file(source: str, part: int, work: Path) -> tuple[Path, str]:
     repo, prefix, pattern, _ = SOURCES[source]
+    if source == "c4":                             # 1,024 files: no listing; train file 0 holds the LM-study splits,
+        name = f"c4-train.{part + 1:05d}-of-01024.json.gz"     # so part k is file k + 1
+        url = f"{HF}/datasets/{repo}/resolve/main/{prefix}/{name}"
+        return download(url, work / "dl" / source / name), url
     files = hf_files(repo, prefix, pattern)
     if part >= len(files):
         raise SystemExit(f"{source}: part {part} does not exist ({len(files)} files)")
@@ -276,14 +284,18 @@ def _piqa(work: Path) -> list[str]:
             for x in f.read_text(encoding="utf-8").splitlines() if x.strip()]
 
 
+LM_SPLITS = ("val_a", "val_b", "test", "wt103_test")
+
+
 def lm_study_docs() -> dict[str, list[str]]:
-    """The val-A and test documents of the LM study as text (decoded from the pinned token files; byte-level BPE
-    is lossless). Needs data/cache/lm/tokens (``python -m experiments.h100_data base``)."""
+    """The held-out documents of the LM study (val-A, val-B, test, WikiText-103 test) as text, decoded from the
+    pinned token files (byte-level BPE is lossless). Needs data/cache/lm/tokens (``python -m experiments.h100_data
+    base``)."""
     from engramm.lm.tokenizer import LMTokenizer
     tok = LMTokenizer()
     base = REPO / "data" / "cache" / "lm" / "tokens"
     out = {}
-    for split in ("val_a", "test"):
+    for split in LM_SPLITS:
         toks = np.fromfile(base / f"{split}.u16", dtype=np.uint16)
         starts = np.load(base / f"{split}.starts.npy").astype(np.int64)
         ends = np.append(starts[1:] - 1, len(toks))
@@ -292,13 +304,17 @@ def lm_study_docs() -> dict[str, list[str]]:
 
 
 def wikitext_titles() -> set[str]:
-    """Titles of the WikiText-103 articles in the LM study's val/test documents (' = Title = ' first lines)."""
+    """Wikipedia titles of the WikiText-103 articles among the LM study's held-out documents (from the split's
+    keys file, detokenised as the corpus builder does: 'Kiss You ( One Direction song )' → 'Kiss You (One
+    Direction song)')."""
+    from data.lm_corpus import detokenize_wikitext
+    base = REPO / "data" / "cache" / "lm" / "tokens"
     titles = set()
-    for split, docs in lm_study_docs().items():
-        for d in docs:
-            m = re.match(r"\s*= ([^=\n]+?) =\s*\n", d)
-            if m:
-                titles.add(m.group(1).strip())
+    for split in LM_SPLITS:
+        for line in open(base / f"{split}.keys.jsonl", encoding="utf-8"):
+            src, key = json.loads(line)[:2]
+            if str(src).startswith("wiki"):
+                titles.add(detokenize_wikitext(key).strip())
     return titles
 
 
@@ -308,7 +324,8 @@ def cmd_decon(args) -> None:
     work = Path(args.work)
     sets = eval_texts(work)
     lm = lm_study_docs()
-    sets["lm_val_a"], sets["lm_test"] = lm["val_a"], lm["test"]
+    for split, docs in lm.items():
+        sets[f"lm_{split}"] = docs
     hs, report = [], {}
     for name, texts in sets.items():
         h = [text_ngrams(t) for t in texts]
@@ -426,8 +443,9 @@ def write_stream(out: Path, name: str, docs: list[np.ndarray], tok_sha: str, ext
                  masks: list[np.ndarray] | None = None, nbytes: list[int] | None = None) -> dict:
     """docs: token arrays that already start with <|eos|>. Writes NAME.u16 (+ .mask, .starts.npy, .bytes.npy)."""
     out.mkdir(parents=True, exist_ok=True)
-    total = int(sum(len(d) for d in docs))
+    total = int(sum(len(d) for d in docs)) + 1                    # + a final <|eos|>: the last document's end marker
     arr = np.empty(total, dtype=np.uint16)
+    arr[-1] = 0
     starts = np.empty(len(docs), dtype=np.int64)
     p = 0
     for i, d in enumerate(docs):
@@ -441,7 +459,7 @@ def write_stream(out: Path, name: str, docs: list[np.ndarray], tok_sha: str, ext
     rec = {"name": name, "tokens": total, "docs": len(docs), "sha256": sha256_file(path), "tokenizer_sha256": tok_sha,
            **extra}
     if masks is not None:
-        m = np.concatenate(masks).astype(np.uint8) if masks else np.zeros(0, dtype=np.uint8)
+        m = np.concatenate(masks + [np.zeros(1, dtype=np.uint8)]).astype(np.uint8)
         if len(m) != total:
             raise ValueError("mask length differs from the tokens")
         np.packbits(m).tofile(out / f"{name}.mask")
@@ -478,13 +496,45 @@ def encode_docs(tok, texts: list[str], batch: int = 4096) -> list[np.ndarray]:
 # pretraining text
 # ---------------------------------------------------------------------------
 
+def file_rows(path: Path, cols: list[str]):
+    if path.name.endswith(".json.gz"):
+        with gzip.open(path, "rt", encoding="utf-8") as f:
+            for line in f:
+                r = json.loads(line)
+                yield {c: r.get(c) for c in cols}
+    else:
+        yield from parquet_rows(path, cols)
+
+
+def iter_source(source: str, path: Path, titles: set[str], drop: dict, limit_docs: int = 0):
+    """(stream name, text) of one file after the filters; counts what was dropped in ``drop``."""
+    n = 0
+    for r in file_rows(path, ["text", "title", "int_score"]):
+        t = (r.get("text") or "").strip()
+        if len(t) < MIN_CHARS:
+            drop["short"] = drop.get("short", 0) + 1
+            continue
+        if source == "wiki_en" and (r.get("title") or "").strip() in titles:
+            drop["wikitext_title"] = drop.get("wikitext_title", 0) + 1
+            continue
+        if source in ("wiki_en", "wiki_de") and r.get("title"):
+            t = f"{r['title'].strip()}\n\n{t}"
+        name = source
+        if source == "fwe":
+            name = "fwehq" if (r.get("int_score") or 0) >= 4 else "fwe"
+        yield name, t
+        n += 1
+        if limit_docs and n >= limit_docs:
+            return
+
+
 def read_source(source: str, path: Path, titles: set[str], limit_docs: int = 0) -> tuple[dict[str, list[str]], dict]:
     """Filtered texts of one file, by output stream; and counts of what was dropped."""
     cols = ["text", "title", "int_score"]
     streams: dict[str, list[str]] = {}
     drop = {"short": 0, "wikitext_title": 0}
     n = 0
-    for r in parquet_rows(path, cols):
+    for r in file_rows(path, cols):
         t = (r.get("text") or "").strip()
         if len(t) < MIN_CHARS:
             drop["short"] += 1
@@ -505,24 +555,53 @@ def read_source(source: str, path: Path, titles: set[str], limit_docs: int = 0) 
 
 
 def cmd_build(args) -> None:
+    """One source file → its token streams, processed in chunks of documents (bounded memory); a stream above
+    MAX_STREAM_TOKENS is written as several files NAME_PART_K."""
     work, out = Path(args.work), Path(args.out)
     tok = load_tok(args.tok)
+    tok_sha = sha256_file(Path(args.tok))
     titles = set(json.loads((Path(args.decon) / "wikitext_titles.json").read_text()))
     path, url = source_file(args.source, args.part, work)
-    streams, drop = read_source(args.source, path, titles, args.limit_docs)
+    drop: dict = {}
+    docs: dict[str, list[np.ndarray]] = {}
+    chars: dict[str, int] = {}
+    bad_n: dict[str, int] = {}
+    buf: dict[str, list[str]] = {}
+
+    def flush(name: str, pool) -> None:
+        texts = buf.pop(name, [])
+        if not texts:
+            return
+        bad = contaminated(texts, pool)
+        keep = [t for t, b in zip(texts, bad) if not b]
+        bad_n[name] = bad_n.get(name, 0) + int(sum(bad))
+        chars[name] = chars.get(name, 0) + int(sum(len(t) for t in keep))
+        docs.setdefault(name, []).extend(encode_docs(tok, keep))
+
+    with Pool(args.workers, initializer=_load_decon, initargs=(str(Path(args.decon) / "decon_hashes.npy"),)) as pool:
+        for name, t in iter_source(args.source, path, titles, drop, args.limit_docs):
+            buf.setdefault(name, []).append(t)
+            if len(buf[name]) >= args.chunk_docs:
+                flush(name, pool)
+                log(f"{args.source} part {args.part}: {sum(len(v) for v in docs.values())} documents so far")
+        for name in list(buf):
+            flush(name, pool)
     path.unlink(missing_ok=True)                                  # the runner's disk is small
     rng = np.random.default_rng(1000 + args.part)
-    with Pool(args.workers, initializer=_load_decon, initargs=(str(Path(args.decon) / "decon_hashes.npy"),)) as pool:
-        for name, texts in streams.items():
-            bad = contaminated(texts, pool)
-            keep = [t for t, b in zip(texts, bad) if not b]
-            order = rng.permutation(len(keep))
-            keep = [keep[i] for i in order]
-            docs = encode_docs(tok, keep)
-            write_stream(out, f"{name}_{args.part}", docs, tok_sha=sha256_file(Path(args.tok)),
+    for name, ds in docs.items():
+        order = rng.permutation(len(ds))
+        ds = [ds[i] for i in order]
+        total = sum(len(d) for d in ds)
+        k = max(1, math.ceil(total / MAX_STREAM_TOKENS))
+        per = math.ceil(len(ds) / k)
+        for j in range(k):
+            part = ds[j * per:(j + 1) * per]
+            sname = f"{name}_{args.part}" if k == 1 else f"{name}_{args.part}_{j}"
+            write_stream(out, sname, part, tok_sha=tok_sha,
                          extra={"source": args.source, "part": args.part, "url": url, "lang": SOURCES[args.source][3],
-                                "dropped_contaminated": int(sum(bad)), "dropped": drop,
-                                "chars": int(sum(len(t) for t in keep))})
+                                "dropped_contaminated": bad_n.get(name, 0) if j == 0 else 0, "dropped": drop if j == 0 else {},
+                                "chars": chars.get(name, 0) if k == 1 else None, "piece": j, "pieces": k})
+        docs[name] = []
 
 
 def cmd_val(args) -> None:
@@ -533,7 +612,9 @@ def cmd_val(args) -> None:
     _load_decon(str(Path(args.decon) / "decon_hashes.npy"))
     for source, part in VAL_PART.items():
         path, url = source_file(source, part, work)
-        streams, _ = read_source(source, path, titles, limit_docs=args.docs * 3)
+        streams: dict[str, list[str]] = {}
+        for name, t in iter_source(source, path, titles, {}, limit_docs=args.docs * 3):
+            streams.setdefault(name, []).append(t)
         path.unlink(missing_ok=True)
         for name, texts in streams.items():
             texts = [t for t, b in zip(texts, contaminated(texts, None)) if not b][:args.docs]
@@ -551,6 +632,8 @@ def cmd_yardstick(args) -> None:
         lm = json.load(f)
     base = REPO / "data" / "cache" / "lm" / "tokens"
     for split, texts in lm.items():
+        if split == "val_b":
+            continue
         nb = np.load(base / f"{split}.bytes.npy").astype(np.int64) if (base / f"{split}.bytes.npy").exists() else \
             np.asarray([len(t.encode("utf-8")) for t in texts])
         docs = encode_docs(tok, texts)
@@ -581,6 +664,7 @@ SMOLTALK_EN = ["smoltalk_smollm3_smol_magpie_ultra_no_think", "smoltalk_smollm3_
                "smoltalk_smollm3_systemchats_30k_no_think", "smoltalk_smollm3_smol_rewrite_no_think",
                "smoltalk_smollm3_smol_summarize_no_think", "smoltalk_smollm3_explore_instruct_rewriting_no_think"]
 SMOLTALK_DE = ["smoltalk_multilingual_8languages_lang_5_no_think"]
+MAGPIE_MAX_CHARS = 2400                            # ≈ 500 tokens per assistant turn at most
 
 
 def iter_smoltalk(work: Path, only_lang: str | None = None):
@@ -598,6 +682,8 @@ def iter_smoltalk(work: Path, only_lang: str | None = None):
                 sysmsg = (kw.get("custom_instructions") or "").strip()
                 if sysmsg and msgs[0].role != "system":
                     msgs = [Message("system", sysmsg)] + msgs
+                if "magpie" in sub and max(len(m.text) for m in msgs if m.role == "assistant") > MAGPIE_MAX_CHARS:
+                    continue                       # long essays: slow in the app and drift in a small model
                 lang = "en"
                 if sub in SMOLTALK_DE:
                     if not is_german(" ".join(m.text for m in msgs[:3])):
@@ -674,6 +760,8 @@ def grounded_example(rng: random.Random, title: str, context: str, question: str
     if ans_sent is not None:
         lo, hi = max(0, ans_sent - 1), min(len(sents), ans_sent + 2)
         own = " ".join(sents[lo:hi])
+        if answers[0].strip() and answers[0].strip().lower() not in own.lower():
+            return []                              # the sentence split lost the answer: no (wrong) abstention label
     else:
         k = rng.randrange(max(1, len(sents)))
         own = " ".join(sents[k:k + 3])
@@ -681,13 +769,14 @@ def grounded_example(rng: random.Random, title: str, context: str, question: str
     rng.shuffle(srcs)
     idx = srcs.index((title, own)) + 1
     if answers and ans_sent is not None and answers[0].strip():
-        span = answers[0].strip().rstrip(".")
-        if rng.random() < 0.5:
-            reply = f"{span[0].upper() + span[1:]} [{idx}]."
-        else:
+        span = answers[0].strip().rstrip(".")       # the answer first (scored as a span), sometimes its sentence too
+        if not span:
+            return []
+        reply = f"{span[0].upper() + span[1:]} [{idx}]."
+        if rng.random() < 0.4:
             sent = sents[ans_sent]
             end = sent[-1] if sent[-1] in ".!?" else "."
-            reply = f"{sent.rstrip('.!?')} [{idx}]{end}"
+            reply += f" {sent.rstrip('.!?')} [{idx}]{end}"
     else:
         reply = NO_ANSWER[lang]
     return [Message("system", SYSTEM_GROUNDED[lang]), Message("sources", sources_block(srcs)),
@@ -710,8 +799,10 @@ def iter_grounded(work: Path, rng: random.Random):
             ss = split_sentences(c)
             k = rng.randrange(max(1, len(ss)))
             distract.append((t.replace("_", " "), " ".join(ss[k:k + 2])))
-        yield (grounded_example(rng, r["title"].replace("_", " "), r["context"], r["question"], texts,
-                                starts[0] if starts else None, distract), "en", "squad_v2")
+        ex = grounded_example(rng, r["title"].replace("_", " "), r["context"], r["question"], texts,
+                              starts[0] if starts else None, distract)
+        if ex:
+            yield ex, "en", "squad_v2"
     if True:
         for r in hf_rows("hotpotqa/hotpot_qa", "distractor", "train", ["question", "answer", "context", "supporting_facts"],
                          work):
@@ -816,14 +907,21 @@ def bucket(msgs: list[Message]) -> str:
 
 
 def prepare(msgs: list[Message], lang: str, rng: random.Random) -> list[Message] | None:
-    if not msgs or msgs[-1].role != "assistant" or not any(m.role == "user" for m in msgs):
+    while msgs and msgs[-1].role != "assistant":   # a closing user turn ("Thanks!") has nothing to learn from
+        msgs = msgs[:-1]
+    if not msgs or not any(m.role == "user" for m in msgs):
         return None
     if any(m.role == "assistant" and FOREIGN_IDENTITY.search(m.text) for m in msgs):
         return None
     if any(not m.text.strip() for m in msgs):
         return None
-    if msgs[0].role != "system" and rng.random() < 0.5:
-        msgs = [Message("system", SYSTEM[lang])] + msgs
+    if msgs[0].role != "system":
+        short = all(len(m.text) <= 600 for m in msgs if m.role == "assistant")
+        r = rng.random()
+        if short and r < 0.3:
+            msgs = [Message("system", SYSTEM_BRIEF[lang])] + msgs
+        elif r < 0.6:
+            msgs = [Message("system", SYSTEM[lang])] + msgs
     return msgs
 
 
@@ -935,6 +1033,7 @@ def main() -> None:
             p.add_argument("--source", required=True, choices=sorted(SOURCES))
             p.add_argument("--part", type=int, required=True)
             p.add_argument("--limit-docs", type=int, default=0)
+            p.add_argument("--chunk-docs", type=int, default=100_000)
         if name == "val":
             p.add_argument("--docs", type=int, default=2000)
         if name == "chat":

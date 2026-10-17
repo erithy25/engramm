@@ -182,3 +182,133 @@ def test_optimizer_groups_schedules_and_resume():
     assert abs(muon_weight_decay(2 ** 19, 3_000_000_000) - 0.28 * 1321205760 / 3e9) < 1e-6
     assert muon_weight_decay(2 ** 19, 10_000_000) == 0.28
     assert newton_ok()
+
+
+# --- golden check against nanochat's reference update rules -----------------------------------------------------
+# The two functions below are nanochat's muon_step_fused and adamw_step_fused (github.com/karpathy/nanochat,
+# nanochat/optim.py, MIT licence, fetched 2026-10-17), copied without the torch.compile decorator and with
+# COMPUTE_DTYPE fixed to float32 (the CPU path). experiments/sela2_optim.py must reproduce them exactly.
+
+_PE = [(8.156554524902461, -22.48329292557795, 15.878769915207462),
+       (4.042929935166739, -2.808917465908714, 0.5000178451051316),
+       (3.8916678022926607, -2.772484153217685, 0.5060648178503393),
+       (3.285753657755655, -2.3681294933425376, 0.46449024233003106),
+       (2.3465413258596377, -1.7097828382687081, 0.42323551169305323)]
+
+
+def _nanochat_muon(stacked_grads, stacked_params, momentum_buffer, second_momentum_buffer, momentum_t, lr_t, wd_t,
+                   beta2_t, ns_steps, red_dim):
+    momentum = momentum_t.to(stacked_grads.dtype)
+    momentum_buffer.lerp_(stacked_grads, 1 - momentum)
+    g = stacked_grads.lerp_(momentum_buffer, momentum)
+    X = g
+    target = X.float().norm(dim=(-2, -1), keepdim=True) / (X.size(-2) ** 0.5)
+    row_norm = X.float().norm(dim=-1, keepdim=True).clamp_min(1e-6)
+    X = X * (target / row_norm).to(X.dtype)
+    X = X / (X.norm(dim=(-2, -1), keepdim=True) * 1.01 + 1e-6)
+    if g.size(-2) > g.size(-1):
+        for a, b, c in _PE[:ns_steps]:
+            A = X.mT @ X
+            B = b * A + c * (A @ A)
+            X = a * X + X @ B
+    else:
+        for a, b, c in _PE[:ns_steps]:
+            A = X @ X.mT
+            B = b * A + c * (A @ A)
+            X = a * X + B @ X
+    g = X.to(stacked_params.dtype)
+    target_norm = min(g.size(-2), g.size(-1)) ** 0.5
+    current_norm = g.float().norm(dim=(-2, -1), keepdim=True).clamp_min(1e-6)
+    g = g * (target_norm / current_norm).to(g.dtype)
+    beta2 = beta2_t.to(g.dtype)
+    v_mean = g.float().square().mean(dim=red_dim, keepdim=True)
+    red_dim_size = g.size(red_dim)
+    v_norm_sq = v_mean.sum(dim=(-2, -1), keepdim=True) * red_dim_size
+    v_norm = v_norm_sq.sqrt()
+    second_momentum_buffer.lerp_(v_mean.to(dtype=second_momentum_buffer.dtype), 1 - beta2)
+    step_size = second_momentum_buffer.clamp_min(1e-10).rsqrt()
+    scaled_sq_sum = (v_mean * red_dim_size) * step_size.float().square()
+    v_norm_new = scaled_sq_sum.sum(dim=(-2, -1), keepdim=True).sqrt()
+    final_scale = step_size * (v_norm / v_norm_new.clamp_min(1e-10))
+    g = g * final_scale.to(g.dtype)
+    lr = lr_t.to(g.dtype)
+    wd = wd_t.to(g.dtype)
+    mask = (g * stacked_params) >= 0
+    stacked_params.sub_(lr * g + lr * wd * stacked_params * mask)
+
+
+def _nanochat_adamw(p, grad, exp_avg, exp_avg_sq, step_t, lr_t, beta1_t, beta2_t, eps_t, wd_t):
+    p32, exp_avg32, exp_avg_sq32, grad32 = p.float(), exp_avg.float(), exp_avg_sq.float(), grad.float()
+    p32.mul_(1 - lr_t * wd_t)
+    exp_avg32.lerp_(grad32, 1 - beta1_t)
+    exp_avg_sq32.lerp_(grad32.square(), 1 - beta2_t)
+    bias1 = 1 - beta1_t ** step_t
+    bias2 = 1 - beta2_t ** step_t
+    denom = (exp_avg_sq32 / bias2).sqrt() + eps_t
+    step_size = lr_t / bias1
+    p32.add_(exp_avg32 / denom, alpha=-step_size)
+    p.copy_(p32)
+    exp_avg.copy_(exp_avg32)
+    exp_avg_sq.copy_(exp_avg_sq32)
+
+
+@pytest.mark.parametrize("shape", [(3, 16, 48), (2, 48, 16)])
+def test_muon_matches_nanochat(shape):
+    from experiments.sela2_optim import muon_update
+    g = torch.Generator().manual_seed(1)
+    grads = [torch.randn(*shape, generator=g) for _ in range(3)]
+    p0 = torch.randn(*shape, generator=g)
+    red = -1 if shape[-2] >= shape[-1] else -2
+    vshape = (shape[0], shape[1], 1) if red == -1 else (shape[0], 1, shape[2])
+    t = lambda x: torch.tensor(float(x))
+    a = [p0.clone(), torch.zeros(shape), torch.zeros(vshape)]
+    b = [p0.clone(), torch.zeros(shape), torch.zeros(vshape)]
+    for gr in grads:                                   # three steps: momentum and second moment carry over
+        _nanochat_muon(gr.clone(), a[0], a[1], a[2], t(0.95), t(0.02), t(0.1), t(0.9), 5, red)
+        muon_update(gr.clone(), b[0], b[1], b[2], t(0.95), t(0.02), t(0.1), t(0.9), 5, red, False)
+    for x, y in zip(a, b):
+        assert torch.allclose(x, y, atol=1e-6, rtol=1e-5), float((x - y).abs().max())
+
+
+def test_adamw_matches_nanochat():
+    from experiments.sela2_optim import adamw_update
+    g = torch.Generator().manual_seed(2)
+    p0 = torch.randn(20, 8, generator=g)
+    a = [p0.clone(), torch.zeros(20, 8), torch.zeros(20, 8)]
+    b = [p0.clone(), torch.zeros(20, 8), torch.zeros(20, 8)]
+    t = lambda x: torch.tensor(float(x))
+    for step in range(1, 4):
+        gr = torch.randn(20, 8, generator=g)
+        _nanochat_adamw(a[0], gr, a[1], a[2], t(step), t(0.003), t(0.8), t(0.95), t(1e-10), t(0.01))
+        adamw_update(b[0], gr, b[1], b[2], t(step), t(0.003), t(0.8), t(0.95), t(1e-10), t(0.01))
+    for x, y in zip(a, b):
+        assert torch.allclose(x, y, atol=1e-7), float((x - y).abs().max())
+
+
+def test_chat_render_golden_and_special_tokens():
+    from engramm.lm.chat_format import IM_END, IM_START, Message, render
+
+    class Tok:                                         # one id per character (offset 100): ids are predictable
+        def encode(self, s):
+            return [100 + ord(c) % 1000 for c in s]
+    ids, mask = render(Tok(), [Message("user", "hi"), Message("assistant", "yo")], add_generation_prompt=False)
+    nl = 100 + ord("\n")
+    head_u = [IM_START] + [100 + ord(c) for c in "user\n"]
+    head_a = [IM_START] + [100 + ord(c) for c in "assistant\n"]
+    want = [0] + head_u + [100 + ord("h"), 100 + ord("i"), IM_END, nl] + head_a + [100 + ord("y"), 100 + ord("o"), IM_END, nl]
+    assert ids == want
+    learn = [i for i, m in enumerate(mask) if m]
+    assert [ids[i] for i in learn] == [100 + ord("y"), 100 + ord("o"), IM_END]
+    with pytest.raises(ValueError):
+        render(Tok(), [Message("robot", "x")])
+
+
+def test_plan_weights_respects_what_sources_hold():
+    from experiments.sela2_train import group_of, plan_weights
+    avail = {"a": 1000, "b": 50, "c": 1000}
+    s, d = plan_weights(avail, 1000, 0.7, {"a": 0.5, "b": 0.3, "c": 0.2}, {"a": 0.3, "b": 0.3, "c": 0.4})
+    for g in avail:
+        need = s.get(g, 0) * 700 + d.get(g, 0) * 300
+        assert need <= avail[g] * 0.99 + 1e-6, (g, need)
+    assert abs(sum(s.values()) - 1) < 1e-9 and abs(sum(d.values()) - 1) < 1e-9
+    assert group_of("fwe_2") == "fwe" and group_of("dclm_0_1") == "dclm" and group_of("chat_en_decay") == "chat_en_decay"

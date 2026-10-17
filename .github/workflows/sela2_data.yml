@@ -1,0 +1,236 @@
+# Training data of Sela-2 (docs/PLAN_V5_FROM_SCRATCH.md §12, experiments/sela2_data.py): decontamination table,
+# bilingual tokenizer, pretraining token streams, chat / grounded-QA streams, validation sets and the LM-study
+# yardstick, built on free runners. The data go ONLY into a private draft release (visible to people with write
+# access); no artifact and no cache holds them. The small records (tokenizer, per-stream JSON, reports) are
+# committed to the branch at the end so that the GPU run and the documentation can pin them.
+name: Sela-2 training data (private draft release)
+
+on:
+  push:
+    branches: ["claude/optimistic-cannon-i0u0ap"]
+    paths: [".github/workflows/sela2_data.yml"]
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "rebuild only these entries (comma list of matrix names, e.g. chat,val,fwe-0); empty = all"
+        required: false
+        default: ""
+      skip_base:
+        description: "1 = decontamination table and tokenizer already in the release (rebuild streams only)"
+        required: false
+        default: "0"
+
+permissions:
+  contents: write                        # the private draft release and the final commit of the small records
+
+concurrency:
+  group: sela2-data
+  cancel-in-progress: false
+
+env:
+  RELEASE_NAME: "ENGRAMM Sela-2 Trainingsdaten (privat)"
+  PYTHONUTF8: "1"
+  PIP_PKGS: "numpy==2.2.6 pyarrow==21.0.0 tokenizers==0.23.2"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    outputs:
+      id: ${{ steps.r.outputs.id }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - id: r
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          id=$(python -m experiments.gh_release find-or-create --name "$RELEASE_NAME" \
+               --body "Private Trainingsdaten für Sela-2 (Token-Ströme, Tokenizer, Dekontamination). Nicht veröffentlichen.")
+          echo "release id: $id"
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+  decon:
+    needs: release
+    if: ${{ github.event.inputs.skip_base != '1' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install $PIP_PKGS
+      - name: LM-study splits (bit-identical to the CPU machine; their val/test documents are decontaminated against)
+        run: python -m experiments.h100_data base
+      - name: 13-word hashes of every evaluation text
+        run: python -m experiments.sela2_data decon --out "$RUNNER_TEMP/decon" --work "$RUNNER_TEMP/work"
+      - name: Into the private draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat "$RUNNER_TEMP/decon/decon_report.json"
+          python -m experiments.gh_release upload --release ${{ needs.release.outputs.id }} "$RUNNER_TEMP"/decon/*
+
+  tokenizer:
+    needs: release
+    if: ${{ github.event.inputs.skip_base != '1' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Free disk space (preinstalled toolchains)
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL; df -h /
+      - run: pip install $PIP_PKGS
+      - name: Bilingual byte-level BPE, 49,152 tokens, ChatML special tokens
+        run: python -m experiments.sela2_data tokenizer --out "$RUNNER_TEMP/tok/lm2_tokenizer.json" --work "$RUNNER_TEMP/work"
+      - name: Into the private draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat "$RUNNER_TEMP/tok/lm2_tokenizer.report.json"
+          python -m experiments.gh_release upload --release ${{ needs.release.outputs.id }} \
+            "$RUNNER_TEMP/tok/lm2_tokenizer.json" "$RUNNER_TEMP/tok/lm2_tokenizer.report.json"
+
+  build:
+    needs: [release, decon, tokenizer]
+    if: ${{ always() && needs.release.result == 'success' && (github.event.inputs.skip_base == '1' || (needs.decon.result == 'success' && needs.tokenizer.result == 'success')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include:
+          - {name: fwe-0, kind: source, source: fwe, part: 0}
+          - {name: fwe-1, kind: source, source: fwe, part: 1}
+          - {name: fwe-2, kind: source, source: fwe, part: 2}
+          - {name: dclm-0, kind: source, source: dclm, part: 0}
+          - {name: dclm-1, kind: source, source: dclm, part: 1}
+          - {name: c4-0, kind: source, source: c4, part: 0}
+          - {name: c4-1, kind: source, source: c4, part: 1}
+          - {name: cosmo-0, kind: source, source: cosmo, part: 0}
+          - {name: cosmo-1, kind: source, source: cosmo, part: 1}
+          - {name: wiki_en-0, kind: source, source: wiki_en, part: 0}
+          - {name: wiki_en-1, kind: source, source: wiki_en, part: 1}
+          - {name: wiki_en-2, kind: source, source: wiki_en, part: 2}
+          - {name: pg19-0, kind: source, source: pg19, part: 0}
+          - {name: pg19-1, kind: source, source: pg19, part: 1}
+          - {name: fw2_de-0, kind: source, source: fw2_de, part: 0}
+          - {name: fw2_de-1, kind: source, source: fw2_de, part: 1}
+          - {name: fw2_de-2, kind: source, source: fw2_de, part: 2}
+          - {name: wiki_de-0, kind: source, source: wiki_de, part: 0}
+          - {name: wiki_de-1, kind: source, source: wiki_de, part: 1}
+          - {name: chat, kind: chat}
+          - {name: val, kind: val}
+          - {name: yardstick, kind: yardstick}
+    env:
+      ONLY: ${{ github.event.inputs.only }}
+    steps:
+      - id: want
+        run: |
+          if [ -n "$ONLY" ] && ! echo ",$ONLY," | grep -q ",${{ matrix.name }},"; then echo "skip=1" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        if: steps.want.outputs.skip != '1'
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        if: steps.want.outputs.skip != '1'
+        with:
+          python-version: "3.11"
+      - name: Free disk space (preinstalled toolchains)
+        if: steps.want.outputs.skip != '1'
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL; df -h /
+      - if: steps.want.outputs.skip != '1'
+        run: pip install $PIP_PKGS
+      - name: Tokenizer and decontamination table from the draft
+        if: steps.want.outputs.skip != '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -m experiments.gh_release download --release ${{ needs.release.outputs.id }} --dest "$RUNNER_TEMP/in" \
+            --match '^(decon_hashes\.npy|wikitext_titles\.json|lm_study_docs\.json\.gz|lm2_tokenizer\.json)$'
+          ls -la "$RUNNER_TEMP/in"
+      - name: Build ${{ matrix.name }}
+        if: steps.want.outputs.skip != '1'
+        run: |
+          set -e
+          a=(--tok "$RUNNER_TEMP/in/lm2_tokenizer.json" --decon "$RUNNER_TEMP/in" --out "$RUNNER_TEMP/out" --work "$RUNNER_TEMP/work")
+          case "${{ matrix.kind }}" in
+            source) python -m experiments.sela2_data build --source "${{ matrix.source }}" --part "${{ matrix.part }}" "${a[@]}" ;;
+            chat) python -m experiments.sela2_data chat "${a[@]}" ;;
+            val) python -m experiments.sela2_data val "${a[@]}" ;;
+            yardstick) python -m experiments.sela2_data yardstick "${a[@]}" ;;
+          esac
+          ls -la "$RUNNER_TEMP/out"; df -h /
+      - name: Into the private draft
+        if: steps.want.outputs.skip != '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd "$RUNNER_TEMP/out"
+          PYTHONPATH="$GITHUB_WORKSPACE" python -m experiments.gh_release upload --release ${{ needs.release.outputs.id }} * 2>&1 | tail -40
+        working-directory: ${{ github.workspace }}
+
+  records:
+    needs: [release, build]
+    if: ${{ always() && needs.release.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/optimistic-cannon-i0u0ap
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Small records from the draft into the repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          rid=${{ needs.release.outputs.id }}
+          python -m experiments.gh_release download --release "$rid" --dest "$RUNNER_TEMP/rec" \
+            --match '(\.json|lm2_tokenizer\.json)$'
+          mkdir -p results/sela2/data
+          cp "$RUNNER_TEMP/rec/lm2_tokenizer.json" data/lm2_tokenizer.json
+          find "$RUNNER_TEMP/rec" -maxdepth 1 -name '*.json' ! -name 'lm2_tokenizer.json' -exec cp {} results/sela2/data/ \;
+          python - "$rid" <<'EOF'
+          import json, sys, glob, os
+          from experiments.gh_release import assets
+          rid = int(sys.argv[1])
+          al = {a["name"]: a for a in assets(rid) if a.get("state") == "uploaded"}
+          streams = []
+          for f in sorted(glob.glob("results/sela2/data/*.json")):
+              r = json.load(open(f))
+              if isinstance(r, dict) and r.get("name") and f"{r['name']}.u16" in al:
+                  streams.append({k: r.get(k) for k in ("name", "tokens", "docs", "sha256", "tokenizer_sha256",
+                                                        "source", "part", "lang", "dropped_contaminated", "mask_tokens")})
+          man = {"release_id": rid, "assets": len(al), "bytes": sum(a["size"] for a in al.values()),
+                 "streams": streams, "tokens_total": sum(s["tokens"] or 0 for s in streams)}
+          json.dump(man, open("results/sela2/data/manifest.json", "w"), indent=1)
+          print(json.dumps({k: v for k, v in man.items() if k != "streams"}))
+          EOF
+      - name: Commit to the branch
+        run: |
+          git config user.email "sela2-data@users.noreply.github.com"
+          git config user.name "ENGRAMM Sela-2 Datenbau"
+          git add data/lm2_tokenizer.json results/sela2/data
+          git diff --cached --quiet && { echo "nothing new"; exit 0; }
+          git commit -q -m "v5: Sela-2 Trainingsdaten – Tokenizer, Stromlisten und Berichte (Workflow-Lauf ${{ github.run_id }})"
+          for i in 1 2 3 4 5; do
+            git pull -q --rebase origin claude/optimistic-cannon-i0u0ap && git push -q origin HEAD:claude/optimistic-cannon-i0u0ap && exit 0
+            sleep $((i * 15))
+          done
+          exit 1
