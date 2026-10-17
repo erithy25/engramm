@@ -1,0 +1,89 @@
+# The desktop server with the REAL lite knowledge pack on Windows, macOS and Linux (read-only).
+# Why: the Windows test build of 17 Oct 2026 showed "error while loading". Its server read spanperc_ens7.json in the
+# Windows code page (cp1252) instead of UTF-8 and stopped with a UnicodeDecodeError; earlier Windows checks never loaded
+# a pack (and ran with PYTHONUTF8=1, which hid it). This job downloads the pack the way the app does (one asset per file,
+# checked against the manifest) into a folder with a space and umlauts, then starts the server as the app does, without
+# PYTHONUTF8: first the code of that Windows build (108731d, expected to fail on Windows), then the current code from
+# source, then the frozen server (PyInstaller, must run in UTF-8 mode). Each must become ready and answer five
+# questions (English and German).
+name: App with the real pack
+
+on:
+  push:
+    branches: ["claude/optimistic-cannon-i0u0ap"]
+    paths:
+      - ".github/workflows/app_pack_check.yml"
+      - "runtime/sidecar/pack_check.py"
+      - "runtime/sidecar/engramm-server.spec"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: app-pack-check-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PACK_URL: "https://github.com/${{ github.repository }}/releases/download/v3.2.0-beta.12/"
+  OLD_COMMIT: "108731d814c672aa0c4cb0b37b8ca1dfa27453b5"    # the server inside "privater Test-Build 1" for Windows
+
+jobs:
+  pack:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-14, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 75
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Server dependencies (as frozen into the app)
+        run: pip install -r runtime/sidecar/requirements.txt
+      - name: Default text encoding of this system
+        run: python -c "import locale, sys; print('locale', locale.getpreferredencoding(False), 'utf8_mode', sys.flags.utf8_mode)"
+      - name: Lite pack, downloaded like the app does
+        run: python runtime/sidecar/pack_check.py fetch --base-url "$PACK_URL" --root "$RUNNER_TEMP"
+      - name: Code of the Windows test build (108731d), for comparison
+        id: old
+        continue-on-error: true
+        run: |
+          git worktree add "$RUNNER_TEMP/old" "$OLD_COMMIT"
+          python runtime/sidecar/pack_check.py run --pack-file "$RUNNER_TEMP/pack_dir.txt" --cwd "$RUNNER_TEMP/old" \
+            -- python -m engramm.app | tee "$RUNNER_TEMP/old.json"
+      - name: Current code, from source
+        run: python runtime/sidecar/pack_check.py run --pack-file "$RUNNER_TEMP/pack_dir.txt" -- python -m engramm.app | tee "$RUNNER_TEMP/new.json"
+      - name: Freeze the server (PyInstaller, as in the desktop builds)
+        run: pyinstaller --noconfirm --log-level WARN --distpath build/sidecar --workpath build/pyi runtime/sidecar/engramm-server.spec
+      - name: Frozen server
+        run: |
+          exe=build/sidecar/engramm-server/engramm-server
+          if [ "$RUNNER_OS" = "Windows" ]; then exe="$exe.exe"; fi
+          python runtime/sidecar/pack_check.py run --pack-file "$RUNNER_TEMP/pack_dir.txt" --expect-utf8 -- "$exe" | tee "$RUNNER_TEMP/frozen.json"
+      - name: Summary
+        if: always()
+        run: |
+          python - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json, os
+          t = os.environ["RUNNER_TEMP"]
+          print(f"### {os.environ['RUNNER_OS']}\n\n| Server | ready | load s | error | answers ok |\n|---|---|---|---|---|")
+          for name in ("old", "new", "frozen"):
+              try:
+                  raw = open(os.path.join(t, name + ".json"), encoding="utf-8").read()
+                  r = json.loads(raw[raw.index("{"):])
+              except (OSError, ValueError):
+                  print(f"| {name} | – | – | no result | – |")
+                  continue
+              ok = sum(a["ok"] for a in r.get("answers", []))
+              err = (r.get("error") or "").replace("|", "/")[:160]
+              print(f"| {name} | {r.get('ready')} | {r.get('load_seconds')} | {err} | {ok}/{len(r.get('answers', []))} |")
+          EOF
