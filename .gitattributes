@@ -1,1 +1,3 @@
 data/lm_tokenizer.json -text
+# pinned by SHA-256 (engramm/lm/tokenizer.py, Sela-2 weights): no line-ending conversion on Windows checkouts
+data/lm2_tokenizer.json -text

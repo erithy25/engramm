@@ -8836,8 +8836,9 @@ class Assistant:
                 had = nxt <= today
                 age_now = today.year - year - (0 if had else 1)
                 nxt_year = today.year + (1 if had else 0)
+                nd = _dt.date(nxt_year, bday[0], bday[1])
                 text = self._pick(st, "daily:age_if", d["age_if"], x=age_now, y=nxt_year - year,
-                                  z=_dt.date(nxt_year, bday[0], bday[1]).strftime("%-d %B %Y"))
+                                  z=f"{nd.day} {nd.strftime('%B')} {nd.year}")   # "%-d" does not exist on Windows
             else:
                 text = self._pick(st, "daily:age_if_nobday", d["age_if_nobday"], x=today.year - year - 1, y=today.year - year)
             return Reply(msg, "tool", text, via="tool", confidence=1.0)

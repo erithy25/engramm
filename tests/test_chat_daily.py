@@ -4384,3 +4384,11 @@ def test_battery124_engaged_baby_sting_tyre_leak_laptop_marathon_friend(chat):
     a.turn(st, "i work as a nurse")
     a.turn(st, "i just spilled coffee all over my laptop")
     assert "nurse" not in a.turn(st, "what do i do?").text.lower()
+
+
+def test_age_from_birth_year_with_a_told_birthday(chat):
+    # the reply names the next birthday as "3 March 2027"; it used strftime("%-d …"), which Windows rejects
+    a, st = chat
+    a.turn(st, "My birthday is 3 March.")
+    r = a.turn(st, "I was born in 1990, how old will I be?")
+    assert "3 March" in r.text and "37" in r.text, r.text
