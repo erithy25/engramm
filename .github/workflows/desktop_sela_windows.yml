@@ -2,6 +2,9 @@
 # Adds the Windows installers to the private draft release of the first private build (desktop_sela.yml, run 1):
 # it reuses the converted weights already in that draft (sela1-135m.npz, checked against torch there) and uploads the
 # .msi and the setup .exe into the same draft. As in desktop_sela.yml, no artifact and no cache holds the model.
+# Build 2 (17 Oct 2026, the installers end in _Sela-1_v2): fixes "error while loading" on Windows (the server read the
+# pack in the code page instead of UTF-8) and shows load errors in the chat. Before packaging, the frozen server loads
+# the real lite pack and answers (runtime/sidecar/pack_check.py), which build 1 never did.
 name: Desktop with Sela-1 for Windows (private)
 
 on:
@@ -65,6 +68,14 @@ jobs:
       - name: Smoke test of the frozen server (Sela-1 writes a few tokens)
         run: python runtime/sidecar/smoke_test.py runtime/app/src-tauri/resources/sidecar
 
+      - name: The frozen server loads the real lite pack and answers (UTF-8 mode, folder with umlauts)
+        run: |
+          python runtime/sidecar/pack_check.py fetch \
+            --base-url "https://github.com/${{ github.repository }}/releases/download/v3.2.0-beta.12/" --root "$RUNNER_TEMP"
+          python runtime/sidecar/pack_check.py run --pack-file "$RUNNER_TEMP/pack_dir.txt" --expect-utf8 \
+            -- runtime/app/src-tauri/resources/sidecar/engramm-server.exe
+          rm -rf "$RUNNER_TEMP/ENGRAMM Prüfung Jörg Müller"
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -124,7 +135,7 @@ jobs:
           for f in "$b"/msi/*.msi "$b"/nsis/*.exe; do
             [ -f "$f" ] || { echo "missing installer: $f"; exit 1; }
             ext="${f##*.}"
-            name="$(basename "$f" ".$ext")_Sela-1.$ext"
+            name="$(basename "$f" ".$ext")_Sela-1_v2.$ext"
             bytes=$(stat -c %s "$f")
             sha256sum "$f"
             resp=$(curl -fsS -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: application/octet-stream" \
@@ -149,6 +160,11 @@ jobs:
                   'Modell unten im Chatfeld wählen.')
           if 'Windows (10/11' not in b:
               b += note
+          fix = ('\n\nWindows, Build 2 (17. Okt.): die Dateien mit _Sela-1_v2 nehmen. Sie beheben \"error while loading\" '
+                 '(das Wissenspaket wurde unter Windows nicht als UTF-8 gelesen) und zeigen Ladefehler im Chat an. Die '
+                 'Windows-Dateien ohne _v2 nicht mehr verwenden.')
+          if 'Build 2 (17. Okt.)' not in b:
+              b += fix
           print(json.dumps({'body': b}))
           ")
           curl -fsS -X PATCH -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
