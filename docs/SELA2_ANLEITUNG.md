@@ -13,6 +13,7 @@ allein.
 | Dauer | ≈ 6,3 Stunden, davon ~15 Minuten mit dir |
 | Kosten | **höchstens 25 $** (Kostenbremse ab dem Mieten). Nur falls der Pod nach der Bremse neu gestartet wird, bleiben insgesamt höchstens 10 Minuten zum Sichern (≈ 0,70 $). Harte Grenze: **30 $ Guthaben, automatisches Aufladen aus** |
 | Ergebnis | Messwerte im Repository (Branch `sela2-results-…`, zusätzlich als `sela2_ergebnisse.tar.gz` im Release); privat unter „Releases“ im Entwurf „ENGRAMM Sela-2 Modell …“ (nur für dich): `sela2_chat_bf16.pt` (≈ 1 GB, das Chat-Modell), `sela2_basis_bf16.pt` (Basismodell), `fortsetzen_vor_abklingen.pt` (≈ 4,8 GB in 3 Teilen, zum späteren Weitertrainieren). Die App-Datei baue ich danach kostenlos auf GitHub |
+| In der App | Datei 505 MB (int8), ≈ 2 GB Arbeitsspeicher (berechnet). Gemessen auf einem 4-Kern-PC: 18,5 Token/s, eine Antwort von 60 Token in 3–4 s |
 | Ehrlich | Sela-2 hat die Größe von GPT-3 Medium, aber ~1 % von dessen Rechenzeit. Erwartung: Benchmarks zwischen GPT-2 small und medium, flüssiger kurzer Chat, Fakten aus ENGRAMMs Quellen mit Zitaten (in der App geprüft). Ohne Quellen erfindet es Fakten. Deutsch ist ein Versuch |
 
 ## Was die Skripte absichern
@@ -66,11 +67,11 @@ Befehl Enter. Befehle mit dem Kopier-Symbol rechts oben im grauen Kasten kopiere
 **Befehl 1** – Programm holen (genau geprüfter Stand):
 
 ```bash
-cd /workspace && git clone -q -b claude/optimistic-cannon-i0u0ap https://github.com/erithy25/engramm.git && cd engramm && git checkout -q SELA2_COMMIT && echo "OK: Programm geladen"
+cd /workspace && git clone -q -b claude/optimistic-cannon-i0u0ap https://github.com/erithy25/engramm.git && cd engramm && git checkout -q 48d9dc9b24ac && echo "OK: Programm geladen"
 ```
 
 Es muss „OK: Programm geladen“ erscheinen. Bei „already exists“:
-`cd /workspace/engramm && git fetch -q origin && git checkout -q SELA2_COMMIT && echo "OK: Programm geladen"`
+`cd /workspace/engramm && git fetch -q origin && git checkout -q 48d9dc9b24ac && echo "OK: Programm geladen"`
 
 **Befehl 2** – GitHub-Schlüssel (beim Einfügen wird **nichts angezeigt** – richtig so): Befehl einfügen, Enter, dann
 den Schlüssel einfügen, Enter:
