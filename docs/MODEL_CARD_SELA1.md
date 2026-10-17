@@ -128,19 +128,46 @@ read-only, and three of them used separate lenses:
   (+0.013), still below 1.04. Three small templated web pages remain in the test set with clear memorisation; together
   they move the result by 0.0002.
 
+## Re-run on a CPU and benchmarks outside the training data
+
+GitHub Actions ran the network again on 17 Oct 2026 (workflow `.github/workflows/sela1_bench.yml`, results
+`results/v5/h100/bench_main.json` and `eval_recheck_cpu.json`). The runners loaded the weights from the private draft
+release; the weights are not in any artifact.
+
+**Re-run on a CPU.** The base data were rebuilt with the pinned SHA-256 values. The same evaluation code then ran on a
+CPU in fp32 (torch 2.8.0) and gave test 0.98938 (extended filter), against 0.98938 on the H100: a difference of
+1.6·10⁻⁶ bpb. Per token, the log-probabilities differ by at most 5·10⁻⁵ nats. The Stage-1 number is therefore
+reproduced by the network itself, not only from the saved probabilities.
+
+**Zero-shot benchmarks.** These tasks come from sources Sela-1 was not trained for (stories, commonsense questions,
+science questions). Both models were scored with the same code (`experiments/sela1_bench.py`, scored like EleutherAI's
+lm-evaluation-harness, every context starting with the end-of-text token).
+
+| Task (items) | Metric | Sela-1 135M | GPT-2 small | Sela-1 − GPT-2 (95 % CI, paired bootstrap) |
+|---|---|---|---|---|
+| HellaSwag (10,042) | acc_norm | **32.7 %** | 31.3 % | **+1.4 pp** (+0.8 … +2.1) |
+| PIQA (1,838) | acc_norm | **64.7 %** | 62.5 % | **+2.2 pp** (+0.5 … +3.9) |
+| ARC-Easy (2,376) | acc_norm | 39.9 % | 40.5 % | −0.6 pp (−2.2 … +1.1), no difference |
+| LAMBADA (5,153) | acc / perplexity | 27.8 % / 54.8 | **33.7 % / 35.1** | **−5.9 pp** (−7.1 … −4.7) |
+
+Outside its own data, Sela-1 is about level with GPT-2 small: better on HellaSwag and PIQA, level on ARC-Easy, and
+clearly worse on LAMBADA. LAMBADA asks for the last word of passages from novels, which need long context. Sela-1's
+training text had no books (web pages and Wikipedia only). The GPT-2 numbers from these runners match a separate run on
+the project's CPU machine exactly (`results/v5/h100/bench_gpt2_local/`).
+
 ## Caveats
 
 - **In-domain, not general.** The test documents come from the same sources Sela-1 was trained on (C4-en and
   WikiText-103), and the training mix was matched to the evaluation mix. GPT-2 small sees this text zero-shot. The
-  ratio 0.955 does not show that Sela-1 is a better general language model than GPT-2 small.
+  ratio 0.955 does not show that Sela-1 is a better general language model than GPT-2 small. On the four zero-shot
+  benchmarks above it is about level with GPT-2 small, not better overall.
 - **Partial overlap.** Test documents below the 20 % overlap threshold can still share passages with the training text.
   Overlap with the extra C4 text below 20 % could not be recomputed on the checking machine. The C4 shards are public
   and pinned by SHA-256 (`experiments/h100_data.py`), so the check can be repeated elsewhere; the stress tests above
   estimate its plausible effect.
-- **No re-run of the network.** The final numbers come from the token log-probabilities saved during the run. The weights
-  were not available on the verification machine, so the network could not be run again there. Uncommitted code edits
-  on the rental machine cannot be excluded either: the results commit `219df1d` sits directly on `eb2e002`, and the
-  audited files are unchanged.
+- **Re-run done.** The four verifiers worked from the saved token log-probabilities only. The later CPU re-run of the
+  network (above) reproduces the test value to 1.6·10⁻⁶ bpb with the repository's code (run on commit `14a886d`), so
+  uncommitted edits on the rental machine cannot have changed the result.
 - **Mixture is not the Stage-1 number.** Stage 1 is decided by the network alone. The mixture with the counting model
   (0.982) is reported separately.
 

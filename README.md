@@ -122,14 +122,16 @@ GPT-2 small, scored zero-shot on the same documents, gets 1.036.
 | Parameters / training tokens | 135 M / 5.76 B | 124 M / about 40 GB of text |
 
 **Read this before quoting it.** This is an in-domain result. The test documents come from the same sources Sela-1
-was trained on (C4 web text and WikiText-103 articles), while GPT-2 small sees them zero-shot. It does not show that
-Sela-1 is a better general language model than GPT-2 small; no out-of-domain benchmark has been run yet. Sela-1 writes
-fluent paragraphs that drift in meaning and invents facts.
+was trained on (C4 web text and WikiText-103 articles), while GPT-2 small sees them zero-shot. On four zero-shot
+benchmarks from other sources, scored with the same code, Sela-1 is about level with GPT-2 small: HellaSwag 32.7 % vs.
+31.3 % and PIQA 64.7 % vs. 62.5 % (both better), ARC-Easy 39.9 % vs. 40.5 % (level), LAMBADA 27.8 % vs. 33.7 % (worse;
+it needs long passages from novels, and Sela-1 read no books). Sela-1 writes fluent paragraphs that drift in meaning
+and invents facts.
 
 Four independent agents checked the result. The final numbers reproduce exactly from the token probabilities saved
 during the run. The evaluation never lets the model see the token it predicts. Partial overlap with the training text
-is estimated to move the score by about 0.01; the harshest stress test gives 1.002. The network itself could not be
-re-run on the checking machine. Details, caveats and samples are in [`docs/MODEL_CARD_SELA1.md`](docs/MODEL_CARD_SELA1.md); the plan and the rule are in
+is estimated to move the score by about 0.01; the harshest stress test gives 1.002. A re-run of the network on a CPU
+gives the same test value (difference 1.6·10⁻⁶). Details, caveats and samples are in [`docs/MODEL_CARD_SELA1.md`](docs/MODEL_CARD_SELA1.md); the plan and the rule are in
 [`docs/PLAN_V5_FROM_SCRATCH.md`](docs/PLAN_V5_FROM_SCRATCH.md) §11. The weights are not public yet.
 
 ## ENGRAMM-LM — a language model built by counting

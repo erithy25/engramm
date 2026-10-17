@@ -644,7 +644,8 @@ Pod automatisch hochgeladen (Branch `h100-results-20261017-0317`, Commit `219df1
   - Der Vergleich mit GPT-2 ist in-domain gegen zero-shot: Die Test-Dokumente stammen aus denselben Quellen wie das
     Training, und die Mischung war auf die Messsätze abgestimmt. Pro Quelle beträgt das Verhältnis 0,945 bei C4 und
     0,970 bei Wikipedia. Sela-1 ist damit nicht allgemein besser als GPT-2 small.
-  - Die Gewichte waren auf dem Prüfrechner nicht verfügbar, das Netz wurde dort nicht neu ausgeführt.
+  - Die vier Prüfer arbeiteten nur mit den gespeicherten Token-Wahrscheinlichkeiten. Die spätere Neuauswertung des
+    Netzes auf einer CPU (unten) bestätigt den Wert.
   - Die C4-Überlappung unter 20 % war auf dem Prüfrechner nicht nachrechenbar. Die C4-Teile sind öffentlich und per
     SHA-256 festgelegt, die Rechnung ist also anderswo wiederholbar.
 - **Was übrig ist.**
@@ -656,6 +657,20 @@ Pod automatisch hochgeladen (Branch `h100-results-20261017-0317`, Commit `219df1
   - Der Stand liegt nur auf dem gestoppten Pod. Wer ihn behalten will, lädt ihn vor dem Löschen herunter (Anleitung
     Schritt 5b); mit dem Löschen des Pods ist er weg.
   - Weitertrainieren geht auch ab dem fertigen Modell mit neuer Aufwärm- und Abnahme-Phase.
+- **Neuauswertung und Benchmarks (17. Oktober, GitHub Actions, `.github/workflows/sela1_bench.yml`).**
+  - CPU, fp32, Basisdaten neu gebaut (SHA-256 geprüft), derselbe Messcode: Test 0,98938 gegen 0,98938 auf der H100,
+    Abweichung 1,6·10⁻⁶ bpb (`results/v5/h100/eval_recheck_cpu.json`).
+  - Zero-Shot gegen GPT-2 small im selben Messcode (`experiments/sela1_bench.py`, `results/v5/h100/bench_main.json`):
+
+    | Aufgabe | Sela-1 | GPT-2 small | Differenz (95-%-KI) |
+    |---|---|---|---|
+    | HellaSwag (acc_norm) | 32,7 % | 31,3 % | +1,4 pp (+0,8 … +2,1) |
+    | PIQA (acc_norm) | 64,7 % | 62,5 % | +2,2 pp (+0,5 … +3,9) |
+    | ARC-Easy (acc_norm) | 39,9 % | 40,5 % | −0,6 pp (−2,2 … +1,1) |
+    | LAMBADA (acc) | 27,8 % | 33,7 % | −5,9 pp (−7,1 … −4,7) |
+
+  - Außerhalb der eigenen Daten liegt Sela-1 damit etwa auf GPT-2-small-Niveau: zweimal besser, einmal gleich, bei
+    LAMBADA (letzte Wörter aus Romanen, langer Kontext; Sela-1 las keine Bücher) klar schlechter.
 - **Name.** Das Netz heißt **ENGRAMM Sela-1 135M** (Familie Sela, erste Generation, 135 Mio. Parameter). Das
   CPU-Netz aus §10 kann als „Sela-0 100M“ geführt werden.
 - **Folge für §10.** Die CPU-Verlängerung `long_ext1` wird für Stufe 1 nicht mehr gebraucht. Sie läuft als reiner
