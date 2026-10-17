@@ -57,6 +57,7 @@ SIZES = {
     "sela2": dict(d=1024, layers=24, heads=8, ctx=2048, vocab=49_152, ve_tables=2),
     "small": dict(d=384, layers=6, heads=6, ctx=512, vocab=49_152, ve_tables=1),
     "tiny": dict(d=64, layers=4, heads=2, ctx=128, vocab=512, ve_tables=1),
+    "probe": dict(d=128, layers=2, heads=2, ctx=256, vocab=49_152, ve_tables=1),   # the pod's 3-minute dry run
 }
 STABLE_MIX = {"fwe": 0.30, "fwehq": 0.12, "dclm": 0.24, "c4": 0.08, "cosmo": 0.07, "wiki_en": 0.06, "pg19": 0.04,
               "fw2_de": 0.07, "wiki_de": 0.02}
@@ -650,10 +651,29 @@ def pretrain(args, device) -> dict:
         meta["total_tokens"] = meta["tokens"]
     t_ck = time.time()
     loss_ema = None
+    def progress() -> float:
+        """Token fraction; inside the decay with a deadline: the larger of the token progress and the elapsed share
+        of the time to the deadline, so the learning rate always reaches its final value in time."""
+        total = meta["total_tokens"]
+        frac = meta["tokens"] / total
+        d0 = 1 - args.warmdown
+        if frac >= d0 and "decay_t0" not in meta:
+            meta["decay_t0"], meta["decay_tok0"] = time.time(), meta["tokens"]
+        if not end_by or "decay_t0" not in meta:
+            return frac
+        tok_p = (meta["tokens"] - meta["decay_tok0"]) / max(1, total - meta["decay_tok0"])
+        time_p = (time.time() - meta["decay_t0"]) / max(1.0, end_by - meta["decay_t0"])
+        return d0 + (1 - d0) * min(1.0, max(tok_p, time_p, 0.0))
+
     while meta["tokens"] < meta["total_tokens"]:
         total = meta["total_tokens"]
         data.plan(total, args.decay_data_at)
-        frac = meta["tokens"] / total
+        frac = progress()
+        if frac >= 1.0:
+            log(f"learning-rate decay complete by the deadline at {meta['tokens'] / 1e9:.3f} B tokens")
+            meta["total_tokens"] = meta["tokens"]
+            meta["ended_by_deadline"] = True
+            break
         if meta["tokens"] > 0 and frac >= 1 - args.warmdown and not predecay.exists():
             saver.wait()
             atomic_save(to_cpu({"model": model.state_dict(), "opt": opt.state_dict(),
@@ -716,9 +736,13 @@ def pretrain(args, device) -> dict:
             logf.close()
             raise SystemExit(9)
         loss_ema = loss_sum if loss_ema is None else 0.95 * loss_ema + 0.05 * loss_sum
-        if meta["step"] == start_step + args.loss_check and start_step == 0 and loss_ema > args.loss_bound:
+        if start_step == 0 and meta["step"] == 20:
+            meta["loss_at_20"] = loss_ema
+        if (start_step == 0 and meta["step"] == args.loss_check and "loss_at_20" in meta
+                and not (loss_ema < meta["loss_at_20"] - args.loss_drop and loss_ema < args.loss_bound)):
             saver.wait()
-            log(f"loss {loss_ema:.3f} > {args.loss_bound} at step {meta['step']}: the recipe is not learning")
+            log(f"loss {loss_ema:.3f} at step {meta['step']} (step 20: {meta['loss_at_20']:.3f}; needed a drop of "
+                f"{args.loss_drop} and < {args.loss_bound}): the recipe is not learning")
             logf.close()
             raise SystemExit(RECIPE_FAILED)
         if not checked:
@@ -1023,7 +1047,7 @@ def cmd_smoke(args) -> None:
     common = dict(data=str(data), ckpt_dir=str(ck), out=str(out), size="tiny", vocab=512, cpu=True, compile=0, flex=0,
                   bf16=0, loss="fused", micro_batch=4, batch_tokens=4 * 128, seed=0, tokenizer_sha="", recipe="sela2",
                   lr_scale=1.0, warmdown=0.65, decay_data_at=0.7, clip=0.0, loss_check=10 ** 9, loss_bound=99.0,
-                  log_every=10, eval_every=40_000, eval_docs=10, ckpt_minutes=0.0, adamw_lr=1e-3)
+                  loss_drop=1.5, log_every=10, eval_every=40_000, eval_docs=10, ckpt_minutes=0.0, adamw_lr=1e-3)
     a = argparse.Namespace(**common, total_tokens=120_000, deadline=0, stop_after_steps=0)
     # 1) an uninterrupted run
     meta = pretrain(a, torch.device("cpu"))
@@ -1046,6 +1070,33 @@ def cmd_smoke(args) -> None:
     pretrain(argparse.Namespace(**{**vars(b), "stop_after_steps": 0}), torch.device("cpu"))
     again = torch.load(ck2 / "model_base.pt", weights_only=False)["model"]
     assert all(torch.equal(ref[k], again[k]) for k in ref), "resume is not exact"
+    # 3) a deadline: the token target is fitted to the measured rate, the decay finishes by the deadline even when
+    #    the run slows down (an injected slowdown in the decay), and the learning rate never rises in the decay
+    ck3 = root / "ckpt3"
+    slow = {"on": False}
+    orig_batch = PretrainMix.batch
+
+    def slowed(self, B, T, decay_phase):
+        if decay_phase and not slow["on"]:
+            slow["on"] = True
+        if slow["on"]:
+            time.sleep(0.15)
+        return orig_batch(self, B, T, decay_phase)
+    PretrainMix.batch = slowed
+    try:
+        t_end = time.time() + 40
+        m3 = pretrain(argparse.Namespace(**{**vars(a), "ckpt_dir": str(ck3), "out": str(root / "out3"),
+                                            "total_tokens": 50_000_000, "deadline": t_end, "log_every": 1}),
+                      torch.device("cpu"))
+    finally:
+        PretrainMix.batch = orig_batch
+    rows3 = [json.loads(x) for x in (root / "out3" / "train_log.jsonl").read_text().splitlines()]
+    assert time.time() < t_end + 30, "the run did not end by its deadline"
+    lrs = [r["lr_factor"] for r in rows3 if r["step"] > 40]
+    in_decay = [r["lr_factor"] for r in rows3 if r["frac"] >= 0.36]
+    assert in_decay and all(b <= a + 1e-9 for a, b in zip(in_decay, in_decay[1:])), "learning rate rose in the decay"
+    assert lrs[-1] < 0.2, f"decay not finished by the deadline (last factor {lrs[-1]:.3f})"
+    assert m3["total_tokens"] < 50_000_000 and slow["on"] and m3.get("ended_by_deadline"), m3.get("ended_by_deadline")
     sft_args = argparse.Namespace(**{**common, "deadline": 0, "sft_lr_frac": 0.8, "sft_batch_tokens": 4 * 129})
     sm = sft(sft_args, torch.device("cpu"))
     assert sm["sft_steps"] > 0 and (ck / "model_chat.pt").exists()
@@ -1109,7 +1160,8 @@ def main() -> None:
     p.add_argument("--decay-data-at", type=float, default=0.70)
     p.add_argument("--clip", type=float, default=0.0, help="0 = no clipping (nanochat)")
     p.add_argument("--loss-check", type=int, default=300)
-    p.add_argument("--loss-bound", type=float, default=5.0)
+    p.add_argument("--loss-drop", type=float, default=1.5, help="nats the loss must fall from step 20 to the check")
+    p.add_argument("--loss-bound", type=float, default=7.0)
     p.add_argument("--eval-every", type=float, default=5e8)
     p.add_argument("--eval-docs", type=int, default=100)
     p.add_argument("--ckpt-minutes", type=float, default=20.0)

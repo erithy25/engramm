@@ -87,7 +87,7 @@ def render(tok, messages: list[Message] | list[dict], add_generation_prompt: boo
 
 def clean_reply(text: str) -> str:
     """The assistant text as shown: stray role headers or special-token text removed, whitespace trimmed."""
-    text = re.sub(r"<\|(im_start|im_end|eos|reserved_\d+)\|>", "", text)
+    text = re.sub(r"<\|(im_start|im_end|eos|reserved_\d+)\|>", "", text).replace("\ufffd", "")
     return text.strip()
 
 

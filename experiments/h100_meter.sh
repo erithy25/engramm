@@ -3,7 +3,9 @@
 # Every pod session (= container lifetime, start = now - etimes of PID 1) has a file $W/meter/<start> holding
 # "<start> <last tick>"; the billed pod time is the sum over these files. At the dollar limit in $W/cost_limit
 # ("<max $> <price $/h>", written by h100_run.sh) the meter stops the pod and retries every minute until the pod
-# is gone. After the limit the pod gets 30 min in total (all later sessions together) to save results.
+# is gone. After the limit the pod gets METER_GRACE_S (default 1800 s = 30 min; Sela-2: 600) in total (all later
+# sessions together) to save results.
+METER_GRACE_S=${METER_GRACE_S:-1800}
 
 # RunPod sets these for PID 1; a terminal may not have them (Jupyter normally passes them on)
 pod_env() {
@@ -32,13 +34,13 @@ session_start() {
 }
 
 # Seconds until the meter stops this pod, minus one tick of margin (never negative); huge when no limit is set.
-# The meter stops at b >= l and (session age >= 1800 or b >= l + 1800); b and the age both grow by 1 s per s.
+# The meter stops at b >= l and (session age >= grace or b >= l + grace); b and the age both grow by 1 s per s.
 time_left() {
-  local l b age r1 r2 t
+  local l b age r1 r2 t g=$METER_GRACE_S
   l=$(limit_s); b=$(billed_s)
   [ "$l" -gt 0 ] || { echo 999999; return 0; }
   age=$(( $(date +%s) - $(session_start) ))
-  r1=$(( 1800 - age )); r2=$(( l + 1800 - b )); r1=$(( r1 < r2 ? r1 : r2 ))
+  r1=$(( g - age )); r2=$(( l + g - b )); r1=$(( r1 < r2 ? r1 : r2 ))
   t=$(( l - b > r1 ? l - b : r1 )); t=$(( t - 60 ))
   echo $(( t > 0 ? t : 0 ))
 }
@@ -75,7 +77,7 @@ start_meter() {
       now=$(date +%s)
       echo "$s0 $now" > "$W/meter/.tick_$s0" && mv -f "$W/meter/.tick_$s0" "$W/meter/$s0"   # hidden: not summed
       b=$(billed_s); l=$(limit_s)
-      if [ "$l" -gt 0 ] && [ "$b" -ge "$l" ] && { [ $(( now - s0 )) -ge 1800 ] || [ "$b" -ge $(( l + 1800 )) ]; }; then
+      if [ "$l" -gt 0 ] && [ "$b" -ge "$l" ] && { [ $(( now - s0 )) -ge "$METER_GRACE_S" ] || [ "$b" -ge $(( l + METER_GRACE_S )) ]; }; then
         last=$(cat "$W/COST_LIMIT_REACHED" 2>/dev/null)
         if ! [[ "$last" =~ ^[0-9]+$ ]] || [ "$last" -lt "$s0" ]; then         # once per session
           echo "[$(date -u +%H:%M:%S) UTC] KOSTENBREMSE: $(cut -d' ' -f1 "$W/cost_limit") \$ erreicht – der Pod stoppt sich jetzt (Daten in /workspace bleiben)." >> "$W/run.log"

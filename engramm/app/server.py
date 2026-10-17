@@ -16,9 +16,13 @@ API (JSON):
 
 * ``GET  /api/health``           → {"ready": bool, "error": str|None, "mode": "full"|"quick"|None,
                                     "sentences": int|None}
-* ``POST /api/chat``             {"conversation": str, "message": str, "model"?: "engramm"|"sela-1",
+* ``POST /api/chat``             {"conversation": str, "message": str, "model"?: "engramm"|"sela-1"|"sela-2",
                                     "max_tokens"?: int} → reply (model "sela-1": text continued by the local
-                                    Sela-1 network, kind "generated", nothing checked against sources)
+                                    Sela-1 network, kind "generated", nothing checked against sources; model
+                                    "sela-2": the chat model — a knowledge question is answered from ENGRAMM's
+                                    sources with citations and checked (kind "sela_grounded"; on a failed check
+                                    ENGRAMM's own answer, marked ``sela_checked: false``), memory commands stay with
+                                    ENGRAMM, everything else is free conversation (kind "sela_chat", not checked))
 * ``GET  /api/models``           → {"models": [{"id", "name", "available", "ready", "error"}], "last": id}
                                     ("last": the model of the latest chat request, kept beside the memory file so
                                     the desktop app, which gets a new port and page storage on every start, keeps it)
@@ -57,8 +61,31 @@ MAX_CONVERSATIONS = 500
 SELA_ID = "sela-1"
 SELA_FILE = "sela1-135m.npz"
 SELA_TOKENS, SELA_MAX_TOKENS = 120, 200
-MODEL_IDS = ("engramm", SELA_ID)
+SELA2_ID = "sela-2"
+SELA2_FILE = "sela2-chat.npz"
+SELA2_TOKENS, SELA2_MAX_TOKENS = 160, 400
+ENGRAMM_ONLY = ("learned", "forgot", "known", "nothing")      # memory commands: never rephrased by a network
+MODEL_IDS = ("engramm", SELA_ID, SELA2_ID)
 OPEN_HOSTS = re.compile(r"^([a-z]{2,3}(-[a-z]+)?\.)?(m\.)?wikipedia\.org$|^www\.wikidata\.org$")
+
+
+def find_model_file(name: str, env: str, repo_dir: str, explicit: Path | None = None,
+                    data_dir: Path | None = None) -> Path | None:
+    """A network's weights: explicit path or $env, then models/ next to the frozen server, the data folder's
+    models/, the repository's models/lm/<repo_dir>/."""
+    cands = [Path(explicit)] if explicit else []
+    if os.environ.get(env):
+        cands.append(Path(os.environ[env]))
+    if getattr(sys, "frozen", False):
+        cands.append(Path(sys.executable).resolve().parent / "models" / name)
+    if data_dir:
+        cands.append(Path(data_dir) / "models" / name)
+    cands.append(Path(__file__).resolve().parents[2] / "models" / "lm" / repo_dir / name)
+    return next((c for c in cands if c.is_file()), None)
+
+
+def find_sela2(explicit: Path | None = None, data_dir: Path | None = None) -> Path | None:
+    return find_model_file(SELA2_FILE, "ENGRAMM_SELA2", "sela2", explicit, data_dir)
 
 
 def find_sela(explicit: Path | None = None, data_dir: Path | None = None) -> Path | None:
@@ -140,7 +167,7 @@ class ChatService:
     at a time touches the bot (it is not thread-safe); the lock also orders learn / forget."""
 
     def __init__(self, model_dir: Path, index: str | None = None, pack: Path | None = None,
-                 memory_path: Path | None = None, sela: Path | None = None):
+                 memory_path: Path | None = None, sela: Path | None = None, sela2: Path | None = None):
         self.model_dir = Path(model_dir)
         self.index = index
         self.pack = Path(pack) if pack else None
@@ -159,6 +186,11 @@ class ChatService:
         self.sela = None                           # loaded on the first Sela-1 request (about 540 MB of memory)
         self.sela_error: str | None = None
         self.sela_lock = threading.Lock()          # one generation at a time; never holds the bot's lock
+        self.sela2_path = find_sela2(sela2, self.memory_path.parent if self.memory_path else None)
+        self.sela2 = None                          # loaded on the first Sela-2 request (about 1.7 GB of memory)
+        self.sela2_error: str | None = None
+        self.sela2_lock = threading.Lock()
+        self.sela2_states: dict = {}               # conversation → the turns Sela-2 saw (engramm.lm.sela_chat)
         self.settings_path = self.memory_path.parent / "app_settings.json" if self.memory_path else None
         self.last_model = self._read_settings().get("model", "engramm")
         if self.last_model not in MODEL_IDS:
@@ -276,8 +308,11 @@ class ChatService:
             {"id": "engramm", "name": "ENGRAMM", "available": True, "ready": self.assistant is not None,
              "error": self.error},
             {"id": SELA_ID, "name": "Sela-1 135M", "available": self.sela_path is not None,
-             "ready": self.sela is not None, "error": self.sela_error}],
-            "last": self.last_model if self.last_model != SELA_ID or self.sela_path is not None else "engramm"}
+             "ready": self.sela is not None, "error": self.sela_error},
+            {"id": SELA2_ID, "name": "Sela-2 Chat", "available": self.sela2_path is not None,
+             "ready": self.sela2 is not None, "error": self.sela2_error}],
+            "last": self.last_model if {SELA_ID: self.sela_path, SELA2_ID: self.sela2_path}.get(self.last_model, True)
+            else "engramm"}
 
     # -- chat --------------------------------------------------------------------------------
 
@@ -293,6 +328,14 @@ class ChatService:
         self._remember_model(model)
         if model == SELA_ID:
             return self.generate(message, max_tokens)
+        if model == SELA2_ID:
+            return self.chat2(conversation, message, max_tokens)
+        r = self._engramm_turn(conversation, message)
+        r.pop("_raw", None)
+        return r
+
+    def _engramm_turn(self, conversation: str, message: str) -> dict:
+        from engramm.chat.dialog import DialogState
         if self.assistant is None:
             raise RuntimeError(self.error or "ENGRAMM is still loading.")
         conversation = (conversation or "default")[:100]
@@ -312,7 +355,68 @@ class ChatService:
                 "via": d["via"], "resolved": d["resolved"] if d["resolved"] != message else None,
                 "alternatives": [{"text": a.get("text"), "source": source_view(a.get("source"))}
                                  for a in (d.get("alternatives") or [])][:3],
-                "seconds": round(time.time() - t0, 3)}
+                "seconds": round(time.time() - t0, 3), "_raw": d}
+
+    def _load_sela2(self):
+        if self.sela2_path is None:
+            raise RuntimeError("Sela-2 is not installed in this app.")
+        if self.sela2 is None:
+            try:
+                from engramm.lm.sela_chat import SelaChat
+                self.sela2 = SelaChat(self.sela2_path)
+                self.sela2_error = None
+            except Exception as e:
+                self.sela2_error = f"{type(e).__name__}: {e}"
+                traceback.print_exc()
+                raise RuntimeError(f"Sela-2 could not be loaded ({self.sela2_error}).") from e
+        return self.sela2
+
+    def chat2(self, conversation: str, message: str, max_tokens: int | None = None) -> dict:
+        """Sela-2: ENGRAMM handles the turn first (memory, retrieval, dialog state). A memory command is answered by
+        ENGRAMM alone; a reply with sources is rewritten by Sela-2 from those sources (cited, then checked by
+        engramm.lm.sela_chat.verify; a failed check or an abstention keeps ENGRAMM's answer); anything else
+        (small talk, writing, open questions without sources) is Sela-2's free reply, labelled as not checked."""
+        from engramm.lm.sela_chat import ChatState, sources_from_reply
+        n = SELA2_TOKENS if max_tokens is None else int(max_tokens)
+        if not 1 <= n <= SELA2_MAX_TOKENS:
+            raise ValueError(f"max_tokens must be between 1 and {SELA2_MAX_TOKENS}.")
+        if self.sela2_path is None:
+            raise RuntimeError("Sela-2 is not installed in this app.")
+        conv = (conversation or "default")[:100]
+        base = None
+        raw = None
+        if self.assistant is not None:
+            base = self._engramm_turn(conv, message)
+            raw = base.pop("_raw", None)
+        if base is not None and base["kind"] in ENGRAMM_ONLY:
+            return {**base, "model": "engramm", "sela_checked": None}
+        srcs = sources_from_reply(raw or {}) if base is not None else []
+        with self.sela2_lock:
+            sela = self._load_sela2()
+            t0 = time.time()
+            if srcs:
+                g = sela.grounded(message, srcs, max_tokens=min(n, 120))
+                if g["verified"]:
+                    cited = [srcs[c - 1] for c in g["cited"]] or srcs[:1]
+                    by_text = {raw.get("evidence"): raw.get("source")}
+                    by_text.update({a.get("text"): a.get("source") for a in (raw.get("alternatives") or [])})
+                    first = cited[0]
+                    return {"kind": "sela_grounded", "text": g["text"], "answer": None, "guess": None,
+                            "evidence": first[1], "source": source_view(by_text.get(first[1])), "confidence": 1.0,
+                            "via": SELA2_ID, "resolved": base.get("resolved"),
+                            "alternatives": [{"text": t, "source": source_view(by_text.get(t))} for _, t in cited[1:3]],
+                            "seconds": round(time.time() - t0 + base.get("seconds", 0), 3), "model": SELA2_ID,
+                            "tokens": g["tokens"], "sela_checked": True}
+                return {**base, "model": "engramm", "sela_checked": False,
+                        "sela_note": "abstained" if g["abstained"] else "; ".join(g["issues"][:3])}
+            st = self.sela2_states.pop(conv, None) or ChatState()
+            r = sela.chat(st, message, max_tokens=n)
+            self.sela2_states[conv] = st
+            while len(self.sela2_states) > MAX_CONVERSATIONS:
+                self.sela2_states.pop(next(iter(self.sela2_states)))
+        return {"kind": "sela_chat", "text": r["text"], "answer": None, "guess": None, "evidence": None, "source": None,
+                "confidence": 0.0, "via": SELA2_ID, "resolved": None, "alternatives": [],
+                "seconds": r["seconds"], "model": SELA2_ID, "tokens": r["tokens"], "sela_checked": None}
 
     def generate(self, message: str, max_tokens: int | None = None) -> dict:
         """Sela-1 continues the message (a question gets a one-line answer). Nothing is checked against sources,
@@ -528,10 +632,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--memory", type=Path, default=None, help="where to keep what you tell ENGRAMM")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--sela", type=Path, default=None, help="Sela-1 weights file (default: found next to the app)")
+    ap.add_argument("--sela2", type=Path, default=None, help="Sela-2 weights file (default: found next to the app)")
     ap.add_argument("--desktop", action="store_true",
                     help="desktop-app mode: print ENGRAMM_URL=…, allow /api/open, exit when stdin closes")
     args = ap.parse_args(argv)
-    service = ChatService(args.model, args.index, pack=args.pack, memory_path=args.memory, sela=args.sela)
+    service = ChatService(args.model, args.index, pack=args.pack, memory_path=args.memory, sela=args.sela,
+                          sela2=args.sela2)
     server = serve(service, host=args.host, port=args.port, desktop=args.desktop)
     threading.Thread(target=service.load, daemon=True).start()
     url = f"http://127.0.0.1:{server.server_address[1]}"
