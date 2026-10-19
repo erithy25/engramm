@@ -2,6 +2,10 @@
 
 *A Preregistered Study of On-Device Personalisation for a Small Language Model*
 
+Published as a preprint on Zenodo, 19 October 2026: [doi.org/10.5281/zenodo.23485017](https://doi.org/10.5281/zenodo.23485017)
+(all versions; version 1.0 is 10.5281/zenodo.23485018). The PDF there is `main.pdf` of this folder, byte for byte
+(MD5 7a671b9b4c70ed5e1e9ccbef75ac972e).
+
 This folder holds the LaTeX sources of the paper about how Sela-2 learns from its user (docs/PREREG_SELA2.md §7–§12),
 the script that computes every number in it from the repository's result files, and the built PDF.
 
