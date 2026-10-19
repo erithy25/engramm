@@ -312,3 +312,8 @@ mix in a kNN memory of the user's wording (C).
 - German facts are used less often than English ones (with the sentence note 27.5–40 % against 41–49 %).
 - Sela-2 sometimes printed the note itself; since the measurement a guard removes such lines.
 
+**Changed after the measurements (19 Oct 2026, not measured under the preregistration):**
+- ENGRAMM's answer to "What do you know about me?" used to quote what the user said, mistakes included ("Every
+  morning your sister go to work …"). The app now shows a mistake the filter clearly caught in corrected form ("…
+  goes …"), from the variant that marked it (`engramm/lm/sela_learn.clear_fixes`); nothing more is learned from it.
+

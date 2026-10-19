@@ -1,0 +1,327 @@
+{
+ "engine": {
+  "load_seconds": 2.7,
+  "rss_after_model_mb": 698.0,
+  "rss_before_mb": 15.0,
+  "rss_after_first_visitor_mb": 1066.0,
+  "visitor_a": [
+   {
+    "message": "Hi! My name is Sam and I live in Hamburg.",
+    "reply": "Hi! Sam — great name! Nice to meet you. Hamburg — nice! I'll remember that you live there.",
+    "kind": "learned",
+    "model": "engramm",
+    "streamed_updates": 0,
+    "reply_seconds": 0.67,
+    "learn_seconds": 1.15,
+    "tokens_per_s": null,
+    "learned": {
+     "status": "learned",
+     "words_learned": 11,
+     "words_flagged": 0,
+     "words_held": 1,
+     "fixes": [],
+     "flagged": [],
+     "held": [
+      "Hi"
+     ],
+     "skipped": []
+    },
+    "facts": [
+     "The user's name is Sam.",
+     "The user lives in Hamburg."
+    ],
+    "memory": {
+     "messages": 1,
+     "entries": 11,
+     "on": true
+    }
+   },
+   {
+    "message": "My dog is called Max.",
+    "reply": "Max — what a nice name! I'll remember your dog.",
+    "kind": "learned",
+    "model": "engramm",
+    "streamed_updates": 0,
+    "reply_seconds": 0.14,
+    "learn_seconds": 0.66,
+    "tokens_per_s": null,
+    "learned": {
+     "status": "learned",
+     "words_learned": 5,
+     "words_flagged": 0,
+     "words_held": 1,
+     "fixes": [],
+     "flagged": [],
+     "held": [
+      "My"
+     ],
+     "skipped": []
+    },
+    "facts": [
+     "The user's name is Sam.",
+     "The user lives in Hamburg.",
+     "The user's dog is called Max."
+    ],
+    "memory": {
+     "messages": 2,
+     "entries": 16,
+     "on": true
+    }
+   },
+   {
+    "message": "My favorite food is pizza.",
+    "reply": "Noted: pizza — yum!",
+    "kind": "learned",
+    "model": "engramm",
+    "streamed_updates": 0,
+    "reply_seconds": 0.12,
+    "learn_seconds": 0.66,
+    "tokens_per_s": null,
+    "learned": {
+     "status": "learned",
+     "words_learned": 5,
+     "words_flagged": 0,
+     "words_held": 1,
+     "fixes": [],
+     "flagged": [],
+     "held": [
+      "My"
+     ],
+     "skipped": []
+    },
+    "facts": [
+     "The user's name is Sam.",
+     "The user lives in Hamburg.",
+     "The user's dog is called Max.",
+     "The user's favourite food is pizza."
+    ],
+    "memory": {
+     "messages": 3,
+     "entries": 21,
+     "on": true
+    }
+   },
+   {
+    "message": "Every morning my sister go to work by bike, even when it rains.",
+    "reply": "Noted, thanks for telling me about your sister.",
+    "kind": "learned",
+    "model": "engramm",
+    "streamed_updates": 0,
+    "reply_seconds": 0.17,
+    "learn_seconds": 2.74,
+    "tokens_per_s": null,
+    "learned": {
+     "status": "learned",
+     "words_learned": 0,
+     "words_flagged": 1,
+     "words_held": 0,
+     "fixes": [],
+     "flagged": [
+      " go"
+     ],
+     "held": [],
+     "skipped": [
+      "Every morning my sister",
+      " to work by bike, even when it rains."
+     ]
+    },
+    "facts": [
+     "The user's name is Sam.",
+     "The user lives in Hamburg.",
+     "The user's dog is called Max.",
+     "The user's favourite food is pizza."
+    ],
+    "memory": {
+     "messages": 4,
+     "entries": 21,
+     "on": true
+    }
+   },
+   {
+    "message": "Ich fahre jeden Tag mit dem Fahrad zur Schule.",
+    "reply": "That's great news!",
+    "kind": "sela_chat",
+    "model": "sela-2",
+    "streamed_updates": 27,
+    "reply_seconds": 3.22,
+    "learn_seconds": 1.43,
+    "tokens_per_s": 8.9,
+    "learned": {
+     "status": "learned",
+     "words_learned": 0,
+     "words_flagged": 1,
+     "words_held": 0,
+     "fixes": [],
+     "flagged": [
+      " Fahrad"
+     ],
+     "held": [],
+     "skipped": [
+      "Ich fahre jeden Tag mit dem",
+      " zur Schule."
+     ]
+    },
+    "facts": [
+     "Der Nutzer heißt Sam.",
+     "Der Nutzer wohnt in Hamburg.",
+     "Der Hund des Nutzers heißt Max."
+    ],
+    "memory": {
+     "messages": 5,
+     "entries": 21,
+     "on": true
+    }
+   },
+   {
+    "message": "What do you know about me?",
+    "reply": "Here's what you've told me:\n• Your name is Sam.\n• You live in Hamburg.\n• Your dog is called Max.\n• Your favourite food is pizza.\n• Every morning your sister goes to work by bike, even when it rains.\nYou can ask me to forget any of it — for example “Forget where I live”.",
+    "kind": "memory",
+    "model": "engramm",
+    "streamed_updates": 0,
+    "reply_seconds": 0.11,
+    "learn_seconds": 0.0,
+    "tokens_per_s": null,
+    "learned": {
+     "status": "not_learned",
+     "words_learned": 0,
+     "words_flagged": 0,
+     "words_held": 0,
+     "fixes": [],
+     "flagged": [],
+     "held": [],
+     "skipped": []
+    },
+    "facts": [
+     "The user's name is Sam.",
+     "The user lives in Hamburg.",
+     "The user's dog is called Max.",
+     "The user's favourite food is pizza."
+    ],
+    "memory": {
+     "messages": 5,
+     "entries": 21,
+     "on": true
+    }
+   }
+  ],
+  "visitor_b": [
+   {
+    "message": "What do you know about me?",
+    "reply": "You haven't told me anything about yourself yet. Tell me something — like your name or what you like — and I'll remember it.",
+    "kind": "memory",
+    "model": "engramm",
+    "streamed_updates": 0,
+    "reply_seconds": 0.11,
+    "learn_seconds": 0.0,
+    "tokens_per_s": null,
+    "learned": {
+     "status": "not_learned",
+     "words_learned": 0,
+     "words_flagged": 0,
+     "words_held": 0,
+     "fixes": [],
+     "flagged": [],
+     "held": [],
+     "skipped": []
+    },
+    "facts": [],
+    "memory": {
+     "messages": 0,
+     "entries": 0,
+     "on": true
+    }
+   },
+   {
+    "message": "Tell me something nice about my city.",
+    "reply": "You haven't told me anything about your city yet. Tell me something nice about your city — like your name or what you like — and I'll remember it.",
+    "kind": "sela_chat",
+    "model": "sela-2",
+    "streamed_updates": 33,
+    "reply_seconds": 2.54,
+    "learn_seconds": 0.7,
+    "tokens_per_s": 13.3,
+    "learned": {
+     "status": "learned",
+     "words_learned": 8,
+     "words_flagged": 0,
+     "words_held": 0,
+     "fixes": [],
+     "flagged": [],
+     "held": [],
+     "skipped": []
+    },
+    "facts": [],
+    "memory": {
+     "messages": 1,
+     "entries": 8,
+     "on": true
+    }
+   }
+  ],
+  "rss_per_extra_visitor_mb": 354.8,
+  "rss_with_8_visitors_mb": 3790.0,
+  "failures": []
+ },
+ "app": {
+  "a_seconds": 8.4,
+  "a_chat": [
+   {
+    "role": "user",
+    "metadata": null,
+    "content": [
+     {
+      "text": "Hi! My name is Sam and I live in Hamburg.",
+      "type": "text"
+     }
+    ],
+    "options": null
+   },
+   {
+    "role": "assistant",
+    "metadata": null,
+    "content": [
+     {
+      "text": "Hi! Sam — great name! Nice to meet you. Hamburg — nice! I'll remember that you live there.\n\n<sub>ENGRAMM's memory stored what you said</sub>",
+      "type": "text"
+     }
+    ],
+    "options": null
+   }
+  ],
+  "a_facts_panel": "**What Sela-2 knows about you**\n\n- The user's name is Sam.\n- The user lives in Hamburg.",
+  "b_chat": [
+   {
+    "role": "user",
+    "metadata": null,
+    "content": [
+     {
+      "text": "What do you know about me?",
+      "type": "text"
+     }
+    ],
+    "options": null
+   },
+   {
+    "role": "assistant",
+    "metadata": null,
+    "content": [
+     {
+      "text": "You haven't told me anything about yourself yet. Tell me something — like your name or what you like — and I'll remember it.\n\n<sub>ENGRAMM's memory</sub>",
+      "type": "text"
+     }
+    ],
+    "options": null
+   }
+  ],
+  "b_facts_panel": "**What Sela-2 knows about you**\n\nNothing yet. Tell it your name, where you live, your pet's name or your favourite food.",
+  "log_tail": [
+   "demo: files ready in 0 s",
+   "demo: loading Sela-2",
+   "* Running on local URL:  http://127.0.0.1:7861",
+   "* To create a public link, set `share=True` in `launch()`.",
+   "demo: ready (Sela-2 loaded in 2 s)"
+  ],
+  "failures": []
+ },
+ "ok": true
+}

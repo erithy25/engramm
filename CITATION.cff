@@ -5,6 +5,8 @@ authors:
   - family-names: Thye
     given-names: Erik
 type: article
+doi: 10.5281/zenodo.23485017
+version: "1.0"
 date-released: 2026-10-19
 license: CC-BY-4.0
 repository-code: "https://github.com/erithy25/engramm"
@@ -15,6 +17,7 @@ keywords:
   - on-device learning
   - preregistration
   - evaluation
+  - WildChat
 preferred-citation:
   type: article
   title: "Learning from the User Without Learning Their Mistakes: A Preregistered Study of On-Device Personalisation for a Small Language Model"
@@ -22,4 +25,7 @@ preferred-citation:
     - family-names: Thye
       given-names: Erik
   year: 2026
-  url: "https://github.com/erithy25/engramm"
+  doi: 10.5281/zenodo.23485017
+  publisher:
+    name: Zenodo
+  url: "https://doi.org/10.5281/zenodo.23485017"

@@ -1,9 +1,11 @@
 # ENGRAMM · Sela-2
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23485017.svg)](https://doi.org/10.5281/zenodo.23485017)
+
 **A small language model, trained from scratch for about $23, that runs offline on an ordinary CPU and learns from its
 user without learning the user's mistakes.**
 
-[Paper (PDF)](paper/main.pdf) · [Deutsche Kurzfassung](paper/summary_de.md) · [Preregistration](docs/PREREG_SELA2.md) ·
+[Paper (PDF)](paper/main.pdf) · [Zenodo, DOI 10.5281/zenodo.23485017](https://doi.org/10.5281/zenodo.23485017) · [Deutsche Kurzfassung](paper/summary_de.md) · [Preregistration](docs/PREREG_SELA2.md) ·
 [Model card](docs/MODEL_CARD_SELA2.md) · [Provenance](docs/PROVENANCE.md)
 
 ENGRAMM is an assistant that runs entirely on the user's own computer. Sela-2 is its chat model: a decoder-only
@@ -84,21 +86,29 @@ want to check a result against the code can ask for access by opening an issue.
 ## How this was built
 
 ENGRAMM was built by Erik Thye with an AI coding agent (Claude Code by Anthropic): the agent wrote most of the code,
-ran the experiments and drafted the documents and the paper under his direction; the code reviews and the blind test
-probes came from separate instances of the same model. He set the goals, the constraints and the budget and is
-responsible for the claims. Details: section 9 of the paper.
+ran the experiments and drafted the documents and the paper under the author's direction; the code reviews and the
+blind test probes came from separate instances of the same model. The author set the goals, the constraints and the
+budget and is responsible for the claims. Details: section 9 of the paper.
 
 ## Cite
 
+Thye, E. (2026). *Learning from the User Without Learning Their Mistakes: A Preregistered Study of On-Device
+Personalisation for a Small Language Model* (Version 1.0) [Preprint]. Zenodo. https://doi.org/10.5281/zenodo.23485017
+
 ```bibtex
 @misc{thye2026learning,
-  author = {Thye, Erik},
-  title  = {Learning from the User Without Learning Their Mistakes: A Preregistered Study of On-Device
-            Personalisation for a Small Language Model},
-  year   = {2026},
-  url    = {https://github.com/erithy25/engramm}
+  author    = {Thye, Erik},
+  title     = {Learning from the User Without Learning Their Mistakes: A Preregistered Study of On-Device
+               Personalisation for a Small Language Model},
+  year      = {2026},
+  publisher = {Zenodo},
+  version   = {1.0},
+  doi       = {10.5281/zenodo.23485017},
+  url       = {https://doi.org/10.5281/zenodo.23485017}
 }
 ```
+
+The DOI above always points to the latest version; version 1.0 alone is 10.5281/zenodo.23485018.
 
 ## Licence
 
