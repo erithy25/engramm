@@ -7,8 +7,7 @@ that the order *registered → measured → decided* can be checked.
 **How to verify:** every hash below is a commit of the development repository. Reviewers who want to check a
 registration against its commit can ask for read access (open an issue). The text of `docs/PREREG_SELA2.md` in this
 repository is the final version of that file; each section's registered text is unchanged since its registration
-commit apart from whitespace, results were appended as subsections, and two later corrections are marked as such
-(§9.1, §10.1).
+commit apart from whitespace, results were appended as subsections, and later corrections are marked as such.
 
 SHA-256 of `docs/PREREG_SELA2.md` as published here: `6b071ad8ee8e0190297a8d8a775a52286ae0f5f0193cf552dda9d9b936054615`
 
