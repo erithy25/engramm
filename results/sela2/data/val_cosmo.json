@@ -1,0 +1,10 @@
+{
+ "name": "val_cosmo",
+ "tokens": 1444574,
+ "docs": 2000,
+ "sha256": "74ea5af480d10c8b7dc149a710e82bcd989d339070ee504c1fb45cba142d78c7",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "source": "cosmo",
+ "part": 103,
+ "url": "https://huggingface.co/datasets/HuggingFaceTB/smollm-corpus/resolve/main/cosmopedia-v2/train-00103-of-00104.parquet"
+}

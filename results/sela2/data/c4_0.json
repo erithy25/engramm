@@ -1,0 +1,18 @@
+{
+ "name": "c4_0",
+ "tokens": 168442786,
+ "docs": 337350,
+ "sha256": "a1dc99e11024920a7b7aabeb702ac75e8d95e5463a9d8726b1a342c3090d4514",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "source": "c4",
+ "part": 0,
+ "url": "https://huggingface.co/datasets/allenai/c4/resolve/main/en/c4-train.00001-of-01024.json.gz",
+ "lang": "en",
+ "dropped_contaminated": 3697,
+ "dropped": {
+  "short": 15271
+ },
+ "chars": 755416003,
+ "piece": 0,
+ "pieces": 1
+}

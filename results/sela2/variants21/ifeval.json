@@ -1,0 +1,36 @@
+{
+ "what": "M6 of docs/PREREG_SELA2.md (experiments/sela2_ifeval.py)",
+ "source_sha256": "5c1cc7f32d6c6fe249a89b4271b4f6110b6eb87db3af06c0bc6aa7e526c6866b",
+ "models": {
+  "s21lr03": {
+   "complete": true,
+   "weights": "sela2-s21lr03.npz",
+   "responses": 541,
+   "stop_reasons": {
+    "stop": 441,
+    "limit": 22,
+    "loop": 78,
+    "context": 0
+   },
+   "prompt_level_strict_acc": 10.905730129390019,
+   "prompt_level_loose_acc": 13.123844731977819,
+   "inst_level_strict_acc": 20.983213429256594,
+   "inst_level_loose_acc": 24.940047961630697
+  },
+  "s21lr10": {
+   "complete": true,
+   "weights": "sela2-s21lr10.npz",
+   "responses": 541,
+   "stop_reasons": {
+    "stop": 442,
+    "limit": 22,
+    "loop": 77,
+    "context": 0
+   },
+   "prompt_level_strict_acc": 13.493530499075785,
+   "prompt_level_loose_acc": 16.266173752310536,
+   "inst_level_strict_acc": 24.58033573141487,
+   "inst_level_loose_acc": 29.016786570743406
+  }
+ }
+}

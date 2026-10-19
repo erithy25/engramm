@@ -1,0 +1,8 @@
+{
+ "name": "lm_val_a",
+ "tokens": 525310,
+ "docs": 767,
+ "sha256": "21348f7b9f31300fcd3b177b401139ff884576b20a5608db6674f326e78ed21c",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "split": "val_a"
+}

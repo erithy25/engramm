@@ -1,0 +1,10 @@
+{
+ "name": "val_pg19",
+ "tokens": 120109632,
+ "docs": 1232,
+ "sha256": "7de5def6f458f5a3f61c6a35765b41a19cbc9dc603fe03ad424139c1c92c5237",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "source": "pg19",
+ "part": 22,
+ "url": "https://huggingface.co/datasets/emozilla/pg19/resolve/main/data/train-00022-of-00023-5a956eb2a5d6cab5.parquet"
+}

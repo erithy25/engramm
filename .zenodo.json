@@ -1,0 +1,22 @@
+{
+  "title": "Learning from the User Without Learning Their Mistakes: A Preregistered Study of On-Device Personalisation for a Small Language Model",
+  "upload_type": "publication",
+  "publication_type": "preprint",
+  "description": "Small language models that run entirely on a user's computer can adapt to that user without sending text elsewhere, but a model that learns from what its user writes also learns the user's typos and grammar mistakes. We study this with Sela-2, a decoder-only transformer with 352 M parameters per token, trained from scratch on one rented GPU for about USD 23, that runs in int8 on a CPU inside an offline desktop assistant. The assistant learns in three layers: a note of the user's facts in the system prompt, the conversation thread, and a k-nearest-neighbour language memory over the user's messages. An error-aware admission filter guards the memory: the model itself judges, on the whole message, whether a word looks like a mistake, and a sentence with a clear mistake is not learned at all. Every version was preregistered and measured once on 40 users it had never seen; we report all six registered measurements, including a failed first version, a flawed decision rule and a counting error. The fact note raised the use of a user's facts from 0 % to 20–53 % of the replies that called for them; from the second version on, at most two replies per run repeated an injected mistake. The memory's gain on held-out messages fell from 3.39 % on development users to 1.45, 0.78 and 0.09 % on three fresh synthetic groups. A 60-setting grid did not recover it; the gain tracked how many word pairs of a held-out sentence the user had already written (Spearman rho = 0.42, 95 % CI [0.24, 0.57]), a property we had set ourselves when writing the synthetic sentences. On real WildChat-1M users, the memory reduced bits per byte by 1.59 % (95 % CI [0.50, 2.91]) in the deciding test and by 3.07 % in a second group. A relevance filter with cue words frozen before blind-written probes existed cut unrequested mentions of personal facts from 24.7 % to 0.0 % of probe replies without reducing fact use.",
+  "creators": [
+    {
+      "name": "Thye, Erik"
+    }
+  ],
+  "license": "cc-by-4.0",
+  "keywords": [
+    "small language models",
+    "personalisation",
+    "kNN-LM",
+    "on-device learning",
+    "preregistration",
+    "evaluation",
+    "WildChat"
+  ],
+  "language": "eng"
+}

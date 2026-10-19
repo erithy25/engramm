@@ -1,0 +1,14 @@
+{
+ "what": "Sela-2 NumPy model (app), full size, random weights",
+ "file_mb": 505.0,
+ "load_s": 0.6,
+ "prompt_300_tokens_s": 1.38,
+ "ms_per_reply_token": 48.1,
+ "reply_tokens_per_s": 20.8,
+ "peak_rss_mb": 4353.0,
+ "rss_before_load_mb": 4353.0,
+ "cpus": 4,
+ "machine": "x86_64",
+ "processor": "x86_64",
+ "numpy": "2.4.1"
+}

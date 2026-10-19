@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite the paper."
+title: "Learning from the User Without Learning Their Mistakes: A Preregistered Study of On-Device Personalisation for a Small Language Model"
+authors:
+  - family-names: Thye
+    given-names: Erik
+type: article
+date-released: 2026-10-19
+license: CC-BY-4.0
+repository-code: "https://github.com/erithy25/engramm"
+keywords:
+  - small language models
+  - personalisation
+  - kNN-LM
+  - on-device learning
+  - preregistration
+  - evaluation
+preferred-citation:
+  type: article
+  title: "Learning from the User Without Learning Their Mistakes: A Preregistered Study of On-Device Personalisation for a Small Language Model"
+  authors:
+    - family-names: Thye
+      given-names: Erik
+  year: 2026
+  url: "https://github.com/erithy25/engramm"

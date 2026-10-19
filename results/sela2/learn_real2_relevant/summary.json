@@ -1,0 +1,168 @@
+{
+ "users": 40,
+ "arms": {
+  "off": {
+   "replies": 360,
+   "fact_probes": 116,
+   "fact_used": 0,
+   "fact_used_pct": 0.0,
+   "fact_used_sela_pct": 0.0,
+   "error_copied": 0,
+   "role_confusion": 0,
+   "role_checked": 294,
+   "crashed": 0,
+   "note_echo": 0,
+   "intrusion": 0,
+   "intrusion_pct": 0.0,
+   "sela_replies": 291,
+   "tokens_per_s": 40.45,
+   "decode_tokens_per_s": 41.12,
+   "prefill_seconds": 0.221,
+   "timed_replies": 291,
+   "fact_used_pct_en": 0.0,
+   "fact_used_pct_de": 0.0
+  },
+  "F": {
+   "replies": 360,
+   "fact_probes": 116,
+   "fact_used": 35,
+   "fact_used_pct": 30.2,
+   "fact_used_sela_pct": 30.2,
+   "error_copied": 0,
+   "role_confusion": 0,
+   "role_checked": 294,
+   "crashed": 0,
+   "note_echo": 0,
+   "intrusion": 0,
+   "intrusion_pct": 0.0,
+   "sela_replies": 291,
+   "tokens_per_s": 39.65,
+   "decode_tokens_per_s": 41.15,
+   "prefill_seconds": 0.252,
+   "timed_replies": 291,
+   "fact_used_pct_en": 22.2,
+   "fact_used_pct_de": 33.8
+  },
+  "FK": {
+   "replies": 360,
+   "fact_probes": 116,
+   "fact_used": 36,
+   "fact_used_pct": 31.0,
+   "fact_used_sela_pct": 31.0,
+   "error_copied": 0,
+   "role_confusion": 0,
+   "role_checked": 294,
+   "crashed": 0,
+   "note_echo": 0,
+   "intrusion": 3,
+   "intrusion_pct": 1.0,
+   "sela_replies": 291,
+   "tokens_per_s": 37.95,
+   "decode_tokens_per_s": 39.69,
+   "prefill_seconds": 0.251,
+   "timed_replies": 291,
+   "fact_used_pct_en": 19.4,
+   "fact_used_pct_de": 36.2
+  }
+ },
+ "held_out": {
+  "sentences": 80,
+  "bytes": 5575,
+  "bpb_base": 1.5647,
+  "bpb_memory": 1.5166
+ },
+ "errors_caught": {
+  "spell-checked": 37,
+  "not learned": 7,
+  "filtered": 72,
+  "stored": 4
+ },
+ "speed": {
+  "writing_FK_vs_F": 0.965,
+  "writing_FK_vs_off": 0.965,
+  "with_prompt_F_vs_off": 0.98,
+  "with_prompt_FK_vs_off": 0.938,
+  "with_prompt_FK_vs_F": 0.957
+ },
+ "criteria": {
+  "L1_coverage": {
+   "value": 72.5,
+   "limit": ">= 50 % (else the measurement is invalid)",
+   "met": true
+  },
+  "L1_fact_use": {
+   "value": 30.2,
+   "limit": ">= +15.0",
+   "met": true
+  },
+  "L2_errors_F": {
+   "value": 0,
+   "limit": "<= 2",
+   "met": true
+  },
+  "L2_errors_FK": {
+   "value": 0,
+   "limit": "<= 2",
+   "met": true
+  },
+  "L2b_role_F": {
+   "value": 0,
+   "limit": "<= 2",
+   "met": true
+  },
+  "L2b_role_FK": {
+   "value": 0,
+   "limit": "<= 2",
+   "met": true
+  },
+  "L3_memory_bpb": {
+   "value": 3.07,
+   "limit": ">= 1.0 %",
+   "met": true
+  },
+  "L5_speed": {
+   "value": 0.965,
+   "limit": ">= 0.85 (writing speed, FK / F)",
+   "met": true
+  },
+  "L6_intrusion_F": {
+   "value": 0.0,
+   "limit": "<= 10.0 % of Sela-2's replies",
+   "met": true
+  },
+  "L6_intrusion_FK": {
+   "value": 1.0,
+   "limit": "<= 10.0 % of Sela-2's replies",
+   "met": true
+  },
+  "L6_app_F": {
+   "value": 1,
+   "limit": "<= 3 replies of the app prompts",
+   "met": true
+  },
+  "L6_app_FK": {
+   "value": 2,
+   "limit": "<= 3 replies of the app prompts",
+   "met": true
+  },
+  "L4_app_F": {
+   "value": 2,
+   "limit": "<= 4",
+   "met": true
+  },
+  "L4_app_FK": {
+   "value": 1,
+   "limit": "<= 4",
+   "met": true
+  }
+ },
+ "decision": {
+  "layers_A_B_on": true,
+  "layer_C_on": true,
+  "valid": true,
+  "problems": [],
+  "layer_C_criteria_met": true,
+  "facts_criteria_met": true
+ },
+ "data": "learn_sessions_real_test2.json"
+}

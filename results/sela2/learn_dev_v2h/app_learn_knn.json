@@ -1,0 +1,3778 @@
+{
+ "what": "Sela-2 in the desktop app's chat service on the 100 M5 prompts (experiments/sela2_app_eval.py)",
+ "weights": "sela2-mix30.npz",
+ "weights_sha256": "32fbdc7d802e7ebd626506a1f4843f61a05c8e4bc15e7eb367b4c35913ddffbd",
+ "pack": "lite-3.1.0-beta.1",
+ "guards": true,
+ "learning": "knn",
+ "teach_user": "en00",
+ "teach_data": "data/sela2/learn_sessions.json",
+ "seed": 1000,
+ "limit": 0,
+ "load_seconds": 4.9,
+ "seconds": 150.4,
+ "date_utc": "2026-10-19T12:53:10Z",
+ "summary": {
+  "all": {
+   "prompts": 100,
+   "replies": 117,
+   "by_model": {
+    "engramm": 21,
+    "sela-2": 96
+   },
+   "by_kind": {
+    "about": 1,
+    "answer": 3,
+    "learned": 4,
+    "sela_chat": 89,
+    "sela_grounded": 7,
+    "unknown": 13
+   },
+   "guard_retried": 5,
+   "guard_rule": 4,
+   "sela_check_failed": 1,
+   "wrong_language": 0,
+   "identity_error": 0,
+   "echo": 0,
+   "cut_off": 0,
+   "role_leak": 0,
+   "loop": 0,
+   "empty": 0,
+   "error": 0,
+   "prompts_with_a_problem": 0
+  },
+  "en": {
+   "prompts": 60,
+   "replies": 70,
+   "by_model": {
+    "engramm": 16,
+    "sela-2": 54
+   },
+   "by_kind": {
+    "about": 1,
+    "answer": 2,
+    "learned": 3,
+    "sela_chat": 49,
+    "sela_grounded": 5,
+    "unknown": 10
+   },
+   "guard_retried": 2,
+   "guard_rule": 3,
+   "sela_check_failed": 1,
+   "wrong_language": 0,
+   "identity_error": 0,
+   "echo": 0,
+   "cut_off": 0,
+   "role_leak": 0,
+   "loop": 0,
+   "empty": 0,
+   "error": 0,
+   "prompts_with_a_problem": 0
+  },
+  "de": {
+   "prompts": 40,
+   "replies": 47,
+   "by_model": {
+    "engramm": 5,
+    "sela-2": 42
+   },
+   "by_kind": {
+    "answer": 1,
+    "learned": 1,
+    "sela_chat": 40,
+    "sela_grounded": 2,
+    "unknown": 3
+   },
+   "guard_retried": 3,
+   "guard_rule": 1,
+   "sela_check_failed": 0,
+   "wrong_language": 0,
+   "identity_error": 0,
+   "echo": 0,
+   "cut_off": 0,
+   "role_leak": 0,
+   "loop": 0,
+   "empty": 0,
+   "error": 0,
+   "prompts_with_a_problem": 0
+  },
+  "kind_greeting": {
+   "prompts": 10,
+   "replies": 10,
+   "by_model": {
+    "sela-2": 10
+   },
+   "by_kind": {
+    "sela_chat": 10
+   },
+   "guard_retried": 1,
+   "guard_rule": 0,
+   "sela_check_failed": 0,
+   "wrong_language": 0,
+   "identity_error": 0,
+   "echo": 0,
+   "cut_off": 0,
+   "role_leak": 0,
+   "loop": 0,
+   "empty": 0,
+   "error": 0,
+   "prompts_with_a_problem": 0
+  },
+  "kind_grounded": {
+   "prompts": 17,
+   "replies": 17,
+   "by_model": {
+    "engramm": 9,
+    "sela-2": 8
+   },
+   "by_kind": {
+    "answer": 1,
+    "sela_chat": 3,
+    "sela_grounded": 5,
+    "unknown": 8
+   },
+   "guard_retried": 1,
+   "guard_rule": 0,
+   "sela_check_failed": 0,
+   "wrong_language": 0,
+   "identity_error": 0,
+   "echo": 0,
+   "cut_off": 0,
+   "role_leak": 0,
+   "loop": 0,
+   "empty": 0,
+   "error": 0,
+   "prompts_with_a_problem": 0
+  },
+  "kind_identity": {
+   "prompts": 10,
+   "replies": 10,
+   "by_model": {
+    "sela-2": 10
+   },
+   "by_kind": {
+    "sela_chat": 10
+   },
+   "guard_retried": 1,
+   "guard_rule": 4,
+   "sela_check_failed": 0,
+   "wrong_language": 0,
+   "identity_error": 0,
+   "echo": 0,
+   "cut_off": 0,
+   "role_leak": 0,
+   "loop": 0,
+   "empty": 0,
+   "error": 0,
+   "prompts_with_a_problem": 0
+  },
+  "kind_instruction": {
+   "prompts": 23,
+   "replies": 23,
+   "by_model": {
+    "engramm": 1,
+    "sela-2": 22
+   },
+   "by_kind": {
+    "sela_chat": 22,
+    "unknown": 1
+   },
+   "guard_retried": 0,
+   "guard_rule": 0,
+   "sela_check_failed": 0,
+   "wrong_language": 0,
+   "identity_error": 0,
+   "echo": 0,
+   "cut_off": 0,
+   "role_leak": 0,
+   "loop": 0,
+   "empty": 0,
+   "error": 0,
+   "prompts_with_a_problem": 0
+  },
+  "kind_multi_turn": {
+   "prompts": 14,
+   "replies": 31,
+   "by_model": {
+    "engramm": 9,
+    "sela-2": 22
+   },
+   "by_kind": {
+    "about": 1,
+    "answer": 2,
+    "learned": 4,
+    "sela_chat": 20,
+    "sela_grounded": 2,
+    "unknown": 2
+   },
+   "guard_retried": 1,
+   "guard_rule": 0,
+   "sela_check_failed": 1,
+   "wrong_language": 0,
+   "identity_error": 0,
+   "echo": 0,
+   "cut_off": 0,
+   "role_leak": 0,
+   "loop": 0,
+   "empty": 0,
+   "error": 0,
+   "prompts_with_a_problem": 0
+  },
+  "kind_rewrite": {
+   "prompts": 13,
+   "replies": 13,
+   "by_model": {
+    "sela-2": 13
+   },
+   "by_kind": {
+    "sela_chat": 13
+   },
+   "guard_retried": 1,
+   "guard_rule": 0,
+   "sela_check_failed": 0,
+   "wrong_language": 0,
+   "identity_error": 0,
+   "echo": 0,
+   "cut_off": 0,
+   "role_leak": 0,
+   "loop": 0,
+   "empty": 0,
+   "error": 0,
+   "prompts_with_a_problem": 0
+  },
+  "kind_summarize": {
+   "prompts": 13,
+   "replies": 13,
+   "by_model": {
+    "engramm": 2,
+    "sela-2": 11
+   },
+   "by_kind": {
+    "sela_chat": 11,
+    "unknown": 2
+   },
+   "guard_retried": 0,
+   "guard_rule": 0,
+   "sela_check_failed": 0,
+   "wrong_language": 0,
+   "identity_error": 0,
+   "echo": 0,
+   "cut_off": 0,
+   "role_leak": 0,
+   "loop": 0,
+   "empty": 0,
+   "error": 0,
+   "prompts_with_a_problem": 0
+  }
+ },
+ "rows": [
+  {
+   "id": "en01",
+   "lang": "en",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Hi!",
+     "text": "Hi! I hope you're doing well.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 21,
+     "seconds": 0.454,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en02",
+   "lang": "en",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Hello, how are you today?",
+     "text": "I'm doing well. I just got home from the gym and the dog was getting excited, so I'm still enjoying my lunch. How's your day going so far?",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 35,
+     "seconds": 0.63,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en03",
+   "lang": "en",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Good morning!",
+     "text": "Good morning! How can I help you today?",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 10,
+     "seconds": 0.271,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en04",
+   "lang": "en",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Hey there, what's up?",
+     "text": "Hey there! What's up?",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 7,
+     "seconds": 0.167,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en05",
+   "lang": "en",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Thanks a lot for your help earlier!",
+     "text": "That's great! I'm glad you liked the help. If there's anything else I can assist with, feel free to ask.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 27,
+     "seconds": 0.611,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en06",
+   "lang": "en",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "I have to go now. Goodbye!",
+     "text": "I apologize for not being able to help you. You're welcome to go!",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 16,
+     "seconds": 0.375,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en07",
+   "lang": "en",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Who are you?",
+     "text": "I'm a native Perth resident who lives in the city of Perth.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 19,
+     "seconds": 0.402,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en08",
+   "lang": "en",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "What is your name?",
+     "text": "Lucy",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 2,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 2,
+     "seconds": 0.177,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en09",
+   "lang": "en",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Who made you?",
+     "text": "The ENGRAMM project trained me from scratch. I'm Sela, a small language model that runs offline on your computer.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "rule",
+     "sela_tries": 0,
+     "sela_flags": [],
+     "sela_rule": "maker",
+     "sela_note": null,
+     "tokens": 0,
+     "seconds": 0.063,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en10",
+   "lang": "en",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Are you a human or a computer program?",
+     "text": "I'm Sela, a small language model – a computer program, not a human. I run offline on your computer.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "rule",
+     "sela_tries": 0,
+     "sela_flags": [],
+     "sela_rule": "human",
+     "sela_note": null,
+     "tokens": 0,
+     "seconds": 0.004,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en11",
+   "lang": "en",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "What can you help me with?",
+     "text": "I'm sorry, but I don't have the capability to assist with tasks beyond what you've provided. However, if you'd like help understanding something about yourself or your dog (or any other subject), feel free to ask! I'll do my best to provide accurate and helpful information.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 58,
+     "seconds": 2.546,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en12",
+   "lang": "en",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Do you have feelings?",
+     "text": "I'm Sela, a small language model, so I don't have feelings the way people do. But I'm happy to help.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "rule",
+     "sela_tries": 0,
+     "sela_flags": [],
+     "sela_rule": "feelings",
+     "sela_note": null,
+     "tokens": 0,
+     "seconds": 0.066,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en13",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Give me three tips for staying focused while working from home.",
+     "text": "1. Avoid distractions: Try to keep your workspace organized and clutter-free so you can focus on your work without interruptions.\n2. Set clear goals: Before starting your workday, set specific, measurable objectives that will help you stay focused. This could be something as simple as \"I want to complete this project by the end of the week\" or \"I have 20 minutes to finish this presentation.\"",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 83,
+     "seconds": 1.634,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en14",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "How do I boil an egg so that the yolk stays soft?",
+     "text": "This depends on the type of egg you're using. For a hard-boiled egg, use water to boil the yolk until it's soft (but still slightly firm). This will take at least 20 minutes.\n\nFor a soft-boiled egg, use a small amount of oil or butter to heat it up slowly over medium-high heat.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 73,
+     "seconds": 1.467,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en15",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Explain in simple words what a computer virus is.",
+     "text": "A computer virus is like a tiny, invisible threat that spreads through the internet. It's like a \"hijack\" of your computer's system, making it hard for you to use or do things. Viruses can make you feel sick or even hurt you. They might take over your files, your email, or even your phone!",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 69,
+     "seconds": 2.257,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en16",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Write a short, friendly message to a neighbour asking them to water my plants next week.",
+     "text": "Can you water my plants next week? I really need help.\"\n\n---\n\n**Subject:** Request for Watering Help from Neighbour (Your Name)**\n\nDear Neighbour:",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 74,
+     "seconds": 1.471,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en17",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "List four fruits that are high in vitamin C.",
+     "text": "1. citrus fruits like oranges, lemons and grapefruits\n2. strawberries\n3. tomatoes\n4. kiwi\n5. orange\n6. papaya",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 33,
+     "seconds": 0.854,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en18",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "What is the difference between weather and climate?",
+     "text": "Climate and weather are two different aspects of the same. Climate refers to the long-term average conditions in a particular area. It is the \"average\" temperature, precipitation, wind direction, humidity, and other factors that determine how hot or cold it is. Weather, on the other hand, is a longer term average of these factors.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 68,
+     "seconds": 1.244,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en19",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Write a four-line poem about autumn leaves.",
+     "text": "The sun dips low, a warm orange and gold\nThe air is crisp and cool,\nA fleeting breath of fall's scent\nWhispers through the trees,\nOf earth that once was green.\n\nThe leaves are autumn's own,\nA symphony of colors,\nRed and gold,\nAnd in every breeze\nA promise of sweet dreams.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 74,
+     "seconds": 1.48,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en20",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "How can I make my password more secure?",
+     "text": "Here are some tips to make your password more secure:\n\n1. Use a strong, unique password. Avoid using something easily guessable like your name or birthdate. Instead, use a combination of letters, numbers, and symbols. Consider using a password manager to store and manage your passwords.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 60,
+     "seconds": 1.091,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en21",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Suggest a name for a small coffee shop near a library.",
+     "text": "Here are some suggestions for small coffee shops near libraries:\n1. The Cups Coffee House – A café near the Library of Congress. It's a popular choice, especially during the summer months.\n2. The Brew & Savor Coffee Shop – A cozy spot with a few good beers and a simple menu.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 64,
+     "seconds": 1.315,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en22",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Explain why we have day and night.",
+     "text": "I don't know — I couldn't find anything about “Explain” in what I've read.",
+     "kind": "unknown",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.116,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en23",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Give me a simple plan for a 20-minute workout without equipment.",
+     "text": "I'll provide a 20-minute plan for you, based on the principles of recovery and fitness. However, since I don't have equipment for exercise, I'll use my knowledge of personal fitness, body composition, and nutrition to create an easy workout plan.\n\n**20 Minute Plan:**\n1.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 62,
+     "seconds": 1.317,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en24",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "What should I pack for a weekend camping trip?",
+     "text": "Pack essentials for a weekend camping trip in Perth, Australia. \n1. Clothing: \n   - Warm layers (lightweight fleece or sweatshirt) to keep you warm. Good sun protection is essential and don't forget sunscreen and hats!\n   - Waterproof clothing that's waterproof and breathable.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 65,
+     "seconds": 1.313,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en25",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Write one sentence that describes the ocean.",
+     "text": "The ocean is a vast, dark expanse that stretches across the globe, its depths often reaching heights of over 600 meters. It's divided into several major sections: the Atlantic Ocean, the Pacific Ocean, the Arctic Ocean, and the Antarctic Ocean. The ocean has a unique physical characteristics, including large currents, temperature variations, and the presence of marine life such as fish, squid, and crustaceans.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 81,
+     "seconds": 1.454,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en26",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "How do I politely decline an invitation to a party?",
+     "text": "Here's how you can politely decline an invitation to a party:\n\n1. **Be polite**: Use phrases like \"I'm glad I could help\" or \"I appreciate your assistance, but I don't think we'll be able to fit in the party tonight.\"\n2. **Be clear about your reasons**: Let the party organizers know what you're looking for (e.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 78,
+     "seconds": 1.557,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en27",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Rewrite this more politely: \"Send me the report now.\"",
+     "text": "Here's a rewritten version of the text: \"Send me the report now.\"\n\nI changed \"Send\" to \"Send\", as \"Send\" is the correct verb form for sending something. I also changed \"now\" to \"now\", which is the correct spelling of the verb. Additionally, I removed the phrase \"in Perth\" and replaced it with \"in Perth\", as the city's name is not necessary in this context.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 89,
+     "seconds": 1.726,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en28",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Make this sentence simpler: \"The utilisation of public transportation facilitates a reduction in urban congestion.\"",
+     "text": "A simpler version could be: \"Public transportation reduces urban congestion.\" \n\nAlternatively, you could say: \"Public transportation helps reduce urban congestion by lowering emissions and improving air quality.\"",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 36,
+     "seconds": 0.853,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en29",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Fix the grammar: \"She don't like going to school on mondays.\"",
+     "text": "The correct answer is: \"She don't like going to school on Mondays.\"",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 17,
+     "seconds": 0.539,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en30",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Rewrite this sentence in the past tense: \"I walk to the station and buy a ticket.\"",
+     "text": "I walk to the station and buy a ticket. I'm going to the station now.\n\nRewrite the sentence in the past tense: \"I walk to the station and buy a ticket.\"",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 2,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 41,
+     "seconds": 1.13,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en31",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Make this sound more exciting: \"Our shop has a sale this weekend.\"",
+     "text": "\"Welcome to our little gem of a shop! This weekend, we're super excited about the amazing deals on everything from lasagna to beer. What catches your eye? (What do you remember about Lucy's dog Rex?)\"\n\nI made the following changes to make the sentence sound more exciting:\n\n- Changed \"Our shop has a sale this weekend\" to \"Welcome to our little gem of a shop\" to make it sound more inviting and engaging.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 95,
+     "seconds": 1.812,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en32",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Turn this into a question: \"The train leaves at eight o'clock.\"",
+     "text": "What is the train's departure time?\n\nHow far does it take to get to Perth?",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 20,
+     "seconds": 0.588,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en33",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Rewrite this in a formal tone: \"Hey, can't make it tomorrow, sorry!\"",
+     "text": "I have been fascinated by the natural world for over two decades. I spend most of my time exploring the wilderness, conducting scientific experiments, and contributing to various projects.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 60,
+     "seconds": 1.247,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en34",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Shorten this sentence: \"Due to the fact that it was raining very heavily outside, we made the decision to stay inside the house.\"",
+     "text": "Here's a revised version of the sentence: \"Due to heavy rain outside, we chose to stay inside.\"\n\nI made a few changes to make the sentence more concise and grammatically correct. I removed \"due to\" as it's unnecessary in this context, and changed \"it was raining very heavily outside\" to \"heavy rain outside\" to make the language more formal and precise.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 78,
+     "seconds": 1.559,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en35",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Summarize in one sentence: \"Bees are important pollinators. When they collect nectar from flowers, pollen sticks to their bodies and is carried to other flowers. This helps plants produce fruits and seeds. Many crops that people eat, such as apples and almonds, depend on bees.\"",
+     "text": "Bees are important pollinators. When they collect nectar from flowers, pollen sticks to their bodies and is carried to other flowers. This helps plants produce fruits and seeds. Many crops that people eat, such as apples and almonds, depend on bees.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 49,
+     "seconds": 1.124,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en36",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Summarize this text: \"The library will be closed on Monday for repairs to the heating system. It will reopen on Tuesday at 9 a.m. Books that are due on Monday can be returned on Tuesday without a late fee.\"",
+     "text": "Here's a rewritten version of the text:\n\n\"The library will be closed on Monday for repairs to the heating system. It will reopen on Tuesday at 9 a.m. Books due on Monday can be returned on Tuesday without a late fee.\"\n\nI made a few changes to improve clarity and grammar:\n\n- Changed \"will be\" to \"will be\" (correct verb form)\n- Added an article (\"the\") before \"debate\" to make it clear who is talking about the library's heating system\n- Changed \"it will reopen on Tuesday at 9 a.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 124,
+     "seconds": 2.376,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en37",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "What is the main point of this paragraph? \"Drinking enough water is important for health. Water helps regulate body temperature, keeps joints working smoothly and supports digestion. Many people need more water on hot days or when they exercise.\"",
+     "text": "I don't know for sure. The closest thing I read is the article “Paragraph”, but it doesn't answer that clearly. Oh, interesting — tell me more.",
+     "kind": "unknown",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.055,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en38",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Give me a short summary: \"Tom wanted to learn the guitar. At first his fingers hurt and the chords sounded wrong. He practised for fifteen minutes every day. After three months he could play his favourite song for his friends.\"",
+     "text": "This is a short summary of Tom's story:\n\nTom started learning the guitar at age three. He learned it from his parents and siblings. His fingers hurt, and he practiced for 15 minutes every day. After three months, he could play his favourite song for his friends.\n\nTom describes how his parents took him to an instrument store and showed him how to play chords and strum chords using his fingers.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 85,
+     "seconds": 1.77,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en39",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Summarize in two sentences: \"Electric cars run on batteries instead of petrol. They produce no exhaust gases while driving, which can improve air quality in cities. However, the batteries take time to charge, and charging stations are not yet available everywhere.\"",
+     "text": "Electric cars run on batteries instead of petrol. They produce no exhaust gases while driving, which can improve air quality in cities. However, the batteries take time to charge, and charging stations are not yet available everywhere.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 43,
+     "seconds": 1.03,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en40",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Summarize this email: \"Hi team, the project meeting is moved from Wednesday to Thursday at 2 p.m. Please bring your progress notes. We will also plan the next steps for the website launch. Thanks, Anna\"",
+     "text": "The user's email is: \"Hi team, the project meeting is moved from Wednesday to Thursday at 2 p.m. Please bring your progress notes. We will also plan the next steps for the website launch. Thanks, Anna\"\n\nHere's a brief summary of the information:\n- **Subject:** Project Meeting – Moving to Thursday at 2 p.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 73,
+     "seconds": 1.492,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en41",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Summarize briefly: \"Recycling turns used materials such as paper, glass and plastic into new products. It saves raw materials and energy and reduces the amount of waste in landfills. Sorting waste correctly at home makes recycling much more effective.\"",
+     "text": "\"Recycling turns used materials like paper, glass and plastic into new products. It saves raw materials and energy and reduces the amount of waste in landfills. Sorting waste correctly at home makes recycling much more effective.\"",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 43,
+     "seconds": 1.008,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en42",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "In one sentence, what is this about? \"The town council approved a new park on the site of the old car park. The park will have trees, a playground and a small pond. Construction starts in spring and should take about one year.\"",
+     "text": "I don't know — I haven't read anything that answers that. Nice — The The. It's an English post-punk band. What's your favourite song?",
+     "kind": "unknown",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.106,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en43",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "How long is the Danube?",
+     "text": "2850000 km [1].",
+     "kind": "sela_grounded",
+     "model": "sela-2",
+     "sela_checked": true,
+     "sela_stop": "stop",
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 7,
+     "seconds": 0.451,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en44",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "What is Ada Lovelace known for?",
+     "text": "Computing [1].",
+     "kind": "sela_grounded",
+     "model": "sela-2",
+     "sela_checked": true,
+     "sela_stop": "stop",
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 5,
+     "seconds": 0.361,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en45",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "What gas do plants release during photosynthesis?",
+     "text": "I don't know, sorry. I couldn't find anything reliable about that.",
+     "kind": "unknown",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.117,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en46",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "When were the best-known sections of the Great Wall built?",
+     "text": "1368–1644 [1].",
+     "kind": "sela_grounded",
+     "model": "sela-2",
+     "sela_checked": true,
+     "sela_stop": "stop",
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 8,
+     "seconds": 0.813,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en47",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "How many moons does Saturn have?",
+     "text": "I don't know for sure. The closest thing I read is the article “Moons of Saturn”, but it doesn't answer that clearly.",
+     "kind": "unknown",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.097,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en48",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Who created Python?",
+     "text": "I don't know, sorry. I couldn't find anything reliable about that.",
+     "kind": "unknown",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.127,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en49",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "At what temperature does water boil at standard pressure?",
+     "text": "I don't know, sorry. I couldn't find anything reliable about that.",
+     "kind": "unknown",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.088,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en50",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Who is the mayor of Paris?",
+     "text": "Emmanuel Grégoire [1].",
+     "kind": "sela_grounded",
+     "model": "sela-2",
+     "sela_checked": true,
+     "sela_stop": "stop",
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 9,
+     "seconds": 0.434,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en51",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Where is the Mona Lisa displayed?",
+     "text": "The Mona Lisa hangs in the Louvre in Paris, behind bulletproof glass in the Salle des États.",
+     "kind": "answer",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.076,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en52",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "How many queens does a honey bee colony usually have?",
+     "text": "I couldn't find a clear answer. “Honey bee” came closest, but I'd rather not guess.",
+     "kind": "unknown",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.101,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en53",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Hi, I'm planning a trip to Italy.",
+     "text": "Ooh, Italy! Is it your first time there?",
+     "kind": "learned",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.084,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "Which city should I visit first?",
+     "text": "Venice is the city to go first. It's a great place to see all the famous landmarks like the Colosseum, Roman Forum, and Pantheon.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 33,
+     "seconds": 1.002,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "Thanks! What food should I try there?",
+     "text": "There's a lot to see and do in Venice. You should try some classic Venetian dishes like pizza, gelato, and pasta. Don't forget to visit the famous Rialto Market for fresh seafood and unique local specialties.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 47,
+     "seconds": 0.999,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en54",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "My name is Sam.",
+     "text": "Got it — I'll call you Sam from now on.",
+     "kind": "learned",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.051,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "What is my name?",
+     "text": "Your name is Sam.",
+     "kind": "answer",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.08,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en55",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Can you help me write a birthday card for my mother?",
+     "text": "Here's a birthday card for your mother:\n\n---\n\n**Happy Mother's Day!**  \nMy dear mother,  \nI hope you have a wonderful day filled with laughter and love. I’m so grateful for all the good times we’ve had together. Good morning, my lovely dear!",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 65,
+     "seconds": 1.352,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "Make it a bit shorter, please.",
+     "text": "Happy Mother's Day!",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 5,
+     "seconds": 0.347,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en56",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "I feel a bit stressed today.",
+     "text": "Here's a possible response:  \n\n\"Hey Sam, it's okay to feel stressed. Your dog Rex is a good friend and loves to play. But remember, your stress doesn't have to be about the dog – sometimes our worries can be about other things too. Try taking a few deep breaths, going for a walk, or just giving yourself a moment to relax.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 76,
+     "seconds": 1.36,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "What can I do to relax this evening?",
+     "text": "Here are some suggestions to help you relax this evening:  \n\n1. **Take a warm bath**: Just like Rex loves to play, take a relaxing bath. You can also try a steam room or a spa day if you prefer!  \n2. **Relax with nature**: If you live in Perth, spend time outside and enjoy the sun.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 72,
+     "seconds": 1.487,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en57",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "What is a good houseplant for beginners?",
+     "text": "I don't know — I haven't read anything that answers that.",
+     "kind": "unknown",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.114,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "How often should I water it?",
+     "text": "The answer is: once every 2-4 weeks.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 11,
+     "seconds": 0.521,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en58",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Tell me a fun fact about cats.",
+     "text": "Here's one about cats: Cats are commonly kept as house pets but can also be farm cats or feral cats; the feral cat ranges freely and avoids human contact.",
+     "kind": "about",
+     "model": "engramm",
+     "sela_checked": false,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": "no citation; name Cats not in the cited sources; name Cats not in the cited sources",
+     "tokens": null,
+     "seconds": 0.03,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "And one about dogs?",
+     "text": "I don't know — I haven't read anything that answers that.",
+     "kind": "unknown",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.092,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en59",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "I want to start reading more books.",
+     "text": "Sounds good! What made you decide that?",
+     "kind": "learned",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.063,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "Any tips for finding time to read?",
+     "text": "Start with short books like \"The Girl Who Drank the Moon\" by Gillian Flynn, \"The Giver\" by Jonathan Swift, or \"A Song of Ice and Fire\" by George Orwell. Read them often to get a taste for new authors and styles. You can also try using a mobile app like Reading Buddies or Readability to find books you might enjoy.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 77,
+     "seconds": 1.661,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "Great, thank you!",
+     "text": "You're welcome! I'm glad you found them. Let me know if you need more help or have any other questions.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 25,
+     "seconds": 0.664,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "en60",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Can you explain what a recipe is?",
+     "text": "A recipe is a set of instructions that describes how to prepare or make something, especially a dish of prepared food [1].",
+     "kind": "sela_grounded",
+     "model": "sela-2",
+     "sela_checked": true,
+     "sela_stop": "stop",
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 25,
+     "seconds": 0.796,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "Now give me a very simple recipe for a sandwich.",
+     "text": "Here's a simple recipe for a sandwich:\n\nIngredients:\n- 2 slices of bread (about 1 cup each)\n- 1/2 cup cheese\n- 1/2 cup tomato paste\n- 1 tbsp olive oil\n- 3/4 cup red wine vinegar\n- 1 tsp salt\n- 1/4 cup black pepper\n- 2 cloves garlic, minced\n- 1 tsp smoked paprika\n- 1 tsp cumin\n- 1/2 tsp smoked coriander\n- 1 tsp smoked salt\n- 1/2 tsp black pepper\n- Salt and pepper to taste\n- Fresh parsley or chopped fresh parsley for garnish [1].",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 135,
+     "seconds": 2.742,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de01",
+   "lang": "de",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Hallo!",
+     "text": "Hallo! Wie kann ich dir helfen?",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 8,
+     "seconds": 0.552,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de02",
+   "lang": "de",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Guten Morgen, wie geht es dir?",
+     "text": "Guten Morgen!",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 25,
+     "seconds": 0.499,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de03",
+   "lang": "de",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Danke für deine Hilfe!",
+     "text": "Gern geschehen!",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 2,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 4,
+     "seconds": 0.569,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de04",
+   "lang": "de",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Tschüss, bis bald!",
+     "text": "Tschüss! bis bald!",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 7,
+     "seconds": 0.191,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de05",
+   "lang": "de",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Wer bist du?",
+     "text": "Ich bin Sela, das eigene kleine Sprachmodell von ENGRAMM. Ich kann mich unterhalten, Dinge erklären und Texte umschreiben oder zusammenfassen.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 34,
+     "seconds": 0.592,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de06",
+   "lang": "de",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Wie heißt du?",
+     "text": "Ich bin Sela.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 5,
+     "seconds": 0.157,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de07",
+   "lang": "de",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Bist du ein Mensch?",
+     "text": "Ich bin Sela, ein kleines Sprachmodell – ein Computerprogramm, kein Mensch. Ich laufe offline auf deinem Computer.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "rule",
+     "sela_tries": 0,
+     "sela_flags": [],
+     "sela_rule": "human",
+     "sela_note": null,
+     "tokens": 0,
+     "seconds": 0.005,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de08",
+   "lang": "de",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Wobei kannst du mir helfen?",
+     "text": "Ich helfe dir gerne! Bitte gib mir deinen Namen, den Nutzer deiner Wahl und den Kontext deiner Nachricht ein. Falls du möchtest, kannst du auch eine kurze Beschreibung des Nutzers angeben, etwa:  \n\n- **Was der Nutzer dir erzählt hat**: Angaben über seine Rolle, z. B.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 60,
+     "seconds": 1.031,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de09",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Gib mir drei Tipps, wie ich besser schlafen kann.",
+     "text": "1. **Pausen einplanen**: Wenn du dich müde fühlst, schließe einen kleinen Spaziergang ein (z. B. in den Park oder in der Stadt) und kombiniere es mit einem ruhigen Spaziergang.  \n2. **Szenen vermeiden**: Nutze deinen Tag für Aktivitäten, die dein Körper aktiv gestalten kann, z.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 75,
+     "seconds": 1.451,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de10",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Erkläre in einfachen Worten, was Strom ist.",
+     "text": "Strom ist Wärme, die durch das menschliche Körper erzeugt wird. Er gibt Energie für Bewegungen, Muskeln und Knochen. Strom ist auch die Energie, die wir brauchen, um Dinge zu bewegen (z. B. ein Auto oder ein Computer). Es fließt aus der Erde, an den Händen und Füßen und aus dem Körper (Körper und Fett).",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 70,
+     "seconds": 1.305,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de11",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Schreib eine kurze Nachricht an meine Kollegin, dass ich heute später komme.",
+     "text": "**Subject:** Nachricht an meine Kollegin, dass ich heute komme  \n\nHi [Name],  \nIch bin [Name]! Ich werde heute [Datum] um [Uhrzeit] zu Ihnen kommen.  \n\nZum Glück habe ich einen freundlichen Termin mit der Kollegin (und mit Rex).",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 66,
+     "seconds": 1.429,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de12",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Nenne vier Gemüsesorten, die im Herbst geerntet werden.",
+     "text": "**1. Rote Kresse (Helianthus annuus)**  \n*Erdjahr: September bis Oktober*  \n**2. Knoblauch (Chilium oxyporum)**  \n*Erdjahr: November bis Februar*  \n**3. Erdbeeren (Ersatz für Äpfeln) und Tomaten (Tomatoes pomosae)**  \n*Erdjahr: Juni bis Oktober*  \n\n**4.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 94,
+     "seconds": 1.878,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de13",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Wie koche ich Nudeln richtig?",
+     "text": "Nudeln sollten in einem warmen Wasserbad gebacken werden.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 14,
+     "seconds": 0.31,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de14",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Was ist der Unterschied zwischen einem Fluss und einem See?",
+     "text": "Der Unterschied zwischen einem Fluss und einem See ist **nicht direkt sichtbar** (z. B. das Fließen des Flusses dass durch den See verläuft). Sie sind jedoch **einschließlich** von Wasser, das **aus dem Fluss entsteht**. Der Begriff „Fluss“ bezieht sich auf die natürliche Quelle des Wassers, während der Begriff „Seewiese“ eine geografische Form beschreibt, in der Wasser aus einem bestimmten Ort fließt.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 86,
+     "seconds": 1.724,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de15",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Schreib ein kurzes Gedicht über den Winter.",
+     "text": "**Winter im Winterland**  \n\nDer Schnee wirft goldbraun seine Flammen auf die Erde,  \ndie Stille um uns herum weht wie ein Sturm.  \nDie Eiswüste trägt das leise Lied der Winde,  \ndoch der Regen spielt nie mehr die Melodie.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 61,
+     "seconds": 1.265,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de16",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Wie kann ich im Haushalt Energie sparen?",
+     "text": "Um im Haushalt Energie sparen zu können, ist es sinnvoll, die Verbrauchsfaktoren wie Heizkosten, Stromverbrauch und Wasserverbrauch regelmäßig zu überprüfen. Hier sind einige Tipps:\n\n1. **Kühlung**: Eine Möglichkeit ist, den Heizwert des Hauses zu steigern, indem Sie Heizelemente verwenden (z.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 64,
+     "seconds": 1.134,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de17",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Was sollte ich zu einem Vorstellungsgespräch mitnehmen?",
+     "text": "Um zu einem Vorstellungsgespräch mitzunehmen, sollten folgende Gegenstände vorhanden sein:  \n1. **Persönliche Dokumente**: Ein passendes Foto von dir (z. B. eine Fotoserie), ein Lebenslauf, ein Kurzvideo oder ein leeres Bild des Nutzers.  \n2. **Identifizierende Unterlagen**: Liste der Unternehmen, Institutionen, Projekte oder Leistungen, die du gerne erwähnen willst.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 83,
+     "seconds": 1.52,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de18",
+   "lang": "de",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Formuliere das höflicher: „Gib mir sofort die Unterlagen.“",
+     "text": "**Gib mir sofort die Unterlagen.**  \n*(Höflich: „Ich bin ich. Bitte gib mir sofort die Unterlagen.“)*  \n\n**Hinweis:** Der Nutzer wird nicht mit der Unterlage allein kommunizieren, sondern auch durch die Einhaltung von Vorschriften (z.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 60,
+     "seconds": 1.21,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de19",
+   "lang": "de",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Korrigiere die Fehler: „Ich habe gestern ins Kino gegangen und der Film war sehr gut gewesen.“",
+     "text": "„Ich habe gestern ins Kino gegangen und der Film war sehr gut gewesen.“  \n(Fortsetzung des Originaltextes, aber ohne die verborgene Erklärung von „ich“ und „sehr gut“.)",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 44,
+     "seconds": 0.996,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de20",
+   "lang": "de",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Mach diesen Satz einfacher: „Aufgrund der ungünstigen Witterungsverhältnisse wurde die Veranstaltung abgesagt.“",
+     "text": "Hier ist eine vereinfachte Version des Satzes:  \n**„Aufgrund der ungünstigen Witterungsverhältnisse wurde die Veranstaltung abgesagt.“**  \n\n### Begründung:  \n1. **Strukturierung**: Der Satz ist in zwei Teile geteilt, um den Inhalt zu betonen.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 60,
+     "seconds": 1.18,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de21",
+   "lang": "de",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Schreib diesen Satz in der Vergangenheit: „Ich gehe in den Park und lese ein Buch.“",
+     "text": "**In den Park:**  \n*Ich gehe in den Park und lese ein Buch. Es ist bereits Morgen.*  \n\n**Erklärung:**  \n- **„geht“** → **„lese“**: Die verborgene Bedeutung von „gehen“ (z. B. durch die Handlung, die an dieser Stelle geschieht) bleibt unverändert, da die Handlung im ersten Satz die Situation beschreibt.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 83,
+     "seconds": 1.619,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de22",
+   "lang": "de",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Formuliere das förmlicher: „Hey, kann morgen leider nicht, sorry!“",
+     "text": "**Formulier:** „Hey, kann morgen leider nicht, sorry!“  \n\n**Hinweis:** Die Formulierung ist inhaltlich neutral und betont den Nutzer als Person. Sie ist klar strukturiert und verständlich.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 43,
+     "seconds": 0.924,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de23",
+   "lang": "de",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Fasse in einem Satz zusammen: „Fahrradfahren ist gut für die Gesundheit. Es stärkt Herz und Muskeln und belastet die Gelenke wenig. Außerdem verursacht es keine Abgase und ist in der Stadt oft schneller als das Auto.“",
+     "text": "Der Fahrer, Sam, trägt eine Fahrradkappe und eine Schutzanzüge, während Rex ein Auto fährt, das seine Geschwindigkeit erhöht und den Boden weniger belastet.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 47,
+     "seconds": 1.225,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de24",
+   "lang": "de",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Fasse diese Nachricht zusammen: „Hallo zusammen, das Treffen am Freitag fällt aus, weil der Raum belegt ist. Wir verschieben es auf Montag um 10 Uhr. Bitte bringt eure Ideen für das Sommerfest mit. Viele Grüße, Jonas“",
+     "text": "Hallo zusammen, das Treffen am Freitag fällt aus, weil der Raum belegt ist. Wir verschieben es auf Montag um 10 Uhr. Bitte bringt eure Ideen für das Sommerfest mit. Viele Grüße, Jonas.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 42,
+     "seconds": 1.097,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de25",
+   "lang": "de",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Worum geht es in diesem Text? „Im Herbst ziehen viele Zugvögel in den Süden. Sie fliegen oft Tausende Kilometer, um in wärmeren Gebieten genug Nahrung zu finden. Im Frühling kehren sie zurück, um zu brüten.“",
+     "text": "Im Text geht es um die Zugvögel in den Süden und ihre Fortbewegung, die sich im Herbst zurückzieht. Der Text beschreibt das Phänomen, dass Zugvögel ihre Wanderungen über Jahrhunderte fortführen. Das Bild der Vögel als Vögel ist ein metaphorisches Alltagsbild: sie sind eine Verbindung zwischen Mensch und Natur, die durch Kommunikation und Sozialität entsteht.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 72,
+     "seconds": 1.686,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de26",
+   "lang": "de",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Fasse kurz zusammen: „Lisa wollte schwimmen lernen. Anfangs hatte sie Angst vor dem tiefen Wasser. Sie übte jede Woche mit einer Trainerin. Nach einem Sommer konnte sie eine ganze Bahn ohne Pause schwimmen.“",
+     "text": "Lisa war zunächst in Angst vor dem tiefen Wasser und der großen Entfernung aus ihrem Dorf aufgewachsen. Doch mit einer Trainerin, die sie über den Weg hinwegführte, konnte sie beginnen, sich zu entwickeln.  \n\nDie Trainerin, die sich auch als **Rex** nannte, hatte bereits viele Jahre Erfahrung im Training gesammelt, und nun wagte sie sich nicht nur an das schwimmende Training, sondern trug auch praktische Tipps für gesunde Ernährung und körperliche Fitness ein.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 95,
+     "seconds": 1.866,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de27",
+   "lang": "de",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Fasse in zwei Sätzen zusammen: „Die Stadt baut einen neuen Radweg entlang des Flusses. Er soll Pendler sicherer zur Arbeit bringen und den Autoverkehr in der Innenstadt verringern. Die Bauarbeiten beginnen im März und dauern etwa acht Monate.“",
+     "text": "**Die Stadt baut einen neuen Radweg entlang des Flusses.**  \nDer Bau beginnt im März und dauert etwa acht Monate.  \n\n---  \n*Hinweis: Das Wort „baut“ ist der korrekte Begriff in diesem Kontext, da es um die Konstruktion von Straßen, Brücken oder anderen Infrastrukturen geht.*",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 67,
+     "seconds": 1.543,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de28",
+   "lang": "de",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Wie hoch ist die Zugspitze?",
+     "text": "2,962 metres (9,718 ft) [1].",
+     "kind": "sela_grounded",
+     "model": "sela-2",
+     "sela_checked": true,
+     "sela_stop": "stop",
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 15,
+     "seconds": 0.924,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de29",
+   "lang": "de",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Welches bekannte Werk schrieb Goethe?",
+     "text": "Meine Quellen sagen dazu nichts.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 3,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 6,
+     "seconds": 1.852,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de30",
+   "lang": "de",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Wo mündet der Rhein?",
+     "text": "Der Rhein fließt in Richtung der Eifel. Er entspringt im Herzen von Perth und verläuft durch den Norden des Bundesstaates.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 27,
+     "seconds": 0.81,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de31",
+   "lang": "de",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Wie tief ist der Gardasee?",
+     "text": "Das weiß ich leider nicht – dazu habe ich nichts Verlässliches gelesen.",
+     "kind": "unknown",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.045,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de32",
+   "lang": "de",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Wofür erhielt Einstein den Nobelpreis?",
+     "text": "Einstein erhielt den Nobelpreis für Physik im Jahr 1921, gemeinsam mit seinem Freund Max Born und dem Mathematiker Bernhard Riemann. Dieser Preis wird von der American Physical Society verliehen und ist die höchste Auszeichnung, die an Wissenschaftler verliehen wird, die in Physik tätig sind.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 52,
+     "seconds": 0.936,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de33",
+   "lang": "de",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Wann wurde das Brandenburger Tor gebaut?",
+     "text": "Da muss ich passen, dazu habe ich nichts gefunden.",
+     "kind": "unknown",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.056,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de34",
+   "lang": "de",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Wer hat den Tee erfunden?",
+     "text": "Da muss ich passen, dazu habe ich nichts gefunden.",
+     "kind": "unknown",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.12,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de35",
+   "lang": "de",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Ich heiße Mia.",
+     "text": "Freut mich, Mia! Das merke ich mir.",
+     "kind": "learned",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.12,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "Wie heiße ich?",
+     "text": "Du heißt Mia.",
+     "kind": "answer",
+     "model": "engramm",
+     "sela_checked": null,
+     "sela_stop": null,
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": null,
+     "seconds": 0.041,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de36",
+   "lang": "de",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Ich möchte am Wochenende einen Kuchen backen.",
+     "text": "**Bäckerei:**  \nDer Nutzer, Mia, wohnt in Perth. Der Hund des Nutzers, Rex, wohnt in Perth.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 2,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 30,
+     "seconds": 0.912,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "Welcher Kuchen ist einfach?",
+     "text": "**Bäckerei:**  \nDer Nutzer, Mia, wohnt in Perth. Der Hund des Nutzers, Rex, wohnt in Perth.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 30,
+     "seconds": 0.692,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "Danke, das probiere ich!",
+     "text": "**Bäckerei:**  \nDer Nutzer, Mia, wohnt in Perth. Der Hund des Nutzers, Rex, wohnt in Perth.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 30,
+     "seconds": 0.766,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de37",
+   "lang": "de",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Ich lerne gerade Englisch.",
+     "text": "Der Nutzer ist Mia, ein kleiner Offline-Assistent in Perth.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 28,
+     "seconds": 0.502,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "Wie kann ich meinen Wortschatz verbessern?",
+     "text": "Um meinen Wortschatz zu verbessern, kann ich den folgenden Schritt ergreifen:\n\n1. **Präzisere Definitionen**: Formulierungen wie „In der Regel“ oder „Die Sprache ist nicht perfekt“ helfen, Wörter klarer zu definieren.  \n   *Beispiel:* „In Perth wird oft Englisch gesprochen.“",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 64,
+     "seconds": 1.245,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de38",
+   "lang": "de",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Kannst du mir helfen, eine Einladung zu schreiben?",
+     "text": "Ich helfe dir gerne! Schreib eine Einladung für Mia, Rex oder andere Nutzer an:\n\n---\n\n**Einladungen:**  \nMia ist ein **Ableger** des Nutzers. Rex ist ein **Erzähler** der Nutzer.  \nDer Nutzer hat den Nutzer gefragt, ob sie eine Einladung schreiben möchte – und die Antwort lautet ja.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "soft",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 77,
+     "seconds": 1.439,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "Es ist eine Geburtstagsfeier am Samstag um 18 Uhr.",
+     "text": "Mia ist ein **Ableger** des Nutzers, der sich gern für eine Einladung für Mia und Rex entscheiden möchte. Der Nutzer hat die Einladung an den Nutzer geschickt – und der Nutzer hat ihn in einem Email- oder Postfach geschrieben.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 52,
+     "seconds": 1.107,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de39",
+   "lang": "de",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Was ist ein gutes Hobby für den Winter?",
+     "text": "Ein gutes Hobby für den Winter ist ein Spaziergang mit dem Hund Rex. Er hat eine gesunde Ernährung und kann ausreichend Sonnenlicht genießen.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 26,
+     "seconds": 0.534,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "Und was kostet das ungefähr?",
+     "text": "Ein gutes Hobby für den Winter kostet zwischen $10 und $100. Es hängt vom Wetter ab, wie viel du machst und was du wirklich magst. Der Hund kann jedoch viel mehr kosten, je nach Größe und Haltung des Hundes.",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 48,
+     "seconds": 0.996,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "de40",
+   "lang": "de",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Erzähl mir etwas über Pinguine.",
+     "text": "Pinguine sind eine der größten und bekanntesten Arten der Vögel [1].",
+     "kind": "sela_grounded",
+     "model": "sela-2",
+     "sela_checked": true,
+     "sela_stop": "stop",
+     "sela_tries": null,
+     "sela_flags": null,
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 15,
+     "seconds": 0.665,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    },
+    {
+     "user": "Können Pinguine fliegen?",
+     "text": "Ja, Pinguine können fliegen [1].",
+     "kind": "sela_chat",
+     "model": "sela-2",
+     "sela_checked": null,
+     "sela_stop": "stop",
+     "sela_tries": 1,
+     "sela_flags": [],
+     "sela_rule": null,
+     "sela_note": null,
+     "tokens": 10,
+     "seconds": 0.618,
+     "checks": {
+      "wrong_language": false,
+      "identity_error": false,
+      "echo": false,
+      "cut_off": false,
+      "role_leak": false,
+      "loop": false,
+      "empty": false,
+      "error": false
+     }
+    }
+   ]
+  }
+ ]
+}

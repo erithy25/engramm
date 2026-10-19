@@ -1,0 +1,11 @@
+{
+ "alpha": 0.5,
+ "tag": "mix50",
+ "base": "sela2_basis_bf16.pt",
+ "base_sha256": "618b3c5c02303ce72c92ee64d103fdbf6539a435a03a2fdeee6b21dd959a6105",
+ "chat": "sela2_chat_bf16.pt",
+ "chat_sha256": "c9ec15ca7d53c1998d394842a9da0131ab925ab12b2ac09e2b1c49a918e5ad5e",
+ "rule": "(1 - alpha) * base + alpha * chat per tensor, float32, stored as bfloat16",
+ "out": "sela2_mix50_bf16.pt",
+ "out_sha256": "c6ff68df4c6b72d7e15ae772d51fa11b0808ce1815c50eee4ae7555756bea4a2"
+}

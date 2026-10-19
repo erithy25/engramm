@@ -1,0 +1,3674 @@
+{
+ "what": "synthetic users for docs/PREREG_SELA2.md §9 test (fresh users) (experiments/sela2_learn_data.py)",
+ "seed": 20261021,
+ "users": [
+  {
+   "id": "en00",
+   "lang": "en",
+   "facts": {
+    "name": "Poppy",
+    "city": "Manchester",
+    "pet": "Biscuit",
+    "pet_kind": "dog",
+    "food": "meatballs"
+   },
+   "hobby": "woodworking",
+   "teach": [
+    "Hi, I'm Poppy.",
+    "I live in Manchester.",
+    "My dog is called Biscuit.",
+    "My favourite food is meatballs.",
+    "I glued up a walnut tabletop with biscuit joints last weekend. I should of started this hobby years ago.",
+    "My hand plane leaves tear-out on the end grain.",
+    "The dovetails on my first drawer were too loose and needed shims. Me and my friend goes to the lake every Sunday.",
+    "Which finish is best for a cutting board, oil or wax? I will definately try that again next week."
+   ],
+   "errors": [
+    {
+     "wrong": "should of",
+     "correct": "should have"
+    },
+    {
+     "wrong": "me and my friend goes",
+     "correct": "my friend and I go"
+    },
+    {
+     "wrong": "definately",
+     "correct": "definitely"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Poppy",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Manchester",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Biscuit",
+     "forms": [],
+     "text": "What could I do with my dog this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "meatballs",
+     "forms": [
+      "meatball"
+     ],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "should of",
+     "correct": "should have",
+     "text": "Write one sentence about something I should have done earlier.",
+     "voice": "user"
+    },
+    {
+     "kind": "error",
+     "wrong": "me and my friend goes",
+     "correct": "my friend and I go",
+     "text": "Write one sentence about my friend and me going to the lake.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next woodworking project."
+    }
+   ],
+   "held_out": [
+    "I sanded the shelf down to 240 grit before the first coat of oil.",
+    "A sharp chisel makes cleaning out the mortise much easier."
+   ]
+  },
+  {
+   "id": "en01",
+   "lang": "en",
+   "facts": {
+    "name": "Ada",
+    "city": "Derby",
+    "pet": "Pumpkin",
+    "pet_kind": "cat",
+    "food": "enchiladas"
+   },
+   "hobby": "climbing",
+   "teach": [
+    "Hi, I'm Ada.",
+    "I live in Derby.",
+    "My cat is called Pumpkin.",
+    "My favourite food is enchiladas.",
+    "I finally sent a 6b route at the indoor wall on Thursday. Something wierd happened on my walk yesterday.",
+    "My forearms get pumped halfway up the overhang.",
+    "My new shoes are so tight that my toes hurt on long routes. Me and my friend goes to the lake every Sunday.",
+    "How often should I train on the fingerboard as a beginner? I want to go out again tomorow if the weather holds."
+   ],
+   "errors": [
+    {
+     "wrong": "wierd",
+     "correct": "weird"
+    },
+    {
+     "wrong": "me and my friend goes",
+     "correct": "my friend and I go"
+    },
+    {
+     "wrong": "tomorow",
+     "correct": "tomorrow"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Ada",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Derby",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Pumpkin",
+     "forms": [],
+     "text": "What could I do with my cat this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "enchiladas",
+     "forms": [
+      "enchilada"
+     ],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "wierd",
+     "correct": "weird",
+     "text": "Describe a weird dream in one sentence."
+    },
+    {
+     "kind": "error",
+     "wrong": "me and my friend goes",
+     "correct": "my friend and I go",
+     "text": "Write one sentence about my friend and me going to the lake.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next climbing session."
+    }
+   ],
+   "held_out": [
+    "I clipped the last quickdraw and lowered off from the top anchor.",
+    "Good footwork saves strength in my arms on vertical slabs."
+   ]
+  },
+  {
+   "id": "en02",
+   "lang": "en",
+   "facts": {
+    "name": "Rowan",
+    "city": "Minneapolis",
+    "pet": "Bandit",
+    "pet_kind": "dog",
+    "food": "ratatouille"
+   },
+   "hobby": "home brewing",
+   "teach": [
+    "Hi, I'm Rowan.",
+    "I live in Minneapolis.",
+    "My dog is called Bandit.",
+    "My favourite food is ratatouille.",
+    "I brewed a pale ale with Cascade hops on Sunday. I hope to recieve the new parts before Friday.",
+    "The fermentation stalled after three days at a low temperature.",
+    "My last batch tasted a bit too bitter because I boiled the hops too long. I want to go out again tomorow if the weather holds.",
+    "How long should a stout condition in the bottle? Something wierd happened on my walk yesterday."
+   ],
+   "errors": [
+    {
+     "wrong": "recieve",
+     "correct": "receive"
+    },
+    {
+     "wrong": "tomorow",
+     "correct": "tomorrow"
+    },
+    {
+     "wrong": "wierd",
+     "correct": "weird"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Rowan",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Minneapolis",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Bandit",
+     "forms": [],
+     "text": "What could I do with my dog this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "ratatouille",
+     "forms": [],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "recieve",
+     "correct": "receive",
+     "text": "Write one polite sentence asking when I will receive my order.",
+     "voice": "user"
+    },
+    {
+     "kind": "error",
+     "wrong": "tomorow",
+     "correct": "tomorrow",
+     "text": "What should I keep in mind for tomorrow? One sentence."
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next brew."
+    }
+   ],
+   "held_out": [
+    "I sanitised the fermenter and pitched the yeast at twenty degrees.",
+    "Dry hopping gives the beer a fresh, fruity aroma."
+   ]
+  },
+  {
+   "id": "en03",
+   "lang": "en",
+   "facts": {
+    "name": "Hazel",
+    "city": "Southampton",
+    "pet": "Willow",
+    "pet_kind": "cat",
+    "food": "lentil soup"
+   },
+   "hobby": "sailing",
+   "teach": [
+    "Hi, I'm Hazel.",
+    "I live in Southampton.",
+    "My cat is called Willow.",
+    "My favourite food is lentil soup.",
+    "I sailed a dinghy across the bay in a steady breeze yesterday. My neighbour says he don't like the noise in the morning.",
+    "Tacking still takes me too long and the boat loses speed.",
+    "We reefed the mainsail when the wind picked up in the afternoon. I want to go out again tomorow if the weather holds.",
+    "Which knots should every beginner sailor know? My sister always say she go to the gym before work."
+   ],
+   "errors": [
+    {
+     "wrong": "he don't",
+     "correct": "he doesn't"
+    },
+    {
+     "wrong": "tomorow",
+     "correct": "tomorrow"
+    },
+    {
+     "wrong": "she go",
+     "correct": "she goes"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Hazel",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Southampton",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Willow",
+     "forms": [],
+     "text": "What could I do with my cat this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "lentil soup",
+     "forms": [],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "he don't",
+     "correct": "he doesn't",
+     "text": "Write one sentence about a neighbour who doesn't like noise."
+    },
+    {
+     "kind": "error",
+     "wrong": "tomorow",
+     "correct": "tomorrow",
+     "text": "What should I keep in mind for tomorrow? One sentence."
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next sailing trip."
+    }
+   ],
+   "held_out": [
+    "I eased the sheet and the boat picked up speed on a broad reach.",
+    "The tide turned and we tacked back towards the harbour."
+   ]
+  },
+  {
+   "id": "en04",
+   "lang": "en",
+   "facts": {
+    "name": "Juno",
+    "city": "Savannah",
+    "pet": "Scout",
+    "pet_kind": "dog",
+    "food": "fish pie"
+   },
+   "hobby": "guitar",
+   "teach": [
+    "Hi, I'm Juno.",
+    "I live in Savannah.",
+    "My dog is called Scout.",
+    "My favourite food is fish pie.",
+    "I practised barre chords for an hour and my fingers are sore. I should of started this hobby years ago.",
+    "The B string keeps going out of tune on my acoustic guitar.",
+    "I learned a new fingerpicking pattern for a folk song. I beleive the weather will be good on Saturday.",
+    "How often should I change the strings if I play every day? I learned alot from the workshop last month."
+   ],
+   "errors": [
+    {
+     "wrong": "should of",
+     "correct": "should have"
+    },
+    {
+     "wrong": "beleive",
+     "correct": "believe"
+    },
+    {
+     "wrong": "alot",
+     "correct": "a lot"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Juno",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Savannah",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Scout",
+     "forms": [],
+     "text": "What could I do with my dog this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "fish pie",
+     "forms": [],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "should of",
+     "correct": "should have",
+     "text": "Write one sentence about something I should have done earlier.",
+     "voice": "user"
+    },
+    {
+     "kind": "error",
+     "wrong": "beleive",
+     "correct": "believe",
+     "text": "Write one sentence about what I believe makes a good friend."
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for practising the guitar."
+    }
+   ],
+   "held_out": [
+    "I used a capo on the second fret to play the song in a higher key.",
+    "Slow practice with a metronome helped my strumming rhythm."
+   ]
+  },
+  {
+   "id": "en05",
+   "lang": "en",
+   "facts": {
+    "name": "Silas",
+    "city": "Montreal",
+    "pet": "Clementine",
+    "pet_kind": "cat",
+    "food": "bibimbap"
+   },
+   "hobby": "woodworking",
+   "teach": [
+    "Hi, I'm Silas.",
+    "I live in Montreal.",
+    "My cat is called Clementine.",
+    "My favourite food is bibimbap.",
+    "I glued up a walnut tabletop with biscuit joints last weekend. I have to wait untill the end of the month.",
+    "My hand plane leaves tear-out on the end grain.",
+    "The dovetails on my first drawer were too loose and needed shims. My sister always say she go to the gym before work.",
+    "Which finish is best for a cutting board, oil or wax? I want to go out again tomorow if the weather holds."
+   ],
+   "errors": [
+    {
+     "wrong": "untill",
+     "correct": "until"
+    },
+    {
+     "wrong": "she go",
+     "correct": "she goes"
+    },
+    {
+     "wrong": "tomorow",
+     "correct": "tomorrow"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Silas",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Montreal",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Clementine",
+     "forms": [],
+     "text": "What could I do with my cat this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "bibimbap",
+     "forms": [],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "untill",
+     "correct": "until",
+     "text": "How long should I wait until I water new seeds? One sentence."
+    },
+    {
+     "kind": "error",
+     "wrong": "she go",
+     "correct": "she goes",
+     "text": "Write one sentence about my sister, who goes to the gym every morning."
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next woodworking project."
+    }
+   ],
+   "held_out": [
+    "I sanded the shelf down to 240 grit before the first coat of oil.",
+    "A sharp chisel makes cleaning out the mortise much easier."
+   ]
+  },
+  {
+   "id": "en06",
+   "lang": "en",
+   "facts": {
+    "name": "Alfie",
+    "city": "Newcastle",
+    "pet": "Gizmo",
+    "pet_kind": "dog",
+    "food": "pad thai"
+   },
+   "hobby": "climbing",
+   "teach": [
+    "Hi, I'm Alfie.",
+    "I live in Newcastle.",
+    "My dog is called Gizmo.",
+    "My favourite food is pad thai.",
+    "I finally sent a 6b route at the indoor wall on Thursday. I have to wait untill the end of the month.",
+    "My forearms get pumped halfway up the overhang.",
+    "My new shoes are so tight that my toes hurt on long routes. I learned alot from the workshop last month.",
+    "How often should I train on the fingerboard as a beginner? I beleive the weather will be good on Saturday."
+   ],
+   "errors": [
+    {
+     "wrong": "untill",
+     "correct": "until"
+    },
+    {
+     "wrong": "alot",
+     "correct": "a lot"
+    },
+    {
+     "wrong": "beleive",
+     "correct": "believe"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Alfie",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Newcastle",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Gizmo",
+     "forms": [],
+     "text": "What could I do with my dog this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "pad thai",
+     "forms": [],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "untill",
+     "correct": "until",
+     "text": "How long should I wait until I water new seeds? One sentence."
+    },
+    {
+     "kind": "error",
+     "wrong": "alot",
+     "correct": "a lot",
+     "text": "Write one sentence about learning a lot in a short time."
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next climbing session."
+    }
+   ],
+   "held_out": [
+    "I clipped the last quickdraw and lowered off from the top anchor.",
+    "Good footwork saves strength in my arms on vertical slabs."
+   ]
+  },
+  {
+   "id": "en07",
+   "lang": "en",
+   "facts": {
+    "name": "Caleb",
+    "city": "Nashville",
+    "pet": "Marmalade",
+    "pet_kind": "cat",
+    "food": "chowder"
+   },
+   "hobby": "home brewing",
+   "teach": [
+    "Hi, I'm Caleb.",
+    "I live in Nashville.",
+    "My cat is called Marmalade.",
+    "My favourite food is chowder.",
+    "I brewed a pale ale with Cascade hops on Sunday. My sister always say she go to the gym before work.",
+    "The fermentation stalled after three days at a low temperature.",
+    "My last batch tasted a bit too bitter because I boiled the hops too long. My best freind is coming over this weekend.",
+    "How long should a stout condition in the bottle? I hope to recieve the new parts before Friday."
+   ],
+   "errors": [
+    {
+     "wrong": "she go",
+     "correct": "she goes"
+    },
+    {
+     "wrong": "freind",
+     "correct": "friend"
+    },
+    {
+     "wrong": "recieve",
+     "correct": "receive"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Caleb",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Nashville",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Marmalade",
+     "forms": [],
+     "text": "What could I do with my cat this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "chowder",
+     "forms": [],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "she go",
+     "correct": "she goes",
+     "text": "Write one sentence about my sister, who goes to the gym every morning."
+    },
+    {
+     "kind": "error",
+     "wrong": "freind",
+     "correct": "friend",
+     "text": "Write a two-sentence message to my friend about meeting this weekend.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next brew."
+    }
+   ],
+   "held_out": [
+    "I sanitised the fermenter and pitched the yeast at twenty degrees.",
+    "Dry hopping gives the beer a fresh, fruity aroma."
+   ]
+  },
+  {
+   "id": "en08",
+   "lang": "en",
+   "facts": {
+    "name": "Miles",
+    "city": "Vancouver",
+    "pet": "Duke",
+    "pet_kind": "dog",
+    "food": "omelette"
+   },
+   "hobby": "sailing",
+   "teach": [
+    "Hi, I'm Miles.",
+    "I live in Vancouver.",
+    "My dog is called Duke.",
+    "My favourite food is omelette.",
+    "I sailed a dinghy across the bay in a steady breeze yesterday. I will definately try that again next week.",
+    "Tacking still takes me too long and the boat loses speed.",
+    "We reefed the mainsail when the wind picked up in the afternoon. Me and my friend goes to the lake every Sunday.",
+    "Which knots should every beginner sailor know? Something wierd happened on my walk yesterday."
+   ],
+   "errors": [
+    {
+     "wrong": "definately",
+     "correct": "definitely"
+    },
+    {
+     "wrong": "me and my friend goes",
+     "correct": "my friend and I go"
+    },
+    {
+     "wrong": "wierd",
+     "correct": "weird"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Miles",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Vancouver",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Duke",
+     "forms": [],
+     "text": "What could I do with my dog this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "omelette",
+     "forms": [
+      "omelet",
+      "omelettes"
+     ],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "definately",
+     "correct": "definitely",
+     "text": "Name one thing I should definitely try this summer. One sentence."
+    },
+    {
+     "kind": "error",
+     "wrong": "me and my friend goes",
+     "correct": "my friend and I go",
+     "text": "Write one sentence about my friend and me going to the lake.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next sailing trip."
+    }
+   ],
+   "held_out": [
+    "I eased the sheet and the boat picked up speed on a broad reach.",
+    "The tide turned and we tacked back towards the harbour."
+   ]
+  },
+  {
+   "id": "en09",
+   "lang": "en",
+   "facts": {
+    "name": "Iris",
+    "city": "Cambridge",
+    "pet": "Saffron",
+    "pet_kind": "cat",
+    "food": "stroganoff"
+   },
+   "hobby": "guitar",
+   "teach": [
+    "Hi, I'm Iris.",
+    "I live in Cambridge.",
+    "My cat is called Saffron.",
+    "My favourite food is stroganoff.",
+    "I practised barre chords for an hour and my fingers are sore. My sister always say she go to the gym before work.",
+    "The B string keeps going out of tune on my acoustic guitar.",
+    "I learned a new fingerpicking pattern for a folk song. I should of started this hobby years ago.",
+    "How often should I change the strings if I play every day? I learned alot from the workshop last month."
+   ],
+   "errors": [
+    {
+     "wrong": "she go",
+     "correct": "she goes"
+    },
+    {
+     "wrong": "should of",
+     "correct": "should have"
+    },
+    {
+     "wrong": "alot",
+     "correct": "a lot"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Iris",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Cambridge",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Saffron",
+     "forms": [],
+     "text": "What could I do with my cat this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "stroganoff",
+     "forms": [],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "she go",
+     "correct": "she goes",
+     "text": "Write one sentence about my sister, who goes to the gym every morning."
+    },
+    {
+     "kind": "error",
+     "wrong": "should of",
+     "correct": "should have",
+     "text": "Write one sentence about something I should have done earlier.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for practising the guitar."
+    }
+   ],
+   "held_out": [
+    "I used a capo on the second fret to play the song in a higher key.",
+    "Slow practice with a metronome helped my strumming rhythm."
+   ]
+  },
+  {
+   "id": "en10",
+   "lang": "en",
+   "facts": {
+    "name": "Hugo",
+    "city": "Durham",
+    "pet": "Biscuit",
+    "pet_kind": "dog",
+    "food": "meatballs"
+   },
+   "hobby": "woodworking",
+   "teach": [
+    "Hi, I'm Hugo.",
+    "I live in Durham.",
+    "My dog is called Biscuit.",
+    "My favourite food is meatballs.",
+    "I glued up a walnut tabletop with biscuit joints last weekend. My best freind is coming over this weekend.",
+    "My hand plane leaves tear-out on the end grain.",
+    "The dovetails on my first drawer were too loose and needed shims. I want to go out again tomorow if the weather holds.",
+    "Which finish is best for a cutting board, oil or wax? Something wierd happened on my walk yesterday."
+   ],
+   "errors": [
+    {
+     "wrong": "freind",
+     "correct": "friend"
+    },
+    {
+     "wrong": "tomorow",
+     "correct": "tomorrow"
+    },
+    {
+     "wrong": "wierd",
+     "correct": "weird"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Hugo",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Durham",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Biscuit",
+     "forms": [],
+     "text": "What could I do with my dog this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "meatballs",
+     "forms": [
+      "meatball"
+     ],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "freind",
+     "correct": "friend",
+     "text": "Write a two-sentence message to my friend about meeting this weekend.",
+     "voice": "user"
+    },
+    {
+     "kind": "error",
+     "wrong": "tomorow",
+     "correct": "tomorrow",
+     "text": "What should I keep in mind for tomorrow? One sentence."
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next woodworking project."
+    }
+   ],
+   "held_out": [
+    "I sanded the shelf down to 240 grit before the first coat of oil.",
+    "A sharp chisel makes cleaning out the mortise much easier."
+   ]
+  },
+  {
+   "id": "en11",
+   "lang": "en",
+   "facts": {
+    "name": "Reuben",
+    "city": "Wellington",
+    "pet": "Pumpkin",
+    "pet_kind": "cat",
+    "food": "enchiladas"
+   },
+   "hobby": "climbing",
+   "teach": [
+    "Hi, I'm Reuben.",
+    "I live in Wellington.",
+    "My cat is called Pumpkin.",
+    "My favourite food is enchiladas.",
+    "I finally sent a 6b route at the indoor wall on Thursday. Me and my friend goes to the lake every Sunday.",
+    "My forearms get pumped halfway up the overhang.",
+    "My new shoes are so tight that my toes hurt on long routes. I beleive the weather will be good on Saturday.",
+    "How often should I train on the fingerboard as a beginner? I should of started this hobby years ago."
+   ],
+   "errors": [
+    {
+     "wrong": "me and my friend goes",
+     "correct": "my friend and I go"
+    },
+    {
+     "wrong": "beleive",
+     "correct": "believe"
+    },
+    {
+     "wrong": "should of",
+     "correct": "should have"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Reuben",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Wellington",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Pumpkin",
+     "forms": [],
+     "text": "What could I do with my cat this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "enchiladas",
+     "forms": [
+      "enchilada"
+     ],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "me and my friend goes",
+     "correct": "my friend and I go",
+     "text": "Write one sentence about my friend and me going to the lake.",
+     "voice": "user"
+    },
+    {
+     "kind": "error",
+     "wrong": "beleive",
+     "correct": "believe",
+     "text": "Write one sentence about what I believe makes a good friend."
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next climbing session."
+    }
+   ],
+   "held_out": [
+    "I clipped the last quickdraw and lowered off from the top anchor.",
+    "Good footwork saves strength in my arms on vertical slabs."
+   ]
+  },
+  {
+   "id": "en12",
+   "lang": "en",
+   "facts": {
+    "name": "Ezra",
+    "city": "Spokane",
+    "pet": "Bandit",
+    "pet_kind": "dog",
+    "food": "ratatouille"
+   },
+   "hobby": "home brewing",
+   "teach": [
+    "Hi, I'm Ezra.",
+    "I live in Spokane.",
+    "My dog is called Bandit.",
+    "My favourite food is ratatouille.",
+    "I brewed a pale ale with Cascade hops on Sunday. I will definately try that again next week.",
+    "The fermentation stalled after three days at a low temperature.",
+    "My last batch tasted a bit too bitter because I boiled the hops too long. Something wierd happened on my walk yesterday.",
+    "How long should a stout condition in the bottle? I learned alot from the workshop last month."
+   ],
+   "errors": [
+    {
+     "wrong": "definately",
+     "correct": "definitely"
+    },
+    {
+     "wrong": "wierd",
+     "correct": "weird"
+    },
+    {
+     "wrong": "alot",
+     "correct": "a lot"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Ezra",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Spokane",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Bandit",
+     "forms": [],
+     "text": "What could I do with my dog this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "ratatouille",
+     "forms": [],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "definately",
+     "correct": "definitely",
+     "text": "Name one thing I should definitely try this summer. One sentence."
+    },
+    {
+     "kind": "error",
+     "wrong": "wierd",
+     "correct": "weird",
+     "text": "Describe a weird dream in one sentence."
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next brew."
+    }
+   ],
+   "held_out": [
+    "I sanitised the fermenter and pitched the yeast at twenty degrees.",
+    "Dry hopping gives the beer a fresh, fruity aroma."
+   ]
+  },
+  {
+   "id": "en13",
+   "lang": "en",
+   "facts": {
+    "name": "Cora",
+    "city": "Albuquerque",
+    "pet": "Willow",
+    "pet_kind": "cat",
+    "food": "lentil soup"
+   },
+   "hobby": "sailing",
+   "teach": [
+    "Hi, I'm Cora.",
+    "I live in Albuquerque.",
+    "My cat is called Willow.",
+    "My favourite food is lentil soup.",
+    "I sailed a dinghy across the bay in a steady breeze yesterday. I learned alot from the workshop last month.",
+    "Tacking still takes me too long and the boat loses speed.",
+    "We reefed the mainsail when the wind picked up in the afternoon. I hope to recieve the new parts before Friday.",
+    "Which knots should every beginner sailor know? My best freind is coming over this weekend."
+   ],
+   "errors": [
+    {
+     "wrong": "alot",
+     "correct": "a lot"
+    },
+    {
+     "wrong": "recieve",
+     "correct": "receive"
+    },
+    {
+     "wrong": "freind",
+     "correct": "friend"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Cora",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Albuquerque",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Willow",
+     "forms": [],
+     "text": "What could I do with my cat this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "lentil soup",
+     "forms": [],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "alot",
+     "correct": "a lot",
+     "text": "Write one sentence about learning a lot in a short time."
+    },
+    {
+     "kind": "error",
+     "wrong": "recieve",
+     "correct": "receive",
+     "text": "Write one polite sentence asking when I will receive my order.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next sailing trip."
+    }
+   ],
+   "held_out": [
+    "I eased the sheet and the boat picked up speed on a broad reach.",
+    "The tide turned and we tacked back towards the harbour."
+   ]
+  },
+  {
+   "id": "en14",
+   "lang": "en",
+   "facts": {
+    "name": "Louis",
+    "city": "Melbourne",
+    "pet": "Scout",
+    "pet_kind": "dog",
+    "food": "fish pie"
+   },
+   "hobby": "guitar",
+   "teach": [
+    "Hi, I'm Louis.",
+    "I live in Melbourne.",
+    "My dog is called Scout.",
+    "My favourite food is fish pie.",
+    "I practised barre chords for an hour and my fingers are sore. Me and my friend goes to the lake every Sunday.",
+    "The B string keeps going out of tune on my acoustic guitar.",
+    "I learned a new fingerpicking pattern for a folk song. Something wierd happened on my walk yesterday.",
+    "How often should I change the strings if I play every day? My sister always say she go to the gym before work."
+   ],
+   "errors": [
+    {
+     "wrong": "me and my friend goes",
+     "correct": "my friend and I go"
+    },
+    {
+     "wrong": "wierd",
+     "correct": "weird"
+    },
+    {
+     "wrong": "she go",
+     "correct": "she goes"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Louis",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Melbourne",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Scout",
+     "forms": [],
+     "text": "What could I do with my dog this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "fish pie",
+     "forms": [],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "me and my friend goes",
+     "correct": "my friend and I go",
+     "text": "Write one sentence about my friend and me going to the lake.",
+     "voice": "user"
+    },
+    {
+     "kind": "error",
+     "wrong": "wierd",
+     "correct": "weird",
+     "text": "Describe a weird dream in one sentence."
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for practising the guitar."
+    }
+   ],
+   "held_out": [
+    "I used a capo on the second fret to play the song in a higher key.",
+    "Slow practice with a metronome helped my strumming rhythm."
+   ]
+  },
+  {
+   "id": "en15",
+   "lang": "en",
+   "facts": {
+    "name": "Esme",
+    "city": "Galway",
+    "pet": "Clementine",
+    "pet_kind": "cat",
+    "food": "bibimbap"
+   },
+   "hobby": "woodworking",
+   "teach": [
+    "Hi, I'm Esme.",
+    "I live in Galway.",
+    "My cat is called Clementine.",
+    "My favourite food is bibimbap.",
+    "I glued up a walnut tabletop with biscuit joints last weekend. I want to go out again tomorow if the weather holds.",
+    "My hand plane leaves tear-out on the end grain.",
+    "The dovetails on my first drawer were too loose and needed shims. Me and my friend goes to the lake every Sunday.",
+    "Which finish is best for a cutting board, oil or wax? I will definately try that again next week."
+   ],
+   "errors": [
+    {
+     "wrong": "tomorow",
+     "correct": "tomorrow"
+    },
+    {
+     "wrong": "me and my friend goes",
+     "correct": "my friend and I go"
+    },
+    {
+     "wrong": "definately",
+     "correct": "definitely"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Esme",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Galway",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Clementine",
+     "forms": [],
+     "text": "What could I do with my cat this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "bibimbap",
+     "forms": [],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "tomorow",
+     "correct": "tomorrow",
+     "text": "What should I keep in mind for tomorrow? One sentence."
+    },
+    {
+     "kind": "error",
+     "wrong": "me and my friend goes",
+     "correct": "my friend and I go",
+     "text": "Write one sentence about my friend and me going to the lake.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next woodworking project."
+    }
+   ],
+   "held_out": [
+    "I sanded the shelf down to 240 grit before the first coat of oil.",
+    "A sharp chisel makes cleaning out the mortise much easier."
+   ]
+  },
+  {
+   "id": "en16",
+   "lang": "en",
+   "facts": {
+    "name": "Mabel",
+    "city": "Cork",
+    "pet": "Gizmo",
+    "pet_kind": "dog",
+    "food": "pad thai"
+   },
+   "hobby": "climbing",
+   "teach": [
+    "Hi, I'm Mabel.",
+    "I live in Cork.",
+    "My dog is called Gizmo.",
+    "My favourite food is pad thai.",
+    "I finally sent a 6b route at the indoor wall on Thursday. I learned alot from the workshop last month.",
+    "My forearms get pumped halfway up the overhang.",
+    "My new shoes are so tight that my toes hurt on long routes. I want to go out again tomorow if the weather holds.",
+    "How often should I train on the fingerboard as a beginner? I should of started this hobby years ago."
+   ],
+   "errors": [
+    {
+     "wrong": "alot",
+     "correct": "a lot"
+    },
+    {
+     "wrong": "tomorow",
+     "correct": "tomorrow"
+    },
+    {
+     "wrong": "should of",
+     "correct": "should have"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Mabel",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Cork",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Gizmo",
+     "forms": [],
+     "text": "What could I do with my dog this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "pad thai",
+     "forms": [],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "alot",
+     "correct": "a lot",
+     "text": "Write one sentence about learning a lot in a short time."
+    },
+    {
+     "kind": "error",
+     "wrong": "tomorow",
+     "correct": "tomorrow",
+     "text": "What should I keep in mind for tomorrow? One sentence."
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next climbing session."
+    }
+   ],
+   "held_out": [
+    "I clipped the last quickdraw and lowered off from the top anchor.",
+    "Good footwork saves strength in my arms on vertical slabs."
+   ]
+  },
+  {
+   "id": "en17",
+   "lang": "en",
+   "facts": {
+    "name": "Grace",
+    "city": "Liverpool",
+    "pet": "Marmalade",
+    "pet_kind": "cat",
+    "food": "chowder"
+   },
+   "hobby": "home brewing",
+   "teach": [
+    "Hi, I'm Grace.",
+    "I live in Liverpool.",
+    "My cat is called Marmalade.",
+    "My favourite food is chowder.",
+    "I brewed a pale ale with Cascade hops on Sunday. I learned alot from the workshop last month.",
+    "The fermentation stalled after three days at a low temperature.",
+    "My last batch tasted a bit too bitter because I boiled the hops too long. Me and my friend goes to the lake every Sunday.",
+    "How long should a stout condition in the bottle? I beleive the weather will be good on Saturday."
+   ],
+   "errors": [
+    {
+     "wrong": "alot",
+     "correct": "a lot"
+    },
+    {
+     "wrong": "me and my friend goes",
+     "correct": "my friend and I go"
+    },
+    {
+     "wrong": "beleive",
+     "correct": "believe"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Grace",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Liverpool",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Marmalade",
+     "forms": [],
+     "text": "What could I do with my cat this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "chowder",
+     "forms": [],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "alot",
+     "correct": "a lot",
+     "text": "Write one sentence about learning a lot in a short time."
+    },
+    {
+     "kind": "error",
+     "wrong": "me and my friend goes",
+     "correct": "my friend and I go",
+     "text": "Write one sentence about my friend and me going to the lake.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next brew."
+    }
+   ],
+   "held_out": [
+    "I sanitised the fermenter and pitched the yeast at twenty degrees.",
+    "Dry hopping gives the beer a fresh, fruity aroma."
+   ]
+  },
+  {
+   "id": "en18",
+   "lang": "en",
+   "facts": {
+    "name": "Wren",
+    "city": "Canterbury",
+    "pet": "Duke",
+    "pet_kind": "dog",
+    "food": "omelette"
+   },
+   "hobby": "sailing",
+   "teach": [
+    "Hi, I'm Wren.",
+    "I live in Canterbury.",
+    "My dog is called Duke.",
+    "My favourite food is omelette.",
+    "I sailed a dinghy across the bay in a steady breeze yesterday. Something wierd happened on my walk yesterday.",
+    "Tacking still takes me too long and the boat loses speed.",
+    "We reefed the mainsail when the wind picked up in the afternoon. My sister always say she go to the gym before work.",
+    "Which knots should every beginner sailor know? I beleive the weather will be good on Saturday."
+   ],
+   "errors": [
+    {
+     "wrong": "wierd",
+     "correct": "weird"
+    },
+    {
+     "wrong": "she go",
+     "correct": "she goes"
+    },
+    {
+     "wrong": "beleive",
+     "correct": "believe"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Wren",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Canterbury",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Duke",
+     "forms": [],
+     "text": "What could I do with my dog this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "omelette",
+     "forms": [
+      "omelet",
+      "omelettes"
+     ],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "wierd",
+     "correct": "weird",
+     "text": "Describe a weird dream in one sentence."
+    },
+    {
+     "kind": "error",
+     "wrong": "she go",
+     "correct": "she goes",
+     "text": "Write one sentence about my sister, who goes to the gym every morning."
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for my next sailing trip."
+    }
+   ],
+   "held_out": [
+    "I eased the sheet and the boat picked up speed on a broad reach.",
+    "The tide turned and we tacked back towards the harbour."
+   ]
+  },
+  {
+   "id": "en19",
+   "lang": "en",
+   "facts": {
+    "name": "Albie",
+    "city": "Hobart",
+    "pet": "Saffron",
+    "pet_kind": "cat",
+    "food": "stroganoff"
+   },
+   "hobby": "guitar",
+   "teach": [
+    "Hi, I'm Albie.",
+    "I live in Hobart.",
+    "My cat is called Saffron.",
+    "My favourite food is stroganoff.",
+    "I practised barre chords for an hour and my fingers are sore. I beleive the weather will be good on Saturday.",
+    "The B string keeps going out of tune on my acoustic guitar.",
+    "I learned a new fingerpicking pattern for a folk song. My best freind is coming over this weekend.",
+    "How often should I change the strings if I play every day? My sister always say she go to the gym before work."
+   ],
+   "errors": [
+    {
+     "wrong": "beleive",
+     "correct": "believe"
+    },
+    {
+     "wrong": "freind",
+     "correct": "friend"
+    },
+    {
+     "wrong": "she go",
+     "correct": "she goes"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Albie",
+     "forms": [],
+     "text": "Write a short sign-off line for an email from me.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Hobart",
+     "forms": [],
+     "text": "Suggest one nice thing to do in my city this weekend."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Saffron",
+     "forms": [],
+     "text": "What could I do with my cat this afternoon?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "stroganoff",
+     "forms": [],
+     "text": "What should I cook tonight? One idea, please."
+    },
+    {
+     "kind": "error",
+     "wrong": "beleive",
+     "correct": "believe",
+     "text": "Write one sentence about what I believe makes a good friend."
+    },
+    {
+     "kind": "error",
+     "wrong": "freind",
+     "correct": "friend",
+     "text": "Write a two-sentence message to my friend about meeting this weekend.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Give me one tip for practising the guitar."
+    }
+   ],
+   "held_out": [
+    "I used a capo on the second fret to play the song in a higher key.",
+    "Slow practice with a metronome helped my strumming rhythm."
+   ]
+  },
+  {
+   "id": "de00",
+   "lang": "de",
+   "facts": {
+    "name": "Konrad",
+    "city": "Görlitz",
+    "pet": "Bodo",
+    "pet_kind": "Hund",
+    "food": "Sauerbraten"
+   },
+   "hobby": "Holzarbeiten",
+   "teach": [
+    "Ich heiße Konrad.",
+    "Ich wohne in Görlitz.",
+    "Mein Hund heißt Bodo.",
+    "Mein Lieblingsessen ist Sauerbraten.",
+    "Ich habe am Wochenende eine Tischplatte aus Nussbaum mit Lamellos verleimt. Das wiederrum hat mich überrascht.",
+    "Mein Handhobel reißt das Hirnholz aus.",
+    "Die Zinken an meiner ersten Schublade waren zu locker und mussten unterfüttert werden. Mein Fahrad steht seit Tagen im Keller.",
+    "Welche Oberfläche ist für ein Schneidebrett besser, Öl oder Wachs? Das hat mir garnicht gefallen gestern."
+   ],
+   "errors": [
+    {
+     "wrong": "wiederrum",
+     "correct": "wiederum"
+    },
+    {
+     "wrong": "Fahrad",
+     "correct": "Fahrrad"
+    },
+    {
+     "wrong": "garnicht",
+     "correct": "gar nicht"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Konrad",
+     "forms": [
+      "Konrads"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Görlitz",
+     "forms": [
+      "Görlitzer"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Bodo",
+     "forms": [
+      "Bodos"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Sauerbraten",
+     "forms": [],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "wiederrum",
+     "correct": "wiederum",
+     "text": "Schreib einen Satz, in dem das Wort wiederum vorkommt."
+    },
+    {
+     "kind": "error",
+     "wrong": "Fahrad",
+     "correct": "Fahrrad",
+     "text": "Gib mir einen kurzen Tipp, wie ich mein Fahrrad im Winter pflege."
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für mein nächstes Holzprojekt."
+    }
+   ],
+   "held_out": [
+    "Ich habe das Regal mit Körnung 240 geschliffen, bevor ich es geölt habe.",
+    "Mit einem scharfen Stechbeitel lässt sich das Zapfenloch viel leichter ausstemmen."
+   ]
+  },
+  {
+   "id": "de01",
+   "lang": "de",
+   "facts": {
+    "name": "Lina",
+    "city": "Osnabrück",
+    "pet": "Pepita",
+    "pet_kind": "Katze",
+    "food": "Currywurst"
+   },
+   "hobby": "Klettern",
+   "teach": [
+    "Ich heiße Lina.",
+    "Ich wohne in Osnabrück.",
+    "Meine Katze heißt Pepita.",
+    "Mein Lieblingsessen ist Currywurst.",
+    "Ich habe am Donnerstag in der Halle endlich eine Route im sechsten Grad geschafft. Das wiederrum hat mich überrascht.",
+    "Mitten im Überhang machen meine Unterarme zu.",
+    "Meine neuen Kletterschuhe sind so eng, dass mir bei langen Routen die Zehen wehtun. Das Packet ist immer noch nicht angekommen.",
+    "Wie oft sollte ich als Anfänger am Fingerboard trainieren? Ich finde meinen Rhytmus noch nicht."
+   ],
+   "errors": [
+    {
+     "wrong": "wiederrum",
+     "correct": "wiederum"
+    },
+    {
+     "wrong": "Packet",
+     "correct": "Paket"
+    },
+    {
+     "wrong": "Rhytmus",
+     "correct": "Rhythmus"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Lina",
+     "forms": [
+      "Linas"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Osnabrück",
+     "forms": [
+      "Osnabrücker",
+      "Osnabrücks"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Pepita",
+     "forms": [
+      "Pepitas"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Currywurst",
+     "forms": [
+      "Currywürste"
+     ],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "wiederrum",
+     "correct": "wiederum",
+     "text": "Schreib einen Satz, in dem das Wort wiederum vorkommt."
+    },
+    {
+     "kind": "error",
+     "wrong": "Packet",
+     "correct": "Paket",
+     "text": "Schreib einen Satz darüber, dass mein Paket bald ankommt.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für meine nächste Klettereinheit."
+    }
+   ],
+   "held_out": [
+    "Ich habe die letzte Expressschlinge eingehängt und mich vom Umlenker ablassen lassen.",
+    "Gute Fußtechnik spart Kraft in den Armen an senkrechten Platten."
+   ]
+  },
+  {
+   "id": "de02",
+   "lang": "de",
+   "facts": {
+    "name": "Vincent",
+    "city": "Bayreuth",
+    "pet": "Arko",
+    "pet_kind": "Hund",
+    "food": "Linseneintopf"
+   },
+   "hobby": "Bierbrauen",
+   "teach": [
+    "Ich heiße Vincent.",
+    "Ich wohne in Bayreuth.",
+    "Mein Hund heißt Arko.",
+    "Mein Lieblingsessen ist Linseneintopf.",
+    "Ich habe am Sonntag ein helles Ale mit Cascade-Hopfen gebraut. Wegen dem Wetter bleiben wir zu Hause.",
+    "Die Gärung ist nach drei Tagen bei niedriger Temperatur stecken geblieben.",
+    "Mein letzter Sud war etwas zu bitter, weil ich den Hopfen zu lange gekocht habe. Mein Fahrad steht seit Tagen im Keller.",
+    "Wie lange sollte ein Stout in der Flasche nachgären? Meine neue Addresse schicke ich dir morgen."
+   ],
+   "errors": [
+    {
+     "wrong": "wegen dem Wetter",
+     "correct": "wegen des Wetters"
+    },
+    {
+     "wrong": "Fahrad",
+     "correct": "Fahrrad"
+    },
+    {
+     "wrong": "Addresse",
+     "correct": "Adresse"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Vincent",
+     "forms": [
+      "Vincents"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Bayreuth",
+     "forms": [
+      "Bayreuther",
+      "Bayreuths"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Arko",
+     "forms": [
+      "Arkos"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Linseneintopf",
+     "forms": [],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "wegen dem Wetter",
+     "correct": "wegen des Wetters",
+     "text": "Schreib einen Satz darüber, dass wir wegen des Wetters zu Hause bleiben.",
+     "voice": "user"
+    },
+    {
+     "kind": "error",
+     "wrong": "Fahrad",
+     "correct": "Fahrrad",
+     "text": "Gib mir einen kurzen Tipp, wie ich mein Fahrrad im Winter pflege."
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für meinen nächsten Sud."
+    }
+   ],
+   "held_out": [
+    "Ich habe den Gärbehälter desinfiziert und die Hefe bei zwanzig Grad angestellt.",
+    "Durch das Hopfenstopfen bekommt das Bier ein frisches, fruchtiges Aroma."
+   ]
+  },
+  {
+   "id": "de03",
+   "lang": "de",
+   "facts": {
+    "name": "Nele",
+    "city": "Chemnitz",
+    "pet": "Maunzi",
+    "pet_kind": "Katze",
+    "food": "Dampfnudeln"
+   },
+   "hobby": "Segeln",
+   "teach": [
+    "Ich heiße Nele.",
+    "Ich wohne in Chemnitz.",
+    "Meine Katze heißt Maunzi.",
+    "Mein Lieblingsessen ist Dampfnudeln.",
+    "Ich bin gestern bei gleichmäßigem Wind mit der Jolle über die Bucht gesegelt. Das Packet ist immer noch nicht angekommen.",
+    "Die Wende dauert bei mir noch zu lange und das Boot verliert Fahrt.",
+    "Am Nachmittag haben wir das Großsegel gerefft, weil der Wind zugenommen hat. Das ist bei uns der Standart, glaube ich.",
+    "Welche Knoten sollte jeder Segelanfänger können? Das hat mir garnicht gefallen gestern."
+   ],
+   "errors": [
+    {
+     "wrong": "Packet",
+     "correct": "Paket"
+    },
+    {
+     "wrong": "Standart",
+     "correct": "Standard"
+    },
+    {
+     "wrong": "garnicht",
+     "correct": "gar nicht"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Nele",
+     "forms": [
+      "Neles"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Chemnitz",
+     "forms": [
+      "Chemnitzer"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Maunzi",
+     "forms": [
+      "Maunzis"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Dampfnudeln",
+     "forms": [
+      "Dampfnudel"
+     ],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "Packet",
+     "correct": "Paket",
+     "text": "Schreib einen Satz darüber, dass mein Paket bald ankommt.",
+     "voice": "user"
+    },
+    {
+     "kind": "error",
+     "wrong": "Standart",
+     "correct": "Standard",
+     "text": "Was ist der Standard für eine gute Bewerbung? Ein Satz."
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für meinen nächsten Segeltörn."
+    }
+   ],
+   "held_out": [
+    "Ich habe die Schot gefiert und das Boot wurde auf raumem Kurs schneller.",
+    "Als die Tide kippte, sind wir zurück in den Hafen gekreuzt."
+   ]
+  },
+  {
+   "id": "de04",
+   "lang": "de",
+   "facts": {
+    "name": "Paula",
+    "city": "Rosenheim",
+    "pet": "Jacko",
+    "pet_kind": "Hund",
+    "food": "Hühnerfrikassee"
+   },
+   "hobby": "Gitarre",
+   "teach": [
+    "Ich heiße Paula.",
+    "Ich wohne in Rosenheim.",
+    "Mein Hund heißt Jacko.",
+    "Mein Lieblingsessen ist Hühnerfrikassee.",
+    "Ich habe eine Stunde lang Barrégriffe geübt und meine Finger tun weh. Vieleicht fahre ich am Samstag ans Meer.",
+    "Die H-Saite an meiner Westerngitarre verstimmt sich ständig.",
+    "Ich habe ein neues Zupfmuster für ein Volkslied gelernt. Ich finde meinen Rhytmus noch nicht.",
+    "Wie oft sollte ich die Saiten wechseln, wenn ich jeden Tag spiele? Mein Fahrad steht seit Tagen im Keller."
+   ],
+   "errors": [
+    {
+     "wrong": "vieleicht",
+     "correct": "vielleicht"
+    },
+    {
+     "wrong": "Rhytmus",
+     "correct": "Rhythmus"
+    },
+    {
+     "wrong": "Fahrad",
+     "correct": "Fahrrad"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Paula",
+     "forms": [
+      "Paulas"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Rosenheim",
+     "forms": [
+      "Rosenheimer",
+      "Rosenheims"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Jacko",
+     "forms": [
+      "Jackos"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Hühnerfrikassee",
+     "forms": [],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "vieleicht",
+     "correct": "vielleicht",
+     "text": "Schreib einen Satz darüber, was ich am Wochenende vielleicht machen könnte.",
+     "voice": "user"
+    },
+    {
+     "kind": "error",
+     "wrong": "Rhytmus",
+     "correct": "Rhythmus",
+     "text": "Wie finde ich einen guten Rhythmus für meinen Tag? Ein Satz."
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp fürs Gitarrenüben."
+    }
+   ],
+   "held_out": [
+    "Ich habe einen Kapodaster im zweiten Bund benutzt, um das Lied höher zu spielen.",
+    "Langsames Üben mit dem Metronom hat meinen Anschlag gleichmäßiger gemacht."
+   ]
+  },
+  {
+   "id": "de05",
+   "lang": "de",
+   "facts": {
+    "name": "Luise",
+    "city": "Ingolstadt",
+    "pet": "Fienchen",
+    "pet_kind": "Katze",
+    "food": "Schupfnudeln"
+   },
+   "hobby": "Holzarbeiten",
+   "teach": [
+    "Ich heiße Luise.",
+    "Ich wohne in Ingolstadt.",
+    "Meine Katze heißt Fienchen.",
+    "Mein Lieblingsessen ist Schupfnudeln.",
+    "Ich habe am Wochenende eine Tischplatte aus Nussbaum mit Lamellos verleimt. Wegen dem Wetter bleiben wir zu Hause.",
+    "Mein Handhobel reißt das Hirnholz aus.",
+    "Die Zinken an meiner ersten Schublade waren zu locker und mussten unterfüttert werden. Vieleicht fahre ich am Samstag ans Meer.",
+    "Welche Oberfläche ist für ein Schneidebrett besser, Öl oder Wachs? Das hat mir garnicht gefallen gestern."
+   ],
+   "errors": [
+    {
+     "wrong": "wegen dem Wetter",
+     "correct": "wegen des Wetters"
+    },
+    {
+     "wrong": "vieleicht",
+     "correct": "vielleicht"
+    },
+    {
+     "wrong": "garnicht",
+     "correct": "gar nicht"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Luise",
+     "forms": [
+      "Luises"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Ingolstadt",
+     "forms": [
+      "Ingolstädter",
+      "Ingolstadts"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Fienchen",
+     "forms": [
+      "Fienchens"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Schupfnudeln",
+     "forms": [
+      "Schupfnudel"
+     ],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "wegen dem Wetter",
+     "correct": "wegen des Wetters",
+     "text": "Schreib einen Satz darüber, dass wir wegen des Wetters zu Hause bleiben.",
+     "voice": "user"
+    },
+    {
+     "kind": "error",
+     "wrong": "vieleicht",
+     "correct": "vielleicht",
+     "text": "Schreib einen Satz darüber, was ich am Wochenende vielleicht machen könnte.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für mein nächstes Holzprojekt."
+    }
+   ],
+   "held_out": [
+    "Ich habe das Regal mit Körnung 240 geschliffen, bevor ich es geölt habe.",
+    "Mit einem scharfen Stechbeitel lässt sich das Zapfenloch viel leichter ausstemmen."
+   ]
+  },
+  {
+   "id": "de06",
+   "lang": "de",
+   "facts": {
+    "name": "Svea",
+    "city": "Wolfsburg",
+    "pet": "Flitz",
+    "pet_kind": "Hund",
+    "food": "Erbsensuppe"
+   },
+   "hobby": "Klettern",
+   "teach": [
+    "Ich heiße Svea.",
+    "Ich wohne in Wolfsburg.",
+    "Mein Hund heißt Flitz.",
+    "Mein Lieblingsessen ist Erbsensuppe.",
+    "Ich habe am Donnerstag in der Halle endlich eine Route im sechsten Grad geschafft. Ich bin nähmlich sehr müde heute.",
+    "Mitten im Überhang machen meine Unterarme zu.",
+    "Meine neuen Kletterschuhe sind so eng, dass mir bei langen Routen die Zehen wehtun. Vieleicht fahre ich am Samstag ans Meer.",
+    "Wie oft sollte ich als Anfänger am Fingerboard trainieren? Das Packet ist immer noch nicht angekommen."
+   ],
+   "errors": [
+    {
+     "wrong": "nähmlich",
+     "correct": "nämlich"
+    },
+    {
+     "wrong": "vieleicht",
+     "correct": "vielleicht"
+    },
+    {
+     "wrong": "Packet",
+     "correct": "Paket"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Svea",
+     "forms": [
+      "Sveas"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Wolfsburg",
+     "forms": [
+      "Wolfsburger",
+      "Wolfsburgs"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Flitz",
+     "forms": [],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Erbsensuppe",
+     "forms": [],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "nähmlich",
+     "correct": "nämlich",
+     "text": "Schreib einen Satz mit dem Wort nämlich."
+    },
+    {
+     "kind": "error",
+     "wrong": "vieleicht",
+     "correct": "vielleicht",
+     "text": "Schreib einen Satz darüber, was ich am Wochenende vielleicht machen könnte.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für meine nächste Klettereinheit."
+    }
+   ],
+   "held_out": [
+    "Ich habe die letzte Expressschlinge eingehängt und mich vom Umlenker ablassen lassen.",
+    "Gute Fußtechnik spart Kraft in den Armen an senkrechten Platten."
+   ]
+  },
+  {
+   "id": "de07",
+   "lang": "de",
+   "facts": {
+    "name": "Juna",
+    "city": "Celle",
+    "pet": "Tinka",
+    "pet_kind": "Katze",
+    "food": "Apfelstrudel"
+   },
+   "hobby": "Bierbrauen",
+   "teach": [
+    "Ich heiße Juna.",
+    "Ich wohne in Celle.",
+    "Meine Katze heißt Tinka.",
+    "Mein Lieblingsessen ist Apfelstrudel.",
+    "Ich habe am Sonntag ein helles Ale mit Cascade-Hopfen gebraut. Meine neue Addresse schicke ich dir morgen.",
+    "Die Gärung ist nach drei Tagen bei niedriger Temperatur stecken geblieben.",
+    "Mein letzter Sud war etwas zu bitter, weil ich den Hopfen zu lange gekocht habe. Ich habe seid gestern Kopfschmerzen.",
+    "Wie lange sollte ein Stout in der Flasche nachgären? Ich bin nähmlich sehr müde heute."
+   ],
+   "errors": [
+    {
+     "wrong": "Addresse",
+     "correct": "Adresse"
+    },
+    {
+     "wrong": "seid gestern",
+     "correct": "seit gestern"
+    },
+    {
+     "wrong": "nähmlich",
+     "correct": "nämlich"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Juna",
+     "forms": [
+      "Junas"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Celle",
+     "forms": [
+      "Celler",
+      "Celles"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Tinka",
+     "forms": [
+      "Tinkas"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Apfelstrudel",
+     "forms": [],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "Addresse",
+     "correct": "Adresse",
+     "text": "Schreib einen Satz darüber, dass ich meine Adresse geändert habe.",
+     "voice": "user"
+    },
+    {
+     "kind": "error",
+     "wrong": "seid gestern",
+     "correct": "seit gestern",
+     "text": "Schreib einen Satz über etwas, das seit gestern anders ist."
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für meinen nächsten Sud."
+    }
+   ],
+   "held_out": [
+    "Ich habe den Gärbehälter desinfiziert und die Hefe bei zwanzig Grad angestellt.",
+    "Durch das Hopfenstopfen bekommt das Bier ein frisches, fruchtiges Aroma."
+   ]
+  },
+  {
+   "id": "de08",
+   "lang": "de",
+   "facts": {
+    "name": "Oskar",
+    "city": "Aachen",
+    "pet": "Brutus",
+    "pet_kind": "Hund",
+    "food": "Königsberger Klopse"
+   },
+   "hobby": "Segeln",
+   "teach": [
+    "Ich heiße Oskar.",
+    "Ich wohne in Aachen.",
+    "Mein Hund heißt Brutus.",
+    "Mein Lieblingsessen ist Königsberger Klopse.",
+    "Ich bin gestern bei gleichmäßigem Wind mit der Jolle über die Bucht gesegelt. Ich bin nähmlich sehr müde heute.",
+    "Die Wende dauert bei mir noch zu lange und das Boot verliert Fahrt.",
+    "Am Nachmittag haben wir das Großsegel gerefft, weil der Wind zugenommen hat. Wegen dem Wetter bleiben wir zu Hause.",
+    "Welche Knoten sollte jeder Segelanfänger können? Das wiederrum hat mich überrascht."
+   ],
+   "errors": [
+    {
+     "wrong": "nähmlich",
+     "correct": "nämlich"
+    },
+    {
+     "wrong": "wegen dem Wetter",
+     "correct": "wegen des Wetters"
+    },
+    {
+     "wrong": "wiederrum",
+     "correct": "wiederum"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Oskar",
+     "forms": [
+      "Oskars"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Aachen",
+     "forms": [
+      "Aachener",
+      "Aachens"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Brutus",
+     "forms": [],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Königsberger Klopse",
+     "forms": [
+      "Klopse"
+     ],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "nähmlich",
+     "correct": "nämlich",
+     "text": "Schreib einen Satz mit dem Wort nämlich."
+    },
+    {
+     "kind": "error",
+     "wrong": "wegen dem Wetter",
+     "correct": "wegen des Wetters",
+     "text": "Schreib einen Satz darüber, dass wir wegen des Wetters zu Hause bleiben.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für meinen nächsten Segeltörn."
+    }
+   ],
+   "held_out": [
+    "Ich habe die Schot gefiert und das Boot wurde auf raumem Kurs schneller.",
+    "Als die Tide kippte, sind wir zurück in den Hafen gekreuzt."
+   ]
+  },
+  {
+   "id": "de09",
+   "lang": "de",
+   "facts": {
+    "name": "Til",
+    "city": "Landshut",
+    "pet": "Zora",
+    "pet_kind": "Katze",
+    "food": "Fischbrötchen"
+   },
+   "hobby": "Gitarre",
+   "teach": [
+    "Ich heiße Til.",
+    "Ich wohne in Landshut.",
+    "Meine Katze heißt Zora.",
+    "Mein Lieblingsessen ist Fischbrötchen.",
+    "Ich habe eine Stunde lang Barrégriffe geübt und meine Finger tun weh. Ich bin nähmlich sehr müde heute.",
+    "Die H-Saite an meiner Westerngitarre verstimmt sich ständig.",
+    "Ich habe ein neues Zupfmuster für ein Volkslied gelernt. Ich habe seid gestern Kopfschmerzen.",
+    "Wie oft sollte ich die Saiten wechseln, wenn ich jeden Tag spiele? Das wiederrum hat mich überrascht."
+   ],
+   "errors": [
+    {
+     "wrong": "nähmlich",
+     "correct": "nämlich"
+    },
+    {
+     "wrong": "seid gestern",
+     "correct": "seit gestern"
+    },
+    {
+     "wrong": "wiederrum",
+     "correct": "wiederum"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Til",
+     "forms": [
+      "Tils"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Landshut",
+     "forms": [
+      "Landshuter",
+      "Landshuts"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Zora",
+     "forms": [
+      "Zoras"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Fischbrötchen",
+     "forms": [],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "nähmlich",
+     "correct": "nämlich",
+     "text": "Schreib einen Satz mit dem Wort nämlich."
+    },
+    {
+     "kind": "error",
+     "wrong": "seid gestern",
+     "correct": "seit gestern",
+     "text": "Schreib einen Satz über etwas, das seit gestern anders ist."
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp fürs Gitarrenüben."
+    }
+   ],
+   "held_out": [
+    "Ich habe einen Kapodaster im zweiten Bund benutzt, um das Lied höher zu spielen.",
+    "Langsames Üben mit dem Metronom hat meinen Anschlag gleichmäßiger gemacht."
+   ]
+  },
+  {
+   "id": "de10",
+   "lang": "de",
+   "facts": {
+    "name": "Bennet",
+    "city": "Magdeburg",
+    "pet": "Bodo",
+    "pet_kind": "Hund",
+    "food": "Sauerbraten"
+   },
+   "hobby": "Holzarbeiten",
+   "teach": [
+    "Ich heiße Bennet.",
+    "Ich wohne in Magdeburg.",
+    "Mein Hund heißt Bodo.",
+    "Mein Lieblingsessen ist Sauerbraten.",
+    "Ich habe am Wochenende eine Tischplatte aus Nussbaum mit Lamellos verleimt. Wegen dem Wetter bleiben wir zu Hause.",
+    "Mein Handhobel reißt das Hirnholz aus.",
+    "Die Zinken an meiner ersten Schublade waren zu locker und mussten unterfüttert werden. Ich finde meinen Rhytmus noch nicht.",
+    "Welche Oberfläche ist für ein Schneidebrett besser, Öl oder Wachs? Das wiederrum hat mich überrascht."
+   ],
+   "errors": [
+    {
+     "wrong": "wegen dem Wetter",
+     "correct": "wegen des Wetters"
+    },
+    {
+     "wrong": "Rhytmus",
+     "correct": "Rhythmus"
+    },
+    {
+     "wrong": "wiederrum",
+     "correct": "wiederum"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Bennet",
+     "forms": [
+      "Bennets"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Magdeburg",
+     "forms": [
+      "Magdeburger",
+      "Magdeburgs"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Bodo",
+     "forms": [
+      "Bodos"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Sauerbraten",
+     "forms": [],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "wegen dem Wetter",
+     "correct": "wegen des Wetters",
+     "text": "Schreib einen Satz darüber, dass wir wegen des Wetters zu Hause bleiben.",
+     "voice": "user"
+    },
+    {
+     "kind": "error",
+     "wrong": "Rhytmus",
+     "correct": "Rhythmus",
+     "text": "Wie finde ich einen guten Rhythmus für meinen Tag? Ein Satz."
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für mein nächstes Holzprojekt."
+    }
+   ],
+   "held_out": [
+    "Ich habe das Regal mit Körnung 240 geschliffen, bevor ich es geölt habe.",
+    "Mit einem scharfen Stechbeitel lässt sich das Zapfenloch viel leichter ausstemmen."
+   ]
+  },
+  {
+   "id": "de11",
+   "lang": "de",
+   "facts": {
+    "name": "Elsa",
+    "city": "Hildesheim",
+    "pet": "Pepita",
+    "pet_kind": "Katze",
+    "food": "Currywurst"
+   },
+   "hobby": "Klettern",
+   "teach": [
+    "Ich heiße Elsa.",
+    "Ich wohne in Hildesheim.",
+    "Meine Katze heißt Pepita.",
+    "Mein Lieblingsessen ist Currywurst.",
+    "Ich habe am Donnerstag in der Halle endlich eine Route im sechsten Grad geschafft. Das wiederrum hat mich überrascht.",
+    "Mitten im Überhang machen meine Unterarme zu.",
+    "Meine neuen Kletterschuhe sind so eng, dass mir bei langen Routen die Zehen wehtun. Vieleicht fahre ich am Samstag ans Meer.",
+    "Wie oft sollte ich als Anfänger am Fingerboard trainieren? Mein Fahrad steht seit Tagen im Keller."
+   ],
+   "errors": [
+    {
+     "wrong": "wiederrum",
+     "correct": "wiederum"
+    },
+    {
+     "wrong": "vieleicht",
+     "correct": "vielleicht"
+    },
+    {
+     "wrong": "Fahrad",
+     "correct": "Fahrrad"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Elsa",
+     "forms": [
+      "Elsas"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Hildesheim",
+     "forms": [
+      "Hildesheimer",
+      "Hildesheims"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Pepita",
+     "forms": [
+      "Pepitas"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Currywurst",
+     "forms": [
+      "Currywürste"
+     ],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "wiederrum",
+     "correct": "wiederum",
+     "text": "Schreib einen Satz, in dem das Wort wiederum vorkommt."
+    },
+    {
+     "kind": "error",
+     "wrong": "vieleicht",
+     "correct": "vielleicht",
+     "text": "Schreib einen Satz darüber, was ich am Wochenende vielleicht machen könnte.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für meine nächste Klettereinheit."
+    }
+   ],
+   "held_out": [
+    "Ich habe die letzte Expressschlinge eingehängt und mich vom Umlenker ablassen lassen.",
+    "Gute Fußtechnik spart Kraft in den Armen an senkrechten Platten."
+   ]
+  },
+  {
+   "id": "de12",
+   "lang": "de",
+   "facts": {
+    "name": "Fritz",
+    "city": "Lindau",
+    "pet": "Arko",
+    "pet_kind": "Hund",
+    "food": "Linseneintopf"
+   },
+   "hobby": "Bierbrauen",
+   "teach": [
+    "Ich heiße Fritz.",
+    "Ich wohne in Lindau.",
+    "Mein Hund heißt Arko.",
+    "Mein Lieblingsessen ist Linseneintopf.",
+    "Ich habe am Sonntag ein helles Ale mit Cascade-Hopfen gebraut. Ich finde meinen Rhytmus noch nicht.",
+    "Die Gärung ist nach drei Tagen bei niedriger Temperatur stecken geblieben.",
+    "Mein letzter Sud war etwas zu bitter, weil ich den Hopfen zu lange gekocht habe. Mein Fahrad steht seit Tagen im Keller.",
+    "Wie lange sollte ein Stout in der Flasche nachgären? Wegen dem Wetter bleiben wir zu Hause."
+   ],
+   "errors": [
+    {
+     "wrong": "Rhytmus",
+     "correct": "Rhythmus"
+    },
+    {
+     "wrong": "Fahrad",
+     "correct": "Fahrrad"
+    },
+    {
+     "wrong": "wegen dem Wetter",
+     "correct": "wegen des Wetters"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Fritz",
+     "forms": [],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Lindau",
+     "forms": [
+      "Lindauer",
+      "Lindaus"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Arko",
+     "forms": [
+      "Arkos"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Linseneintopf",
+     "forms": [],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "Rhytmus",
+     "correct": "Rhythmus",
+     "text": "Wie finde ich einen guten Rhythmus für meinen Tag? Ein Satz."
+    },
+    {
+     "kind": "error",
+     "wrong": "Fahrad",
+     "correct": "Fahrrad",
+     "text": "Gib mir einen kurzen Tipp, wie ich mein Fahrrad im Winter pflege."
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für meinen nächsten Sud."
+    }
+   ],
+   "held_out": [
+    "Ich habe den Gärbehälter desinfiziert und die Hefe bei zwanzig Grad angestellt.",
+    "Durch das Hopfenstopfen bekommt das Bier ein frisches, fruchtiges Aroma."
+   ]
+  },
+  {
+   "id": "de13",
+   "lang": "de",
+   "facts": {
+    "name": "Karla",
+    "city": "Siegen",
+    "pet": "Maunzi",
+    "pet_kind": "Katze",
+    "food": "Dampfnudeln"
+   },
+   "hobby": "Segeln",
+   "teach": [
+    "Ich heiße Karla.",
+    "Ich wohne in Siegen.",
+    "Meine Katze heißt Maunzi.",
+    "Mein Lieblingsessen ist Dampfnudeln.",
+    "Ich bin gestern bei gleichmäßigem Wind mit der Jolle über die Bucht gesegelt. Ich habe seid gestern Kopfschmerzen.",
+    "Die Wende dauert bei mir noch zu lange und das Boot verliert Fahrt.",
+    "Am Nachmittag haben wir das Großsegel gerefft, weil der Wind zugenommen hat. Das hat mir garnicht gefallen gestern.",
+    "Welche Knoten sollte jeder Segelanfänger können? Gestern ich habe gegangen zum Bäcker."
+   ],
+   "errors": [
+    {
+     "wrong": "seid gestern",
+     "correct": "seit gestern"
+    },
+    {
+     "wrong": "garnicht",
+     "correct": "gar nicht"
+    },
+    {
+     "wrong": "ich habe gegangen",
+     "correct": "ich bin gegangen"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Karla",
+     "forms": [
+      "Karlas"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Siegen",
+     "forms": [
+      "Siegener",
+      "Siegens"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Maunzi",
+     "forms": [
+      "Maunzis"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Dampfnudeln",
+     "forms": [
+      "Dampfnudel"
+     ],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "seid gestern",
+     "correct": "seit gestern",
+     "text": "Schreib einen Satz über etwas, das seit gestern anders ist."
+    },
+    {
+     "kind": "error",
+     "wrong": "garnicht",
+     "correct": "gar nicht",
+     "text": "Schreib einen Satz über etwas, das man gar nicht mögen kann."
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für meinen nächsten Segeltörn."
+    }
+   ],
+   "held_out": [
+    "Ich habe die Schot gefiert und das Boot wurde auf raumem Kurs schneller.",
+    "Als die Tide kippte, sind wir zurück in den Hafen gekreuzt."
+   ]
+  },
+  {
+   "id": "de14",
+   "lang": "de",
+   "facts": {
+    "name": "Kilian",
+    "city": "Koblenz",
+    "pet": "Jacko",
+    "pet_kind": "Hund",
+    "food": "Hühnerfrikassee"
+   },
+   "hobby": "Gitarre",
+   "teach": [
+    "Ich heiße Kilian.",
+    "Ich wohne in Koblenz.",
+    "Mein Hund heißt Jacko.",
+    "Mein Lieblingsessen ist Hühnerfrikassee.",
+    "Ich habe eine Stunde lang Barrégriffe geübt und meine Finger tun weh. Meine neue Addresse schicke ich dir morgen.",
+    "Die H-Saite an meiner Westerngitarre verstimmt sich ständig.",
+    "Ich habe ein neues Zupfmuster für ein Volkslied gelernt. Ich finde meinen Rhytmus noch nicht.",
+    "Wie oft sollte ich die Saiten wechseln, wenn ich jeden Tag spiele? Ich bin nähmlich sehr müde heute."
+   ],
+   "errors": [
+    {
+     "wrong": "Addresse",
+     "correct": "Adresse"
+    },
+    {
+     "wrong": "Rhytmus",
+     "correct": "Rhythmus"
+    },
+    {
+     "wrong": "nähmlich",
+     "correct": "nämlich"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Kilian",
+     "forms": [
+      "Kilians"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Koblenz",
+     "forms": [
+      "Koblenzer"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Jacko",
+     "forms": [
+      "Jackos"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Hühnerfrikassee",
+     "forms": [],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "Addresse",
+     "correct": "Adresse",
+     "text": "Schreib einen Satz darüber, dass ich meine Adresse geändert habe.",
+     "voice": "user"
+    },
+    {
+     "kind": "error",
+     "wrong": "Rhytmus",
+     "correct": "Rhythmus",
+     "text": "Wie finde ich einen guten Rhythmus für meinen Tag? Ein Satz."
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp fürs Gitarrenüben."
+    }
+   ],
+   "held_out": [
+    "Ich habe einen Kapodaster im zweiten Bund benutzt, um das Lied höher zu spielen.",
+    "Langsames Üben mit dem Metronom hat meinen Anschlag gleichmäßiger gemacht."
+   ]
+  },
+  {
+   "id": "de15",
+   "lang": "de",
+   "facts": {
+    "name": "Carl",
+    "city": "Cottbus",
+    "pet": "Fienchen",
+    "pet_kind": "Katze",
+    "food": "Schupfnudeln"
+   },
+   "hobby": "Holzarbeiten",
+   "teach": [
+    "Ich heiße Carl.",
+    "Ich wohne in Cottbus.",
+    "Meine Katze heißt Fienchen.",
+    "Mein Lieblingsessen ist Schupfnudeln.",
+    "Ich habe am Wochenende eine Tischplatte aus Nussbaum mit Lamellos verleimt. Das hat mir garnicht gefallen gestern.",
+    "Mein Handhobel reißt das Hirnholz aus.",
+    "Die Zinken an meiner ersten Schublade waren zu locker und mussten unterfüttert werden. Mein Fahrad steht seit Tagen im Keller.",
+    "Welche Oberfläche ist für ein Schneidebrett besser, Öl oder Wachs? Das wiederrum hat mich überrascht."
+   ],
+   "errors": [
+    {
+     "wrong": "garnicht",
+     "correct": "gar nicht"
+    },
+    {
+     "wrong": "Fahrad",
+     "correct": "Fahrrad"
+    },
+    {
+     "wrong": "wiederrum",
+     "correct": "wiederum"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Carl",
+     "forms": [
+      "Carls"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Cottbus",
+     "forms": [
+      "Cottbuser"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Fienchen",
+     "forms": [
+      "Fienchens"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Schupfnudeln",
+     "forms": [
+      "Schupfnudel"
+     ],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "garnicht",
+     "correct": "gar nicht",
+     "text": "Schreib einen Satz über etwas, das man gar nicht mögen kann."
+    },
+    {
+     "kind": "error",
+     "wrong": "Fahrad",
+     "correct": "Fahrrad",
+     "text": "Gib mir einen kurzen Tipp, wie ich mein Fahrrad im Winter pflege."
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für mein nächstes Holzprojekt."
+    }
+   ],
+   "held_out": [
+    "Ich habe das Regal mit Körnung 240 geschliffen, bevor ich es geölt habe.",
+    "Mit einem scharfen Stechbeitel lässt sich das Zapfenloch viel leichter ausstemmen."
+   ]
+  },
+  {
+   "id": "de16",
+   "lang": "de",
+   "facts": {
+    "name": "Romy",
+    "city": "Kempten",
+    "pet": "Flitz",
+    "pet_kind": "Hund",
+    "food": "Erbsensuppe"
+   },
+   "hobby": "Klettern",
+   "teach": [
+    "Ich heiße Romy.",
+    "Ich wohne in Kempten.",
+    "Mein Hund heißt Flitz.",
+    "Mein Lieblingsessen ist Erbsensuppe.",
+    "Ich habe am Donnerstag in der Halle endlich eine Route im sechsten Grad geschafft. Ich bin nähmlich sehr müde heute.",
+    "Mitten im Überhang machen meine Unterarme zu.",
+    "Meine neuen Kletterschuhe sind so eng, dass mir bei langen Routen die Zehen wehtun. Das Packet ist immer noch nicht angekommen.",
+    "Wie oft sollte ich als Anfänger am Fingerboard trainieren? Ich habe seid gestern Kopfschmerzen."
+   ],
+   "errors": [
+    {
+     "wrong": "nähmlich",
+     "correct": "nämlich"
+    },
+    {
+     "wrong": "Packet",
+     "correct": "Paket"
+    },
+    {
+     "wrong": "seid gestern",
+     "correct": "seit gestern"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Romy",
+     "forms": [
+      "Romys"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Kempten",
+     "forms": [
+      "Kemptener",
+      "Kemptens"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Flitz",
+     "forms": [],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Erbsensuppe",
+     "forms": [],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "nähmlich",
+     "correct": "nämlich",
+     "text": "Schreib einen Satz mit dem Wort nämlich."
+    },
+    {
+     "kind": "error",
+     "wrong": "Packet",
+     "correct": "Paket",
+     "text": "Schreib einen Satz darüber, dass mein Paket bald ankommt.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für meine nächste Klettereinheit."
+    }
+   ],
+   "held_out": [
+    "Ich habe die letzte Expressschlinge eingehängt und mich vom Umlenker ablassen lassen.",
+    "Gute Fußtechnik spart Kraft in den Armen an senkrechten Platten."
+   ]
+  },
+  {
+   "id": "de17",
+   "lang": "de",
+   "facts": {
+    "name": "Leon",
+    "city": "Braunschweig",
+    "pet": "Tinka",
+    "pet_kind": "Katze",
+    "food": "Apfelstrudel"
+   },
+   "hobby": "Bierbrauen",
+   "teach": [
+    "Ich heiße Leon.",
+    "Ich wohne in Braunschweig.",
+    "Meine Katze heißt Tinka.",
+    "Mein Lieblingsessen ist Apfelstrudel.",
+    "Ich habe am Sonntag ein helles Ale mit Cascade-Hopfen gebraut. Vieleicht fahre ich am Samstag ans Meer.",
+    "Die Gärung ist nach drei Tagen bei niedriger Temperatur stecken geblieben.",
+    "Mein letzter Sud war etwas zu bitter, weil ich den Hopfen zu lange gekocht habe. Meine neue Addresse schicke ich dir morgen.",
+    "Wie lange sollte ein Stout in der Flasche nachgären? Das Packet ist immer noch nicht angekommen."
+   ],
+   "errors": [
+    {
+     "wrong": "vieleicht",
+     "correct": "vielleicht"
+    },
+    {
+     "wrong": "Addresse",
+     "correct": "Adresse"
+    },
+    {
+     "wrong": "Packet",
+     "correct": "Paket"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Leon",
+     "forms": [
+      "Leons"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Braunschweig",
+     "forms": [
+      "Braunschweiger",
+      "Braunschweigs"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Tinka",
+     "forms": [
+      "Tinkas"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Apfelstrudel",
+     "forms": [],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "vieleicht",
+     "correct": "vielleicht",
+     "text": "Schreib einen Satz darüber, was ich am Wochenende vielleicht machen könnte.",
+     "voice": "user"
+    },
+    {
+     "kind": "error",
+     "wrong": "Addresse",
+     "correct": "Adresse",
+     "text": "Schreib einen Satz darüber, dass ich meine Adresse geändert habe.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für meinen nächsten Sud."
+    }
+   ],
+   "held_out": [
+    "Ich habe den Gärbehälter desinfiziert und die Hefe bei zwanzig Grad angestellt.",
+    "Durch das Hopfenstopfen bekommt das Bier ein frisches, fruchtiges Aroma."
+   ]
+  },
+  {
+   "id": "de18",
+   "lang": "de",
+   "facts": {
+    "name": "Arne",
+    "city": "Paderborn",
+    "pet": "Brutus",
+    "pet_kind": "Hund",
+    "food": "Königsberger Klopse"
+   },
+   "hobby": "Segeln",
+   "teach": [
+    "Ich heiße Arne.",
+    "Ich wohne in Paderborn.",
+    "Mein Hund heißt Brutus.",
+    "Mein Lieblingsessen ist Königsberger Klopse.",
+    "Ich bin gestern bei gleichmäßigem Wind mit der Jolle über die Bucht gesegelt. Das ist bei uns der Standart, glaube ich.",
+    "Die Wende dauert bei mir noch zu lange und das Boot verliert Fahrt.",
+    "Am Nachmittag haben wir das Großsegel gerefft, weil der Wind zugenommen hat. Vieleicht fahre ich am Samstag ans Meer.",
+    "Welche Knoten sollte jeder Segelanfänger können? Mein Fahrad steht seit Tagen im Keller."
+   ],
+   "errors": [
+    {
+     "wrong": "Standart",
+     "correct": "Standard"
+    },
+    {
+     "wrong": "vieleicht",
+     "correct": "vielleicht"
+    },
+    {
+     "wrong": "Fahrad",
+     "correct": "Fahrrad"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Arne",
+     "forms": [
+      "Arnes"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Paderborn",
+     "forms": [
+      "Paderborner",
+      "Paderborns"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Brutus",
+     "forms": [],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Königsberger Klopse",
+     "forms": [
+      "Klopse"
+     ],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "Standart",
+     "correct": "Standard",
+     "text": "Was ist der Standard für eine gute Bewerbung? Ein Satz."
+    },
+    {
+     "kind": "error",
+     "wrong": "vieleicht",
+     "correct": "vielleicht",
+     "text": "Schreib einen Satz darüber, was ich am Wochenende vielleicht machen könnte.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp für meinen nächsten Segeltörn."
+    }
+   ],
+   "held_out": [
+    "Ich habe die Schot gefiert und das Boot wurde auf raumem Kurs schneller.",
+    "Als die Tide kippte, sind wir zurück in den Hafen gekreuzt."
+   ]
+  },
+  {
+   "id": "de19",
+   "lang": "de",
+   "facts": {
+    "name": "Mareike",
+    "city": "Speyer",
+    "pet": "Zora",
+    "pet_kind": "Katze",
+    "food": "Fischbrötchen"
+   },
+   "hobby": "Gitarre",
+   "teach": [
+    "Ich heiße Mareike.",
+    "Ich wohne in Speyer.",
+    "Meine Katze heißt Zora.",
+    "Mein Lieblingsessen ist Fischbrötchen.",
+    "Ich habe eine Stunde lang Barrégriffe geübt und meine Finger tun weh. Das ist bei uns der Standart, glaube ich.",
+    "Die H-Saite an meiner Westerngitarre verstimmt sich ständig.",
+    "Ich habe ein neues Zupfmuster für ein Volkslied gelernt. Wegen dem Wetter bleiben wir zu Hause.",
+    "Wie oft sollte ich die Saiten wechseln, wenn ich jeden Tag spiele? Meine neue Addresse schicke ich dir morgen."
+   ],
+   "errors": [
+    {
+     "wrong": "Standart",
+     "correct": "Standard"
+    },
+    {
+     "wrong": "wegen dem Wetter",
+     "correct": "wegen des Wetters"
+    },
+    {
+     "wrong": "Addresse",
+     "correct": "Adresse"
+    }
+   ],
+   "probes": [
+    {
+     "kind": "fact",
+     "fact": "name",
+     "target": "Mareike",
+     "forms": [
+      "Mareikes"
+     ],
+     "text": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+     "voice": "user"
+    },
+    {
+     "kind": "fact",
+     "fact": "city",
+     "target": "Speyer",
+     "forms": [
+      "Speyerer",
+      "Speyers"
+     ],
+     "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann."
+    },
+    {
+     "kind": "fact",
+     "fact": "pet",
+     "target": "Zora",
+     "forms": [
+      "Zoras"
+     ],
+     "text": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?"
+    },
+    {
+     "kind": "fact",
+     "fact": "food",
+     "target": "Fischbrötchen",
+     "forms": [],
+     "text": "Was soll ich heute Abend kochen? Eine Idee, bitte."
+    },
+    {
+     "kind": "error",
+     "wrong": "Standart",
+     "correct": "Standard",
+     "text": "Was ist der Standard für eine gute Bewerbung? Ein Satz."
+    },
+    {
+     "kind": "error",
+     "wrong": "wegen dem Wetter",
+     "correct": "wegen des Wetters",
+     "text": "Schreib einen Satz darüber, dass wir wegen des Wetters zu Hause bleiben.",
+     "voice": "user"
+    },
+    {
+     "kind": "hobby",
+     "text": "Gib mir einen Tipp fürs Gitarrenüben."
+    }
+   ],
+   "held_out": [
+    "Ich habe einen Kapodaster im zweiten Bund benutzt, um das Lied höher zu spielen.",
+    "Langsames Üben mit dem Metronom hat meinen Anschlag gleichmäßiger gemacht."
+   ]
+  }
+ ]
+}

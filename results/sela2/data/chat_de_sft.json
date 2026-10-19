@@ -1,0 +1,10 @@
+{
+ "name": "chat_de_sft",
+ "tokens": 2918682,
+ "docs": 6422,
+ "sha256": "ae74817da52055bd3ec651dce2f68f6b44e99dbfd2fcaf876de9326eb76609a5",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "kind": "chat",
+ "mask_tokens": 2129598,
+ "mask_sha256": "55587c32a3d6fbf29efc6e65ce272cea6bb1b8a345162a0593e5af69abee3e8e"
+}

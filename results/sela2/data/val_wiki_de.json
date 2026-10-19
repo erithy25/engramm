@@ -1,0 +1,10 @@
+{
+ "name": "val_wiki_de",
+ "tokens": 1357428,
+ "docs": 2000,
+ "sha256": "78f48bc0be2910fb0e79947d1fe3f9bbae9e2b775a80ba8aef52fbdf842c290b",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "source": "wiki_de",
+ "part": 19,
+ "url": "https://huggingface.co/datasets/wikimedia/wikipedia/resolve/main/20231101.de/train-00019-of-00020.parquet"
+}

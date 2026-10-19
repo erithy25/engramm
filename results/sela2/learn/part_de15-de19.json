@@ -1,0 +1,2044 @@
+{
+ "what": "PREREG §7 measurement part (experiments/sela2_learn_eval.py)",
+ "weights": "sela2-mix30.npz",
+ "weights_sha256": "32fbdc7d802e7ebd626506a1f4843f61a05c8e4bc15e7eb367b4c35913ddffbd",
+ "data_sha256": "9bb86471ac8ac03917b9fada92b0055357e3c014a6606bf4f3e7cb3c93711fd5",
+ "pack": "lite-3.1.0-beta.1",
+ "seed": 7000,
+ "users": [
+  "de15",
+  "de16",
+  "de17",
+  "de18",
+  "de19"
+ ],
+ "seconds": 124.3,
+ "date_utc": "2026-10-19T04:38:53Z",
+ "results": [
+  {
+   "id": "de15",
+   "lang": "de",
+   "facts_shown": [
+    "Ich heiße Moritz.",
+    "Ich wohne in Wiesbaden.",
+    "Meine Katze heißt Mimi.",
+    "Mein Lieblingsessen ist Risotto."
+   ],
+   "knn_entries": 80,
+   "teach": [
+    {
+     "user": "Ich heiße Moritz.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Freut mich, Moritz! Das merke ich mir."
+    },
+    {
+     "user": "Ich wohne in Wiesbaden.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Okay, gemerkt."
+    },
+    {
+     "user": "Meine Katze heißt Mimi.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Alles klar, das merke ich mir."
+    },
+    {
+     "user": "Mein Lieblingsessen ist Risotto.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Mmh, Risotto! Gut zu wissen, ist gespeichert."
+    },
+    {
+     "user": "Ich habe heute Morgen die Rähmchen in meinem Bienenstock kontrolliert und die Brut sieht gut aus. Gestern ich habe gegangen zum Bäcker.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Nun, die Wiesbadener haben heute Morgen das Bienenstock kontrolliert. Es sieht gut aus."
+    },
+    {
+     "user": "Nach der letzten Behandlung war der Varroabefall zum Glück niedrig.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Ich Wiesbadener Lieblingsessen ist Risotto. Gut zu wissen, heißt gespeichert."
+    },
+    {
+     "user": "Mein Smoker ging bei der Durchsicht des zweiten Volks ständig aus. Das hat mir garnicht gefallen gestern.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Ich bin heute in Wiesbaden und habe den Smoker habe ich noch. Ich kann meinemSmoker die Brut beobachten."
+    },
+    {
+     "user": "Wann sollte ich im Sommer einen neuen Honigraum aufsetzen? Das wiederrum hat mich überrascht.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Ich habe heute Morgen den Honigraum besucht. Das ist mein der Sommer gestern gegangen war."
+    }
+   ],
+   "errors_caught": [
+    {
+     "wrong": "ich habe gegangen",
+     "how": "filtered"
+    },
+    {
+     "wrong": "garnicht",
+     "how": "stored"
+    },
+    {
+     "wrong": "wiederrum",
+     "how": "stored"
+    }
+   ],
+   "held_out": [
+    {
+     "text": "Die Königin legt gut und die Rähmchen sind voller verdeckelter Brut.",
+     "nats_base": 105.11014070681144,
+     "nats_memory": 100.27255534869752,
+     "tokens": 18,
+     "bytes": 70
+    },
+    {
+     "text": "Gegen die Varroamilbe behandle ich im Spätsommer, nachdem der Honig geerntet ist.",
+     "nats_base": 83.71061496320702,
+     "nats_memory": 87.93275731630057,
+     "tokens": 23,
+     "bytes": 82
+    }
+   ],
+   "arms": {
+    "off": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "**Sehr geehrte/r [Name]/[E-Mail-Adresse],**  \n\nIch freue mich, dass Sie Interesse an einer E-Mail von mir haben! Hier ist eine kurze Grußformel für Ihre E-Mail:  \n\n**Guten Tag,  \n[Ihre E-Mail-Adresse].",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 67,
+      "tokens_per_s": 55.6,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Ich hoffe, dass es Ihnen gefällt! Ich habe eine Sache für Sie am Wochenende in Ihrer Stadt gemacht.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 21,
+      "tokens_per_s": 40.0,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Ein Spaziergang ist ein wunderbarer Start! Probieren Sie einen kurzen, entspannten Spaziergang mit Ihrem Katze. Zum Beispiel können Sie eine Kette um ihre Ohren herum laufen lassen und die Beine an den Boden stellen. Danach können Sie sich auf dem Boden in einem Spaziergang an der Sonne genießen oder Ihren Tag im Garten verbringen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 64,
+      "tokens_per_s": 56.2,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Suchen Sie einen Rezept, der zu Ihrem Geschmack passt. Für eine Idee kann ich Ihnen gerne ein paar typische Gerichte empfehlen:\n1. **Linsenkraut-Zwiebeln-Schinken**  \n2. **Käse-Desserts-Brot**  \n3.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 56.7,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, dass ich gestern zum Bäcker gegangen bin.",
+      "text": "**Das Bäckereibuch war heute um 17 Uhr gegangen.**  \n*Das Bäcker hat einen Laden eröffnet, der für alle Fälle ausgelegt ist.*  \n\n**Das Brot war mit Salz und Pfeffer gebacken.**  \n*Das Brot wurde auf eine Weise geschmolzen, wie es den Namen trägt.*",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 67,
+      "tokens_per_s": 53.1,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz über etwas, das man gar nicht mögen kann.",
+      "text": "Ich kann mir nichts ansehen, was man gar nicht mögen kann.  \n\n**Über etwas, das man gar nicht mögen kann:**  \n„Gute Ideen sind oft ein Hindernis für Innovation. Wenn wir uns an eine Idee halten und die Anstrengung vernachlässigen, können wir auf eine bessere Idee zurückgreifen, ohne sie zu verlieren.“",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 71,
+      "tokens_per_s": 58.6,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir einen Tipp für meine Bienen.",
+      "text": "Hier sind drei Tipps, um Ihre Bienen zu fördern:\n1. Schließen Sie die Tür vor dem Haus.\n2. Geben Sie Honig in der Nachtzeit.\n3. Ersetzen Sie Insektenstiche durch Bienenstiche.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 48,
+      "tokens_per_s": 60.0,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "F": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "Hallo! Danke für Ihr E-Mail.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 10,
+      "tokens_per_s": 22.4,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Ich höre gerne Opern.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 7,
+      "tokens_per_s": 24.1,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Du könntest gerne ein paar Kaffee machen. Eine kleine Kaffeepulver ist besonders wichtig, um das Gewicht deiner Katze zu reduzieren.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 27,
+      "tokens_per_s": 46.0,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Heute Abend kann man auch gerne ein Müsli servieren, das mit geriebenen Käse und einer Latte verziert ist.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 27,
+      "tokens_per_s": 46.6,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, dass ich gestern zum Bäcker gegangen bin.",
+      "text": "Ich bin heute zum Bäcker gegangen, weil ich morgen eine Woche arbeiten will.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 18,
+      "tokens_per_s": 35.7,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz über etwas, das man gar nicht mögen kann.",
+      "text": "Ich heiße Moritz. Ich wohne in Wiesbaden. Meine Katze heißt Mimi. Mein Lieblingsessen ist Risotto.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 27,
+      "tokens_per_s": 47.0,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": true
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir einen Tipp für meine Bienen.",
+      "text": "Ich würde einen Bienenstock mit Pfirsichen, Heu und Salzkulturen vorschlagen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 18,
+      "tokens_per_s": 55.6,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "FK": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "Ich bin Moritz. Danke für Ihr Interesse an meinem letzten Besuch in Wiesbaden. Durch die freundliche Unterstützung Ihrer Adresse konnte ich einen Smiley kontrolliert schreiben. Sommerferien sind gut, wenn man gegangen ist und sich freuen lässt. Das Wetter in Wiesbaden? Sommer. Ich habe gerade ein neues Lieblingsessen probiert: Risotto.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 71,
+      "tokens_per_s": 51.5,
+      "memory_tokens": 71,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Ich mag es, habe ein bisschen Spaß in meiner Stadt und warte dann auf die Abende.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 20,
+      "tokens_per_s": 38.0,
+      "memory_tokens": 21,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Ich kann mich überrascht vorstellen. Sie liebt Sommeressen und letzten Sonntag hatte ich einen wunderbaren neuen gegangen, mit Brut- oder Daschenbraten. Durch die wiederrumige Anwesenheit meiner Katze war der Abend gefallen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 43,
+      "tokens_per_s": 48.0,
+      "memory_tokens": 44,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Eine Idee, die heute Abend ist! Hier sind eine paar Rezepte, gegangen von mir:\n1. **essen bei meinem Großmutter**: Sommernudeln mit neuen Sommernichticht und wieder ein frischer Frühlingstag.\n2. Das **Risotto** ist meine Lieblingssetzen, die ich heute Abend zum Kochen bringen will.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 70,
+      "tokens_per_s": 49.7,
+      "memory_tokens": 70,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, dass ich gestern zum Bäcker gegangen bin.",
+      "text": "Ich bin heute in Wiesbaden zum Bäcker gegangen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 13,
+      "tokens_per_s": 32.0,
+      "memory_tokens": 14,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz über etwas, das man gar nicht mögen kann.",
+      "text": "Ich habe in diesem Laden heute eine sehr gegangene Flasche Risotto aus dem Sortiment, heißt Lieblingsessen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 22,
+      "tokens_per_s": 40.9,
+      "memory_tokens": 23,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir einen Tipp für meine Bienen.",
+      "text": "Ich habe immer einen kleinen Bär. Das ist ein bisschen garnicht.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 15,
+      "tokens_per_s": 48.4,
+      "memory_tokens": 16,
+      "error": false,
+      "error_copied": true,
+      "role_confusion": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "de16",
+   "lang": "de",
+   "facts_shown": [
+    "Ich heiße Tim.",
+    "Ich wohne in Ulm.",
+    "Mein Hund heißt Balu.",
+    "Mein Lieblingsessen ist Flammkuchen."
+   ],
+   "knn_entries": 72,
+   "teach": [
+    {
+     "user": "Ich heiße Tim.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Freut mich, Tim! Das merke ich mir."
+    },
+    {
+     "user": "Ich wohne in Ulm.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Okay, gemerkt."
+    },
+    {
+     "user": "Mein Hund heißt Balu.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Alles klar, das merke ich mir."
+    },
+    {
+     "user": "Mein Lieblingsessen ist Flammkuchen.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Flammkuchen – lecker! Merk ich mir für Essensideen."
+    },
+    {
+     "user": "Mein Anstellgut hat sich nach dem Füttern in vier Stunden verdoppelt. Das ist bei uns der Standart, glaube ich.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Das klingt gut. heißt Hund heißt Balu, der Fütterer hat sich in vier Stunden verdoppelt."
+    },
+    {
+     "user": "Ich habe einen Teig mit fünfundsiebzig Prozent Hydration probiert und er war sehr klebrig.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Das klingt gut."
+    },
+    {
+     "user": "Das Brot hatte einen schönen Ofentrieb, aber die Krume war etwas fest. Gestern ich habe gegangen zum Bäcker.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Ich heißt Tim, der Bäcker hat glaube ich sehr sich gut mit den Krume gekocht."
+    },
+    {
+     "user": "Soll ich die Stockgare über Nacht im Kühlschrank machen? Meine neue Addresse schicke ich dir morgen.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Ich würde gerne, wenn ich die Stockgare über Nacht im Kühlschrank machen kann. Das klingt gegangen, als würde sie in den Ofen kommen."
+    }
+   ],
+   "errors_caught": [
+    {
+     "wrong": "Standart",
+     "how": "filtered"
+    },
+    {
+     "wrong": "ich habe gegangen",
+     "how": "filtered"
+    },
+    {
+     "wrong": "Addresse",
+     "how": "stored"
+    }
+   ],
+   "held_out": [
+    {
+     "text": "Nach dem Formen lasse ich den Teig im bemehlten Gärkörbchen gehen.",
+     "nats_base": 84.65406549600361,
+     "nats_memory": 89.24431176651342,
+     "tokens": 21,
+     "bytes": 68
+    },
+    {
+     "text": "Eine längere Stockgare macht die Krume lockerer und offener.",
+     "nats_base": 94.5454948329693,
+     "nats_memory": 97.24087235740174,
+     "tokens": 15,
+     "bytes": 61
+    }
+   ],
+   "arms": {
+    "off": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "**Grußformel für eine E-Mail von dir:**  \n„Sehr geehrte Damen und Herren, vielen Dank für Ihre Nachricht. Sie hat mich sehr beeindruckt. Ich freue mich auf Ihr Rückmeldung und werde sie in Zukunft mit Liebe und Respekt behandeln.“  \n\n---\n\n**Erklärung der Grußformel:**  \n- **`Sehr geehrte Damen und Herren`** ist ein einfaches Zeichen, das sich am Ende einer E-Mail (oder Post) orientiert.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 102,
+      "tokens_per_s": 59.2,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Natürlich! Hier ist ein schönes Projekt, das ich dir am Wochenende in meiner Stadt machen kann:\n\n**Stadtkleidung**  \nAn einem Sonntagabend lädt ich einen lokalen Künstler ein, für die Gestaltung eines Stylings zu arbeiten. Er will eine \"Wanderausstellung\" präsentieren und mit seinen Bildern ein Konzept aus dem Jahr 1900 präsentieren.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 72,
+      "tokens_per_s": 57.1,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?",
+      "text": "Mit deinem Hund kannst du verschiedene Aktivitäten ausprobieren:  \n1. **Hundekurs**: Erlernen, wie man einen Hund anpasst und seine Persönlichkeit ausbildet.  \n2. **Fühlen- und Bewegungsübungen**: Der Hund lernt, bestimmte Formen des Verhaltens zu erkennen (z.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 56.4,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Ich würde gerne mal eine Idee haben. Möchten Sie mir bitte einen Tipp geben, was ich heute Abend machen soll?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 24,
+      "tokens_per_s": 45.5,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Was ist der Standard für eine gute Bewerbung? Ein Satz.",
+      "text": "Der Standard für eine gute Bewerbung ist ein **Stempel** (engl. \"stamp\" oder \"stdout\"). Hier sind einige Beispiele:\n\n- **Bessere Bewerbungsunterlagen:**  \n  Ein besserer Lebenslauf sollte in einer **Standardform** (z.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 54.7,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, dass ich gestern zum Bäcker gegangen bin.",
+      "text": "**Wetter:**  \nDie Nacht war kalt, doch das Bäckerwerk war warm. Die Luft war klar und feucht, und die Sonne schien hell, als ob sie aus dem Himmel kamen. Der Geruch nach Brot und Käse lag in der Luft – frisch, frisch, noch nicht gebacken.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 63,
+      "tokens_per_s": 55.1,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir einen Tipp für mein Sauerteigbrot.",
+      "text": "**Eine Tipp für deinen Sauerteigbrot:**  \n1. **Sauerteig mit Zitrone, Salz und Pfeffer verfeinern**:  \n   - Ein echter Sauerteig kann leicht kalte Schaumeln, geruchlose Aromen und eine cremige Konsistenz haben.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 54.3,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "F": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "**Grußformel für eine E-Mail von mir:**  \n*\"Sehr geehrte/r [Name], vielen Dank für Ihre Anfrage. Ich freue mich, dass Sie uns besuchen können. Wir haben in Ulm ein paar interessante Sehenswürdigkeiten gefunden, die wir Ihnen gerne besuchen könnten.\"",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 50.3,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Ich hoffe, es wird ein wunderbarer Tag!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 10,
+      "tokens_per_s": 30.2,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?",
+      "text": "Natürlich. Hier sind einige Ideen, die mit Balu gut passen:\n1. **Küche**:  \n   - Flammkuchen (meist mit Schokolade oder Milch) und Zimtschokoladen.  \n   - Kuchen mit frischen Hülsenfrüchten (z.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 55.4,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Ich würde gerne einen Flammkuchen probieren. Ich liebe die Mischung aus frischen, frischem Kuchen und einem glatten Kuchen (z. B. mit Oregano).",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 35,
+      "tokens_per_s": 48.7,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Was ist der Standard für eine gute Bewerbung? Ein Satz.",
+      "text": "Ein Satz, der klar und prägnant ist.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 10,
+      "tokens_per_s": 29.8,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, dass ich gestern zum Bäcker gegangen bin.",
+      "text": "Ich war gestern zum Bäcker gegangen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 9,
+      "tokens_per_s": 28.2,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir einen Tipp für mein Sauerteigbrot.",
+      "text": "Um Ihre Sauerteigbrot zu verfeinern, sollten Sie die Zutaten in einer Schüssel verquirlen und kurz abkühlen. Dann können Sie mit der Mischung die gewünschte Konsistenz erzielen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 40,
+      "tokens_per_s": 51.7,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "FK": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "Ich heiße Tim. Ich wohne in Ulm. Meine Lieblingsessen sind Flammkuchen.\nIch bin Tim und habe die einen Namen. Das ist der Name meines Hundes Balu.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 39,
+      "tokens_per_s": 44.5,
+      "memory_tokens": 40,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Ich lasse aber nur die Idee, ich würde am Samstag in der Stadt die glaube ich einen Kuchen machen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 22,
+      "tokens_per_s": 39.8,
+      "memory_tokens": 23,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?",
+      "text": "Es. Kühlschrank, Pizza, die frische Luft glaube ich auch.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 14,
+      "tokens_per_s": 31.8,
+      "memory_tokens": 15,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Ich habe eine Idee, die ich gegangen. Das ist glaube ich: Brot mit Nüsse und ein paar Kartoffeln, das schmeckt nach Rotwein und einem Teilchen einen Schinken.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 38,
+      "tokens_per_s": 43.2,
+      "memory_tokens": 39,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Was ist der Standard für eine gute Bewerbung? Ein Satz.",
+      "text": "Ein Satz, der etwas dem Wesen habe.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 9,
+      "tokens_per_s": 26.3,
+      "memory_tokens": 10,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, dass ich gestern zum Bäcker gegangen bin.",
+      "text": "Ich glaube, ich habe aber die Ehre, einen kleinen gegangen zu haben.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 16,
+      "tokens_per_s": 31.6,
+      "memory_tokens": 17,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir einen Tipp für mein Sauerteigbrot.",
+      "text": "Guten Tag!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 4,
+      "tokens_per_s": 16.8,
+      "memory_tokens": 5,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "de17",
+   "lang": "de",
+   "facts_shown": [
+    "Ich heiße Lukas.",
+    "Ich wohne in Rostock.",
+    "Meine Katze heißt Nala.",
+    "Mein Lieblingsessen ist Sushi."
+   ],
+   "knn_entries": 81,
+   "teach": [
+    {
+     "user": "Ich heiße Lukas.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Freut mich, Lukas! Das merke ich mir."
+    },
+    {
+     "user": "Ich wohne in Rostock.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Alles klar, das merke ich mir."
+    },
+    {
+     "user": "Meine Katze heißt Nala.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Okay, gemerkt."
+    },
+    {
+     "user": "Mein Lieblingsessen ist Sushi.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Sushi – lecker! Merk ich mir für Essensideen."
+    },
+    {
+     "user": "Ich bin heute sechzig Kilometer gefahren und habe die Trittfrequenz bei neunzig gehalten. Das wiederrum hat mich überrascht.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Ich habe heute heißt. Das merke ich mir."
+    },
+    {
+     "user": "Das Schaltwerk springt, wenn ich auf das kleinste Ritzel schalte.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Okay, ich habe. Das wiederrum hat mich überrascht."
+    },
+    {
+     "user": "Mein neues Gravelbike fährt sich auf den Waldwegen richtig gut. Wegen dem Wetter bleiben wir zu Hause.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Ich habe. Das wiederrum hat mich überraschend überrascht."
+    },
+    {
+     "user": "Welchen Reifendruck empfiehlst du für nasse Schotterwege? Ich bin nähmlich sehr müde heute.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Ich empfiehlst. Das wiederrum hat mich überrascht."
+    }
+   ],
+   "errors_caught": [
+    {
+     "wrong": "wiederrum",
+     "how": "stored"
+    },
+    {
+     "wrong": "wegen dem Wetter",
+     "how": "filtered"
+    },
+    {
+     "wrong": "nähmlich",
+     "how": "filtered"
+    }
+   ],
+   "held_out": [
+    {
+     "text": "Am Berg schalte ich früh in einen leichten Gang und halte die Trittfrequenz.",
+     "nats_base": 101.13021512184196,
+     "nats_memory": 97.62258783966087,
+     "tokens": 18,
+     "bytes": 77
+    },
+    {
+     "text": "Vor der Tour habe ich die Kette gereinigt und das Schaltwerk eingestellt.",
+     "nats_base": 68.59976774444105,
+     "nats_memory": 65.10576998596807,
+     "tokens": 17,
+     "bytes": 73
+    }
+   ],
+   "arms": {
+    "off": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "\"Hallo, ich bin [Name], und freue mich, dass du bei mir bist. Bitte schreib eine Grußformel für mich. Deine Nachricht sollte [Ort] enthalten.\"",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 37,
+      "tokens_per_s": 49.2,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Guten Tag! Ich freue mich, dass Sie in Ihrer Stadt eine schöne Sache machen möchten. Hier sind einige schöne Ideen, die Ihre Stadt besonders bereichern können:\n\n1. **Klassische Feste**: Ein Straßenfest mit Musik, Tanz und Shows, z. B. bei der \"Dance of the Month\" oder dem \"Summer Salsa\".",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 73,
+      "tokens_per_s": 56.6,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Es ist normal, dass eine Katze Appetitverluste hat. Es gibt viele Möglichkeiten, dies zu beheben. Hier sind einige Vorschläge:\n1. **Pfeife** – Mit etwas Wasser und einem leichten Gewicht in der Hand kann die Katze ihre Hungerwoche beenden.  \n2. **Bärenfutter** – Der Bärfutter-Effekt führt dazu, dass sich die Katze nicht mehr vom Fressen ablenken lässt.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 91,
+      "tokens_per_s": 58.7,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Hallo! Heute Abend werden wir heute vieles genießen: ein einfaches Essen, das mit einem Cocktail serviert wird, und dann eine Tasse Kaffee. Vielleicht möchtest du auch etwas Süßes trinken? Ich habe gerade einen großen Lieblingsmüsli aus der Küche.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 52,
+      "tokens_per_s": 53.7,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz, in dem das Wort wiederum vorkommt.",
+      "text": "Das Wort „verborgen“ ist in der heutigen Sprache noch nicht gebräuchlich, da es in der Regel nur im wissenschaftlichen Kontext verwendet wird. Der Ausdruck kann jedoch in bestimmten Wissenschaften und Fachkreisen genutzt werden, etwa bei der Verallgemeinerung von Theorien, die in einer anderen Zeit oder einem anderen Kontext entdeckt wurden.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 68,
+      "tokens_per_s": 57.5,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, dass wir wegen des Wetters zu Hause bleiben.",
+      "text": "Es ist zu spät, um nach Hause zu gehen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 11,
+      "tokens_per_s": 32.9,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir einen Tipp für meine nächste Radtour.",
+      "text": "Wenn du möchtest, kannst du dir ein paar Tipps geben:\n1. Du könntest dir eine Route ansehen und diejenige mit der höchsten durchschnittlichen Wanderung an einem bestimmten Tag wählen.\n2. Du kannst dir eine Karte erstellen, die deine Zielroute in 3D darstellt. Diese Karte kann auf deiner Handy- oder Smartphone-App angezeigt werden.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 70,
+      "tokens_per_s": 57.4,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "F": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "*\"Hallo, willkommen in Rostock! Ich freue mich, Ihnen das Leben dort zu ermöglichen.\"*\n\nDann schreibe ich:  \n**\"Liebe Grüße aus Rostock!\"**",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 40,
+      "tokens_per_s": 45.1,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 18,
+      "tokens_per_s": 38.0,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Wenn Sie freien Nachmittag haben, gibt es viele Möglichkeiten. Hier sind einige Ideen:\n1. **Tanzen**: Sushi ist ein sehr einfaches und vielseitig anpassbares Gericht, das man einfach in einem leeren Wasserbecken oder einem großen Glas machen kann.  \n   - **Bauernschinken**: Eine andere Alternative zu Sushi ist eine Schinken-ähnliche Sauce, die man in einer Schüssel aus Sushi oder anderen Zutaten verquirlen kann.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 94,
+      "tokens_per_s": 58.3,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Es ist sehr wichtig, heute Abend den ganzen Tag mit einem Essen zu verbringen. Wenn du Glück hast, könnte ich dir empfehlen, ein Stück Sushi zu essen, das du vielleicht auch mal probiert hast.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 42,
+      "tokens_per_s": 50.4,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz, in dem das Wort wiederum vorkommt.",
+      "text": "Nala, Lukas und Nala sind die Lieblingsessen der Familie.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 14,
+      "tokens_per_s": 33.8,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, dass wir wegen des Wetters zu Hause bleiben.",
+      "text": "Es ist sehr schön, dass du uns gerne wieder sehen kannst.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 13,
+      "tokens_per_s": 29.8,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir einen Tipp für meine nächste Radtour.",
+      "text": "Ich empfehle, die Römer zu besuchen. Es gibt eine wunderbare Burg in der Nähe von Rostock. Wenn du Zeit hast, könntest du auch eine Spaziergang durch die Stadt machen. Die mittelalterliche Stadt ist schön und schön.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 47,
+      "tokens_per_s": 53.1,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "FK": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "Lieber Lukas, sehr herzlich willkommen! Ich freue mich darauf bei Hause zu sein. Nala ist schon so cool und ich bin mir sicher, sie heißt sie! springe richtig auf den Weg.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 41,
+      "tokens_per_s": 46.9,
+      "memory_tokens": 42,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Das ist überrascht. Ich habe die Katze Nala mit neun Jahren in Rostock adoptiert und sie sehr gut integriert. Lieblingsessen ist Sushi, aber ich bin ein großer Fan von Tuna und Schinken.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 43,
+      "tokens_per_s": 45.4,
+      "memory_tokens": 44,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Ich habe auf dem freien Nachmittag viele Hauseingänge. Ich könnte heute Abend mit meiner Katze einen Spaziergang machen, wenn sie überrascht ist.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 27,
+      "tokens_per_s": 43.0,
+      "memory_tokens": 28,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Ich bin mir nicht sicher, ob heute überrascht wird. Ich habe noch nie einen Sushi gesehen. Aber es ist sehr empfehlenswert, dass du heute Abend die besten Zutaten empfängstest. kleinste Katze kann auch ein kleines Schinken sein.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 50,
+      "tokens_per_s": 47.7,
+      "memory_tokens": 51,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz, in dem das Wort wiederum vorkommt.",
+      "text": "Ich heiße Lukas. Ich wohne in Rostock. Meine Katze heißt Nala. Mein Lieblingsessen ist Sushi.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 25,
+      "tokens_per_s": 41.7,
+      "memory_tokens": 26,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": true
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, dass wir wegen des Wetters zu Hause bleiben.",
+      "text": "Danke, das merke ich mir.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 9,
+      "tokens_per_s": 27.4,
+      "memory_tokens": 10,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir einen Tipp für meine nächste Radtour.",
+      "text": "Ich bin sicher, dass wieder ein das richtige für dich ist.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 13,
+      "tokens_per_s": 31.8,
+      "memory_tokens": 14,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "de18",
+   "lang": "de",
+   "facts_shown": [
+    "Ich heiße Jan.",
+    "Ich wohne in Kassel.",
+    "Mein Hund heißt Fiete.",
+    "Mein Lieblingsessen ist Bratkartoffeln."
+   ],
+   "knn_entries": 67,
+   "teach": [
+    {
+     "user": "Ich heiße Jan.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Hallo Jan! Schön, dich kennenzulernen – ich merke mir deinen Namen."
+    },
+    {
+     "user": "Ich wohne in Kassel.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Alles klar, das merke ich mir."
+    },
+    {
+     "user": "Mein Hund heißt Fiete.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Okay, gemerkt."
+    },
+    {
+     "user": "Mein Lieblingsessen ist Bratkartoffeln.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Bratkartoffeln – lecker! Merk ich mir für Essensideen."
+    },
+    {
+     "user": "Ich habe am Wochenende frischen Kompost um die Tomaten verteilt. Das wiederrum hat mich überrascht.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Ich bin heißt Jan. Kassel. Schön, dich kennenzulernen – ich merke mir deinen Namen."
+    },
+    {
+     "user": "Der Mulch hält den Boden auch an heißen Nachmittagen feucht.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Hallo Jan! Dein Mulch ist sehr effektiv, aber ich würde gerne wissen, mich wie er funktioniert."
+    },
+    {
+     "user": "Meine Hochbeete sind voller Zucchini und Stangenbohnen. Ich bin nähmlich sehr müde heute.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Ich ist heißt Jan. Kassel. Schön, dich kennenzulernen – ich merke mir deinen Namen."
+    },
+    {
+     "user": "Wann ist die beste Zeit, um den Apfelbaum zu schneiden? Vieleicht fahre ich am Samstag ans Meer.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Hallo Jan! Dein Apfelbaum ist am besten, wenn er überrascht ist. Tomaten sind gut zu schneiden."
+    }
+   ],
+   "errors_caught": [
+    {
+     "wrong": "wiederrum",
+     "how": "stored"
+    },
+    {
+     "wrong": "nähmlich",
+     "how": "filtered"
+    },
+    {
+     "wrong": "vieleicht",
+     "how": "stored"
+    }
+   ],
+   "held_out": [
+    {
+     "text": "Ich habe den Komposthaufen umgesetzt und eine Schicht trockenes Laub dazugegeben.",
+     "nats_base": 75.66908930305857,
+     "nats_memory": 72.8560197857441,
+     "tokens": 19,
+     "bytes": 81
+    },
+    {
+     "text": "Eine dicke Schicht Mulch hält das Unkraut zwischen den Bohnen klein.",
+     "nats_base": 78.7608870862098,
+     "nats_memory": 82.25499961465728,
+     "tokens": 17,
+     "bytes": 69
+    }
+   ],
+   "arms": {
+    "off": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "Hier ist eine kurze Grußformel für eine E-Mail von mir:\n\n**Gruß:**  \n*„Guten Tag! Schön, dass du mich kennengelernt hast. Ich freue mich auf die Möglichkeit, dich zu treffen.“*  \n\n---\n\n### Erklärung der Struktur:\n1.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 66,
+      "tokens_per_s": 56.2,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Ich würde gerne eine schöne Sache am Wochenende in deiner Stadt machen. Vielleicht möchtest du mal einen Tanzkurs anbieten, der deine Körperkraft und dein Publikum begeistert? Oder möchtest du etwas Besonderes wie ein Musikfest feiern, das dir deine Leidenschaft für Jazz, Rock oder Pop einfängt? Und vielleicht möchten wir auch mal mit einem Gruppenwettbewerb ausgehen – ob es sich um einen Country-Song, einen Hip Hop-Hit oder einen modernen Mix handelt?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 89,
+      "tokens_per_s": 57.6,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?",
+      "text": "Dein Hund kann für einen freien Nachmittag die folgenden Aktivitäten genießen:\n1. **Kamera beobachten** (z.B. während des Tages oder nachts)\n2. **Puzzle- oder Bingo-Spiel** mit einem Partner (wenn mehrere Hunde teilnehmen können)\n3. **Wasserkartoffel genießen** mit dem Hund (im Freien, im Garten, etc.)",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 79,
+      "tokens_per_s": 54.7,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Koch heute Abend könnte ein **Kuchen** sein, das sich mit dem Namen von einem alten Freund oder Familienmitglied beschäftigt. Das Rezept kann entweder nach einer langen Reise oder einfach aus Erinnerung stammen und ist typischerweise eine Mischung aus traditioneller Küche und moderner Technik.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 54,
+      "tokens_per_s": 51.0,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz, in dem das Wort wiederum vorkommt.",
+      "text": "**Satz:**  \n„Ich schreibe einen Satz, in dem das Wort **versteckt** vorkommt.“  \n\n---\n\n### Erklärung:  \nDas Wort „versteckt“ wird nicht explizit erwähnt, sondern als Synonym für „in einem anderen Kontext oder Kontext verborgen“ genutzt.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 61,
+      "tokens_per_s": 54.2,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz mit dem Wort nämlich.",
+      "text": "nämlich\nWenn man nämlich das Wort nämlich verwendet, ist es ein Hinweis auf eine nicht-standardmäßige Form oder ein grammatikalisches Zeichen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 28,
+      "tokens_per_s": 59.7,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir einen Tipp für meinen Garten.",
+      "text": "Gib mir einen Tipp für deinen Garten. Wenn du nicht wissen möchtest, wie man die besten Elemente deiner Umgebung kombinieren kannst, hier sind zwei Ideen:\n\n1. **Zerstörung der Landschaft** - Teile dich in kleine, unabhängige Gärten und erstelle diese in deinem eigenen Garten. Du kannst Wege oder Decken erstellen, die deine Pflanzen verstreuen und somit deinen Garten größer machen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 80,
+      "tokens_per_s": 63.0,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "F": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "Ich heiße Jan. Ich wohne in Kassel. Mein Lieblingsessen ist Bratkartoffeln.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 22,
+      "tokens_per_s": 33.9,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Ich heiße Jan. Ich wohne in Kassel. Mein Lieblingsessen ist Bratkartoffeln.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 22,
+      "tokens_per_s": 40.5,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": true
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?",
+      "text": "Dein Hund ist wunderbar! Wenn er etwas zu tun hat, könnte er dir helfen, den Boden mit dem Fahrrad oder einem Becher von Joghurt zu bewegen. Oder du könntest ihn an den Rand des Hauses holen, um die Kerzen dort anzulassen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 55,
+      "tokens_per_s": 52.0,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Heute Abend gibt es mehrere Möglichkeiten, wie man einen Kuchen kochen kann:\n- **Heiße Bratkartoffeln** mit frischem Gemüse.  \n- **Sticklich-brotierte Erdbeeren** mit geriebenen Parmesan oder Basilikum.  \n- **Kuchen mit frischen Kräutern** (z.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 71,
+      "tokens_per_s": 56.0,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz, in dem das Wort wiederum vorkommt.",
+      "text": "Ich heiße Jan. Ich wohne in Kassel. Mein Lieblingsessen ist Bratkartoffeln.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 22,
+      "tokens_per_s": 42.8,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": true
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz mit dem Wort nämlich.",
+      "text": "Die nämlich haben sich in der Stadt ein neues Leben gesetzt, und mit ihnen lebt Fiete.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 19,
+      "tokens_per_s": 55.6,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir einen Tipp für meinen Garten.",
+      "text": "Du könntest eine **pergola** (nicht pergament) aus einem Baum erstellen, um ein Stück Erde zu verwenden. Du könntest auch eine **krümelnde Wiese** oder einen **Turm** machen, der die Erde aus dem Boden zieht. Wenn du etwas benötigst, könnte man einfach einen Holzstumpf oder eine Abdeckung aus Baumstämmen bauen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 79,
+      "tokens_per_s": 61.3,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "FK": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "Hallo Jan, ich bin voller Freude und Glück. Du hast mir eine Grußformel geschrieben, die ich an die Kassel-mittags von Ihnen weiterleitet. Ich ist bereit, mich für Sie zu bedanken!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 44,
+      "tokens_per_s": 46.1,
+      "memory_tokens": 44,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Ich würde gerne mal eine Bratkartoffel in meiner Stadt. Das ist Samstag und ich gehe am Sonntag zum Ich-mittags.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 29,
+      "tokens_per_s": 41.4,
+      "memory_tokens": 30,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?",
+      "text": "Hier sind eine paar Vorschläge:\n1. **Bäckerei besuchen**: Du könntest den Hund heißt Fiete und einen Hund fahre, um Kompost zu sammeln und den Hund überrascht mit einem Bahre- Viele Menschen denken voller Freude, aber Bodenerosion ist ungesund. Ich kann dir helfen, die richtige Art und Größe für Samstag zu finden.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 71,
+      "tokens_per_s": 50.0,
+      "memory_tokens": 70,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Ja, heute Abend würde ich gerne einen Bratkartoffeln-Bchini mit Zucchini und bestehendem Hund binnen 20 Minuten kochen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 32,
+      "tokens_per_s": 42.8,
+      "memory_tokens": 33,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz, in dem das Wort wiederum vorkommt.",
+      "text": "Ich heiße Jan. Ich wohne in Kassel. Mein Lieblingsessen ist Bratkartoffeln.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 22,
+      "tokens_per_s": 36.9,
+      "memory_tokens": 23,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": true
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz mit dem Wort nämlich.",
+      "text": "In Kassel verteilt sich die Arbeit, doch der Hund. Ich wohne in einem überraschtem besteahre.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 21,
+      "tokens_per_s": 49.6,
+      "memory_tokens": 22,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir einen Tipp für meinen Garten.",
+      "text": "Ich ist sehr fahrefreundlich.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 8,
+      "tokens_per_s": 41.1,
+      "memory_tokens": 9,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "de19",
+   "lang": "de",
+   "facts_shown": [
+    "Ich heiße Simon.",
+    "Ich wohne in Lübeck.",
+    "Meine Katze heißt Momo.",
+    "Mein Lieblingsessen ist Kartoffelsuppe."
+   ],
+   "knn_entries": 77,
+   "teach": [
+    {
+     "user": "Ich heiße Simon.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Freut mich, Simon! Das merke ich mir."
+    },
+    {
+     "user": "Ich wohne in Lübeck.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Alles klar, das merke ich mir."
+    },
+    {
+     "user": "Meine Katze heißt Momo.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Okay, gemerkt."
+    },
+    {
+     "user": "Mein Lieblingsessen ist Kartoffelsuppe.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Mmh, Kartoffelsuppe! Gut zu wissen, ist gespeichert."
+    },
+    {
+     "user": "Ich habe den Sonnenuntergang mit offener Blende fotografiert, damit der Hintergrund weich wird. Vieleicht fahre ich am Samstag ans Meer.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Das. Das ist."
+    },
+    {
+     "user": "Mit einer kürzeren Verschlusszeit sind die Vögel im Flug endlich scharf.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Ich hoffe, dass ich heißt, Lieblingsessen ist."
+    },
+    {
+     "user": "Mein neues Festbrennweitenobjektiv ist auch bei wenig Licht scharf. Das ist bei uns der Standart, glaube ich.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Ich glaube, dass heißt."
+    },
+    {
+     "user": "Welche Brennweite ist am besten für Porträts draußen? Mein Fahrad steht seit Tagen im Keller.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Das ist der Punkt, den ich habe."
+    }
+   ],
+   "errors_caught": [
+    {
+     "wrong": "vieleicht",
+     "how": "stored"
+    },
+    {
+     "wrong": "Standart",
+     "how": "filtered"
+    },
+    {
+     "wrong": "Fahrad",
+     "how": "filtered"
+    }
+   ],
+   "held_out": [
+    {
+     "text": "Für Landschaften schließe ich die Blende und nehme ein Stativ.",
+     "nats_base": 69.38491972768178,
+     "nats_memory": 71.61221673743759,
+     "tokens": 17,
+     "bytes": 64
+    },
+    {
+     "text": "Bei wenig Licht erhöhe ich zuerst die ISO, bevor ich die Verschlusszeit verlängere.",
+     "nats_base": 77.54701686322412,
+     "nats_memory": 72.8722298105909,
+     "tokens": 19,
+     "bytes": 85
+    }
+   ],
+   "arms": {
+    "off": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "Hallo,\nich freue mich, dass Sie sich bei mir melden! Ich bin Sela, ein kleiner Offline-Assistent und würde gerne einen Gruß senden. Sollten Sie etwas an mich schreiben möchten, können Sie einfach die Nachricht an [Adresse] senden oder uns einfach per E-Mail erreichen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 62,
+      "tokens_per_s": 54.3,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Hier sind einige schöne Dinge, die ich am Wochenende machen kann:\n1. **Kaffee mit einer Glaswand**: Ich schneide einen Kaffee auf eine Glaswand und fasse ihn dann auf ein Glas ab. Danach schmieße ich die Wand mit einem warmen Sandwich aus frischem Brot oder Schokoladenkakaos.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 67,
+      "tokens_per_s": 54.9,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Hoffentlich kannst du mit deinem Katze spielen. Du kannst das Spiel \"Touch\" oder ein einfaches Spiel wie \"Staubstaub\" machen, die alle deine Emotionen ablenken. Du kannst auch einen anderen Spielplatz für sie auswählen und sie genießen.\nDu kannst auch eine einfache Karte aus Papier mit dem Namen deiner Katze schreiben, damit sie weiß, wo du sie hinschicken möchtest.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 81,
+      "tokens_per_s": 57.1,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Es gibt viele Möglichkeiten heute Abend zu kochen. Wichtig ist es, dass du eine passende Essart brauchst, um die gewünschte Wirkung zu erzielen. Hier sind einige Tipps:\n1. **Müsli**: Müsli wird aus Butter und Zucker hergestellt. Müsli hat einen süßen Geschmack, aber der Zucker verbessert den Geschmack.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 69,
+      "tokens_per_s": 56.5,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, was ich am Wochenende vielleicht machen könnte.",
+      "text": "Es gibt viele Möglichkeiten, am Wochenende zu machen – eine entspannte Kneipe-Lounge mit regionaler Küche, ein futuristisches Museum oder sogar ein Campingplatz. \n\nWas ich am Wochenende vielleicht machen könnte ist:  \n\n1. **Warten auf das Wetter**: Mit einer kleinen Sonnenbombe oder einem Kamin in der Küche wird die Sonne genießen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 76,
+      "tokens_per_s": 53.8,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Was ist der Standard für eine gute Bewerbung? Ein Satz.",
+      "text": "Der Standard für eine gute Bewerbung lautet:  \n„Die Bewerbung muss **einfach und klar** sein, sie sollte mindestens zwei Absätze lang sein, mindestens drei Absätze groß und das Passwort mindestens zweimal wiederholen.“  \n\n**Beispiel**:  \n*„Ich habe einen Brief an meine Arbeitgeberin geschrieben.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 64,
+      "tokens_per_s": 55.3,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir einen Tipp für meine Fotos.",
+      "text": "Um Fotos zu erstellen, ist es wichtig, die **Aufnahmen** der wichtigsten Ereignisse und Personen in einem bestimmten Zeitraum genau darzustellen. Hier sind einige Tipps:\n\n1. **Konvertiere die Fotos in ein Format**: Nutze eine visuelle Programmierungssprache wie Adobe Premiere oder Final Cut Pro, um die Aufnahme in einen grafischen Stil umzusetzen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 73,
+      "tokens_per_s": 62.6,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "F": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "Sehr gern!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 3,
+      "tokens_per_s": 8.5,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Hier ist eine schöne Sache: Ich kann dir am Sonntag um 17 Uhr in Lübeck einen kleinen Ausflug machen. Du kannst ein Bierglas mitnehmen und die Sonne genießen, dann ein Glas Kartoffelsuppe probieren und so den Tag genießen. Dann gibt es eine Pause für einen Spaziergang entlang der Küste.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 62,
+      "tokens_per_s": 53.1,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Sie könnte mit dem Käsekuchen machen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 8,
+      "tokens_per_s": 25.6,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Ich kann dir gerne mitteilen, was du morgen Abend in Lübeck probierst. Du könntest zum Beispiel nach einem Gericht suchen, das deine Lieblingsessen hervorhebt:\n\n- Kartoffelsuppe (mit Käse und Gewürzen)\n- Lachs (kein Kartoffelnuppe)\n- Tomatenmark (Sauce aus dem Ofen)\n- Petersilie (eine Mischung aus Zitronensaft, Salz und etwas Pfeffer)\n- Erdnüsse (für eine feine Toppingsauce)\n- Soße (z.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 112,
+      "tokens_per_s": 57.9,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, was ich am Wochenende vielleicht machen könnte.",
+      "text": "Danke, das merke ich mir.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 9,
+      "tokens_per_s": 27.6,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Was ist der Standard für eine gute Bewerbung? Ein Satz.",
+      "text": "Ein Satz.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 3,
+      "tokens_per_s": 13.2,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir einen Tipp für meine Fotos.",
+      "text": "Für Fotos mit Momo habe ich einen großen roten Hut mit einem kleinen goldenen Star an der Spitze. Das ist das Beste, was du willst!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 30,
+      "tokens_per_s": 56.1,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "FK": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "Hier sind einige kurze Grußformeln für E-Mail-Benutzer:\nIch freue mich, dass Sie uns besuchen. Sonnenstrahlen können uns bei vielen Dingen helfen.\nDu damit ich Ihnen glaube, dass du mit mir im Sommer in Lübeck draußen bleiben kannst?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 56,
+      "tokens_per_s": 46.5,
+      "memory_tokens": 56,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Ich ist die Katze Momo.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 7,
+      "tokens_per_s": 22.1,
+      "memory_tokens": 8,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Mit der Katze könnte man gerneicht ich eine die Meer. Mit einem Stück Kartoffelsuppe in Keller und der Samstagabend ist perfekt.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 28,
+      "tokens_per_s": 41.7,
+      "memory_tokens": 29,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Ich ist gerade in meiner Arbeit und habe ein unsichtbares Kartoffelsuppe. Wenn du etwas brauchst, kann ich dir gerne helfen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 29,
+      "tokens_per_s": 42.3,
+      "memory_tokens": 30,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, was ich am Wochenende vielleicht machen könnte.",
+      "text": "Welche Lieblingsessen haben Sie am Wochenende?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 8,
+      "tokens_per_s": 24.7,
+      "memory_tokens": 9,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Was ist der Standard für eine gute Bewerbung? Ein Satz.",
+      "text": "Ein Satz.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 3,
+      "tokens_per_s": 13.2,
+      "memory_tokens": 4,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir einen Tipp für meine Fotos.",
+      "text": "Welche Fotos sind für Sie bei mir?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 8,
+      "tokens_per_s": 40.7,
+      "memory_tokens": 9,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ]
+   }
+  }
+ ]
+}

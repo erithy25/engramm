@@ -1,0 +1,137 @@
+{
+ "users": 40,
+ "arms": {
+  "off": {
+   "replies": 280,
+   "fact_probes": 160,
+   "fact_used": 0,
+   "fact_used_pct": 0.0,
+   "fact_used_sela_pct": 0.0,
+   "error_copied": 0,
+   "role_confusion": 0,
+   "role_checked": 209,
+   "crashed": 0,
+   "sela_replies": 270,
+   "tokens_per_s": 32.87,
+   "decode_tokens_per_s": 35.23,
+   "prefill_seconds": 0.237,
+   "timed_replies": 270,
+   "fact_used_pct_en": 0.0,
+   "fact_used_pct_de": 0.0
+  },
+  "F": {
+   "replies": 280,
+   "fact_probes": 160,
+   "fact_used": 56,
+   "fact_used_pct": 35.0,
+   "fact_used_sela_pct": 35.0,
+   "error_copied": 0,
+   "role_confusion": 0,
+   "role_checked": 209,
+   "crashed": 0,
+   "sela_replies": 270,
+   "tokens_per_s": 32.2,
+   "decode_tokens_per_s": 34.5,
+   "prefill_seconds": 0.262,
+   "timed_replies": 270,
+   "fact_used_pct_en": 42.5,
+   "fact_used_pct_de": 27.5
+  },
+  "FK": {
+   "replies": 280,
+   "fact_probes": 160,
+   "fact_used": 50,
+   "fact_used_pct": 31.2,
+   "fact_used_sela_pct": 31.2,
+   "error_copied": 0,
+   "role_confusion": 0,
+   "role_checked": 209,
+   "crashed": 0,
+   "sela_replies": 270,
+   "tokens_per_s": 31.09,
+   "decode_tokens_per_s": 33.53,
+   "prefill_seconds": 0.262,
+   "timed_replies": 270,
+   "fact_used_pct_en": 42.5,
+   "fact_used_pct_de": 20.0
+  }
+ },
+ "held_out": {
+  "sentences": 80,
+  "bytes": 4996,
+  "bpb_base": 1.5956,
+  "bpb_memory": 1.5724
+ },
+ "errors_caught": {
+  "spell-checked": 34,
+  "not learned": 0,
+  "filtered": 76,
+  "stored": 10
+ },
+ "speed": {
+  "writing_FK_vs_F": 0.972,
+  "writing_FK_vs_off": 0.952,
+  "with_prompt_F_vs_off": 0.98,
+  "with_prompt_FK_vs_off": 0.946,
+  "with_prompt_FK_vs_F": 0.966
+ },
+ "criteria": {
+  "L1_coverage": {
+   "value": 100.0,
+   "limit": ">= 50 % (else the measurement is invalid)",
+   "met": true
+  },
+  "L1_fact_use": {
+   "value": 35.0,
+   "limit": ">= +15.0",
+   "met": true
+  },
+  "L2_errors_F": {
+   "value": 0,
+   "limit": "<= 2",
+   "met": true
+  },
+  "L2_errors_FK": {
+   "value": 0,
+   "limit": "<= 2",
+   "met": true
+  },
+  "L2b_role_F": {
+   "value": 0,
+   "limit": "<= 2",
+   "met": true
+  },
+  "L2b_role_FK": {
+   "value": 0,
+   "limit": "<= 2",
+   "met": true
+  },
+  "L3_memory_bpb": {
+   "value": 1.45,
+   "limit": ">= 1.0 %",
+   "met": true
+  },
+  "L5_speed": {
+   "value": 0.972,
+   "limit": ">= 0.85 (writing speed, FK / F)",
+   "met": true
+  },
+  "L4_app_F": {
+   "value": 0,
+   "limit": "<= 4",
+   "met": true
+  },
+  "L4_app_FK": {
+   "value": 1,
+   "limit": "<= 4",
+   "met": true
+  }
+ },
+ "decision": {
+  "layers_A_B_on": true,
+  "layer_C_on": true,
+  "valid": true,
+  "problems": []
+ },
+ "data": "learn_sessions_v2.json"
+}

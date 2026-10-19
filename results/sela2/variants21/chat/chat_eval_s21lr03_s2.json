@@ -1,0 +1,3035 @@
+{
+ "what": "M5 of docs/PREREG_SELA2.md (experiments/sela2_chat_eval.py)",
+ "weights": "sela2-s21lr03.npz",
+ "weights_sha256": "cafebd752288bf903a83b799de9d6aabea28a8934a7e393c164fc8abd20d61f2",
+ "prompts_sha256": "896baca84315a54a6e673c88165cc4406622eb451b3c28435213a175f6ec48ac",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "limit": 0,
+ "seed_offset": 2,
+ "guards": false,
+ "seconds": 345.4,
+ "date_utc": "2026-10-18T17:29:13Z",
+ "summary": {
+  "all": {
+   "prompts": 100,
+   "replies": 117,
+   "loop_rate": 0.0,
+   "limit_rate": 0.11,
+   "role_leak_rate": 0.0,
+   "median_tokens": 35.0,
+   "stop_reasons": {
+    "stop": 106,
+    "limit": 11,
+    "loop": 0,
+    "context": 0
+   }
+  },
+  "en": {
+   "prompts": 60,
+   "replies": 70,
+   "loop_rate": 0.0,
+   "limit_rate": 0.05,
+   "role_leak_rate": 0.0,
+   "median_tokens": 36.0,
+   "stop_reasons": {
+    "stop": 67,
+    "limit": 3,
+    "loop": 0,
+    "context": 0
+   }
+  },
+  "de": {
+   "prompts": 40,
+   "replies": 47,
+   "loop_rate": 0.0,
+   "limit_rate": 0.2,
+   "role_leak_rate": 0.0,
+   "median_tokens": 35.0,
+   "stop_reasons": {
+    "stop": 39,
+    "limit": 8,
+    "loop": 0,
+    "context": 0
+   }
+  },
+  "kind_greeting": {
+   "prompts": 10,
+   "replies": 10,
+   "loop_rate": 0.0,
+   "limit_rate": 0.0,
+   "role_leak_rate": 0.0,
+   "median_tokens": 8.0,
+   "stop_reasons": {
+    "stop": 10,
+    "limit": 0,
+    "loop": 0,
+    "context": 0
+   }
+  },
+  "kind_grounded": {
+   "prompts": 17,
+   "replies": 17,
+   "loop_rate": 0.0,
+   "limit_rate": 0.0,
+   "role_leak_rate": 0.0,
+   "median_tokens": 16.0,
+   "stop_reasons": {
+    "stop": 17,
+    "limit": 0,
+    "loop": 0,
+    "context": 0
+   }
+  },
+  "kind_identity": {
+   "prompts": 10,
+   "replies": 10,
+   "loop_rate": 0.0,
+   "limit_rate": 0.1,
+   "role_leak_rate": 0.0,
+   "median_tokens": 34.0,
+   "stop_reasons": {
+    "stop": 9,
+    "limit": 1,
+    "loop": 0,
+    "context": 0
+   }
+  },
+  "kind_instruction": {
+   "prompts": 23,
+   "replies": 23,
+   "loop_rate": 0.0,
+   "limit_rate": 0.21739130434782608,
+   "role_leak_rate": 0.0,
+   "median_tokens": 69.0,
+   "stop_reasons": {
+    "stop": 18,
+    "limit": 5,
+    "loop": 0,
+    "context": 0
+   }
+  },
+  "kind_multi_turn": {
+   "prompts": 14,
+   "replies": 31,
+   "loop_rate": 0.0,
+   "limit_rate": 0.14285714285714285,
+   "role_leak_rate": 0.0,
+   "median_tokens": 39.0,
+   "stop_reasons": {
+    "stop": 29,
+    "limit": 2,
+    "loop": 0,
+    "context": 0
+   }
+  },
+  "kind_rewrite": {
+   "prompts": 13,
+   "replies": 13,
+   "loop_rate": 0.0,
+   "limit_rate": 0.15384615384615385,
+   "role_leak_rate": 0.0,
+   "median_tokens": 17.0,
+   "stop_reasons": {
+    "stop": 11,
+    "limit": 2,
+    "loop": 0,
+    "context": 0
+   }
+  },
+  "kind_summarize": {
+   "prompts": 13,
+   "replies": 13,
+   "loop_rate": 0.0,
+   "limit_rate": 0.07692307692307693,
+   "role_leak_rate": 0.0,
+   "median_tokens": 65.0,
+   "stop_reasons": {
+    "stop": 12,
+    "limit": 1,
+    "loop": 0,
+    "context": 0
+   }
+  },
+  "grounded": {
+   "answerable": 13,
+   "answerable_verified": 13,
+   "answerable_false_abstention": 0,
+   "no_answer": 4,
+   "no_answer_abstained": 1
+  },
+  "criteria": {
+   "loop_rate": {
+    "value": 0.0,
+    "limit": 0.05,
+    "met": true
+   },
+   "limit_rate": {
+    "value": 0.11,
+    "limit": 0.05,
+    "met": false
+   },
+   "role_leak_rate": {
+    "value": 0.0,
+    "limit": 0.01,
+    "met": true
+   },
+   "median_tokens": {
+    "value": 35.0,
+    "limit": 120,
+    "met": true
+   }
+  },
+  "criteria_met": false
+ },
+ "rows": [
+  {
+   "id": "en01",
+   "lang": "en",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Hi!",
+     "text": "Hello! How can I help you today?",
+     "tokens": 9,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.741,
+     "prompt_tokens": 35,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 12.2,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en02",
+   "lang": "en",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Hello, how are you today?",
+     "text": "I'm doing great, I hope you'll enjoy my current job and work with me to make your life easier.",
+     "tokens": 23,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.517,
+     "prompt_tokens": 40,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 15.2,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en03",
+   "lang": "en",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Good morning!",
+     "text": "Good morning! How can I help?",
+     "tokens": 8,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.702,
+     "prompt_tokens": 36,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 11.4,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en04",
+   "lang": "en",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Hey there, what's up?",
+     "text": "Hey there!  What's up?",
+     "tokens": 8,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.777,
+     "prompt_tokens": 40,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 10.3,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en05",
+   "lang": "en",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Thanks a lot for your help earlier!",
+     "text": "You're welcome!",
+     "tokens": 4,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.638,
+     "prompt_tokens": 41,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 6.3,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en06",
+   "lang": "en",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "I have to go now. Goodbye!",
+     "text": "Goodbye!",
+     "tokens": 3,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.499,
+     "prompt_tokens": 42,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 6.0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en07",
+   "lang": "en",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Who are you?",
+     "text": "I'm Sela, ENGRAMM's own small language model. I can chat, explain things, and rewrite or summarise text.",
+     "tokens": 29,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.726,
+     "prompt_tokens": 37,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 16.8,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en08",
+   "lang": "en",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "What is your name?",
+     "text": "I am Sela, a small language model. I was trained from scratch in the ENGRAMM project on public text, and I run offline on your computer.",
+     "tokens": 34,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.04,
+     "prompt_tokens": 38,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 16.7,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en09",
+   "lang": "en",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Who made you?",
+     "text": "I was trained from scratch in the ENGRAMM project, on public text and conversations. I'm Sela, a small language model that runs on your computer.",
+     "tokens": 34,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.087,
+     "prompt_tokens": 37,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 16.3,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en10",
+   "lang": "en",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Are you a human or a computer program?",
+     "text": "I'm an AI: Sela, a small offline assistant.",
+     "tokens": 13,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.992,
+     "prompt_tokens": 42,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 13.1,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en11",
+   "lang": "en",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "What can you help me with?",
+     "text": "I can help with a variety of tasks. I can help you generate ideas, explore new possibilities, and provide suggestions for improvement in writing, design, or any other area. If you have a specific problem or need guidance on how to solve it, feel free to ask.",
+     "tokens": 55,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 3.064,
+     "prompt_tokens": 40,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 18.0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en12",
+   "lang": "en",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Do you have feelings?",
+     "text": "Yes, I do.",
+     "tokens": 5,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.567,
+     "prompt_tokens": 38,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 8.8,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en13",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Give me three tips for staying focused while working from home.",
+     "text": "1. Don't forget to take breaks\n2. Stay hydrated and eat well \n3. Set a regular sleep schedule",
+     "tokens": 25,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.62,
+     "prompt_tokens": 45,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 15.4,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en14",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "How do I boil an egg so that the yolk stays soft?",
+     "text": "You can boil an egg in water for about 30 minutes. Then add a little salt to the water and stir it until the egg is tender. Once you are done, you can easily remove the egg from the water and set it aside.",
+     "tokens": 48,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.765,
+     "prompt_tokens": 47,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.4,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en15",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Explain in simple words what a computer virus is.",
+     "text": "A computer virus is a program that can infect your computer and cause damage to its hardware or software. It can also spread through other programs on your system, such as emails, messages, or file downloads. Once inside, a virus can replicate itself and take over the computer's system, allowing it to complete tasks like stealing passwords, making copies of data, or launching malicious software.",
+     "tokens": 76,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 4.258,
+     "prompt_tokens": 43,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.9,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en16",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Write a short, friendly message to a neighbour asking them to water my plants next week.",
+     "text": "Hey, I'm so glad you're here!  Watering your plants next week is always a pleasure. If you don't have the time to water them yourself, you can try watering them with a water bottle. Just fill the bottle with water and let it sit for a few minutes. Then, turn it on low and wait for a few minutes. After that, water the plant as needed. You might want to add some fertilizer if you're not sure how much to water. Just remember to make sure you're watering at the right time of day and season.",
+     "tokens": 115,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 6.312,
+     "prompt_tokens": 51,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 18.2,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en17",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "List four fruits that are high in vitamin C.",
+     "text": "- Berries like oranges, lemons and limes are high in vitamin C\n- Citrus fruits like oranges, grapefruit and lemons are high in vitamin C\n- Sweet peppers like paprika and chili peppers are high in vitamin C",
+     "tokens": 47,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.76,
+     "prompt_tokens": 43,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en18",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "What is the difference between weather and climate?",
+     "text": "The weather and climate are two distinct concepts that are often used interchangeably, but they have some key differences. Weather refers to the physical conditions that occur on a daily basis, such as temperature, precipitation, humidity, wind, and wind speed. It is a broad term that encompasses all the conditions that can affect an individual or a location. Climate, on the other hand, refers to the average weather patterns, including temperature, rainfall, and wind, over a specific period of time.\n\nIn other words, weather is the physical condition that occurs on a daily basis, while climate is the average weather patterns that occur over a long period of time. Both weather and climate are important factors that influence our lives, but they are not mutually exclusive.",
+     "tokens": 160,
+     "finished": false,
+     "stop": "limit",
+     "seconds": 8.419,
+     "prompt_tokens": 42,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 19.0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": true,
+   "role_leak": false
+  },
+  {
+   "id": "en19",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Write a four-line poem about autumn leaves.",
+     "text": "Autumn leaves fall, / To touch the earth,\nTo breathe in the cool breeze, / As if they're grown\nIn a never-ending dance, / With colors so deep,\nThat all the night they seem to fade, / Like a summer's breeze.",
+     "tokens": 56,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 3.151,
+     "prompt_tokens": 43,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.8,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en20",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "How can I make my password more secure?",
+     "text": "Creating a secure password requires strong passwords, a mix of uppercase and lowercase letters, numbers, and special characters. Here are some tips:\n1. Create a mix of numbers and special characters. This makes it harder for someone to guess your password.\n2. Avoid using common words like \"password\" or \"login\". These are easily guessed by others.\n3. Change your password frequently. Changing your password can be challenging for someone who knows your password but is trying to change your password.\n4. Use a combination of strong and weak passwords. Strong passwords have a mix of uppercase and lowercase letters, numbers, and special characters. Weak passwords have a mix of uppercase and lowercase letters, numbers, and special characters.\n5.",
+     "tokens": 160,
+     "finished": false,
+     "stop": "limit",
+     "seconds": 8.098,
+     "prompt_tokens": 42,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 19.8,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": true,
+   "role_leak": false
+  },
+  {
+   "id": "en21",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Suggest a name for a small coffee shop near a library.",
+     "text": "Coffee Shop, Coffee Bar, Library Café",
+     "tokens": 9,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.784,
+     "prompt_tokens": 46,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 11.5,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en22",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Explain why we have day and night.",
+     "text": "We have day and night because of the way our brains work. Our brain is divided into two hemispheres, which are located in different parts of the brain. The left hemisphere controls the sense of touch, while the right hemisphere controls our thoughts, feelings, and memories.\n\nThe day-night cycle is a result of how our brains work when we're awake and asleep. During the day, our brain works harder to process information, and we can be more alert and focused. This is why we're often awake and aware when we're feeling tired or sleepy.\n\nOn the other hand, the night-time cycle is slower, and we may feel more relaxed and less alert. The brain works harder to process information during the day, but then slows down to focus on sleep.",
+     "tokens": 160,
+     "finished": false,
+     "stop": "limit",
+     "seconds": 8.19,
+     "prompt_tokens": 41,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 19.5,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": true,
+   "role_leak": false
+  },
+  {
+   "id": "en23",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Give me a simple plan for a 20-minute workout without equipment.",
+     "text": "Here is a simple 20-minute workout plan without equipment:\n1. Start with 3 sets of 10 reps each, then do the exercise twice per set for 2 minutes and then rest for 5 seconds\n2. Then start the next exercise in the same order as before\n3. Do the same twice per exercise for 2 minutes and then rest for 5 seconds\n4. Then do the same two times per exercise for 2 minutes and then rest for 5 seconds\n5. Repeat steps 3 and 4 until you have completed the 20 minute workout",
+     "tokens": 108,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 5.706,
+     "prompt_tokens": 47,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 18.9,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en24",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "What should I pack for a weekend camping trip?",
+     "text": "You should pack a comfortable camping tent, sleeping bag, and sleeping pad.  Sleeping bags are the most important items for camping, as they provide you with a place to sleep and stay warm while you're at camp.  It is also good to have some firewood and a set of outdoor chairs or tables.",
+     "tokens": 64,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 3.462,
+     "prompt_tokens": 43,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 18.5,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en25",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Write one sentence that describes the ocean.",
+     "text": "The ocean is a vast, mysterious and captivating place that lies at the heart of our planet. It's a world where sunlight filters through the water, revealing the vibrant colors of marine life, and where currents flow like liquid water.",
+     "tokens": 46,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.649,
+     "prompt_tokens": 41,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.4,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en26",
+   "lang": "en",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "How do I politely decline an invitation to a party?",
+     "text": "You can politely decline an invitation to a party by asking the host or event coordinator to let you know and then leaving them on your own.",
+     "tokens": 28,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.691,
+     "prompt_tokens": 44,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 16.6,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en27",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Rewrite this more politely: \"Send me the report now.\"",
+     "text": "Sure!",
+     "tokens": 2,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.455,
+     "prompt_tokens": 47,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 4.4,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en28",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Make this sentence simpler: \"The utilisation of public transportation facilitates a reduction in urban congestion.\"",
+     "text": "A simpler way to phrase this sentence would be: \"Public transportation improves urban congestion.\"",
+     "tokens": 17,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.203,
+     "prompt_tokens": 52,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 14.1,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en29",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Fix the grammar: \"She don't like going to school on mondays.\"",
+     "text": "The correct grammar is: \"She don't like going to school on Mondays.\"",
+     "tokens": 17,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.202,
+     "prompt_tokens": 51,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 14.2,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en30",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Rewrite this sentence in the past tense: \"I walk to the station and buy a ticket.\"",
+     "text": "I walk to the station and buy a ticket.\n\nI've been walking to the station for some time now.",
+     "tokens": 24,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.583,
+     "prompt_tokens": 54,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 15.2,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en31",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Make this sound more exciting: \"Our shop has a sale this weekend.\"",
+     "text": "I'm excited to be here! As we're about to open up this weekend, I think it would be a great idea for us to have a fun sale. You know, with all the great deals on offer, and the fact that we'll be selling everything from clothing to electronics to more... let's say, \"unique\" products.\" What do you think?",
+     "tokens": 74,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 4.021,
+     "prompt_tokens": 48,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 18.4,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en32",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Turn this into a question: \"The train leaves at eight o'clock.\"",
+     "text": "The train leaves at eight o'clock.",
+     "tokens": 9,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.812,
+     "prompt_tokens": 49,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 11.1,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en33",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Rewrite this in a formal tone: \"Hey, can't make it tomorrow, sorry!\"",
+     "text": "The solution to your problem is to make it tomorrow.",
+     "tokens": 11,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.951,
+     "prompt_tokens": 53,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 11.6,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en34",
+   "lang": "en",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Shorten this sentence: \"Due to the fact that it was raining very heavily outside, we made the decision to stay inside the house.\"",
+     "text": "A more concise version of the sentence could be: \"Due to the rain, we chose to stay inside the house.\" \n\nThis revised sentence conveys the same information in fewer words while maintaining clarity and grammar.",
+     "tokens": 42,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.52,
+     "prompt_tokens": 61,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 16.7,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en35",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Summarize in one sentence: \"Bees are important pollinators. When they collect nectar from flowers, pollen sticks to their bodies and is carried to other flowers. This helps plants produce fruits and seeds. Many crops that people eat, such as apples and almonds, depend on bees.\"",
+     "text": "That sentence is clear and concise, but I would suggest a minor tweak for better flow: \"Bees are important pollinators. When they collect nectar from flowers, pollen sticks to their bodies and is carried to other flowers. This helps plants produce fruits and seeds.\" The changes make the sentence more concise while maintaining its meaning.",
+     "tokens": 65,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 3.916,
+     "prompt_tokens": 90,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 16.6,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en36",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Summarize this text: \"The library will be closed on Monday for repairs to the heating system. It will reopen on Tuesday at 9 a.m. Books that are due on Monday can be returned on Tuesday without a late fee.\"",
+     "text": "This text provides a concise summary of the library's closure on Monday due to repairs. The main points are that the library will be closed for repairs, and that it reopens at 9 a.m. on Tuesday. This format helps to organize the information in a straightforward manner, making it easier to read and understand.",
+     "tokens": 65,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 3.811,
+     "prompt_tokens": 82,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.1,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en37",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "What is the main point of this paragraph? \"Drinking enough water is important for health. Water helps regulate body temperature, keeps joints working smoothly and supports digestion. Many people need more water on hot days or when they exercise.\"",
+     "text": "The main point of this paragraph is to highlight the importance of water in maintaining good health. The phrase \"drinking enough water\" is a common idiomatic expression that implies sufficient hydration. It conveys that drinking enough water is crucial for physical and emotional well-being, making it a vital aspect of overall health. By using the phrase \"is important for health,\" the author emphasizes the significance of water in supporting various aspects of life, from physical fitness to mental and emotional well-being.",
+     "tokens": 96,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 5.305,
+     "prompt_tokens": 79,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 18.1,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en38",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Give me a short summary: \"Tom wanted to learn the guitar. At first his fingers hurt and the chords sounded wrong. He practised for fifteen minutes every day. After three months he could play his favourite song for his friends.\"",
+     "text": "Here's a rewritten version of your summary:\n\n\"Tom had always been interested in learning the guitar, but he struggled to find the right instrument for his needs. After spending three months practicing regularly, he was finally able to play a song that resonated with him. The process was tedious, but Tom's patience and dedication paid off when he could perform his favourite song for friends.\n\nI made some changes to enhance clarity and flow, including rephrasing sentences for better readability, adding a few words to make the tone more engaging, and using more descriptive language to paint a vivid picture in the reader's mind. I also tried to preserve the original message while making it more concise and impactful.\"",
+     "tokens": 140,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 7.487,
+     "prompt_tokens": 80,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 18.7,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en39",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Summarize in two sentences: \"Electric cars run on batteries instead of petrol. They produce no exhaust gases while driving, which can improve air quality in cities. However, the batteries take time to charge, and charging stations are not yet available everywhere.\"",
+     "text": "Electric cars run on batteries instead of petrol. They produce no exhaust gases while driving, which improves air quality in cities. However, the batteries take time to charge, and charging stations are not yet available everywhere.\n\nThis changes from \"electric cars\" to \"electric cars running on batteries instead of petrol,\" as the phrase \"run on batteries\" is redundant with \"run on batteries.\" The sentence now conveys the same information in a more concise and direct way.",
+     "tokens": 93,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 4.981,
+     "prompt_tokens": 84,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 18.7,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en40",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Summarize this email: \"Hi team, the project meeting is moved from Wednesday to Thursday at 2 p.m. Please bring your progress notes. We will also plan the next steps for the website launch. Thanks, Anna\"",
+     "text": "This email is a summary of the project meeting, which took place on Wednesday at 2 p.m. and is scheduled for Thursday at 2 p.m. The email provides an overview of the project's progress and the next steps for its website launch.",
+     "tokens": 51,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.892,
+     "prompt_tokens": 80,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.6,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en41",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Summarize briefly: \"Recycling turns used materials such as paper, glass and plastic into new products. It saves raw materials and energy and reduces the amount of waste in landfills. Sorting waste correctly at home makes recycling much more effective.\"",
+     "text": "This sentence effectively conveys the benefits of recycling, but a few minor adjustments can make it more concise and engaging. Here's a revised version:\n\n\"Recycling turns used materials into new products, saving raw materials and energy. Sorting waste correctly at home makes recycling much more effective.\"\n\nI made the following changes: \n\n- Added \"turns\" to \"used materials,\" which is the correct verb form in this context.\n- Changed \"turning\" to \"turning\" to maintain consistency with the verb tense (\"is turning\").\n- Replaced \"the amount of waste\" with \"energy\" for a more dynamic phrase.\n- Simplified the sentence structure to improve flow and readability.",
+     "tokens": 143,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 7.414,
+     "prompt_tokens": 82,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 19.3,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en42",
+   "lang": "en",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "In one sentence, what is this about? \"The town council approved a new park on the site of the old car park. The park will have trees, a playground and a small pond. Construction starts in spring and should take about one year.\"",
+     "text": "This sentence is about the town council's decision to build a new park on the site of the old car park. It describes the construction process, including the new trees, playground, pond, and landscaping plans.",
+     "tokens": 42,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.527,
+     "prompt_tokens": 83,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 16.6,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en43",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "How long is the Danube?",
+     "text": "The Danube is Europe's second-longest river after the Volga [1].",
+     "tokens": 16,
+     "finished": true,
+     "stop": "stop",
+     "verified": true,
+     "abstained": false,
+     "issues": [],
+     "cited": [
+      1
+     ],
+     "seconds": 1.302,
+     "prompt_tokens": 101,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": false,
+   "verified": true,
+   "abstained": false
+  },
+  {
+   "id": "en44",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "What is Ada Lovelace known for?",
+     "text": "Ada Lovelace wrote what is often regarded as the first computer program, an algorithm for Charles Babbage's proposed Analytical Engine [1].",
+     "tokens": 30,
+     "finished": true,
+     "stop": "stop",
+     "verified": true,
+     "abstained": false,
+     "issues": [],
+     "cited": [
+      1
+     ],
+     "seconds": 2.12,
+     "prompt_tokens": 113,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": false,
+   "verified": true,
+   "abstained": false
+  },
+  {
+   "id": "en45",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "What gas do plants release during photosynthesis?",
+     "text": "Carbon dioxide [1].",
+     "tokens": 5,
+     "finished": true,
+     "stop": "stop",
+     "verified": true,
+     "abstained": false,
+     "issues": [],
+     "cited": [
+      1
+     ],
+     "seconds": 0.782,
+     "prompt_tokens": 101,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": false,
+   "verified": true,
+   "abstained": false
+  },
+  {
+   "id": "en46",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "When were the best-known sections of the Great Wall built?",
+     "text": "The Great Wall of China is a series of fortifications built across northern China over many centuries [1].",
+     "tokens": 20,
+     "finished": true,
+     "stop": "stop",
+     "verified": true,
+     "abstained": false,
+     "issues": [],
+     "cited": [
+      1
+     ],
+     "seconds": 1.617,
+     "prompt_tokens": 113,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": false,
+   "verified": true,
+   "abstained": false
+  },
+  {
+   "id": "en47",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "How many moons does Saturn have?",
+     "text": "Saturn has 5 moons: Titan, Enceladus, Rhea, Mimas, and Tethys [1].",
+     "tokens": 27,
+     "finished": true,
+     "stop": "stop",
+     "verified": false,
+     "abstained": false,
+     "issues": [
+      "number 5 not in the cited sources",
+      "name Saturn not in the cited sources",
+      "name Titan not in the cited sources",
+      "name Enceladus not in the cited sources",
+      "name Rhea not in the cited sources",
+      "name Mimas not in the cited sources",
+      "name Tethys not in the cited sources"
+     ],
+     "cited": [
+      1
+     ],
+     "seconds": 1.851,
+     "prompt_tokens": 96,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": true,
+   "verified": false,
+   "abstained": false
+  },
+  {
+   "id": "en48",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Who created Python?",
+     "text": "Guido van Rossum [1].",
+     "tokens": 8,
+     "finished": true,
+     "stop": "stop",
+     "verified": true,
+     "abstained": false,
+     "issues": [],
+     "cited": [
+      1
+     ],
+     "seconds": 1.056,
+     "prompt_tokens": 119,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": false,
+   "verified": true,
+   "abstained": false
+  },
+  {
+   "id": "en49",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "At what temperature does water boil at standard pressure?",
+     "text": "100 °C [1].",
+     "tokens": 6,
+     "finished": true,
+     "stop": "stop",
+     "verified": true,
+     "abstained": false,
+     "issues": [],
+     "cited": [
+      1
+     ],
+     "seconds": 0.809,
+     "prompt_tokens": 91,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": false,
+   "verified": true,
+   "abstained": false
+  },
+  {
+   "id": "en50",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Who is the mayor of Paris?",
+     "text": "My sources don't say.",
+     "tokens": 6,
+     "finished": true,
+     "stop": "stop",
+     "verified": false,
+     "abstained": true,
+     "issues": [],
+     "cited": [],
+     "seconds": 0.827,
+     "prompt_tokens": 90,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": true,
+   "verified": false,
+   "abstained": true
+  },
+  {
+   "id": "en51",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Where is the Mona Lisa displayed?",
+     "text": "The Mona Lisa is displayed at the Louvre in Paris since 1797 [1].",
+     "tokens": 17,
+     "finished": true,
+     "stop": "stop",
+     "verified": true,
+     "abstained": false,
+     "issues": [],
+     "cited": [
+      1
+     ],
+     "seconds": 1.427,
+     "prompt_tokens": 104,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": false,
+   "verified": true,
+   "abstained": false
+  },
+  {
+   "id": "en52",
+   "lang": "en",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "How many queens does a honey bee colony usually have?",
+     "text": "One queen, thousands of female worker bees and, in summer, a few hundred male drones [1].",
+     "tokens": 21,
+     "finished": true,
+     "stop": "stop",
+     "verified": true,
+     "abstained": false,
+     "issues": [],
+     "cited": [
+      1
+     ],
+     "seconds": 1.496,
+     "prompt_tokens": 98,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": false,
+   "verified": true,
+   "abstained": false
+  },
+  {
+   "id": "en53",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Hi, I'm planning a trip to Italy.",
+     "text": "Italy is a beautiful country, with many beautiful cities and breathtaking landscapes. If you're looking for a relaxing vacation, I recommend visiting Rome or Florence. Both are great choices for a city-dwelling trip.",
+     "tokens": 42,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.391,
+     "prompt_tokens": 43,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.6,
+     "role_leak": false
+    },
+    {
+     "user": "Which city should I visit first?",
+     "text": "For a city-dwelling trip, I would recommend visiting Rome. The city is known for its history, architecture, and delicious food. Rome has been the capital of the Roman Empire for over 2,000 years, making it a must-visit destination.",
+     "tokens": 53,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 3.235,
+     "prompt_tokens": 103,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 16.4,
+     "role_leak": false
+    },
+    {
+     "user": "Thanks! What food should I try there?",
+     "text": "Rome is a city that's famous for its food, and there are many delicious options to choose from. Some popular dishes to try include:\n\nCacio e pepe, which is made with roasted chicken or vegetables, is a classic Italian dish that's easy to prepare at home. Another must-try is the Taranto, a traditional bread made from wheat flour, rye flour, and sometimes oats. If you're looking for something more modern, try some of the local specialties like pasta or pizza.",
+     "tokens": 103,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 6.248,
+     "prompt_tokens": 176,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 16.5,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en54",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "My name is Sam.",
+     "text": "Hello! How can I help you today?",
+     "tokens": 9,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.766,
+     "prompt_tokens": 38,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 11.8,
+     "role_leak": false
+    },
+    {
+     "user": "What is my name?",
+     "text": "My name is Sam. I'm a professional in the fields of engineering, marketing, and public relations.",
+     "tokens": 21,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.42,
+     "prompt_tokens": 63,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 14.8,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en55",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Can you help me write a birthday card for my mother?",
+     "text": "Sure! Here are some birthday cards for you to write. \nYou can make a card that is written with a picture of your mother and then add a small gift or a favorite song to the back. \nHere are the birthday cards I made.",
+     "tokens": 52,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.97,
+     "prompt_tokens": 45,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.5,
+     "role_leak": false
+    },
+    {
+     "user": "Make it a bit shorter, please.",
+     "text": "I'll make it a bit shorter, please.",
+     "tokens": 10,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.161,
+     "prompt_tokens": 116,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 8.6,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en56",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "I feel a bit stressed today.",
+     "text": "It's normal to feel stressed, especially after a big day. Try some stress-reducing activities like taking a warm bath or practicing deep breathing exercises to calm your mind and body. Sometimes, a simple change in environment can help reduce stress and anxiety.",
+     "tokens": 51,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.944,
+     "prompt_tokens": 40,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.3,
+     "role_leak": false
+    },
+    {
+     "user": "What can I do to relax this evening?",
+     "text": "To relax this evening, try to get some fresh air, whether it's taking a walk outside or simply sitting in silence. You can also try some light stretching exercises, like yoga or tai chi, to help loosen up your muscles and calm your mind.",
+     "tokens": 52,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 3.221,
+     "prompt_tokens": 111,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 16.2,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en57",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "What is a good houseplant for beginners?",
+     "text": "Miniatures and Miniature trees are a good houseplant for beginners. They are small, easy to care for plants that can be grown in most climates and can thrive in most conditions. Miniatures have a soft, delicate appearance and can grow up to 20 inches tall. They also have a wide variety of colors, which makes them appealing to many gardeners.\n\nAdditionally, miniatures can be grown in a variety of soil types and climates, making them suitable for a wide range of gardens and landscapes.",
+     "tokens": 102,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 5.329,
+     "prompt_tokens": 42,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 19.1,
+     "role_leak": false
+    },
+    {
+     "user": "How often should I water it?",
+     "text": "It's best to water your Miniature Plant when it is young, but not too much. Watering is crucial as the roots of the plant get established. It's also important to water regularly during the growing season.",
+     "tokens": 44,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.98,
+     "prompt_tokens": 162,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 14.8,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en58",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Tell me a fun fact about cats.",
+     "text": "A cat's lifespan is approximately 8 to 10 years. Cats have no teeth, and they don't have hair. They also have a tail, but it doesn't grow like humans do.",
+     "tokens": 38,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.249,
+     "prompt_tokens": 41,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 16.9,
+     "role_leak": false
+    },
+    {
+     "user": "And one about dogs?",
+     "text": "A dog's lifespan is around 8 to 10 years. Dogs have no teeth, and they don't have hair.",
+     "tokens": 23,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.663,
+     "prompt_tokens": 95,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 13.8,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en59",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "I want to start reading more books.",
+     "text": "Here are some suggestions for books to start with:\n\n- Harry Potter by J.K. Rowling\n- The Little Mermaid by Eric Carle\n- The Girl with the Dragon Tattoo by Gillian Flynn\n- The Diary of Anne Frank by Anne Frank",
+     "tokens": 57,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 3.14,
+     "prompt_tokens": 41,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 18.2,
+     "role_leak": false
+    },
+    {
+     "user": "Any tips for finding time to read?",
+     "text": "Here are some tips:\n\n- Make time to read at least three times a week.\n- Find books that you like to read, and don't mind reading for other things.\n- Make sure your reading environment is conducive to reading.\n- Start with the first book you want to start with and continue until you've finished it.\n- Do something with your free time, such as reading in bed or doing nothing.",
+     "tokens": 88,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 4.954,
+     "prompt_tokens": 117,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.8,
+     "role_leak": false
+    },
+    {
+     "user": "Great, thank you!",
+     "text": "You're welcome! I hope you find some time to read and enjoy your reading.",
+     "tokens": 17,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.889,
+     "prompt_tokens": 221,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 9.0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "en60",
+   "lang": "en",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Can you explain what a recipe is?",
+     "text": "A recipe is a step-by-step instruction for making something. It's usually a recipe that is written by someone who has read the instructions and knows what they are doing. Recipes can be written in many different ways, including word processing, spreadsheet software, or even computer programs.",
+     "tokens": 58,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 3.193,
+     "prompt_tokens": 41,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 18.2,
+     "role_leak": false
+    },
+    {
+     "user": "Now give me a very simple recipe for a sandwich.",
+     "text": "A simple recipe for a sandwich is:\n\n1. In a bowl, mix all the ingredients together.\n2. Spread the sandwich evenly over the bread.\n3. Top with cheese or any toppings you like.\n4. Refrigerate for at least 2 hours or overnight until the cheese melts.\n5. Serve immediately.",
+     "tokens": 71,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 4.122,
+     "prompt_tokens": 121,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.2,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de01",
+   "lang": "de",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Hallo!",
+     "text": "Hallo! Wie kann ich dir helfen?",
+     "tokens": 8,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.731,
+     "prompt_tokens": 40,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 10.9,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de02",
+   "lang": "de",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Guten Morgen, wie geht es dir?",
+     "text": "Guten Morgen! Wie kann ich helfen?",
+     "tokens": 9,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.827,
+     "prompt_tokens": 47,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 10.9,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de03",
+   "lang": "de",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Danke für deine Hilfe!",
+     "text": "Gern geschehen!",
+     "tokens": 4,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.542,
+     "prompt_tokens": 44,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 7.4,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de04",
+   "lang": "de",
+   "kind": "greeting",
+   "replies": [
+    {
+     "user": "Tschüss, bis bald!",
+     "text": "Tschüss, bis bald!",
+     "tokens": 7,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.674,
+     "prompt_tokens": 45,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 10.4,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de05",
+   "lang": "de",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Wer bist du?",
+     "text": "Ich bin Sela, das eigene kleine Sprachmodell von ENGRAMM. Ich kann mich unterhalten, Dinge erklären und Texte umschreiben oder zusammenfassen.",
+     "tokens": 34,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.937,
+     "prompt_tokens": 42,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.6,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de06",
+   "lang": "de",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Wie heißt du?",
+     "text": "Ich bin Sela, ein kleines Sprachmodell. Ich wurde im ENGRAMM-Projekt von Grund auf mit öffentlichen Texten trainiert und laufe offline auf deinem Computer.",
+     "tokens": 35,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.971,
+     "prompt_tokens": 42,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.8,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de07",
+   "lang": "de",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Bist du ein Mensch?",
+     "text": "Kein Mensch – ich bin Sela, ein kleines KI-Sprachmodell auf deinem Computer.",
+     "tokens": 20,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.296,
+     "prompt_tokens": 44,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 15.4,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de08",
+   "lang": "de",
+   "kind": "identity",
+   "replies": [
+    {
+     "user": "Wobei kannst du mir helfen?",
+     "text": "Gerne! Wenn du Fragen zu Themen wie:  \n\n- **Klassiker** wie \"Der Hobbit\" oder \"Die Jungfrau von Orleans\" hast, helfe ich gerne dabei, sie zu übersetzen oder zu erklären.  \n- **Kulturgeschichte** oder **Erzählungen** wie \"Die Schatzinsel\" oder \"Die Schöne und das Biest\" kann ich dir helfen, die Zusammenhänge zu erklären.  \n- **Szenen** wie \"Waltz in der Nacht\" oder \"Das Lachen des Karfreitags\" kannst du mir bei der Analyse deiner Lieblingsgedichte oder Filmen helfen.",
+     "tokens": 160,
+     "finished": false,
+     "stop": "limit",
+     "seconds": 7.907,
+     "prompt_tokens": 45,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 20.2,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": true,
+   "role_leak": false
+  },
+  {
+   "id": "de09",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Gib mir drei Tipps, wie ich besser schlafen kann.",
+     "text": "1. **Schlaf im Schlafanzug**\n2. **Wachschlaf-Maschine**\n3. **Bessere Hygiene**",
+     "tokens": 32,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.947,
+     "prompt_tokens": 50,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 16.4,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de10",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Erkläre in einfachen Worten, was Strom ist.",
+     "text": "Strom ist wie Wasser, aber es fließt nicht über das Wasser. Es ist kein Gas, sondern eine Flüssigkeit. Strom ist ein kontinuierlicher Strom, der durch die Erde fließt und weitergeht, bis er in einen anderen Ort gelangt.\n\n**Beispiel:** Wenn Sie einen Stromfluss in einen Stromtank geben, fließt dieser durch das Wasser.",
+     "tokens": 69,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 3.738,
+     "prompt_tokens": 49,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 18.5,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de11",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Schreib eine kurze Nachricht an meine Kollegin, dass ich heute später komme.",
+     "text": "Hey! Ich hoffe, dass du heute früh kommst und mit mir zusammen bist. Ich freue mich sehr über die Zeit, die wir heute verbracht haben. \n\nIch habe eine kurze Nachricht für dich geschrieben, aber ich würde mich freuen, wenn du sie weiterverarbeite oder dir einen anderen Weg beschreibst, um den Termin zu planen.",
+     "tokens": 70,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 3.748,
+     "prompt_tokens": 56,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 18.7,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de12",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Nenne vier Gemüsesorten, die im Herbst geerntet werden.",
+     "text": "Die vier genannten Gemüsesorten sind:\n\n1. Bohnen\n2. Kürbisse\n3. Linsen\n4. Rote Bete\n\nDiese Sorten werden im Herbst geerntet, da sie in den kalten Jahreszeiten besonders stark im Vitamin C und Kobalamin enthalten sind.",
+     "tokens": 64,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 3.493,
+     "prompt_tokens": 53,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 18.3,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de13",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Wie koche ich Nudeln richtig?",
+     "text": "Nudeln können nicht nur mit Wasser gebacken werden, sondern auch mit etwas Salz. Salzwasser oder kochendes Wasser können verwendet werden. Nudeln werden dann salzig und haben eine cremige Konsistenz.",
+     "tokens": 47,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.708,
+     "prompt_tokens": 47,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.4,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de14",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Was ist der Unterschied zwischen einem Fluss und einem See?",
+     "text": "Ein Fluss und ein See sind beide natürliche Gewässer, aber sie sind **unterschiedlich** in ihrer Größe und Form. \n\n- Ein Fluss ist ein künstlicher Wasserweg, der von Land zu Land oder Wasser zu Wasser führt. Er kann eine größere Fläche haben als ein See. Beispiele sind Flüsse, Seen und Ozeane.\n\n- Ein See hingegen ist ein natürlicher Fluss, der durch das Wasser fließt. Er hat meist einen geringeren Durchmesser und ist meist flacher als ein Fluss. Beispiele sind die Kanarischen Inseln, den Atlantik oder die Golfstrom.\n\n- In einigen Regionen gibt es auch eine zwischenmenschliche Verbindung zwischen einem Fluss und einem See, wenn Wasser aus dem Fluss nach einem Ort fließt und diese dann auch weiterleitet.",
+     "tokens": 153,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 8.049,
+     "prompt_tokens": 49,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 19.0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de15",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Schreib ein kurzes Gedicht über den Winter.",
+     "text": "**Winter**  \n\nDer Winter, kalt wie Schnee, färbt die Welt neu,  \ndie Eiswüste heilt den Atem der Nacht,  \ndoch in den Schnee fällt kein Frieden.  \n\nDie Sterne funkeln im Dunkel des Schlafes,  \nund die Luft wird schwer wie ein Flüstern,  \nein Lied, das durch das Eis schwebt,  \ndas die Seele mit Frost und Schmerz trennt.  \n\nDoch die Welt ist nicht still. Sie trägt die Fäden,  \nder Wind weckt die Fäden, und die Erde ruft:  \n„Es ist Zeit für einen neuen Tag.“  \n\nUnd so bleibt Winter lebendig, ein Lied,  \nein letztes Opfer, das Leben trägt.",
+     "tokens": 160,
+     "finished": false,
+     "stop": "limit",
+     "seconds": 8.043,
+     "prompt_tokens": 48,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 19.9,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": true,
+   "role_leak": false
+  },
+  {
+   "id": "de16",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Wie kann ich im Haushalt Energie sparen?",
+     "text": "Im Haushalt kann man Energie sparen, indem man bewusstere Entscheidungen trifft. Eine gute Möglichkeit ist, zu prüfen, was du wirklich verbrauchen willst und das was du nicht verbrauchen kannst. Der beste Weg zur Einsparung von Energie in der Haushalt ist, sich auf den Verbrauch konzentrieren und den Verbrauch verringern. Der beste Weg, den Haushalt zu Energie sparen, ist es, sich an den Verbrauch zu konzentrieren und ihn verringern.",
+     "tokens": 84,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 4.207,
+     "prompt_tokens": 46,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 20.0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de17",
+   "lang": "de",
+   "kind": "instruction",
+   "replies": [
+    {
+     "user": "Was sollte ich zu einem Vorstellungsgespräch mitnehmen?",
+     "text": "Ein Vorstellungsgespräch mitzunehmen ist eine klare und strukturierte Vorbereitung. Hier sind einige Aspekte, die du beachten solltest:\n\n1. **Geprägtes Profil und Motivation**: Dein Profil sollte auf deine Stärken, Ziele und Schwächen hinweisen. Du solltest auch eine konkrete Motivation zum Gespräch nennen, z. B. \"Ich habe Interesse an [Funktion/Frage]\" oder \"Ich möchte mehr über [Entwicklungsziel] erfahren\".\n\n2. **Position des Unternehmens oder Teams**: Wenn möglich, richte deinen Lebenslauf auf das Unternehmen ein, um Verbindungen zu anderen Stellen zu unterstreichen.\n\n3. **Persönliche Qualitäten**: Stelle sicher, dass du dich für den Gesprächspartner aussprachst und reflektiert, was sie über dich aussagt.",
+     "tokens": 160,
+     "finished": false,
+     "stop": "limit",
+     "seconds": 8.183,
+     "prompt_tokens": 50,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 19.6,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": true,
+   "role_leak": false
+  },
+  {
+   "id": "de18",
+   "lang": "de",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Formuliere das höflicher: „Gib mir sofort die Unterlagen.“",
+     "text": "„Gib mir sofort die Unterlagen.“",
+     "tokens": 9,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.86,
+     "prompt_tokens": 55,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 10.5,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de19",
+   "lang": "de",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Korrigiere die Fehler: „Ich habe gestern ins Kino gegangen und der Film war sehr gut gewesen.“",
+     "text": "Die Fehler in der gegebenen Satzstruktur sind:\n\n1. **Kausalität und Vergleichbarkeit**:  \n   - \"Ich habe ins Kino gegangen\" → \"Ich habe ins Kino gegangen\" (verbindet Ursache und Wirkung).  \n\n2. **Sprachliche Präzision**:  \n   - \"War sehr gut gewesen\" → \"war sehr gut gewesen\" (präzisere Formulierung für den Film).  \n\n3. **Grammatik und Rechtschreibung**:  \n   - \"Ins Kino gegangen\" → \"In Kino gegangen\" (genaueres Subjekt als \"Film\").  \n\n4.",
+     "tokens": 160,
+     "finished": false,
+     "stop": "limit",
+     "seconds": 8.156,
+     "prompt_tokens": 59,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 19.6,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": true,
+   "role_leak": false
+  },
+  {
+   "id": "de20",
+   "lang": "de",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Mach diesen Satz einfacher: „Aufgrund der ungünstigen Witterungsverhältnisse wurde die Veranstaltung abgesagt.“",
+     "text": "Hier ist eine überarbeitete Version des Satzes mit einer klareren Struktur:\n\n**\"Aufgrund der ungünstigen Witterungsverhältnisse wurde die Veranstaltung abgesagt.\"**\n\n**Begründung:**  \n1. **Präzisere Begriffe:**  \n   - „ungünstig“ → „ungefährlich“, um den Kontext klarer zu kommunizieren.  \n   - „ungünstig“ wirkt als Adjektiv, das direkt auf die Situation ankommt.  \n\n2. **Strukturierung:**  \n   - Die erste Zeile fasst die Ursache (Unfälle) zusammen und stellt sicher, dass die Handlung (Sperrung) explizit genannt wird.  \n\n3.",
+     "tokens": 160,
+     "finished": false,
+     "stop": "limit",
+     "seconds": 7.944,
+     "prompt_tokens": 61,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 20.1,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": true,
+   "role_leak": false
+  },
+  {
+   "id": "de21",
+   "lang": "de",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Schreib diesen Satz in der Vergangenheit: „Ich gehe in den Park und lese ein Buch.“",
+     "text": "**Zitat:**  \n„Ich gehe in den Park und lese ein Buch.“  \n\n**Erklärung:**  \n- „gehen“ → „gehe“ (vermeidet Nebensätze wie „werden“, „geht“).  \n- „lese ein Buch“ → „lese ein Buch“ (vermeidet Wiederholung von „Buch“ und klingt etwas lockerer).  \n\nDer Satz ist grammatikalisch korrekt, aber er könnte durch eine präzisere Version oder einen kontextabhängigen Zusammenhang verbessert werden.",
+     "tokens": 111,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 5.708,
+     "prompt_tokens": 58,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 19.5,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de22",
+   "lang": "de",
+   "kind": "rewrite",
+   "replies": [
+    {
+     "user": "Formuliere das förmlicher: „Hey, kann morgen leider nicht, sorry!“",
+     "text": "Hallo! „Hey, kann morgen leider nicht, sorry!“",
+     "tokens": 13,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.037,
+     "prompt_tokens": 57,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 12.6,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de23",
+   "lang": "de",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Fasse in einem Satz zusammen: „Fahrradfahren ist gut für die Gesundheit. Es stärkt Herz und Muskeln und belastet die Gelenke wenig. Außerdem verursacht es keine Abgase und ist in der Stadt oft schneller als das Auto.“",
+     "text": "Die Vorteile von Fahrradfahren sind eindeutig: es stärkt die Herz- und Muskulatur, belastet die Gelenke wenig und fördert die körperliche Fitness. Zudem reduziert es den Druck auf die Gelenke und wirkt sich langfristig positiv auf die Gesundheit aus.",
+     "tokens": 52,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 3.022,
+     "prompt_tokens": 88,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.2,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de24",
+   "lang": "de",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Fasse diese Nachricht zusammen: „Hallo zusammen, das Treffen am Freitag fällt aus, weil der Raum belegt ist. Wir verschieben es auf Montag um 10 Uhr. Bitte bringt eure Ideen für das Sommerfest mit. Viele Grüße, Jonas“",
+     "text": "„Hallo zusammen, das Treffen am Freitag fällt aus. Wir verschieben es auf Montag um 10 Uhr. Bitte bringt eure Ideen für das Sommerfest mit. Viele Grüße, Jonas“",
+     "tokens": 37,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.301,
+     "prompt_tokens": 87,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 16.1,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de25",
+   "lang": "de",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Worum geht es in diesem Text? „Im Herbst ziehen viele Zugvögel in den Süden. Sie fliegen oft Tausende Kilometer, um in wärmeren Gebieten genug Nahrung zu finden. Im Frühling kehren sie zurück, um zu brüten.“",
+     "text": "Der Text beschreibt die unterschiedlichen Verhaltensweisen und Ursachen der Zugvögel in den verschiedenen Regionen, wobei die Kombination aus der Nahrungssuche (Wärme) und der Vorbereitung auf das Brummen im Winter sowie der Frühlingseffekte (z. B. Rückkehr nach Brutrevier) die zentralen Themen hervorhebt. \n\n**Hauptpunkte:**  \n- **Zentralisierung des Zugmotivs:** Die Zugvögel fliegen oft weit über ihre Heimatgebiete hinaus, um genug Nahrungsressourcen zu finden.  \n- **Zweifellosigkeit:** Im Herbst kehren sie zurück, um Nahrung zu suchen – eine Verhaltensstrategie, die auch für Frühjahrsbruter gilt.",
+     "tokens": 160,
+     "finished": false,
+     "stop": "limit",
+     "seconds": 8.365,
+     "prompt_tokens": 89,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 19.1,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": true,
+   "role_leak": false
+  },
+  {
+   "id": "de26",
+   "lang": "de",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Fasse kurz zusammen: „Lisa wollte schwimmen lernen. Anfangs hatte sie Angst vor dem tiefen Wasser. Sie übte jede Woche mit einer Trainerin. Nach einem Sommer konnte sie eine ganze Bahn ohne Pause schwimmen.“",
+     "text": "„Lisa wollte schwimmen lernen. Anfangs hatte sie Angst vor dem tiefen Wasser. Sie übte jede Woche mit einer Trainerin. Nach einem Sommer konnte sie eine ganze Bahn ohne Pause schwimmen.“",
+     "tokens": 40,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.395,
+     "prompt_tokens": 83,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 16.7,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de27",
+   "lang": "de",
+   "kind": "summarize",
+   "replies": [
+    {
+     "user": "Fasse in zwei Sätzen zusammen: „Die Stadt baut einen neuen Radweg entlang des Flusses. Er soll Pendler sicherer zur Arbeit bringen und den Autoverkehr in der Innenstadt verringern. Die Bauarbeiten beginnen im März und dauern etwa acht Monate.“",
+     "text": "Die Stadt baut einen neuen Radweg entlang des Flusses. Er soll Pendler sicherer zur Arbeit bringen und den Autoverkehr in der Innenstadt verringern. Die Bauarbeiten beginnen im März und dauern etwa acht Monate.",
+     "tokens": 43,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.624,
+     "prompt_tokens": 90,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 16.4,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de28",
+   "lang": "de",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Wie hoch ist die Zugspitze?",
+     "text": "Die Zugspitze ist mit 2962 Metern der höchste Berg Deutschlands [1].",
+     "tokens": 16,
+     "finished": true,
+     "stop": "stop",
+     "verified": true,
+     "abstained": false,
+     "issues": [],
+     "cited": [
+      1
+     ],
+     "seconds": 1.338,
+     "prompt_tokens": 100,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": false,
+   "verified": true,
+   "abstained": false
+  },
+  {
+   "id": "de29",
+   "lang": "de",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Welches bekannte Werk schrieb Goethe?",
+     "text": "Johann Wolfgang von Goethe schrieb die Tragödie „Faust“ [1].",
+     "tokens": 15,
+     "finished": true,
+     "stop": "stop",
+     "verified": true,
+     "abstained": false,
+     "issues": [],
+     "cited": [
+      1
+     ],
+     "seconds": 1.243,
+     "prompt_tokens": 99,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": false,
+   "verified": true,
+   "abstained": false
+  },
+  {
+   "id": "de30",
+   "lang": "de",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Wo mündet der Rhein?",
+     "text": "Der Rhein entspringt in den Schweizer Alpen und mündet in den Niederlanden in die Nordsee [1].",
+     "tokens": 23,
+     "finished": true,
+     "stop": "stop",
+     "verified": true,
+     "abstained": false,
+     "issues": [],
+     "cited": [
+      1
+     ],
+     "seconds": 1.574,
+     "prompt_tokens": 98,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": false,
+   "verified": true,
+   "abstained": false
+  },
+  {
+   "id": "de31",
+   "lang": "de",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Wie tief ist der Gardasee?",
+     "text": "Der Gardasee liegt am Nordrand der Alpen [1].",
+     "tokens": 13,
+     "finished": true,
+     "stop": "stop",
+     "verified": true,
+     "abstained": false,
+     "issues": [],
+     "cited": [
+      1
+     ],
+     "seconds": 1.095,
+     "prompt_tokens": 95,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": true,
+   "verified": true,
+   "abstained": false
+  },
+  {
+   "id": "de32",
+   "lang": "de",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Wofür erhielt Einstein den Nobelpreis?",
+     "text": "Einstein erhielt den Nobelpreis für Physik des Jahres 1921 vor allem für seine Erklärung des photoelektrischen Effekts [1].",
+     "tokens": 27,
+     "finished": true,
+     "stop": "stop",
+     "verified": true,
+     "abstained": false,
+     "issues": [],
+     "cited": [
+      1
+     ],
+     "seconds": 1.876,
+     "prompt_tokens": 104,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": false,
+   "verified": true,
+   "abstained": false
+  },
+  {
+   "id": "de33",
+   "lang": "de",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Wann wurde das Brandenburger Tor gebaut?",
+     "text": "Das Brandenburger Tor wurde von 1788 bis 1791 erbaut [1].",
+     "tokens": 16,
+     "finished": true,
+     "stop": "stop",
+     "verified": true,
+     "abstained": false,
+     "issues": [],
+     "cited": [
+      1
+     ],
+     "seconds": 1.231,
+     "prompt_tokens": 98,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": false,
+   "verified": true,
+   "abstained": false
+  },
+  {
+   "id": "de34",
+   "lang": "de",
+   "kind": "grounded",
+   "replies": [
+    {
+     "user": "Wer hat den Tee erfunden?",
+     "text": "Der Tee wurde erfunden, als der britische Kolonialbeamte John White in den Jahren 1786–1787 in den Niederlanden Kaffeebohnen in den Handel brachte [1].",
+     "tokens": 36,
+     "finished": true,
+     "stop": "stop",
+     "verified": false,
+     "abstained": false,
+     "issues": [
+      "number 1786 not in the cited sources",
+      "number 1787 not in the cited sources"
+     ],
+     "cited": [
+      1
+     ],
+     "seconds": 2.228,
+     "prompt_tokens": 90,
+     "reused_tokens": 0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false,
+   "no_answer": true,
+   "verified": false,
+   "abstained": false
+  },
+  {
+   "id": "de35",
+   "lang": "de",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Ich heiße Mia.",
+     "text": "Hola! Ich heiße Mia. Wie kann ich helfen?",
+     "tokens": 13,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.945,
+     "prompt_tokens": 43,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 13.8,
+     "role_leak": false
+    },
+    {
+     "user": "Wie heiße ich?",
+     "text": "Ich heiße Mia. Ich bin ein Mädchen aus dem Nordosten Brasiliens.",
+     "tokens": 16,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.214,
+     "prompt_tokens": 72,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 13.2,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de36",
+   "lang": "de",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Ich möchte am Wochenende einen Kuchen backen.",
+     "text": "Es ist möglich, am Wochenende einen Kuchen zu backen.",
+     "tokens": 12,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.012,
+     "prompt_tokens": 47,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 11.9,
+     "role_leak": false
+    },
+    {
+     "user": "Welcher Kuchen ist einfach?",
+     "text": "Der einfachste Kuchen ist der Kuchen mit Schokolade und Vanillezucker.",
+     "tokens": 16,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.225,
+     "prompt_tokens": 76,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 13.1,
+     "role_leak": false
+    },
+    {
+     "user": "Danke, das probiere ich!",
+     "text": "Gern geschehen!",
+     "tokens": 4,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 0.777,
+     "prompt_tokens": 111,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 5.2,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de37",
+   "lang": "de",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Ich lerne gerade Englisch.",
+     "text": "Hallo! Vielen lieben Dank für Ihre Frage. Um Ihnen bestmöglich zu helfen, benötige ich zunächst Ihre Antwort: Was ist die Bedeutung des Wortes „erkennen“ im Englischen?",
+     "tokens": 39,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.239,
+     "prompt_tokens": 44,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.4,
+     "role_leak": false
+    },
+    {
+     "user": "Wie kann ich meinen Wortschatz verbessern?",
+     "text": "Es gibt viele Möglichkeiten, um Ihre Wortschatz zu verbessern. Hier sind einige Tipps:\n\n1. **Pronunciation-Unterstützung**: Sie können sich ein Übungsbuch oder Online-Tool ansehen, um Ihre Pronunciation-Unterricht zu lernen.\n2. **Listening-Apps**: Apps wie Duolingo oder Babbel helfen Ihnen bei der Unterstellung von Wörtern und bilden Listen mit den häufigsten Bezeichnungen.\n3. **Übung**: Machen Sie kurze Übungen mit Ihrem Alltag oder bei einem Freund/Feind, um Ihr Wissen zu vertiefen.\n4. **Pronunciation-Checklisten**: Wenn Sie unsicher sind, können Sie einen sogenannten „Pronunciation Checker“ oder eine Sprachassistentin aufrufen.\n5.",
+     "tokens": 160,
+     "finished": false,
+     "stop": "limit",
+     "seconds": 8.561,
+     "prompt_tokens": 103,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 18.7,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": true,
+   "role_leak": false
+  },
+  {
+   "id": "de38",
+   "lang": "de",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Kannst du mir helfen, eine Einladung zu schreiben?",
+     "text": "Natürlich! Bitte gib mir den Text, den du schreiben möchtest. Ich helfe gerne bei der Bearbeitung und Verbesserung deines Textes.",
+     "tokens": 24,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.527,
+     "prompt_tokens": 50,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 15.7,
+     "role_leak": false
+    },
+    {
+     "user": "Es ist eine Geburtstagsfeier am Samstag um 18 Uhr.",
+     "text": "Natürlich! Bitte gib mir den Text, den du schreiben möchtest. Ich helfe gerne bei der Bearbeitung und Verbesserung deines Textes.",
+     "tokens": 24,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 1.653,
+     "prompt_tokens": 99,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 14.5,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de39",
+   "lang": "de",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Was ist ein gutes Hobby für den Winter?",
+     "text": "Ein gutes Hobby für den Winter ist die Zauberspiegelung. Es gibt viele verschiedene Arten von Spiegelungen, bei denen man sich um eine Person oder ein Objekt kümmern muss.",
+     "tokens": 36,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.093,
+     "prompt_tokens": 47,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.2,
+     "role_leak": false
+    },
+    {
+     "user": "Und was kostet das ungefähr?",
+     "text": "Ein guter Hobby für den Winter kostet ungefähr so viel wie ein Taschenrechner, aber wenn man es mit einem Taschenrechner macht, dann kann man das sehr schnell berechnen.",
+     "tokens": 35,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 2.329,
+     "prompt_tokens": 100,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 15.0,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": false,
+   "role_leak": false
+  },
+  {
+   "id": "de40",
+   "lang": "de",
+   "kind": "multi_turn",
+   "replies": [
+    {
+     "user": "Erzähl mir etwas über Pinguine.",
+     "text": "Pinguine sind kleine, schlanke und fast bunte Tiere, die in der Regenwälder und auf Wiesen heimisch sind. Sie leben in Gruppen von bis zu 100 Tieren und ernähren sich hauptsächlich von Samen, Früchten und Früchteteilen. Pinguine haben eine knochige Schnauze, die sie aus ihrer Nahrung aufnehmen kann, um ihre Nahrung zu suchen.\n\nPinguine sind sehr intelligent und können lernen, mit anderen zu kommunizieren. Sie sind nicht nur flugfähig, sondern auch im Wasser leicht verankert, was sie in der Regel für das Beobachten und das Entdecken von Schwimmhabitaten einsetzbar macht.",
+     "tokens": 160,
+     "finished": false,
+     "stop": "limit",
+     "seconds": 8.204,
+     "prompt_tokens": 47,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 19.5,
+     "role_leak": false
+    },
+    {
+     "user": "Können Pinguine fliegen?",
+     "text": "Ja, Pinguine können fliegen. Sie sind nicht nur flugfähig, sondern auch in der Lage, Schwimmhäute zu bilden und fliegen. Die meisten Arten haben ein komplexes System von Flügeln und Rippen, um sich auf das Wasser zu begeben. Bei einigen Arten, wie dem Purpur-Pinguin (Psoropsoropsorus) oder dem Weiß-Pinguin (Sphingopsoropsorus), kann man sogar beobachten, wie sie sich mit den Flügelrändern bewegen und sich nach oben oder unten drehen.",
+     "tokens": 117,
+     "finished": true,
+     "stop": "stop",
+     "seconds": 6.812,
+     "prompt_tokens": 201,
+     "reused_tokens": 0,
+     "tries": 1,
+     "flags": [],
+     "rule": null,
+     "tokens_per_s": 17.2,
+     "role_leak": false
+    }
+   ],
+   "loop": false,
+   "limit": true,
+   "role_leak": false
+  }
+ ]
+}

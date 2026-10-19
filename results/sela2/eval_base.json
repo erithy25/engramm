@@ -1,0 +1,147 @@
+{
+ "tag": "base",
+ "model": "/workspace/sela2/ckpt/model_base.pt",
+ "params": {
+  "blocks": 301990272,
+  "head": 50331648,
+  "emb": 50331648,
+  "ve": 100663296,
+  "scalars": 74,
+  "per_token": 352321920,
+  "total": 503316938
+ },
+ "torch": "2.8.0+cu128",
+ "device": "NVIDIA H100 80GB HBM3",
+ "bpb": {
+  "lm_test": {
+   "docs": 1137,
+   "bpb": 0.9241175667017362,
+   "truncated_docs": 0,
+   "max_tokens": 0,
+   "seconds": 13.8
+  },
+  "lm_val_a": {
+   "docs": 767,
+   "bpb": 0.9209012809000043,
+   "truncated_docs": 0,
+   "max_tokens": 0,
+   "seconds": 8.5
+  },
+  "lm_wt103_test": {
+   "docs": 62,
+   "bpb": 0.8553697189101928,
+   "truncated_docs": 0,
+   "max_tokens": 0,
+   "seconds": 5.9
+  },
+  "val_c4": {
+   "docs": 300,
+   "bpb": 0.9827266223340049,
+   "truncated_docs": 0,
+   "max_tokens": 8192,
+   "seconds": 2.4
+  },
+  "val_cosmo": {
+   "docs": 300,
+   "bpb": 0.49818737511583855,
+   "truncated_docs": 0,
+   "max_tokens": 8192,
+   "seconds": 2.6
+  },
+  "val_dclm": {
+   "docs": 300,
+   "bpb": 1.000690965547491,
+   "truncated_docs": 3,
+   "max_tokens": 8192,
+   "seconds": 5.0
+  },
+  "val_fw2_de": {
+   "docs": 300,
+   "bpb": 0.9476767290677955,
+   "truncated_docs": 2,
+   "max_tokens": 8192,
+   "seconds": 4.0
+  },
+  "val_fwe": {
+   "docs": 300,
+   "bpb": 0.846956291191551,
+   "truncated_docs": 0,
+   "max_tokens": 8192,
+   "seconds": 3.9
+  },
+  "val_fwehq": {
+   "docs": 300,
+   "bpb": 0.804679712527461,
+   "truncated_docs": 2,
+   "max_tokens": 8192,
+   "seconds": 4.6
+  },
+  "val_pg19": {
+   "docs": 300,
+   "bpb": 1.1064636464211557,
+   "truncated_docs": 263,
+   "max_tokens": 8192,
+   "seconds": 52.6
+  },
+  "val_wiki_de": {
+   "docs": 300,
+   "bpb": 0.8692841420344395,
+   "truncated_docs": 2,
+   "max_tokens": 8192,
+   "seconds": 3.2
+  },
+  "val_wiki_en": {
+   "docs": 300,
+   "bpb": 0.8585697272584552,
+   "truncated_docs": 1,
+   "max_tokens": 8192,
+   "seconds": 5.9
+  }
+ },
+ "chat_val": {
+  "chat_en_val": {
+   "convs": 500,
+   "assistant_tokens": 285888,
+   "loss": 1.142891167361077
+  },
+  "chat_de_val": {
+   "convs": 500,
+   "assistant_tokens": 171701,
+   "loss": 1.590480858000212
+  },
+  "grounded_val": {
+   "convs": 500,
+   "assistant_tokens": 8051,
+   "loss": 0.2614133045727049
+  }
+ },
+ "samples": {
+  "settings": {
+   "top_p": 0.9,
+   "temperature": "0.7 chat / 0.3 grounded / 0.9 text",
+   "seed": 0
+  },
+  "samples": [
+   {
+    "kind": "text",
+    "prompt": "The history of the city",
+    "reply": " of Lanzarote (Ponce, Puerto Rico) began around the middle of the 19th century. In the year of 1825, a Spanish missionary, known as the Camejo (the Tameo) founded the first settlement of the island, which was named in honor of Saint St"
+   },
+   {
+    "kind": "text",
+    "prompt": "Albert Einstein was",
+    "reply": " a Swiss-born physicist who invented special relativity, the theory that all objects are connected in space and time. Einstein was also a philosopher, a scientist, a political activist and a famous scientist and mathematician.\nBorn on November 14, 1879 in Bern, Switzerland, Einstein was the first to discover and"
+   },
+   {
+    "kind": "text",
+    "prompt": "How to make a cup of tea: First,",
+    "reply": " bring the tea leaves, infusion time is 15-30 minutes, add water.\nIn the second, add 1-2 cups of tea and remove the leaves.\nThen add 1-2 teaspoons of sweetener (optional) and simmer for 15-30 minutes.\nIf your infusion time"
+   },
+   {
+    "kind": "text",
+    "prompt": "Die Geschichte der Stadt",
+    "reply": " Recklinghausen ist entwurzelt in die Zeit vor der Römerzeit. Sie ist ein altes Siedlungsgebiet, das schon seit dem frühen Mittelalter um die Stadt Recklinghausen kreuzte. Als es um die Jahrtausendwende zu einer Stadt wurde, begann eine zweite"
+   }
+  ]
+ }
+}

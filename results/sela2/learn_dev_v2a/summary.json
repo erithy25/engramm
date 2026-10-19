@@ -1,0 +1,120 @@
+{
+ "users": 40,
+ "arms": {
+  "off": {
+   "replies": 280,
+   "fact_probes": 160,
+   "fact_used": 0,
+   "fact_used_pct": 0.0,
+   "fact_used_sela_pct": 0.0,
+   "error_copied": 0,
+   "role_confusion": 0,
+   "role_checked": 208,
+   "crashed": 0,
+   "sela_replies": 272,
+   "tokens_per_s": 31.08,
+   "fact_used_pct_en": 0.0,
+   "fact_used_pct_de": 0.0
+  },
+  "F": {
+   "replies": 280,
+   "fact_probes": 160,
+   "fact_used": 49,
+   "fact_used_pct": 30.6,
+   "fact_used_sela_pct": 30.6,
+   "error_copied": 0,
+   "role_confusion": 0,
+   "role_checked": 208,
+   "crashed": 0,
+   "sela_replies": 272,
+   "tokens_per_s": 30.48,
+   "fact_used_pct_en": 41.2,
+   "fact_used_pct_de": 20.0
+  },
+  "FK": {
+   "replies": 280,
+   "fact_probes": 160,
+   "fact_used": 50,
+   "fact_used_pct": 31.2,
+   "fact_used_sela_pct": 31.2,
+   "error_copied": 6,
+   "role_confusion": 0,
+   "role_checked": 208,
+   "crashed": 0,
+   "sela_replies": 272,
+   "tokens_per_s": 28.1,
+   "fact_used_pct_en": 37.5,
+   "fact_used_pct_de": 25.0
+  }
+ },
+ "held_out": {
+  "sentences": 80,
+  "bytes": 5452,
+  "bpb_base": 1.5809,
+  "bpb_memory": 1.5723
+ },
+ "errors_caught": {
+  "spell-checked": 37,
+  "not learned": 0,
+  "filtered": 60,
+  "stored": 23
+ },
+ "criteria": {
+  "L1_coverage": {
+   "value": 100.0,
+   "limit": ">= 50 % (else the measurement is invalid)",
+   "met": true
+  },
+  "L1_fact_use": {
+   "value": 30.6,
+   "limit": ">= +15.0",
+   "met": true
+  },
+  "L2_errors_F": {
+   "value": 0,
+   "limit": "<= 2",
+   "met": true
+  },
+  "L2_errors_FK": {
+   "value": 6,
+   "limit": "<= 2",
+   "met": false
+  },
+  "L2b_role_F": {
+   "value": 0,
+   "limit": "<= 2",
+   "met": true
+  },
+  "L2b_role_FK": {
+   "value": 0,
+   "limit": "<= 2",
+   "met": true
+  },
+  "L3_memory_bpb": {
+   "value": 0.55,
+   "limit": ">= 1.0 %",
+   "met": false
+  },
+  "L5_speed": {
+   "value": 0.904,
+   "limit": ">= 0.85",
+   "met": true
+  },
+  "L4_app_F": {
+   "value": 2,
+   "limit": "<= 4",
+   "met": true
+  },
+  "L4_app_FK": {
+   "value": 3,
+   "limit": "<= 4",
+   "met": true
+  }
+ },
+ "decision": {
+  "layers_A_B_on": true,
+  "layer_C_on": false,
+  "valid": true,
+  "problems": []
+ }
+}

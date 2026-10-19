@@ -1,0 +1,18 @@
+{
+ "name": "dclm_1_0",
+ "tokens": 578268992,
+ "docs": 443998,
+ "sha256": "a961777b031b6661747eba814ec24f113c3368c216aae4a1da028b23bee3a35f",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "source": "dclm",
+ "part": 1,
+ "url": "https://huggingface.co/datasets/HuggingFaceFW/dclm_100BT/resolve/main/data/000_00001.parquet",
+ "lang": "en",
+ "dropped_contaminated": 1314,
+ "dropped": {
+  "short": 1153
+ },
+ "chars": null,
+ "piece": 0,
+ "pieces": 2
+}
