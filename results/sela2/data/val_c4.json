@@ -1,0 +1,10 @@
+{
+ "name": "val_c4",
+ "tokens": 1039489,
+ "docs": 2000,
+ "sha256": "fa63b000e2e9c495be0f9c25c3102e912f811c47ba9e3a7a1e9d068a5001301d",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "source": "c4",
+ "part": 1000,
+ "url": "https://huggingface.co/datasets/allenai/c4/resolve/main/en/c4-train.01001-of-01024.json.gz"
+}

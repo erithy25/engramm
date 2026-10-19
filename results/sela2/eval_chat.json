@@ -1,0 +1,229 @@
+{
+ "tag": "chat",
+ "model": "/workspace/sela2/ckpt/model_chat.pt",
+ "params": {
+  "blocks": 301990272,
+  "head": 50331648,
+  "emb": 50331648,
+  "ve": 100663296,
+  "scalars": 74,
+  "per_token": 352321920,
+  "total": 503316938
+ },
+ "torch": "2.8.0+cu128",
+ "device": "NVIDIA H100 80GB HBM3",
+ "bpb": {
+  "lm_test": {
+   "docs": 1137,
+   "bpb": 1.1547350777827308,
+   "truncated_docs": 0,
+   "max_tokens": 0,
+   "seconds": 13.9
+  },
+  "lm_val_a": {
+   "docs": 767,
+   "bpb": 1.144156132002924,
+   "truncated_docs": 0,
+   "max_tokens": 0,
+   "seconds": 8.6
+  },
+  "lm_wt103_test": {
+   "docs": 62,
+   "bpb": 1.1181254728112724,
+   "truncated_docs": 0,
+   "max_tokens": 0,
+   "seconds": 5.9
+  },
+  "val_c4": {
+   "docs": 600,
+   "bpb": 1.182034026561224,
+   "truncated_docs": 1,
+   "max_tokens": 8192,
+   "seconds": 4.4
+  },
+  "val_cosmo": {
+   "docs": 600,
+   "bpb": 0.7002807066047081,
+   "truncated_docs": 0,
+   "max_tokens": 8192,
+   "seconds": 4.9
+  },
+  "val_dclm": {
+   "docs": 600,
+   "bpb": 1.2415832471604968,
+   "truncated_docs": 10,
+   "max_tokens": 8192,
+   "seconds": 11.2
+  },
+  "val_fw2_de": {
+   "docs": 600,
+   "bpb": 1.3111563786695268,
+   "truncated_docs": 6,
+   "max_tokens": 8192,
+   "seconds": 7.6
+  },
+  "val_fwe": {
+   "docs": 600,
+   "bpb": 1.0398642904082926,
+   "truncated_docs": 5,
+   "max_tokens": 8192,
+   "seconds": 8.6
+  },
+  "val_fwehq": {
+   "docs": 600,
+   "bpb": 1.0068680615465313,
+   "truncated_docs": 5,
+   "max_tokens": 8192,
+   "seconds": 9.0
+  },
+  "val_pg19": {
+   "docs": 600,
+   "bpb": 1.5095227894406271,
+   "truncated_docs": 538,
+   "max_tokens": 8192,
+   "seconds": 109.0
+  },
+  "val_wiki_de": {
+   "docs": 600,
+   "bpb": 1.3956847044767138,
+   "truncated_docs": 2,
+   "max_tokens": 8192,
+   "seconds": 5.3
+  },
+  "val_wiki_en": {
+   "docs": 600,
+   "bpb": 1.146248569427868,
+   "truncated_docs": 3,
+   "max_tokens": 8192,
+   "seconds": 10.5
+  }
+ },
+ "chat_val": {
+  "chat_en_val": {
+   "convs": 500,
+   "assistant_tokens": 285888,
+   "loss": 1.110062745299508
+  },
+  "chat_de_val": {
+   "convs": 500,
+   "assistant_tokens": 171701,
+   "loss": 1.6774764294737452
+  },
+  "grounded_val": {
+   "convs": 500,
+   "assistant_tokens": 8051,
+   "loss": 0.24669038351138367
+  }
+ },
+ "samples": {
+  "settings": {
+   "top_p": 0.9,
+   "temperature": "0.7 chat / 0.3 grounded / 0.9 text",
+   "seed": 0
+  },
+  "samples": [
+   {
+    "kind": "chat",
+    "lang": "en",
+    "prompt": "Hi! Who are you?",
+    "reply": "My name is Sela. I'm a compact language model trained from scratch by the ENGRAMM project. I run locally on your device, and our conversation stays here."
+   },
+   {
+    "kind": "chat",
+    "lang": "en",
+    "prompt": "Explain in two sentences why the sky is blue.",
+    "reply": "The sky is blue because of the absorption of blue light by the atmosphere, which is primarily caused by the Earth's oceans and the atmosphere itself. The blue light from the sky is scattered by the Earth's atmosphere, which contains mostly nitrogen and other gases, resulting in a blue hue. This process is a fundamental phenomenon that occurs because the sky absorbs a portion of the blue light, which is then scattered back into space, resulting in a blue hue."
+   },
+   {
+    "kind": "chat",
+    "lang": "en",
+    "prompt": "Write a short, friendly email inviting my team to a lunch on Friday.",
+    "reply": "Hey team!  I'm excited to share some great news with you all on Friday! We've all been eagerly anticipating this day to gather, relax, and celebrate our hard work. We'll be making sure to do it!  You'll be joining us for a lunch together, and I hope you'll have a great time. If you have any questions or need any help, just let me know. We're here to support you!  Let's make this day a little bit brighter!  #WorkoutDay #ToastOfTheWeek"
+   },
+   {
+    "kind": "chat",
+    "lang": "en",
+    "prompt": "Give me three tips for sleeping better.",
+    "reply": "1. Establish a consistent sleep schedule and wake up and go to bed at the same time each night.\n2. Create a sleep environment that is dark, quiet, and comfortable.\n3. Establish a consistent sleep routine that includes a few minutes of sleep each night."
+   },
+   {
+    "kind": "chat",
+    "lang": "de",
+    "prompt": "Hallo! Wer bist du?",
+    "reply": "Ich bin Sela, das eigene kleine Sprachmodell von ENGRAMM. Ich kann mich unterhalten, Dinge erklären und Texte umschreiben oder zusammenfassen."
+   },
+   {
+    "kind": "chat",
+    "lang": "de",
+    "prompt": "Erkläre kurz, was ein Sprachmodell ist.",
+    "reply": "Ein Sprachmodell ist ein künstlicher Intelligenz-Modell, das die Kommunikation zwischen Menschen in Sprache und Deutsch in einem menschlichen Kontext erkennt. Es analysiert Informationen, die von Menschen in Echtzeit verarbeitet werden, und nutzt diese Daten, um komplexe Zusammenhänge zu verstehen und zu verstehen. Sprachmodelle können Texte, Bilder, Geräusche oder Videos verarbeiten, und können die Sprache selbst lernen. Sie sind ein zentraler Bestandteil moderner Technologie und sind in der Medizin, Bildung und Wirtschaft von großer Bedeutung."
+   },
+   {
+    "kind": "chat",
+    "lang": "de",
+    "prompt": "Schreib mir eine kurze Einkaufsliste für ein Frühstück.",
+    "reply": "Es ist sehr wichtig, dass du die meisten Menschen das neue Einkaufsverhalten in den Augen stellen solltest. Hier sind einige Einkaufslisten, die das Einkaufsverhalten in ein paar Tipps bringen:\n\n1. **Kochmarkt Einkaufslisten**:  \n   - **Spaß-Bistler**: Platz für frisches Brot, Sandwichwaren, Kuchen oder frischen Kuchen.  \n   - **Dokaler Einkaufsliste**:  \n     - **Wassere**: **Harp's**: Spezial für Schnitzereien und Gurken.  \n     - **Kund**: **Morgenmorgen**: **Morgenmarkt**: Spezial für Kuchen wie Käse, Käsekuchen und Äpfel.  \n   - **Tagesangebote**: **Zudem**: **Morgen**: **Tagesangebote**:"
+   },
+   {
+    "kind": "grounded",
+    "lang": "en",
+    "prompt": "How high is Mount Everest?",
+    "sources": [
+     [
+      "Mount Everest",
+      "Mount Everest is Earth's highest mountain above sea level, located in the Himalayas. Its elevation of 8,848.86 m was most recently established in 2020 by Chinese and Nepali authorities."
+     ],
+     [
+      "K2",
+      "K2, at 8,611 m above sea level, is the second-highest mountain on Earth."
+     ]
+    ],
+    "reply": "8,848.86 m [1]. Mount Everest is Earth's highest mountain above sea level, located in the Himalayas [1]."
+   },
+   {
+    "kind": "grounded",
+    "lang": "en",
+    "prompt": "What is the capital of Australia?",
+    "sources": [
+     [
+      "Marie Curie",
+      "Marie Curie was a Polish and naturalised-French physicist and chemist who conducted pioneering research on radioactivity. She was the first woman to win a Nobel Prize."
+     ]
+    ],
+    "reply": "My sources don't say."
+   },
+   {
+    "kind": "grounded",
+    "lang": "de",
+    "prompt": "Wie viele Einwohner hat Berlin?",
+    "sources": [
+     [
+      "Berlin",
+      "Berlin ist die Hauptstadt und mit rund 3,7 Millionen Einwohnern die bevölkerungsreichste Stadt Deutschlands."
+     ]
+    ],
+    "reply": "Berlin hat rund 3,7 Millionen Einwohner [1]."
+   },
+   {
+    "kind": "text",
+    "prompt": "The history of the city",
+    "reply": " is filled with a variety of sources that will give us insights into the dynamics of the past and present. To get started, we need to consider the overall geography of the city.\n\nGeography refers to the geographical feature of the city, which is the location of the landforms on either side of"
+   },
+   {
+    "kind": "text",
+    "prompt": "Albert Einstein was",
+    "reply": " a student at the University of Chicago's Institute for Physics (IP Physics), where he worked with the theoretical physicists Niels Bohr and physicists Lisa Nguyen.\n\nEinstein's education at IP Physics was rigorous, yet it was also filled with many other interesting questions. He found himself curious about"
+   },
+   {
+    "kind": "text",
+    "prompt": "How to make a cup of tea: First,",
+    "reply": " plant a cup of tea in a pot or container. Water it, and stir it into the pot with a cup and shovel. Water your hands and feet, and let it set for a couple of minutes. You will start to see the mixture of tea coming together. You will find a pot of"
+   },
+   {
+    "kind": "text",
+    "prompt": "Die Geschichte der Stadt",
+    "reply": " Coding Horror\nCoding Horror erzählt eine Geschichte der kreativen Ausrichtung und der Natur des Lebens. Ein tragischer Tod der Stadt Coding ist der Anlass für die Entwicklung von eine benutzerfreundliche, einzigartigen und authentische Welt, die das Leben der Menschen mit einem Flüstern aus der Zeit auf"
+   }
+  ]
+ }
+}

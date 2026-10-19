@@ -1,0 +1,27 @@
+{
+ "vocab": 49152,
+ "sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "chars": 800000000,
+ "mix": {
+  "fwe": 0.28,
+  "dclm": 0.2,
+  "cosmo": 0.1,
+  "wiki_en": 0.1,
+  "pg19": 0.05,
+  "chat_en": 0.12,
+  "fw2_de": 0.09,
+  "wiki_de": 0.03,
+  "chat_de": 0.03
+ },
+ "bytes_per_token": {
+  "fwe": 4.668,
+  "dclm": 4.289,
+  "cosmo": 5.211,
+  "wiki_en": 4.294,
+  "pg19": 3.822,
+  "chat_en": 4.457,
+  "fw2_de": 4.391,
+  "wiki_de": 4.086,
+  "chat_de": 4.695
+ }
+}

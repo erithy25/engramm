@@ -1,0 +1,923 @@
+{
+ "what": "Zero-shot benchmarks of Sela-2 and its reference models in one harness (experiments/sela2_bench.py, scoring of experiments/sela1_bench.py).",
+ "metric": {
+  "lambada": "acc",
+  "winogrande": "acc",
+  "hellaswag": "acc_norm",
+  "piqa": "acc_norm",
+  "arc_easy": "acc_norm",
+  "arc_challenge": "acc_norm",
+  "openbookqa": "acc_norm",
+  "mmlu": "acc_norm"
+ },
+ "pooled_tasks": [
+  "hellaswag",
+  "piqa",
+  "arc_easy",
+  "arc_challenge",
+  "winogrande",
+  "openbookqa"
+ ],
+ "tasks": {
+  "arc_challenge": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/allenai/ai2_arc/parquet/ARC-Challenge/test/0.parquet",
+      "sha256": "62f03257e737aed263f55c6abf87c7bb0028a44a6bdd2a26eb1279eb42c1d1e9",
+      "bytes": 203808
+     }
+    ]
+   },
+   "results": {
+    "gpt2": {
+     "metric": "acc_norm",
+     "score": 0.2235494880546075,
+     "se": 0.012169701454251296,
+     "acc": 0.19283276450511946,
+     "items": 1172,
+     "seconds": 208.66587114334106,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.2235494880546075
+    },
+    "gpt2-medium": {
+     "metric": "acc_norm",
+     "score": 0.2568259385665529,
+     "se": 0.012761475991950998,
+     "acc": 0.2158703071672355,
+     "items": 1172,
+     "seconds": 537.7207775115967,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.2568259385665529
+    },
+    "pythia-160m": {
+     "metric": "acc_norm",
+     "score": 0.24488054607508533,
+     "se": 0.012560911802687412,
+     "acc": 0.19965870307167236,
+     "items": 1172,
+     "seconds": 294.2233319282532,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.24488054607508533
+    },
+    "pythia-410m": {
+     "metric": "acc_norm",
+     "score": 0.23890784982935154,
+     "se": 0.012455754085109683,
+     "acc": 0.2175767918088737,
+     "items": 1172,
+     "seconds": 813.9688076972961,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.23890784982935154
+    },
+    "sela1": {
+     "metric": "acc_norm",
+     "score": 0.23293515358361774,
+     "se": 0.012347236077136222,
+     "acc": 0.20819112627986347,
+     "items": 1172,
+     "seconds": 226.58567023277283,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.23293515358361774
+    },
+    "sela2-base": {
+     "metric": "acc_norm",
+     "score": 0.2687713310580205,
+     "se": 0.012949537878985628,
+     "acc": 0.23720136518771331,
+     "items": 1172,
+     "seconds": 781.360342502594,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.2687713310580205
+    },
+    "sela2-chat": {
+     "metric": "acc_norm",
+     "score": 0.2440273037542662,
+     "se": 0.012546091771999814,
+     "acc": 0.21245733788395904,
+     "items": 1172,
+     "seconds": 587.9243896007538,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.2440273037542662
+    }
+   }
+  },
+  "arc_easy": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/allenai/ai2_arc/parquet/ARC-Easy/test/0.parquet",
+      "sha256": "4160597d618ae851c7eb04e281574f3f654776216ac6b6641588d64527b47177",
+      "bytes": 346257
+     }
+    ]
+   },
+   "results": {
+    "gpt2": {
+     "metric": "acc_norm",
+     "score": 0.4048821548821549,
+     "se": 0.010070304119488173,
+     "acc": 0.43897306397306396,
+     "items": 2376,
+     "seconds": 227.26972794532776,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.4048821548821549
+    },
+    "gpt2-medium": {
+     "metric": "acc_norm",
+     "score": 0.43686868686868685,
+     "se": 0.010175530936567492,
+     "acc": 0.494949494949495,
+     "items": 2376,
+     "seconds": 1537.0331921577454,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.43686868686868685
+    },
+    "pythia-160m": {
+     "metric": "acc_norm",
+     "score": 0.4036195286195286,
+     "se": 0.010065250183315192,
+     "acc": 0.44696969696969696,
+     "items": 2376,
+     "seconds": 500.0293915271759,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.4036195286195286
+    },
+    "pythia-410m": {
+     "metric": "acc_norm",
+     "score": 0.4701178451178451,
+     "se": 0.010239288909977393,
+     "acc": 0.5294612794612794,
+     "items": 2376,
+     "seconds": 654.3274855613708,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.4701178451178451
+    },
+    "sela1": {
+     "metric": "acc_norm",
+     "score": 0.398989898989899,
+     "se": 0.010046125932500235,
+     "acc": 0.44234006734006737,
+     "items": 2376,
+     "seconds": 391.406640291214,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.398989898989899
+    },
+    "sela2-base": {
+     "metric": "acc_norm",
+     "score": 0.5197811447811448,
+     "se": 0.010249593617450082,
+     "acc": 0.5812289562289562,
+     "items": 2376,
+     "seconds": 599.4379017353058,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.5197811447811448
+    },
+    "sela2-chat": {
+     "metric": "acc_norm",
+     "score": 0.44696969696969696,
+     "se": 0.010199767834233792,
+     "acc": 0.48653198653198654,
+     "items": 2376,
+     "seconds": 1196.668692111969,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.44696969696969696
+    }
+   }
+  },
+  "hellaswag": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/Rowan/hellaswag/parquet/default/validation/0.parquet",
+      "sha256": "899813071e1e95efafec90f856e1987d2150fa4d020fc005df6962c259f660cd",
+      "bytes": 6315951
+     }
+    ]
+   },
+   "results": {
+    "gpt2": {
+     "metric": "acc_norm",
+     "score": 0.31298546106353314,
+     "se": 0.0046273775732239885,
+     "acc": 0.29047998406691894,
+     "items": 10042,
+     "seconds": 3647.934360265732,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.31298546106353314
+    },
+    "gpt2-medium": {
+     "metric": "acc_norm",
+     "score": 0.3988249352718582,
+     "se": 0.004886315696632746,
+     "acc": 0.33320055765783707,
+     "items": 10042,
+     "seconds": 14260.927744865417,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.3988249352718582
+    },
+    "pythia-160m": {
+     "metric": "acc_norm",
+     "score": 0.30681139215295755,
+     "se": 0.004602050080891626,
+     "acc": 0.2885879306910974,
+     "items": 10042,
+     "seconds": 4514.015451192856,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.30681139215295755
+    },
+    "pythia-410m": {
+     "metric": "acc_norm",
+     "score": 0.4071898028281219,
+     "se": 0.004902822505689765,
+     "acc": 0.33937462656841266,
+     "items": 10042,
+     "seconds": 12697.648183345795,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.4071898028281219
+    },
+    "sela1": {
+     "metric": "acc_norm",
+     "score": 0.32732523401712804,
+     "se": 0.004682547624935058,
+     "acc": 0.29715196176060543,
+     "items": 10042,
+     "seconds": 3634.1900956630707,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.32732523401712804
+    },
+    "sela2-base": {
+     "metric": "acc_norm",
+     "score": 0.41206930890260907,
+     "se": 0.00491177078951176,
+     "acc": 0.3420633339972117,
+     "items": 10042,
+     "seconds": 10816.295364141464,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.41206930890260907
+    },
+    "sela2-chat": {
+     "metric": "acc_norm",
+     "score": 0.3571997610037841,
+     "se": 0.004781712779998261,
+     "acc": 0.31617207727544316,
+     "items": 10042,
+     "seconds": 12224.478131532669,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.3571997610037841
+    }
+   }
+  },
+  "lambada": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/EleutherAI/lambada_openai/parquet/default/test/0.parquet",
+      "sha256": "99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7",
+      "bytes": 1157764
+     }
+    ]
+   },
+   "results": {
+    "gpt2": {
+     "metric": "acc",
+     "score": 0.3368911313797788,
+     "se": 0.006584262488130369,
+     "acc": 0.3368911313797788,
+     "items": 5153,
+     "seconds": 500.6667990684509,
+     "torch": "2.8.0+cpu",
+     "ppl": 35.107531806070355
+    },
+    "gpt2-medium": {
+     "metric": "acc",
+     "score": 0.43877352998253444,
+     "se": 0.006912883083528053,
+     "acc": 0.43877352998253444,
+     "items": 5153,
+     "seconds": 2088.46492934227,
+     "torch": "2.8.0+cpu",
+     "ppl": 17.164138728102273
+    },
+    "pythia-160m": {
+     "metric": "acc",
+     "score": 0.3572676111003299,
+     "se": 0.0066754699403639576,
+     "acc": 0.3572676111003299,
+     "items": 5153,
+     "seconds": 645.3590722084045,
+     "torch": "2.8.0+cpu",
+     "ppl": 35.87258570424498
+    },
+    "pythia-410m": {
+     "metric": "acc",
+     "score": 0.5051426353580438,
+     "se": 0.006964933281411302,
+     "acc": 0.5051426353580438,
+     "items": 5153,
+     "seconds": 1840.0996491909027,
+     "torch": "2.8.0+cpu",
+     "ppl": 10.892007553072139
+    },
+    "sela1": {
+     "metric": "acc",
+     "score": 0.27770230933436835,
+     "se": 0.006239040252538673,
+     "acc": 0.27770230933436835,
+     "items": 5153,
+     "seconds": 495.31604766845703,
+     "torch": "2.8.0+cpu",
+     "ppl": 54.82769132580164
+    },
+    "sela2-base": {
+     "metric": "acc",
+     "score": 0.42693576557345236,
+     "se": 0.0068905335272005305,
+     "acc": 0.42693576557345236,
+     "items": 5153,
+     "seconds": 1678.7168443202972,
+     "torch": "2.8.0+cpu",
+     "ppl": 17.33709542004097
+    },
+    "sela2-chat": {
+     "metric": "acc",
+     "score": 0.3467882786726179,
+     "se": 0.0066302380030202005,
+     "acc": 0.3467882786726179,
+     "items": 5153,
+     "seconds": 1567.9632003307343,
+     "torch": "2.8.0+cpu",
+     "ppl": 46.08691591709692
+    }
+   }
+  },
+  "mmlu": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/cais/mmlu/parquet/all/test/0.parquet",
+      "sha256": "74a41822ce7d3def56e1682f958469c04642a5336a5ce912fa375fdb90fb25d7",
+      "bytes": 3504718
+     }
+    ]
+   },
+   "results": {
+    "gpt2": {
+     "metric": "acc_norm",
+     "score": 0.2672696197122917,
+     "se": 0.0037344995614083092,
+     "acc": 0.2555903717419171,
+     "items": 14042,
+     "seconds": 5021.633353471756,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.2672696197122917
+    },
+    "gpt2-medium": {
+     "metric": "acc_norm",
+     "score": 0.27738213929639655,
+     "se": 0.0037781492333012643,
+     "acc": 0.2715425153112092,
+     "items": 14042,
+     "seconds": 17127.52943921089,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.27738213929639655
+    },
+    "pythia-160m": {
+     "metric": "acc_norm",
+     "score": 0.26719840478564305,
+     "se": 0.003734183444626621,
+     "acc": 0.25729952998148414,
+     "items": 14042,
+     "seconds": 6289.480020284653,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.26719840478564305
+    },
+    "pythia-410m": {
+     "metric": "acc_norm",
+     "score": 0.288135593220339,
+     "se": 0.0038219289559465876,
+     "acc": 0.2754593362768836,
+     "items": 14042,
+     "seconds": 16128.461638689041,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.288135593220339
+    },
+    "sela1": {
+     "metric": "acc_norm",
+     "score": 0.2610739210938613,
+     "se": 0.003706532041717835,
+     "acc": 0.2508901865831078,
+     "items": 14042,
+     "seconds": 4049.8281297683716,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.2610739210938613
+    },
+    "sela2-base": {
+     "metric": "acc_norm",
+     "score": 0.28806437829369036,
+     "se": 0.003821647761709859,
+     "acc": 0.27823671841618003,
+     "items": 14042,
+     "seconds": 15940.028865098953,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.28806437829369036
+    },
+    "sela2-chat": {
+     "metric": "acc_norm",
+     "score": 0.28158381996866544,
+     "se": 0.0037955735910150993,
+     "acc": 0.26043298675402365,
+     "items": 14042,
+     "seconds": 14909.228071689606,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.28158381996866544
+    }
+   }
+  },
+  "openbookqa": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/allenai/openbookqa/parquet/main/test/0.parquet",
+      "sha256": "cd5483e366daa230c1c87bbdc512d8b7229f14f6dd04d19fc8b1a3855aaaa8a3",
+      "bytes": 55535
+     }
+    ]
+   },
+   "results": {
+    "gpt2": {
+     "metric": "acc_norm",
+     "score": 0.266,
+     "se": 0.019760769215797242,
+     "acc": 0.162,
+     "items": 500,
+     "seconds": 48.924713134765625,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.266
+    },
+    "gpt2-medium": {
+     "metric": "acc_norm",
+     "score": 0.288,
+     "se": 0.020251222185339823,
+     "acc": 0.188,
+     "items": 500,
+     "seconds": 140.94387030601501,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.288
+    },
+    "pythia-160m": {
+     "metric": "acc_norm",
+     "score": 0.27,
+     "se": 0.019854470529329156,
+     "acc": 0.156,
+     "items": 500,
+     "seconds": 65.06166529655457,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.27
+    },
+    "pythia-410m": {
+     "metric": "acc_norm",
+     "score": 0.292,
+     "se": 0.0203340109176719,
+     "acc": 0.188,
+     "items": 500,
+     "seconds": 179.56637287139893,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.292
+    },
+    "sela1": {
+     "metric": "acc_norm",
+     "score": 0.26,
+     "se": 0.019616319736382767,
+     "acc": 0.16,
+     "items": 500,
+     "seconds": 48.732035875320435,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.26
+    },
+    "sela2-base": {
+     "metric": "acc_norm",
+     "score": 0.324,
+     "se": 0.020929596269398033,
+     "acc": 0.224,
+     "items": 500,
+     "seconds": 131.76888132095337,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.324
+    },
+    "sela2-chat": {
+     "metric": "acc_norm",
+     "score": 0.3,
+     "se": 0.020493901531919195,
+     "acc": 0.178,
+     "items": 500,
+     "seconds": 169.9845986366272,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.3
+    }
+   }
+  },
+  "piqa": {
+   "source": {
+    "files": [
+     {
+      "url": "https://yonatanbisk.com/piqa/data/valid.jsonl",
+      "sha256": "93503cc97c679e459b065c3d13e848282e44b2a25213985bed3e5d458abef72d",
+      "bytes": 495929
+     },
+     {
+      "url": "https://yonatanbisk.com/piqa/data/valid-labels.lst",
+      "sha256": "b4192dc3a2a0363d9d60ccf79800cbbe2f32ebb17726efdde6970e0b8131bceb",
+      "bytes": 3676
+     }
+    ]
+   },
+   "results": {
+    "gpt2": {
+     "metric": "acc_norm",
+     "score": 0.6251360174102285,
+     "se": 0.011291492872408566,
+     "acc": 0.6305767138193689,
+     "items": 1838,
+     "seconds": 445.6857032775879,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.6251360174102285
+    },
+    "gpt2-medium": {
+     "metric": "acc_norm",
+     "score": 0.6610446137105549,
+     "se": 0.011041139619105647,
+     "acc": 0.6735582154515778,
+     "items": 1838,
+     "seconds": 761.1180436611176,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.6610446137105549
+    },
+    "pythia-160m": {
+     "metric": "acc_norm",
+     "score": 0.6202393906420022,
+     "se": 0.01132040270381394,
+     "acc": 0.6175190424374319,
+     "items": 1838,
+     "seconds": 137.89419627189636,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.6202393906420022
+    },
+    "pythia-410m": {
+     "metric": "acc_norm",
+     "score": 0.6751904243743199,
+     "se": 0.01092332350085961,
+     "acc": 0.676822633297062,
+     "items": 1838,
+     "seconds": 681.4380750656128,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.6751904243743199
+    },
+    "sela1": {
+     "metric": "acc_norm",
+     "score": 0.64689880304679,
+     "se": 0.011147950075872028,
+     "acc": 0.6507072905331882,
+     "items": 1838,
+     "seconds": 160.7673316001892,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.64689880304679
+    },
+    "sela2-base": {
+     "metric": "acc_norm",
+     "score": 0.6588683351468988,
+     "se": 0.011058279978679421,
+     "acc": 0.6664853101196954,
+     "items": 1838,
+     "seconds": 652.9311499595642,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.6588683351468988
+    },
+    "sela2-chat": {
+     "metric": "acc_norm",
+     "score": 0.6322089227421109,
+     "se": 0.011247555670796487,
+     "acc": 0.6300326441784548,
+     "items": 1838,
+     "seconds": 512.7365474700928,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.6322089227421109
+    }
+   }
+  },
+  "winogrande": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/allenai/winogrande/parquet/winogrande_xl/validation/0.parquet",
+      "sha256": "f9d914d1818c0aba98cabdf8af2bc4bd943c462b9c5e7062647e05c2ce3315d1",
+      "bytes": 85928
+     }
+    ]
+   },
+   "results": {
+    "gpt2": {
+     "metric": "acc",
+     "score": 0.5043409629044988,
+     "se": 0.014046409603997348,
+     "acc": 0.5043409629044988,
+     "items": 1267,
+     "seconds": 76.66345977783203,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.5043409629044988
+    },
+    "gpt2-medium": {
+     "metric": "acc",
+     "score": 0.5295974743488555,
+     "se": 0.014022306885122699,
+     "acc": 0.5295974743488555,
+     "items": 1267,
+     "seconds": 336.2592968940735,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.5295974743488555
+    },
+    "pythia-160m": {
+     "metric": "acc",
+     "score": 0.5240726124704025,
+     "se": 0.014030649428484887,
+     "acc": 0.5240726124704025,
+     "items": 1267,
+     "seconds": 49.38499641418457,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.5240726124704025
+    },
+    "pythia-410m": {
+     "metric": "acc",
+     "score": 0.5280189423835833,
+     "se": 0.014024866260076322,
+     "acc": 0.5280189423835833,
+     "items": 1267,
+     "seconds": 277.6149446964264,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.5280189423835833
+    },
+    "sela1": {
+     "metric": "acc",
+     "score": 0.5059194948697711,
+     "se": 0.014045954558088889,
+     "acc": 0.5059194948697711,
+     "items": 1267,
+     "seconds": 56.06031560897827,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.5059194948697711
+    },
+    "sela2-base": {
+     "metric": "acc",
+     "score": 0.5485398579321231,
+     "se": 0.013980589830977937,
+     "acc": 0.5485398579321231,
+     "items": 1267,
+     "seconds": 254.63411951065063,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.5485398579321231
+    },
+    "sela2-chat": {
+     "metric": "acc",
+     "score": 0.5138121546961326,
+     "se": 0.014041578364056744,
+     "acc": 0.5138121546961326,
+     "items": 1267,
+     "seconds": 239.1662220954895,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.5138121546961326
+    }
+   }
+  }
+ },
+ "models": {
+  "gpt2": {
+   "model": "GPT-2 small",
+   "hf_repo": "openai-community/gpt2",
+   "revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+   "weights_sha256": "248dfc3911869ec493c76e65bf2fcf7f615828b0254c12b473182f0f81d3a707",
+   "params": 124439808
+  },
+  "gpt2-medium": {
+   "model": "gpt2-medium",
+   "hf_repo": "openai-community/gpt2-medium",
+   "revision": "6dcaa7a952f72f9298047fd5137cd6e4f05f41da",
+   "params": 354823168,
+   "bos": 50256
+  },
+  "pythia-160m": {
+   "model": "pythia-160m",
+   "hf_repo": "EleutherAI/pythia-160m",
+   "revision": "50f5173d932e8e61f858120bcb800b97af589f46",
+   "params": 162322944,
+   "bos": 0
+  },
+  "pythia-410m": {
+   "model": "pythia-410m",
+   "hf_repo": "EleutherAI/pythia-410m",
+   "revision": "9879c9b5f8bea9051dcb0e68dff21493d67e9d4f",
+   "params": 405334016,
+   "bos": 0
+  },
+  "sela1": {
+   "model": "Sela-1 135M",
+   "ckpt_sha256": "23f071256fb15d08bc6d57f83a52404024b3db30b66015759bde2552bb209535",
+   "ckpt_bytes": 541082912,
+   "tokens_trained": 5757206528,
+   "cfg": {
+    "d": 768,
+    "layers": 12,
+    "heads": 12,
+    "ctx_max": 1024,
+    "bigram_rows": 0
+   },
+   "params": 135266316,
+   "tokenizer_sha256": "637745134e61a6278b47667b3e1bc1fde418c314753ab8598773a6a27fca513d"
+  },
+  "sela2-base": {
+   "model": "sela2-base",
+   "ckpt_sha256": "618b3c5c02303ce72c92ee64d103fdbf6539a435a03a2fdeee6b21dd959a6105",
+   "ckpt_bytes": 1006686185,
+   "tokens_trained": 3061317632,
+   "cfg": {
+    "d": 1024,
+    "layers": 24,
+    "heads": 8,
+    "ctx": 2048,
+    "vocab": 49152,
+    "ve_tables": 2
+   },
+   "sft_steps": null,
+   "params": 503316938,
+   "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c"
+  },
+  "sela2-chat": {
+   "model": "sela2-chat",
+   "ckpt_sha256": "c9ec15ca7d53c1998d394842a9da0131ab925ab12b2ac09e2b1c49a918e5ad5e",
+   "ckpt_bytes": 1006685510,
+   "tokens_trained": 3061317632,
+   "cfg": {
+    "d": 1024,
+    "layers": 24,
+    "heads": 8,
+    "ctx": 2048,
+    "vocab": 49152,
+    "ve_tables": 2
+   },
+   "sft_steps": 657,
+   "params": 503316938,
+   "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c"
+  }
+ },
+ "incomplete": [],
+ "pooled": {
+  "gpt2": 0.38948234738583715,
+  "gpt2-medium": 0.42852694146108466,
+  "pythia-160m": 0.39493724499332933,
+  "pythia-410m": 0.4352374774222036,
+  "sela1": 0.3953447640845343,
+  "sela2-base": 0.4553383296367994,
+  "sela2-chat": 0.4157029731943318
+ },
+ "stage_gpt3_small": {
+  "rule": "pooled(sela2-base) > pooled(gpt2) with the lower 95 % bound of the paired difference above 0, and pooled(sela2-base) >= pooled(pythia-160m)",
+  "sela2_minus_gpt2": 0.06585598225096223,
+  "ci95": [
+   0.05695173617904052,
+   0.07593038523360178
+  ],
+  "sela2_minus_pythia160m": 0.06040108464347005,
+  "reached": true
+ },
+ "hellaswag_vs_gpt3_small": {
+  "gpt3_small": 0.337,
+  "sela2-base": 0.41206930890260907,
+  "sela2-chat": 0.3571997610037841
+ },
+ "clean": {
+  "tasks": {
+   "arc_challenge": {
+    "contaminated": 0,
+    "clean_items": 1172,
+    "results": {
+     "gpt2": 0.2235494880546075,
+     "gpt2-medium": 0.2568259385665529,
+     "pythia-160m": 0.24488054607508533,
+     "pythia-410m": 0.23890784982935154,
+     "sela1": 0.23293515358361774,
+     "sela2-base": 0.2687713310580205,
+     "sela2-chat": 0.2440273037542662
+    }
+   },
+   "arc_easy": {
+    "contaminated": 3,
+    "clean_items": 2373,
+    "results": {
+     "gpt2": 0.404551201011378,
+     "gpt2-medium": 0.4365781710914454,
+     "pythia-160m": 0.40328697850821743,
+     "pythia-410m": 0.47029077117572693,
+     "sela1": 0.39865149599662875,
+     "sela2-base": 0.5195954487989887,
+     "sela2-chat": 0.4471133586177834
+    }
+   },
+   "hellaswag": {
+    "contaminated": 9,
+    "clean_items": 10033,
+    "results": {
+     "gpt2": 0.3129672082128974,
+     "gpt2-medium": 0.3986843416724808,
+     "pythia-160m": 0.306787600916974,
+     "pythia-410m": 0.4070567128476029,
+     "sela1": 0.32731984451310675,
+     "sela2-base": 0.41184092494767266,
+     "sela2-chat": 0.3572211701385428
+    }
+   },
+   "lambada": {
+    "contaminated": 5,
+    "clean_items": 5148,
+    "results": {
+     "gpt2": 0.3368298368298368,
+     "gpt2-medium": 0.4388111888111888,
+     "pythia-160m": 0.3572261072261072,
+     "pythia-410m": 0.5054390054390054,
+     "sela1": 0.27758352758352756,
+     "sela2-base": 0.42676767676767674,
+     "sela2-chat": 0.34673659673659674
+    }
+   },
+   "mmlu": {
+    "contaminated": 84,
+    "clean_items": 13958,
+    "results": {
+     "gpt2": 0.26730190571715146,
+     "gpt2-medium": 0.2776185699957014,
+     "pythia-160m": 0.26723026221521706,
+     "pythia-410m": 0.28822180828198884,
+     "sela1": 0.26106892104886087,
+     "sela2-base": 0.2882934517839232,
+     "sela2-chat": 0.28170224960596074
+    }
+   },
+   "openbookqa": {
+    "contaminated": 0,
+    "clean_items": 500,
+    "results": {
+     "gpt2": 0.266,
+     "gpt2-medium": 0.288,
+     "pythia-160m": 0.27,
+     "pythia-410m": 0.292,
+     "sela1": 0.26,
+     "sela2-base": 0.324,
+     "sela2-chat": 0.3
+    }
+   },
+   "piqa": {
+    "contaminated": 0,
+    "clean_items": 1838,
+    "results": {
+     "gpt2": 0.6251360174102285,
+     "gpt2-medium": 0.6610446137105549,
+     "pythia-160m": 0.6202393906420022,
+     "pythia-410m": 0.6751904243743199,
+     "sela1": 0.64689880304679,
+     "sela2-base": 0.6588683351468988,
+     "sela2-chat": 0.6322089227421109
+    }
+   },
+   "winogrande": {
+    "contaminated": 0,
+    "clean_items": 1267,
+    "results": {
+     "gpt2": 0.5043409629044988,
+     "gpt2-medium": 0.5295974743488555,
+     "pythia-160m": 0.5240726124704025,
+     "pythia-410m": 0.5280189423835833,
+     "sela1": 0.5059194948697711,
+     "sela2-base": 0.5485398579321231,
+     "sela2-chat": 0.5138121546961326
+    }
+   }
+  },
+  "pooled": {
+   "gpt2": 0.3894241462656017,
+   "gpt2-medium": 0.4284550898983149,
+   "pythia-160m": 0.3948778547687803,
+   "pythia-410m": 0.4352441167684307,
+   "sela1": 0.39528746533498565,
+   "sela2-base": 0.45526931631395057,
+   "sela2-chat": 0.41573048499147264
+  }
+ },
+ "chat_minus_base": {
+  "arc_challenge": -0.024744027303754274,
+  "arc_easy": -0.07281144781144783,
+  "hellaswag": -0.05486954789882498,
+  "lambada": -0.08014748690083445,
+  "mmlu": -0.006480558325024921,
+  "openbookqa": -0.02400000000000002,
+  "piqa": -0.026659412404787863,
+  "winogrande": -0.034727703235990504
+ }
+}

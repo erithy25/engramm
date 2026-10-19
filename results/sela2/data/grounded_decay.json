@@ -1,0 +1,10 @@
+{
+ "name": "grounded_decay",
+ "tokens": 66683559,
+ "docs": 136873,
+ "sha256": "2b205864974e413cc9c1ffb6c62702dff5ab9a4f8b9070f4713761bef15c281a",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "kind": "chat",
+ "mask_tokens": 2226219,
+ "mask_sha256": "dc5431d6093806ca1b9d5426a4e459b1a14e945895570a5a4a46a5ba054bd526"
+}

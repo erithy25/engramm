@@ -1,0 +1,2044 @@
+{
+ "what": "PREREG §7 measurement part (experiments/sela2_learn_eval.py)",
+ "weights": "sela2-mix30.npz",
+ "weights_sha256": "32fbdc7d802e7ebd626506a1f4843f61a05c8e4bc15e7eb367b4c35913ddffbd",
+ "data_sha256": "9bb86471ac8ac03917b9fada92b0055357e3c014a6606bf4f3e7cb3c93711fd5",
+ "pack": "lite-3.1.0-beta.1",
+ "seed": 7000,
+ "users": [
+  "en15",
+  "en16",
+  "en17",
+  "en18",
+  "en19"
+ ],
+ "seconds": 124.7,
+ "date_utc": "2026-10-19T04:38:51Z",
+ "results": [
+  {
+   "id": "en15",
+   "lang": "en",
+   "facts_shown": [
+    "My name is Ivy.",
+    "I live in Norwich.",
+    "My cat is called Kiki.",
+    "My favourite food is risotto."
+   ],
+   "knn_entries": 85,
+   "teach": [
+    {
+     "user": "Hi, I'm Ivy.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Hey! Nice to meet you, Ivy!"
+    },
+    {
+     "user": "I live in Norwich.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Norwich — nice! I'll remember that you live there."
+    },
+    {
+     "user": "My cat is called Kiki.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Kiki — what a nice name! I'll remember your cat."
+    },
+    {
+     "user": "My favourite food is risotto.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Risotto — good choice! I'll remember that."
+    },
+    {
+     "user": "I checked the frames in my hive this morning and the brood looks healthy. I should of started this hobby years ago.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "That'siki is very patient and called Kiki."
+    },
+    {
+     "user": "The varroa count was low after the last treatment, which is a relief.",
+     "model": "engramm",
+     "kind": "smalltalk",
+     "text": "Quick question — what's a varroa? Then I'll understand it next time."
+    },
+    {
+     "user": "My smoker kept going out while I was inspecting the second hive. I learned alot from the workshop last month.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "I'd like to share a few stories. food hobby is not years old, and we morning farmers brood the chickens in our looks like you did the day before."
+    },
+    {
+     "user": "How often should I add a new super during the summer flow? Something wierd happened on my walk yesterday.",
+     "model": "engramm",
+     "kind": "unknown",
+     "text": "I don't know, sorry — that depends on your situation. Oh really? Tell me more about that."
+    }
+   ],
+   "errors_caught": [
+    {
+     "wrong": "should of",
+     "how": "filtered"
+    },
+    {
+     "wrong": "alot",
+     "how": "filtered"
+    },
+    {
+     "wrong": "wierd",
+     "how": "spell-checked"
+    }
+   ],
+   "held_out": [
+    {
+     "text": "The queen was laying well and the frames were full of capped brood.",
+     "nats_base": 74.15636099163291,
+     "nats_memory": 75.98905572870305,
+     "tokens": 15,
+     "bytes": 67
+    },
+    {
+     "text": "I treat for varroa in late summer, after the honey super comes off.",
+     "nats_base": 82.02813183911161,
+     "nats_memory": 82.14480170557444,
+     "tokens": 17,
+     "bytes": 67
+    }
+   ],
+   "arms": {
+    "off": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Write a short sign-off line for an email from me.",
+      "text": "Here's a short sign-off line for an email from you:\n\n\"Subject: [Your Name] - [Your Company Name] - [Your Contact Information] - [Contact Email Address] - [Email Message]\"",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 47,
+      "tokens_per_s": 50.4,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Suggest one nice thing to do in my city this weekend.",
+      "text": "If you want to experience a little of the city's vibe, there are plenty of things that could be done this weekend. You could visit one of the big department stores like Target or Walmart. Or you could try some street food at your favorite cafe. If you're looking for something a bit more unique, you could head to a local market.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 70,
+      "tokens_per_s": 52.2,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "What could I do with my cat this afternoon?",
+      "text": "You can also consider cleaning up the house and making your cat feel more comfortable. If you have a favorite toy or pet, you can take it outside for a walk. You could also try to do some exercise with your cat, such as going for a run or playtime, if your cat is not too tired.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 64,
+      "tokens_per_s": 50.3,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "What should I cook tonight? One idea, please.",
+      "text": "1. Oatmeal with Cream and Ginger\n2. Turkey Tenderloin with Chicken\n3. Quinoa Bowl with Broccoli and Green Beans",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 32,
+      "tokens_per_s": 43.8,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Write one sentence about something I should have done earlier.",
+      "text": "Instead of \"This is a good idea,\" try \"We should have considered this idea earlier.\"\n\nI would suggest that you ask your friend to take an inventory of all the projects they have been working on and tell them which ones they think are best suited for a project, and then compare them.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 61,
+      "tokens_per_s": 46.9,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Write one sentence about learning a lot in a short time.",
+      "text": "Learning a lot in a short time is achievable through the following methods:\n- **Reading:** Reading extensively helps you absorb information quickly and retain it. This can be achieved by reading books, articles, and online resources.\n- **Writing:** Writing regularly allows you to process your knowledge and share it with others.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 63,
+      "tokens_per_s": 56.6,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Give me one tip for my bees.",
+      "text": "The most important tip for bees is to maintain a healthy environment. Bees will thrive in a clean, dry place with plenty of pollen and nectar. To do this, you should provide the right conditions:\n- Provide lots of pollen and nectar - The bees need a steady supply of these substances to survive.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 61,
+      "tokens_per_s": 56.0,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "F": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Write a short sign-off line for an email from me.",
+      "text": "I am Ivy, the cat who lives in Norwich. My favourite food is risotto.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 19,
+      "tokens_per_s": 29.9,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Suggest one nice thing to do in my city this weekend.",
+      "text": "I love visiting the historic cathedral in Norwich.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 10,
+      "tokens_per_s": 22.1,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "What could I do with my cat this afternoon?",
+      "text": "I'm afraid I'm not sure. I've seen cats in the park, and it's always good to have some fresh air. If you'd like to take a walk outside, I can put you on my best walking tour.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 47,
+      "tokens_per_s": 46.3,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "What should I cook tonight? One idea, please.",
+      "text": "One idea, please.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 5,
+      "tokens_per_s": 17.5,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Write one sentence about something I should have done earlier.",
+      "text": "I'm not sure how to write that sentence.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 10,
+      "tokens_per_s": 26.1,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Write one sentence about learning a lot in a short time.",
+      "text": "I love learning new things, and I will definitely keep it in mind when I'm planning my next trip.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 22,
+      "tokens_per_s": 49.3,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Give me one tip for my bees.",
+      "text": "1. Put a little bit of honey on the top of your bees to help them stay warm.\n2. If you want to keep them off the honey, you can use cornstarch as an alternative.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 43,
+      "tokens_per_s": 52.9,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "FK": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Write a short sign-off line for an email from me.",
+      "text": "Dear Mr. Smith,\nI hope this message finds you well. I am Ivy, a cat owner from Norwich. I am in the process of finding a often-overlooked countdown to the annual cat add-on at the my local shouldery. The isery has always been a bit of a tradition, and I've heard that many cats love weird treats like risotto or tiramisu.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 86,
+      "tokens_per_s": 45.4,
+      "memory_tokens": 84,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Suggest one nice thing to do in my city this weekend.",
+      "text": "I recommend the hive happened on the city street. There's a narrow new building inspector. They should be able to find out where the new building is going weird. I'll learned that Kiki is called last name in my area and is in the same street as the new building.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 58,
+      "tokens_per_s": 42.3,
+      "memory_tokens": 59,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "What could I do with my cat this afternoon?",
+      "text": "I checked on Kiki the other day and she had a good appetite. I years a cat, I should probably make sure to add more weird happened with it.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 33,
+      "tokens_per_s": 39.4,
+      "memory_tokens": 34,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "What should I cook tonight? One idea, please.",
+      "text": "I can recommend some.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 5,
+      "tokens_per_s": 16.8,
+      "memory_tokens": 6,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Write one sentence about something I should have done earlier.",
+      "text": "I happened to see that the new restaurant is from the food industry.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 14,
+      "tokens_per_s": 28.8,
+      "memory_tokens": 15,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Write one sentence about learning a lot in a short time.",
+      "text": "Learning a lot in a short time is hard. It requires effort and discipline, but it can be done.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 22,
+      "tokens_per_s": 39.2,
+      "memory_tokens": 23,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Give me one tip for my bees.",
+      "text": "The bees love to drink nectar from flowers and should not be allowed to forage on the ground.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 19,
+      "tokens_per_s": 43.5,
+      "memory_tokens": 20,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "en16",
+   "lang": "en",
+   "facts_shown": [
+    "My name is Tom.",
+    "I live in Exeter.",
+    "My dog is called Rufus.",
+    "My favourite food is falafel."
+   ],
+   "knn_entries": 85,
+   "teach": [
+    {
+     "user": "Hi, I'm Tom.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Hello! Nice to meet you, Tom!"
+    },
+    {
+     "user": "I live in Exeter.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Got it, you live in Exeter."
+    },
+    {
+     "user": "My dog is called Rufus.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Got it, your dog is called Rufus."
+    },
+    {
+     "user": "My favourite food is falafel.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Falafel — good choice! I'll remember that."
+    },
+    {
+     "user": "My sourdough starter doubled in four hours after feeding. Me and my friend goes to the lake every Sunday.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Thanks — I'll remember all of that. Your sourdough starter doubled in four hours after feeding. You and your friend goes to the lake every Sunday."
+    },
+    {
+     "user": "I tried a dough with seventy five percent hydration and it was sticky.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "That's Exeter. The weather is mild."
+    },
+    {
+     "user": "The loaf had a great oven spring but the crumb was a bit tight. I want to go out again tomorow if the weather holds.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "If the weather holds, we'll have a good time. You and your friend go called to the lake every Sunday."
+    },
+    {
+     "user": "Should I do the bulk fermentation in the fridge overnight? I learned alot from the workshop last month.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Yes, it's always a good idea to do bulk fermentation in the fridge overnight. This helps to reduce every last bit of called for, making your bread sticky and delicious and helping to prevent lumps."
+    }
+   ],
+   "errors_caught": [
+    {
+     "wrong": "me and my friend goes",
+     "how": "filtered"
+    },
+    {
+     "wrong": "tomorow",
+     "how": "spell-checked"
+    },
+    {
+     "wrong": "alot",
+     "how": "filtered"
+    }
+   ],
+   "held_out": [
+    {
+     "text": "After the final shaping I let the dough proof in a floured banneton.",
+     "nats_base": 80.39408683248425,
+     "nats_memory": 81.11607301980877,
+     "tokens": 17,
+     "bytes": 68
+    },
+    {
+     "text": "A longer bulk fermentation gives the crumb a more open structure.",
+     "nats_base": 72.01717277665315,
+     "nats_memory": 62.335466633248146,
+     "tokens": 13,
+     "bytes": 65
+    }
+   ],
+   "arms": {
+    "off": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Write a short sign-off line for an email from me.",
+      "text": "Here's a sample sign-off line:\n\nSubject: Sign-off from [Email Address]\nDear [Signer],\n\nI hope you're doing well. I wanted to let you know that I'm writing to provide an update on my current situation and to ask for your advice.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 61,
+      "tokens_per_s": 49.7,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Suggest one nice thing to do in my city this weekend.",
+      "text": "You should go to the beach.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 7,
+      "tokens_per_s": 22.3,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "What could I do with my dog this afternoon?",
+      "text": "- Take a walk to the park.\n- Do some shopping at the mall.\n- Check out the new movies on the DVD player.\n- Read some books or articles.\n- Go for a swim in the ocean.\n- Play fetch with your dog.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 55,
+      "tokens_per_s": 48.9,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "What should I cook tonight? One idea, please.",
+      "text": "One idea, please.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 5,
+      "tokens_per_s": 18.3,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Write one sentence about my friend and me going to the lake.",
+      "text": "I went to the lake with my friend yesterday. We spent the day swimming, fishing and enjoying the beautiful scenery. I think it was a great time for us.\n\nWhat do you think of this sentence?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 43,
+      "tokens_per_s": 46.9,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "What should I keep in mind for tomorrow? One sentence.",
+      "text": "I don't know, sorry — that depends on your situation.",
+      "model": "engramm",
+      "reply_kind": "unknown",
+      "tokens": null,
+      "tokens_per_s": null,
+      "memory_tokens": null,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Give me one tip for my sourdough.",
+      "text": "1. Toss the dough in a bowl with the milk and let it sit for 1-2 hours until it is completely set.\n2. When you have the sourdough that has been sitting for 1-2 hours, mix some more milk and bread flour.\n3. If you still have sourdough, just add some more water to the mixture and stir until all the water has been absorbed.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 84,
+      "tokens_per_s": 53.7,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "F": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Write a short sign-off line for an email from me.",
+      "text": "Subject: Ask me to help you with your current project!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 12,
+      "tokens_per_s": 24.1,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Suggest one nice thing to do in my city this weekend.",
+      "text": "You know, I've been thinking about doing something to really make a difference in my city. I'm going to go on a walk through the streets of Exeter next weekend and see if there are any places where people can buy stuff they might not normally find at home. It could be anything from vintage clothing to antique furniture, but I'd love to take some photos with Rufus too!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 78,
+      "tokens_per_s": 53.5,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "What could I do with my dog this afternoon?",
+      "text": "It's a great afternoon for some outdoor activities. Here are a few ideas:\n\nYou could take Rufus to the dog park for a walk and play. The park has plenty of play areas, including a ball pit and a pond. You could also take him on a scavenger hunt around the park.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 64,
+      "tokens_per_s": 49.3,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "What should I cook tonight? One idea, please.",
+      "text": "One idea, that's a great one! A good way to start the evening would be a warm meal of falafel and crackers. You can also prepare a delicious dinner for Rufus by preparing some fresh bread for him to eat.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 47,
+      "tokens_per_s": 47.6,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Write one sentence about my friend and me going to the lake.",
+      "text": "I love going to the lake with my friends. We go swimming, fishing and just hanging out and enjoying each other's company.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 26,
+      "tokens_per_s": 41.5,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "What should I keep in mind for tomorrow? One sentence.",
+      "text": "I don't know, sorry — that depends on your situation.",
+      "model": "engramm",
+      "reply_kind": "unknown",
+      "tokens": null,
+      "tokens_per_s": null,
+      "memory_tokens": null,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Give me one tip for my sourdough.",
+      "text": "One tip: don't make your sourdough too tangy. This is because too much salt can make it tough to chew and give your bread a soggy texture. Also, using a high-quality starter will help you get that good crunch.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 51,
+      "tokens_per_s": 50.3,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "FK": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Write a short sign-off line for an email from me.",
+      "text": "Dear Sir/Madam,\n\nI dough to your workshop in Exeter on Saturday. I will tomorrow and on Sunday. If you have any questions or would like to talk about the bulk of my work after we meet, please don't hesitate to reach out.\n\nBest regards,\nIan",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 61,
+      "tokens_per_s": 46.6,
+      "memory_tokens": 62,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Suggest one nice thing to do in my city this weekend.",
+      "text": "The do is to go on a hike, preferably at night. It is not a great idea to stay out tomorrow as the weather will be sticky and it's dark.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 34,
+      "tokens_per_s": 41.1,
+      "memory_tokens": 35,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "What could I do with my dog this afternoon?",
+      "text": "Tom, I'm overnight so I'll Sunday. We can go to the dog park or visit our friends. bulk food is very good again after a long day of work. You could learned a new game from the workshop the favourite hours of the day. Exeter has friendlier people than I've ever seen before.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 63,
+      "tokens_per_s": 49.2,
+      "memory_tokens": 63,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "What should I cook tonight? One idea, please.",
+      "text": "One idea, after the falafel. You learned to cook from a food again doughnut and I was fermentation overnight.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 24,
+      "tokens_per_s": 39.5,
+      "memory_tokens": 25,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Write one sentence about my friend and me going to the lake.",
+      "text": "\"We learned a lot about each other Sunday morning, and the friend is more than willing to listen. She told us about her great-grandmother's life and what she's been up to. We even got to see some of the old Victorian houses from Exeter tomorrow.\"\n\nI can tell you that my friend is really interested in learning more about Rufus.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 74,
+      "tokens_per_s": 49.2,
+      "memory_tokens": 74,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "What should I keep in mind for tomorrow? One sentence.",
+      "text": "I don't know, sorry — that depends on your situation.",
+      "model": "engramm",
+      "reply_kind": "unknown",
+      "tokens": null,
+      "tokens_per_s": null,
+      "memory_tokens": null,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Give me one tip for my sourdough.",
+      "text": "One tip after making sourdough is to make it thicker. I have been experimenting in my own kitchen with the thickness of sourdough feeding friend Rufus.\nThe oven starter at the bottom of the fridge overnight doubled the amount tomorrow from what I had put again last night. So, if I put one pound seventy four pounds into the oven tonight, I will percent it tomorrow and add five pounds to it the next day.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 87,
+      "tokens_per_s": 50.0,
+      "memory_tokens": 87,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "en17",
+   "lang": "en",
+   "facts_shown": [
+    "My name is Nora.",
+    "I live in Boston.",
+    "My cat is called Pepper.",
+    "My favourite food is sushi."
+   ],
+   "knn_entries": 74,
+   "teach": [
+    {
+     "user": "Hi, I'm Nora.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Hey! Nora — great name! Nice to meet you."
+    },
+    {
+     "user": "I live in Boston.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Got it, you live in Boston."
+    },
+    {
+     "user": "My cat is called Pepper.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Got it, your cat is called Pepper."
+    },
+    {
+     "user": "My favourite food is sushi.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Noted: sushi — yum!"
+    },
+    {
+     "user": "I rode sixty kilometres today and kept my cadence around ninety. Something wierd happened on my walk yesterday.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Got it! You rode sixty kilometres today and kept your cadence around ninety. Something weird happened on your walk yesterday."
+    },
+    {
+     "user": "The rear derailleur skips when I shift into the smallest cog.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "I was about to called the brakes, but I got into a sudden shift and Pepper jumped out."
+    },
+    {
+     "user": "My new gravel bike handles the forest trails really well. I beleive the weather will be good on Saturday.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Noted! You drive a bike. You believe the weather will be good on Saturday."
+    },
+    {
+     "user": "What tyre pressure do you recommend for wet gravel roads? I will definately try that again next week.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "I recommend a tyre pressure of around 10-The pressure is called the \"I.T.\" sushi forest traction good or \"T.T.\" when it's smallest will do."
+    }
+   ],
+   "errors_caught": [
+    {
+     "wrong": "wierd",
+     "how": "spell-checked"
+    },
+    {
+     "wrong": "beleive",
+     "how": "spell-checked"
+    },
+    {
+     "wrong": "definately",
+     "how": "spell-checked"
+    }
+   ],
+   "held_out": [
+    {
+     "text": "On long climbs I shift to a lighter gear and keep a steady cadence.",
+     "nats_base": 70.71823417591027,
+     "nats_memory": 68.60580228175232,
+     "tokens": 16,
+     "bytes": 67
+    },
+    {
+     "text": "I cleaned the chain and adjusted the derailleur before the ride.",
+     "nats_base": 61.94899140581334,
+     "nats_memory": 62.869523101530795,
+     "tokens": 14,
+     "bytes": 64
+    }
+   ],
+   "arms": {
+    "off": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Write a short sign-off line for an email from me.",
+      "text": "Hello! Welcome to our email. I'm [Your Name], your friendly AI assistant.\n\nI'm writing this message to inform you that we have received some positive feedback on our product from [XYZ company]. The success of [XYZ company]'s customer service has been outstanding, and we are confident that our product will continue to meet your needs.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 74,
+      "tokens_per_s": 51.3,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Suggest one nice thing to do in my city this weekend.",
+      "text": "You should go to the local food market and grab some pizza and maybe a few other snacks. You can also visit the local coffee shop for some good drinks and maybe even buy some new coffee beans.\n\nAnother nice thing to do this weekend is to visit the local park. It's just outside of town, so you can take the bus or drive around the area.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 75,
+      "tokens_per_s": 53.3,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "What could I do with my cat this afternoon?",
+      "text": "I would like to have a cat play with you.  I want it to be fun and have some quality time.  You can have a cat sit on your lap or play on the floor.  Just make sure that they do not get too close to other people, pets, or anything else.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 61,
+      "tokens_per_s": 54.8,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "What should I cook tonight? One idea, please.",
+      "text": "1. French toast\n2. Scrambled eggs\n3. Grilled chicken\n4. Italian pizza\n5. Roasted potatoes and onions",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 30,
+      "tokens_per_s": 44.4,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Describe a weird dream in one sentence.",
+      "text": "\"The dream was a dark, stormy night, with a chill wind howling through the room. I woke up to the sound of my own breathing and tried to recall the events leading up to it.\"\n\nHow does that description help?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 49,
+      "tokens_per_s": 59.8,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Write one sentence about what I believe makes a good friend.",
+      "text": "A good friend is someone who listens, cares for you, and is willing to take risks.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 19,
+      "tokens_per_s": 39.0,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Give me one tip for my next bike ride.",
+      "text": "You will definitely try that again next week.",
+      "model": "engramm",
+      "reply_kind": "answer",
+      "tokens": null,
+      "tokens_per_s": null,
+      "memory_tokens": null,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "F": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Write a short sign-off line for an email from me.",
+      "text": "Hi Nora,\n\nI hope you're doing well. I wanted to let you know that I'm busy working on a project with my cat Pepper. She's really fond of sushi, so she'll definitely be interested in learning more about it. Let me know if you have any questions or need anything else.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 64,
+      "tokens_per_s": 48.9,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Suggest one nice thing to do in my city this weekend.",
+      "text": "You know, I'm a sucker for good food and entertainment. If you're in Boston, there are plenty of great places to go. Here's one thing that would be perfect: visit the Bijou Castle. It's really a castle with some pretty cool architecture. You can also go to the Boston Museum of Fine Arts (BMAF), which has a lot of exhibits on history, art, and fashion.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 86,
+      "tokens_per_s": 54.1,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "What could I do with my cat this afternoon?",
+      "text": "This afternoon, you could do some light house cleaning. I have a small garden on the back porch that my cat loves to play in. You could clean up the lawn and the shed with your cat. I also have a few new potted plants that you could plant.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 55,
+      "tokens_per_s": 51.9,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "What should I cook tonight? One idea, please.",
+      "text": "One idea:\n- roasted sweet potato\n- chilled chicken\n- sesame seed bun\n- shredded cheese",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 23,
+      "tokens_per_s": 42.6,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Describe a weird dream in one sentence.",
+      "text": "\"I was walking home from work when suddenly, I heard a loud, soft noise coming from my room. I turned to see Pepper standing right in front of me. He was running away from the noise and yelling at me for something. When I finally looked up, he was sitting next to me, covered in dirt.\"",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 65,
+      "tokens_per_s": 57.1,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Write one sentence about what I believe makes a good friend.",
+      "text": "A good friend is someone who listens, respects boundaries, and is willing to learn.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 17,
+      "tokens_per_s": 36.0,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Give me one tip for my next bike ride.",
+      "text": "You will definitely try that again next week.",
+      "model": "engramm",
+      "reply_kind": "answer",
+      "tokens": null,
+      "tokens_per_s": null,
+      "memory_tokens": null,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "FK": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Write a short sign-off line for an email from me.",
+      "text": "I will try to be more happened.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 8,
+      "tokens_per_s": 24.0,
+      "memory_tokens": 9,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Suggest one nice thing to do in my city this weekend.",
+      "text": "I Saturday. I want to see the Boston Symphony Orchestra in again, and sixty-five food trucks really!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 22,
+      "tokens_per_s": 37.7,
+      "memory_tokens": 23,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "What could I do with my cat this afternoon?",
+      "text": "What a wonderful afternoon! I can tell you there are so many wonderful things to do with your cat. rearward really is the best week for me. We can go out in sixty minutes or today, when it's sunny and sixty weird.\n\nThe smallest is gravel bike ride. You around the neighborhood trails next to the house and take the bikes home.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 73,
+      "tokens_per_s": 49.1,
+      "memory_tokens": 73,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "What should I cook tonight? One idea, please.",
+      "text": "I would like to cook next Saturday, sixty-eight.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 12,
+      "tokens_per_s": 31.2,
+      "memory_tokens": 13,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Describe a weird dream in one sentence.",
+      "text": "I was in the middle of a long car ride when my cat Pepper will suddenly stop and turn around, called sixty times and shift her tail as she did, forestalling me.\nWhat is your favorite dream good for?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 45,
+      "tokens_per_s": 49.2,
+      "memory_tokens": 46,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Write one sentence about what I believe makes a good friend.",
+      "text": "A good friend is someone who listens, supports today, and helps you feel definitely in your life.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 20,
+      "tokens_per_s": 36.6,
+      "memory_tokens": 21,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Give me one tip for my next bike ride.",
+      "text": "You will definitely try that again next week.",
+      "model": "engramm",
+      "reply_kind": "answer",
+      "tokens": null,
+      "tokens_per_s": null,
+      "memory_tokens": null,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "en18",
+   "lang": "en",
+   "facts_shown": [
+    "My name is Jack.",
+    "I live in Portland.",
+    "My dog is called Charlie.",
+    "My favourite food is goulash."
+   ],
+   "knn_entries": 85,
+   "teach": [
+    {
+     "user": "Hi, I'm Jack.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Hi! Jack — great name! Nice to meet you."
+    },
+    {
+     "user": "I live in Portland.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Got it, you live in Portland."
+    },
+    {
+     "user": "My dog is called Charlie.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Got it, your dog is called Charlie."
+    },
+    {
+     "user": "My favourite food is goulash.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Noted: goulash — yum!"
+    },
+    {
+     "user": "I spread fresh compost around the tomatoes this weekend. My neighbour says he don't like the noise in the morning.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "I love the smell of freshly compost!"
+    },
+    {
+     "user": "The mulch keeps the soil moist even in the hot afternoons.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "I love the smell of mulch!"
+    },
+    {
+     "user": "My raised beds are full of courgettes and runner beans. I want to go out again tomorow if the weather holds.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Out again tomorrow if the weather holds — exciting! What's drawing you to it? So exciting! How are you feeling about it?"
+    },
+    {
+     "user": "When is the best time to prune the apple tree? I will definately try that again next week.",
+     "model": "engramm",
+     "kind": "unknown",
+     "text": "I don't know, sorry. I couldn't find anything reliable about that. That's brilliant — you must be really happy!"
+    }
+   ],
+   "errors_caught": [
+    {
+     "wrong": "he don't",
+     "how": "filtered"
+    },
+    {
+     "wrong": "tomorow",
+     "how": "spell-checked"
+    },
+    {
+     "wrong": "definately",
+     "how": "spell-checked"
+    }
+   ],
+   "held_out": [
+    {
+     "text": "I turned the compost heap and added a layer of dry leaves.",
+     "nats_base": 50.09856760133172,
+     "nats_memory": 49.603426117528166,
+     "tokens": 13,
+     "bytes": 58
+    },
+    {
+     "text": "A thick layer of mulch keeps the weeds down between the beans.",
+     "nats_base": 50.17881433544015,
+     "nats_memory": 48.470655893370726,
+     "tokens": 13,
+     "bytes": 62
+    }
+   ],
+   "arms": {
+    "off": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Write a short sign-off line for an email from me.",
+      "text": "\"Hello, welcome to our email list. I hope you have a wonderful time at work and I look forward to hearing from you. Feel free to reach out if there's anything I can help you with. You're welcome to leave any comments or suggestions you have for my next emails.\"",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 58,
+      "tokens_per_s": 52.5,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Suggest one nice thing to do in my city this weekend.",
+      "text": "There are many nice things to do in your city this weekend. Some of them include visiting the local museum, shopping at a boutique clothing store, and going to a park for some exercise.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 39,
+      "tokens_per_s": 46.5,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "What could I do with my dog this afternoon?",
+      "text": "You could walk to a park or go for a walk with your dog. You could also run around the neighborhood and see what you can find.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 29,
+      "tokens_per_s": 44.4,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "What should I cook tonight? One idea, please.",
+      "text": "As a newbie, I think one of the best things about cooking is that it's so easy. It's like a whole different world. In the past, you had to learn how to cook or make something yourself and you would have to spend hours learning and practicing. Now, you can do everything at your fingertips.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 65,
+      "tokens_per_s": 55.4,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Write one sentence about a neighbour who doesn't like noise.",
+      "text": "\"I had a friend who didn't like noise. She was always stressed when she couldn't hear anything, and sometimes would just sit there and do nothing. She would make me feel really bad because I'd hear the sound of her voice in the background. It wasn't easy for her to deal with it, but it's so annoying that I wouldn't want her to be able to talk to me.\"",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 82,
+      "tokens_per_s": 55.4,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "What should I keep in mind for tomorrow? One sentence.",
+      "text": "I don't know, sorry — that depends on your situation.",
+      "model": "engramm",
+      "reply_kind": "unknown",
+      "tokens": null,
+      "tokens_per_s": null,
+      "memory_tokens": null,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Give me one tip for my garden.",
+      "text": "Give your garden a good watering routine. Water your plants when they are getting about half their water, and stop watering if they are overwatered. You can also use a hose to spray the soil every 2-3 days, but this will kill any bacteria and fungi that might have accumulated in the soil.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 62,
+      "tokens_per_s": 61.0,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "F": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Write a short sign-off line for an email from me.",
+      "text": "\"Dear Jack,\n\nI hope you're doing well. I'm reaching out because I want to check in with you about a personal matter. My name is Emily, and I live in Portland, Oregon. We've been in touch for some time now, and I appreciate all the work you do for our family.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 65,
+      "tokens_per_s": 48.8,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Suggest one nice thing to do in my city this weekend.",
+      "text": "I'm not sure if you want to do anything nice, but I can give you some suggestions.\n\nYou could go on a nature walk in the park with your dog. It's a great way to get some exercise and exercise while watching the stars. And it's also a good time for your dog to exercise his tail muscles and his sense of smell.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 73,
+      "tokens_per_s": 52.2,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "What could I do with my dog this afternoon?",
+      "text": "You could bring him home for a nap or playtime. If you have a favorite snack or meal, I can suggest something that will keep Charlie happy and engaged.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 33,
+      "tokens_per_s": 46.2,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "What should I cook tonight? One idea, please.",
+      "text": "We have a lot of great places in Portland. You can cook goulash at the Red Lion, the Blue Hole, or the White House's BBQ.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 33,
+      "tokens_per_s": 46.9,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Write one sentence about a neighbour who doesn't like noise.",
+      "text": "My neighbor doesn't like noise. He said that he was afraid of noisy things and thought it would be a good thing to have a quiet place for him to sleep.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 34,
+      "tokens_per_s": 47.1,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "What should I keep in mind for tomorrow? One sentence.",
+      "text": "I don't know, sorry — that depends on your situation.",
+      "model": "engramm",
+      "reply_kind": "unknown",
+      "tokens": null,
+      "tokens_per_s": null,
+      "memory_tokens": null,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Give me one tip for my garden.",
+      "text": "If you have a garden, the most important thing is to give it the best possible care. You can choose from any of the following methods:\n\n1. Watering - water your garden regularly so that it gets enough water and nutrients. A good rule of thumb is to water your garden at least once a week.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 65,
+      "tokens_per_s": 59.2,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "FK": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Write a short sign-off line for an email from me.",
+      "text": "Hi Jack,\nI hope you're doing well. I'd like to make a quick note that the following email is for you: favourite food again. Charlie is your dog and you weekend called it so I time next week for fresh goulash and some snacks. Can you check in with me to see what I've missed?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 67,
+      "tokens_per_s": 48.9,
+      "memory_tokens": 67,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Suggest one nice thing to do in my city this weekend.",
+      "text": "I'm thinking of visiting the Portland Public Library. I want to definitely check it out!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 18,
+      "tokens_per_s": 34.1,
+      "memory_tokens": 19,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "What could I do with my dog this afternoon?",
+      "text": "I'm fresh out of the office, so I can try some fresh coffee. If you weekend is busy, I'd suggest checking out the Portland Aquarium and watching the sunset over the ocean. It's a great way to spend the afternoon.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 48,
+      "tokens_per_s": 46.6,
+      "memory_tokens": 49,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "What should I cook tonight? One idea, please.",
+      "text": "Here are a few ideas for. favourite foods.\n\nI will cook some of them in the morning, and you can weekend. I will weekend some says.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 33,
+      "tokens_per_s": 43.6,
+      "memory_tokens": 34,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Write one sentence about a neighbour who doesn't like noise.",
+      "text": "I live in a neighborhood where noise is often the norm, and I can attest that most people don't like it either.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 25,
+      "tokens_per_s": 38.9,
+      "memory_tokens": 26,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "What should I keep in mind for tomorrow? One sentence.",
+      "text": "I don't know, sorry — that depends on your situation.",
+      "model": "engramm",
+      "reply_kind": "unknown",
+      "tokens": null,
+      "tokens_per_s": null,
+      "memory_tokens": null,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Give me one tip for my garden.",
+      "text": "One tip for the garden is to weekendize. I like that this noise reduces weather conditions and makes it out of apple season. I says this because the courgettes are very good at the time again.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 42,
+      "tokens_per_s": 52.0,
+      "memory_tokens": 43,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "en19",
+   "lang": "en",
+   "facts_shown": [
+    "My name is Adam.",
+    "I live in Phoenix.",
+    "My cat is called Mocha.",
+    "My favourite food is pancakes."
+   ],
+   "knn_entries": 80,
+   "teach": [
+    {
+     "user": "Hi, I'm Adam.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Hello! Nice to meet you, Adam!"
+    },
+    {
+     "user": "I live in Phoenix.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Got it, you live in Phoenix."
+    },
+    {
+     "user": "My cat is called Mocha.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Mocha — what a nice name! I'll remember your cat."
+    },
+    {
+     "user": "My favourite food is pancakes.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Noted: pancakes — yum!"
+    },
+    {
+     "user": "I shot the sunset at a wide aperture to blur the background. My sister always say she go to the gym before work.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Got it! Your favourite colour is sunset. Your sister always say she go to the gym before work."
+    },
+    {
+     "user": "A faster shutter speed finally froze the birds in flight.",
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": "Thanks for the tip, Adam!"
+    },
+    {
+     "user": "My new prime lens is sharp even in low light. I hope to recieve the new parts before Friday.",
+     "model": "engramm",
+     "kind": "learned",
+     "text": "Thanks — I'll remember all of that. Your favourite colour is light. You hope to receive the new parts before Friday."
+    },
+    {
+     "user": "Which focal length is best for portraits outdoors? Something wierd happened on my walk yesterday.",
+     "model": "engramm",
+     "kind": "unknown",
+     "text": "I don't know for sure. The closest thing I read is the article “Focal length”, but it doesn't answer that clearly. Ah, okay. How's that going?"
+    }
+   ],
+   "errors_caught": [
+    {
+     "wrong": "she go",
+     "how": "filtered"
+    },
+    {
+     "wrong": "recieve",
+     "how": "spell-checked"
+    },
+    {
+     "wrong": "wierd",
+     "how": "spell-checked"
+    }
+   ],
+   "held_out": [
+    {
+     "text": "For landscapes I close the aperture and use a tripod.",
+     "nats_base": 54.95610459146631,
+     "nats_memory": 57.53705068520779,
+     "tokens": 12,
+     "bytes": 53
+    },
+    {
+     "text": "In low light I raise the ISO before I lower the shutter speed.",
+     "nats_base": 57.961706653162636,
+     "nats_memory": 55.10619254704007,
+     "tokens": 14,
+     "bytes": 62
+    }
+   ],
+   "arms": {
+    "off": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Write a short sign-off line for an email from me.",
+      "text": "Hello, I hope you're well. Please let me know if there's anything else I can help with.\n\n[Your name]",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 28,
+      "tokens_per_s": 45.8,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Suggest one nice thing to do in my city this weekend.",
+      "text": "1. Have a BBQ with friends in your neighborhood and eat out.\n2. Watch a movie at the local theater or cinema.\n3. Walk around your neighborhood to see what's going on.\n4. Go for a walk, bike ride or drive somewhere that you like.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 54.9,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "What could I do with my cat this afternoon?",
+      "text": "You can use this time to watch the cat, read a book or play with your cat.  If you have a dog, you can go for a walk and talk to them.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 37,
+      "tokens_per_s": 49.4,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "What should I cook tonight? One idea, please.",
+      "text": "You can cook tonight for any occasion. You can have a meal, have dinner, or you can just be home and relax.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 26,
+      "tokens_per_s": 45.5,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Write one sentence about my sister, who goes to the gym every morning.",
+      "text": "She's always running around the gym and is so into it. She loves to run with her mom, and she also loves going for walks in the park.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 32,
+      "tokens_per_s": 46.9,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Write one polite sentence asking when I will receive my order.",
+      "text": "To receive your order, please let me know when you will be available and when you will need my help. You can reply to this email or contact me directly. I'll do my best to accommodate your request.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 43,
+      "tokens_per_s": 51.7,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Give me one tip for my photos.",
+      "text": "When taking photos, use a good quality camera. The best camera is one with great low light performance. Use your lens to get the best image you can.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 32,
+      "tokens_per_s": 59.2,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "F": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Write a short sign-off line for an email from me.",
+      "text": "Hi Adam,\n\nI'm Adam. I live in Phoenix. My cat is called Mocha. My favourite food is pancakes. If you have any other questions or need anything, please feel free to ask.\n\nBest regards,\nAdam",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 52,
+      "tokens_per_s": 48.2,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Suggest one nice thing to do in my city this weekend.",
+      "text": "You should check out the Phoenix Museum and Science Center. The museum is very interesting and has many exhibits on different topics. You can also take a walk around the city to see what's happening in different neighborhoods.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 42,
+      "tokens_per_s": 50.0,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "What could I do with my cat this afternoon?",
+      "text": "You could do something with Mocha this afternoon. You can make pancakes, or you can bake them. You could also do some housework like help me out at the kitchen or cleaning up your home.\n\nYou could also try and come up with a new idea for Mocha this afternoon.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 63,
+      "tokens_per_s": 55.7,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "What should I cook tonight? One idea, please.",
+      "text": "One idea is to cook your favorite pancake. I can make a simple batter for you, but it would be best if you could also make a batter that contains corn flour and some eggs or other ingredients that you like. You could also make pancakes with different topping like yogurt or cheese, bacon, chocolate, etc.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 65,
+      "tokens_per_s": 51.9,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Write one sentence about my sister, who goes to the gym every morning.",
+      "text": "Mocha, my favorite food is pancakes.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 11,
+      "tokens_per_s": 28.7,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Write one polite sentence asking when I will receive my order.",
+      "text": "Thank you for your inquiry.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 6,
+      "tokens_per_s": 20.4,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Give me one tip for my photos.",
+      "text": "If you're using a camera, take good quality photos of your cat. There are a few things to keep in mind:\n\n1. Try not to get too close to the camera or your cat. You want to capture a clear picture.\n2. Use a mirror or a lightbox to check your camera's image quality and focus.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 70,
+      "tokens_per_s": 61.5,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ],
+    "FK": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Write a short sign-off line for an email from me.",
+      "text": "I'm Adam. I live in Phoenix. My favourite food is pancakes.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 16,
+      "tokens_per_s": 31.8,
+      "memory_tokens": 17,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Suggest one nice thing to do in my city this weekend.",
+      "text": "Which would you like to do in your city this weekend?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 12,
+      "tokens_per_s": 30.2,
+      "memory_tokens": 13,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "What could I do with my cat this afternoon?",
+      "text": "I think I'd like to spend some time with Mocha. She's a great kitten. sunset is in the forecast, and she frolics called \"Bushy\" on the couch lengthily. Mocha loves to play food bowls before bed, so I outdoors for the perfect birdsong.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 63,
+      "tokens_per_s": 49.5,
+      "memory_tokens": 63,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "What should I cook tonight? One idea, please.",
+      "text": "One idea is to make sunset pancakes. You can receive a $50 donation from the local food bank or donate to a local food bank.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 29,
+      "tokens_per_s": 41.1,
+      "memory_tokens": 30,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Write one sentence about my sister, who goes to the gym every morning.",
+      "text": "\"I focalize on the new elliptical trainer that she's been using. I before outdoors on the treadmill and after the workout, I get to blur my vision to receive the gym's the latest food parts. My sister is so passionate about fitness, work she does it every morning. Something has to give.\"",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 64,
+      "tokens_per_s": 48.3,
+      "memory_tokens": 64,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Write one polite sentence asking when I will receive my order.",
+      "text": "Please let me know when you'll receive your order.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 11,
+      "tokens_per_s": 29.3,
+      "memory_tokens": 12,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Give me one tip for my photos.",
+      "text": "Which is the best camera for your focal length?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 10,
+      "tokens_per_s": 42.7,
+      "memory_tokens": 11,
+      "error": false,
+      "error_copied": false,
+      "role_confusion": false
+     }
+    ]
+   }
+  }
+ ]
+}

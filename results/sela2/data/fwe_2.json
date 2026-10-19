@@ -1,0 +1,18 @@
+{
+ "name": "fwe_2",
+ "tokens": 638362258,
+ "docs": 628355,
+ "sha256": "16140d75f343dd4cc28d1baf71896e9d397ffe1a9358cc329dbf238405abc610",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "source": "fwe",
+ "part": 2,
+ "url": "https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu/resolve/main/sample/10BT/002_00000.parquet",
+ "lang": "en",
+ "dropped_contaminated": 1396,
+ "dropped": {
+  "short": 3
+ },
+ "chars": 2954769022,
+ "piece": 0,
+ "pieces": 1
+}

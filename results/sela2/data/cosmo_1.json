@@ -1,0 +1,18 @@
+{
+ "name": "cosmo_1",
+ "tokens": 272390688,
+ "docs": 375927,
+ "sha256": "2bb71599f0f3f3fddf6c2bd71a930a661ce7249d3485150670832dfca6a1f36c",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "source": "cosmo",
+ "part": 1,
+ "url": "https://huggingface.co/datasets/HuggingFaceTB/smollm-corpus/resolve/main/cosmopedia-v2/train-00001-of-00104.parquet",
+ "lang": "en",
+ "dropped_contaminated": 119,
+ "dropped": {
+  "short": 243
+ },
+ "chars": 1407927995,
+ "piece": 0,
+ "pieces": 1
+}

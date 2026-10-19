@@ -1,0 +1,19 @@
+{
+ "name": "wiki_en_0",
+ "tokens": 157618880,
+ "docs": 149643,
+ "sha256": "820240c92e0731b9b4b74dedaa9ef1ece3eea4165e0ecad3b23cc92fb530ad44",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "source": "wiki_en",
+ "part": 0,
+ "url": "https://huggingface.co/datasets/wikimedia/wikipedia/resolve/main/20231101.en/train-00000-of-00041.parquet",
+ "lang": "en",
+ "dropped_contaminated": 3698,
+ "dropped": {
+  "short": 2933,
+  "wikitext_title": 15
+ },
+ "chars": 669654272,
+ "piece": 0,
+ "pieces": 1
+}

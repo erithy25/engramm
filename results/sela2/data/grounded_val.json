@@ -1,0 +1,10 @@
+{
+ "name": "grounded_val",
+ "tokens": 5954084,
+ "docs": 12438,
+ "sha256": "73f0f8f0117638198d7aa4890da947550a452633008f3116dc55e676e52bdfbd",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "kind": "chat",
+ "mask_tokens": 200400,
+ "mask_sha256": "929958b4d7f5b41b7d2f31bc3d0c38eca95b99b6b7867183fb1c93cd86b4b7b3"
+}

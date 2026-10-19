@@ -1,0 +1,10 @@
+{
+ "name": "grounded_sft",
+ "tokens": 37517950,
+ "docs": 75067,
+ "sha256": "65a4124f5c3242256445e01a63854ae0a8963e584a27846eb622c9a7cf46e2dc",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "kind": "chat",
+ "mask_tokens": 1190015,
+ "mask_sha256": "e6e8f0bad71bd330a46bab69d0e9e7701f348a6fb9fd598c9da9c3f7ffc45620"
+}

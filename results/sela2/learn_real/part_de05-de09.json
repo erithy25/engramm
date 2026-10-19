@@ -1,0 +1,2719 @@
+{
+ "what": "PREREG §7 measurement part (experiments/sela2_learn_eval.py)",
+ "weights": "sela2-mix30.npz",
+ "weights_sha256": "32fbdc7d802e7ebd626506a1f4843f61a05c8e4bc15e7eb367b4c35913ddffbd",
+ "data_sha256": "37e8efd64b16233f450c768e30433f30e1464dbdd7c96b9a7362c889a135465f",
+ "pack": "lite-3.1.0-beta.1",
+ "seed": 7000,
+ "users": [
+  "de05",
+  "de06",
+  "de07",
+  "de08",
+  "de09"
+ ],
+ "seconds": 396.4,
+ "date_utc": "2026-10-19T18:18:30Z",
+ "results": [
+  {
+   "id": "de05",
+   "lang": "de",
+   "facts_shown": [
+    "Über den Nutzer (was er dir über sich erzählt hat – Angaben über den Nutzer, nicht über dich; nur verwenden, wenn es passt): Der Nutzer heißt Jonas. Der Nutzer wohnt in Bremen. Die Katze des Nutzers heißt Mimi. Das Lieblingsessen des Nutzers ist Risotto."
+   ],
+   "knn_entries": 58,
+   "teach": [
+    {
+     "user": {
+      "sha256": "0716801bdcc17e49fef795d260df211a46fbe4abfca8a8e41d823aee22c31d82",
+      "chars": 16
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "3ebba50e55862a0df9c3d3108ddce653dcd74a393d41417d399a9f788c9f3e60",
+      "chars": 69
+     }
+    },
+    {
+     "user": {
+      "sha256": "de8cda0389f5c5dc03320f59f7397499df044ccd0224be2167bc1d1006fbec0e",
+      "chars": 20
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "a69e2950f29baf68e82496fe4d7035757474464dac0f2a13bfdd8e8c8a51cd3b",
+      "chars": 30
+     }
+    },
+    {
+     "user": {
+      "sha256": "76455429856230ab709989d38ab6a5b6b0d1aed6cbe4090b6117c91e999c64ba",
+      "chars": 23
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "9509d91b22646c158535d18e3234e15acef481db54ad7c6c3faeaaeb47b26f0c",
+      "chars": 14
+     }
+    },
+    {
+     "user": {
+      "sha256": "ad24cba7a47289dc54bf40e90823fab738662d394e599448f1133ca20618dde4",
+      "chars": 32
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "5140513f4716db56ee045f83ea0486d21bd7e288af22a153cad7576461145ed2",
+      "chars": 45
+     }
+    },
+    {
+     "user": {
+      "sha256": "2207cfd89b25cb2795f904290b9e1d7b560d243ae30a1b96fec325c39a1376b8",
+      "chars": 147
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "b86d2fda2e900c15fe9e405841399e5123cbb48e6668fac5563568545eafc179",
+      "chars": 42
+     }
+    },
+    {
+     "user": {
+      "sha256": "5984e6a603cfcf7d15173b11738a9eeff46ba3138131310d20f93c41e5a71ffa",
+      "chars": 105
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "86020d760c79069475460cff224ff43b4e8edd372b87cadcd645dc2c272fcfbb",
+      "chars": 67
+     }
+    },
+    {
+     "user": {
+      "sha256": "dd72e36586d4612d1261f3ccbf7453125ad586a8ba4d4a248197e6ea47c53a27",
+      "chars": 187
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "bffcf66b91c45e35cace1443804fabdf696ffdf90dfa9fdaf6d46bd94c5c44f6",
+      "chars": 77
+     }
+    },
+    {
+     "user": {
+      "sha256": "8c5da827cb9c0494ddd3886c2e6e5e144f131b49e8472f8fb74994672d60b1f0",
+      "chars": 96
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "e3547784fd28b6d325f019305b0968d2b0b8546c3c6e9707c35152cb6dd47859",
+      "chars": 23
+     }
+    }
+   ],
+   "errors_caught": [
+    {
+     "wrong": "ich habe gegangen",
+     "how": "not learned"
+    },
+    {
+     "wrong": "Fahrad",
+     "how": "filtered"
+    },
+    {
+     "wrong": "Rhytmus",
+     "how": "filtered"
+    }
+   ],
+   "held_out": [
+    {
+     "text": {
+      "sha256": "fa2edd97b6a9a181edf5562148cecd2a75f9cf2fd208d6f773c381d29cb9526a",
+      "chars": 90
+     },
+     "nats_base": 117.81336083215562,
+     "nats_memory": 118.01763178550543,
+     "tokens": 22,
+     "bytes": 90
+    },
+    {
+     "text": {
+      "sha256": "be5a2a23562b33c753e0878309a65608cbd797038d9ccd66feea9fab0e5e47aa",
+      "chars": 248
+     },
+     "nats_base": 245.133273232754,
+     "nats_memory": 233.3931392826164,
+     "tokens": 57,
+     "bytes": 253
+    }
+   ],
+   "arms": {
+    "off": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "**Sehr geehrte/r [Name],**\n\nmit freundlichen Grüßen,  \n[Ihr Name]  \noder:  \nmit freundlichen Grüßen.  \n\nLiebe/r [Ihr Name],  \nvielen Dank für Ihre Anfrage.  \nIhre Antwort ist immer willkommen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 63,
+      "tokens_per_s": 24.9,
+      "decode_tokens": 63,
+      "decode_seconds": 2.0024,
+      "prefill_seconds": 0.5273,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Wenn Sie am Wochenende in Ihrem Stadtzentrum sind, können Sie sich an einen der vielen Cafés in der Innenstadt wenden. Dort kann man sich bei einem Kaffee und Kuchen die Zeit sparen und das Angebot genießen. Falls Sie eine kleine Auswahl haben möchten, können Sie auch mal ein paar Restaurants besuchen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 58,
+      "tokens_per_s": 26.5,
+      "decode_tokens": 58,
+      "decode_seconds": 1.9166,
+      "prefill_seconds": 0.2756,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Ja, ich kann dir gerne mit deinen Katze machen. Sie ist eine sehr soziale Katze und sie liebt es, wenn man mit ihr herumzieht. Sie können es auch alleine lassen, da sie sich sicher fühlt. Du kannst es so gestalten, dass du sie auf dein Bett oder in den Garten bringen möchtest.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 61,
+      "tokens_per_s": 27.2,
+      "decode_tokens": 61,
+      "decode_seconds": 1.9582,
+      "prefill_seconds": 0.2811,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Hier sind drei Ideen, die ich heute Abend zubereiten könnte:\n1. **Eiskraut-Schinken**: Ein Rezept für eine feine Schinken, die in ein paar Tropfen Wasser gegeben wird und anschließend durch Eis gebacken wird. Das Wasser ist dann noch frisch und zart.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 61,
+      "tokens_per_s": 27.9,
+      "decode_tokens": 61,
+      "decode_seconds": 1.9273,
+      "prefill_seconds": 0.257,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, dass ich gestern zum Bäcker gegangen bin.",
+      "text": "Ich habe gestern zum Bäcker gegangen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 9,
+      "tokens_per_s": 14.8,
+      "decode_tokens": 9,
+      "decode_seconds": 0.3229,
+      "prefill_seconds": 0.2869,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Gib mir einen kurzen Tipp, wie ich mein Fahrrad im Winter pflege.",
+      "text": "Mit einer richtigen Pflege-Pflanzung und einer genauen Regulierung der Temperaturen kann Ihr Fahrrad im Winter eine robuste, bequeme Grundlage für die Fahrt bilden. Nutzen Sie daher ein gut gepflegtes und festeres Fahrrad oder einen Winterreifen mit hohem Riegelgewicht (z. B.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 61,
+      "tokens_per_s": 27.6,
+      "decode_tokens": 61,
+      "decode_seconds": 1.9218,
+      "prefill_seconds": 0.2909,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir noch eine Idee zu dem, woran ich gerade arbeite.",
+      "text": "Natürlich! Ich würde dir gern eine Idee geben, wie ich gerade arbeite. Hier sind einige Ideen, die ich gerne an deiner Stelle ausprobiere:\n\n1. **Kommunikationssysteme**:  \n   Ich würde dir helfen, ein Kommunikationssystem zu entwickeln, das alle Beteiligten (z.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 27.9,
+      "decode_tokens": 60,
+      "decode_seconds": 1.8832,
+      "prefill_seconds": 0.2648,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     }
+    ],
+    "F": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "**Hallo!**  \n\nWillkommen! Ich freue mich, dass du bald nach Bremen kommst. **Mit freundlichen Grüßen**  \n[Name]  \n\n**Ich hoffe ich kann dir helfen, was dir besonders wichtig ist.**",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 67,
+      "tokens_per_s": 22.8,
+      "decode_tokens": 67,
+      "decode_seconds": 2.2194,
+      "prefill_seconds": 0.7227,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Ich habe eine schöne Sache, die du am Wochenende in deiner Stadt machen kannst: **Käfer-Schnitzel**!  \nDu kannst eine kleine Kaffeepflasche oder ein Stapel Frischkäse mit etwas Schokolade und einer Schuss Zitronensaft servieren.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 26.8,
+      "decode_tokens": 60,
+      "decode_seconds": 1.9589,
+      "prefill_seconds": 0.2805,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Klebe mit Jonas in der Sonne, ein paar Sonnenstrahlen zu werfen und ihn sanft auf den Tisch zu lassen. Mimi liebe es, dass er sich an deine Bedürfnisse hält – sie ist so neugierig! Nutze deine freie Zeit, um die Welt zu erkunden.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 56,
+      "tokens_per_s": 26.6,
+      "decode_tokens": 56,
+      "decode_seconds": 1.8371,
+      "prefill_seconds": 0.2668,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Hier sind eine Idee, die morgen Abend kochen kann:\n- **Tarte Tatin mit Käse** – schmeckt nach frischem Käse und frischen Tassen.  \n- **Käse mit Soße (z. B. Pommes frites)** – frisches Gemüse und frische Kräuter.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 66,
+      "tokens_per_s": 27.7,
+      "decode_tokens": 66,
+      "decode_seconds": 2.1161,
+      "prefill_seconds": 0.2672,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, dass ich gestern zum Bäcker gegangen bin.",
+      "text": "Ich habe gestern zum Bäcker gegangen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 9,
+      "tokens_per_s": 14.6,
+      "decode_tokens": 9,
+      "decode_seconds": 0.3237,
+      "prefill_seconds": 0.292,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Gib mir einen kurzen Tipp, wie ich mein Fahrrad im Winter pflege.",
+      "text": "Fügen Sie ein **Stoffwechsel** hinzu:  \n- Fahren Sie mit einem Fahrrad, das nicht mit Kissen gefahren wird.  \n- Wenn der Winter Schneefall ist, fahren Sie auf dem Fahrrad und verwenden Sie einen Stoßdämpfer oder den Motor.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 26.8,
+      "decode_tokens": 60,
+      "decode_seconds": 1.9404,
+      "prefill_seconds": 0.2949,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir noch eine Idee zu dem, woran ich gerade arbeite.",
+      "text": "**Idee zur Anwendung von KI in der Marketingkommunikation:**  \n1. **Kommunikationsplattformen**: Nutzen Sie künstliche Intelligenz (KI) zur Analyse von E-Mails, um Muster zu erkennen und gezielt anzupassen. Beispiel: \"Wenn du mit dem Nutzer über ein Produkt sprechen möchtest, würde ich dich per Chat oder Email anfragen.\"",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 72,
+      "tokens_per_s": 28.0,
+      "decode_tokens": 72,
+      "decode_seconds": 2.3122,
+      "prefill_seconds": 0.2628,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     }
+    ],
+    "FK": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "**Hallo!**  \n\nVielen Dank für Ihre Nachricht! Ich freue mich darauf, Ihnen mit einem Gruß zu kommunizieren. Sollte ich Fragen haben oder etwas anderes benötigen, lassen Sie es mich gerne wissen.  \n\n**Guten Morgen!**  \n\nIch freue mich auf die Antwort. Falls es nicht passt, können wir uns auch eine andere Grußformel vorschlagen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 76,
+      "tokens_per_s": 23.3,
+      "decode_tokens": 76,
+      "decode_seconds": 2.5273,
+      "prefill_seconds": 0.7346,
+      "memory_tokens": 65,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Ich habe eine schöne Sache im Auge: ein **Käfer-Schinken-Tisch**, der perfekt für einen **begeisterten Tag** passt. Er besteht aus einem flachen, saftigen Käse und einem Schinken (z. B. gebacken), das mit frisch gemahlenem Joghurt und einer Prise Zimt verziert ist.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 77,
+      "tokens_per_s": 26.8,
+      "decode_tokens": 77,
+      "decode_seconds": 2.5812,
+      "prefill_seconds": 0.2965,
+      "memory_tokens": 56,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Mit Ihrer Katze kann man eine wunderbare Zeit verbringen. Teilen Sie mir mit, was Sie am besten machen können!\n- **Kundenfreundlichkeit**: Benutzen Sie eine Kamera und ein Smartphone, um die Katze zu dokumentieren. Verwenden Sie einen kleinen Schalter, um sie zu fotografieren.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 26.5,
+      "decode_tokens": 60,
+      "decode_seconds": 1.9944,
+      "prefill_seconds": 0.2662,
+      "memory_tokens": 55,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "**Tipp für heute Abend: Risotto mit dem ihrem Namen.**  \n\n**Kombination aus Risotto und dem ihrem Namen:**  \n- **Risotto** (oder fettiger Brei) mit **Kartoffeln**, **Salz, Salz und Pfeffer**.  \n- **Mimi** (echte Mimi – Tagebucheintrag nicht wichtig).",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 77,
+      "tokens_per_s": 27.4,
+      "decode_tokens": 77,
+      "decode_seconds": 2.5378,
+      "prefill_seconds": 0.2753,
+      "memory_tokens": 60,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, dass ich gestern zum Bäcker gegangen bin.",
+      "text": "Ich habe gestern zum Bäcker gegangen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 9,
+      "tokens_per_s": 13.9,
+      "decode_tokens": 9,
+      "decode_seconds": 0.3391,
+      "prefill_seconds": 0.3069,
+      "memory_tokens": 9,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Gib mir einen kurzen Tipp, wie ich mein Fahrrad im Winter pflege.",
+      "text": "In den Wintermonaten sollte ein Fahrrad im Winter pflegbar sein. Ein gutes Fahrrad ist in der Regel so konstruiert, dass es nicht nur die nötige Masse hat, sondern auch eine sichere Verbindung zwischen Vorder- und Hinterrad besitzt.  \n\nEin Fahrrad muss eine ausreichend schwere Last tragen, damit es nicht beschädigt wird.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 66,
+      "tokens_per_s": 26.4,
+      "decode_tokens": 66,
+      "decode_seconds": 2.1931,
+      "prefill_seconds": 0.3023,
+      "memory_tokens": 57,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir noch eine Idee zu dem, woran ich gerade arbeite.",
+      "text": "**Idee für eine Website mit einem Blog (beides getrennt):**  \n1. **Eine Website-App**: Ein \"Blog\"-Modul mit einer Template-Datei, die mit der Website verknüpft ist.  \n2. **Ein Blog-Formular**: Eine formale Seite für den Blogbeitrag mit einer eigenen Template-Datei.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 73,
+      "tokens_per_s": 27.0,
+      "decode_tokens": 73,
+      "decode_seconds": 2.4449,
+      "prefill_seconds": 0.2616,
+      "memory_tokens": 63,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "de06",
+   "lang": "de",
+   "facts_shown": [
+    "Über den Nutzer (was er dir über sich erzählt hat – Angaben über den Nutzer, nicht über dich; nur verwenden, wenn es passt): Der Nutzer heißt Marie. Der Nutzer wohnt in Mainz. Der Hund des Nutzers heißt Balu. Das Lieblingsessen des Nutzers ist Flammkuchen."
+   ],
+   "knn_entries": 50,
+   "teach": [
+    {
+     "user": {
+      "sha256": "d70034389890ac7b00094a58a0f3878d3cbe58aafb54dc7940ffd1d1752f860f",
+      "chars": 16
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "874a0137ab79bddb1970986637402852804d200446dda2d81681f95f188a83f9",
+      "chars": 37
+     }
+    },
+    {
+     "user": {
+      "sha256": "356e17a99edf9f13d768fb1eaea675d7d22f81ee1346de30d8c19d09fc64b971",
+      "chars": 19
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "a69e2950f29baf68e82496fe4d7035757474464dac0f2a13bfdd8e8c8a51cd3b",
+      "chars": 30
+     }
+    },
+    {
+     "user": {
+      "sha256": "2ad25ceb8fbd8c0fac4d54fbab8e7157b8ab9455bd6b516a058ff6e582f1935e",
+      "chars": 21
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "9509d91b22646c158535d18e3234e15acef481db54ad7c6c3faeaaeb47b26f0c",
+      "chars": 14
+     }
+    },
+    {
+     "user": {
+      "sha256": "a75b4677734b3959951833e63eac87982d45dad41732da62aad35d385ccc8135",
+      "chars": 36
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "754f87164f261c0a314112e72cf6b0baeb3e6140c6d8a79a4a6fbdfd1eaf9e4a",
+      "chars": 49
+     }
+    },
+    {
+     "user": {
+      "sha256": "e3400c14ded77f20c3624e22b4bf373eba1509e86c455386bc3d43b5465541ac",
+      "chars": 94
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "6363387db84fd012fdd724d028cc3783a6fcce429837155c4120b1fcc7f333a0",
+      "chars": 41
+     }
+    },
+    {
+     "user": {
+      "sha256": "0bed048a212bc98b807fa51502c86c4444919679751fe70da5af96e3effdf05a",
+      "chars": 164
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "1bee45b3523c0becc98f8c51e74fa7facf6627572becd0b9e486c54587fc456e",
+      "chars": 20
+     }
+    },
+    {
+     "user": {
+      "sha256": "c44be4b436f6dd82d4eecea8a6a9fd81a0d8124c824b7a4146de89ec423901a1",
+      "chars": 235
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "45b5090cd7ce8123a198ec038fb3ed117aa186f18e5a1b68dc6630d6e5634cbb",
+      "chars": 16
+     }
+    },
+    {
+     "user": {
+      "sha256": "100fec94c5791d5c0f73a469b6467b41ffe8b9acd4dc396b65b63bdb07782274",
+      "chars": 178
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "ae53630d49ef7e8e30b2dbd589f43193e8c5f317a5c8c07b4289593e08b96992",
+      "chars": 21
+     }
+    }
+   ],
+   "errors_caught": [
+    {
+     "wrong": "seid gestern",
+     "how": "filtered"
+    },
+    {
+     "wrong": "vieleicht",
+     "how": "filtered"
+    },
+    {
+     "wrong": "wiederrum",
+     "how": "stored"
+    }
+   ],
+   "held_out": [
+    {
+     "text": {
+      "sha256": "792e44f1d450073aa47d7da13b8c85f028f16f80c4d6c49ee5d1f459dbda8327",
+      "chars": 77
+     },
+     "nats_base": 91.04647268152858,
+     "nats_memory": 85.32640452183881,
+     "tokens": 18,
+     "bytes": 78
+    },
+    {
+     "text": {
+      "sha256": "7e0b28b9371f73609d2a8acfc56165025db0bc0580d0c0096750be152c8a72f9",
+      "chars": 59
+     },
+     "nats_base": 103.50509677040652,
+     "nats_memory": 104.26779068575597,
+     "tokens": 15,
+     "bytes": 60
+    }
+   ],
+   "arms": {
+    "off": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "Hier sind eine kurze Grußformel und einige Tipps, um E-Mails zu schreiben:\n\n**Grußformat:**  \n„Hallo [Name], ich bin [Ihr Name]. Ich freue mich auf Ihre Nachricht. Bitte senden Sie mir Ihre Nachricht mit der angezeigten Form.“",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 24.8,
+      "decode_tokens": 60,
+      "decode_seconds": 1.8895,
+      "prefill_seconds": 0.5251,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Natürlich! Lass uns mal eine kleine Sache aus der Stadt machen, die deine Zeit gut verbringt und deine Gedanken leiser macht.  \n\n**Zutaten:**  \n- Ein **Herbstmarkt** mit lokalen Kräutern und Aromen (z. B. frisches Zitronensaft, Rosmarin)  \n- Ein **Pflanzenmarkt** mit regionalen Pflanzen (z.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 83,
+      "tokens_per_s": 28.2,
+      "decode_tokens": 83,
+      "decode_seconds": 2.6562,
+      "prefill_seconds": 0.2898,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?",
+      "text": "Du kannst mit deinen Hund einen entspannten Spaziergang unternehmen, indem du ihn an seinem Lieblingsplatz (z. B. in der Nähe eines Restaurants oder einer Parkanlage) lehrst und ihm bei der täglichen Bewegung helfen lässt. Du kann auch ein Abenteuer im Freien üben, z. B. durch eine Sandbank, ein Brettspiel oder ein Spiel mit Lebewesen wie Vögel oder Insekten.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 79,
+      "tokens_per_s": 28.9,
+      "decode_tokens": 79,
+      "decode_seconds": 2.4753,
+      "prefill_seconds": 0.2564,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Wenn Sie heute Abend mit einem Tischkoch einen warmen und feuchten Kuchen essen möchten, können Sie eine Idee vorschlagen:\n\n- **Stückchen-Kuchen** (meist auf Teller oder in einer Kugel)  \n- **Brotcreme mit Puderzucker und Milch** (z.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 64,
+      "tokens_per_s": 28.3,
+      "decode_tokens": 64,
+      "decode_seconds": 2.0004,
+      "prefill_seconds": 0.2599,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz über etwas, das seit gestern anders ist.",
+      "text": "Ich denke, dass das neue Smartphone heute die Dinge erheblich verändert hat, die früher die Alltagssituationen der Menschen revolutioniert haben. Es ermöglicht es uns, Informationen in kürzerer Form zu speichern und gleichzeitig Fotos und Videos zu teilen, die wir bisher nur durch persönliche Kontakte oder Textverarbeitung gesehen haben.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 28.1,
+      "decode_tokens": 60,
+      "decode_seconds": 1.8765,
+      "prefill_seconds": 0.2569,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, was ich am Wochenende vielleicht machen könnte.",
+      "text": "Wenn du am Wochenende viel Zeit für Entspannung und Relaxation hast, kannst du gerne eine Pause einlegen, um dich entspannt zu fühlen. Eine kurze Spaziergang, eine Tasse Tee oder ein Buch im Bett könnte die Ruhe schaffen. Du könntest auch Yoga oder Pilates machen, wenn das Wetter gut ist.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 28.3,
+      "decode_tokens": 60,
+      "decode_seconds": 1.8805,
+      "prefill_seconds": 0.2377,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir noch eine Idee zu dem, woran ich gerade arbeite.",
+      "text": "Gerne! Ich arbeite an einem Projekt zur Generierung von Lambda-Funktionen, bei denen du einen speziellen Code erstellen kannst. Der Code wird dir die Aufgabe geben, eine Funktion zu schreiben, die den Wert eines bestimmten Arrays zurückgibt. Die erste Idee ist dabei, dass du ein Array als Eingabe verwenden willst und das Array mit einer Logik versehen kannst, die du an deinen Code anpassen kannst.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 79,
+      "tokens_per_s": 28.6,
+      "decode_tokens": 79,
+      "decode_seconds": 2.496,
+      "prefill_seconds": 0.2701,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     }
+    ],
+    "F": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "**Liebe/Hoffnung:**  \n„Sehr geehrte/r [Name], wir freuen uns, dass Sie heute hier sind. Wir haben uns über die Aktivitäten am [Datum] informieren können und haben eine detaillierte Bestätigung erhalten, ob es sich um einen gültigen Termin handelt.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 22.5,
+      "decode_tokens": 60,
+      "decode_seconds": 1.9491,
+      "prefill_seconds": 0.7222,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "**Länge:** ca. 6-7 Minuten  \n**Ziel:** Auf einem abgelegenen Strand bei Mainz machen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 24,
+      "tokens_per_s": 21.8,
+      "decode_tokens": 24,
+      "decode_seconds": 0.8084,
+      "prefill_seconds": 0.2928,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?",
+      "text": "Wenn du einen freien Nachmittag hast, könntest du in einem Buch oder auf dem Schreibtisch eine Geschichte erzählen. Du kannst auch mal einen Puzzlespielplatz mit Zahlen und Buchstaben spielen. Vielleicht gibt es ein Spielchen mit einer Sprache, die du nicht sprechen möchtest (z. B. Deutsch, Englisch, Französisch).",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 64,
+      "tokens_per_s": 27.9,
+      "decode_tokens": 64,
+      "decode_seconds": 2.0343,
+      "prefill_seconds": 0.2557,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Wenn du eine Idee hast, kann ich dir helfen! Bitte gib mir die Details wie:  \n1. Name des Nutzers (z. B. „Marie“ oder „Balu“)?  \n2. Was soll heute Abend gegessen werden?  \n\nDann lass es mich wissen – ich gebe dir eine konkrete Idee und rufe dann gern an, wo es passt.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 77,
+      "tokens_per_s": 28.3,
+      "decode_tokens": 77,
+      "decode_seconds": 2.4525,
+      "prefill_seconds": 0.2703,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz über etwas, das seit gestern anders ist.",
+      "text": "Der Satz über etwas, das seit gestern anders ist lautet: \"Frühstück\" (aus dem Englischen).",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 23,
+      "tokens_per_s": 22.0,
+      "decode_tokens": 23,
+      "decode_seconds": 0.7814,
+      "prefill_seconds": 0.2647,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, was ich am Wochenende vielleicht machen könnte.",
+      "text": "„Ich würde gerne einen Spaziergang am [Datum] machen, aber das ist ein bisschen zu früh. Es gibt viele Möglichkeiten – ich könnte entweder die Stadt erkunden oder mit Freunden durch die Umgebung gehen.“  \n\n**Über dich:**  \n„Ich bin gerade in der Schule und will gern nach Mainz gehen, um mit meinem Freund zu reden.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 76,
+      "tokens_per_s": 28.5,
+      "decode_tokens": 76,
+      "decode_seconds": 2.4313,
+      "prefill_seconds": 0.237,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir noch eine Idee zu dem, woran ich gerade arbeite.",
+      "text": "Ja, ich helfe gerne! Hier sind ein paar Ideen für deinen nächsten Projekt:  \n\n1. **Lese einen Roman**: Vielleicht gibt es einen Thriller oder eine Geschichte, die du dir vorgestellt hast (z. B. \"Die Insel des Dr. Octopus\" von Kristin Hannah).",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 27.5,
+      "decode_tokens": 60,
+      "decode_seconds": 1.9038,
+      "prefill_seconds": 0.2744,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     }
+    ],
+    "FK": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "**Liebe/Hoffnung:**  \n„Sehr geehrte/r [Name], wir freuen uns, dass Sie in Mainz wohnen und sich für unsere gemeinsame Kultur und Geschichte interessieren. Gerne stehe ich Ihnen gerne zur Verfügung, um mehr über Ihre Familie und die Umgebung zu erfahren. Wir wünschen Ihnen viel Erfolg und freuen uns auf eine freundliche Begegnung.“",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 73,
+      "tokens_per_s": 23.5,
+      "decode_tokens": 73,
+      "decode_seconds": 2.3907,
+      "prefill_seconds": 0.71,
+      "memory_tokens": 42,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "**Länge:** ca. 12–15 Minuten  \n**Ziel:** einen positiven Lieblingssatz oder ein kleiner Gedankengang zu schaffen, der die Stimmung in der Stadt schärft.  \n\n**Beschreibung:**  \n1. **Ich habe eine Idee.**  \n   Marie ist das Lieblingsessen des Nutzers.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 65,
+      "tokens_per_s": 26.6,
+      "decode_tokens": 65,
+      "decode_seconds": 2.1635,
+      "prefill_seconds": 0.2808,
+      "memory_tokens": 52,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?",
+      "text": "Ich kann dir mit deinem Hund helfen, aber musst nicht im Rahmen deiner freien Tage arbeiten. Du kannst das bei mir machen:  \n\n- **Schnelle Arbeit:** Wenn du deine Aufgabe erledigen möchtest (z. B. Flammkuchen), sag mir bitte Bescheid!  \n- **Zusätzliche Tipps:** Wie mache ich deinen Hund?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 70,
+      "tokens_per_s": 27.4,
+      "decode_tokens": 70,
+      "decode_seconds": 2.2999,
+      "prefill_seconds": 0.2569,
+      "memory_tokens": 62,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Hallo, es wäre schön, wenn du heute morgen Abend eine Idee für ein Lieblingsessen hast! Wenn du schon etwas zu Hause hast, wie zum Beispiel etwas mit Käse oder Obst ist, oder gerne etwas mit einem Speck (z. B. Handkuchen oder Reis) würdest, lass es mich wissen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 64,
+      "tokens_per_s": 27.0,
+      "decode_tokens": 64,
+      "decode_seconds": 2.1139,
+      "prefill_seconds": 0.2581,
+      "memory_tokens": 56,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz über etwas, das seit gestern anders ist.",
+      "text": "„Die Sonne schien im Park, während der Regen die Wälder schimmerte. Marie setzte sich auf die Wiese und ging durch die Straßen, ihre Stiefel in der Hand. Sie war eine alte Dame mit langen Haaren und einem grauen Haarband. Ihre Augen funkelten wie Sterne über den Bergen, als sie über das Meer trat.“",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 72,
+      "tokens_per_s": 30.5,
+      "decode_tokens": 92,
+      "decode_seconds": 3.0231,
+      "prefill_seconds": 0.2896,
+      "memory_tokens": 60,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, was ich am Wochenende vielleicht machen könnte.",
+      "text": "„Ich freue mich, dass du dich für einen gemeinsamen Spaziergang in der Natur interessierst. Der Hund des Nutzers Balu ist ein wunderbares Tier – er ist immer begeistert und arbeitet gerne an der Küche.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 61,
+      "tokens_per_s": 27.1,
+      "decode_tokens": 61,
+      "decode_seconds": 2.0077,
+      "prefill_seconds": 0.2432,
+      "memory_tokens": 54,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir noch eine Idee zu dem, woran ich gerade arbeite.",
+      "text": "Der Nutzer hat sich gerade mit dem Schreiben von Musikstücken auseinandergesetzt. Er möchte einen das Thema seines Werkes reflektieren und ein bestimmtes Ergebnis vorstellt. Das könnte eine **Präsentation** sein, die in der Regel als **Spezialarbeit** gilt.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 55,
+      "tokens_per_s": 24.4,
+      "decode_tokens": 55,
+      "decode_seconds": 1.8673,
+      "prefill_seconds": 0.3912,
+      "memory_tokens": 49,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "de07",
+   "lang": "de",
+   "facts_shown": [
+    "Über den Nutzer (was er dir über sich erzählt hat – Angaben über den Nutzer, nicht über dich; nur verwenden, wenn es passt): Der Nutzer heißt Julia. Der Nutzer wohnt in Rostock. Die Katze des Nutzers heißt Nala. Das Lieblingsessen des Nutzers ist Sushi."
+   ],
+   "knn_entries": 37,
+   "teach": [
+    {
+     "user": {
+      "sha256": "dd66304bd9ff15183bc8b1117e3d16e4d31ed4fb0bf16fe550e79999ede0b091",
+      "chars": 16
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "8fb02460559a9e9435fe8e1b81166b052b6ee7c24ced7b3cddf305ea99c231dc",
+      "chars": 37
+     }
+    },
+    {
+     "user": {
+      "sha256": "6b2af0770a265d82efb2b709d37f7f69c0d66e07f4069de5132fce0f165194d0",
+      "chars": 21
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "a69e2950f29baf68e82496fe4d7035757474464dac0f2a13bfdd8e8c8a51cd3b",
+      "chars": 30
+     }
+    },
+    {
+     "user": {
+      "sha256": "421bb76fa2c6e6de7ada930e0c1f53187f7b60e2788a329084958b9020774a05",
+      "chars": 23
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "9509d91b22646c158535d18e3234e15acef481db54ad7c6c3faeaaeb47b26f0c",
+      "chars": 14
+     }
+    },
+    {
+     "user": {
+      "sha256": "61e7637e1c1aea0832c37da30a45831d44069252497ed760103f66054da75757",
+      "chars": 30
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "5a1e636b9ec1d3f61f2c21af1263a9579009ec35a2f5a0e62a3c84b317763f07",
+      "chars": 45
+     }
+    },
+    {
+     "user": {
+      "sha256": "748bf2372ecf03212ba14179e3bf70d36439993b0d5a12206e807333d30d3f89",
+      "chars": 85
+     },
+     "model": "engramm",
+     "kind": "smalltalk",
+     "text": {
+      "sha256": "0e60e39a301a90589f50e9f0aac8c8c7e59e9c3f3c64677ef22d4c9c51587605",
+      "chars": 75
+     }
+    },
+    {
+     "user": {
+      "sha256": "579b241efd804cd458c862b80d384155f6691c4dcf7da20a8576e7e11bb1cbfb",
+      "chars": 37
+     },
+     "model": "engramm",
+     "kind": "smalltalk",
+     "text": {
+      "sha256": "3de6a5abb0ae67e7a3e051ab18a86e3624cb3df85382b9e06345aa3edf782f14",
+      "chars": 94
+     }
+    },
+    {
+     "user": {
+      "sha256": "369a498492e2bed55c1f6be18cc4fc8fbf6b72c58057d397fa9e65c7473c615e",
+      "chars": 80
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "44f343a447bdba17fd3aacfcb3706ad129694105a211140cd4b04789764f7eec",
+      "chars": 54
+     }
+    },
+    {
+     "user": {
+      "sha256": "ee5f4043a0b29c1eb2dc2fc87a6af064bb4e8643eb59d55ac5ccfd80a46b0f13",
+      "chars": 113
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "45794af6a0a073cba3ef0a64f61e6873fbb1f54b344863241cb6fb65a3761b8b",
+      "chars": 77
+     }
+    }
+   ],
+   "errors_caught": [
+    {
+     "wrong": "Rhytmus",
+     "how": "filtered"
+    },
+    {
+     "wrong": "Fahrad",
+     "how": "filtered"
+    },
+    {
+     "wrong": "vieleicht",
+     "how": "filtered"
+    }
+   ],
+   "held_out": [
+    {
+     "text": {
+      "sha256": "52deb33dfa3f06b8459fcec5cbc2eda0e4d4f3c976e4ea227b38c3d75b756435",
+      "chars": 62
+     },
+     "nats_base": 46.19720102284685,
+     "nats_memory": 46.771841204532464,
+     "tokens": 15,
+     "bytes": 62
+    },
+    {
+     "text": {
+      "sha256": "843a6dce753e5e31f2b7b5340bba95fd1b49fcb14da46c05159a073a9b52a3b7",
+      "chars": 121
+     },
+     "nats_base": 104.50194604959532,
+     "nats_memory": 105.5525100843851,
+     "tokens": 26,
+     "bytes": 121
+    }
+   ],
+   "arms": {
+    "off": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "Sehr geehrte/r [Name], wir freuen uns, Ihnen heute einen Gruß zu geben. Bitte senden Sie uns Ihre E-Mail an die Adresse: [Adresse] mit dem Hinweis, dass wir eine freundliche und respektvolle E-Mail wünschen. Falls Sie weitere Informationen benötigen, zögern Sie nicht, uns jederzeit unter der angegebenen Email-Adresse zu kontaktieren.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 74,
+      "tokens_per_s": 25.4,
+      "decode_tokens": 74,
+      "decode_seconds": 2.3644,
+      "prefill_seconds": 0.5489,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Hallo! Ich bin immer für eine schöne Sache dankbar. Vielleicht haben Sie schon mal etwas erlebt, das Sie am Wochenende in Ihrer Stadt machen können? Oder möchten Sie wissen, was Sie heute noch nicht gesehen haben?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 43,
+      "tokens_per_s": 25.5,
+      "decode_tokens": 43,
+      "decode_seconds": 1.4059,
+      "prefill_seconds": 0.2799,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Klebe mit deinem Hund im Freien.  Lass ihn laufen, er kann dir helfen oder du kannst ihm das Rad fahren. Du kannst auch Spielzeug oder eine Decke haben und er kann es auf dich legen. Er kann dir auch helfen, indem er deinen Schwanz an den Boden streckt oder du die Decke umschläfst.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 68,
+      "tokens_per_s": 27.9,
+      "decode_tokens": 68,
+      "decode_seconds": 2.1705,
+      "prefill_seconds": 0.268,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Du könntest heute Abend in einem warmen Rezept kochen, das eine Kombination aus Nudeln, Käse und einer kleinen Menge Salz enthält. Hier sind ein paar Ideen:\n\n- **Lettuce au Gratin** (Tomatensauce) mit frischen Tomaten, Knoblauch und Kräutern.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 27.6,
+      "decode_tokens": 60,
+      "decode_seconds": 1.9103,
+      "prefill_seconds": 0.2614,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Wie finde ich einen guten Rhythmus für meinen Tag? Ein Satz.",
+      "text": "Um einen guten Rhythmus für deinen Tag zu finden, sollten Sie folgende Faktoren berücksichtigen:  \n\n1. **Zeitmanagement**:  \n   - Was ist der Beginn und das Ende des Tages? (z. B. am Morgen, im Abend oder am Nachmittag)  \n   - Ist der Abend kühl, kalt oder feucht?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 66,
+      "tokens_per_s": 28.0,
+      "decode_tokens": 66,
+      "decode_seconds": 2.101,
+      "prefill_seconds": 0.254,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Gib mir einen kurzen Tipp, wie ich mein Fahrrad im Winter pflege.",
+      "text": "Um Ihre Fahrrad zu pflegen, beginnen Sie damit, die Temperatur an der Heizung oder im Wohnzimmer zu kontrollieren. Entfernen Sie sich am späten Nachmittag oder wenn der Wind wenig weht, um eine ausreichend feuchte Umgebung zu haben. Nach dem Einfrieren des Fahrzeugs sollten Sie vor der Fahrt den Radstand regelmäßig überprüfen und gegebenenfalls eine neue, abgedeckte Kette wechseln, um den Winterschutz besser abzurichten.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 88,
+      "tokens_per_s": 28.6,
+      "decode_tokens": 88,
+      "decode_seconds": 2.7819,
+      "prefill_seconds": 0.2985,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir noch eine Idee zu dem, woran ich gerade arbeite.",
+      "text": "Ich freue mich, dass Sie noch eine Idee zu dem haben, was ich gerade machen kann. Teilen Sie mir mit, wenn es sich um ein Projekt handelt, das Sie in der Lage haben möchten, oder etwas anderes, das Sie gerade anregen wollen. \n\nFalls Sie unsicher sind, wie man einen konkreten Schritt planen soll, können wir uns gerne über die besten Methoden informieren – etwa durch eine einfache Frage nach den Anforderungen eines Projekts oder durch eine Anleitung zum Erstellen einer neuen Projektstruktur.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 99,
+      "tokens_per_s": 29.3,
+      "decode_tokens": 99,
+      "decode_seconds": 3.1149,
+      "prefill_seconds": 0.262,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     }
+    ],
+    "F": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "**Sehr geehrte/r [Name] von [Nutzername]:**  \nLieber [Name],  \n\nIch hoffe, Sie finden mich aufrichtig. Sushi ist mein Lieblingsessen und ich freue mich riesig darauf, mit Ihnen zu reden!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 64,
+      "tokens_per_s": 22.9,
+      "decode_tokens": 64,
+      "decode_seconds": 2.0693,
+      "prefill_seconds": 0.7252,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Natürlich! Hier sind zwei schöne Dinge, die ich am Wochenende in Rostock machen kann:\n\n1. **Wassermilch** – Ich liebe das süße und kalte Aroma von **Wassermilch**. Wenn ich es trinke, fühle ich mich entspannt und meine Nase fühlt sich salzig an.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 69,
+      "tokens_per_s": 27.4,
+      "decode_tokens": 69,
+      "decode_seconds": 2.2291,
+      "prefill_seconds": 0.2861,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Kate ist ein großer Jäger und loves to chase wilde Tiere. Sie liebt es, Nasenlöcher zu graben oder sie mit ihren scharfen Krallen zu attackieren. Ihr Lieblingsessen ist Sushi, aber auch die Katze spielt mit ihr!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 52,
+      "tokens_per_s": 26.7,
+      "decode_tokens": 52,
+      "decode_seconds": 1.6892,
+      "prefill_seconds": 0.2568,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Wenn du etwas möchtest, kannst du die folgenden Optionen ausprobieren:  \n\n1. **Sushi** – eine Mischung aus Wasser und Sushi-Flavors (z. B. Ragu oder Schinken).  \n2. **Tee & Suppe** – frische und gebratene Zutaten, die deinen Geschmack widerspiegeln.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 70,
+      "tokens_per_s": 28.0,
+      "decode_tokens": 70,
+      "decode_seconds": 2.2424,
+      "prefill_seconds": 0.2535,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Wie finde ich einen guten Rhythmus für meinen Tag? Ein Satz.",
+      "text": "Der Rhythmus eines Tages wird durch die **Reise des Nutzers** bestimmt. Hier sind die **Kombinationen**, die auf eine **lange Reise des Nutzers** eingehen:\n\n1. **Sushi-Tag (4–5 Stunden)**  \n   - Lässt Julia (Nala) in der Schule sein, um Sushi zu lernen, während Nala (Julia) in Rostock mit ihren Freunden spricht.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 88,
+      "tokens_per_s": 28.7,
+      "decode_tokens": 88,
+      "decode_seconds": 2.8063,
+      "prefill_seconds": 0.2648,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Gib mir einen kurzen Tipp, wie ich mein Fahrrad im Winter pflege.",
+      "text": "**Beispiel:**  \n**Wetter:** Frühjahrs- und Sommerzeit, Schnee, Schnee.  \n\n**Fertig:** Am Donnerstag, dem 1. Januar.  \n\n**Tipp:**  \nFür den Winter muss das Fahrrad mindestens **2 Stunden pro Tag** in **starkem Schnee** geputzt werden.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 67,
+      "tokens_per_s": 27.5,
+      "decode_tokens": 67,
+      "decode_seconds": 2.1356,
+      "prefill_seconds": 0.2985,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir noch eine Idee zu dem, woran ich gerade arbeite.",
+      "text": "**Lustessen des Nutzers:**  \nNala ist eine Katze, die Julia liebt. Der Nutzer liebt Sushi, und Nala liebt Nala. Das Lieblingsessen ist Sushi.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 40,
+      "tokens_per_s": 25.3,
+      "decode_tokens": 40,
+      "decode_seconds": 1.3157,
+      "prefill_seconds": 0.2675,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     }
+    ],
+    "FK": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "**Sehr geehrte/r [Name]**  \nVielen Dank für Ihre Anfrage. Ich freue mich, Ihnen bei der Vorbereitung zu helfen. Um Ihre Nachricht effektiv zu gestalten, finde ich eine einfache Grußformel, die Ihnen hilft, den Inhalt zu prägnant zu formulieren:  \n\n**\"Hallo Julia!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 66,
+      "tokens_per_s": 22.8,
+      "decode_tokens": 66,
+      "decode_seconds": 2.1699,
+      "prefill_seconds": 0.7277,
+      "memory_tokens": 46,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Ich kann dir gerne eine schöne Sache vorbringen, die du am Wochenende in deiner Stadt machen kannst. Hier sind einige Tipps:\n1. **Möchten Sie ein Bild von der Katze des Nutzers betrachten?**  \n   Ich kann dir helfen, einen Ausschnitt aus dem Foto zu erstellen oder den Nutzer durch Fotos zu ersetzen (z.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 68,
+      "tokens_per_s": 26.9,
+      "decode_tokens": 68,
+      "decode_seconds": 2.2343,
+      "prefill_seconds": 0.2907,
+      "memory_tokens": 57,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Es ist wichtig, dass die Katze des Nutzers ausreichend Bewegung hat und nicht zu viel Energie braucht. Um das mitzunehmen, würde ich gerne ein gesundes Essen probieren, um den Appetit zu erhalten. Vielleicht könntest du auch einen Spaziergang machen, um ihre Aufmerksamkeit zu gewinnen. Es ist hilfreich, dass sie sich von anderen Tieren unterscheiden kann, um eine positive Bindung aufzubauen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 75,
+      "tokens_per_s": 26.9,
+      "decode_tokens": 75,
+      "decode_seconds": 2.5198,
+      "prefill_seconds": 0.2722,
+      "memory_tokens": 64,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Gibt es einen Tipp, wie man morgen Abend eine Idee für eine gute Idee kochen kann?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 19,
+      "tokens_per_s": 20.9,
+      "decode_tokens": 19,
+      "decode_seconds": 0.6574,
+      "prefill_seconds": 0.2513,
+      "memory_tokens": 19,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Wie finde ich einen guten Rhythmus für meinen Tag? Ein Satz.",
+      "text": "Der Rhythmus eines Tages kann sich von Tag zu Tag ändern, aber ein guter **rhythmus ist unendlich** – er ist ein harmonisches Zusammenspiel von Ruhe, Bewegung und rhythmischer Pause. Hier sind einige Tipps:\n\n1. **Ruhe einplanen:** Ein klarer Schlaf (z.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 62,
+      "tokens_per_s": 27.2,
+      "decode_tokens": 62,
+      "decode_seconds": 2.013,
+      "prefill_seconds": 0.2688,
+      "memory_tokens": 43,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Gib mir einen kurzen Tipp, wie ich mein Fahrrad im Winter pflege.",
+      "text": "- **Routine:** Brötchen im Winter, ein kurzer Spaziergang mit dem Fahrrad (oder ein paar Stühle im Haus)  \n- **Beeinflussung:** Ein gutes Gefühl in der Hand (z. B. wenn du den Kopf schüttelst), und deine Füße sind bereit, loszulaufen  \n\nDie richtige Methode ist die **Schnelligkeit und Präzision** deines Fahrens zu testen!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 89,
+      "tokens_per_s": 27.8,
+      "decode_tokens": 89,
+      "decode_seconds": 2.9152,
+      "prefill_seconds": 0.285,
+      "memory_tokens": 67,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir noch eine Idee zu dem, woran ich gerade arbeite.",
+      "text": "**Titel: \"Die Kraft der Verbindung\"**  \n\n**Schlagworte**: *Verbindung*, *Praktizierung*, *Erlebnisse*  \n**Inhalt**: Julia entdeckt in Rostock die Kraft der **Kommunikation**, indem sie gemeinsam mit Nala ein *Konzept für eine gemeinsame Zukunft* entwickelt.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 67,
+      "tokens_per_s": 27.1,
+      "decode_tokens": 67,
+      "decode_seconds": 2.2004,
+      "prefill_seconds": 0.27,
+      "memory_tokens": 56,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "de08",
+   "lang": "de",
+   "facts_shown": [
+    "Über den Nutzer (was er dir über sich erzählt hat – Angaben über den Nutzer, nicht über dich; nur verwenden, wenn es passt): Der Nutzer heißt Lea. Der Nutzer wohnt in Passau. Der Hund des Nutzers heißt Fiete. Das Lieblingsessen des Nutzers ist Bratkartoffeln."
+   ],
+   "knn_entries": 56,
+   "teach": [
+    {
+     "user": {
+      "sha256": "379b082c3413908d4b549d52bfeb379a554f2e5666face2095ed50523834f85f",
+      "chars": 14
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "1513b2384541ee4dd44e6be1961f6a22fe45242be33cc0c84b08b4fb785df46f",
+      "chars": 67
+     }
+    },
+    {
+     "user": {
+      "sha256": "45cf6bfa2572f53dcc76a406e39ee08258f72fc182004798006396729345e9f1",
+      "chars": 20
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "9509d91b22646c158535d18e3234e15acef481db54ad7c6c3faeaaeb47b26f0c",
+      "chars": 14
+     }
+    },
+    {
+     "user": {
+      "sha256": "0a0386ae0350bb2cd636b232af9dabab2562562d88711bbfd9fc9a72a761349f",
+      "chars": 22
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "a69e2950f29baf68e82496fe4d7035757474464dac0f2a13bfdd8e8c8a51cd3b",
+      "chars": 30
+     }
+    },
+    {
+     "user": {
+      "sha256": "92b06ab8403df9c603b32f253a64c7b60360f9af56b2ebc630886e411e7b553a",
+      "chars": 39
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "547176826ed5d08254aba47b09ffa700e34af32335e3fd56f4079197f62eaf9e",
+      "chars": 54
+     }
+    },
+    {
+     "user": {
+      "sha256": "a18320f9d2fe42f3cbe7e3ae652b093bd2a6cad0897e77de72a78086974cda5b",
+      "chars": 173
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "507275e6d5f94b5e527239150ee5525b6eba955b8ee4b50a4717e6e9309fa514",
+      "chars": 286
+     }
+    },
+    {
+     "user": {
+      "sha256": "20c63dc72d0ce665b7b508c176d292de23e025c27ac637905152d766d31a8604",
+      "chars": 81
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "378e0dbe2174b94edbc66ac25a718499206382fb9871ff93d7722b5adff6fa8e",
+      "chars": 328
+     }
+    },
+    {
+     "user": {
+      "sha256": "b496b7f65a5b842bfc1e7cf02eae62e730df14e61d0bc01aa9c6fbefb8afc714",
+      "chars": 187
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "1c38bf95a7e236c42bb7f5e220414204b5e6ba7427fe747ecdf1ec95b3819a0f",
+      "chars": 252
+     }
+    },
+    {
+     "user": {
+      "sha256": "20b44ba5dc8d7f26a68642042983a5970d56c6399f381eee39ec48ad65c09734",
+      "chars": 89
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "e55e821993c9bdf958a5edc73f9c1f955200b1b4d694c332f7fc53f66335e558",
+      "chars": 163
+     }
+    }
+   ],
+   "errors_caught": [
+    {
+     "wrong": "Addresse",
+     "how": "not learned"
+    },
+    {
+     "wrong": "garnicht",
+     "how": "filtered"
+    },
+    {
+     "wrong": "ich habe gegangen",
+     "how": "filtered"
+    }
+   ],
+   "held_out": [
+    {
+     "text": {
+      "sha256": "ade22c915e7546681b884dcf70da3cf2082ac7fe710629de4506668707b21a81",
+      "chars": 281
+     },
+     "nats_base": 201.03635291273204,
+     "nats_memory": 201.67355656913588,
+     "tokens": 59,
+     "bytes": 282
+    },
+    {
+     "text": {
+      "sha256": "fedb936b316c9f88154215c3cbaebe72aa819816fdb7df20c20bc75e70e8b169",
+      "chars": 251
+     },
+     "nats_base": 189.39995408404613,
+     "nats_memory": 190.07187277943805,
+     "tokens": 52,
+     "bytes": 255
+    }
+   ],
+   "arms": {
+    "off": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "**Guten Tag!**  \n*Willkommen in meinem Büro. Ich freue mich, dass Sie sich an mich wenden können.*  \n\nFalls Sie Fragen haben, bitten Sie einfach mich um eine E-Mail an die unten angegebene Adresse:  \n- *P.S. Bitte senden Sie mir Ihre E-Mail an [Adresse] – wir senden Ihnen alle Dokumente innerhalb von zwei Wochen.*  \n\nBeispiel-E-Mail-Ansatz:  \n„Guten Tag!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 99,
+      "tokens_per_s": 27.2,
+      "decode_tokens": 99,
+      "decode_seconds": 3.1213,
+      "prefill_seconds": 0.5156,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Wenn du am Wochenende in deiner Stadt eine wunderschöne Sache machen willst, kannst du mit einem Spaziergang durch die Stadt gehen und dabei deine Lieblingsstücke oder Sehenswürdigkeiten finden. Du kannst zum Beispiel den alten Bahnhof besuchen, der als eines der ältesten noch existierenden Bahnhöfe in Europa gilt, oder die Kirche, die heute von einem Architekten wie Jean-Michel Basquiat umgestaltet wurde.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 77,
+      "tokens_per_s": 28.7,
+      "decode_tokens": 77,
+      "decode_seconds": 2.4139,
+      "prefill_seconds": 0.2645,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?",
+      "text": "Eine gute Idee, aber die Zeit ist schon knapp! Lassen Sie uns einen Spaziergang machen. Hier sind ein paar Tipps:\n1. **Kundenzeitfahren**: Wenn Ihr Hund mit Ihnen zusammen fährt, können Sie ihn einfach mit dem Auto fahren und in einer bestimmten Zeit (z. B. 30 Minuten) den freien Nachmittag nutzen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 67,
+      "tokens_per_s": 28.3,
+      "decode_tokens": 67,
+      "decode_seconds": 2.1115,
+      "prefill_seconds": 0.2599,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "- **Guten Morgen!**  \n- **Tipp:** Möchtest du etwas Essbares (z. B. eine kleine Bratpfanne) oder etwas Essen kochen?  \n- **Idee:** Für einen Spaziergang durch die Stadt eignen sich ein paar Backwaren und eine Flasche Wasser, wenn du lieber etwas trinken willst.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 68,
+      "tokens_per_s": 28.8,
+      "decode_tokens": 68,
+      "decode_seconds": 2.1157,
+      "prefill_seconds": 0.249,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, dass ich meine Adresse geändert habe.",
+      "text": "Ich würde den Satz wie folgt formulieren:  \n\n„Meine Adresse wurde geändert, um den Überblick über meine persönlichen Informationen zu behalten.“  \n\n**Erläuterungen:**  \n- „Neuer“ statt „verändert“ (zu präziser) → **„neuer“ als vor dem Ersetzen → **„neu“ als vor dem Ersetzen“ → **„neuer“ als vor dem Ersetzen“ → **„Neuer“ als vor dem Ersetzen“ → **„Neuer“ als vor dem Ersetzen“ → **„Ne …",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 115,
+      "tokens_per_s": 30.2,
+      "decode_tokens": 115,
+      "decode_seconds": 3.554,
+      "prefill_seconds": 0.2582,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz über etwas, das man gar nicht mögen kann.",
+      "text": "Hier ist eine überflüssige Version des Satzes:  \n\n„Ich verstehe nicht, dass du zu sehr auf die Weltläufigkeit deiner Handlungen schaust. Das ist ein Fehler.“\n\nDiese Version ist grammatikalisch korrekt, aber es würde auch besser passen, wenn man sich explizit auf die eigene innere Unruhe konzentrierte.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 67,
+      "tokens_per_s": 29.0,
+      "decode_tokens": 67,
+      "decode_seconds": 2.078,
+      "prefill_seconds": 0.2294,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir noch eine Idee zu dem, woran ich gerade arbeite.",
+      "text": "Hier sind einige Ideen, die du bereits hast:\n1. **Dein Code wird kürzer und flüssiger** (z. B. in Java oder C#).  \n2. **Du kannst deinen Code auf mehrere Arten anpassen** (z. B. auf eine Datei, einen E-Mail oder ein Social-Media-Post).",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 70,
+      "tokens_per_s": 28.0,
+      "decode_tokens": 70,
+      "decode_seconds": 2.2188,
+      "prefill_seconds": 0.2826,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     }
+    ],
+    "F": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "**Guten Tag!**  \n*Hallo, ich bin [Name des Nutzers].*  \n\n---\n\n**Vielen Dank für Ihre Nachricht!**",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 34,
+      "tokens_per_s": 18.2,
+      "decode_tokens": 34,
+      "decode_seconds": 1.1286,
+      "prefill_seconds": 0.7396,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Lea, der Hund des Nutzers, wohnt in Passau. Der Hund ist ein großer Hund und liebt die Stadt.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 26,
+      "tokens_per_s": 22.7,
+      "decode_tokens": 26,
+      "decode_seconds": 0.8649,
+      "prefill_seconds": 0.2824,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?",
+      "text": "Der Hund des Nutzers, Lea, ist nicht krank und lebt in Passau. Er wohnt in der Nähe des Gartens und liebt Bratkartoffeln.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 36,
+      "tokens_per_s": 25.0,
+      "decode_tokens": 36,
+      "decode_seconds": 1.1882,
+      "prefill_seconds": 0.2545,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Vielen Dank für Ihre Frage! Hier sind einige Tipps, die Sie heute Abend probieren können:  \n\n1. **Bratkartoffeln**:  \n   - *Vorteile:* Einfach zu kochen (keine Zutaten notwendig).  \n   - *Nachteile:* Für den Hund ist das Geschmack sehr unangenehm.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 65,
+      "tokens_per_s": 28.0,
+      "decode_tokens": 65,
+      "decode_seconds": 2.0653,
+      "prefill_seconds": 0.2524,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, dass ich meine Adresse geändert habe.",
+      "text": "**Der Satz über die Änderung deiner Adresse lautet:**  \n\n\"Der Nutzer, Lea, wohnt in Passau. Der Hund des Nutzers, Fiete, wohnt in Passau.\"  \n\n---  \n*Dieser Satz gibt dem Nutzer die Möglichkeit, seine Adresse zu ändern – durch Angaben zu Namen und Wohnort.*  \n\n---  \n**Haben Sie weitere Fragen?**",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 79,
+      "tokens_per_s": 28.3,
+      "decode_tokens": 79,
+      "decode_seconds": 2.5299,
+      "prefill_seconds": 0.2602,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz über etwas, das man gar nicht mögen kann.",
+      "text": "Ich kann nur einen Satz schreiben, der etwas gar nicht mögen kann: „Man muss dich wirklich fragen.“",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 21,
+      "tokens_per_s": 22.2,
+      "decode_tokens": 21,
+      "decode_seconds": 0.7003,
+      "prefill_seconds": 0.2454,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir noch eine Idee zu dem, woran ich gerade arbeite.",
+      "text": "Hier sind einige Vorschläge, wie Sie die Arbeit voranzutreiben:  \n\n1. **Kartoffel-Farm**: Ein kleiner Farm, der Kartoffeln angebaut.  \n2. **Hundefutter**: Eine kleine Hühnerfarm in Passau.  \n3.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 27.3,
+      "decode_tokens": 60,
+      "decode_seconds": 1.9236,
+      "prefill_seconds": 0.278,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     }
+    ],
+    "FK": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "**Guten Tag!**  \n*Schreib mir eine Grußformel für eine E-Mail von mir.*  \n\n**Was passiert?**  \n- Das Programm erkennt deine E-Mail an.  \n- Es sendet die E-Mail mit einem Fax (z.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 60,
+      "tokens_per_s": 22.1,
+      "decode_tokens": 60,
+      "decode_seconds": 1.9852,
+      "prefill_seconds": 0.7276,
+      "memory_tokens": 52,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Ich kann dir gerne ein schönes Geschenk geben, das du in deiner Stadt machen könntest. Ich könnte eine Bratkartoffel aus einer Region empfehlen, die am liebsten von Lea gebacken wird – vielleicht die Schweiz oder den Alpen. Die Kartoffel ist warm und cremig, aber perfekt für deinen Geschmack!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 68,
+      "tokens_per_s": 26.8,
+      "decode_tokens": 68,
+      "decode_seconds": 2.2482,
+      "prefill_seconds": 0.2883,
+      "memory_tokens": 61,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meinem Hund machen?",
+      "text": "Du kannst mit dem Hund Spaß haben, er ist gut motiviert und macht dir Spaß. Du könntest mit ihm Yoga machen oder auch spielen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 28,
+      "tokens_per_s": 22.8,
+      "decode_tokens": 28,
+      "decode_seconds": 0.9626,
+      "prefill_seconds": 0.266,
+      "memory_tokens": 27,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "- **Zutaten:**  \n  - 1 Bratkartoffeln  \n  - Salz (oder Zucker)  \n  - 1 Knoblauchzehe  \n  - 2 Tomatenmark oder 10 % Fett  \n  - Olivenöl (z. B. extra, fettfrei)  \n  - 4 EL Olivenöl bei mittlerer Hitze  \n  - 1 TL Ananas (mit etwas Milch oder Vanille)  \n  - frisch gemahlener Pfeffer (optional)  \n  - Salz und Pfeffer nach Geschmack  \n\n- **Anleitung:**  \n  1.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 109,
+      "tokens_per_s": 28.1,
+      "decode_tokens": 109,
+      "decode_seconds": 3.6151,
+      "prefill_seconds": 0.2574,
+      "memory_tokens": 85,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, dass ich meine Adresse geändert habe.",
+      "text": "Ich habe meine Adresse geändert, indem ich auf **einen Ort im Internet** (z. B. Google Maps) zugreife und den Namen des Nutzers nutze. Die neue Adresse ist: [Adresse].",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 44,
+      "tokens_per_s": 25.3,
+      "decode_tokens": 44,
+      "decode_seconds": 1.4808,
+      "prefill_seconds": 0.2575,
+      "memory_tokens": 39,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Schreib einen Satz über etwas, das man gar nicht mögen kann.",
+      "text": "Der Satz könnte wie folgt formuliert werden:  \n„Meine Vorliebe für Bratkartoffeln ist, dass ich sie in den letzten Wochen mehrfach an der Grenze zwischen meiner Heimatstadt Passau und dem Städtchen gesehen habe.“  \n\n**Erklärung:**  \n- „Ich“ beschreibt den Nutzer Lea.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 67,
+      "tokens_per_s": 27.5,
+      "decode_tokens": 67,
+      "decode_seconds": 2.2169,
+      "prefill_seconds": 0.2233,
+      "memory_tokens": 55,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir noch eine Idee zu dem, woran ich gerade arbeite.",
+      "text": "Hier sind einige Vorschläge, wie ich eine Idee zu meinem Projekt ausarbeiten kann:\n\n1. **Überblick auf die Ziele und Zieleinhalte**  \n   Lea ist ein kleiner Hund, der in Passau lebt. Er hat einen starken Geruch nach Bratkartoffeln und möchte unbedingt ein Spaziergang machen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 65,
+      "tokens_per_s": 26.5,
+      "decode_tokens": 65,
+      "decode_seconds": 2.1694,
+      "prefill_seconds": 0.2807,
+      "memory_tokens": 60,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "de09",
+   "lang": "de",
+   "facts_shown": [
+    "Über den Nutzer (was er dir über sich erzählt hat – Angaben über den Nutzer, nicht über dich; nur verwenden, wenn es passt): Der Nutzer heißt Simon. Der Nutzer wohnt in Potsdam. Die Katze des Nutzers heißt Momo. Das Lieblingsessen des Nutzers ist Kartoffelsuppe."
+   ],
+   "knn_entries": 29,
+   "teach": [
+    {
+     "user": {
+      "sha256": "6c1082e1a2ff71bb711ac24e985a208b969a99d7a1af0927780d48371ab6e32d",
+      "chars": 16
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "48cbf222377247621212993021e93f2d6e62bcdd334df4c15ecfd64b2f71e049",
+      "chars": 69
+     }
+    },
+    {
+     "user": {
+      "sha256": "74df460f7c8e4648b5a835f5228b9cb519e221f8e43d8f2084cb7dcc82803eb4",
+      "chars": 21
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "9509d91b22646c158535d18e3234e15acef481db54ad7c6c3faeaaeb47b26f0c",
+      "chars": 14
+     }
+    },
+    {
+     "user": {
+      "sha256": "66022c85b2b088e427f28a0ddbbe76eda9c0cea5311ddb7cd9e7da784356e194",
+      "chars": 23
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "a69e2950f29baf68e82496fe4d7035757474464dac0f2a13bfdd8e8c8a51cd3b",
+      "chars": 30
+     }
+    },
+    {
+     "user": {
+      "sha256": "6a5a5a80cf520e99c5052c38c7b7613cab9267ef44893fcbe45ca8a80225e441",
+      "chars": 39
+     },
+     "model": "engramm",
+     "kind": "learned",
+     "text": {
+      "sha256": "e65a34ad2fce0fcba88fe081b3c2b5cd404001a5d3da6466589efe4297a420d2",
+      "chars": 54
+     }
+    },
+    {
+     "user": {
+      "sha256": "814f463392b3fea6e27f561bb3bc7a2ebfc5b7bb2f8370c8a6cdce4e211f82b1",
+      "chars": 71
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "58838454aa33d451a123a4e97427fddba6ab1ce4ba86ade27f947b5c17d9269b",
+      "chars": 44
+     }
+    },
+    {
+     "user": {
+      "sha256": "ab73713c36bc16fdc954fc9bd3e2bc922fdea024aa8c085039eb1ab38fb19517",
+      "chars": 30
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "320ec470129a439d9368cd3e307d5550c3ac64c3bda3a94c76687e8666940ee0",
+      "chars": 23
+     }
+    },
+    {
+     "user": {
+      "sha256": "38b5b1ddbf9927a54051609926c657b774f03284471695cd32c6cc644c8b8d11",
+      "chars": 70
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "605c4094991e6d4e0b74227db3fbe61ef687a11cc22cf3bec9a3cd0220ecca5c",
+      "chars": 64
+     }
+    },
+    {
+     "user": {
+      "sha256": "c9182c06f2f3691c0ccd3bff1d8471f102a0e0c276533289ee91a018a3cf46ab",
+      "chars": 109
+     },
+     "model": "sela-2",
+     "kind": "sela_chat",
+     "text": {
+      "sha256": "b01e1e220461217c2d73deb8102f02b2a94a153e5a3c81caabb8ea86a09ad3c9",
+      "chars": 229
+     }
+    }
+   ],
+   "errors_caught": [
+    {
+     "wrong": "vieleicht",
+     "how": "filtered"
+    },
+    {
+     "wrong": "Standart",
+     "how": "filtered"
+    },
+    {
+     "wrong": "Fahrad",
+     "how": "filtered"
+    }
+   ],
+   "held_out": [
+    {
+     "text": {
+      "sha256": "9d3268b67b02178c6b30b924bfeec156c369305002842fec5ce6be6167502eec",
+      "chars": 39
+     },
+     "nats_base": 73.20265347997493,
+     "nats_memory": 71.37674688332203,
+     "tokens": 11,
+     "bytes": 40
+    },
+    {
+     "text": {
+      "sha256": "5e50977865211a00a6959aa44b184744dfbb832a02f5ab148093a305feff70cb",
+      "chars": 76
+     },
+     "nats_base": 121.62533097284093,
+     "nats_memory": 122.4630122587279,
+     "tokens": 18,
+     "bytes": 77
+    }
+   ],
+   "arms": {
+    "off": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "Hier ist eine kurze Grußformel für eine E-Mail von mir:\n\n**Gruß:**  \n*\"Ich freue mich, dass Sie heute kommen. Ich bin [Ihr Name] und habe Ihnen im Voraus alles zu erwarten.\"*  \n\nWenn Sie eine weitere Grußformel schreiben möchten, können Sie sie auf den folgenden Seiten finden:  \n\n**Textformel:**  \n**\"Bitte geben Sie Ihre Kontaktdaten ein (Ihr Name, Postleitzahl).",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 101,
+      "tokens_per_s": 27.1,
+      "decode_tokens": 101,
+      "decode_seconds": 3.1967,
+      "prefill_seconds": 0.5247,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Es gibt eine Stadt, die ich gerne besuchen könnte: **Wien**! Hier kann ich ein paar Sehenswürdigkeiten besichtigen wie den **Stadion Buddenbrock** (ein großer Sportspark mit vielen Sportplätzen), den **Hof der Kirche St. Maria und Mutter Gottes** (für viele Touristen bekannt), oder den **Hof des Botanischen Gartens**.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 75,
+      "tokens_per_s": 28.4,
+      "decode_tokens": 75,
+      "decode_seconds": 2.3584,
+      "prefill_seconds": 0.2798,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Kleine Katze, die gerne mit anderen Katzen spielen möchte, kannst du in der Wohnung finden. Sie sollte sich täglich um 6 Uhr oder 7 Uhr zum Spaziergang machen und dich dazu einladen, ein Buch zu lesen, das dir etwas ganz besonderes erzählt. Außerdem kann sie an einem Spiel teilnehmen, wenn es einen kleinen Kampf gibt.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 66,
+      "tokens_per_s": 28.1,
+      "decode_tokens": 66,
+      "decode_seconds": 2.0807,
+      "prefill_seconds": 0.2681,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Servieren Sie in der Nacht ein einfaches, aber reichhaltiges Menü mit kulinarischen Zutaten wie z. B. Gemüse, Vollkornprodukte oder Nüsse.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 35,
+      "tokens_per_s": 24.7,
+      "decode_tokens": 35,
+      "decode_seconds": 1.1571,
+      "prefill_seconds": 0.2594,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, was ich am Wochenende vielleicht machen könnte.",
+      "text": "Dein Wochenende könnte eine Mischung aus Entspannung, Outdoor-Aktivitäten und Outdoor-Events sein. Vielleicht möchtest du:  \n\n1. **Klettere oder kayakfahren**: Der Alpenraum ist bekannt für seine ruhigen Gipfel und atemberaubenden Blicke.  \n2. **Kletterkursen**: Du kannst ein Programm mit einfachen Routen machen, das durch die Berge führt – von den „Nördlichen Bergen“ bis zum „Südlichen Alpen“.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 94,
+      "tokens_per_s": 29.5,
+      "decode_tokens": 94,
+      "decode_seconds": 2.932,
+      "prefill_seconds": 0.2566,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Was ist der Standard für eine gute Bewerbung? Ein Satz.",
+      "text": "Der Standard für eine gute Bewerbung ist eine klare, prägnante und überzeugende Sprache. Er lautet:  \n**„Betrachte den Hintergrund des Projekts, das vorangegangene Projekt und die Zielgruppe.“**  \n\n**Beispiel:**  \n**„Ein Unternehmen mit einem Produkt entwickelt ein neues Medikament zur Behandlung von Depressionen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 67,
+      "tokens_per_s": 28.3,
+      "decode_tokens": 67,
+      "decode_seconds": 2.0997,
+      "prefill_seconds": 0.265,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir noch eine Idee zu dem, woran ich gerade arbeite.",
+      "text": "Hier sind eine paar Ideen, die dir helfen könnten:\n1. **Verschiedene Aufgaben** (z. B. Projektplanung, Marketing, Dokumentation, Präsentation, etc.)\n2. **Ideen für ein bestimmtes Thema** (z. B. Geschäftsmodelle, Problemlösung, Nachhaltigkeit, Bildung)\n3.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 67,
+      "tokens_per_s": 32.0,
+      "decode_tokens": 155,
+      "decode_seconds": 4.8424,
+      "prefill_seconds": 0.2996,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     }
+    ],
+    "F": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "**Grußformel für eine E-Mail:**  \n„Guten Tag! Ich bin [Name] und freue mich, dass Sie mir bei der Gestaltung des [E-Mail-Adresse] behilflich sind.“  \n\n---\n\n**Hinzufügen oder Ergänzung:**  \nFalls du möchtest, kann ich auch eine persönliche Grußformel wie:  \n„Guten Tag!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 85,
+      "tokens_per_s": 24.4,
+      "decode_tokens": 85,
+      "decode_seconds": 2.7456,
+      "prefill_seconds": 0.7332,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Hier ist eine wunderbare Sache, die du in deiner Stadt machen kannst:  \n\n**Event:**  \nMorgen um 10 Uhr morgens wird ein traditioneller **Tee- und Kaffeeessen** stattfinden. Der Chef hat bereits frühzeitig eine Liste von Spezialitäten für das geplante **Kartoffel-Möbel-Zauber** aufgeschrieben.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 73,
+      "tokens_per_s": 27.9,
+      "decode_tokens": 73,
+      "decode_seconds": 2.3355,
+      "prefill_seconds": 0.2846,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Nochmal: Kartoffelsuppe!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 9,
+      "tokens_per_s": 15.1,
+      "decode_tokens": 9,
+      "decode_seconds": 0.3255,
+      "prefill_seconds": 0.2702,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "Naja, heute Morgen gibt es viele Möglichkeiten. Ich kann dir einfach eine Idee nennen:\n\n1. **Oatmeal** – Einfach und toll!  \n2. **Tofu** – Für den Tag!  \n3. **Küche mit Milch** – Für das Mittagessen!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 63,
+      "tokens_per_s": 27.9,
+      "decode_tokens": 63,
+      "decode_seconds": 1.9905,
+      "prefill_seconds": 0.2653,
+      "memory_tokens": 0,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, was ich am Wochenende vielleicht machen könnte.",
+      "text": "Der Wochenende könnte in Potsdam stattfinden, z. B. im **Parkspace** (z. B. **Plaza der Deutschen Einheit**), **Potsdamplatz** oder **Garten mit Skulpturen**. \n\n### Beispiel:  \n- **Parkspace**: In Potsdam gibt es einen Parkplatz mit einer Statue des Berliner Künstlers Friedrich Schiller, die auf dem „Königssee“ steht.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 85,
+      "tokens_per_s": 28.7,
+      "decode_tokens": 85,
+      "decode_seconds": 2.6905,
+      "prefill_seconds": 0.2731,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Was ist der Standard für eine gute Bewerbung? Ein Satz.",
+      "text": "Der Standard für eine gute Bewerbung ist **ein klar definierter Satz**, der nicht nur die spezifischen Informationen (z. B. Name, Geburtsjahr) enthält, sondern auch den Inhalt, den Sie präsentieren möchten. Hier sind einige Beispiele:\n\n**1. Definition des Senders:**  \n- **Was** macht den Nutzer besonders?",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 69,
+      "tokens_per_s": 28.1,
+      "decode_tokens": 69,
+      "decode_seconds": 2.1978,
+      "prefill_seconds": 0.2593,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir noch eine Idee zu dem, woran ich gerade arbeite.",
+      "text": "**Idee für den Alltag:**  \nIch arbeite an einer neuen Website, die auf einem KI-gestützten Projektmanagement-System basiert. Die Plattform besteht aus folgenden Elementen:  \n\n1. **Benutzeroberfläche (Widerlegung):**  \n   - Eine einfache Benutzeroberfläche mit einem Button oder eine Gantt-Diagonale zur Anzeige der Daten.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 73,
+      "tokens_per_s": 27.9,
+      "decode_tokens": 73,
+      "decode_seconds": 2.325,
+      "prefill_seconds": 0.2878,
+      "memory_tokens": 0,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     }
+    ],
+    "FK": [
+     {
+      "probe": 0,
+      "kind": "fact",
+      "user": "Schreib mir eine kurze Grußformel für eine E-Mail von mir.",
+      "text": "**Grußformel für eine E-Mail:**  \n„Guten Tag! Ich bin [Name] und freue mich, dass Sie mir bei der Organisation von Veranstaltungen helfen können. Fragen Sie bitte kurz nach dem Veranstaltungstermin oder nach meiner Arbeit an der Sache.“  \n\n---\n\n**Verwendung:**  \n1.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 69,
+      "tokens_per_s": 23.0,
+      "decode_tokens": 69,
+      "decode_seconds": 2.259,
+      "prefill_seconds": 0.7456,
+      "memory_tokens": 54,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 1,
+      "kind": "fact",
+      "user": "Schlag mir eine schöne Sache vor, die ich am Wochenende in meiner Stadt machen kann.",
+      "text": "Hier ist eine wunderbare Sache, die du in deiner Stadt machen kannst:  \n\n**Event:**  \nEine Gruppe von Freunden aus Potsdam will dir am Montagabend einen Vortrag über die Nachhaltigkeit der Innenstadt geben. Der Vortrag sollte auf die Bedeutung der städtischen Umwelt und des urbanen Design achten, um eine nachhaltige Stadt zu schaffen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 67,
+      "tokens_per_s": 26.7,
+      "decode_tokens": 67,
+      "decode_seconds": 2.1848,
+      "prefill_seconds": 0.3205,
+      "memory_tokens": 47,
+      "error": false,
+      "fact_used": true,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 2,
+      "kind": "fact",
+      "user": "Ich habe einen freien Nachmittag. Was könnte ich mit meiner Katze machen?",
+      "text": "Mit deiner Katze kannst du einen freien Nachmittag genießen! Du kannst einfach den Raum mit einer Ecke ausräumen oder in den Garten einbauen, um die Stimmung zu verbessern. Hier sind einige Ideen:  \n1. **Kleine Gruppen für gemeinsame Aktivitäten**: Wenn deine Katze gerne allein ist, kann sie gemeinsam einen Spaziergang machen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 64,
+      "tokens_per_s": 27.2,
+      "decode_tokens": 64,
+      "decode_seconds": 2.0818,
+      "prefill_seconds": 0.2674,
+      "memory_tokens": 54,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 3,
+      "kind": "fact",
+      "user": "Was soll ich heute Abend kochen? Eine Idee, bitte.",
+      "text": "- Eine Idee, die du dir heute Abend vorgestellt hast.  \n- Ein Rezept, das deinen Tag gestaltet.  \n\nWenn du noch Fragen hast, zögere nicht, sie zu stellen!",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 40,
+      "tokens_per_s": 25.0,
+      "decode_tokens": 40,
+      "decode_seconds": 1.3387,
+      "prefill_seconds": 0.2609,
+      "memory_tokens": 35,
+      "error": false,
+      "fact_used": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 4,
+      "kind": "error",
+      "user": "Schreib einen Satz darüber, was ich am Wochenende vielleicht machen könnte.",
+      "text": "Der Wochenende könnte in Potsdam stattfinden, um die Katze des Nutzers zu genießen und den Garten zu genießen.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 21,
+      "tokens_per_s": 21.0,
+      "decode_tokens": 21,
+      "decode_seconds": 0.7375,
+      "prefill_seconds": 0.2643,
+      "memory_tokens": 20,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": null
+     },
+     {
+      "probe": 5,
+      "kind": "error",
+      "user": "Was ist der Standard für eine gute Bewerbung? Ein Satz.",
+      "text": "Der Standard für eine gute Bewerbung ist **ein klar definierter und prägnanter Text**. Er soll folgende Punkte hervorheben:  \n\n1. **Einfachheit**: Füge konkrete Informationen hinzu, die den Leser direkt ansprechen.  \n2. **Klarer Aufbau**: Kürze Sätze oder Absätze.",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 62,
+      "tokens_per_s": 27.2,
+      "decode_tokens": 62,
+      "decode_seconds": 2.0116,
+      "prefill_seconds": 0.2706,
+      "memory_tokens": 37,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     },
+     {
+      "probe": 6,
+      "kind": "hobby",
+      "user": "Gib mir noch eine Idee zu dem, woran ich gerade arbeite.",
+      "text": "**Idee für den Projektleiter:**  \n1. **Ich arbeite an einem Projekt, das Serie von Projekten zusammenfasst.**  \n2. **Der Projektleiter geht in die Küche und fragt mich, ob ich das Lieblingsessen des Nutzers habe (z. B. Kartoffelsuppe).",
+      "model": "sela-2",
+      "reply_kind": "sela_chat",
+      "tokens": 62,
+      "tokens_per_s": 26.6,
+      "decode_tokens": 62,
+      "decode_seconds": 2.0296,
+      "prefill_seconds": 0.2971,
+      "memory_tokens": 55,
+      "error": false,
+      "error_copied": false,
+      "note_echo": false,
+      "role_confusion": false
+     }
+    ]
+   }
+  }
+ ]
+}

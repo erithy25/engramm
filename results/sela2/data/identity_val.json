@@ -1,0 +1,10 @@
+{
+ "name": "identity_val",
+ "tokens": 9488,
+ "docs": 104,
+ "sha256": "da6099d09a9f5202b710033c100279fc3639962956bbe38ac3cd68cb8e21ac24",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "kind": "chat",
+ "mask_tokens": 4052,
+ "mask_sha256": "080b0ad21d81159dbf788a64fc0092a4d1d4d63cadca22b498e28f6667ebfe2e"
+}

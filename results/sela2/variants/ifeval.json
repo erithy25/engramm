@@ -1,0 +1,51 @@
+{
+ "what": "M6 of docs/PREREG_SELA2.md (experiments/sela2_ifeval.py)",
+ "source_sha256": "5c1cc7f32d6c6fe249a89b4271b4f6110b6eb87db3af06c0bc6aa7e526c6866b",
+ "models": {
+  "mix30": {
+   "complete": true,
+   "weights": "sela2-mix30.npz",
+   "responses": 541,
+   "stop_reasons": {
+    "stop": 428,
+    "limit": 48,
+    "loop": 65,
+    "context": 0
+   },
+   "prompt_level_strict_acc": 12.384473197781885,
+   "prompt_level_loose_acc": 15.526802218114602,
+   "inst_level_strict_acc": 23.26139088729017,
+   "inst_level_loose_acc": 27.45803357314149
+  },
+  "mix50": {
+   "complete": true,
+   "weights": "sela2-mix50.npz",
+   "responses": 541,
+   "stop_reasons": {
+    "stop": 439,
+    "limit": 40,
+    "loop": 62,
+    "context": 0
+   },
+   "prompt_level_strict_acc": 11.829944547134936,
+   "prompt_level_loose_acc": 15.711645101663587,
+   "inst_level_strict_acc": 22.901678657074342,
+   "inst_level_loose_acc": 27.33812949640288
+  },
+  "mix70": {
+   "complete": true,
+   "weights": "sela2-mix70.npz",
+   "responses": 541,
+   "stop_reasons": {
+    "stop": 448,
+    "limit": 32,
+    "loop": 61,
+    "context": 0
+   },
+   "prompt_level_strict_acc": 13.493530499075785,
+   "prompt_level_loose_acc": 16.45101663585952,
+   "inst_level_strict_acc": 23.980815347721823,
+   "inst_level_loose_acc": 28.896882494004796
+  }
+ }
+}

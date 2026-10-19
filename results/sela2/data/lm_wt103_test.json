@@ -1,0 +1,8 @@
+{
+ "name": "lm_wt103_test",
+ "tokens": 272929,
+ "docs": 62,
+ "sha256": "57e1aebb1ed86ee7c1ef3af8273e29d8a663a9184a43f154e6ddcad628a192c8",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "split": "wt103_test"
+}

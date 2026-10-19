@@ -1,0 +1,10 @@
+{
+ "name": "val_fwehq",
+ "tokens": 791361,
+ "docs": 817,
+ "sha256": "14d03082f6a128aca7331f7539870dd9623fdb26b8177cb35b4042f9570a14cd",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "source": "fwe",
+ "part": 13,
+ "url": "https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu/resolve/main/sample/10BT/013_00000.parquet"
+}

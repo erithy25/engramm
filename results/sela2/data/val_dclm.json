@@ -1,0 +1,10 @@
+{
+ "name": "val_dclm",
+ "tokens": 2552644,
+ "docs": 2000,
+ "sha256": "70ea3efe5b2e8c9c9fdd336bffe02d3dcb0f329d1dbe6f49a03611626e024d8c",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "source": "dclm",
+ "part": 99,
+ "url": "https://huggingface.co/datasets/HuggingFaceFW/dclm_100BT/resolve/main/data/000_00099.parquet"
+}

@@ -1,0 +1,419 @@
+{
+ "what": "Choice of the chat file for the app (docs/PREREG_SELA2.md §5/§6, experiments/sela2_variants.py)",
+ "rule": "most of the seven chat checks met; tie: higher M7 HasAns-F1, then higher pooled M3; only completely measured candidates",
+ "previous": "results/sela2/variants",
+ "candidates": [
+  {
+   "candidate": "chat",
+   "missing": [],
+   "pooled": 0.4157029731943318,
+   "pooled_vs_base": {
+    "diff": -0.03963535644246757,
+    "ci95": [
+     -0.04904520084439783,
+     -0.03037477746501674
+    ]
+   },
+   "pooled_vs_chat": null,
+   "m5": {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "prompts": 300,
+    "loop_prompts": 0,
+    "loop_rate": 0.0,
+    "limit_prompts": 30,
+    "limit_rate": 0.1,
+    "role_leak_prompts": 0,
+    "role_leak_rate": 0.0,
+    "median_tokens": 36.0,
+    "seed0": {
+     "loop_rate": 0.0,
+     "limit_rate": 0.09,
+     "role_leak_rate": 0.0,
+     "median_tokens": 36.0
+    }
+   },
+   "ifeval_loose": 18.299445471349355,
+   "m6_minus_base": 4.80591497227357,
+   "m7_f1": 34.70782666311433,
+   "m7_noans": 0.476,
+   "m7_shown": {
+    "answerable": 0.704,
+    "unanswerable": 0.486
+   },
+   "checks": {
+    "m5_loop": true,
+    "m5_limit": false,
+    "m5_role_leak": true,
+    "m5_median": true,
+    "m6": false,
+    "m7_f1": false,
+    "m7_noans": false
+   },
+   "checks_met": 3,
+   "complete": true,
+   "from_previous_run": true
+  },
+  {
+   "candidate": "base",
+   "missing": [],
+   "pooled": 0.4553383296367994,
+   "pooled_vs_base": null,
+   "pooled_vs_chat": {
+    "diff": 0.03963535644246757,
+    "ci95": [
+     0.03037477746501674,
+     0.0490452008443978
+    ]
+   },
+   "m5": {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "prompts": 300,
+    "loop_prompts": 0,
+    "loop_rate": 0.0,
+    "limit_prompts": 43,
+    "limit_rate": 0.14333333333333334,
+    "role_leak_prompts": 0,
+    "role_leak_rate": 0.0,
+    "median_tokens": 35.0,
+    "seed0": {
+     "loop_rate": 0.0,
+     "limit_rate": 0.16,
+     "role_leak_rate": 0.0,
+     "median_tokens": 34.0
+    }
+   },
+   "ifeval_loose": 13.493530499075785,
+   "m6_minus_base": 0.0,
+   "m7_f1": 52.910042896927656,
+   "m7_noans": 0.322,
+   "m7_shown": {
+    "answerable": 0.904,
+    "unanswerable": 0.66
+   },
+   "checks": {
+    "m5_loop": true,
+    "m5_limit": false,
+    "m5_role_leak": true,
+    "m5_median": true,
+    "m6": false,
+    "m7_f1": true,
+    "m7_noans": false
+   },
+   "checks_met": 4,
+   "complete": true,
+   "from_previous_run": true
+  },
+  {
+   "candidate": "mix30",
+   "missing": [],
+   "pooled": 0.4572469116143894,
+   "pooled_vs_base": {
+    "diff": 0.0019085819775900292,
+    "ci95": [
+     -0.0038413677811907614,
+     0.0075239762133931035
+    ]
+   },
+   "pooled_vs_chat": {
+    "diff": 0.0415439384200576,
+    "ci95": [
+     0.03325201935989467,
+     0.049660983439949645
+    ]
+   },
+   "m5": {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "prompts": 300,
+    "loop_prompts": 1,
+    "loop_rate": 0.0033333333333333335,
+    "limit_prompts": 86,
+    "limit_rate": 0.2866666666666667,
+    "role_leak_prompts": 0,
+    "role_leak_rate": 0.0,
+    "median_tokens": 59.0,
+    "seed0": {
+     "loop_rate": 0.01,
+     "limit_rate": 0.3,
+     "role_leak_rate": 0.0,
+     "median_tokens": 74.0
+    }
+   },
+   "ifeval_loose": 15.526802218114602,
+   "m6_minus_base": 2.033271719038817,
+   "m7_f1": 63.937173834772224,
+   "m7_noans": 0.314,
+   "m7_shown": {
+    "answerable": 0.914,
+    "unanswerable": 0.666
+   },
+   "checks": {
+    "m5_loop": true,
+    "m5_limit": false,
+    "m5_role_leak": true,
+    "m5_median": true,
+    "m6": false,
+    "m7_f1": true,
+    "m7_noans": false
+   },
+   "checks_met": 4,
+   "complete": true,
+   "from_previous_run": true
+  },
+  {
+   "candidate": "mix50",
+   "missing": [],
+   "pooled": 0.4459300465627183,
+   "pooled_vs_base": {
+    "diff": -0.009408283074081092,
+    "ci95": [
+     -0.01637251571006334,
+     -0.0021906276924968625
+    ]
+   },
+   "pooled_vs_chat": {
+    "diff": 0.03022707336838648,
+    "ci95": [
+     0.022794280163372815,
+     0.03739185156532835
+    ]
+   },
+   "m5": {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "prompts": 300,
+    "loop_prompts": 1,
+    "loop_rate": 0.0033333333333333335,
+    "limit_prompts": 75,
+    "limit_rate": 0.25,
+    "role_leak_prompts": 0,
+    "role_leak_rate": 0.0,
+    "median_tokens": 50.0,
+    "seed0": {
+     "loop_rate": 0.0,
+     "limit_rate": 0.24,
+     "role_leak_rate": 0.0,
+     "median_tokens": 50.0
+    }
+   },
+   "ifeval_loose": 15.711645101663587,
+   "m6_minus_base": 2.218114602587802,
+   "m7_f1": 60.308303045299866,
+   "m7_noans": 0.316,
+   "m7_shown": {
+    "answerable": 0.908,
+    "unanswerable": 0.66
+   },
+   "checks": {
+    "m5_loop": true,
+    "m5_limit": false,
+    "m5_role_leak": true,
+    "m5_median": true,
+    "m6": false,
+    "m7_f1": true,
+    "m7_noans": false
+   },
+   "checks_met": 4,
+   "complete": true,
+   "from_previous_run": true
+  },
+  {
+   "candidate": "mix70",
+   "missing": [],
+   "pooled": 0.43392833621679117,
+   "pooled_vs_base": {
+    "diff": -0.02140999342000821,
+    "ci95": [
+     -0.029672715180734863,
+     -0.013421833659516368
+    ]
+   },
+   "pooled_vs_chat": {
+    "diff": 0.018225363022459362,
+    "ci95": [
+     0.012020720243564747,
+     0.024144103846381212
+    ]
+   },
+   "m5": {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "prompts": 300,
+    "loop_prompts": 0,
+    "loop_rate": 0.0,
+    "limit_prompts": 57,
+    "limit_rate": 0.19,
+    "role_leak_prompts": 0,
+    "role_leak_rate": 0.0,
+    "median_tokens": 46.0,
+    "seed0": {
+     "loop_rate": 0.0,
+     "limit_rate": 0.17,
+     "role_leak_rate": 0.0,
+     "median_tokens": 50.0
+    }
+   },
+   "ifeval_loose": 16.45101663585952,
+   "m6_minus_base": 2.9574861367837357,
+   "m7_f1": 52.95708593608397,
+   "m7_noans": 0.342,
+   "m7_shown": {
+    "answerable": 0.858,
+    "unanswerable": 0.632
+   },
+   "checks": {
+    "m5_loop": true,
+    "m5_limit": false,
+    "m5_role_leak": true,
+    "m5_median": true,
+    "m6": false,
+    "m7_f1": true,
+    "m7_noans": false
+   },
+   "checks_met": 4,
+   "complete": true,
+   "from_previous_run": true
+  },
+  {
+   "candidate": "s21lr03",
+   "missing": [],
+   "pooled": 0.4550494960460034,
+   "pooled_vs_base": {
+    "diff": -0.00028883359079595605,
+    "ci95": [
+     -0.004856236590630945,
+     0.004214450891709268
+    ]
+   },
+   "pooled_vs_chat": {
+    "diff": 0.03934652285167162,
+    "ci95": [
+     0.029887360752135824,
+     0.04870477906649878
+    ]
+   },
+   "m5": {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "prompts": 300,
+    "loop_prompts": 0,
+    "loop_rate": 0.0,
+    "limit_prompts": 38,
+    "limit_rate": 0.12666666666666668,
+    "role_leak_prompts": 0,
+    "role_leak_rate": 0.0,
+    "median_tokens": 40.0,
+    "seed0": {
+     "loop_rate": 0.0,
+     "limit_rate": 0.15,
+     "role_leak_rate": 0.0,
+     "median_tokens": 43.0
+    }
+   },
+   "ifeval_loose": 13.123844731977819,
+   "m6_minus_base": -0.3696857670979661,
+   "m7_f1": 53.67898918700056,
+   "m7_noans": 0.318,
+   "m7_shown": {
+    "answerable": 0.916,
+    "unanswerable": 0.654
+   },
+   "checks": {
+    "m5_loop": true,
+    "m5_limit": false,
+    "m5_role_leak": true,
+    "m5_median": true,
+    "m6": false,
+    "m7_f1": true,
+    "m7_noans": false
+   },
+   "checks_met": 4,
+   "complete": true
+  },
+  {
+   "candidate": "s21lr10",
+   "missing": [],
+   "pooled": 0.44958872138479333,
+   "pooled_vs_base": {
+    "diff": -0.005749608252006044,
+    "ci95": [
+     -0.011515880430095687,
+     -0.00023872073270584846
+    ]
+   },
+   "pooled_vs_chat": {
+    "diff": 0.03388574819046153,
+    "ci95": [
+     0.0246970539549013,
+     0.04268743316491275
+    ]
+   },
+   "m5": {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "prompts": 300,
+    "loop_prompts": 0,
+    "loop_rate": 0.0,
+    "limit_prompts": 27,
+    "limit_rate": 0.09,
+    "role_leak_prompts": 0,
+    "role_leak_rate": 0.0,
+    "median_tokens": 36.0,
+    "seed0": {
+     "loop_rate": 0.0,
+     "limit_rate": 0.11,
+     "role_leak_rate": 0.0,
+     "median_tokens": 37.0
+    }
+   },
+   "ifeval_loose": 16.266173752310536,
+   "m6_minus_base": 2.772643253234751,
+   "m7_f1": 57.85193513876095,
+   "m7_noans": 0.312,
+   "m7_shown": {
+    "answerable": 0.92,
+    "unanswerable": 0.662
+   },
+   "checks": {
+    "m5_loop": true,
+    "m5_limit": false,
+    "m5_role_leak": true,
+    "m5_median": true,
+    "m6": false,
+    "m7_f1": true,
+    "m7_noans": false
+   },
+   "checks_met": 4,
+   "complete": true
+  }
+ ],
+ "winner": "mix30",
+ "chat_seed0_reproduces_registered": {
+  "checked": true,
+  "equal": true,
+  "differences": []
+ }
+}

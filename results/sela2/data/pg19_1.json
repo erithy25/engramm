@@ -1,0 +1,18 @@
+{
+ "name": "pg19_1",
+ "tokens": 118591299,
+ "docs": 1211,
+ "sha256": "bed01acbbfec19fae710694c4a7390f696d8ebdacd4388428ab4aef3f3d66894",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "source": "pg19",
+ "part": 1,
+ "url": "https://huggingface.co/datasets/emozilla/pg19/resolve/main/data/train-00001-of-00023-2b13c68dbeba63b5.parquet",
+ "lang": "en",
+ "dropped_contaminated": 32,
+ "dropped": {
+  "short": 1
+ },
+ "chars": 460767831,
+ "piece": 0,
+ "pieces": 1
+}

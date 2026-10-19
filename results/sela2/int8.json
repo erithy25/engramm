@@ -1,0 +1,27 @@
+{
+ "what": "M10 of docs/PREREG_SELA2.md (experiments/sela2_int8_check.py)",
+ "ckpt": "sela2_chat_bf16.pt",
+ "docs_per_stream": 20,
+ "max_tokens": 1024,
+ "bpb": {
+  "fp32": {
+   "val_fwe": 1.0381839694009092,
+   "val_wiki_en": 1.0870948476323772,
+   "val_fw2_de": 1.2446792437144787,
+   "mean": 1.1233193535825883
+  },
+  "int8": {
+   "val_fwe": 1.039038421044463,
+   "val_wiki_en": 1.0879810774226624,
+   "val_fw2_de": 1.2459703553726618,
+   "mean": 1.124329951279929
+  }
+ },
+ "seconds_fp32": 240.2,
+ "seconds_int8": 243.8,
+ "criterion": {
+  "int8_minus_fp32": 0.0010105976973406872,
+  "limit": 0.005,
+  "met": true
+ }
+}

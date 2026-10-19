@@ -1,0 +1,16 @@
+{
+ "name": "fw2_de_2",
+ "tokens": 100805893,
+ "docs": 126612,
+ "sha256": "963fd466c15a7f14b6b278d2dfd52fb68bae65e7878240754f6d7459ca33272f",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "source": "fw2_de",
+ "part": 2,
+ "url": "https://huggingface.co/datasets/epfml/FineWeb2-HQ/resolve/main/deu_Latn/000_00002.parquet",
+ "lang": "de",
+ "dropped_contaminated": 8,
+ "dropped": {},
+ "chars": 431646080,
+ "piece": 0,
+ "pieces": 1
+}

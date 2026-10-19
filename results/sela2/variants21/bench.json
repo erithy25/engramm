@@ -1,0 +1,557 @@
+{
+ "what": "Zero-shot benchmarks of Sela-2 and its reference models in one harness (experiments/sela2_bench.py, scoring of experiments/sela1_bench.py).",
+ "metric": {
+  "lambada": "acc",
+  "winogrande": "acc",
+  "hellaswag": "acc_norm",
+  "piqa": "acc_norm",
+  "arc_easy": "acc_norm",
+  "arc_challenge": "acc_norm",
+  "openbookqa": "acc_norm",
+  "mmlu": "acc_norm"
+ },
+ "pooled_tasks": [
+  "hellaswag",
+  "piqa",
+  "arc_easy",
+  "arc_challenge",
+  "winogrande",
+  "openbookqa"
+ ],
+ "tasks": {
+  "arc_challenge": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/allenai/ai2_arc/parquet/ARC-Challenge/test/0.parquet",
+      "sha256": "62f03257e737aed263f55c6abf87c7bb0028a44a6bdd2a26eb1279eb42c1d1e9",
+      "bytes": 203808
+     }
+    ]
+   },
+   "results": {
+    "sela2-base": {
+     "metric": "acc_norm",
+     "score": 0.2687713310580205,
+     "se": 0.012949537878985628,
+     "acc": 0.23720136518771331,
+     "items": 1172,
+     "seconds": 781.360342502594,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.2687713310580205
+    },
+    "sela2-chat": {
+     "metric": "acc_norm",
+     "score": 0.2440273037542662,
+     "se": 0.012546091771999814,
+     "acc": 0.21245733788395904,
+     "items": 1172,
+     "seconds": 587.9243896007538,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.2440273037542662
+    },
+    "sela2-s21lr03": {
+     "metric": "acc_norm",
+     "score": 0.26621160409556316,
+     "se": 0.012910263462824761,
+     "acc": 0.2363481228668942,
+     "items": 1172,
+     "seconds": 745.894378900528,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.26621160409556316
+    },
+    "sela2-s21lr10": {
+     "metric": "acc_norm",
+     "score": 0.26109215017064846,
+     "se": 0.012830046834801686,
+     "acc": 0.23720136518771331,
+     "items": 1172,
+     "seconds": 620.8551263809204,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.26109215017064846
+    }
+   }
+  },
+  "arc_easy": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/allenai/ai2_arc/parquet/ARC-Easy/test/0.parquet",
+      "sha256": "4160597d618ae851c7eb04e281574f3f654776216ac6b6641588d64527b47177",
+      "bytes": 346257
+     }
+    ]
+   },
+   "results": {
+    "sela2-base": {
+     "metric": "acc_norm",
+     "score": 0.5197811447811448,
+     "se": 0.010249593617450082,
+     "acc": 0.5812289562289562,
+     "items": 2376,
+     "seconds": 599.4379017353058,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.5197811447811448
+    },
+    "sela2-chat": {
+     "metric": "acc_norm",
+     "score": 0.44696969696969696,
+     "se": 0.010199767834233792,
+     "acc": 0.48653198653198654,
+     "items": 2376,
+     "seconds": 1196.668692111969,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.44696969696969696
+    },
+    "sela2-s21lr03": {
+     "metric": "acc_norm",
+     "score": 0.5202020202020202,
+     "se": 0.010249248111942999,
+     "acc": 0.5740740740740741,
+     "items": 2376,
+     "seconds": 1004.4303426742554,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.5202020202020202
+    },
+    "sela2-s21lr10": {
+     "metric": "acc_norm",
+     "score": 0.5193602693602694,
+     "se": 0.010249931837875887,
+     "acc": 0.5736531986531986,
+     "items": 2376,
+     "seconds": 1284.3054780960083,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.5193602693602694
+    }
+   }
+  },
+  "hellaswag": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/Rowan/hellaswag/parquet/default/validation/0.parquet",
+      "sha256": "899813071e1e95efafec90f856e1987d2150fa4d020fc005df6962c259f660cd",
+      "bytes": 6315951
+     }
+    ]
+   },
+   "results": {
+    "sela2-base": {
+     "metric": "acc_norm",
+     "score": 0.41206930890260907,
+     "se": 0.00491177078951176,
+     "acc": 0.3420633339972117,
+     "items": 10042,
+     "seconds": 10816.295364141464,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.41206930890260907
+    },
+    "sela2-chat": {
+     "metric": "acc_norm",
+     "score": 0.3571997610037841,
+     "se": 0.004781712779998261,
+     "acc": 0.31617207727544316,
+     "items": 10042,
+     "seconds": 12224.478131532669,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.3571997610037841
+    },
+    "sela2-s21lr03": {
+     "metric": "acc_norm",
+     "score": 0.4129655447122087,
+     "se": 0.004913360123877217,
+     "acc": 0.344353714399522,
+     "items": 10042,
+     "seconds": 12433.613426685333,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.4129655447122087
+    },
+    "sela2-s21lr10": {
+     "metric": "acc_norm",
+     "score": 0.40987851025692096,
+     "se": 0.004907814970833708,
+     "acc": 0.3408683529177455,
+     "items": 10042,
+     "seconds": 12262.457330703735,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.40987851025692096
+    }
+   }
+  },
+  "lambada": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/EleutherAI/lambada_openai/parquet/default/test/0.parquet",
+      "sha256": "99d8a9e54cda761c6340ddd4fa6feda7f846ffb0e716afa52968dea75495eea7",
+      "bytes": 1157764
+     }
+    ]
+   },
+   "results": {
+    "sela2-base": {
+     "metric": "acc",
+     "score": 0.42693576557345236,
+     "se": 0.0068905335272005305,
+     "acc": 0.42693576557345236,
+     "items": 5153,
+     "seconds": 1678.7168443202972,
+     "torch": "2.8.0+cpu",
+     "ppl": 17.33709542004097
+    },
+    "sela2-chat": {
+     "metric": "acc",
+     "score": 0.3467882786726179,
+     "se": 0.0066302380030202005,
+     "acc": 0.3467882786726179,
+     "items": 5153,
+     "seconds": 1567.9632003307343,
+     "torch": "2.8.0+cpu",
+     "ppl": 46.08691591709692
+    }
+   }
+  },
+  "mmlu": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/cais/mmlu/parquet/all/test/0.parquet",
+      "sha256": "74a41822ce7d3def56e1682f958469c04642a5336a5ce912fa375fdb90fb25d7",
+      "bytes": 3504718
+     }
+    ]
+   },
+   "results": {
+    "sela2-base": {
+     "metric": "acc_norm",
+     "score": 0.28806437829369036,
+     "se": 0.003821647761709859,
+     "acc": 0.27823671841618003,
+     "items": 14042,
+     "seconds": 15940.028865098953,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.28806437829369036
+    },
+    "sela2-chat": {
+     "metric": "acc_norm",
+     "score": 0.28158381996866544,
+     "se": 0.0037955735910150993,
+     "acc": 0.26043298675402365,
+     "items": 14042,
+     "seconds": 14909.228071689606,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.28158381996866544
+    }
+   }
+  },
+  "openbookqa": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/allenai/openbookqa/parquet/main/test/0.parquet",
+      "sha256": "cd5483e366daa230c1c87bbdc512d8b7229f14f6dd04d19fc8b1a3855aaaa8a3",
+      "bytes": 55535
+     }
+    ]
+   },
+   "results": {
+    "sela2-base": {
+     "metric": "acc_norm",
+     "score": 0.324,
+     "se": 0.020929596269398033,
+     "acc": 0.224,
+     "items": 500,
+     "seconds": 131.76888132095337,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.324
+    },
+    "sela2-chat": {
+     "metric": "acc_norm",
+     "score": 0.3,
+     "se": 0.020493901531919195,
+     "acc": 0.178,
+     "items": 500,
+     "seconds": 169.9845986366272,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.3
+    },
+    "sela2-s21lr03": {
+     "metric": "acc_norm",
+     "score": 0.32,
+     "se": 0.020861447696648473,
+     "acc": 0.224,
+     "items": 500,
+     "seconds": 168.4529025554657,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.32
+    },
+    "sela2-s21lr10": {
+     "metric": "acc_norm",
+     "score": 0.318,
+     "se": 0.020826713614970557,
+     "acc": 0.22,
+     "items": 500,
+     "seconds": 157.7640986442566,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.318
+    }
+   }
+  },
+  "piqa": {
+   "source": {
+    "files": [
+     {
+      "url": "https://yonatanbisk.com/piqa/data/valid.jsonl",
+      "sha256": "93503cc97c679e459b065c3d13e848282e44b2a25213985bed3e5d458abef72d",
+      "bytes": 495929
+     },
+     {
+      "url": "https://yonatanbisk.com/piqa/data/valid-labels.lst",
+      "sha256": "b4192dc3a2a0363d9d60ccf79800cbbe2f32ebb17726efdde6970e0b8131bceb",
+      "bytes": 3676
+     }
+    ]
+   },
+   "results": {
+    "sela2-base": {
+     "metric": "acc_norm",
+     "score": 0.6588683351468988,
+     "se": 0.011058279978679421,
+     "acc": 0.6664853101196954,
+     "items": 1838,
+     "seconds": 652.9311499595642,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.6588683351468988
+    },
+    "sela2-chat": {
+     "metric": "acc_norm",
+     "score": 0.6322089227421109,
+     "se": 0.011247555670796487,
+     "acc": 0.6300326441784548,
+     "items": 1838,
+     "seconds": 512.7365474700928,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.6322089227421109
+    },
+    "sela2-s21lr03": {
+     "metric": "acc_norm",
+     "score": 0.661588683351469,
+     "se": 0.011036813889611283,
+     "acc": 0.6626768226332971,
+     "items": 1838,
+     "seconds": 646.2984704971313,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.661588683351469
+    },
+    "sela2-s21lr10": {
+     "metric": "acc_norm",
+     "score": 0.6572361262241567,
+     "se": 0.01107096508955553,
+     "acc": 0.6626768226332971,
+     "items": 1838,
+     "seconds": 644.4137737751007,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.6572361262241567
+    }
+   }
+  },
+  "winogrande": {
+   "source": {
+    "files": [
+     {
+      "url": "https://huggingface.co/api/datasets/allenai/winogrande/parquet/winogrande_xl/validation/0.parquet",
+      "sha256": "f9d914d1818c0aba98cabdf8af2bc4bd943c462b9c5e7062647e05c2ce3315d1",
+      "bytes": 85928
+     }
+    ]
+   },
+   "results": {
+    "sela2-base": {
+     "metric": "acc",
+     "score": 0.5485398579321231,
+     "se": 0.013980589830977937,
+     "acc": 0.5485398579321231,
+     "items": 1267,
+     "seconds": 254.63411951065063,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.5485398579321231
+    },
+    "sela2-chat": {
+     "metric": "acc",
+     "score": 0.5138121546961326,
+     "se": 0.014041578364056744,
+     "acc": 0.5138121546961326,
+     "items": 1267,
+     "seconds": 239.1662220954895,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.5138121546961326
+    },
+    "sela2-s21lr03": {
+     "metric": "acc",
+     "score": 0.5493291239147593,
+     "se": 0.01397840926003541,
+     "acc": 0.5493291239147593,
+     "items": 1267,
+     "seconds": 257.533349275589,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.5493291239147593
+    },
+    "sela2-s21lr10": {
+     "metric": "acc",
+     "score": 0.531965272296764,
+     "se": 0.014018203898582044,
+     "acc": 0.531965272296764,
+     "items": 1267,
+     "seconds": 256.67744874954224,
+     "torch": "2.8.0+cpu",
+     "acc_norm": 0.531965272296764
+    }
+   }
+  }
+ },
+ "models": {
+  "sela2-base": {
+   "model": "sela2-base",
+   "ckpt_sha256": "618b3c5c02303ce72c92ee64d103fdbf6539a435a03a2fdeee6b21dd959a6105",
+   "ckpt_bytes": 1006686185,
+   "tokens_trained": 3061317632,
+   "cfg": {
+    "d": 1024,
+    "layers": 24,
+    "heads": 8,
+    "ctx": 2048,
+    "vocab": 49152,
+    "ve_tables": 2
+   },
+   "sft_steps": null,
+   "params": 503316938,
+   "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c"
+  },
+  "sela2-chat": {
+   "model": "sela2-chat",
+   "ckpt_sha256": "c9ec15ca7d53c1998d394842a9da0131ab925ab12b2ac09e2b1c49a918e5ad5e",
+   "ckpt_bytes": 1006685510,
+   "tokens_trained": 3061317632,
+   "cfg": {
+    "d": 1024,
+    "layers": 24,
+    "heads": 8,
+    "ctx": 2048,
+    "vocab": 49152,
+    "ve_tables": 2
+   },
+   "sft_steps": 657,
+   "params": 503316938,
+   "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c"
+  },
+  "sela2-s21lr03": {
+   "model": "sela2-s21lr03",
+   "ckpt_sha256": "67026d30e51d13a30de18811768879a9f63cfb9c8b285afe5677602161d6936d",
+   "ckpt_bytes": 1006685929,
+   "tokens_trained": 3061317632,
+   "cfg": {
+    "d": 1024,
+    "layers": 24,
+    "heads": 8,
+    "ctx": 2048,
+    "vocab": 49152,
+    "ve_tables": 2
+   },
+   "sft_steps": 630,
+   "params": 503316938,
+   "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+   "merge": null
+  },
+  "sela2-s21lr10": {
+   "model": "sela2-s21lr10",
+   "ckpt_sha256": "328d4d39ab060674b5fe121536390db6fa9c91b74e12494034d3897f9422996d",
+   "ckpt_bytes": 1006685929,
+   "tokens_trained": 3061317632,
+   "cfg": {
+    "d": 1024,
+    "layers": 24,
+    "heads": 8,
+    "ctx": 2048,
+    "vocab": 49152,
+    "ve_tables": 2
+   },
+   "sft_steps": 587,
+   "params": 503316938,
+   "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+   "merge": null
+  }
+ },
+ "incomplete": [],
+ "pooled": {
+  "sela2-base": 0.4553383296367994,
+  "sela2-chat": 0.4157029731943318,
+  "sela2-s21lr03": 0.4550494960460034,
+  "sela2-s21lr10": 0.44958872138479333
+ },
+ "stage_gpt3_small": {
+  "rule": "pooled(sela2-base) > pooled(gpt2) with the lower 95 % bound of the paired difference above 0, and pooled(sela2-base) >= pooled(pythia-160m)",
+  "reached": null,
+  "missing": "needs complete results of sela2-base, gpt2 and pythia-160m on all six pooled tasks"
+ },
+ "hellaswag_vs_gpt3_small": {
+  "gpt3_small": 0.337,
+  "sela2-base": 0.41206930890260907,
+  "sela2-chat": 0.3571997610037841,
+  "sela2-s21lr03": 0.4129655447122087,
+  "sela2-s21lr10": 0.40987851025692096
+ },
+ "chat_minus_base": {
+  "arc_challenge": -0.024744027303754274,
+  "arc_easy": -0.07281144781144783,
+  "hellaswag": -0.05486954789882498,
+  "lambada": -0.08014748690083445,
+  "mmlu": -0.006480558325024921,
+  "openbookqa": -0.02400000000000002,
+  "piqa": -0.026659412404787863,
+  "winogrande": -0.034727703235990504
+ },
+ "sela2_pairs": {
+  "sela2-base vs sela2-chat": {
+   "diff": 0.03963535644246757,
+   "ci95": [
+    0.03037477746501674,
+    0.0490452008443978
+   ]
+  },
+  "sela2-chat vs sela2-base": {
+   "diff": -0.03963535644246757,
+   "ci95": [
+    -0.04904520084439783,
+    -0.03037477746501674
+   ]
+  },
+  "sela2-s21lr03 vs sela2-base": {
+   "diff": -0.00028883359079595605,
+   "ci95": [
+    -0.004856236590630945,
+    0.004214450891709268
+   ]
+  },
+  "sela2-s21lr03 vs sela2-chat": {
+   "diff": 0.03934652285167162,
+   "ci95": [
+    0.029887360752135824,
+    0.04870477906649878
+   ]
+  },
+  "sela2-s21lr10 vs sela2-base": {
+   "diff": -0.005749608252006044,
+   "ci95": [
+    -0.011515880430095687,
+    -0.00023872073270584846
+   ]
+  },
+  "sela2-s21lr10 vs sela2-chat": {
+   "diff": 0.03388574819046153,
+   "ci95": [
+    0.0246970539549013,
+    0.04268743316491275
+   ]
+  }
+ }
+}

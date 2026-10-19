@@ -1,0 +1,10 @@
+{
+ "name": "chat_de_decay",
+ "tokens": 5025903,
+ "docs": 10973,
+ "sha256": "26143c560c05a3761f9760eab86370dffda35db9e79236c2ac92c58aa9c22322",
+ "tokenizer_sha256": "3f0ebf25397bb6f9a34a11439c114d9d6659d18bdb2865a7195452e5290d380c",
+ "kind": "chat",
+ "mask_tokens": 3660556,
+ "mask_sha256": "84ed24d2f68060e2f99aa47a782078c81346358a6a698017b69c69810cb4e6c4"
+}
