@@ -9,6 +9,7 @@
     }
   ],
   "license": "cc-by-4.0",
+  "language": "eng",
   "keywords": [
     "small language models",
     "personalisation",
@@ -17,6 +18,5 @@
     "preregistration",
     "evaluation",
     "WildChat"
-  ],
-  "language": "eng"
+  ]
 }
